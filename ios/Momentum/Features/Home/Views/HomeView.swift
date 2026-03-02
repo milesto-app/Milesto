@@ -110,7 +110,7 @@ struct HomeView: View {
                     .color(AppTheme.Colors.textSecondary)
             }
 
-            AppText(verbatim: currentGoal?.title ?? "", style: .largeTitle)
+            AppText(verbatim: currentGoal?.title ?? "", style: .title)
 
             VStack(alignment: .leading, spacing: AppTheme.Spacing.xs) {
                 GeometryReader { geometry in
@@ -143,7 +143,7 @@ struct HomeView: View {
         .glassEffect(.clear.interactive(), in: RoundedRectangle(cornerRadius: AppTheme.CornerRadius.xl))
         .padding(.horizontal, AppTheme.Spacing.md)
         .padding(.top, AppTheme.Spacing.xl)
-        .padding(.bottom, AppTheme.Spacing.xxs)
+        .padding(.bottom, AppTheme.Spacing.md)
     }
 
     private var goalProgress: Double {
