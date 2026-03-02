@@ -33,6 +33,16 @@ struct ChatView: View {
                                     ChatBubble(message: message)
                                         .id(message.id)
                                 }
+
+                                if isWaitingForResponse {
+                                    ThinkingIndicator()
+                                        .id("thinking")
+                                        .transition(.opacity)
+                                } else if let toolName = activeToolName {
+                                    ToolStatusIndicator(toolName: toolName)
+                                        .id("tool")
+                                        .transition(.opacity)
+                                }
                             }
                             .padding(.vertical, AppTheme.Spacing.md)
                         }
@@ -47,10 +57,6 @@ struct ChatView: View {
                             }
                         }
                     }
-                }
-
-                if let toolName = activeToolName {
-                    ToolStatusIndicator(toolName: toolName)
                 }
             }
             .overlay(alignment: .bottom) {
@@ -98,6 +104,11 @@ struct ChatView: View {
         }
     }
 
+    private var isWaitingForResponse: Bool {
+        guard isStreaming, activeToolName == nil else { return false }
+        return messages.last?.role != .assistant
+    }
+
     private func sendMessage() {
         let content = inputText.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !content.isEmpty else { return }
@@ -124,18 +135,19 @@ struct ChatView: View {
                     switch event {
                     case .messageStart(let id):
                         conversationId = id
-                        let assistantMessage = ChatMessage(
-                            id: UUID().uuidString,
-                            role: .assistant,
-                            content: "",
-                            createdAt: Date()
-                        )
-                        messages.append(assistantMessage)
 
                     case .textDelta(let delta):
                         if var last = messages.last, last.role == .assistant {
                             last.content += delta
                             messages[messages.count - 1] = last
+                        } else {
+                            let assistantMessage = ChatMessage(
+                                id: UUID().uuidString,
+                                role: .assistant,
+                                content: delta,
+                                createdAt: Date()
+                            )
+                            messages.append(assistantMessage)
                         }
 
                     case .toolStart(let toolName):

@@ -65,7 +65,7 @@ struct VoiceToggleButton: View {
     }
 
     private var iconColor: Color {
-        voiceState == .idle ? AppTheme.Colors.textPrimary : AppTheme.Colors.textOnAccent
+        voiceState == .idle ? AppTheme.Colors.textSecondary : AppTheme.Colors.textOnAccent
     }
 
     private var backgroundFill: Color {
