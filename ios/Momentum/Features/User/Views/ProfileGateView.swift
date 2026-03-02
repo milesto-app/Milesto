@@ -108,6 +108,7 @@ struct ProfileGateView: View {
             let locallyComplete = localProfile?.isProfileComplete == true
             if locallyComplete {
                 profileComplete = true
+                resolveGoalState()
             }
             await ProfileSyncService.shared.sync(userId: userId, in: modelContext)
             await syncGoals()
