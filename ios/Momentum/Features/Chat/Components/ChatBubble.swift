@@ -11,13 +11,22 @@ struct ChatBubble: View {
         HStack {
             if isUser { Spacer() }
 
-            AppText(verbatim: message.content, style: .body)
-                .color(isUser ? AppTheme.Colors.textOnAccent : AppTheme.Colors.textPrimary)
-                .padding(AppTheme.Spacing.sm)
-                .background(
-                    RoundedRectangle(cornerRadius: AppTheme.CornerRadius.lg)
-                        .fill(isUser ? AppTheme.Colors.accent : AppTheme.Colors.fieldBackground)
-                )
+            Group {
+                if isUser {
+                    AppText(verbatim: message.content, style: .body)
+                        .color(AppTheme.Colors.textOnAccent)
+                } else {
+                    MarkdownText(content: message.content)
+                }
+            }
+            .padding(AppTheme.Spacing.sm)
+            .background(
+                RoundedRectangle(cornerRadius: AppTheme.CornerRadius.lg)
+                    .fill(isUser ? AppTheme.Colors.accent : AppTheme.Colors.fieldBackground)
+            )
+            .containerRelativeFrame(.horizontal) { width, _ in
+                width * 0.85
+            }
 
             if !isUser { Spacer() }
         }

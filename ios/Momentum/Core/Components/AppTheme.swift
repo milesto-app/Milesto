@@ -22,6 +22,7 @@ enum AppTheme {
         })
 
         static let fieldBackground = Color(.systemGray6)
+        static let codeBackground = Color(.systemGray5)
         static let fieldBorderFocused = Color(red: 0.18, green: 0.72, blue: 0.53)
         static let fieldBorderError = Color.red
         static let fieldBorderDefault = Color.clear
