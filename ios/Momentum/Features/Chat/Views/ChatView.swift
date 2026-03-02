@@ -2,6 +2,7 @@ import SwiftUI
 
 struct ChatView: View {
     let goalId: String
+    var onClose: (() -> Void)? = nil
 
     @State private var messages: [ChatMessage] = []
     @State private var inputText = ""
@@ -18,20 +19,23 @@ struct ChatView: View {
             VStack(spacing: 0) {
                 ScrollViewReader { proxy in
                     ScrollView {
-                        LazyVStack(spacing: AppTheme.Spacing.xl) {
-                            if messages.isEmpty {
-                                AppText("chat.empty", table: "Chat", style: .subheadline)
-                                    .color(AppTheme.Colors.textSecondary)
-                                    .padding(.top, AppTheme.Spacing.xxl)
+                        if messages.isEmpty {
+                            ChatEmptyState { prompt in
+                                inputText = prompt
                             }
-
-                            ForEach(messages) { message in
-                                ChatBubble(message: message)
-                                    .id(message.id)
+                            .frame(maxHeight: .infinity)
+                            .padding(.top, AppTheme.Spacing.xxl)
+                        } else {
+                            LazyVStack(spacing: AppTheme.Spacing.xl) {
+                                ForEach(messages) { message in
+                                    ChatBubble(message: message)
+                                        .id(message.id)
+                                }
                             }
+                            .padding(.vertical, AppTheme.Spacing.md)
                         }
-                        .padding(.vertical, AppTheme.Spacing.md)
                     }
+                    .contentMargins(.top, 56)
                     .onChange(of: messages.count) {
                         if let lastId = messages.last?.id {
                             withAnimation(.easeOut(duration: 0.2)) {
@@ -50,6 +54,18 @@ struct ChatView: View {
                 }
             }
         }
+        .overlay(alignment: .topTrailing) {
+            if let onClose {
+                Button(action: onClose) {
+                    TablerIcon(.x, size: 24, color: AppTheme.Colors.textPrimary)
+                        .frame(width: 44, height: 44)
+                        .glassEffect(.clear.interactive(), in: .circle)
+                }
+                .padding(.trailing, AppTheme.Spacing.md)
+                .padding(.top, AppTheme.Spacing.xs)
+            }
+        }
+        .toolbar(.hidden, for: .tabBar)
         .alert(String(localized: "chat.error.generic", table: "Chat"), isPresented: $showError) {
             Button(String(localized: "common.ok", table: "Common"), role: .cancel) {}
         }

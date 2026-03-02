@@ -109,13 +109,98 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Start a conversation with your coach"
+            "value" : "Your coach is here"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Commence une conversation avec ton coach"
+            "value" : "Ton coach est là"
+          }
+        }
+      }
+    },
+    "chat.empty.subtitle" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ask anything or pick a suggestion below"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pose une question ou choisis une suggestion"
+          }
+        }
+      }
+    },
+    "chat.prompt.progress" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "How is my progress going?"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Comment avance ma progression ?"
+          }
+        }
+      }
+    },
+    "chat.prompt.motivation" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "I need some motivation"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "J'ai besoin de motivation"
+          }
+        }
+      }
+    },
+    "chat.prompt.today" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "What should I focus on today?"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sur quoi je dois me concentrer aujourd'hui ?"
+          }
+        }
+      }
+    },
+    "chat.prompt.improve" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "How can I improve my routine?"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Comment améliorer ma routine ?"
           }
         }
       }

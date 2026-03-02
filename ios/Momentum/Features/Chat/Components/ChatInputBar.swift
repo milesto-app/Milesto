@@ -9,28 +9,30 @@ struct ChatInputBar: View {
         HStack(spacing: AppTheme.Spacing.sm) {
             TextField(String(localized: "chat.input.placeholder", table: "Chat"), text: $text)
                 .textFieldStyle(.plain)
-                .padding(.horizontal, AppTheme.Spacing.sm)
-                .padding(.vertical, AppTheme.Spacing.sm)
+                .padding(.horizontal, AppTheme.Spacing.md)
+                .padding(.vertical, AppTheme.Spacing.md)
                 .disabled(isDisabled)
                 .onSubmit {
                     guard !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty, !isDisabled else { return }
                     onSend()
                 }
 
-            Button {
-                onSend()
-            } label: {
-                TablerIcon(.send, size: 20, color: canSend ? AppTheme.Colors.accent : AppTheme.Colors.disabled)
+            if canSend {
+                Button {
+                    onSend()
+                } label: {
+                    TablerIcon(.arrowUp, size: 18, color: AppTheme.Colors.textOnAccent)
+                        .frame(width: 32, height: 32)
+                        .background(AppTheme.Colors.accent, in: Circle())
+                }
+                .padding(.trailing, AppTheme.Spacing.sm)
+                .transition(.opacity)
             }
-            .disabled(!canSend)
-            .padding(.trailing, AppTheme.Spacing.xs)
         }
-        .background(
-            RoundedRectangle(cornerRadius: AppTheme.CornerRadius.lg)
-                .fill(AppTheme.Colors.fieldBackground)
-        )
+        .animation(.easeInOut(duration: 0.2), value: canSend)
+        .glassEffect(.clear.interactive(), in: .capsule)
         .padding(.horizontal, AppTheme.Spacing.md)
-        .padding(.bottom, AppTheme.Spacing.xs)
+        .padding(.bottom, 0)
     }
 
     private var canSend: Bool {

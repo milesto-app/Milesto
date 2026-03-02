@@ -3,6 +3,8 @@ import SwiftUI
 struct ChatBubble: View {
     let message: ChatMessage
 
+    @State private var appeared = false
+
     private var isUser: Bool {
         message.role == .user
     }
@@ -27,5 +29,12 @@ struct ChatBubble: View {
         }
         .padding(.horizontal, AppTheme.Spacing.md)
         .padding(isUser ? .leading : .trailing, AppTheme.Spacing.xxl)
+        .opacity(appeared ? 1 : 0)
+        .offset(y: appeared ? 0 : 12)
+        .onAppear {
+            withAnimation(.easeOut(duration: 0.3)) {
+                appeared = true
+            }
+        }
     }
 }

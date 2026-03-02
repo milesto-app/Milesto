@@ -13,6 +13,7 @@ struct ProfileGateView: View {
     @State private var roadmapReady = false
     @State private var activeGoalId: String?
     @State private var selectedTab = 0
+    @State private var previousTab = 0
 
     private var localProfile: LocalProfile? {
         localProfiles.first { $0.userId == userId }
@@ -53,7 +54,11 @@ struct ProfileGateView: View {
                     }
 
                     Tab(value: 4, role: .search) {
-                        ChatView(goalId: activeGoalId ?? "")
+                        ChatView(goalId: activeGoalId ?? "", onClose: {
+                            withAnimation {
+                                selectedTab = previousTab
+                            }
+                        })
                     } label: {
                         TablerTabLabel(.message, title: String(localized: "tabs.chat", table: "Common"))
                     }
@@ -62,6 +67,11 @@ struct ProfileGateView: View {
                 .tint(AppTheme.Colors.accent)
                 .overlay(alignment: .top) {
                     StatusBarBlur()
+                }
+                .onChange(of: selectedTab) { oldValue, newValue in
+                    if newValue == 4 {
+                        previousTab = oldValue
+                    }
                 }
                 .transition(.opacity)
             } else if goalComplete && !roadmapReady {
