@@ -1,7 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { DailyObjectiveService } from '../roadmap/daily-objective.service.js';
 import { WeeklyPlanService } from '../roadmap/weekly-plan.service.js';
-import { RoadmapService } from '../roadmap/roadmap.service.js';
 import type { ToolExecutionContext } from './types/chat.types.js';
 
 @Injectable()
@@ -11,7 +10,6 @@ export class ChatToolsService {
   constructor(
     private readonly dailyObjectiveService: DailyObjectiveService,
     private readonly weeklyPlanService: WeeklyPlanService,
-    private readonly roadmapService: RoadmapService,
   ) {}
 
   public async getDailyObjectives(ctx: ToolExecutionContext): Promise<unknown> {
@@ -22,6 +20,7 @@ export class ChatToolsService {
       );
 
       return objectives.map((obj) => ({
+        id: obj.id,
         title: obj.title,
         description: obj.description,
         is_completed: obj.is_completed,
@@ -34,7 +33,29 @@ export class ChatToolsService {
     }
   }
 
-  public async getWeeklyPlan(ctx: ToolExecutionContext): Promise<unknown> {
+  public async toggleObjectiveCompletion(
+    args: Record<string, unknown>,
+    ctx: ToolExecutionContext,
+  ): Promise<unknown> {
+    try {
+      const objectiveId = args.objectiveId as string;
+
+      await this.dailyObjectiveService.updateDailyObjective({
+        objectiveId,
+        goalId: ctx.goalId,
+        userId: ctx.userId,
+        isCompleted: args.isCompleted as boolean,
+      });
+
+      return { success: true, objectiveId, isCompleted: args.isCompleted };
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      this.logger.warn(`toggleObjectiveCompletion failed: ${message}`);
+      return { error: 'Unable to update the objective. It may not exist or belong to this goal.' };
+    }
+  }
+
+  public async getProgressStats(ctx: ToolExecutionContext): Promise<unknown> {
     try {
       const plan = await this.weeklyPlanService.getCurrentWeeklyPlan(ctx.goalId, ctx.userId);
 
@@ -42,33 +63,22 @@ export class ChatToolsService {
         return { error: 'No active weekly plan found. Generate a weekly plan first.' };
       }
 
+      const stats = await this.dailyObjectiveService.getWeeklyCompletionRate(
+        ctx.goalId,
+        ctx.userId,
+        plan.id,
+      );
+
       return {
-        focus: plan.focus,
+        completed: stats.completed,
+        total: stats.total,
+        rate: stats.rate,
         week_number: plan.week_number,
-        objectives: plan.objectives,
-        status: plan.status,
       };
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
-      this.logger.warn(`getWeeklyPlan failed: ${message}`);
-      return { error: 'Unable to fetch weekly plan.' };
-    }
-  }
-
-  public async getMilestones(ctx: ToolExecutionContext): Promise<unknown> {
-    try {
-      const milestones = await this.roadmapService.getMilestones(ctx.goalId, ctx.userId);
-
-      return milestones.map((m) => ({
-        title: m.title,
-        description: m.description,
-        expected_outcome: m.expected_outcome,
-        target_month: m.target_month,
-      }));
-    } catch (error) {
-      const message = error instanceof Error ? error.message : String(error);
-      this.logger.warn(`getMilestones failed: ${message}`);
-      return { error: 'Unable to fetch milestones. A roadmap may not have been generated yet.' };
+      this.logger.warn(`getProgressStats failed: ${message}`);
+      return { error: 'Unable to fetch progress stats.' };
     }
   }
 }

@@ -1,53 +1,71 @@
 import type { ChatToolEntry, ChatToolExecutor } from './types/chat.types.js';
 import type { ChatToolsService } from './chat-tools.service.js';
 
-function createToolEntry(
-  name: string,
-  description: string,
-  executor: ChatToolExecutor,
-): ChatToolEntry {
+interface ToolConfig {
+  name: string;
+  description: string;
+  executor: ChatToolExecutor;
+  parameters?: { properties: Record<string, unknown>; required: string[] };
+}
+
+function createToolEntry(config: ToolConfig): ChatToolEntry {
   return {
     definition: {
       type: 'function' as const,
       function: {
-        name,
-        description,
-        parameters: { type: 'object' as const, properties: {}, required: [] },
+        name: config.name,
+        description: config.description,
+        parameters: {
+          type: 'object' as const,
+          properties: config.parameters?.properties ?? {},
+          required: config.parameters?.required ?? [],
+        },
       },
     },
-    executor,
+    executor: config.executor,
   };
 }
 
 export function buildToolRegistry(toolsService: ChatToolsService): Map<string, ChatToolEntry> {
   const registry = new Map<string, ChatToolEntry>();
 
-  registry.set(
-    'getDailyObjectives',
-    createToolEntry(
-      'getDailyObjectives',
-      "Fetch today's daily objectives for the user's active goal. Returns the list of tasks with title, description, completion status, and difficulty rating.",
-      (async (_args, ctx) => toolsService.getDailyObjectives(ctx)) satisfies ChatToolExecutor,
-    ),
-  );
-
-  registry.set(
-    'getWeeklyPlan',
-    createToolEntry(
-      'getWeeklyPlan',
-      "Fetch the current active weekly plan. Returns the week's focus statement, objective list, and completion status.",
-      (async (_args, ctx) => toolsService.getWeeklyPlan(ctx)) satisfies ChatToolExecutor,
-    ),
-  );
-
-  registry.set(
-    'getMilestones',
-    createToolEntry(
-      'getMilestones',
-      "Fetch all milestones in the user's long-term roadmap. Returns milestone titles, descriptions, expected outcomes, and target months.",
-      (async (_args, ctx) => toolsService.getMilestones(ctx)) satisfies ChatToolExecutor,
-    ),
-  );
+  const entries: ToolConfig[] = buildToolConfigs(toolsService);
+  for (const entry of entries) {
+    registry.set(entry.name, createToolEntry(entry));
+  }
 
   return registry;
+}
+
+function buildToolConfigs(toolsService: ChatToolsService): ToolConfig[] {
+  return [
+    {
+      name: 'getDailyObjectives',
+      description:
+        "Fetch today's daily objectives for the user's active goal. Returns tasks with id, title, description, completion status, and difficulty.",
+      executor: (async (_args, ctx) =>
+        toolsService.getDailyObjectives(ctx)) satisfies ChatToolExecutor,
+    },
+    {
+      name: 'toggleObjectiveCompletion',
+      description:
+        'Mark a daily objective as completed or not completed. Use the objective ID from getDailyObjectives.',
+      executor: (async (args, ctx) =>
+        toolsService.toggleObjectiveCompletion(args, ctx)) satisfies ChatToolExecutor,
+      parameters: {
+        properties: {
+          objectiveId: { type: 'string', description: 'UUID of the daily objective' },
+          isCompleted: { type: 'boolean', description: 'New completion status' },
+        },
+        required: ['objectiveId', 'isCompleted'],
+      },
+    },
+    {
+      name: 'getProgressStats',
+      description:
+        "Fetch the user's weekly progress stats including completed tasks count, total tasks, and completion rate.",
+      executor: (async (_args, ctx) =>
+        toolsService.getProgressStats(ctx)) satisfies ChatToolExecutor,
+    },
+  ];
 }
