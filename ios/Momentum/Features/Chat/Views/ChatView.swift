@@ -11,6 +11,7 @@ struct ChatView: View {
     @State private var activeToolName: String?
     @State private var showError = false
     @State private var errorMessage = ""
+    @State private var showThinking = false
     @FocusState private var isInputFocused: Bool
 
     var body: some View {
@@ -34,7 +35,7 @@ struct ChatView: View {
                                         .id(message.id)
                                 }
 
-                                if isWaitingForResponse {
+                                if isWaitingForResponse && showThinking {
                                     ThinkingIndicator()
                                         .id("thinking")
                                         .transition(.opacity)
@@ -122,6 +123,16 @@ struct ChatView: View {
         messages.append(userMessage)
         inputText = ""
         isStreaming = true
+        showThinking = false
+
+        Task {
+            try? await Task.sleep(for: .milliseconds(800))
+            if isStreaming {
+                withAnimation(.easeIn(duration: 0.3)) {
+                    showThinking = true
+                }
+            }
+        }
 
         Task {
             do {
@@ -170,6 +181,7 @@ struct ChatView: View {
             }
 
             isStreaming = false
+            showThinking = false
             activeToolName = nil
         }
     }
