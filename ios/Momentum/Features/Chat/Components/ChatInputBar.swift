@@ -3,6 +3,7 @@ import SwiftUI
 struct ChatInputBar: View {
     @Binding var text: String
     var isDisabled: Bool
+    var isFocused: FocusState<Bool>.Binding
     var onSend: () -> Void
 
     var body: some View {
@@ -10,6 +11,7 @@ struct ChatInputBar: View {
             TextField(String(localized: "chat.input.placeholder", table: "Chat"), text: $text, axis: .vertical)
                 .textFieldStyle(.plain)
                 .lineLimit(1...6)
+                .focused(isFocused)
                 .padding(.horizontal, AppTheme.Spacing.md)
                 .padding(.vertical, AppTheme.Spacing.md)
                 .disabled(isDisabled)

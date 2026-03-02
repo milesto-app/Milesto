@@ -11,10 +11,12 @@ struct ChatView: View {
     @State private var activeToolName: String?
     @State private var showError = false
     @State private var errorMessage = ""
+    @FocusState private var isInputFocused: Bool
 
     var body: some View {
         ZStack {
             AnimatedBackground()
+                .ignoresSafeArea(.keyboard)
 
             VStack(spacing: 0) {
                 ScrollViewReader { proxy in
@@ -35,6 +37,7 @@ struct ChatView: View {
                             .padding(.vertical, AppTheme.Spacing.md)
                         }
                     }
+                    .scrollDismissesKeyboard(.interactively)
                     .contentMargins(.top, 56)
                     .contentMargins(.bottom, 80)
                     .onChange(of: messages.count) {
@@ -51,7 +54,7 @@ struct ChatView: View {
                 }
             }
             .overlay(alignment: .bottom) {
-                ChatInputBar(text: $inputText, isDisabled: isStreaming) {
+                ChatInputBar(text: $inputText, isDisabled: isStreaming, isFocused: $isInputFocused) {
                     sendMessage()
                 }
             }
@@ -85,6 +88,9 @@ struct ChatView: View {
             }
             .padding(.horizontal, AppTheme.Spacing.md)
             .padding(.top, AppTheme.Spacing.xs)
+        }
+        .onAppear {
+            isInputFocused = true
         }
         .toolbar(.hidden, for: .tabBar)
         .alert(String(localized: "chat.error.generic", table: "Chat"), isPresented: $showError) {
