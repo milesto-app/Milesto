@@ -4,6 +4,7 @@ import { RoadmapModule } from '../roadmap/roadmap.module.js';
 import { ChatAiService } from './chat-ai.service.js';
 import { ChatController } from './chat.controller.js';
 import { ChatHistoryService } from './chat-history.service.js';
+import { ChatListService } from './chat-list.service.js';
 import { ChatPromptService } from './chat-prompt.service.js';
 import { ChatSearchService } from './chat-search.service.js';
 import { ChatService } from './chat.service.js';
@@ -17,6 +18,7 @@ import { ChatRoadmapToolsService } from './chat-roadmap-tools.service.js';
   providers: [
     ChatAiService,
     ChatHistoryService,
+    ChatListService,
     ChatSearchService,
     ChatToolsService,
     ChatCheckInToolsService,

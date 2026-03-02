@@ -195,7 +195,7 @@ struct VoiceChatOverlay: View {
             return
         }
 
-        voiceChatService.onAudioReceived = { data in
+        voiceChatService.onAudioReceived = { (data: Data) in
             pcmPlayer.enqueueChunk(data: data)
             voiceState = .liveResponding
             withAnimation(.easeInOut(duration: 0.6).repeatForever(autoreverses: true)) {
@@ -203,12 +203,12 @@ struct VoiceChatOverlay: View {
             }
         }
 
-        voiceChatService.onToolStart = { toolName in
+        voiceChatService.onToolStart = { (toolName: String) in
             activeToolName = toolName
             voiceState = .liveToolRunning
         }
 
-        voiceChatService.onToolEnd = { _ in
+        voiceChatService.onToolEnd = { (_: String) in
             activeToolName = nil
         }
 
@@ -224,7 +224,7 @@ struct VoiceChatOverlay: View {
             voiceState = .liveListening
         }
 
-        voiceChatService.onSessionWarning = { remainingMs in
+        voiceChatService.onSessionWarning = { (remainingMs: Int) in
             sessionTimeRemaining = Double(remainingMs) / 1000.0
         }
 
@@ -234,13 +234,13 @@ struct VoiceChatOverlay: View {
             stopAudio()
         }
 
-        voiceChatService.onError = { message in
+        voiceChatService.onError = { (message: String) in
             errorMessage = message
             voiceState = .idle
             stopAudio()
         }
 
-        audioStream.onAudioCaptured = { data in
+        audioStream.onAudioCaptured = { (data: Data) in
             if !isMuted {
                 if voiceState == .liveResponding {
                     pcmPlayer.interrupt()

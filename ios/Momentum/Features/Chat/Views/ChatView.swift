@@ -16,6 +16,9 @@ struct ChatView: View {
     @State private var showThinking = false
     @FocusState private var isInputFocused: Bool
     @State private var isVoiceChatActive = false
+    @State private var isSidebarOpen = false
+    @State private var conversations: [ConversationSummary] = []
+    @State private var isLoadingHistory = false
 
     private var coach: CoachPersonality? {
         guard let coachId = localProfiles.first?.coachId else { return nil }
@@ -74,6 +77,17 @@ struct ChatView: View {
         }
         .overlay(alignment: .top) {
             HStack {
+                Button {
+                    isInputFocused = false
+                    withAnimation(.spring(duration: 0.3)) {
+                        isSidebarOpen = true
+                    }
+                } label: {
+                    TablerIcon(.menu2, size: 24, color: AppTheme.Colors.textPrimary)
+                        .frame(width: 44, height: 44)
+                        .glassEffect(.regular.interactive(), in: .circle)
+                }
+
                 if !messages.isEmpty {
                     Button {
                         withAnimation {
@@ -101,6 +115,30 @@ struct ChatView: View {
             }
             .padding(.horizontal, AppTheme.Spacing.md)
             .padding(.top, AppTheme.Spacing.xs)
+        }
+        .overlay {
+            if isSidebarOpen {
+                ChatHistorySidebar(
+                    isOpen: $isSidebarOpen,
+                    conversations: conversations,
+                    activeConversationId: conversationId,
+                    onSelectConversation: { id in
+                        loadConversation(id)
+                    },
+                    onNewConversation: {
+                        withAnimation {
+                            messages = []
+                            conversationId = nil
+                            inputText = ""
+                        }
+                    }
+                )
+            }
+        }
+        .onChange(of: isSidebarOpen) { _, isOpen in
+            if isOpen {
+                fetchConversations()
+            }
         }
         .onAppear {
             isInputFocused = true
@@ -202,6 +240,33 @@ struct ChatView: View {
             isStreaming = false
             isToolRunning = false
             showThinking = false
+        }
+    }
+
+    private func fetchConversations() {
+        guard !isLoadingHistory else { return }
+        isLoadingHistory = true
+        Task {
+            do {
+                conversations = try await ChatAPIService.shared.listConversations(goalId: goalId)
+            } catch {}
+            isLoadingHistory = false
+        }
+    }
+
+    private func loadConversation(_ id: String) {
+        guard id != conversationId else { return }
+        Task {
+            do {
+                let loadedMessages = try await ChatAPIService.shared.getConversationMessages(conversationId: id)
+                withAnimation {
+                    conversationId = id
+                    messages = loadedMessages
+                }
+            } catch {
+                errorMessage = String(localized: "chat.error.generic", table: "Chat")
+                showError = true
+            }
         }
     }
 }

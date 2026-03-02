@@ -1,4 +1,5 @@
 import Foundation
+import Observation
 import Supabase
 
 @MainActor
@@ -77,17 +78,15 @@ final class VoiceChatService {
     }
 
     private func receiveMessages() {
-        webSocket?.receive { [weak self] result in
-            Task { @MainActor in
-                guard let self else { return }
-                switch result {
-                case .success(let message):
-                    self.handleMessage(message)
-                    self.receiveMessages()
-                case .failure:
-                    self.isConnected = false
-                    self.isSessionActive = false
-                }
+        Task {
+            guard let webSocket else { return }
+            do {
+                let message = try await webSocket.receive()
+                handleMessage(message)
+                receiveMessages()
+            } catch {
+                isConnected = false
+                isSessionActive = false
             }
         }
     }
