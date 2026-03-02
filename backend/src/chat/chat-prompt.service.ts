@@ -36,23 +36,24 @@ export class ChatPromptService {
     private readonly supabaseService: SupabaseService,
   ) {}
 
-  public async getUserCoachId(userId: string): Promise<number> {
+  public async getUserProfile(userId: string): Promise<{ coachId: number; language: string }> {
     const supabase = this.supabaseService.getAdminClient();
 
     const { data, error } = await supabase
       .from('profiles')
-      .select('coach_id')
+      .select('coach_id, language')
       .eq('id', userId)
       .single();
 
     if (error !== null) {
-      this.logger.warn(`No coach_id for user ${userId}, using default`);
-      return appConfig.coach.defaultCoachId;
+      this.logger.warn(`No profile for user ${userId}, using defaults`);
+      return { coachId: appConfig.coach.defaultCoachId, language: 'en' };
     }
 
-    const coachId = data.coach_id;
-
-    return coachId ?? appConfig.coach.defaultCoachId;
+    return {
+      coachId: data.coach_id ?? appConfig.coach.defaultCoachId,
+      language: data.language ?? 'en',
+    };
   }
 
   public async fetchGoalContext(goalId: string, userId: string): Promise<GoalContext> {
@@ -110,9 +111,13 @@ export class ChatPromptService {
     return data as GoalContext['milestone'];
   }
 
-  public async buildSystemPrompt(coachId: number, goalContext: GoalContext): Promise<string> {
+  public async buildSystemPrompt(
+    coachId: number,
+    goalContext: GoalContext,
+    language: string,
+  ): Promise<string> {
     const coach = await this.coachService.getCoach(coachId);
-    return buildCoachPrompt(coach, goalContext);
+    return buildCoachPrompt(coach, goalContext, language);
   }
 }
 
@@ -142,12 +147,16 @@ function buildGoalContextSection(ctx: GoalContext): string {
   return `\n<goal_context>\n${parts.join('\n\n')}\n</goal_context>`;
 }
 
-function buildCoachPrompt(coach: Coach, goalContext: GoalContext): string {
+function buildCoachPrompt(coach: Coach, goalContext: GoalContext, language: string): string {
   const goalContextSection = buildGoalContextSection(goalContext);
+  const isFrench = language === 'fr';
+  const displayName = isFrench ? coach.display_name_fr : coach.display_name_en;
+  const description = isFrench ? coach.description_fr : coach.description_en;
+  const defaultLanguage = isFrench ? 'French' : 'English';
 
   return `<identity>
-Tu es ${coach.display_name_fr}, un assistant de coaching en developpement personnel dans l'application Momentum.
-${coach.description_fr}
+You are ${displayName}, a personal development coaching assistant in the Momentum app.
+${description}
 </identity>
 
 <personality>
@@ -172,7 +181,7 @@ ${coach.personality}
 
 <language>
 - Respond in the same language the user writes in.
-- Default to French if unclear.
+- Default to ${defaultLanguage} if unclear.
 </language>
 
 <boundaries>
