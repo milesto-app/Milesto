@@ -9,27 +9,23 @@ struct ChatBubble: View {
 
     var body: some View {
         HStack {
-            if isUser { Spacer() }
+            if isUser { Spacer(minLength: 0) }
 
-            Group {
-                if isUser {
-                    AppText(verbatim: message.content, style: .body)
-                        .color(AppTheme.Colors.textOnAccent)
-                } else {
-                    MarkdownText(content: message.content)
-                }
-            }
-            .padding(AppTheme.Spacing.sm)
-            .background(
-                RoundedRectangle(cornerRadius: AppTheme.CornerRadius.lg)
-                    .fill(isUser ? AppTheme.Colors.accent : AppTheme.Colors.fieldBackground)
-            )
-            .containerRelativeFrame(.horizontal) { width, _ in
-                width * 0.85
+            if isUser {
+                AppText(verbatim: message.content, style: .body)
+                    .color(AppTheme.Colors.textOnAccent)
+                    .padding(AppTheme.Spacing.sm)
+                    .background(
+                        RoundedRectangle(cornerRadius: AppTheme.CornerRadius.lg)
+                            .fill(AppTheme.Colors.accent)
+                    )
+            } else {
+                MarkdownText(content: message.content)
             }
 
-            if !isUser { Spacer() }
+            if !isUser { Spacer(minLength: 0) }
         }
         .padding(.horizontal, AppTheme.Spacing.md)
+        .padding(isUser ? .leading : .trailing, AppTheme.Spacing.xxl)
     }
 }

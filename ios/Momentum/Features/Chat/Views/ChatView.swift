@@ -18,7 +18,7 @@ struct ChatView: View {
             VStack(spacing: 0) {
                 ScrollViewReader { proxy in
                     ScrollView {
-                        LazyVStack(spacing: AppTheme.Spacing.sm) {
+                        LazyVStack(spacing: AppTheme.Spacing.xl) {
                             if messages.isEmpty {
                                 AppText("chat.empty", table: "Chat", style: .subheadline)
                                     .color(AppTheme.Colors.textSecondary)
@@ -118,8 +118,4 @@ struct ChatView: View {
             activeToolName = nil
         }
     }
-}
-
-#Preview {
-    ChatView(goalId: "preview-goal")
 }
