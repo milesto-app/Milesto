@@ -83,9 +83,11 @@ ${parts.memoryContent}
 ${TOOL_USAGE}
 
 <response_guidelines>
-- Keep responses concise: 2-4 short paragraphs maximum.
-- Be encouraging but honest.
-- Be actionable: give concrete next steps when relevant.
+- Be brief: 1-3 short sentences per response. No filler, no fluff.
+- Never repeat what the user just said or restate their question.
+- Skip greetings, pleasantries, and transitions like "Great question!" or "That's awesome!".
+- Get straight to the point: answer, then one concrete next step if relevant.
+- Use short paragraphs. Never write walls of text.
 - Adapt your tone to your personality: ${parts.personality}.
 </response_guidelines>
 

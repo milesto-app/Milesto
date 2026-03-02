@@ -8,7 +8,7 @@ struct ChatView: View {
     @State private var inputText = ""
     @State private var isStreaming = false
     @State private var conversationId: String?
-    @State private var activeToolName: String?
+    @State private var isToolRunning = false
     @State private var showError = false
     @State private var errorMessage = ""
     @State private var showThinking = false
@@ -38,10 +38,6 @@ struct ChatView: View {
                                 if isWaitingForResponse && showThinking {
                                     ThinkingIndicator()
                                         .id("thinking")
-                                        .transition(.opacity)
-                                } else if let toolName = activeToolName {
-                                    ToolStatusIndicator(toolName: toolName)
-                                        .id("tool")
                                         .transition(.opacity)
                                 }
                             }
@@ -106,8 +102,10 @@ struct ChatView: View {
     }
 
     private var isWaitingForResponse: Bool {
-        guard isStreaming, activeToolName == nil else { return false }
-        return messages.last?.role != .assistant
+        guard isStreaming else { return false }
+        if isToolRunning { return true }
+        guard let last = messages.last, last.role == .assistant else { return true }
+        return last.content.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
     }
 
     private func sendMessage() {
@@ -151,7 +149,7 @@ struct ChatView: View {
                         if var last = messages.last, last.role == .assistant {
                             last.content += delta
                             messages[messages.count - 1] = last
-                        } else {
+                        } else if !delta.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
                             let assistantMessage = ChatMessage(
                                 id: UUID().uuidString,
                                 role: .assistant,
@@ -161,11 +159,11 @@ struct ChatView: View {
                             messages.append(assistantMessage)
                         }
 
-                    case .toolStart(let toolName):
-                        activeToolName = toolName
+                    case .toolStart:
+                        isToolRunning = true
 
                     case .toolEnd:
-                        activeToolName = nil
+                        isToolRunning = false
 
                     case .messageEnd:
                         break
@@ -181,8 +179,8 @@ struct ChatView: View {
             }
 
             isStreaming = false
+            isToolRunning = false
             showThinking = false
-            activeToolName = nil
         }
     }
 }
