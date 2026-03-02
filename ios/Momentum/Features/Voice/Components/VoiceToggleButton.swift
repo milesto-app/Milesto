@@ -1,8 +1,27 @@
 import SwiftUI
 
 struct VoiceToggleButton: View {
+    enum Size {
+        case regular, compact
+
+        var circleSize: CGFloat {
+            switch self {
+            case .regular: 48
+            case .compact: 32
+            }
+        }
+
+        var iconSize: CGFloat {
+            switch self {
+            case .regular: 22
+            case .compact: 18
+            }
+        }
+    }
+
     @Binding var transcribedText: String
     let coachId: Int?
+    var size: Size = .regular
 
     @State private var voiceState: VoiceState = .idle
     @State private var recorder = AudioRecorderService()
@@ -14,7 +33,7 @@ struct VoiceToggleButton: View {
             ZStack {
                 Circle()
                     .fill(backgroundFill)
-                    .frame(width: 48, height: 48)
+                    .frame(width: size.circleSize, height: size.circleSize)
                     .scaleEffect(pulseScale)
 
                 content
@@ -32,16 +51,16 @@ struct VoiceToggleButton: View {
     private var content: some View {
         switch voiceState {
         case .idle:
-            TablerIcon(.microphone, size: 22, color: AppTheme.Colors.textOnAccent)
+            TablerIcon(.microphone, size: size.iconSize, color: AppTheme.Colors.textOnAccent)
         case .recording:
-            TablerIcon(.playerStop, size: 22, color: AppTheme.Colors.textOnAccent)
+            TablerIcon(.playerStop, size: size.iconSize, color: AppTheme.Colors.textOnAccent)
         case .transcribing:
             ProgressView()
                 .tint(AppTheme.Colors.textOnAccent)
         case .error:
-            TablerIcon(.alertCircle, size: 22, color: AppTheme.Colors.textOnAccent)
+            TablerIcon(.alertCircle, size: size.iconSize, color: AppTheme.Colors.textOnAccent)
         default:
-            TablerIcon(.microphone, size: 22, color: AppTheme.Colors.textOnAccent)
+            TablerIcon(.microphone, size: size.iconSize, color: AppTheme.Colors.textOnAccent)
         }
     }
 

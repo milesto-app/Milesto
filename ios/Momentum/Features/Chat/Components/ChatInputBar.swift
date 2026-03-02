@@ -27,9 +27,14 @@ struct ChatInputBar: View {
                 }
                 .padding(.trailing, AppTheme.Spacing.sm)
                 .transition(.opacity)
+            } else if !isDisabled {
+                VoiceToggleButton(transcribedText: $text, coachId: nil, size: .compact)
+                    .padding(.trailing, AppTheme.Spacing.sm)
+                    .transition(.opacity)
             }
         }
         .animation(.easeInOut(duration: 0.2), value: canSend)
+        .animation(.easeInOut(duration: 0.2), value: isDisabled)
         .glassEffect(.clear.interactive(), in: .capsule)
         .padding(.horizontal, AppTheme.Spacing.md)
         .padding(.bottom, 0)
