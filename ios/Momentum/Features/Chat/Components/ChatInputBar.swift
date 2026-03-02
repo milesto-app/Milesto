@@ -4,10 +4,21 @@ struct ChatInputBar: View {
     @Binding var text: String
     var isDisabled: Bool
     var isFocused: FocusState<Bool>.Binding
+    var onVoiceChatTap: (() -> Void)?
     var onSend: () -> Void
 
     var body: some View {
         HStack(alignment: .bottom, spacing: AppTheme.Spacing.sm) {
+            if let onVoiceChatTap, !canSend, !isDisabled {
+                Button(action: onVoiceChatTap) {
+                    TablerIcon(.headphones, size: 18, color: AppTheme.Colors.accent)
+                        .frame(width: 32, height: 32)
+                }
+                .padding(.leading, AppTheme.Spacing.sm)
+                .padding(.bottom, 10)
+                .transition(.opacity)
+            }
+
             TextField(String(localized: "chat.input.placeholder", table: "Chat"), text: $text, axis: .vertical)
                 .textFieldStyle(.plain)
                 .lineLimit(1...6)

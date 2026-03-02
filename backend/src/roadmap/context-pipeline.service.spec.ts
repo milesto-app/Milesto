@@ -1,4 +1,4 @@
-/* eslint-disable no-magic-numbers, max-lines-per-function, max-lines, @typescript-eslint/no-non-null-assertion, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable max-lines, @typescript-eslint/no-non-null-assertion, @typescript-eslint/no-unsafe-member-access */
 import type { TestingModule } from '@nestjs/testing';
 import { Test } from '@nestjs/testing';
 import { ContextPipelineService } from './context-pipeline.service.js';

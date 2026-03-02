@@ -16,8 +16,7 @@ const MOCK_COACH: Coach = {
   description_fr: 'Un coach energique',
   description_en: 'An energetic coach',
   icon: 'fire',
-  deepgram_voice_id: 'aura-asteria-en',
-  deepgram_voice_model: 'aura',
+  google_voice_name: 'Kore',
   is_active: true,
 };
 

@@ -1,42 +1,29 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { createClient, DeepgramClient } from '@deepgram/sdk';
+import { GoogleGenAI } from '@google/genai';
 
 import { appConfig } from '../config/app.config.js';
 import type { SynthesisResult } from './voice.types.js';
 
-const CONTENT_TYPE = 'audio/mpeg';
-const MP3_128KBPS_BYTES_PER_SECOND = 16_000;
+const CONTENT_TYPE = 'audio/wav';
+const WAV_BYTES_PER_SECOND = 48_000;
 
 @Injectable()
 export class VoiceTtsService {
   private readonly logger = new Logger(VoiceTtsService.name);
-  private readonly deepgram: DeepgramClient;
+  private readonly ai: GoogleGenAI;
 
   constructor(private readonly configService: ConfigService) {
-    const apiKey = this.configService.getOrThrow<string>('DEEPGRAM_API_KEY');
-    this.deepgram = createClient(apiKey);
+    const apiKey = this.configService.getOrThrow<string>('GOOGLE_AI_API_KEY');
+    this.ai = new GoogleGenAI({ apiKey });
   }
 
   public async synthesize(text: string, voiceId: string): Promise<SynthesisResult> {
     try {
-      const response = await this.withTimeout(
-        this.deepgram.speak.request({ text }, { model: voiceId }),
-        appConfig.voice.callTimeoutMs,
-      );
-      const stream = await response.getStream();
-
-      if (stream === null) {
-        throw new Error('Deepgram TTS returned no audio stream');
-      }
-
-      const audioBuffer = await this.withTimeout(
-        this.collectStream(stream),
-        appConfig.voice.callTimeoutMs,
-      );
+      const audioBuffer = await this.callGeminiTts(text, voiceId);
       const duration = this.estimateDuration(audioBuffer);
 
-      this.logger.log(`Synthesis complete: ${audioBuffer.length} bytes`);
+      this.logger.log(`Synthesis complete: ${String(audioBuffer.length)} bytes`);
 
       return {
         audio: audioBuffer,
@@ -52,40 +39,29 @@ export class VoiceTtsService {
     }
   }
 
-  private async collectStream(stream: ReadableStream<Uint8Array>): Promise<Buffer> {
-    const reader = stream.getReader();
-    const chunks: Uint8Array[] = [];
+  private async callGeminiTts(text: string, voiceId: string): Promise<Buffer> {
+    const response = await this.ai.models.generateContent({
+      model: appConfig.voice.ttsModel,
+      contents: [{ role: 'user', parts: [{ text }] }],
+      config: {
+        responseModalities: ['AUDIO'],
+        speechConfig: {
+          voiceConfig: { prebuiltVoiceConfig: { voiceName: voiceId } },
+        },
+      },
+    });
 
-    for (;;) {
-      // eslint-disable-next-line no-await-in-loop -- sequential stream reading
-      const result = await reader.read();
-      if (result.value !== undefined) {
-        chunks.push(result.value);
-      }
-      if (result.done) {
-        break;
-      }
+    const audioPart = response.candidates?.[0]?.content?.parts?.[0];
+    const audioData = audioPart?.inlineData?.data;
+
+    if (audioData === undefined) {
+      throw new Error('Gemini TTS returned no audio data');
     }
 
-    return Buffer.concat(chunks);
+    return Buffer.from(audioData, 'base64');
   }
 
   private estimateDuration(audioBuffer: Buffer): number {
-    return audioBuffer.length / MP3_128KBPS_BYTES_PER_SECOND;
-  }
-
-  private async withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
-    let timeoutId: NodeJS.Timeout | undefined;
-    const timeoutPromise = new Promise<never>((_resolve, reject) => {
-      timeoutId = setTimeout(() => {
-        reject(new Error(`Operation timed out after ${ms}ms`));
-      }, ms);
-    });
-
-    try {
-      return await Promise.race([promise, timeoutPromise]);
-    } finally {
-      clearTimeout(timeoutId);
-    }
+    return audioBuffer.length / WAV_BYTES_PER_SECOND;
   }
 }

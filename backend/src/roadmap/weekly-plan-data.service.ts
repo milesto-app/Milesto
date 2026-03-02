@@ -16,6 +16,7 @@ interface SummaryParams {
   goalId: string;
   userId: string;
   formatFn: (summary: WeeklySummary, weekNumber: number) => string;
+  language: string;
 }
 
 interface MonthlyParams {
@@ -24,6 +25,7 @@ interface MonthlyParams {
   goalId: string;
   userId: string;
   formatFn: (summary: MonthlySummary, targetMonth: number) => string;
+  language: string;
 }
 
 @Injectable()
@@ -43,6 +45,7 @@ export class WeeklyPlanDataService {
     const summary = await this.narrativeService.generateWeeklySummary(
       params.lastCompleted,
       weekData,
+      params.language,
     );
     const supabase = this.supabaseService.getAdminClient();
     const { error } = await supabase
@@ -64,17 +67,19 @@ export class WeeklyPlanDataService {
     });
   }
 
-  public async generateMonthlySummaryIfNeeded(
-    goalId: string,
-    userId: string | undefined,
-    formatFn: (summary: MonthlySummary, targetMonth: number) => string,
-  ): Promise<void> {
+  public async generateMonthlySummaryIfNeeded(params: {
+    goalId: string;
+    userId: string | undefined;
+    formatFn: (summary: MonthlySummary, targetMonth: number) => string;
+    language: string;
+  }): Promise<void> {
+    const { goalId, userId, formatFn, language } = params;
     try {
       const plans = await this.loadRecentCompletedPlans(goalId);
       if (plans === null || plans.length < MONTHLY_SUMMARY_MIN_PLANS) {
         return;
       }
-      await this.checkAndGenerateMonthly({ plans, goalId, userId, formatFn });
+      await this.checkAndGenerateMonthly({ plans, goalId, userId, formatFn, language });
     } catch (error) {
       this.logger.warn(
         `Monthly summary generation failed: ${error instanceof Error ? error.message : String(error)}`,
@@ -98,6 +103,7 @@ export class WeeklyPlanDataService {
     goalId: string;
     userId: string | undefined;
     formatFn: (summary: MonthlySummary, targetMonth: number) => string;
+    language: string;
   }): Promise<void> {
     const current = (params.plans[0] as Record<string, unknown>).milestones as MilestoneRef;
     const previous = (params.plans[1] as Record<string, unknown>).milestones as MilestoneRef;
@@ -113,6 +119,7 @@ export class WeeklyPlanDataService {
       goalId: params.goalId,
       userId: resolvedUserId,
       formatFn: params.formatFn,
+      language: params.language,
     });
   }
   private async storeMonthlySummary(params: MonthlyParams): Promise<void> {
@@ -128,7 +135,7 @@ export class WeeklyPlanDataService {
     if (summaries.length === 0) {
       return;
     }
-    const monthly = await this.narrativeService.generateMonthlySummary(summaries);
+    const monthly = await this.narrativeService.generateMonthlySummary(summaries, params.language);
     await this.persistAndEmitMonthlySummary(params, monthly);
   }
 

@@ -6,7 +6,6 @@ export interface Coach {
   description_fr: string;
   description_en: string;
   icon: string;
-  deepgram_voice_id: string;
-  deepgram_voice_model: string;
+  google_voice_name: string;
   is_active: boolean;
 }

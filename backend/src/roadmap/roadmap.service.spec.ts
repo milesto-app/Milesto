@@ -1,10 +1,11 @@
-/* eslint-disable no-magic-numbers, max-lines-per-function, max-lines */
+/* eslint-disable max-lines */
 import type { TestingModule } from '@nestjs/testing';
 import { Test } from '@nestjs/testing';
 import { BadRequestException, ConflictException, NotFoundException } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { RoadmapService } from './roadmap.service.js';
 import { SupabaseService } from '../supabase/supabase.service.js';
+import { UserLanguageService } from '../common/user-language.service.js';
 import { GoalService } from '../goal/goal.service.js';
 import { ContextPipelineService } from './context-pipeline.service.js';
 import { GenerationService } from './generation.service.js';
@@ -109,6 +110,10 @@ describe('RoadmapService', () => {
         { provide: GoalService, useValue: mockGoalService },
         { provide: EventEmitter2, useValue: mockEventEmitter },
         { provide: RoadmapStorageService, useValue: mockRoadmapStorage },
+        {
+          provide: UserLanguageService,
+          useValue: { getLanguage: jest.fn().mockResolvedValue('en') },
+        },
       ],
     }).compile();
 
@@ -239,6 +244,7 @@ describe('RoadmapService', () => {
           title: mockGoal.title,
           description: mockGoal.description,
         }),
+        'en',
       );
       expect(mockGoalService.updateStatus).toHaveBeenCalledWith(goalId, 'active');
     });

@@ -39,7 +39,6 @@ describe('AdminController', () => {
 
   describe('AuthGuard', () => {
     it('should have AuthGuard applied at the controller level', () => {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       const guards = Reflect.getMetadata('__guards__', AdminController);
       expect(guards).toBeDefined();
 

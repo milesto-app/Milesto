@@ -1,4 +1,3 @@
-/* eslint-disable no-magic-numbers */
 import { validateStructural } from './intake-structure-validator.js';
 
 const validBatch = [
@@ -22,7 +21,6 @@ const validBatch = [
   },
 ];
 
-// eslint-disable-next-line max-lines-per-function
 describe('validateStructural', () => {
   it('should pass a valid batch of 3-5 questions', () => {
     const result = validateStructural(validBatch);

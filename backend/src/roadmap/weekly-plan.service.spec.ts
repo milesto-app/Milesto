@@ -1,8 +1,8 @@
-/* eslint-disable max-lines-per-function */
 import type { TestingModule } from '@nestjs/testing';
 import { Test } from '@nestjs/testing';
 import { NotFoundException } from '@nestjs/common';
 import { WeeklyPlanService } from './weekly-plan.service.js';
+import { UserLanguageService } from '../common/user-language.service.js';
 import { ContextPipelineService } from './context-pipeline.service.js';
 import { GenerationService } from './generation.service.js';
 import { WeeklyPlanDataService } from './weekly-plan-data.service.js';
@@ -49,6 +49,10 @@ describe('WeeklyPlanService', () => {
         },
         { provide: WeeklyPlanQueryService, useValue: { queryWeekData: jest.fn() } },
         { provide: WeeklyPlanStorageService, useValue: mockStorage },
+        {
+          provide: UserLanguageService,
+          useValue: { getLanguage: jest.fn().mockResolvedValue('en') },
+        },
       ],
     }).compile();
 

@@ -1,3 +1,4 @@
+import { buildLanguageBlock } from '../../common/language-prompt.helper.js';
 import type { AssembledContext } from '../types/context.types.js';
 import type { GoalData } from '../types/roadmap.types.js';
 
@@ -9,7 +10,7 @@ const HOURS_PER_DAY = 24;
 const MS_PER_DAY = MS_PER_SECOND * SECONDS_PER_MINUTE * MINUTES_PER_HOUR * HOURS_PER_DAY;
 const DAYS_PER_MONTH = 30;
 
-export function buildMilestoneSystemPrompt(): string {
+export function buildMilestoneSystemPrompt(language: string): string {
   return `You are a coaching AI that creates personalized milestone roadmaps using backward planning.
 
 Your task is to generate milestones working backward from the target deadline to the present.
@@ -29,7 +30,7 @@ Return a JSON array of objects with these exact fields:
 - "target_month": The month number (1 = first month, 2 = second month, etc.)
 - "order_index": Sequential index starting from 1
 
-Return ONLY the JSON array, no other text.`;
+Return ONLY the JSON array, no other text.${buildLanguageBlock(language)}`;
 }
 
 export function buildMilestoneUserPrompt(context: AssembledContext, goal: GoalData): string {

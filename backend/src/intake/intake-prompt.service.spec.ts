@@ -1,4 +1,4 @@
-/* eslint-disable no-magic-numbers, max-lines-per-function, max-lines, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable max-lines, @typescript-eslint/no-unsafe-member-access */
 import type { TestingModule } from '@nestjs/testing';
 import { Test } from '@nestjs/testing';
 import { IntakePromptService } from './intake-prompt.service.js';
@@ -21,30 +21,30 @@ describe('IntakePromptService', () => {
 
   describe('getUniversalBatch', () => {
     it('should return exactly 5 questions', () => {
-      const questions = service.getUniversalBatch();
+      const questions = service.getUniversalBatch('en');
       expect(questions).toHaveLength(5);
     });
 
     it('should include at least one text type question', () => {
-      const questions = service.getUniversalBatch();
+      const questions = service.getUniversalBatch('en');
       const textQuestions = questions.filter((q) => q.question_type === 'text');
       expect(textQuestions.length).toBeGreaterThanOrEqual(1);
     });
 
     it('should include at least one scale type question', () => {
-      const questions = service.getUniversalBatch();
+      const questions = service.getUniversalBatch('en');
       const scaleQuestions = questions.filter((q) => q.question_type === 'scale');
       expect(scaleQuestions.length).toBeGreaterThanOrEqual(1);
     });
 
     it('should include at least one single_choice type question', () => {
-      const questions = service.getUniversalBatch();
+      const questions = service.getUniversalBatch('en');
       const choiceQuestions = questions.filter((q) => q.question_type === 'single_choice');
       expect(choiceQuestions.length).toBeGreaterThanOrEqual(1);
     });
 
     it('should have question_text, question_type, config, and order_in_batch on each question', () => {
-      const questions = service.getUniversalBatch();
+      const questions = service.getUniversalBatch('en');
       for (const q of questions) {
         expect(q).toHaveProperty('question_text');
         expect(q).toHaveProperty('question_type');
@@ -54,7 +54,7 @@ describe('IntakePromptService', () => {
     });
 
     it('should have min, max, min_label, max_label in config for scale questions', () => {
-      const questions = service.getUniversalBatch();
+      const questions = service.getUniversalBatch('en');
       const scaleQuestions = questions.filter((q) => q.question_type === 'scale');
       for (const q of scaleQuestions) {
         expect(q.config).toHaveProperty('min');
@@ -65,7 +65,7 @@ describe('IntakePromptService', () => {
     });
 
     it('should have non-empty options array in config for single_choice questions', () => {
-      const questions = service.getUniversalBatch();
+      const questions = service.getUniversalBatch('en');
       const choiceQuestions = questions.filter((q) => q.question_type === 'single_choice');
       for (const q of choiceQuestions) {
         expect(q.config).toHaveProperty('options');
@@ -75,13 +75,13 @@ describe('IntakePromptService', () => {
     });
 
     it('should have sequential order_in_batch values 1-5', () => {
-      const questions = service.getUniversalBatch();
+      const questions = service.getUniversalBatch('en');
       const orders = questions.map((q) => q.order_in_batch);
       expect(orders).toEqual([1, 2, 3, 4, 5]);
     });
 
     it('should have question 4 as text type with config.format === "date"', () => {
-      const questions = service.getUniversalBatch();
+      const questions = service.getUniversalBatch('en');
       const q4 = questions.find((q) => q.order_in_batch === 4);
       expect(q4).toBeDefined();
       expect(q4?.question_type).toBe('text');
@@ -130,7 +130,7 @@ describe('IntakePromptService', () => {
     it('should call AiService.generateJSON with system and user prompts', async () => {
       mockAiService.generateJSON.mockResolvedValue(mockProfile);
 
-      await service.generateGoalProfile('Run a marathon', priorBatches);
+      await service.generateGoalProfile('Run a marathon', priorBatches, 'en');
 
       expect(mockAiService.generateJSON).toHaveBeenCalledTimes(1);
       const [systemPrompt, userPrompt] = mockAiService.generateJSON.mock.calls[0];
@@ -141,7 +141,7 @@ describe('IntakePromptService', () => {
     it('should pass intake model and reasoning options to AiService', async () => {
       mockAiService.generateJSON.mockResolvedValue(mockProfile);
 
-      await service.generateGoalProfile('Run a marathon', priorBatches);
+      await service.generateGoalProfile('Run a marathon', priorBatches, 'en');
 
       const [, , model, options] = mockAiService.generateJSON.mock.calls[0];
       expect(model).toBe(appConfig.intake.model);
@@ -151,7 +151,7 @@ describe('IntakePromptService', () => {
     it('should include all 6 required profile sections in system prompt', async () => {
       mockAiService.generateJSON.mockResolvedValue(mockProfile);
 
-      await service.generateGoalProfile('Run a marathon', priorBatches);
+      await service.generateGoalProfile('Run a marathon', priorBatches, 'en');
 
       const systemPrompt = mockAiService.generateJSON.mock.calls[0][0];
       expect(systemPrompt).toContain('current_state');
@@ -165,7 +165,7 @@ describe('IntakePromptService', () => {
     it('should mention goal_specific_insights in system prompt', async () => {
       mockAiService.generateJSON.mockResolvedValue(mockProfile);
 
-      await service.generateGoalProfile('Run a marathon', priorBatches);
+      await service.generateGoalProfile('Run a marathon', priorBatches, 'en');
 
       const systemPrompt = mockAiService.generateJSON.mock.calls[0][0];
       expect(systemPrompt).toContain('goal_specific_insights');
@@ -174,7 +174,7 @@ describe('IntakePromptService', () => {
     it('should include goal description and all prior Q&A in user prompt', async () => {
       mockAiService.generateJSON.mockResolvedValue(mockProfile);
 
-      await service.generateGoalProfile('Run a marathon', priorBatches);
+      await service.generateGoalProfile('Run a marathon', priorBatches, 'en');
 
       const userPrompt = mockAiService.generateJSON.mock.calls[0][1];
       expect(userPrompt).toContain('Run a marathon');
@@ -209,7 +209,7 @@ describe('IntakePromptService', () => {
         },
       ];
 
-      await service.generateGoalProfile('Run a marathon', batchesWithDate);
+      await service.generateGoalProfile('Run a marathon', batchesWithDate, 'en');
 
       const userPrompt = mockAiService.generateJSON.mock.calls[0][1];
       expect(userPrompt).toContain("Today's date: 2026-02-20");
@@ -222,7 +222,7 @@ describe('IntakePromptService', () => {
     it('should not include timeline context when no date question in prior batches', async () => {
       mockAiService.generateJSON.mockResolvedValue(mockProfile);
 
-      await service.generateGoalProfile('Run a marathon', priorBatches);
+      await service.generateGoalProfile('Run a marathon', priorBatches, 'en');
 
       const userPrompt = mockAiService.generateJSON.mock.calls[0][1];
       expect(userPrompt).not.toContain('<timeline>');
@@ -232,9 +232,9 @@ describe('IntakePromptService', () => {
     it('should propagate AiService errors (does not catch them)', async () => {
       mockAiService.generateJSON.mockRejectedValue(new Error('AI service unavailable'));
 
-      await expect(service.generateGoalProfile('Run a marathon', priorBatches)).rejects.toThrow(
-        'AI service unavailable',
-      );
+      await expect(
+        service.generateGoalProfile('Run a marathon', priorBatches, 'en'),
+      ).rejects.toThrow('AI service unavailable');
     });
   });
 
@@ -284,7 +284,12 @@ describe('IntakePromptService', () => {
     it('should call AiService.generateJSON with system and user prompts', async () => {
       mockAiService.generateJSON.mockResolvedValue(mockGeneratedBatch);
 
-      await service.generateNextBatch('Run a marathon', priorBatches, 2);
+      await service.generateNextBatch({
+        goalDescription: 'Run a marathon',
+        priorBatches,
+        batchNumber: 2,
+        language: 'en',
+      });
 
       expect(mockAiService.generateJSON).toHaveBeenCalledTimes(1);
       const [systemPrompt, userPrompt] = mockAiService.generateJSON.mock.calls[0];
@@ -295,7 +300,12 @@ describe('IntakePromptService', () => {
     it('should pass intake model to AiService without reasoning options', async () => {
       mockAiService.generateJSON.mockResolvedValue(mockGeneratedBatch);
 
-      await service.generateNextBatch('Run a marathon', priorBatches, 2);
+      await service.generateNextBatch({
+        goalDescription: 'Run a marathon',
+        priorBatches,
+        batchNumber: 2,
+        language: 'en',
+      });
 
       const [, , model, options] = mockAiService.generateJSON.mock.calls[0];
       expect(model).toBe(appConfig.intake.model);
@@ -305,7 +315,12 @@ describe('IntakePromptService', () => {
     it('should include goal description in user prompt', async () => {
       mockAiService.generateJSON.mockResolvedValue(mockGeneratedBatch);
 
-      await service.generateNextBatch('Run a marathon', priorBatches, 2);
+      await service.generateNextBatch({
+        goalDescription: 'Run a marathon',
+        priorBatches,
+        batchNumber: 2,
+        language: 'en',
+      });
 
       const userPrompt = mockAiService.generateJSON.mock.calls[0][1];
       expect(userPrompt).toContain('Run a marathon');
@@ -314,7 +329,12 @@ describe('IntakePromptService', () => {
     it('should include prior Q&A context in user prompt', async () => {
       mockAiService.generateJSON.mockResolvedValue(mockGeneratedBatch);
 
-      await service.generateNextBatch('Run a marathon', priorBatches, 2);
+      await service.generateNextBatch({
+        goalDescription: 'Run a marathon',
+        priorBatches,
+        batchNumber: 2,
+        language: 'en',
+      });
 
       const userPrompt = mockAiService.generateJSON.mock.calls[0][1];
       expect(userPrompt).toContain('What motivated you?');
@@ -325,7 +345,12 @@ describe('IntakePromptService', () => {
     it('should include batch number and remaining budget in user prompt', async () => {
       mockAiService.generateJSON.mockResolvedValue(mockGeneratedBatch);
 
-      await service.generateNextBatch('Run a marathon', priorBatches, 2);
+      await service.generateNextBatch({
+        goalDescription: 'Run a marathon',
+        priorBatches,
+        batchNumber: 2,
+        language: 'en',
+      });
 
       const userPrompt = mockAiService.generateJSON.mock.calls[0][1];
       expect(userPrompt).toContain('batch 2');
@@ -334,11 +359,12 @@ describe('IntakePromptService', () => {
     });
 
     it('should return is_complete: true when batchNumber >= maxBatches', async () => {
-      const result = await service.generateNextBatch(
-        'Run a marathon',
+      const result = await service.generateNextBatch({
+        goalDescription: 'Run a marathon',
         priorBatches,
-        appConfig.intake.maxBatches,
-      );
+        batchNumber: appConfig.intake.maxBatches,
+        language: 'en',
+      });
 
       expect(result).toEqual({ questions: [], is_complete: true });
       expect(mockAiService.generateJSON).not.toHaveBeenCalled();
@@ -347,7 +373,12 @@ describe('IntakePromptService', () => {
     it('should include pacing info for batch number in system prompt', async () => {
       mockAiService.generateJSON.mockResolvedValue(mockGeneratedBatch);
 
-      await service.generateNextBatch('Run a marathon', priorBatches, 3);
+      await service.generateNextBatch({
+        goalDescription: 'Run a marathon',
+        priorBatches,
+        batchNumber: 3,
+        language: 'en',
+      });
 
       const systemPrompt = mockAiService.generateJSON.mock.calls[0][0];
       expect(systemPrompt).toContain('batch="3"');
@@ -356,7 +387,12 @@ describe('IntakePromptService', () => {
     it('should include answer-threading strategy in system prompt', async () => {
       mockAiService.generateJSON.mockResolvedValue(mockGeneratedBatch);
 
-      await service.generateNextBatch('Run a marathon', priorBatches, 2);
+      await service.generateNextBatch({
+        goalDescription: 'Run a marathon',
+        priorBatches,
+        batchNumber: 2,
+        language: 'en',
+      });
 
       const systemPrompt = mockAiService.generateJSON.mock.calls[0][0];
       expect(systemPrompt).toContain('ANSWER-THREADING');
@@ -368,7 +404,12 @@ describe('IntakePromptService', () => {
     it('should include reflection batch instruction in system prompt', async () => {
       mockAiService.generateJSON.mockResolvedValue(mockGeneratedBatch);
 
-      await service.generateNextBatch('Run a marathon', priorBatches, 2);
+      await service.generateNextBatch({
+        goalDescription: 'Run a marathon',
+        priorBatches,
+        batchNumber: 2,
+        language: 'en',
+      });
 
       const systemPrompt = mockAiService.generateJSON.mock.calls[0][0];
       expect(systemPrompt).toContain('reflection');
@@ -391,7 +432,12 @@ describe('IntakePromptService', () => {
         },
       ];
 
-      await service.generateNextBatch('Run a marathon', batchesWithLongAnswer, 2);
+      await service.generateNextBatch({
+        goalDescription: 'Run a marathon',
+        priorBatches: batchesWithLongAnswer,
+        batchNumber: 2,
+        language: 'en',
+      });
 
       const userPrompt = mockAiService.generateJSON.mock.calls[0][1];
       expect(userPrompt).toContain('[LONG ANSWER - high engagement signal]');
@@ -413,7 +459,12 @@ describe('IntakePromptService', () => {
         },
       ];
 
-      await service.generateNextBatch('Run a marathon', batchesWithShortAnswer, 2);
+      await service.generateNextBatch({
+        goalDescription: 'Run a marathon',
+        priorBatches: batchesWithShortAnswer,
+        batchNumber: 2,
+        language: 'en',
+      });
 
       const userPrompt = mockAiService.generateJSON.mock.calls[0][1];
       expect(userPrompt).toContain('[SHORT ANSWER - possible avoidance signal]');
@@ -440,7 +491,12 @@ describe('IntakePromptService', () => {
         },
       ];
 
-      await service.generateNextBatch('Run a marathon', batchesWithChoiceAnswer, 2);
+      await service.generateNextBatch({
+        goalDescription: 'Run a marathon',
+        priorBatches: batchesWithChoiceAnswer,
+        batchNumber: 2,
+        language: 'en',
+      });
 
       const userPrompt = mockAiService.generateJSON.mock.calls[0][1];
       expect(userPrompt).not.toContain('[LONG ANSWER');
@@ -450,7 +506,12 @@ describe('IntakePromptService', () => {
     it('should include thread-focused analysis instruction in user prompt', async () => {
       mockAiService.generateJSON.mockResolvedValue(mockGeneratedBatch);
 
-      await service.generateNextBatch('Run a marathon', priorBatches, 2);
+      await service.generateNextBatch({
+        goalDescription: 'Run a marathon',
+        priorBatches,
+        batchNumber: 2,
+        language: 'en',
+      });
 
       const userPrompt = mockAiService.generateJSON.mock.calls[0][1];
       expect(userPrompt).toContain('answers with the most EMOTIONAL energy');
@@ -461,9 +522,14 @@ describe('IntakePromptService', () => {
     it('should propagate AiService errors (does not catch them)', async () => {
       mockAiService.generateJSON.mockRejectedValue(new Error('AI service unavailable'));
 
-      await expect(service.generateNextBatch('Run a marathon', priorBatches, 2)).rejects.toThrow(
-        'AI service unavailable',
-      );
+      await expect(
+        service.generateNextBatch({
+          goalDescription: 'Run a marathon',
+          priorBatches,
+          batchNumber: 2,
+          language: 'en',
+        }),
+      ).rejects.toThrow('AI service unavailable');
     });
 
     describe('timeline context injection', () => {
@@ -497,7 +563,12 @@ describe('IntakePromptService', () => {
       it('should inject timeline context when prior batches have a date question', async () => {
         mockAiService.generateJSON.mockResolvedValue(mockGeneratedBatch);
 
-        await service.generateNextBatch('Run a marathon', priorBatchesWithDate, 2);
+        await service.generateNextBatch({
+          goalDescription: 'Run a marathon',
+          priorBatches: priorBatchesWithDate,
+          batchNumber: 2,
+          language: 'en',
+        });
 
         const userPrompt = mockAiService.generateJSON.mock.calls[0][1];
         expect(userPrompt).toContain("Today's date: 2026-02-20");
@@ -508,7 +579,12 @@ describe('IntakePromptService', () => {
       it('should show approximate months when >= 30 days', async () => {
         mockAiService.generateJSON.mockResolvedValue(mockGeneratedBatch);
 
-        await service.generateNextBatch('Run a marathon', priorBatchesWithDate, 2);
+        await service.generateNextBatch({
+          goalDescription: 'Run a marathon',
+          priorBatches: priorBatchesWithDate,
+          batchNumber: 2,
+          language: 'en',
+        });
 
         const userPrompt = mockAiService.generateJSON.mock.calls[0][1];
         // 2026-02-20 to 2026-08-15 = 176 days = ~6 months
@@ -532,7 +608,12 @@ describe('IntakePromptService', () => {
           },
         ];
 
-        await service.generateNextBatch('Run a marathon', batchesShortDuration, 2);
+        await service.generateNextBatch({
+          goalDescription: 'Run a marathon',
+          priorBatches: batchesShortDuration,
+          batchNumber: 2,
+          language: 'en',
+        });
 
         const userPrompt = mockAiService.generateJSON.mock.calls[0][1];
         expect(userPrompt).toContain('Time remaining: 15 days');
@@ -556,7 +637,12 @@ describe('IntakePromptService', () => {
           },
         ];
 
-        await service.generateNextBatch('Run a marathon', batchesPastDate, 2);
+        await service.generateNextBatch({
+          goalDescription: 'Run a marathon',
+          priorBatches: batchesPastDate,
+          batchNumber: 2,
+          language: 'en',
+        });
 
         const userPrompt = mockAiService.generateJSON.mock.calls[0][1];
         expect(userPrompt).toContain('Overdue by 10 days');
@@ -565,7 +651,12 @@ describe('IntakePromptService', () => {
       it('should not inject timeline context when no date question in prior batches', async () => {
         mockAiService.generateJSON.mockResolvedValue(mockGeneratedBatch);
 
-        await service.generateNextBatch('Run a marathon', priorBatches, 2);
+        await service.generateNextBatch({
+          goalDescription: 'Run a marathon',
+          priorBatches,
+          batchNumber: 2,
+          language: 'en',
+        });
 
         const userPrompt = mockAiService.generateJSON.mock.calls[0][1];
         expect(userPrompt).not.toContain('<timeline>');
@@ -589,7 +680,12 @@ describe('IntakePromptService', () => {
           },
         ];
 
-        await service.generateNextBatch('Run a marathon', batchesDueToday, 2);
+        await service.generateNextBatch({
+          goalDescription: 'Run a marathon',
+          priorBatches: batchesDueToday,
+          batchNumber: 2,
+          language: 'en',
+        });
 
         const userPrompt = mockAiService.generateJSON.mock.calls[0][1];
         expect(userPrompt).toContain('Time remaining: Due today');
@@ -612,7 +708,12 @@ describe('IntakePromptService', () => {
           },
         ];
 
-        await service.generateNextBatch('Run a marathon', batchesBadDate, 2);
+        await service.generateNextBatch({
+          goalDescription: 'Run a marathon',
+          priorBatches: batchesBadDate,
+          batchNumber: 2,
+          language: 'en',
+        });
 
         const userPrompt = mockAiService.generateJSON.mock.calls[0][1];
         expect(userPrompt).not.toContain('<timeline>');
@@ -622,37 +723,37 @@ describe('IntakePromptService', () => {
 
   describe('getFallbackBatch', () => {
     it('should return first pool when no indexes are used', () => {
-      const questions = service.getFallbackBatch([]);
+      const questions = service.getFallbackBatch([], 'en');
       expect(questions[0].question_text).toContain('What do you already have going for you');
       expect(questions).toHaveLength(3);
     });
 
     it('should return second pool when first index is used', () => {
-      const questions = service.getFallbackBatch([0]);
+      const questions = service.getFallbackBatch([0], 'en');
       expect(questions[0].question_text).toContain("is this more about what you'll be able to do");
       expect(questions).toHaveLength(2);
     });
 
     it('should return third pool when first two indexes are used', () => {
-      const questions = service.getFallbackBatch([0, 1]);
+      const questions = service.getFallbackBatch([0, 1], 'en');
       expect(questions[0].question_text).toContain('How supportive is your immediate circle');
       expect(questions).toHaveLength(3);
     });
 
     it('should wrap around to first pool when all indexes are used', () => {
-      const questions = service.getFallbackBatch([0, 1, 2]);
+      const questions = service.getFallbackBatch([0, 1, 2], 'en');
       expect(questions[0].question_text).toContain('What do you already have going for you');
     });
 
     it('should return questions with valid question types and configs', () => {
-      const questions = service.getFallbackBatch([]);
+      const questions = service.getFallbackBatch([], 'en');
       for (const q of questions) {
         expect(['text', 'scale', 'single_choice', 'multiple_choice']).toContain(q.question_type);
       }
     });
 
     it('should return questions with sequential order_in_batch starting at 1', () => {
-      const questions = service.getFallbackBatch([]);
+      const questions = service.getFallbackBatch([], 'en');
       const orders = questions.map((q) => q.order_in_batch);
       expect(orders).toEqual([1, 2, 3]);
     });

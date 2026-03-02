@@ -3,13 +3,20 @@ import { EventEmitter2 } from '@nestjs/event-emitter';
 import { SupabaseService } from '../supabase/supabase.service.js';
 import { appConfig } from '../config/app.config.js';
 import { GoalService } from '../goal/goal.service.js';
+import { UserLanguageService } from '../common/user-language.service.js';
 import { IntakePromptService } from './intake-prompt.service.js';
 import { IntakeQualityService } from './intake-quality.service.js';
 import { IntakeContextService } from './intake-context.service.js';
+import { IntakeProfileStoreService } from './intake-profile-store.service.js';
 import { buildProfileData } from './intake-profile-data.js';
 import type { Json } from '../supabase/database.types.js';
-import type { GoalProfile, PriorBatchContext } from './intake-prompt.service.js';
-import type { ProfileGeneratedEvent, ProfileResult } from './types/intake.types.js';
+import type { GoalProfile } from './intake-prompt.service.js';
+import type {
+  ProfileGeneratedEvent,
+  ProfileGenParams,
+  ProfileResult,
+  StoreProfileParams,
+} from './types/intake.types.js';
 
 const FAILED_STATUS = 'profile_generation_failed';
 
@@ -24,6 +31,9 @@ export class IntakeProfileService {
   ) {}
 
   @Inject()
+  private readonly languageService!: UserLanguageService;
+
+  @Inject()
   private readonly promptService!: IntakePromptService;
 
   @Inject()
@@ -31,6 +41,9 @@ export class IntakeProfileService {
 
   @Inject()
   private readonly contextService!: IntakeContextService;
+
+  @Inject()
+  private readonly profileStore!: IntakeProfileStoreService;
 
   public async retryProfile(
     userId: string,
@@ -50,44 +63,47 @@ export class IntakeProfileService {
     this.logger.log(
       `Retrying profile for goal ${goalId} (attempt ${String(goal.profile_generation_attempts + 1)}/${String(appConfig.intake.maxProfileRetries)})`,
     );
-    const result = await this.generateAndStoreProfile(userId, goalId, goal.description);
+    const language = await this.languageService.getLanguage(userId);
+    const result = await this.generateAndStoreProfile({
+      userId,
+      goalId,
+      goalDescription: goal.description,
+      language,
+    });
     return { profile_id: result.profile_id, goal_status: result.profile_status };
   }
 
-  public async generateAndStoreProfile(
-    userId: string,
-    goalId: string,
-    goalDescription: string,
-  ): Promise<ProfileResult> {
+  public async generateAndStoreProfile(params: StoreProfileParams): Promise<ProfileResult> {
     try {
-      await this.updateGoalStatus(goalId, 'profile_generating');
-      const priorBatches = await this.contextService.loadPriorBatchContext(goalId);
-      const profile = await this.tryGenerateProfile(goalId, goalDescription, priorBatches);
+      await this.profileStore.updateGoalStatus(params.goalId, 'profile_generating');
+      const priorBatches = await this.contextService.loadPriorBatchContext(params.goalId);
+      const genParams: ProfileGenParams = { ...params, priorBatches };
+      const profile = await this.tryGenerateProfile(genParams);
       if (profile === null) {
         return { profile_id: null, profile_status: FAILED_STATUS };
       }
-      return await this.storeProfile(userId, goalId, profile);
+      return await this.storeProfile(params.userId, params.goalId, profile);
     } catch (error) {
       this.logger.error(
-        `Profile generation failed for goal ${goalId}: ${error instanceof Error ? error.message : String(error)}`,
+        `Profile generation failed for goal ${params.goalId}: ${error instanceof Error ? error.message : String(error)}`,
       );
-      return this.markFailure(goalId);
+      return this.profileStore.markFailure(params.goalId);
     }
   }
 
-  private async tryGenerateProfile(
-    goalId: string,
-    goalDescription: string,
-    priorBatches: PriorBatchContext[],
-  ): Promise<GoalProfile | null> {
+  private async tryGenerateProfile(params: ProfileGenParams): Promise<GoalProfile | null> {
     let profile: GoalProfile;
     try {
-      profile = await this.promptService.generateGoalProfile(goalDescription, priorBatches);
+      profile = await this.promptService.generateGoalProfile(
+        params.goalDescription,
+        params.priorBatches,
+        params.language,
+      );
     } catch (error) {
       this.logger.error(
-        `Profile AI call failed for goal ${goalId}: ${error instanceof Error ? error.message : String(error)}`,
+        `Profile AI call failed for goal ${params.goalId}: ${error instanceof Error ? error.message : String(error)}`,
       );
-      await this.markFailure(goalId);
+      await this.profileStore.markFailure(params.goalId);
       return null;
     }
     const validation = this.qualityService.validateGoalProfile(profile);
@@ -95,32 +111,32 @@ export class IntakeProfileService {
       return profile;
     }
     this.logger.warn(
-      `Profile validation failed for goal ${goalId}: ${validation.errors.join(', ')}. Retrying...`,
+      `Profile validation failed for goal ${params.goalId}: ${validation.errors.join(', ')}. Retrying...`,
     );
-    return this.callAiWithValidation(goalId, goalDescription, priorBatches);
+    return this.callAiWithValidation(params);
   }
 
-  private async callAiWithValidation(
-    goalId: string,
-    goalDescription: string,
-    priorBatches: PriorBatchContext[],
-  ): Promise<GoalProfile | null> {
+  private async callAiWithValidation(params: ProfileGenParams): Promise<GoalProfile | null> {
     try {
-      const profile = await this.promptService.generateGoalProfile(goalDescription, priorBatches);
+      const profile = await this.promptService.generateGoalProfile(
+        params.goalDescription,
+        params.priorBatches,
+        params.language,
+      );
       const validation = this.qualityService.validateGoalProfile(profile);
       if (!validation.valid) {
         this.logger.error(
-          `Profile validation failed after retry for goal ${goalId}: ${validation.errors.join(', ')}`,
+          `Profile validation failed after retry for goal ${params.goalId}: ${validation.errors.join(', ')}`,
         );
-        await this.markFailure(goalId);
+        await this.profileStore.markFailure(params.goalId);
         return null;
       }
       return profile;
     } catch (error) {
       this.logger.error(
-        `Profile retry AI call failed for goal ${goalId}: ${error instanceof Error ? error.message : String(error)}`,
+        `Profile retry AI call failed for goal ${params.goalId}: ${error instanceof Error ? error.message : String(error)}`,
       );
-      await this.markFailure(goalId);
+      await this.profileStore.markFailure(params.goalId);
       return null;
     }
   }
@@ -130,8 +146,8 @@ export class IntakeProfileService {
     goalId: string,
     profile: GoalProfile,
   ): Promise<ProfileResult> {
-    const { data: inserted, error } = await this.supabaseService
-      .getAdminClient()
+    const client = this.supabaseService.getAdminClient();
+    const { data: inserted, error } = await client
       .from('goal_profiles')
       .insert({
         goal_id: goalId,
@@ -143,9 +159,9 @@ export class IntakeProfileService {
       .single();
     if (error !== null) {
       this.logger.error(`Failed to insert profile for goal ${goalId}: ${error.message}`);
-      return this.markFailure(goalId);
+      return this.profileStore.markFailure(goalId);
     }
-    await this.updateGoalStatus(goalId, 'intake_completed');
+    await this.profileStore.updateGoalStatus(goalId, 'intake_completed');
     this.logger.log(`Profile generated and stored for goal ${goalId}`);
     this.eventEmitter.emit('profile.generated', {
       goal_id: goalId,
@@ -153,29 +169,5 @@ export class IntakeProfileService {
       user_id: userId,
     } satisfies ProfileGeneratedEvent);
     return { profile_id: inserted.id, profile_status: 'intake_completed' };
-  }
-
-  private async markFailure(goalId: string): Promise<ProfileResult> {
-    const { error } = await this.supabaseService
-      .getAdminClient()
-      .from('goals')
-      .update({ status: FAILED_STATUS, updated_at: new Date().toISOString() })
-      .eq('id', goalId);
-    if (error !== null) {
-      this.logger.error(`Failed to update goal ${goalId} to ${FAILED_STATUS}: ${error.message}`);
-    }
-    return { profile_id: null, profile_status: FAILED_STATUS };
-  }
-
-  private async updateGoalStatus(goalId: string, status: string): Promise<void> {
-    const { error } = await this.supabaseService
-      .getAdminClient()
-      .from('goals')
-      .update({ status, updated_at: new Date().toISOString() })
-      .eq('id', goalId);
-    if (error !== null) {
-      this.logger.error(`Failed to update goal ${goalId} status to ${status}: ${error.message}`);
-      throw new Error(`Failed to update goal status: ${error.message}`);
-    }
   }
 }

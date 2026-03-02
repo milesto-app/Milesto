@@ -44,7 +44,7 @@ export class EvalService {
     const [universalBatch, aiLoopResult, goldBatch] = await Promise.all([
       this.judgeService.evaluateBatch({
         goalDescription: gs.goalDescription,
-        questions: mapToEvalQuestions(this.intakePromptService.getUniversalBatch()),
+        questions: mapToEvalQuestions(this.intakePromptService.getUniversalBatch('en')),
         goldStandard: gs,
         label: `${tag} Universal Batch (Batch 1)`,
         priorBatches: null,
@@ -108,11 +108,12 @@ export class EvalService {
   ): Promise<{ evalResult: BatchEvalResult; simulatedAnswers: EvalPriorBatch } | null> {
     try {
       this.logger.log(`${tag} Generating AI batch ${batchNum}...`);
-      const generated = await this.intakePromptService.generateNextBatch(
-        gs.goalDescription,
+      const generated = await this.intakePromptService.generateNextBatch({
+        goalDescription: gs.goalDescription,
         priorBatches,
-        batchNum,
-      );
+        batchNumber: batchNum,
+        language: 'en',
+      });
 
       if (generated.is_complete || generated.questions.length === 0) {
         this.logger.log(`${tag} AI signaled completion at batch ${batchNum}`);

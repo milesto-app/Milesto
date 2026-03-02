@@ -42,10 +42,11 @@ export class GenerationService {
   public async generateMilestones(
     context: AssembledContext,
     goal: GoalData,
+    language: string,
   ): Promise<{ milestones: GeneratedMilestone[]; metadata: GenerationMetadata }> {
     const model = this.resolveModel(appConfig.roadmap.milestoneModel);
     const result = await this.generateWithRetry({
-      systemPrompt: buildMilestoneSystemPrompt(),
+      systemPrompt: buildMilestoneSystemPrompt(language),
       userPrompt: buildMilestoneUserPrompt(context, goal),
       model,
       timeoutMs: appConfig.roadmap.generationTimeoutMs,
@@ -61,7 +62,7 @@ export class GenerationService {
   ): Promise<{ plan: GeneratedWeeklyPlan; metadata: GenerationMetadata }> {
     const model = this.resolveModel(appConfig.roadmap.weeklyModel);
     const result = await this.generateWithRetry({
-      systemPrompt: buildWeeklyPlanSystemPrompt(),
+      systemPrompt: buildWeeklyPlanSystemPrompt(params.language),
       userPrompt: buildWeeklyPlanUserPrompt({
         context: params.context,
         milestone: params.milestone,
@@ -82,7 +83,7 @@ export class GenerationService {
   ): Promise<{ objectives: GeneratedDailyObjective[]; metadata: GenerationMetadata }> {
     const model = this.resolveModel(appConfig.roadmap.dailyModel);
     const result = await this.generateWithRetry({
-      systemPrompt: buildDailyObjectivesSystemPrompt(),
+      systemPrompt: buildDailyObjectivesSystemPrompt(params.language),
       userPrompt: buildDailyObjectivesUserPrompt({
         weeklyPlan: params.weeklyPlan,
         energyLevel: params.energyLevel,

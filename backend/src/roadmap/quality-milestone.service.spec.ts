@@ -1,4 +1,3 @@
-/* eslint-disable max-lines-per-function */
 import type { TestingModule } from '@nestjs/testing';
 import { Test } from '@nestjs/testing';
 import { QualityMilestoneService } from './quality-milestone.service.js';

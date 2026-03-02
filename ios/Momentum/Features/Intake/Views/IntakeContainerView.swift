@@ -1,3 +1,4 @@
+import SwiftData
 import SwiftUI
 
 enum IntakePhase: Equatable {
@@ -31,6 +32,7 @@ struct IntakeContainerView: View {
     let goalId: String
     let onComplete: () -> Void
 
+    @Query private var localProfiles: [LocalProfile]
     @State private var phase: IntakePhase = .loading
     @State private var currentBatchNumber = 0
     @State private var answers: [String: IntakeAnswerDTO] = [:]
@@ -51,6 +53,7 @@ struct IntakeContainerView: View {
                     batchNumber: currentBatchNumber,
                     totalBatches: totalEstimatedBatches,
                     answers: $answers,
+                    coachId: localProfiles.first?.coachId ?? 1,
                     onSubmit: { submitCurrentBatch() }
                 )
                 .id(batch.batchId)

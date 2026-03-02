@@ -15,6 +15,7 @@ import type { Response } from 'express';
 
 import { appConfig } from '../config/app.config.js';
 import { AuthGuard } from '../common/guards/auth.guard.js';
+import { UserId } from '../common/decorators/user.decorator.js';
 import { VoiceService } from './voice.service.js';
 import { SynthesizeDto } from './dto/synthesize.dto.js';
 import type { TranscriptionResult } from './voice.types.js';
@@ -41,6 +42,7 @@ export class VoiceController {
   )
   public async transcribe(
     @UploadedFile() file: Express.Multer.File | undefined,
+    @UserId() userId: string,
   ): Promise<TranscriptionResult> {
     if (file === undefined) {
       throw new BadRequestException('Audio file is required');
@@ -52,7 +54,7 @@ export class VoiceController {
       );
     }
 
-    return this.voiceService.transcribe(file.buffer, file.mimetype);
+    return this.voiceService.transcribe(file.buffer, file.mimetype, userId);
   }
 
   @Post('synthesize')

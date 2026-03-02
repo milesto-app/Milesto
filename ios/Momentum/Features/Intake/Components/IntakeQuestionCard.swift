@@ -3,10 +3,14 @@ import SwiftUI
 struct IntakeQuestionCard: View {
     let question: IntakeQuestion
     @Binding var answers: [String: IntakeAnswerDTO]
+    let coachId: Int
 
     var body: some View {
         VStack(alignment: .leading, spacing: AppTheme.Spacing.md) {
-            AppText(verbatim: question.questionText, style: .headline)
+            HStack(alignment: .top, spacing: AppTheme.Spacing.xs) {
+                AppText(verbatim: question.questionText, style: .headline)
+                VoicePlaybackButton(text: question.questionText, coachId: coachId)
+            }
 
             switch question.questionType {
             case .text:

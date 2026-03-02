@@ -1,4 +1,3 @@
-/* eslint-disable max-lines-per-function */
 import { BadRequestException } from '@nestjs/common';
 import type { EventEmitter2 } from '@nestjs/event-emitter';
 import { IntakeBatchService } from './intake-batch.service.js';
@@ -7,6 +6,8 @@ import type { IntakeStoreService } from './intake-store.service.js';
 import type { IntakeGenerationService } from './intake-generation.service.js';
 import type { IntakeContextService } from './intake-context.service.js';
 import type { IntakeFallbackService } from './intake-fallback.service.js';
+import type { UserLanguageService } from '../common/user-language.service.js';
+import type { IntakeTargetDateService } from './intake-target-date.service.js';
 
 describe('IntakeBatchService', () => {
   let service: IntakeBatchService;
@@ -23,6 +24,8 @@ describe('IntakeBatchService', () => {
   let contextService: { loadPriorBatchContext: jest.Mock };
   let fallbackService: { serveFirstBatch: jest.Mock; serveFallback: jest.Mock };
   let eventEmitter: { emit: jest.Mock };
+  let languageService: { getLanguage: jest.Mock };
+  let targetDateService: { tryExtractTargetDate: jest.Mock };
 
   const userId = 'user-123';
   const goalId = 'goal-456';
@@ -49,6 +52,8 @@ describe('IntakeBatchService', () => {
     contextService = { loadPriorBatchContext: jest.fn() };
     fallbackService = { serveFirstBatch: jest.fn(), serveFallback: jest.fn() };
     eventEmitter = { emit: jest.fn() };
+    languageService = { getLanguage: jest.fn().mockResolvedValue('en') };
+    targetDateService = { tryExtractTargetDate: jest.fn().mockResolvedValue(undefined) };
 
     service = new IntakeBatchService(
       goalService as unknown as GoalService,
@@ -61,6 +66,8 @@ describe('IntakeBatchService', () => {
       generationService: generationService as unknown as IntakeGenerationService,
       contextService: contextService as unknown as IntakeContextService,
       fallbackService: fallbackService as unknown as IntakeFallbackService,
+      languageService: languageService as unknown as UserLanguageService,
+      targetDateService: targetDateService as unknown as IntakeTargetDateService,
     });
   });
 
@@ -79,7 +86,7 @@ describe('IntakeBatchService', () => {
 
       const result = await service.getNextBatch(userId, goalId);
 
-      expect(fallbackService.serveFirstBatch).toHaveBeenCalledWith(goalId);
+      expect(fallbackService.serveFirstBatch).toHaveBeenCalledWith(goalId, 'en');
       expect(result).toEqual(batch);
       expect(eventEmitter.emit).toHaveBeenCalledWith(
         'batch.served',

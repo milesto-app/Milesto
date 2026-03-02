@@ -89,4 +89,65 @@ export const UNIVERSAL_BATCH_1: UniversalQuestion[] = [
   },
 ];
 
-export { FALLBACK_POOLS } from './fallback-questions.config.js';
+const UNIVERSAL_BATCH_1_FR: UniversalQuestion[] = [
+  {
+    question_text: "Qu'est-ce qui d\u00e9crit le mieux ton point de d\u00e9part ?",
+    question_type: 'single_choice',
+    config: {
+      options: [
+        "D\u00e9butant complet \u2014 j'ai peu ou pas d'exp\u00e9rience ici",
+        'Je connais les bases mais je ne les ai pas encore mises en pratique',
+        "J'ai essay\u00e9 des choses mais rien de coh\u00e9rent ou structur\u00e9",
+        "J'ai une bonne base mais j'ai atteint un plafond que je n'arrive pas \u00e0 d\u00e9passer",
+        "J'\u00e9tais plus avanc\u00e9 avant mais j'ai perdu du terrain et je dois reconstruire",
+      ],
+    },
+    order_in_batch: 1,
+  },
+  {
+    question_text:
+      "Que pourras-tu faire, avoir ou vivre concr\u00e8tement quand ce sera atteint \u2014 quelque chose que tu ne peux pas aujourd'hui ?",
+    question_type: 'text',
+    config: null,
+    order_in_batch: 2,
+  },
+  {
+    question_text:
+      "Combien d'heures par semaine peux-tu r\u00e9alistement prot\u00e9ger pour \u00e7a \u2014 m\u00eame dans tes semaines les plus charg\u00e9es ?",
+    question_type: 'scale',
+    config: {
+      min: 1,
+      max: 20,
+      min_label: '1 heure \u2014 mais c\u2019est non n\u00e9gociable',
+      max_label: '20+ heures \u2014 je restructure ma vie pour \u00e7a',
+    },
+    order_in_batch: 3,
+  },
+  {
+    question_text: "Quand veux-tu pouvoir dire \u00ab j'ai r\u00e9ussi \u00bb ?",
+    question_type: 'text',
+    config: { format: 'date' },
+    order_in_batch: 4,
+  },
+  {
+    question_text:
+      'La plupart des gens atteignent un moment o\u00f9 quelque chose bascule de \u00ab je devrais le faire \u00bb \u00e0 \u00ab il faut que je le fasse maintenant \u00bb. Quel a \u00e9t\u00e9 ce moment pour toi ?',
+    question_type: 'single_choice',
+    config: {
+      options: [
+        "Un \u00e9v\u00e9nement ou une conversation qui m'a frapp\u00e9",
+        'Une accumulation graduelle qui a fini par atteindre un point de basculement',
+        "Voir quelqu'un d'autre accomplir ce que je veux",
+        'Une \u00e9ch\u00e9ance ou un changement de vie approche',
+        'Quelque chose a simplement cliqu\u00e9 \u2014 je me suis r\u00e9veill\u00e9 pr\u00eat \u00e0 commencer',
+      ],
+    },
+    order_in_batch: 5,
+  },
+];
+
+export function getUniversalBatch1(language: string): UniversalQuestion[] {
+  return language === 'fr' ? UNIVERSAL_BATCH_1_FR : UNIVERSAL_BATCH_1;
+}
+
+export { FALLBACK_POOLS, getFallbackPools } from './fallback-questions.config.js';

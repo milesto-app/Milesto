@@ -1,4 +1,4 @@
-/* eslint-disable no-magic-numbers, max-lines-per-function, max-lines, @typescript-eslint/no-non-null-assertion, @typescript-eslint/no-unnecessary-type-conversion */
+/* eslint-disable max-lines, @typescript-eslint/no-non-null-assertion, @typescript-eslint/no-unnecessary-type-conversion */
 import type { TestingModule } from '@nestjs/testing';
 import { Test } from '@nestjs/testing';
 import { ConfigService } from '@nestjs/config';

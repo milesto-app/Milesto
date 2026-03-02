@@ -24,6 +24,7 @@ export interface GenerateWeeklyPlanParams {
   milestone: Milestone;
   weekNumber: number;
   generationContext: GenerationContext;
+  language: string;
 }
 
 export interface GenerateDailyParams {
@@ -31,6 +32,7 @@ export interface GenerateDailyParams {
   energyLevel: EnergyLevel;
   context: AssembledContext;
   weekData: { completedObjectives: number; totalObjectives: number; debriefNotes: string[] };
+  language: string;
 }
 
 export interface MetadataParams {

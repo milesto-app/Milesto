@@ -1,9 +1,11 @@
 import SwiftUI
+import SwiftData
 
 struct ChatView: View {
     let goalId: String
     var onClose: (() -> Void)? = nil
 
+    @Query private var localProfiles: [LocalProfile]
     @State private var messages: [ChatMessage] = []
     @State private var inputText = ""
     @State private var isStreaming = false
@@ -13,6 +15,12 @@ struct ChatView: View {
     @State private var errorMessage = ""
     @State private var showThinking = false
     @FocusState private var isInputFocused: Bool
+    @State private var isVoiceChatActive = false
+
+    private var coach: CoachPersonality? {
+        guard let coachId = localProfiles.first?.coachId else { return nil }
+        return CoachPersonality.from(databaseId: coachId)
+    }
 
     var body: some View {
         ZStack {
@@ -57,7 +65,9 @@ struct ChatView: View {
                 }
             }
             .overlay(alignment: .bottom) {
-                ChatInputBar(text: $inputText, isDisabled: isStreaming, isFocused: $isInputFocused) {
+                ChatInputBar(text: $inputText, isDisabled: isStreaming, isFocused: $isInputFocused, onVoiceChatTap: {
+                    isVoiceChatActive = true
+                }) {
                     sendMessage()
                 }
             }
@@ -98,6 +108,17 @@ struct ChatView: View {
         .toolbar(.hidden, for: .tabBar)
         .alert(String(localized: "chat.error.generic", table: "Chat"), isPresented: $showError) {
             Button(String(localized: "common.ok", table: "Common"), role: .cancel) {}
+        }
+        .fullScreenCover(isPresented: $isVoiceChatActive) {
+            VoiceChatOverlay(
+                goalId: goalId,
+                conversationId: $conversationId,
+                coachName: coach?.title ?? "",
+                coachIcon: coach?.icon ?? .flame,
+                onClose: {
+                    isVoiceChatActive = false
+                }
+            )
         }
     }
 

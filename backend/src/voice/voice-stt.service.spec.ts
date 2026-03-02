@@ -4,26 +4,21 @@ import { ConfigService } from '@nestjs/config';
 import { VoiceSttService } from './voice-stt.service.js';
 
 const MOCK_TRANSCRIPT = 'Hello, how are you?';
-const MOCK_CONFIDENCE = 0.98;
-const MOCK_DURATION = 3.5;
-const MOCK_LANGUAGE = 'en';
+const EXPECTED_CONFIDENCE = 0.95;
 
-const mockTranscribeFile = jest.fn();
+const mockGenerateContent = jest.fn();
 
-jest.mock('@deepgram/sdk', () => ({
-  createClient: () => ({
-    listen: {
-      prerecorded: {
-        transcribeFile: mockTranscribeFile,
-      },
-    },
-  }),
+jest.mock('@google/genai', () => ({
+  // eslint-disable-next-line @typescript-eslint/naming-convention -- mirrors SDK export
+  GoogleGenAI: jest.fn().mockImplementation(() => ({
+    models: { generateContent: mockGenerateContent },
+  })),
 }));
 
 let service: VoiceSttService;
 
 beforeEach(async () => {
-  mockTranscribeFile.mockReset();
+  mockGenerateContent.mockReset();
 
   const module: TestingModule = await Test.createTestingModule({
     providers: [
@@ -44,53 +39,60 @@ describe('VoiceSttService', () => {
   });
 
   it('should return transcription result when successful', async () => {
-    mockTranscribeFile.mockResolvedValue({
-      result: {
-        metadata: { duration: MOCK_DURATION },
-        results: {
-          channels: [
-            {
-              alternatives: [{ transcript: MOCK_TRANSCRIPT, confidence: MOCK_CONFIDENCE }],
-              detected_language: MOCK_LANGUAGE,
-            },
-          ],
-        },
-      },
-      error: null,
-    });
+    mockGenerateContent.mockResolvedValue({ text: MOCK_TRANSCRIPT });
 
-    const result = await service.transcribe(Buffer.from('audio'), 'audio/wav');
+    const result = await service.transcribe(Buffer.from('audio'), 'audio/wav', 'en');
 
     expect(result.text).toBe(MOCK_TRANSCRIPT);
-    expect(result.confidence).toBe(MOCK_CONFIDENCE);
-    expect(result.language).toBe(MOCK_LANGUAGE);
+    expect(result.confidence).toBe(EXPECTED_CONFIDENCE);
+    expect(result.language).toBe('en');
+  });
+
+  it('should return the passed language in the result', async () => {
+    mockGenerateContent.mockResolvedValue({ text: MOCK_TRANSCRIPT });
+
+    const result = await service.transcribe(Buffer.from('audio'), 'audio/wav', 'fr');
+
+    expect(result.language).toBe('fr');
+  });
+
+  it('should return empty text when response text is undefined', async () => {
+    mockGenerateContent.mockResolvedValue({ text: undefined });
+
+    const result = await service.transcribe(Buffer.from('audio'), 'audio/wav', 'en');
+
+    expect(result.text).toBe('');
+  });
+
+  it('should include language hint in Gemini prompt when language is fr', async () => {
+    mockGenerateContent.mockResolvedValue({ text: MOCK_TRANSCRIPT });
+
+    await service.transcribe(Buffer.from('audio'), 'audio/wav', 'fr');
+
+    const calls = mockGenerateContent.mock.calls as unknown[][];
+    const firstCall = calls[0] as [{ contents: { parts: { text?: string }[] }[] }];
+    const promptText = firstCall[0].contents[0].parts[1].text;
+    expect(promptText).toContain('The speaker is likely speaking French');
+  });
+
+  it('should default language name to English for unknown language code', async () => {
+    mockGenerateContent.mockResolvedValue({ text: MOCK_TRANSCRIPT });
+
+    await service.transcribe(Buffer.from('audio'), 'audio/wav', 'de');
+
+    const calls = mockGenerateContent.mock.calls as unknown[][];
+    const firstCall = calls[0] as [{ contents: { parts: { text?: string }[] }[] }];
+    const promptText = firstCall[0].contents[0].parts[1].text;
+    expect(promptText).toContain('The speaker is likely speaking English');
   });
 });
 
 describe('VoiceSttService error handling', () => {
-  it('should throw when Deepgram returns an error', async () => {
-    mockTranscribeFile.mockResolvedValue({
-      result: null,
-      error: { message: 'Invalid audio' },
-    });
+  it('should throw when Gemini returns an error', async () => {
+    mockGenerateContent.mockRejectedValue(new Error('Invalid audio format'));
 
-    await expect(service.transcribe(Buffer.from('bad'), 'audio/wav')).rejects.toThrow(
-      'Deepgram STT error: Invalid audio',
+    await expect(service.transcribe(Buffer.from('bad'), 'audio/wav', 'en')).rejects.toThrow(
+      'Invalid audio format',
     );
-  });
-
-  it('should handle missing channel data gracefully', async () => {
-    mockTranscribeFile.mockResolvedValue({
-      result: {
-        metadata: { duration: MOCK_DURATION },
-        results: { channels: [] },
-      },
-      error: null,
-    });
-
-    const result = await service.transcribe(Buffer.from('audio'), 'audio/wav');
-
-    expect(result.text).toBe('');
-    expect(result.confidence).toBe(0);
   });
 });

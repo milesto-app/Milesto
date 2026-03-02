@@ -1,7 +1,8 @@
 import type { PriorBatchContext } from '../questions.config.js';
 import { buildTimelineContext } from './intake-prompts.config.js';
+import { buildLanguageBlock } from '../../common/language-prompt.helper.js';
 
-export const PROFILE_SYSTEM_PROMPT = `You are a coaching profile synthesizer. Your job is to analyze all intake responses and create a comprehensive, structured coaching profile.
+const PROFILE_BASE_PROMPT = `You are a coaching profile synthesizer. Your job is to analyze all intake responses and create a comprehensive, structured coaching profile.
 
 OUTPUT FORMAT:
 Return a JSON object with exactly this structure:
@@ -23,6 +24,10 @@ RULES:
 - Do NOT include any information not supported by the intake responses.
 - Each structured section (current_state, desired_state, constraints, motivation, domain_context) should be 2-5 sentences.
 - goal_specific_insights is OPTIONAL. Include it only when the intake reveals 2-5 domain-specific patterns that don't fit neatly into the 5 base fields. Examples: "dietary_patterns", "skill_gaps", "relationship_dynamics", "financial_habits", "sleep_patterns". Each key should be a snake_case descriptor and each value a concise insight string.`;
+
+export function buildProfileSystemPrompt(language: string): string {
+  return PROFILE_BASE_PROMPT + buildLanguageBlock(language);
+}
 
 interface ProfileUserPromptParams {
   goalDescription: string;

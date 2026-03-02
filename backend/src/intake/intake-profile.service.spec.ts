@@ -1,4 +1,3 @@
-/* eslint-disable no-magic-numbers, max-lines-per-function */
 import { BadRequestException } from '@nestjs/common';
 import type { EventEmitter2 } from '@nestjs/event-emitter';
 import { IntakeProfileService } from './intake-profile.service.js';
@@ -7,6 +6,8 @@ import type { GoalService } from '../goal/goal.service.js';
 import type { IntakePromptService } from './intake-prompt.service.js';
 import type { IntakeQualityService } from './intake-quality.service.js';
 import type { IntakeContextService } from './intake-context.service.js';
+import type { UserLanguageService } from '../common/user-language.service.js';
+import type { IntakeProfileStoreService } from './intake-profile-store.service.js';
 
 describe('IntakeProfileService', () => {
   let service: IntakeProfileService;
@@ -17,6 +18,8 @@ describe('IntakeProfileService', () => {
   let contextService: { loadPriorBatchContext: jest.Mock };
   let eventEmitter: { emit: jest.Mock };
   let mockSupabase: { from: jest.Mock };
+  let languageService: { getLanguage: jest.Mock };
+  let profileStore: { markFailure: jest.Mock; updateGoalStatus: jest.Mock };
 
   const userId = 'user-123';
   const goalId = 'goal-456';
@@ -38,6 +41,13 @@ describe('IntakeProfileService', () => {
     qualityService = { validateGoalProfile: jest.fn() };
     contextService = { loadPriorBatchContext: jest.fn() };
     eventEmitter = { emit: jest.fn() };
+    languageService = { getLanguage: jest.fn().mockResolvedValue('en') };
+    profileStore = {
+      markFailure: jest
+        .fn()
+        .mockResolvedValue({ profile_id: null, profile_status: 'profile_generation_failed' }),
+      updateGoalStatus: jest.fn().mockResolvedValue(undefined),
+    };
 
     service = new IntakeProfileService(
       supabaseService as unknown as SupabaseService,
@@ -49,6 +59,8 @@ describe('IntakeProfileService', () => {
       promptService: promptService as unknown as IntakePromptService,
       qualityService: qualityService as unknown as IntakeQualityService,
       contextService: contextService as unknown as IntakeContextService,
+      languageService: languageService as unknown as UserLanguageService,
+      profileStore: profileStore as unknown as IntakeProfileStoreService,
     });
   });
 
@@ -80,15 +92,8 @@ describe('IntakeProfileService', () => {
       promptService.generateGoalProfile.mockResolvedValue(mockProfile);
       qualityService.validateGoalProfile.mockReturnValue({ valid: true, errors: [] });
 
-      // Mock updateGoalStatus
+      // Mock storeProfile insert (direct Supabase call for goal_profiles insert)
       mockSupabase.from.mockReturnValue({
-        update: jest.fn().mockReturnValue({
-          eq: jest.fn().mockResolvedValue({ error: null }),
-        }),
-      });
-
-      // Mock storeProfile insert
-      const insertChain = {
         insert: jest.fn().mockReturnValue({
           select: jest.fn().mockReturnValue({
             single: jest.fn().mockResolvedValue({
@@ -97,25 +102,18 @@ describe('IntakeProfileService', () => {
             }),
           }),
         }),
-      };
-      // First call: updateGoalStatus('profile_generating'), second: store profile insert, third: updateGoalStatus('intake_completed')
-      mockSupabase.from
-        .mockReturnValueOnce({
-          update: jest.fn().mockReturnValue({
-            eq: jest.fn().mockResolvedValue({ error: null }),
-          }),
-        })
-        .mockReturnValueOnce(insertChain)
-        .mockReturnValueOnce({
-          update: jest.fn().mockReturnValue({
-            eq: jest.fn().mockResolvedValue({ error: null }),
-          }),
-        });
+      });
 
-      const result = await service.generateAndStoreProfile(userId, goalId, 'Run a marathon');
+      const result = await service.generateAndStoreProfile({
+        userId,
+        goalId,
+        goalDescription: 'Run a marathon',
+        language: 'en',
+      });
 
       expect(result.profile_id).toBe('profile-1');
       expect(result.profile_status).toBe('intake_completed');
+      expect(profileStore.updateGoalStatus).toHaveBeenCalledWith(goalId, 'profile_generating');
       expect(eventEmitter.emit).toHaveBeenCalledWith(
         'profile.generated',
         expect.objectContaining({ profile_id: 'profile-1' }),
@@ -126,16 +124,16 @@ describe('IntakeProfileService', () => {
       contextService.loadPriorBatchContext.mockResolvedValue([]);
       promptService.generateGoalProfile.mockRejectedValue(new Error('AI error'));
 
-      mockSupabase.from.mockReturnValue({
-        update: jest.fn().mockReturnValue({
-          eq: jest.fn().mockResolvedValue({ error: null }),
-        }),
+      const result = await service.generateAndStoreProfile({
+        userId,
+        goalId,
+        goalDescription: 'Run a marathon',
+        language: 'en',
       });
-
-      const result = await service.generateAndStoreProfile(userId, goalId, 'Run a marathon');
 
       expect(result.profile_id).toBeNull();
       expect(result.profile_status).toBe('profile_generation_failed');
+      expect(profileStore.markFailure).toHaveBeenCalledWith(goalId);
     });
 
     it('should retry validation and return failure on second validation failure', async () => {
@@ -145,13 +143,12 @@ describe('IntakeProfileService', () => {
         .mockResolvedValueOnce(mockProfile);
       qualityService.validateGoalProfile.mockReturnValue({ valid: false, errors: ['bad profile'] });
 
-      mockSupabase.from.mockReturnValue({
-        update: jest.fn().mockReturnValue({
-          eq: jest.fn().mockResolvedValue({ error: null }),
-        }),
+      const result = await service.generateAndStoreProfile({
+        userId,
+        goalId,
+        goalDescription: 'Run a marathon',
+        language: 'en',
       });
-
-      const result = await service.generateAndStoreProfile(userId, goalId, 'Run a marathon');
 
       expect(result.profile_id).toBeNull();
       expect(result.profile_status).toBe('profile_generation_failed');

@@ -1,8 +1,11 @@
+import { buildLanguageBlock } from '../../common/language-prompt.helper.js';
+
 export interface BatchPromptParams {
   batchNumber: number;
   questionsPerBatchMin: number;
   questionsPerBatchMax: number;
   maxBatches: number;
+  language: string;
 }
 
 export function buildIntakeBatchSystemPrompt(params: BatchPromptParams): string {
@@ -16,6 +19,7 @@ export function buildIntakeBatchSystemPrompt(params: BatchPromptParams): string 
     buildOutputFormat(),
     buildTypesAndRules({ min, max, batchNumber, maxBatches }),
     buildPacingAndCompletion({ batchNumber, maxBatches }),
+    buildLanguageBlock(params.language),
   ].join('\n\n');
 }
 

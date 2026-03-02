@@ -6,5 +6,8 @@ enum VoiceState: Equatable {
     case transcribing
     case playing
     case synthesizing
+    case liveListening
+    case liveResponding
+    case liveToolRunning
     case error(String)
 }
