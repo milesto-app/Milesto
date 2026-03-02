@@ -8,6 +8,8 @@ import { ChatPromptService } from './chat-prompt.service.js';
 import { ChatSearchService } from './chat-search.service.js';
 import { ChatService } from './chat.service.js';
 import { ChatToolsService } from './chat-tools.service.js';
+import { ChatCheckInToolsService } from './chat-checkin-tools.service.js';
+import { ChatRoadmapToolsService } from './chat-roadmap-tools.service.js';
 
 @Module({
   imports: [CoachModule, RoadmapModule],
@@ -17,10 +19,19 @@ import { ChatToolsService } from './chat-tools.service.js';
     ChatHistoryService,
     ChatSearchService,
     ChatToolsService,
+    ChatCheckInToolsService,
+    ChatRoadmapToolsService,
     ChatPromptService,
     ChatService,
   ],
-  exports: [ChatHistoryService, ChatToolsService, ChatPromptService, ChatService],
+  exports: [
+    ChatHistoryService,
+    ChatToolsService,
+    ChatCheckInToolsService,
+    ChatRoadmapToolsService,
+    ChatPromptService,
+    ChatService,
+  ],
 })
 // eslint-disable-next-line @typescript-eslint/no-extraneous-class
 export class ChatModule {}

@@ -8,6 +8,8 @@ import { ChatAiService } from './chat-ai.service.js';
 import { ChatHistoryService } from './chat-history.service.js';
 import { ChatPromptService } from './chat-prompt.service.js';
 import { ChatToolsService } from './chat-tools.service.js';
+import { ChatCheckInToolsService } from './chat-checkin-tools.service.js';
+import { ChatRoadmapToolsService } from './chat-roadmap-tools.service.js';
 import { buildToolRegistry } from './chat-tool-registry.js';
 import { consumeStream, toOpenAiMessages } from './chat-stream.utils.js';
 import type { SendMessageDto } from './dto/send-message.dto.js';
@@ -33,8 +35,14 @@ export class ChatService {
     private readonly history: ChatHistoryService,
     private readonly prompt: ChatPromptService,
     private readonly toolsService: ChatToolsService,
+    private readonly checkInToolsService: ChatCheckInToolsService,
+    private readonly roadmapToolsService: ChatRoadmapToolsService,
   ) {
-    this.toolRegistry = buildToolRegistry(this.toolsService);
+    this.toolRegistry = buildToolRegistry({
+      toolsService: this.toolsService,
+      checkInToolsService: this.checkInToolsService,
+      roadmapToolsService: this.roadmapToolsService,
+    });
   }
 
   public async handleMessage(

@@ -52,6 +52,8 @@ import { DebriefController } from './debrief.controller.js';
     RoadmapService,
     WeeklyPlanService,
     DailyObjectiveService,
+    CheckInService,
+    DebriefService,
   ],
 })
 // eslint-disable-next-line @typescript-eslint/no-extraneous-class

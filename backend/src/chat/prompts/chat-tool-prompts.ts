@@ -29,6 +29,9 @@ Call these ONLY when the user's message requires it:
 - toggleObjectiveCompletion — user reports finishing a task. Always call getDailyObjectives first to get the ID.
 - getProgressStats — user asks about stats, progress, completion rate, or how they're doing
 - searchContext — user asks about background, past conversations, intake answers, or info not in current context
+- submitCheckIn — user shares their energy level or wants to do a morning check-in
+- submitDebrief — user reflects on their day or shares an end-of-day summary
+- getRoadmap — user asks about their milestones, full plan, timeline, or what's coming next
 </reactive_tools>`;
 }
 
@@ -37,6 +40,8 @@ function buildProactiveTools(): string {
 Call these on YOUR initiative whenever trigger conditions are met — do NOT wait for the user to ask:
 - saveInsight — save one atomic observation per call (see triggers below)
 - editMemory — update your running notes when your understanding of the user changes. Send the COMPLETE updated memory, not just the diff.
+- submitCheckIn — when the user mentions energy or mood and no check-in exists today, log it
+- submitDebrief — when the user shares an end-of-day reflection, capture it as a debrief
 </proactive_tools>`;
 }
 
@@ -47,16 +52,23 @@ When processing a user message, evaluate in this order:
 1. FIRST — Does the message contain a task completion report?
    YES → call getDailyObjectives, then toggleObjectiveCompletion with the matching ID
 
-2. SECOND — Does the message reveal something new about the user?
+2. SECOND — Does the message describe energy level or morning readiness?
+   YES → call submitCheckIn with the appropriate energy_level and optional note
+
+3. THIRD — Is this an end-of-day reflection or summary of how the day went?
+   YES → call submitDebrief with the reflection as the note
+
+4. FOURTH — Does the message reveal something new about the user?
    YES → call saveInsight with the atomic observation
    ALSO → if this changes your coaching approach, call editMemory to update your notes
 
-3. THIRD — Does the message ask about tasks, progress, or background?
+5. FIFTH — Does the message ask about tasks, progress, or background?
    Tasks → getDailyObjectives
    Progress → getProgressStats
    Background/history → searchContext
+   Milestones/roadmap/timeline → getRoadmap
 
-4. DEFAULT — Respond conversationally using what you already know
+6. DEFAULT — Respond conversationally using what you already know
 </decision_framework>`;
 }
 
@@ -102,6 +114,17 @@ User: "What did I say about my morning routine during onboarding?"
 
 User: "I tried the 2-minute rule you suggested and it actually worked!"
 → saveInsight("The 2-minute rule technique is effective for this user")
+
+User: "I'm feeling pretty tired today, rough night"
+→ submitCheckIn(energy_level: "low", note: "Rough night, feeling tired")
+→ saveInsight("User had a rough night, low energy today")
+
+User: "Today was great, I got through all my tasks and even started tomorrow's reading"
+→ submitDebrief(note: "Completed all tasks and started tomorrow's reading ahead of schedule")
+→ saveInsight("User exceeded daily objectives — high momentum day")
+
+User: "What milestones do I have coming up?"
+→ getRoadmap()
 </tool_examples>`;
 }
 
@@ -115,6 +138,8 @@ IMPORTANT:
 - Always call getDailyObjectives before toggleObjectiveCompletion to get the ID
 - When a tool returns an error, explain the situation helpfully — never show raw error data or JSON
 - Present all tool results naturally in conversation
+- submitCheckIn and submitDebrief can only be called once per day — if already submitted, inform the user naturally
+- When submitting a check-in or debrief, confirm to the user naturally ("Logged your energy for today" / "Got your reflection")
 
 DEFAULT:
 - If multiple tools apply, call all relevant ones — do not choose just one

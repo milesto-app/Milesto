@@ -3,6 +3,8 @@ import { Injectable, Logger } from '@nestjs/common';
 import { appConfig } from '../config/app.config.js';
 import { ChatHistoryService } from '../chat/chat-history.service.js';
 import { ChatToolsService } from '../chat/chat-tools.service.js';
+import { ChatCheckInToolsService } from '../chat/chat-checkin-tools.service.js';
+import { ChatRoadmapToolsService } from '../chat/chat-roadmap-tools.service.js';
 import { buildToolRegistry } from '../chat/chat-tool-registry.js';
 import { GeminiLiveService } from './gemini-live.service.js';
 import { adaptToolsToGemini } from './gemini-tool-adapter.js';
@@ -45,9 +47,12 @@ export class VoiceChatSessionService {
   private readonly logger = new Logger(VoiceChatSessionService.name);
   private readonly activeSessions = new Map<string, ActiveSession>();
 
+  // eslint-disable-next-line max-params -- NestJS DI requires individual constructor params
   constructor(
     private readonly geminiLiveService: GeminiLiveService,
     private readonly chatToolsService: ChatToolsService,
+    private readonly chatCheckInToolsService: ChatCheckInToolsService,
+    private readonly chatRoadmapToolsService: ChatRoadmapToolsService,
     private readonly chatHistoryService: ChatHistoryService,
   ) {}
 
@@ -100,7 +105,11 @@ export class VoiceChatSessionService {
   }
 
   private async startGeminiSession(input: CreateSessionInput): Promise<GeminiLiveSession> {
-    const registry = buildToolRegistry(this.chatToolsService);
+    const registry = buildToolRegistry({
+      toolsService: this.chatToolsService,
+      checkInToolsService: this.chatCheckInToolsService,
+      roadmapToolsService: this.chatRoadmapToolsService,
+    });
     const toolCtx: ToolContext = {
       registry,
       execCtx: { userId: input.userId, goalId: input.goalId },

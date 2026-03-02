@@ -1,5 +1,14 @@
 import type { ChatToolEntry, ChatToolExecutor } from './types/chat.types.js';
 import type { ChatToolsService } from './chat-tools.service.js';
+import type { ChatCheckInToolsService } from './chat-checkin-tools.service.js';
+import type { ChatRoadmapToolsService } from './chat-roadmap-tools.service.js';
+import { buildCheckInTools, buildRoadmapTools } from './chat-checkin-registry.js';
+
+export interface ToolRegistryDeps {
+  toolsService: ChatToolsService;
+  checkInToolsService: ChatCheckInToolsService;
+  roadmapToolsService: ChatRoadmapToolsService;
+}
 
 interface ToolConfig {
   name: string;
@@ -26,14 +35,16 @@ function createToolEntry(config: ToolConfig): ChatToolEntry {
   };
 }
 
-export function buildToolRegistry(toolsService: ChatToolsService): Map<string, ChatToolEntry> {
+export function buildToolRegistry(deps: ToolRegistryDeps): Map<string, ChatToolEntry> {
   const registry = new Map<string, ChatToolEntry>();
 
   const entries: ToolConfig[] = [
-    ...buildObjectiveTools(toolsService),
-    ...buildMemoryTools(toolsService),
-    ...buildStatsTools(toolsService),
-    ...buildSearchTools(toolsService),
+    ...buildObjectiveTools(deps.toolsService),
+    ...buildMemoryTools(deps.toolsService),
+    ...buildStatsTools(deps.toolsService),
+    ...buildSearchTools(deps.toolsService),
+    ...buildCheckInTools(deps.checkInToolsService),
+    ...buildRoadmapTools(deps.roadmapToolsService),
   ];
   for (const entry of entries) {
     registry.set(entry.name, createToolEntry(entry));
