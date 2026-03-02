@@ -13,6 +13,7 @@ struct SettingsView: View {
     @State private var isSaving = false
     @State private var showError = false
     @State private var errorMessage = ""
+    @State private var showPaywall = false
 
     private var localProfile: LocalProfile? {
         localProfiles.first { $0.userId == authService.currentUserId }
@@ -23,6 +24,7 @@ struct SettingsView: View {
             List {
                 profileHeaderSection
                 profileDetailsSection
+                proSection
                 newGoalSection
                 signOutSection
             }
@@ -60,6 +62,9 @@ struct SettingsView: View {
             .sheet(item: $activeSheet) { sheet in
                 sheetContent(for: sheet)
                     .presentationDetents(sheet == .coach ? [.large] : [.medium, .large])
+            }
+            .sheet(isPresented: $showPaywall) {
+                PaywallView()
             }
             .fullScreenCover(isPresented: $showNewGoal) {
                 if let userId = authService.currentUserId {
@@ -217,6 +222,27 @@ struct SettingsView: View {
             Spacer()
             AppText(verbatim: value, style: .body)
                 .color(AppTheme.Colors.textSecondary)
+        }
+    }
+
+    private var proSection: some View {
+        Section {
+            Button {
+                showPaywall = true
+            } label: {
+                HStack(spacing: AppTheme.Spacing.sm) {
+                    TablerIcon(.crown, size: 24, color: AppTheme.Colors.accent)
+                    VStack(alignment: .leading, spacing: AppTheme.Spacing.xxs) {
+                        AppText("settings.pro", table: "Paywall", style: .body)
+                            .weight(.semibold)
+                        AppText("settings.pro.description", table: "Paywall", style: .caption)
+                    }
+                    Spacer()
+                    TablerIcon(.chevronRight, size: 16, color: AppTheme.Colors.textSecondary)
+                }
+                .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
         }
     }
 
