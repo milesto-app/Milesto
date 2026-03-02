@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLName</key>
+			<string>supabase-auth</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>momentum</string>
+			</array>
+		</dict>
+	</array>
+	<key>UIAppFonts</key>
+	<array>
+		<string>tabler-icons.ttf</string>
+	</array>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Momentum needs microphone access so you can answer questions by speaking.</string>
+</dict>
+</plist>

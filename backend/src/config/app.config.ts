@@ -1,0 +1,57 @@
+export const appConfig = {
+  ai: {
+    baseUrl: 'https://openrouter.ai/api/v1',
+    defaultModel: 'google/gemini-3-flash-preview',
+    callTimeoutMs: 30_000,
+    embeddingModel: 'text-embedding-3-small',
+    embeddingDimensions: 1536,
+  },
+  intake: {
+    targetBatches: 5,
+    maxBatches: 7,
+    questionsPerBatch: { min: 3, max: 5 },
+    maxProfileRetries: 3,
+    qualityWarnThreshold: 0.5,
+    model: 'google/gemini-3-flash-preview',
+  },
+  eval: {
+    judgeModel: 'x-ai/grok-4.1-fast',
+    judgeTemperature: 0,
+    callTimeoutMs: 120_000,
+  },
+  throttle: {
+    globalLimit: 60,
+    globalTtlMs: 60_000,
+    aiEndpointLimit: 10,
+    aiEndpointTtlMs: 60_000,
+  },
+  roadmap: {
+    matchCount: 20,
+    matchThreshold: 0.7,
+    rerankTopN: 10,
+    milestoneModel: 'default',
+    weeklyModel: 'default',
+    dailyModel: 'default',
+    maxGenerationAttempts: 3,
+    generationTimeoutMs: 30_000,
+    weeklyPlanTimeoutMs: 15_000,
+    dailyObjectiveTimeoutMs: 10_000,
+  },
+  cohere: {
+    apiVersion: '2',
+    model: 'rerank-v3.5',
+  },
+  voice: {
+    sttModel: 'nova-3',
+    sttLanguage: 'multi',
+    ttsModel: 'aura-2',
+    callTimeoutMs: 30_000,
+    maxAudioSizeBytes: 10_485_760,
+    supportedInputFormats: ['audio/wav', 'audio/mpeg', 'audio/mp4', 'audio/webm'],
+    outputFormat: 'mp3' as const,
+    outputSampleRate: 24_000,
+  },
+  coach: {
+    defaultCoachId: 1,
+  },
+};

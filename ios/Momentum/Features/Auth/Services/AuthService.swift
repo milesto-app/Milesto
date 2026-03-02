@@ -1,0 +1,230 @@
+import Foundation
+import Combine
+import Supabase
+import AuthenticationServices
+import CryptoKit
+
+@MainActor
+final class AuthService: NSObject, ObservableObject {
+    static let shared = AuthService()
+
+    private var client: SupabaseClient { SupabaseConfig.client }
+
+    @Published private(set) var authState: AuthState = .authenticating
+    @Published private(set) var currentUserId: String?
+
+    private var currentNonce: String?
+
+    private override init() {
+        super.init()
+
+        Task {
+            await setupAuthStateListener()
+        }
+    }
+
+    private func setupAuthStateListener() async {
+        for await (event, session) in client.auth.authStateChanges {
+            switch event {
+            case .initialSession:
+                if let session, !session.isExpired {
+                    do {
+                        _ = try await client.auth.user()
+                        authState = .authenticated(userId: session.user.id.uuidString)
+                        currentUserId = session.user.id.uuidString
+                    } catch {
+                        try? await client.auth.signOut()
+                        authState = .unauthenticated
+                        currentUserId = nil
+                    }
+                } else {
+                    authState = .unauthenticated
+                    currentUserId = nil
+                }
+            case .signedIn:
+                if let userId = session?.user.id.uuidString {
+                    authState = .authenticated(userId: userId)
+                    currentUserId = userId
+                }
+            case .signedOut:
+                authState = .unauthenticated
+                currentUserId = nil
+            case .tokenRefreshed:
+                break
+            default:
+                break
+            }
+        }
+    }
+
+    func signUp(email: String, password: String) async throws -> String {
+        authState = .authenticating
+        do {
+            let response = try await client.auth.signUp(
+                email: email,
+                password: password
+            )
+            let userId = response.user.id.uuidString
+            authState = .authenticated(userId: userId)
+            currentUserId = userId
+            return userId
+        } catch {
+            authState = .error(error.localizedDescription)
+            throw mapAuthError(error)
+        }
+    }
+
+    func signIn(email: String, password: String) async throws -> String {
+        authState = .authenticating
+        do {
+            let session = try await client.auth.signIn(
+                email: email,
+                password: password
+            )
+            let userId = session.user.id.uuidString
+            authState = .authenticated(userId: userId)
+            currentUserId = userId
+            return userId
+        } catch {
+            authState = .error(error.localizedDescription)
+            throw mapAuthError(error)
+        }
+    }
+
+    func signInWithApple() async throws -> String {
+        let nonce = randomNonceString()
+        currentNonce = nonce
+        let hashedNonce = sha256(nonce)
+
+        let provider = ASAuthorizationAppleIDProvider()
+        let request = provider.createRequest()
+        request.requestedScopes = [.fullName, .email]
+        request.nonce = hashedNonce
+
+        let result = try await performAppleSignIn(request: request)
+
+        guard let appleIDCredential = result.credential as? ASAuthorizationAppleIDCredential,
+              let identityTokenData = appleIDCredential.identityToken,
+              let identityToken = String(data: identityTokenData, encoding: .utf8) else {
+            throw AuthError.unknown("Failed to get Apple ID token")
+        }
+
+        do {
+            let session = try await client.auth.signInWithIdToken(
+                credentials: OpenIDConnectCredentials(
+                    provider: .apple,
+                    idToken: identityToken,
+                    nonce: nonce
+                )
+            )
+            let userId = session.user.id.uuidString
+            authState = .authenticated(userId: userId)
+            currentUserId = userId
+            return userId
+        } catch {
+            authState = .error(error.localizedDescription)
+            throw mapAuthError(error)
+        }
+    }
+
+    private func performAppleSignIn(request: ASAuthorizationAppleIDRequest) async throws -> ASAuthorization {
+        try await withCheckedThrowingContinuation { continuation in
+            let controller = ASAuthorizationController(authorizationRequests: [request])
+            let delegate = AppleSignInDelegate(continuation: continuation)
+            controller.delegate = delegate
+            controller.presentationContextProvider = self
+            objc_setAssociatedObject(controller, "delegate", delegate, .OBJC_ASSOCIATION_RETAIN)
+            controller.performRequests()
+        }
+    }
+
+    func signInWithGoogle() async throws {
+        do {
+            try await client.auth.signInWithOAuth(
+                provider: .google,
+                redirectTo: URL(string: "momentum://auth-callback")
+            )
+        } catch {
+            authState = .error(error.localizedDescription)
+            throw mapAuthError(error)
+        }
+    }
+
+    func signOut() async throws {
+        try await client.auth.signOut()
+        authState = .unauthenticated
+        currentUserId = nil
+    }
+
+    func handleDeepLink(_ url: URL) async {
+        do {
+            let session = try await client.auth.session(from: url)
+            authState = .authenticated(userId: session.user.id.uuidString)
+            currentUserId = session.user.id.uuidString
+        } catch {
+            authState = .error(error.localizedDescription)
+        }
+    }
+
+    private func mapAuthError(_ error: Error) -> AuthError {
+        let errorString = error.localizedDescription.lowercased()
+        if errorString.contains("invalid") || errorString.contains("credentials") {
+            return .invalidCredentials
+        } else if errorString.contains("already") || errorString.contains("exists") || errorString.contains("registered") {
+            return .emailAlreadyInUse
+        } else if errorString.contains("weak") || errorString.contains("password") {
+            return .weakPassword
+        } else if errorString.contains("network") || errorString.contains("connection") {
+            return .networkError
+        }
+        return .unknown(error.localizedDescription)
+    }
+
+    private func randomNonceString(length: Int = 32) -> String {
+        precondition(length > 0)
+        var randomBytes = [UInt8](repeating: 0, count: length)
+        let errorCode = SecRandomCopyBytes(kSecRandomDefault, randomBytes.count, &randomBytes)
+        if errorCode != errSecSuccess {
+            fatalError("Unable to generate nonce. SecRandomCopyBytes failed with OSStatus \(errorCode)")
+        }
+        let charset: [Character] = Array("0123456789ABCDEFGHIJKLMNOPQRSTUVXYZabcdefghijklmnopqrstuvwxyz-._")
+        let nonce = randomBytes.map { byte in
+            charset[Int(byte) % charset.count]
+        }
+        return String(nonce)
+    }
+
+    private func sha256(_ input: String) -> String {
+        let inputData = Data(input.utf8)
+        let hashedData = SHA256.hash(data: inputData)
+        return hashedData.compactMap { String(format: "%02x", $0) }.joined()
+    }
+}
+
+extension AuthService: ASAuthorizationControllerPresentationContextProviding {
+    nonisolated func presentationAnchor(for controller: ASAuthorizationController) -> ASPresentationAnchor {
+        DispatchQueue.main.sync {
+            guard let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+                  let window = scene.windows.first else {
+                fatalError("No window found")
+            }
+            return window
+        }
+    }
+}
+
+private class AppleSignInDelegate: NSObject, ASAuthorizationControllerDelegate {
+    private let continuation: CheckedContinuation<ASAuthorization, Error>
+
+    init(continuation: CheckedContinuation<ASAuthorization, Error>) {
+        self.continuation = continuation
+    }
+
+    func authorizationController(controller: ASAuthorizationController, didCompleteWithAuthorization authorization: ASAuthorization) {
+        continuation.resume(returning: authorization)
+    }
+
+    func authorizationController(controller: ASAuthorizationController, didCompleteWithError error: Error) {
+        continuation.resume(throwing: error)
+    }
+}

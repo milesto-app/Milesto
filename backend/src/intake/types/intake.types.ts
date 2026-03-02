@@ -1,0 +1,50 @@
+export interface BatchAnsweredEvent {
+  goal_id: string;
+  batch_id: string;
+  batch_number: number;
+  user_id: string;
+}
+
+export interface BatchServedEvent {
+  goal_id: string;
+  batch_id: string;
+  batch_number: number;
+  user_id: string;
+}
+
+export interface ProfileGeneratedEvent {
+  goal_id: string;
+  profile_id: string;
+  user_id: string;
+}
+
+export interface AnswerInput {
+  question_id: string;
+  answer_text?: string;
+  answer_numeric?: number;
+  selected_options?: string[];
+}
+
+export interface BatchResult {
+  batch_id: string | null;
+  batch_number: number | null;
+  is_complete: boolean;
+  questions: Array<{
+    id: string;
+    question_text: string;
+    question_type: string;
+    config: Record<string, unknown> | null;
+    order_in_batch: number;
+  }>;
+}
+
+export interface ProfileResult {
+  profile_id: string | null;
+  profile_status: string;
+}
+
+export interface ReembedResult {
+  processed: number;
+  succeeded: number;
+  failed: number;
+}

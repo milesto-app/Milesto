@@ -1,0 +1,88 @@
+# generated: 2026-02-21
+# project: momentum_back
+# project_key: NOKEY
+# tracking_system: file-system
+# story_location: _bmad-output/implementation-artifacts
+
+# STATUS DEFINITIONS:
+# ==================
+# Epic Status:
+#   - backlog: Epic not yet started
+#   - in-progress: Epic actively being worked on
+#   - done: All stories in epic completed
+#
+# Epic Status Transitions:
+#   - backlog → in-progress: Automatically when first story is created (via create-story)
+#   - in-progress → done: Manually when all stories reach 'done' status
+#
+# Story Status:
+#   - backlog: Story only exists in epic file
+#   - ready-for-dev: Story file created in stories folder
+#   - in-progress: Developer actively working on implementation
+#   - review: Ready for code review (via Dev's code-review workflow)
+#   - done: Story completed
+#
+# Retrospective Status:
+#   - optional: Can be completed but not required
+#   - done: Retrospective has been completed
+#
+# WORKFLOW NOTES:
+# ===============
+# - Epic transitions to 'in-progress' automatically when first story is created
+# - Stories can be worked in parallel if team capacity allows
+# - SM typically creates next story after previous one is 'done' to incorporate learnings
+# - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
+
+generated: 2026-02-21
+project: momentum_back
+project_key: NOKEY
+tracking_system: file-system
+story_location: _bmad-output/implementation-artifacts
+
+development_status:
+  epic-1: done
+  1-1-create-a-goal: done
+  1-2-list-and-view-goals: done
+  1-3-delete-a-goal: done
+  epic-1-retrospective: optional
+
+  epic-2: done
+  2-1-serve-hardcoded-first-batch: done
+  2-2-submit-answers-with-validation: done
+  2-3-ai-generated-next-batch-with-quality-gates: done
+  2-4-intake-completion-and-goal-profile-generation: done
+  2-5-batch-and-profile-semantic-embedding: done
+  2-6-async-quality-scoring-and-monitoring: done
+  epic-2-retrospective: optional
+
+  epic-3: done
+  3-1-ai-fallback-batches: done
+  3-2-profile-generation-retry: done
+  3-3-rate-limiting: done
+  3-4-api-documentation-with-swagger: done
+  3-5-admin-re-embedding-endpoint: done
+  epic-3-retrospective: optional
+
+  epic-4: done
+  4-1-embedding-table-migration-and-configuration: done
+  4-2-context-retrieval-pipeline: done
+  4-3-generate-milestone-roadmap: done
+  4-4-retrieve-roadmap-and-milestones: done
+  epic-4-retrospective: optional
+
+  epic-5: done
+  5-1-generate-and-retrieve-weekly-plan: done
+  5-2-weekly-and-monthly-summaries-with-embedding: done
+  epic-5-retrospective: optional
+
+  epic-6: done
+  6-1-morning-check-in: done
+  6-2-generate-daily-objectives: done
+  6-3-task-completion-tracking: done
+  6-4-end-of-day-debrief: done
+  epic-6-retrospective: optional
+
+  epic-7: done
+  7-1-per-type-quality-evaluation: done
+  7-2-retrieval-observability-logging: done
+  epic-7-retrospective: optional

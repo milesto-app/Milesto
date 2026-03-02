@@ -1,0 +1,55 @@
+import SwiftUI
+
+struct WeeklyFocusData {
+    let focus: String
+    let weekNumber: Int
+    let objectivesCount: Int
+    let completedCount: Int
+}
+
+struct WeeklyFocusCard: View {
+    let weeklyPlan: WeeklyFocusData
+    let onTap: () -> Void
+
+    var body: some View {
+        Button(action: onTap) {
+            VStack(alignment: .leading, spacing: AppTheme.Spacing.sm) {
+                HStack(spacing: AppTheme.Spacing.xs) {
+                    TablerIcon(.target, size: 20, color: AppTheme.Colors.accent)
+                    AppText("home.weeklyFocus.title", table: "Home", style: .headline)
+                }
+
+                AppText(verbatim: weeklyPlan.focus, style: .body)
+                    .lineLimit(2)
+
+                HStack(spacing: AppTheme.Spacing.xxs) {
+                    AppText(
+                        verbatim: String(
+                            format: String(localized: "home.weeklyFocus.week", table: "Home"),
+                            weeklyPlan.weekNumber
+                        ),
+                        style: .caption
+                    )
+                    .color(AppTheme.Colors.textSecondary)
+
+                    AppText(verbatim: "·", style: .caption)
+                        .color(AppTheme.Colors.textSecondary)
+
+                    AppText(
+                        verbatim: String(
+                            format: String(localized: "home.weeklyFocus.objectives", table: "Home"),
+                            weeklyPlan.completedCount,
+                            weeklyPlan.objectivesCount
+                        ),
+                        style: .caption
+                    )
+                    .color(AppTheme.Colors.textSecondary)
+                }
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(AppTheme.Spacing.lg)
+            .glassEffect(.clear.interactive(), in: RoundedRectangle(cornerRadius: AppTheme.CornerRadius.xl))
+        }
+        .buttonStyle(.plain)
+    }
+}

@@ -1,0 +1,68 @@
+import SwiftUI
+
+struct ObjectiveRowView: View {
+    let objective: DailyObjectiveDTO
+    let onToggle: () -> Void
+
+    private var difficultyColor: Color {
+        switch objective.difficultyRating {
+        case .easy:
+            return AppTheme.Colors.accent
+        case .moderate:
+            return AppTheme.Colors.warning
+        case .hard:
+            return AppTheme.Colors.error
+        case nil:
+            return AppTheme.Colors.textSecondary
+        }
+    }
+
+    private var difficultyLabel: String {
+        switch objective.difficultyRating {
+        case .easy:
+            return String(localized: "home.objectives.difficulty.easy", table: "Home")
+        case .moderate:
+            return String(localized: "home.objectives.difficulty.moderate", table: "Home")
+        case .hard:
+            return String(localized: "home.objectives.difficulty.hard", table: "Home")
+        case nil:
+            return ""
+        }
+    }
+
+    var body: some View {
+        Button(action: onToggle) {
+            HStack(spacing: AppTheme.Spacing.sm) {
+                TablerIcon(
+                    objective.isCompleted ? .circleCheck : .circle,
+                    size: 22,
+                    color: objective.isCompleted ? AppTheme.Colors.accent : AppTheme.Colors.iconDefault
+                )
+
+                VStack(alignment: .leading, spacing: AppTheme.Spacing.xxs) {
+                    AppText(verbatim: objective.title, style: .body)
+                        .color(objective.isCompleted ? AppTheme.Colors.textSecondary : AppTheme.Colors.textPrimary)
+
+                    AppText(verbatim: objective.description, style: .caption)
+                        .color(AppTheme.Colors.textSecondary)
+                        .lineLimit(1)
+                }
+
+                Spacer()
+
+                if objective.difficultyRating != nil {
+                    AppText(verbatim: difficultyLabel, style: .caption)
+                        .weight(.medium)
+                        .color(difficultyColor)
+                        .padding(.horizontal, AppTheme.Spacing.xs)
+                        .padding(.vertical, AppTheme.Spacing.xxs)
+                        .background(
+                            Capsule()
+                                .fill(difficultyColor.opacity(0.15))
+                        )
+                }
+            }
+        }
+        .buttonStyle(.plain)
+    }
+}

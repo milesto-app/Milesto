@@ -1,0 +1,161 @@
+/* eslint-disable no-magic-numbers, max-lines-per-function */
+import { BadRequestException } from '@nestjs/common';
+import type { EventEmitter2 } from '@nestjs/event-emitter';
+import { IntakeProfileService } from './intake-profile.service.js';
+import type { SupabaseService } from '../supabase/supabase.service.js';
+import type { GoalService } from '../goal/goal.service.js';
+import type { IntakePromptService } from './intake-prompt.service.js';
+import type { IntakeQualityService } from './intake-quality.service.js';
+import type { IntakeContextService } from './intake-context.service.js';
+
+describe('IntakeProfileService', () => {
+  let service: IntakeProfileService;
+  let supabaseService: { getAdminClient: jest.Mock };
+  let goalService: { findOne: jest.Mock };
+  let promptService: { generateGoalProfile: jest.Mock };
+  let qualityService: { validateGoalProfile: jest.Mock };
+  let contextService: { loadPriorBatchContext: jest.Mock };
+  let eventEmitter: { emit: jest.Mock };
+  let mockSupabase: { from: jest.Mock };
+
+  const userId = 'user-123';
+  const goalId = 'goal-456';
+
+  const mockProfile = {
+    current_state: 'beginner',
+    desired_state: 'expert',
+    constraints: ['time'],
+    motivation: 'career growth',
+    domain_context: 'software',
+    narrative_summary: 'A motivated beginner',
+  };
+
+  beforeEach(() => {
+    mockSupabase = { from: jest.fn() };
+    supabaseService = { getAdminClient: jest.fn().mockReturnValue(mockSupabase) };
+    goalService = { findOne: jest.fn() };
+    promptService = { generateGoalProfile: jest.fn() };
+    qualityService = { validateGoalProfile: jest.fn() };
+    contextService = { loadPriorBatchContext: jest.fn() };
+    eventEmitter = { emit: jest.fn() };
+
+    service = new IntakeProfileService(
+      supabaseService as unknown as SupabaseService,
+      goalService as unknown as GoalService,
+      eventEmitter as unknown as EventEmitter2,
+    );
+
+    Object.assign(service, {
+      promptService: promptService as unknown as IntakePromptService,
+      qualityService: qualityService as unknown as IntakeQualityService,
+      contextService: contextService as unknown as IntakeContextService,
+    });
+  });
+
+  describe('retryProfile', () => {
+    it('should throw when goal is not in failed status', async () => {
+      goalService.findOne.mockResolvedValue({
+        status: 'active',
+        description: 'desc',
+        profile_generation_attempts: 0,
+      });
+
+      await expect(service.retryProfile(userId, goalId)).rejects.toThrow(BadRequestException);
+    });
+
+    it('should throw when max retries exceeded', async () => {
+      goalService.findOne.mockResolvedValue({
+        status: 'profile_generation_failed',
+        description: 'desc',
+        profile_generation_attempts: 100,
+      });
+
+      await expect(service.retryProfile(userId, goalId)).rejects.toThrow(BadRequestException);
+    });
+  });
+
+  describe('generateAndStoreProfile', () => {
+    it('should generate and store profile successfully', async () => {
+      contextService.loadPriorBatchContext.mockResolvedValue([]);
+      promptService.generateGoalProfile.mockResolvedValue(mockProfile);
+      qualityService.validateGoalProfile.mockReturnValue({ valid: true, errors: [] });
+
+      // Mock updateGoalStatus
+      mockSupabase.from.mockReturnValue({
+        update: jest.fn().mockReturnValue({
+          eq: jest.fn().mockResolvedValue({ error: null }),
+        }),
+      });
+
+      // Mock storeProfile insert
+      const insertChain = {
+        insert: jest.fn().mockReturnValue({
+          select: jest.fn().mockReturnValue({
+            single: jest.fn().mockResolvedValue({
+              data: { id: 'profile-1' },
+              error: null,
+            }),
+          }),
+        }),
+      };
+      // First call: updateGoalStatus('profile_generating'), second: store profile insert, third: updateGoalStatus('intake_completed')
+      mockSupabase.from
+        .mockReturnValueOnce({
+          update: jest.fn().mockReturnValue({
+            eq: jest.fn().mockResolvedValue({ error: null }),
+          }),
+        })
+        .mockReturnValueOnce(insertChain)
+        .mockReturnValueOnce({
+          update: jest.fn().mockReturnValue({
+            eq: jest.fn().mockResolvedValue({ error: null }),
+          }),
+        });
+
+      const result = await service.generateAndStoreProfile(userId, goalId, 'Run a marathon');
+
+      expect(result.profile_id).toBe('profile-1');
+      expect(result.profile_status).toBe('intake_completed');
+      expect(eventEmitter.emit).toHaveBeenCalledWith(
+        'profile.generated',
+        expect.objectContaining({ profile_id: 'profile-1' }),
+      );
+    });
+
+    it('should return failure when AI call fails', async () => {
+      contextService.loadPriorBatchContext.mockResolvedValue([]);
+      promptService.generateGoalProfile.mockRejectedValue(new Error('AI error'));
+
+      mockSupabase.from.mockReturnValue({
+        update: jest.fn().mockReturnValue({
+          eq: jest.fn().mockResolvedValue({ error: null }),
+        }),
+      });
+
+      const result = await service.generateAndStoreProfile(userId, goalId, 'Run a marathon');
+
+      expect(result.profile_id).toBeNull();
+      expect(result.profile_status).toBe('profile_generation_failed');
+    });
+
+    it('should retry validation and return failure on second validation failure', async () => {
+      contextService.loadPriorBatchContext.mockResolvedValue([]);
+      promptService.generateGoalProfile
+        .mockResolvedValueOnce(mockProfile)
+        .mockResolvedValueOnce(mockProfile);
+      qualityService.validateGoalProfile.mockReturnValue({ valid: false, errors: ['bad profile'] });
+
+      mockSupabase.from.mockReturnValue({
+        update: jest.fn().mockReturnValue({
+          eq: jest.fn().mockResolvedValue({ error: null }),
+        }),
+      });
+
+      const result = await service.generateAndStoreProfile(userId, goalId, 'Run a marathon');
+
+      expect(result.profile_id).toBeNull();
+      expect(result.profile_status).toBe('profile_generation_failed');
+      expect(promptService.generateGoalProfile).toHaveBeenCalledTimes(2);
+    });
+  });
+});

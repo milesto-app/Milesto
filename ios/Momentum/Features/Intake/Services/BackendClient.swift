@@ -1,0 +1,129 @@
+import Foundation
+import Supabase
+
+enum BackendError: LocalizedError {
+    case invalidResponse
+    case httpError(statusCode: Int, data: Data)
+    case unauthorized
+
+    var errorDescription: String? {
+        switch self {
+        case .invalidResponse:
+            return String(localized: "intake.error.network", table: "Intake")
+        case .httpError(let code, _):
+            return String(localized: "intake.error.server", table: "Intake") + " (\(code))"
+        case .unauthorized:
+            return String(localized: "intake.error.network", table: "Intake")
+        }
+    }
+}
+
+final class BackendClient {
+    static let shared = BackendClient()
+
+    private let baseURL = URL(string: "http://localhost:3000/api")!
+    private let decoder = JSONDecoder()
+    private let encoder = JSONEncoder()
+
+    private init() {}
+
+    func request<T: Decodable>(method: String, path: String, body: (any Encodable)? = nil) async throws -> T {
+        let session = try await SupabaseConfig.client.auth.session
+        guard let url = URL(string: "\(baseURL.absoluteString)/\(path)") else {
+            throw BackendError.invalidResponse
+        }
+        var request = URLRequest(url: url)
+        request.httpMethod = method
+        request.setValue("Bearer \(session.accessToken)", forHTTPHeaderField: "Authorization")
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+
+        if let body {
+            request.httpBody = try encoder.encode(body)
+        }
+
+        let (data, response) = try await URLSession.shared.data(for: request)
+
+        guard let httpResponse = response as? HTTPURLResponse else {
+            throw BackendError.invalidResponse
+        }
+
+        if httpResponse.statusCode == 401 {
+            throw BackendError.unauthorized
+        }
+
+        guard (200...299).contains(httpResponse.statusCode) else {
+            throw BackendError.httpError(statusCode: httpResponse.statusCode, data: data)
+        }
+
+        return try decoder.decode(T.self, from: data)
+    }
+
+    func uploadAudio<T: Decodable>(path: String, audioData: Data, filename: String) async throws -> T {
+        let session = try await SupabaseConfig.client.auth.session
+        guard let url = URL(string: "\(baseURL.absoluteString)/\(path)") else {
+            throw BackendError.invalidResponse
+        }
+
+        let boundary = UUID().uuidString
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("Bearer \(session.accessToken)", forHTTPHeaderField: "Authorization")
+        request.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
+
+        var body = Data()
+        body.append("--\(boundary)\r\n".data(using: .utf8)!)
+        body.append("Content-Disposition: form-data; name=\"audio\"; filename=\"\(filename)\"\r\n".data(using: .utf8)!)
+        body.append("Content-Type: audio/wav\r\n\r\n".data(using: .utf8)!)
+        body.append(audioData)
+        body.append("\r\n--\(boundary)--\r\n".data(using: .utf8)!)
+        request.httpBody = body
+
+        let (data, response) = try await URLSession.shared.data(for: request)
+
+        guard let httpResponse = response as? HTTPURLResponse else {
+            throw BackendError.invalidResponse
+        }
+
+        if httpResponse.statusCode == 401 {
+            throw BackendError.unauthorized
+        }
+
+        guard (200...299).contains(httpResponse.statusCode) else {
+            throw BackendError.httpError(statusCode: httpResponse.statusCode, data: data)
+        }
+
+        return try decoder.decode(T.self, from: data)
+    }
+
+    func requestAudioData(path: String, body: (any Encodable)? = nil) async throws -> Data {
+        let session = try await SupabaseConfig.client.auth.session
+        guard let url = URL(string: "\(baseURL.absoluteString)/\(path)") else {
+            throw BackendError.invalidResponse
+        }
+
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("Bearer \(session.accessToken)", forHTTPHeaderField: "Authorization")
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+
+        if let body {
+            request.httpBody = try encoder.encode(body)
+        }
+
+        let (data, response) = try await URLSession.shared.data(for: request)
+
+        guard let httpResponse = response as? HTTPURLResponse else {
+            throw BackendError.invalidResponse
+        }
+
+        if httpResponse.statusCode == 401 {
+            throw BackendError.unauthorized
+        }
+
+        guard (200...299).contains(httpResponse.statusCode) else {
+            throw BackendError.httpError(statusCode: httpResponse.statusCode, data: data)
+        }
+
+        return data
+    }
+}

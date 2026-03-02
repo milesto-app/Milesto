@@ -1,0 +1,227 @@
+import SwiftUI
+import SwiftData
+
+struct ProfileGateView: View {
+    let userId: String
+
+    @Environment(\.modelContext) private var modelContext
+    @Query private var localProfiles: [LocalProfile]
+    @Query private var localGoals: [LocalGoal]
+    @State private var hasSynced = false
+    @State private var profileComplete = false
+    @State private var goalComplete = false
+    @State private var roadmapReady = false
+    @State private var activeGoalId: String?
+    @State private var selectedTab = 0
+
+    private var localProfile: LocalProfile? {
+        localProfiles.first { $0.userId == userId }
+    }
+
+    var body: some View {
+        Group {
+            if goalComplete && roadmapReady {
+                TabView(selection: $selectedTab) {
+                    Tab(value: 0) {
+                        HomeView(goalId: activeGoalId ?? "", firstName: localProfile?.firstName ?? "")
+                    } label: {
+                        TablerTabLabel(.home2, title: String(localized: "tabs.home", table: "Common"))
+                    }
+
+                    Tab(value: 1) {
+                        RoadmapView(goalId: activeGoalId ?? "", onGoalChanged: handleGoalChanged)
+                    } label: {
+                        TablerTabLabel(.map, title: String(localized: "tabs.roadmap", table: "Common"))
+                    }
+
+                    Tab(value: 2) {
+                        AppText("tabs.stats", table: "Common", style: .title)
+                    } label: {
+                        TablerTabLabel(.chartBar, title: String(localized: "tabs.stats", table: "Common"))
+                    }
+
+                    Tab(value: 3) {
+                        SettingsView(onNewGoal: { goalId in
+                            activeGoalId = goalId
+                            withAnimation(.easeInOut(duration: 0.4)) {
+                                goalComplete = true
+                                roadmapReady = false
+                            }
+                        })
+                    } label: {
+                        TablerTabLabel(.settings, title: String(localized: "tabs.settings", table: "Common"))
+                    }
+
+                    Tab(value: 4, role: .search) {
+                        ChatView(goalId: activeGoalId ?? "")
+                    } label: {
+                        TablerTabLabel(.message, title: String(localized: "tabs.chat", table: "Common"))
+                    }
+                }
+                .labelStyle(.iconOnly)
+                .tint(AppTheme.Colors.accent)
+                .overlay(alignment: .top) {
+                    StatusBarBlur()
+                }
+                .transition(.opacity)
+            } else if goalComplete && !roadmapReady {
+                RoadmapGenerationView(goalId: activeGoalId ?? "") {
+                    withAnimation(.easeInOut(duration: 0.4)) {
+                        roadmapReady = true
+                        if let goal = localGoals.first(where: { $0.id == activeGoalId }) {
+                            goal.status = "active"
+                        }
+                    }
+                }
+                .transition(.opacity)
+            } else if profileComplete {
+                GoalIntakeFlowView(
+                    userId: userId,
+                    existingGoalId: activeGoalId,
+                    onComplete: { goalId in
+                        activeGoalId = goalId
+
+                        withAnimation(.easeInOut(duration: 0.4)) {
+                            goalComplete = true
+                        }
+                    }
+                )
+                .transition(.opacity)
+            } else if hasSynced {
+                ProfileOnboardingView(
+                    userId: userId,
+                    missingSteps: localProfile?.missingOnboardingSteps ?? [.name, .birthdate, .coach],
+                    existingProfile: localProfile,
+                    onComplete: {
+                        withAnimation(.easeInOut(duration: 0.4)) {
+                            profileComplete = true
+                        }
+                    }
+                )
+                .transition(.opacity)
+            } else {
+                ProgressView()
+            }
+        }
+        .task {
+            guard !hasSynced else { return }
+            let locallyComplete = localProfile?.isProfileComplete == true
+            if locallyComplete {
+                profileComplete = true
+            }
+            await ProfileSyncService.shared.sync(userId: userId, in: modelContext)
+            await syncGoals()
+            let remoteComplete = localProfile?.isProfileComplete == true
+            if locallyComplete && !remoteComplete {
+                profileComplete = false
+            } else if remoteComplete {
+                profileComplete = true
+                resolveGoalState()
+                if goalComplete, roadmapReady,
+                   let goal = localGoals.first(where: { $0.id == activeGoalId }),
+                   goal.status == ProfileStatus.intakeCompleted.rawValue {
+                    let hasRoadmap = await checkRoadmapStatus(goalId: goal.id)
+                    roadmapReady = hasRoadmap
+                }
+            }
+            hasSynced = true
+        }
+    }
+
+    private func syncGoals() async {
+        guard let goals = try? await GoalAPIService.shared.listGoals() else { return }
+        let remoteIds = Set(goals.map { $0.id })
+        for dto in goals {
+            let descriptor = FetchDescriptor<LocalGoal>(predicate: #Predicate { goal in
+                goal.id == dto.id
+            })
+            let existing = try? modelContext.fetch(descriptor).first
+            if let existing {
+                existing.status = dto.status
+                existing.title = dto.title
+                existing.goalDescription = dto.description
+            } else {
+                let localGoal = LocalGoal(
+                    id: dto.id,
+                    userId: dto.userId,
+                    title: dto.title,
+                    goalDescription: dto.description,
+                    status: dto.status,
+                    createdAt: Date()
+                )
+                modelContext.insert(localGoal)
+            }
+        }
+        let stale = localGoals.filter {
+            $0.userId.caseInsensitiveCompare(userId) == .orderedSame && !remoteIds.contains($0.id)
+        }
+        for goal in stale {
+            modelContext.delete(goal)
+        }
+    }
+
+    private func resolveGoalState() {
+        let userGoals = localGoals.filter { $0.userId.caseInsensitiveCompare(userId) == .orderedSame }
+        let statusPriority = ["active", "intake_completed", "profile_generating", "intake_in_progress"]
+        let matchingGoal = userGoals
+            .sorted { a, b in
+                let aIndex = statusPriority.firstIndex(of: a.status) ?? statusPriority.count
+                let bIndex = statusPriority.firstIndex(of: b.status) ?? statusPriority.count
+                return aIndex < bIndex
+            }
+            .first
+        activeGoalId = matchingGoal?.id
+
+        guard let status = matchingGoal?.status else { return }
+
+        switch status {
+        case "active", ProfileStatus.intakeCompleted.rawValue:
+            goalComplete = true
+            roadmapReady = true
+        case "intake_in_progress", "profile_generating", ProfileStatus.generationFailed.rawValue:
+            goalComplete = false
+        default:
+            goalComplete = false
+        }
+    }
+
+    private func checkRoadmapStatus(goalId: String) async -> Bool {
+        guard let roadmap = try? await RoadmapAPIService.shared.getRoadmap(goalId: goalId) else {
+            return false
+        }
+        return roadmap.status == .complete
+    }
+
+    private func handleGoalChanged(_ newGoalId: String) {
+        guard newGoalId != activeGoalId else { return }
+        activeGoalId = newGoalId
+        guard let goal = localGoals.first(where: { $0.id == newGoalId }) else { return }
+
+        switch goal.status {
+        case "active":
+            withAnimation(.easeInOut(duration: 0.4)) {
+                goalComplete = true
+                roadmapReady = true
+            }
+        case ProfileStatus.intakeCompleted.rawValue:
+            goalComplete = true
+            Task {
+                let hasRoadmap = await checkRoadmapStatus(goalId: newGoalId)
+                withAnimation(.easeInOut(duration: 0.4)) {
+                    roadmapReady = hasRoadmap
+                }
+            }
+        default:
+            withAnimation(.easeInOut(duration: 0.4)) {
+                goalComplete = false
+                roadmapReady = false
+            }
+        }
+    }
+}
+
+#Preview {
+    ProfileGateView(userId: "preview-user")
+        .environmentObject(AuthService.shared)
+        .modelContainer(for: [LocalProfile.self, LocalGoal.self, LocalRoadmap.self, LocalMilestone.self, LocalWeeklyPlan.self, LocalDailyObjective.self, LocalCheckIn.self], inMemory: true)
+}
