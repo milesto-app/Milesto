@@ -36,6 +36,7 @@ struct ChatView: View {
                         }
                     }
                     .contentMargins(.top, 56)
+                    .contentMargins(.bottom, 80)
                     .onChange(of: messages.count) {
                         if let lastId = messages.last?.id {
                             withAnimation(.easeOut(duration: 0.2)) {
@@ -48,22 +49,42 @@ struct ChatView: View {
                 if let toolName = activeToolName {
                     ToolStatusIndicator(toolName: toolName)
                 }
-
+            }
+            .overlay(alignment: .bottom) {
                 ChatInputBar(text: $inputText, isDisabled: isStreaming) {
                     sendMessage()
                 }
             }
         }
-        .overlay(alignment: .topTrailing) {
-            if let onClose {
-                Button(action: onClose) {
-                    TablerIcon(.x, size: 24, color: AppTheme.Colors.textPrimary)
-                        .frame(width: 44, height: 44)
-                        .glassEffect(.clear.interactive(), in: .circle)
+        .overlay(alignment: .top) {
+            HStack {
+                if !messages.isEmpty {
+                    Button {
+                        withAnimation {
+                            messages = []
+                            conversationId = nil
+                            inputText = ""
+                        }
+                    } label: {
+                        TablerIcon(.edit, size: 24, color: AppTheme.Colors.textPrimary)
+                            .frame(width: 44, height: 44)
+                            .glassEffect(.clear.interactive(), in: .circle)
+                    }
+                    .transition(.opacity)
                 }
-                .padding(.trailing, AppTheme.Spacing.md)
-                .padding(.top, AppTheme.Spacing.xs)
+
+                Spacer()
+
+                if let onClose {
+                    Button(action: onClose) {
+                        TablerIcon(.x, size: 24, color: AppTheme.Colors.textPrimary)
+                            .frame(width: 44, height: 44)
+                            .glassEffect(.clear.interactive(), in: .circle)
+                    }
+                }
             }
+            .padding(.horizontal, AppTheme.Spacing.md)
+            .padding(.top, AppTheme.Spacing.xs)
         }
         .toolbar(.hidden, for: .tabBar)
         .alert(String(localized: "chat.error.generic", table: "Chat"), isPresented: $showError) {
