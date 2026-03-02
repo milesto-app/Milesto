@@ -1,15 +1,11 @@
 import SwiftUI
 
 struct GoalSetupView: View {
-    @Binding var goalTitle: String
     @Binding var goalDescription: String
     let isLoading: Bool
     let onContinue: () -> Void
 
-    @FocusState private var titleFocused: Bool
-
     private var canContinue: Bool {
-        !goalTitle.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty &&
         !goalDescription.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
     }
 
@@ -27,9 +23,6 @@ struct GoalSetupView: View {
             .padding(.horizontal, AppTheme.Spacing.lg)
 
             VStack(spacing: AppTheme.Spacing.md) {
-                AppTextField(text: $goalTitle, label: "intake.goal.titleField", table: "Intake")
-                    .focused($titleFocused)
-
                 AppTextField(text: $goalDescription, label: "intake.goal.descriptionPlaceholder", table: "Intake", multiline: true)
             }
             .padding(.horizontal, AppTheme.Spacing.lg)
@@ -57,7 +50,6 @@ struct GoalSetupView: View {
 
 #Preview {
     GoalSetupView(
-        goalTitle: .constant(""),
         goalDescription: .constant(""),
         isLoading: false,
         onContinue: { }

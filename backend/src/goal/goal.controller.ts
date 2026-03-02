@@ -45,7 +45,7 @@ export class GoalController {
   @ApiResponse({ status: 400, description: 'Invalid input' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   public async create(@UserId() userId: string, @Body() dto: CreateGoalDto): Promise<GoalRow> {
-    return this.goalService.create(userId, dto.title, dto.description);
+    return this.goalService.create(userId, dto.description, dto.title);
   }
 
   @Get()

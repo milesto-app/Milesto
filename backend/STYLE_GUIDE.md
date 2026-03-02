@@ -24,16 +24,16 @@ All code in this repository **must** comply with these rules. Existing violation
 
 ## Naming
 
-| Element               | Convention                                    | Example                     |
-| --------------------- | --------------------------------------------- | --------------------------- |
-| Files                 | `kebab-case`                                  | `intake-prompt.service.ts`  |
-| Classes               | `PascalCase`                                  | `IntakeService`             |
-| Variables / functions | `camelCase`                                   | `generateBatch`             |
-| Module-level consts   | `UPPER_SNAKE_CASE`                            | `MAX_RETRIES`               |
-| DB tables / columns   | `snake_case`                                  | `goal_profiles`             |
-| Enums                 | `PascalCase` name, `UPPER_SNAKE_CASE` members | `enum Status { ACTIVE }`    |
-| Booleans              | Prefix with `is`, `has`, `should`, `can`      | `isCompleted`, `hasProfile` |
-| Event names           | `domain.action`                               | `profile.generated`         |
+| Element              | Convention          | Example                         |
+| -------------------- | ------------------- | ------------------------------- |
+| Files                | `kebab-case`        | `intake-prompt.service.ts`      |
+| Classes              | `PascalCase`        | `IntakeService`                 |
+| Variables / functions| `camelCase`         | `generateBatch`                 |
+| Module-level consts  | `UPPER_SNAKE_CASE`  | `MAX_RETRIES`                   |
+| DB tables / columns  | `snake_case`        | `goal_profiles`                 |
+| Enums                | `PascalCase` name, `UPPER_SNAKE_CASE` members | `enum Status { ACTIVE }` |
+| Booleans             | Prefix with `is`, `has`, `should`, `can` | `isCompleted`, `hasProfile` |
+| Event names          | `domain.action`     | `profile.generated`             |
 
 ## File Structure
 

@@ -6,6 +6,8 @@ import { CoachService } from './coach.service.js';
 import { SupabaseService } from '../supabase/supabase.service.js';
 import type { Coach } from './coach.types.js';
 
+const NONEXISTENT_COACH_ID = 999;
+
 const MOCK_COACH: Coach = {
   id: 1,
   personality: 'motivateur',
@@ -69,9 +71,9 @@ describe('CoachController.getCoach', () => {
 
   it('should throw NotFoundException for invalid coach id', async () => {
     coachService.getCoach.mockRejectedValue(
-      new NotFoundException('Coach with id 999 not found'),
+      new NotFoundException(`Coach with id ${NONEXISTENT_COACH_ID} not found`),
     );
 
-    await expect(controller.getCoach(999)).rejects.toThrow(NotFoundException);
+    await expect(controller.getCoach(NONEXISTENT_COACH_ID)).rejects.toThrow(NotFoundException);
   });
 });

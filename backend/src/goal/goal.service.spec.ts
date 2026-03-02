@@ -2,6 +2,7 @@ import type { TestingModule } from '@nestjs/testing';
 import { Test } from '@nestjs/testing';
 import { InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { GoalService } from './goal.service.js';
+import { AiService } from '../ai/ai.service.js';
 import { SupabaseService } from '../supabase/supabase.service.js';
 import { GOAL_STATUS } from './goal-status.constants.js';
 
@@ -12,6 +13,7 @@ const EXPECTED_RANGE_END = 14;
 
 let service: GoalService;
 let mockSupabase: { from: jest.Mock };
+let mockAiService: { generateJSON: jest.Mock };
 
 function mockInsertChain(data: unknown, error: unknown = null): void {
   mockSupabase.from.mockReturnValue({
@@ -49,11 +51,13 @@ function mockFindOneChain(data: unknown, error: unknown): void {
 
 beforeEach(async () => {
   mockSupabase = { from: jest.fn() };
+  mockAiService = { generateJSON: jest.fn() };
 
   const module: TestingModule = await Test.createTestingModule({
     providers: [
       GoalService,
       { provide: SupabaseService, useValue: { getAdminClient: () => mockSupabase } },
+      { provide: AiService, useValue: mockAiService },
     ],
   }).compile();
 
@@ -65,7 +69,7 @@ it('GoalService should be defined', () => {
 });
 
 describe('GoalService.create', () => {
-  it('should create a goal and return it', async () => {
+  it('should create a goal with provided title', async () => {
     const createdGoal = {
       id: 'goal-456',
       user_id: 'user-123',
@@ -80,17 +84,49 @@ describe('GoalService.create', () => {
     mockInsertChain(createdGoal);
     const result = await service.create(
       'user-123',
-      'Run a marathon',
       'Complete a full marathon within 6 months',
+      'Run a marathon',
     );
     expect(result).toEqual(createdGoal);
+    expect(mockAiService.generateJSON).not.toHaveBeenCalled();
   });
 
   it('should throw InternalServerErrorException on Supabase error', async () => {
     mockInsertChain(null, { message: 'Database error' });
-    await expect(service.create('user-123', 'Title', 'Desc')).rejects.toThrow(
+    await expect(service.create('user-123', 'Desc', 'Title')).rejects.toThrow(
       InternalServerErrorException,
     );
+  });
+});
+
+describe('GoalService.create - AI title generation', () => {
+  const baseGoal = {
+    id: 'goal-456',
+    user_id: 'user-123',
+    description: 'Complete a full marathon within 6 months',
+    status: GOAL_STATUS.INTAKE_IN_PROGRESS,
+    profile_generation_attempts: 0,
+    created_at: '2026-02-08T00:00:00.000Z',
+    updated_at: '2026-02-08T00:00:00.000Z',
+  };
+
+  it('should generate title via AI when title is omitted', async () => {
+    const goal = { ...baseGoal, title: 'Complete a Full Marathon' };
+    mockAiService.generateJSON.mockResolvedValue({ title: 'Complete a Full Marathon' });
+    mockInsertChain(goal);
+
+    const result = await service.create('user-123', baseGoal.description);
+    expect(result).toEqual(goal);
+    expect(mockAiService.generateJSON).toHaveBeenCalledTimes(1);
+  });
+
+  it('should fall back to truncated description when AI fails', async () => {
+    const goal = { ...baseGoal, title: baseGoal.description };
+    mockAiService.generateJSON.mockRejectedValue(new Error('AI timeout'));
+    mockInsertChain(goal);
+
+    const result = await service.create('user-123', baseGoal.description);
+    expect(result).toEqual(goal);
   });
 });
 

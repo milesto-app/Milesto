@@ -12,6 +12,7 @@ import { IntakeModule } from './intake/intake.module.js';
 import { CoachModule } from './coach/coach.module.js';
 import { RoadmapModule } from './roadmap/roadmap.module.js';
 import { VoiceModule } from './voice/voice.module.js';
+import { ChatModule } from './chat/chat.module.js';
 
 @Module({
   imports: [
@@ -30,6 +31,7 @@ import { VoiceModule } from './voice/voice.module.js';
     RoadmapModule,
     CoachModule,
     VoiceModule,
+    ChatModule,
   ],
   providers: [
     {

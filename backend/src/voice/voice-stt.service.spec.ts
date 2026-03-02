@@ -65,7 +65,9 @@ describe('VoiceSttService', () => {
     expect(result.confidence).toBe(MOCK_CONFIDENCE);
     expect(result.language).toBe(MOCK_LANGUAGE);
   });
+});
 
+describe('VoiceSttService error handling', () => {
   it('should throw when Deepgram returns an error', async () => {
     mockTranscribeFile.mockResolvedValue({
       result: null,

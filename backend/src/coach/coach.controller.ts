@@ -26,9 +26,7 @@ export class CoachController {
   @ApiResponse({ status: 200, description: 'Coach returned' })
   @ApiResponse({ status: 404, description: 'Coach not found' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  public async getCoach(
-    @Param('coachId', ParseIntPipe) coachId: number,
-  ): Promise<Coach> {
+  public async getCoach(@Param('coachId', ParseIntPipe) coachId: number): Promise<Coach> {
     return this.coachService.getCoach(coachId);
   }
 }

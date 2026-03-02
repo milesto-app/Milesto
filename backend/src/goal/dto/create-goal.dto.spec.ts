@@ -14,21 +14,15 @@ describe('CreateGoalDto - valid inputs', () => {
     const errors = await validate(dto);
     expect(errors).toHaveLength(0);
   });
+
+  it('should pass validation with description only (title optional)', async () => {
+    const dto = toDto({ description: 'Complete a full marathon' });
+    const errors = await validate(dto);
+    expect(errors).toHaveLength(0);
+  });
 });
 
 describe('CreateGoalDto - missing fields', () => {
-  it('should fail when title is missing', async () => {
-    const dto = toDto({ description: 'Complete a full marathon' });
-    const errors = await validate(dto);
-    expect(errors.length).toBeGreaterThan(0);
-  });
-
-  it('should fail when title is empty string', async () => {
-    const dto = toDto({ title: '', description: 'Complete a full marathon' });
-    const errors = await validate(dto);
-    expect(errors.length).toBeGreaterThan(0);
-  });
-
   it('should fail when description is missing', async () => {
     const dto = toDto({ title: 'Run a marathon' });
     const errors = await validate(dto);

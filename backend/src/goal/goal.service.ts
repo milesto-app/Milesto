@@ -6,12 +6,17 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import type { Database } from '../supabase/database.types.js';
+import { AiService } from '../ai/ai.service.js';
 import { SupabaseService } from '../supabase/supabase.service.js';
 import {
   DELETABLE_STATUSES,
   GOAL_STATUS,
   PROFILE_VIEWABLE_STATUSES,
 } from './goal-status.constants.js';
+import {
+  buildGoalTitleSystemPrompt,
+  buildGoalTitleUserPrompt,
+} from './prompts/goal-title-prompt.js';
 
 type GoalRow = Database['public']['Tables']['goals']['Row'];
 
@@ -26,16 +31,20 @@ interface GoalListResult {
 export class GoalService {
   private readonly logger = new Logger(GoalService.name);
 
-  constructor(private readonly supabaseService: SupabaseService) {}
+  constructor(
+    private readonly supabaseService: SupabaseService,
+    private readonly aiService: AiService,
+  ) {}
 
-  public async create(userId: string, title: string, description: string): Promise<GoalRow> {
+  public async create(userId: string, description: string, title?: string): Promise<GoalRow> {
+    const resolvedTitle = title ?? (await this.generateTitle(description));
     const supabase = this.supabaseService.getAdminClient();
 
     const { data, error } = await supabase
       .from('goals')
       .insert({
         user_id: userId,
-        title,
+        title: resolvedTitle,
         description,
         status: GOAL_STATUS.INTAKE_IN_PROGRESS,
         profile_generation_attempts: 0,
@@ -50,6 +59,26 @@ export class GoalService {
 
     this.logger.log(`Goal ${data.id} created for user ${userId}`);
     return data;
+  }
+
+  private async generateTitle(description: string): Promise<string> {
+    const TITLE_TIMEOUT_MS = 10_000;
+    const FALLBACK_MAX_LENGTH = 200;
+
+    try {
+      const result = await this.aiService.generateJSON<{ title: string }>(
+        buildGoalTitleSystemPrompt(),
+        buildGoalTitleUserPrompt(description),
+        undefined,
+        { timeoutMs: TITLE_TIMEOUT_MS },
+      );
+      return result.title;
+    } catch (error) {
+      this.logger.warn(
+        `AI title generation failed, using fallback: ${error instanceof Error ? error.message : String(error)}`,
+      );
+      return description.substring(0, FALLBACK_MAX_LENGTH);
+    }
   }
 
   public async findAll(userId: string, limit: number, offset: number): Promise<GoalListResult> {

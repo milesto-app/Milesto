@@ -49,7 +49,7 @@ describe('GoalController.create', () => {
 
     const result = await controller.create('user-123', dto);
 
-    expect(goalService.create).toHaveBeenCalledWith('user-123', dto.title, dto.description);
+    expect(goalService.create).toHaveBeenCalledWith('user-123', dto.description, dto.title);
     expect(result).toEqual(expectedGoal);
   });
 });

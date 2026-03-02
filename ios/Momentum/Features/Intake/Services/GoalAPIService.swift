@@ -5,12 +5,12 @@ final class GoalAPIService {
 
     private init() {}
 
-    func createGoal(title: String, description: String) async throws -> GoalDTO {
-        struct Body: Encodable { let title: String; let description: String }
+    func createGoal(description: String) async throws -> GoalDTO {
+        struct Body: Encodable { let description: String }
         return try await BackendClient.shared.request(
             method: "POST",
             path: "goals",
-            body: Body(title: title, description: description)
+            body: Body(description: description)
         )
     }
 

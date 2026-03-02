@@ -35,10 +35,10 @@ export class VoiceService {
       .eq('is_active', true)
       .single();
 
-    if (error !== null || data === null) {
+    if (error !== null) {
       throw new NotFoundException(`Coach with id ${String(coachId)} not found`);
     }
 
-    return data.deepgram_voice_id;
+    return (data as { deepgram_voice_id: string }).deepgram_voice_id;
   }
 }

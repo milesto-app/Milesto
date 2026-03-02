@@ -13,7 +13,6 @@ struct GoalIntakeFlowView: View {
 
     @Environment(\.modelContext) private var modelContext
     @State private var step: GoalIntakeStep = .goalSetup
-    @State private var goalTitle = ""
     @State private var goalDescription = ""
     @State private var isCreatingGoal = false
     @State private var showError = false
@@ -25,7 +24,6 @@ struct GoalIntakeFlowView: View {
                 switch step {
                 case .goalSetup:
                     GoalSetupView(
-                        goalTitle: $goalTitle,
                         goalDescription: $goalDescription,
                         isLoading: isCreatingGoal,
                         onContinue: createGoal
@@ -66,7 +64,6 @@ struct GoalIntakeFlowView: View {
 
             do {
                 let goal = try await GoalAPIService.shared.createGoal(
-                    title: goalTitle.trimmingCharacters(in: .whitespacesAndNewlines),
                     description: goalDescription.trimmingCharacters(in: .whitespacesAndNewlines)
                 )
 

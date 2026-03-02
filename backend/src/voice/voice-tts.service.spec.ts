@@ -50,8 +50,8 @@ describe('VoiceTtsService', () => {
 
   it('should return synthesis result when successful', async () => {
     mockRequest.mockResolvedValue({
-      getStream: () => Promise.resolve(createMockStream(MOCK_AUDIO)),
-      getHeaders: () => Promise.resolve(new Headers()),
+      getStream: async () => Promise.resolve(createMockStream(MOCK_AUDIO)),
+      getHeaders: async () => Promise.resolve(new Headers()),
     });
 
     const result = await service.synthesize('Hello', MOCK_VOICE_ID);
@@ -62,8 +62,8 @@ describe('VoiceTtsService', () => {
 
   it('should throw when stream is null', async () => {
     mockRequest.mockResolvedValue({
-      getStream: () => Promise.resolve(null),
-      getHeaders: () => Promise.resolve(new Headers()),
+      getStream: async () => Promise.resolve(null),
+      getHeaders: async () => Promise.resolve(new Headers()),
     });
 
     await expect(service.synthesize('Hello', MOCK_VOICE_ID)).rejects.toThrow(
@@ -73,8 +73,8 @@ describe('VoiceTtsService', () => {
 
   it('should call Deepgram with correct voice model', async () => {
     mockRequest.mockResolvedValue({
-      getStream: () => Promise.resolve(createMockStream(MOCK_AUDIO)),
-      getHeaders: () => Promise.resolve(new Headers()),
+      getStream: async () => Promise.resolve(createMockStream(MOCK_AUDIO)),
+      getHeaders: async () => Promise.resolve(new Headers()),
     });
 
     await service.synthesize('Test text', MOCK_VOICE_ID);

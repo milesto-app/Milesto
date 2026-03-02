@@ -4,6 +4,7 @@ import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { VoiceController } from './voice.controller.js';
 import { VoiceService } from './voice.service.js';
 import { SupabaseService } from '../supabase/supabase.service.js';
+import type { Response } from 'express';
 import type { TranscriptionResult, SynthesisResult } from './voice.types.js';
 
 const MOCK_TRANSCRIPTION: TranscriptionResult = {
@@ -81,30 +82,27 @@ describe('VoiceController.synthesize', () => {
   it('should send audio binary response', async () => {
     voiceService.synthesize.mockResolvedValue(MOCK_SYNTHESIS);
 
-    const mockRes = {
-      set: jest.fn(),
-      send: jest.fn(),
-    } as unknown as import('express').Response;
+    const mockSet = jest.fn();
+    const mockSend = jest.fn();
+    const mockRes = { set: mockSet, send: mockSend } as unknown as Response;
 
     await controller.synthesize({ text: 'Hello', coach_id: 1 }, mockRes);
 
     expect(voiceService.synthesize).toHaveBeenCalledWith('Hello', 1);
-    expect(mockRes.set).toHaveBeenCalledWith('Content-Type', 'audio/mpeg');
-    expect(mockRes.send).toHaveBeenCalledWith(MOCK_SYNTHESIS.audio);
+    expect(mockSet).toHaveBeenCalledWith('Content-Type', 'audio/mpeg');
+    expect(mockSend).toHaveBeenCalledWith(MOCK_SYNTHESIS.audio);
   });
 
   it('should propagate NotFoundException for invalid coach', async () => {
-    voiceService.synthesize.mockRejectedValue(
-      new NotFoundException('Coach with id 999 not found'),
-    );
+    voiceService.synthesize.mockRejectedValue(new NotFoundException('Coach with id 999 not found'));
 
     const mockRes = {
       set: jest.fn(),
       send: jest.fn(),
-    } as unknown as import('express').Response;
+    } as unknown as Response;
 
-    await expect(
-      controller.synthesize({ text: 'Hello', coach_id: 999 }, mockRes),
-    ).rejects.toThrow(NotFoundException);
+    await expect(controller.synthesize({ text: 'Hello', coach_id: 999 }, mockRes)).rejects.toThrow(
+      NotFoundException,
+    );
   });
 });

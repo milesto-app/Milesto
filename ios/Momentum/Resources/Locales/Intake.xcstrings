@@ -160,13 +160,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Give your goal a title and a description."
+            "value" : "Describe what you want to achieve."
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Donnez un titre et une description \u00e0 votre objectif."
+            "value" : "D\u00e9crivez ce que vous souhaitez accomplir."
           }
         }
       }

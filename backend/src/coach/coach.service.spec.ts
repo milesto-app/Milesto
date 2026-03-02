@@ -5,6 +5,8 @@ import { CoachService } from './coach.service.js';
 import { SupabaseService } from '../supabase/supabase.service.js';
 import type { Coach } from './coach.types.js';
 
+const NONEXISTENT_COACH_ID = 999;
+
 const MOCK_COACH: Coach = {
   id: 1,
   personality: 'motivateur',
@@ -90,6 +92,6 @@ describe('CoachService.getCoach', () => {
   it('should throw NotFoundException when coach not found', async () => {
     mockSelectOneChain(null, { code: 'PGRST116', message: 'not found' });
 
-    await expect(service.getCoach(999)).rejects.toThrow(NotFoundException);
+    await expect(service.getCoach(NONEXISTENT_COACH_ID)).rejects.toThrow(NotFoundException);
   });
 });

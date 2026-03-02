@@ -9,14 +9,14 @@ Momentum is an AI-powered personal coaching backend built with NestJS + TypeScri
 ## Commands
 
 ```bash
-bun run build              # Compile (nest build)
-bun run start:dev          # Dev server with watch mode
-bun run lint               # ESLint with auto-fix
-bun run format             # Prettier
-bun run test               # All unit tests (Jest)
-bun run test -- --testPathPattern=intake.service  # Single test file
-bun run test:e2e           # End-to-end tests
-bun run eval               # Build + run evaluation suite
+npm run build              # Compile (nest build)
+npm run start:dev          # Dev server with watch mode
+npm run lint               # ESLint with auto-fix
+npm run format             # Prettier
+npm run test               # All unit tests (Jest)
+npm run test -- --testPathPattern=intake.service  # Single test file
+npm run test:e2e           # End-to-end tests
+npm run eval               # Build + run evaluation suite
 ```
 
 ## Architecture
@@ -71,5 +71,4 @@ See [STYLE_GUIDE.md](./STYLE_GUIDE.md) for the complete coding standard. All cod
 - One `Logger` instance per class: `private readonly logger = new Logger(ClassName.name)`
 
 # SELF IMPROVEMENT
-
 When you learned something, wether it's by fixing an error, or I tell you that it's wrong. Save what you've learned as memory. Be precise and general, to avoid repeating issues on occuring paterns.

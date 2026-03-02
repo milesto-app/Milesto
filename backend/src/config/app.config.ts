@@ -54,4 +54,10 @@ export const appConfig = {
   coach: {
     defaultCoachId: 1,
   },
+  chat: {
+    model: 'google/gemini-3-flash-preview',
+    maxToolRounds: 5,
+    maxHistoryMessages: 50,
+    streamTimeoutMs: 60_000,
+  },
 };

@@ -5,6 +5,8 @@ import request from 'supertest';
 import type { App } from 'supertest/types';
 import { AppModule } from './../src/app.module.js';
 
+const HTTP_UNAUTHORIZED = 401;
+
 describe('App (e2e)', () => {
   let app: INestApplication<App>;
 
@@ -23,13 +25,13 @@ describe('App (e2e)', () => {
   });
 
   it('GET /api/goals returns 401 without auth', () => {
-    return request(app.getHttpServer()).get('/api/goals').expect(401);
+    return request(app.getHttpServer()).get('/api/goals').expect(HTTP_UNAUTHORIZED);
   });
 
   it('POST /api/goals returns 401 without auth', () => {
     return request(app.getHttpServer())
       .post('/api/goals')
       .send({ title: 'Test', description: 'Test' })
-      .expect(401);
+      .expect(HTTP_UNAUTHORIZED);
   });
 });

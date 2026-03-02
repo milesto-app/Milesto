@@ -6,6 +6,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { GoalService } from './goal.service.js';
+import { AiService } from '../ai/ai.service.js';
 import { SupabaseService } from '../supabase/supabase.service.js';
 import { GOAL_STATUS } from './goal-status.constants.js';
 
@@ -25,6 +26,7 @@ beforeEach(async () => {
     providers: [
       GoalService,
       { provide: SupabaseService, useValue: { getAdminClient: () => mockSupabase } },
+      { provide: AiService, useValue: { generateJSON: jest.fn() } },
     ],
   }).compile();
 
