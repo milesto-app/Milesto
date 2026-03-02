@@ -51,7 +51,7 @@ struct VoiceToggleButton: View {
     private var content: some View {
         switch voiceState {
         case .idle:
-            TablerIcon(.microphone, size: size.iconSize, color: AppTheme.Colors.textOnAccent)
+            TablerIcon(.microphone, size: size.iconSize, color: iconColor)
         case .recording:
             TablerIcon(.playerStop, size: size.iconSize, color: AppTheme.Colors.textOnAccent)
         case .transcribing:
@@ -60,8 +60,12 @@ struct VoiceToggleButton: View {
         case .error:
             TablerIcon(.alertCircle, size: size.iconSize, color: AppTheme.Colors.textOnAccent)
         default:
-            TablerIcon(.microphone, size: size.iconSize, color: AppTheme.Colors.textOnAccent)
+            TablerIcon(.microphone, size: size.iconSize, color: iconColor)
         }
+    }
+
+    private var iconColor: Color {
+        voiceState == .idle ? AppTheme.Colors.textPrimary : AppTheme.Colors.textOnAccent
     }
 
     private var backgroundFill: Color {
@@ -71,7 +75,7 @@ struct VoiceToggleButton: View {
         case .error:
             return AppTheme.Colors.warning
         default:
-            return AppTheme.Colors.accent
+            return .clear
         }
     }
 
