@@ -7,7 +7,7 @@ import { IntakeContextService } from './intake-context.service.js';
 import { IntakeFallbackService } from './intake-fallback.service.js';
 import { validateAnswerSet } from './intake-answer-validator.js';
 import type { AnswerInput, BatchAnsweredEvent, BatchServedEvent } from './types/intake.types.js';
-import type { StoredBatch, StoreBatchOptions } from './intake-store.service.js';
+import type { QuestionConfig, StoredBatch, StoreBatchOptions } from './intake-store.service.js';
 
 interface BatchParams {
   userId: string;
@@ -76,6 +76,7 @@ export class IntakeBatchService {
     const questions = await this.storeService.loadBatchQuestions(batch.id);
     validateAnswerSet(answers, questions);
     await this.storeService.persistAnswers(answers, batch.id);
+    await this.tryExtractTargetDate(goalId, questions, answers);
     this.emitBatchEvent('batch.answered', {
       goal_id: goalId,
       batch_id: batch.id,
@@ -169,6 +170,28 @@ export class IntakeBatchService {
         `Generation after submit failed: ${error instanceof Error ? error.message : String(error)}`,
       );
       return { submitted_batch: batchRef, message: 'Answers submitted successfully' };
+    }
+  }
+
+  private async tryExtractTargetDate(
+    goalId: string,
+    questions: Array<{ id: string; question_type: string; config: QuestionConfig | null }>,
+    answers: AnswerInput[],
+  ): Promise<void> {
+    const dateQuestion = questions.find((q) => q.config?.format === 'date');
+    if (dateQuestion === undefined) {
+      return;
+    }
+    const dateAnswer = answers.find((a) => a.question_id === dateQuestion.id);
+    if (dateAnswer?.answer_text === undefined || dateAnswer.answer_text.length === 0) {
+      return;
+    }
+    try {
+      await this.goalService.setTargetDate(goalId, dateAnswer.answer_text);
+    } catch (error) {
+      this.logger.warn(
+        `Failed to set target date for goal ${goalId}: ${error instanceof Error ? error.message : String(error)}`,
+      );
     }
   }
 

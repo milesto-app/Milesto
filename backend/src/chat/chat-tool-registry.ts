@@ -29,7 +29,10 @@ function createToolEntry(config: ToolConfig): ChatToolEntry {
 export function buildToolRegistry(toolsService: ChatToolsService): Map<string, ChatToolEntry> {
   const registry = new Map<string, ChatToolEntry>();
 
-  const entries: ToolConfig[] = buildToolConfigs(toolsService);
+  const entries: ToolConfig[] = [
+    ...buildObjectiveTools(toolsService),
+    ...buildCoachTools(toolsService),
+  ];
   for (const entry of entries) {
     registry.set(entry.name, createToolEntry(entry));
   }
@@ -37,7 +40,7 @@ export function buildToolRegistry(toolsService: ChatToolsService): Map<string, C
   return registry;
 }
 
-function buildToolConfigs(toolsService: ChatToolsService): ToolConfig[] {
+function buildObjectiveTools(toolsService: ChatToolsService): ToolConfig[] {
   return [
     {
       name: 'getDailyObjectives',
@@ -60,12 +63,33 @@ function buildToolConfigs(toolsService: ChatToolsService): ToolConfig[] {
         required: ['objectiveId', 'isCompleted'],
       },
     },
+  ];
+}
+
+function buildCoachTools(toolsService: ChatToolsService): ToolConfig[] {
+  return [
     {
       name: 'getProgressStats',
       description:
         "Fetch the user's weekly progress stats including completed tasks count, total tasks, and completion rate.",
       executor: (async (_args, ctx) =>
         toolsService.getProgressStats(ctx)) satisfies ChatToolExecutor,
+    },
+    {
+      name: 'editMemory',
+      description:
+        'Save or update your personal notes about this user and their goal. Send the complete updated memory — not just the new part. Use this to remember preferences, obstacles, strategies, and breakthroughs.',
+      executor: (async (args, ctx) =>
+        toolsService.editMemory(args, ctx)) satisfies ChatToolExecutor,
+      parameters: {
+        properties: {
+          content: {
+            type: 'string',
+            description: 'The full updated memory content to save, replacing any previous memory.',
+          },
+        },
+        required: ['content'],
+      },
     },
   ];
 }

@@ -49,11 +49,17 @@ export class ChatService {
 
     await this.history.storeMessage(conversation.id, { role: 'user', content: dto.content });
     const storedMessages = await this.history.getMessages(conversation.id);
-    const [{ coachId, language }, goalContext] = await Promise.all([
+    const [{ coachId, language }, goalContext, memory] = await Promise.all([
       this.prompt.getUserProfile(userId),
       this.prompt.fetchGoalContext(dto.goalId, userId),
+      this.prompt.fetchMemory(userId, dto.goalId),
     ]);
-    const systemPrompt = await this.prompt.buildSystemPrompt(coachId, goalContext, language);
+    const systemPrompt = await this.prompt.buildSystemPrompt({
+      coachId,
+      goalContext,
+      language,
+      memory,
+    });
     const messages = toOpenAiMessages(systemPrompt, storedMessages);
     const tools = [...this.toolRegistry.values()].map((entry) => entry.definition);
 

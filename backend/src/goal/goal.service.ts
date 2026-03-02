@@ -147,6 +147,18 @@ export class GoalService {
     return profile;
   }
 
+  public async setTargetDate(goalId: string, targetDate: string): Promise<void> {
+    const supabase = this.supabaseService.getAdminClient();
+    const { error } = await supabase
+      .from('goals')
+      .update({ target_date: targetDate, updated_at: new Date().toISOString() })
+      .eq('id', goalId);
+    if (error) {
+      this.logger.error(`Failed to set target date for goal ${goalId}: ${error.message}`);
+      throw new InternalServerErrorException('Failed to set target date');
+    }
+  }
+
   public async updateStatus(goalId: string, status: string): Promise<void> {
     const supabase = this.supabaseService.getAdminClient();
     const { error } = await supabase

@@ -1,6 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { DailyObjectiveService } from '../roadmap/daily-objective.service.js';
 import { WeeklyPlanService } from '../roadmap/weekly-plan.service.js';
+import { SupabaseService } from '../supabase/supabase.service.js';
 import type { ToolExecutionContext } from './types/chat.types.js';
 
 @Injectable()
@@ -10,6 +11,7 @@ export class ChatToolsService {
   constructor(
     private readonly dailyObjectiveService: DailyObjectiveService,
     private readonly weeklyPlanService: WeeklyPlanService,
+    private readonly supabaseService: SupabaseService,
   ) {}
 
   public async getDailyObjectives(ctx: ToolExecutionContext): Promise<unknown> {
@@ -79,6 +81,37 @@ export class ChatToolsService {
       const message = error instanceof Error ? error.message : String(error);
       this.logger.warn(`getProgressStats failed: ${message}`);
       return { error: 'Unable to fetch progress stats.' };
+    }
+  }
+
+  public async editMemory(
+    args: Record<string, unknown>,
+    ctx: ToolExecutionContext,
+  ): Promise<unknown> {
+    try {
+      const content = args.content as string;
+      const supabase = this.supabaseService.getAdminClient();
+
+      const { error } = await supabase.from('coach_memories').upsert(
+        {
+          user_id: ctx.userId,
+          goal_id: ctx.goalId,
+          content,
+          updated_at: new Date().toISOString(),
+        },
+        { onConflict: 'user_id,goal_id' },
+      );
+
+      if (error !== null) {
+        this.logger.warn(`editMemory upsert failed: ${error.message}`);
+        return { error: 'Unable to save memory.' };
+      }
+
+      return { success: true };
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      this.logger.warn(`editMemory failed: ${message}`);
+      return { error: 'Unable to save memory.' };
     }
   }
 }

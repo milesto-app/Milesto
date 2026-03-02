@@ -29,6 +29,7 @@ export interface QuestionConfig {
   min?: number;
   max?: number;
   options?: string[];
+  format?: string;
 }
 
 @Injectable()
