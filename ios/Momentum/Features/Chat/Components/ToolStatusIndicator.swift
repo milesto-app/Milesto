@@ -13,6 +13,10 @@ struct ToolStatusIndicator: View {
             return LocalizedStringKey("chat.tool.weeklyPlan")
         case "getMilestones":
             return LocalizedStringKey("chat.tool.milestones")
+        case "searchContext":
+            return LocalizedStringKey("chat.tool.searchContext")
+        case "saveInsight":
+            return LocalizedStringKey("chat.tool.saveInsight")
         default:
             return LocalizedStringKey("chat.tool.dailyObjectives")
         }

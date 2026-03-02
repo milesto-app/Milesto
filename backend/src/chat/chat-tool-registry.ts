@@ -31,7 +31,9 @@ export function buildToolRegistry(toolsService: ChatToolsService): Map<string, C
 
   const entries: ToolConfig[] = [
     ...buildObjectiveTools(toolsService),
-    ...buildCoachTools(toolsService),
+    ...buildMemoryTools(toolsService),
+    ...buildStatsTools(toolsService),
+    ...buildSearchTools(toolsService),
   ];
   for (const entry of entries) {
     registry.set(entry.name, createToolEntry(entry));
@@ -45,14 +47,13 @@ function buildObjectiveTools(toolsService: ChatToolsService): ToolConfig[] {
     {
       name: 'getDailyObjectives',
       description:
-        "Fetch today's daily objectives for the user's active goal. Returns tasks with id, title, description, completion status, and difficulty.",
+        "Fetch today's daily objectives. Returns array of {id, title, description, is_completed, difficulty_rating}.",
       executor: (async (_args, ctx) =>
         toolsService.getDailyObjectives(ctx)) satisfies ChatToolExecutor,
     },
     {
       name: 'toggleObjectiveCompletion',
-      description:
-        'Mark a daily objective as completed or not completed. Use the objective ID from getDailyObjectives.',
+      description: "Toggle a daily objective's completion status.",
       executor: (async (args, ctx) =>
         toolsService.toggleObjectiveCompletion(args, ctx)) satisfies ChatToolExecutor,
       parameters: {
@@ -66,19 +67,12 @@ function buildObjectiveTools(toolsService: ChatToolsService): ToolConfig[] {
   ];
 }
 
-function buildCoachTools(toolsService: ChatToolsService): ToolConfig[] {
+function buildMemoryTools(toolsService: ChatToolsService): ToolConfig[] {
   return [
-    {
-      name: 'getProgressStats',
-      description:
-        "Fetch the user's weekly progress stats including completed tasks count, total tasks, and completion rate.",
-      executor: (async (_args, ctx) =>
-        toolsService.getProgressStats(ctx)) satisfies ChatToolExecutor,
-    },
     {
       name: 'editMemory',
       description:
-        'Save or update your personal notes about this user and their goal. Send the complete updated memory — not just the new part. Use this to remember preferences, obstacles, strategies, and breakthroughs.',
+        'Replace the stored coach memory with new content. Expects the complete updated text.',
       executor: (async (args, ctx) =>
         toolsService.editMemory(args, ctx)) satisfies ChatToolExecutor,
       parameters: {
@@ -89,6 +83,60 @@ function buildCoachTools(toolsService: ChatToolsService): ToolConfig[] {
           },
         },
         required: ['content'],
+      },
+    },
+    {
+      name: 'saveInsight',
+      description: 'Save a single atomic observation about the user. Duplicates are auto-detected.',
+      executor: (async (args, ctx) =>
+        toolsService.saveInsight(args, ctx)) satisfies ChatToolExecutor,
+      parameters: {
+        properties: {
+          insight: {
+            type: 'string',
+            description: 'A single atomic insight about the user. Be specific and concise.',
+          },
+        },
+        required: ['insight'],
+      },
+    },
+  ];
+}
+
+function buildStatsTools(toolsService: ChatToolsService): ToolConfig[] {
+  return [
+    {
+      name: 'getProgressStats',
+      description:
+        'Fetch weekly progress: completed count, total count, completion rate, week number.',
+      executor: (async (_args, ctx) =>
+        toolsService.getProgressStats(ctx)) satisfies ChatToolExecutor,
+    },
+  ];
+}
+
+function buildSearchTools(toolsService: ChatToolsService): ToolConfig[] {
+  return [
+    {
+      name: 'searchContext',
+      description:
+        "Search the user's stored context (intake answers, goal profile, summaries, debrief notes, insights).",
+      executor: (async (args, ctx) =>
+        toolsService.searchContext(args, ctx)) satisfies ChatToolExecutor,
+      parameters: {
+        properties: {
+          query: {
+            type: 'string',
+            description: 'The search query describing what information to find.',
+          },
+          contentTypes: {
+            type: 'array',
+            items: { type: 'string' },
+            description:
+              'Optional filter by content type: intake_answer, goal_profile, user_profile, weekly_summary, debrief_note, coach_insight.',
+          },
+        },
+        required: ['query'],
       },
     },
   ];

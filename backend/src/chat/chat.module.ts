@@ -5,13 +5,21 @@ import { ChatAiService } from './chat-ai.service.js';
 import { ChatController } from './chat.controller.js';
 import { ChatHistoryService } from './chat-history.service.js';
 import { ChatPromptService } from './chat-prompt.service.js';
+import { ChatSearchService } from './chat-search.service.js';
 import { ChatService } from './chat.service.js';
 import { ChatToolsService } from './chat-tools.service.js';
 
 @Module({
   imports: [CoachModule, RoadmapModule],
   controllers: [ChatController],
-  providers: [ChatAiService, ChatHistoryService, ChatToolsService, ChatPromptService, ChatService],
+  providers: [
+    ChatAiService,
+    ChatHistoryService,
+    ChatSearchService,
+    ChatToolsService,
+    ChatPromptService,
+    ChatService,
+  ],
   exports: [ChatHistoryService, ChatToolsService, ChatPromptService, ChatService],
 })
 // eslint-disable-next-line @typescript-eslint/no-extraneous-class

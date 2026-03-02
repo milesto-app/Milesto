@@ -60,5 +60,10 @@ export const appConfig = {
     maxToolRounds: 5,
     maxHistoryMessages: 50,
     streamTimeoutMs: 60_000,
+    searchMatchCount: 10,
+    searchMatchThreshold: 0.5,
+    searchResultCount: 5,
+    insightDuplicateThreshold: 0.92,
+    insightDuplicateCheckCount: 5,
   },
 };

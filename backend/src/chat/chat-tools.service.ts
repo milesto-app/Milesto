@@ -2,16 +2,19 @@ import { Injectable, Logger } from '@nestjs/common';
 import { DailyObjectiveService } from '../roadmap/daily-objective.service.js';
 import { WeeklyPlanService } from '../roadmap/weekly-plan.service.js';
 import { SupabaseService } from '../supabase/supabase.service.js';
+import { ChatSearchService } from './chat-search.service.js';
 import type { ToolExecutionContext } from './types/chat.types.js';
 
 @Injectable()
 export class ChatToolsService {
   private readonly logger = new Logger(ChatToolsService.name);
 
+  // eslint-disable-next-line max-params -- NestJS DI requires separate constructor params
   constructor(
     private readonly dailyObjectiveService: DailyObjectiveService,
     private readonly weeklyPlanService: WeeklyPlanService,
     private readonly supabaseService: SupabaseService,
+    private readonly chatSearchService: ChatSearchService,
   ) {}
 
   public async getDailyObjectives(ctx: ToolExecutionContext): Promise<unknown> {
@@ -112,6 +115,46 @@ export class ChatToolsService {
       const message = error instanceof Error ? error.message : String(error);
       this.logger.warn(`editMemory failed: ${message}`);
       return { error: 'Unable to save memory.' };
+    }
+  }
+
+  public async saveInsight(
+    args: Record<string, unknown>,
+    ctx: ToolExecutionContext,
+  ): Promise<unknown> {
+    try {
+      const insight = args.insight as string;
+
+      return await this.chatSearchService.saveInsight({
+        insight,
+        goalId: ctx.goalId,
+        userId: ctx.userId,
+      });
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      this.logger.warn(`saveInsight failed: ${message}`);
+      return { error: 'Unable to save insight.' };
+    }
+  }
+
+  public async searchContext(
+    args: Record<string, unknown>,
+    ctx: ToolExecutionContext,
+  ): Promise<unknown> {
+    try {
+      const query = args.query as string;
+      const contentTypes = args.contentTypes as string[] | undefined;
+
+      return await this.chatSearchService.search({
+        query,
+        goalId: ctx.goalId,
+        userId: ctx.userId,
+        contentTypes,
+      });
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      this.logger.warn(`searchContext failed: ${message}`);
+      return { error: 'Unable to search context. Please try rephrasing your question.' };
     }
   }
 }
