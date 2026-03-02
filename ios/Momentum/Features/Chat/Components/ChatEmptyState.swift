@@ -41,7 +41,7 @@ struct ChatEmptyState: View {
                         }
                         .padding(.horizontal, AppTheme.Spacing.md)
                         .padding(.vertical, AppTheme.Spacing.sm)
-                        .glassEffect(.clear.interactive(), in: .capsule)
+                        .glassEffect(.regular.interactive(), in: .capsule)
                     }
                     .opacity(appeared ? 1 : 0)
                     .offset(y: appeared ? 0 : 12)

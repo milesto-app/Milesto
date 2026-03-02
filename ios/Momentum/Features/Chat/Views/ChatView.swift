@@ -68,7 +68,7 @@ struct ChatView: View {
                     } label: {
                         TablerIcon(.edit, size: 24, color: AppTheme.Colors.textPrimary)
                             .frame(width: 44, height: 44)
-                            .glassEffect(.clear.interactive(), in: .circle)
+                            .glassEffect(.regular.interactive(), in: .circle)
                     }
                     .transition(.opacity)
                 }
@@ -79,7 +79,7 @@ struct ChatView: View {
                     Button(action: onClose) {
                         TablerIcon(.x, size: 24, color: AppTheme.Colors.textPrimary)
                             .frame(width: 44, height: 44)
-                            .glassEffect(.clear.interactive(), in: .circle)
+                            .glassEffect(.regular.interactive(), in: .circle)
                     }
                 }
             }

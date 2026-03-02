@@ -6,16 +6,13 @@ struct ChatInputBar: View {
     var onSend: () -> Void
 
     var body: some View {
-        HStack(spacing: AppTheme.Spacing.sm) {
-            TextField(String(localized: "chat.input.placeholder", table: "Chat"), text: $text)
+        HStack(alignment: .bottom, spacing: AppTheme.Spacing.sm) {
+            TextField(String(localized: "chat.input.placeholder", table: "Chat"), text: $text, axis: .vertical)
                 .textFieldStyle(.plain)
+                .lineLimit(1...6)
                 .padding(.horizontal, AppTheme.Spacing.md)
                 .padding(.vertical, AppTheme.Spacing.md)
                 .disabled(isDisabled)
-                .onSubmit {
-                    guard !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty, !isDisabled else { return }
-                    onSend()
-                }
 
             if canSend {
                 Button {
@@ -26,16 +23,18 @@ struct ChatInputBar: View {
                         .background(AppTheme.Colors.accent, in: Circle())
                 }
                 .padding(.trailing, AppTheme.Spacing.sm)
+                .padding(.bottom, 10)
                 .transition(.opacity)
             } else if !isDisabled {
                 VoiceToggleButton(transcribedText: $text, coachId: nil, size: .compact)
                     .padding(.trailing, AppTheme.Spacing.sm)
+                    .padding(.bottom, 10)
                     .transition(.opacity)
             }
         }
         .animation(.easeInOut(duration: 0.2), value: canSend)
         .animation(.easeInOut(duration: 0.2), value: isDisabled)
-        .glassEffect(.clear.interactive(), in: .capsule)
+        .glassEffect(.regular.interactive(), in: .rect(cornerRadius: 24))
         .padding(.horizontal, AppTheme.Spacing.md)
         .padding(.bottom, 0)
     }
