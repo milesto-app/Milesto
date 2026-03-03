@@ -26,46 +26,45 @@ struct ChatView: View {
     }
 
     var body: some View {
-        VStack(spacing: 0) {
-            ScrollViewReader { proxy in
-                ScrollView {
-                    LazyVStack(spacing: AppTheme.Spacing.xl) {
-                        ForEach(messages) { message in
-                            ChatBubble(message: message)
-                                .id(message.id)
-                        }
+        ScrollViewReader { proxy in
+            ScrollView {
+                LazyVStack(spacing: AppTheme.Spacing.xl) {
+                    ForEach(messages) { message in
+                        ChatBubble(message: message)
+                            .id(message.id)
+                    }
 
-                        if isWaitingForResponse && showThinking {
-                            ThinkingIndicator()
-                                .id("thinking")
-                                .transition(.opacity)
-                        }
-                    }
-                    .padding(.vertical, AppTheme.Spacing.md)
-                }
-                .scrollDismissesKeyboard(.interactively)
-                .contentMargins(.top, 56)
-                .overlay {
-                    if messages.isEmpty {
-                        ChatEmptyState(onSelectPrompt: { prompt in
-                            inputText = prompt
-                            isInputFocused = true
-                        }, onVoiceChatTap: {
-                            isVoiceChatActive = true
-                        })
-                        .transition(.opacity.combined(with: .scale(scale: 0.95)).combined(with: .offset(y: -20)))
+                    if isWaitingForResponse && showThinking {
+                        ThinkingIndicator()
+                            .id("thinking")
+                            .transition(.opacity)
                     }
                 }
-                .onChange(of: messages.count) {
-                    if let lastId = messages.last?.id {
-                        withAnimation(.easeOut(duration: 0.2)) {
-                            proxy.scrollTo(lastId, anchor: .bottom)
-                        }
+                .padding(.vertical, AppTheme.Spacing.md)
+            }
+            .scrollDismissesKeyboard(.interactively)
+            .contentMargins(.top, 56)
+            .contentMargins(.bottom, 72)
+            .overlay {
+                if messages.isEmpty {
+                    ChatEmptyState(onSelectPrompt: { prompt in
+                        inputText = prompt
+                        isInputFocused = true
+                    }, onVoiceChatTap: {
+                        isVoiceChatActive = true
+                    })
+                    .transition(.opacity.combined(with: .scale(scale: 0.95)).combined(with: .offset(y: -20)))
+                }
+            }
+            .onChange(of: messages.count) {
+                if let lastId = messages.last?.id {
+                    withAnimation(.easeOut(duration: 0.2)) {
+                        proxy.scrollTo(lastId, anchor: .bottom)
                     }
                 }
             }
-
-
+        }
+        .overlay(alignment: .bottom) {
             ChatInputBar(text: $inputText, isDisabled: isStreaming, isFocused: $isInputFocused) {
                 sendMessage()
             }
