@@ -52,7 +52,7 @@ struct ProfileGateView: View {
                     Tab(value: 3, role: .search) {
                         Color.clear
                     } label: {
-                        TablerTabLabel(.messageChatbot, title: String(localized: "tabs.chat", table: "Common"))
+                        TablerTabLabel(.sparkles, title: String(localized: "tabs.chat", table: "Common"))
                     }
                 }
                 .labelStyle(.iconOnly)
