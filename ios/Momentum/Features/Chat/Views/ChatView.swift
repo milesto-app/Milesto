@@ -31,17 +31,19 @@ struct ChatView: View {
                 .ignoresSafeArea(.keyboard)
 
             VStack(spacing: 0) {
-                ScrollViewReader { proxy in
-                    ScrollView {
-                        if messages.isEmpty {
-                            ChatEmptyState(onSelectPrompt: { prompt in
-                                inputText = prompt
-                            }, onVoiceChatTap: {
-                                isVoiceChatActive = true
-                            })
-                            .frame(maxHeight: .infinity)
-                            .padding(.top, AppTheme.Spacing.xxl)
-                        } else {
+                if messages.isEmpty {
+                    ChatEmptyState(onSelectPrompt: { prompt in
+                        inputText = prompt
+                    }, onVoiceChatTap: {
+                        isVoiceChatActive = true
+                    })
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .contentMargins(.top, 56)
+                    .contentMargins(.bottom, 80)
+                    .transition(.opacity.combined(with: .scale(scale: 0.95)).combined(with: .offset(y: -20)))
+                } else {
+                    ScrollViewReader { proxy in
+                        ScrollView {
                             LazyVStack(spacing: AppTheme.Spacing.xl) {
                                 ForEach(messages) { message in
                                     ChatBubble(message: message)
@@ -56,14 +58,14 @@ struct ChatView: View {
                             }
                             .padding(.vertical, AppTheme.Spacing.md)
                         }
-                    }
-                    .scrollDismissesKeyboard(.interactively)
-                    .contentMargins(.top, 56)
-                    .contentMargins(.bottom, 80)
-                    .onChange(of: messages.count) {
-                        if let lastId = messages.last?.id {
-                            withAnimation(.easeOut(duration: 0.2)) {
-                                proxy.scrollTo(lastId, anchor: .bottom)
+                        .scrollDismissesKeyboard(.interactively)
+                        .contentMargins(.top, 56)
+                        .contentMargins(.bottom, 80)
+                        .onChange(of: messages.count) {
+                            if let lastId = messages.last?.id {
+                                withAnimation(.easeOut(duration: 0.2)) {
+                                    proxy.scrollTo(lastId, anchor: .bottom)
+                                }
                             }
                         }
                     }
@@ -177,7 +179,9 @@ struct ChatView: View {
             content: content,
             createdAt: Date()
         )
-        messages.append(userMessage)
+        withAnimation(.easeOut(duration: 0.35)) {
+            messages.append(userMessage)
+        }
         inputText = ""
         isStreaming = true
         showThinking = false
