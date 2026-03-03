@@ -48,9 +48,12 @@ struct AppTextField: View {
         VStack(alignment: .leading, spacing: AppTheme.Spacing.xxs) {
             ZStack(alignment: multiline ? .topLeading : .leading) {
                 RoundedRectangle(cornerRadius: AppTheme.CornerRadius.md)
-                    .fill(.clear)
-                    .glassEffect(.regular, in: RoundedRectangle(cornerRadius: AppTheme.CornerRadius.md))
+                    .fill(AppTheme.Colors.fieldBackground)
                     .frame(height: multiline ? 150 : 56)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: AppTheme.CornerRadius.md)
+                            .stroke(borderColor, lineWidth: hasError || isFocused ? 2 : 1)
+                    )
 
                 HStack(alignment: multiline ? .top : .center, spacing: AppTheme.Spacing.sm) {
                     if let icon = icon {

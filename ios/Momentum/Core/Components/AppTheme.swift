@@ -13,7 +13,7 @@ enum AppTheme {
         static let textPlaceholder = Color(.placeholderText)
         static let textOnAccent = Color.white
 
-        static let iconDefault = Color(.secondaryLabel)
+        static let iconDefault = Color(.label).opacity(0.7)
 
         static let nodeUpcoming = Color(UIColor { traits in
             traits.userInterfaceStyle == .dark
@@ -21,11 +21,11 @@ enum AppTheme {
                 : UIColor(red: 0.88, green: 0.87, blue: 0.86, alpha: 1)
         })
 
-        static let fieldBackground = Color(.systemGray6)
+        static let fieldBackground = Color(.secondarySystemBackground)
         static let codeBackground = Color(.systemGray5)
         static let fieldBorderFocused = Color(red: 0.18, green: 0.72, blue: 0.53)
         static let fieldBorderError = Color.red
-        static let fieldBorderDefault = Color.clear
+        static let fieldBorderDefault = Color(.separator).opacity(0.45)
     }
 
     enum Spacing {

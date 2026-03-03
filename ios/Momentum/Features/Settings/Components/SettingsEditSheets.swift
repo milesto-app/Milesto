@@ -27,7 +27,6 @@ struct EditNameSheet: View {
                 AppTextField(
                     text: $firstName,
                     label: "settings.edit.firstName",
-                    icon: .user,
                     table: "Settings",
                     textContentType: .givenName,
                     autocorrectionDisabled: true
@@ -36,7 +35,6 @@ struct EditNameSheet: View {
                 AppTextField(
                     text: $lastName,
                     label: "settings.edit.lastName",
-                    icon: .user,
                     table: "Settings",
                     textContentType: .familyName,
                     autocorrectionDisabled: true
