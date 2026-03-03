@@ -28,11 +28,6 @@ struct CoachCard: View {
                     AppText(verbatim: personality.title, style: .headline)
 
                     AppText(verbatim: personality.description, style: .subheadline)
-
-                    CoachVoicePreview(
-                        coachId: personality.databaseId,
-                        sampleText: personality.title
-                    )
                 }
 
                 Spacer()
