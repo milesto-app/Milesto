@@ -38,7 +38,7 @@ struct ChatInputBar: View {
         .animation(.easeInOut(duration: 0.2), value: isDisabled)
         .glassEffect(.regular.interactive(), in: .rect(cornerRadius: 24))
         .padding(.horizontal, AppTheme.Spacing.md)
-        .padding(.bottom, 0)
+        .padding(.bottom, AppTheme.Spacing.xs)
     }
 
     private var canSend: Bool {

@@ -19,7 +19,6 @@ struct ChatView: View {
     @State private var isSidebarOpen = false
     @State private var conversations: [ConversationSummary] = []
     @State private var isLoadingHistory = false
-    @State private var keyboardHeight: CGFloat = 0
 
     private var coach: CoachPersonality? {
         guard let coachId = localProfiles.first?.coachId else { return nil }
@@ -27,59 +26,54 @@ struct ChatView: View {
     }
 
     var body: some View {
-        ZStack {
-            AnimatedBackground()
-                .ignoresSafeArea()
-
-            VStack(spacing: 0) {
-                if messages.isEmpty {
-                    ChatEmptyState(onSelectPrompt: { prompt in
-                        inputText = prompt
-                    }, onVoiceChatTap: {
-                        isVoiceChatActive = true
-                    })
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .contentMargins(.top, 56)
-                    .contentMargins(.bottom, 80 + keyboardHeight)
-                    .transition(.opacity.combined(with: .scale(scale: 0.95)).combined(with: .offset(y: -20)))
-                } else {
-                    ScrollViewReader { proxy in
-                        ScrollView {
-                            LazyVStack(spacing: AppTheme.Spacing.xl) {
-                                ForEach(messages) { message in
-                                    ChatBubble(message: message)
-                                        .id(message.id)
-                                }
-
-                                if isWaitingForResponse && showThinking {
-                                    ThinkingIndicator()
-                                        .id("thinking")
-                                        .transition(.opacity)
-                                }
-                            }
-                            .padding(.vertical, AppTheme.Spacing.md)
+        VStack(spacing: 0) {
+            ScrollViewReader { proxy in
+                ScrollView {
+                    LazyVStack(spacing: AppTheme.Spacing.xl) {
+                        ForEach(messages) { message in
+                            ChatBubble(message: message)
+                                .id(message.id)
                         }
-                        .scrollDismissesKeyboard(.interactively)
-                        .contentMargins(.top, 56)
-                        .contentMargins(.bottom, 80 + keyboardHeight)
-                        .onChange(of: messages.count) {
-                            if let lastId = messages.last?.id {
-                                withAnimation(.easeOut(duration: 0.2)) {
-                                    proxy.scrollTo(lastId, anchor: .bottom)
-                                }
-                            }
+
+                        if isWaitingForResponse && showThinking {
+                            ThinkingIndicator()
+                                .id("thinking")
+                                .transition(.opacity)
+                        }
+                    }
+                    .padding(.vertical, AppTheme.Spacing.md)
+                }
+                .scrollDismissesKeyboard(.interactively)
+                .contentMargins(.top, 56)
+                .overlay {
+                    if messages.isEmpty {
+                        ChatEmptyState(onSelectPrompt: { prompt in
+                            inputText = prompt
+                            isInputFocused = true
+                        }, onVoiceChatTap: {
+                            isVoiceChatActive = true
+                        })
+                        .transition(.opacity.combined(with: .scale(scale: 0.95)).combined(with: .offset(y: -20)))
+                    }
+                }
+                .onChange(of: messages.count) {
+                    if let lastId = messages.last?.id {
+                        withAnimation(.easeOut(duration: 0.2)) {
+                            proxy.scrollTo(lastId, anchor: .bottom)
                         }
                     }
                 }
             }
-            .overlay(alignment: .bottom) {
-                ChatInputBar(text: $inputText, isDisabled: isStreaming, isFocused: $isInputFocused) {
-                    sendMessage()
-                }
-                .padding(.bottom, keyboardHeight)
+
+
+            ChatInputBar(text: $inputText, isDisabled: isStreaming, isFocused: $isInputFocused) {
+                sendMessage()
             }
         }
-        .ignoresSafeArea(.keyboard)
+        .overlay(alignment: .top) {
+            StatusBarBlur()
+                .allowsHitTesting(false)
+        }
         .overlay(alignment: .top) {
             HStack {
                 Button {
@@ -148,21 +142,6 @@ struct ChatView: View {
         .onAppear {
             isInputFocused = true
         }
-        .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillShowNotification)) { notification in
-            guard let frame = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect else { return }
-            let bottomSafeArea = UIApplication.shared.connectedScenes
-                .compactMap { $0 as? UIWindowScene }
-                .first?.windows.first?.safeAreaInsets.bottom ?? 0
-            withAnimation(.easeOut(duration: 0.25)) {
-                keyboardHeight = frame.height - bottomSafeArea
-            }
-        }
-        .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillHideNotification)) { _ in
-            withAnimation(.easeOut(duration: 0.25)) {
-                keyboardHeight = 0
-            }
-        }
-        .toolbar(.hidden, for: .tabBar)
         .alert(String(localized: "chat.error.generic", table: "Chat"), isPresented: $showError) {
             Button(String(localized: "common.ok", table: "Common"), role: .cancel) {}
         }
