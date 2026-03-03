@@ -27,17 +27,16 @@ final class AuthService: NSObject, ObservableObject {
         for await (event, session) in client.auth.authStateChanges {
             switch event {
             case .initialSession:
-                if let session, !session.isExpired {
-                    do {
-                        _ = try await client.auth.user()
-                        authState = .authenticated(userId: session.user.id.uuidString)
-                        currentUserId = session.user.id.uuidString
-                    } catch {
-                        try? await client.auth.signOut()
-                        authState = .unauthenticated
-                        currentUserId = nil
-                    }
-                } else {
+                guard session != nil else {
+                    authState = .unauthenticated
+                    currentUserId = nil
+                    break
+                }
+                do {
+                    let refreshedSession = try await client.auth.session
+                    authState = .authenticated(userId: refreshedSession.user.id.uuidString)
+                    currentUserId = refreshedSession.user.id.uuidString
+                } catch {
                     authState = .unauthenticated
                     currentUserId = nil
                 }
@@ -50,7 +49,9 @@ final class AuthService: NSObject, ObservableObject {
                 authState = .unauthenticated
                 currentUserId = nil
             case .tokenRefreshed:
-                break
+                if let userId = session?.user.id.uuidString {
+                    currentUserId = userId
+                }
             default:
                 break
             }

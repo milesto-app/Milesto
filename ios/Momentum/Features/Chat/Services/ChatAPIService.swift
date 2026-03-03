@@ -73,27 +73,34 @@ final class ChatAPIService {
         AsyncThrowingStream { continuation in
             Task {
                 do {
+                    func buildRequest(token: String) throws -> URLRequest {
+                        guard let url = URL(string: "\(baseURL.absoluteString)/chat/messages") else {
+                            throw BackendError.invalidResponse
+                        }
+                        var request = URLRequest(url: url)
+                        request.httpMethod = "POST"
+                        request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+                        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+                        var body: [String: String] = [
+                            "goalId": goalId,
+                            "content": content
+                        ]
+                        if let conversationId {
+                            body["conversationId"] = conversationId
+                        }
+                        request.httpBody = try encoder.encode(body)
+                        return request
+                    }
+
                     let session = try await SupabaseConfig.client.auth.session
-                    guard let url = URL(string: "\(baseURL.absoluteString)/chat/messages") else {
-                        continuation.finish(throwing: BackendError.invalidResponse)
-                        return
+                    var request = try buildRequest(token: session.accessToken)
+                    var (bytes, response) = try await URLSession.shared.bytes(for: request)
+
+                    if let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 401 {
+                        let refreshed = try await SupabaseConfig.client.auth.refreshSession()
+                        request = try buildRequest(token: refreshed.accessToken)
+                        (bytes, response) = try await URLSession.shared.bytes(for: request)
                     }
-
-                    var request = URLRequest(url: url)
-                    request.httpMethod = "POST"
-                    request.setValue("Bearer \(session.accessToken)", forHTTPHeaderField: "Authorization")
-                    request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-
-                    var body: [String: String] = [
-                        "goalId": goalId,
-                        "content": content
-                    ]
-                    if let conversationId {
-                        body["conversationId"] = conversationId
-                    }
-                    request.httpBody = try encoder.encode(body)
-
-                    let (bytes, response) = try await URLSession.shared.bytes(for: request)
 
                     guard let httpResponse = response as? HTTPURLResponse else {
                         continuation.finish(throwing: BackendError.invalidResponse)
