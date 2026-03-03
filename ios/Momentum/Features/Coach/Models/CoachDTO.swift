@@ -8,8 +8,7 @@ struct CoachDTO: Codable, Identifiable {
     let descriptionFr: String
     let descriptionEn: String
     let icon: String
-    let deepgramVoiceId: String
-    let deepgramVoiceModel: String
+    let googleVoiceName: String
     let isActive: Bool
 
     enum CodingKeys: String, CodingKey {
@@ -18,8 +17,7 @@ struct CoachDTO: Codable, Identifiable {
         case displayNameEn = "display_name_en"
         case descriptionFr = "description_fr"
         case descriptionEn = "description_en"
-        case deepgramVoiceId = "deepgram_voice_id"
-        case deepgramVoiceModel = "deepgram_voice_model"
+        case googleVoiceName = "google_voice_name"
         case isActive = "is_active"
     }
 }

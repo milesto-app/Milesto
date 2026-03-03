@@ -1,6 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
+import { WsAdapter } from '@nestjs/platform-ws';
 import { AppModule } from './app.module.js';
 
 const DEFAULT_PORT = 3000;
@@ -8,6 +9,7 @@ const DEFAULT_PORT = 3000;
 async function bootstrap(): Promise<void> {
   const app = await NestFactory.create(AppModule);
 
+  app.useWebSocketAdapter(new WsAdapter(app));
   app.setGlobalPrefix('api');
   app.enableCors();
   app.useGlobalPipes(

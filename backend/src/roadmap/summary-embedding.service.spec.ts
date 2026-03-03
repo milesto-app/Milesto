@@ -1,4 +1,3 @@
-/* eslint-disable no-magic-numbers, max-lines-per-function */
 import type { TestingModule } from '@nestjs/testing';
 import { Test } from '@nestjs/testing';
 import { SummaryEmbeddingService } from './summary-embedding.service.js';

@@ -3,32 +3,22 @@ import { Test } from '@nestjs/testing';
 import { ConfigService } from '@nestjs/config';
 import { VoiceTtsService } from './voice-tts.service.js';
 
-const MOCK_AUDIO = Buffer.from('fake-audio-data');
-const MOCK_VOICE_ID = 'aura-asteria-en';
+const MOCK_VOICE_ID = 'Kore';
+const MOCK_AUDIO_BASE64 = Buffer.from('fake-audio-data').toString('base64');
 
-const mockRequest = jest.fn();
+const mockGenerateContent = jest.fn();
 
-jest.mock('@deepgram/sdk', () => ({
-  createClient: () => ({
-    speak: {
-      request: mockRequest,
-    },
-  }),
+jest.mock('@google/genai', () => ({
+  // eslint-disable-next-line @typescript-eslint/naming-convention -- mirrors SDK export
+  GoogleGenAI: jest.fn().mockImplementation(() => ({
+    models: { generateContent: mockGenerateContent },
+  })),
 }));
-
-function createMockStream(data: Buffer): ReadableStream<Uint8Array> {
-  return new ReadableStream({
-    start(controller) {
-      controller.enqueue(new Uint8Array(data));
-      controller.close();
-    },
-  });
-}
 
 let service: VoiceTtsService;
 
 beforeEach(async () => {
-  mockRequest.mockReset();
+  mockGenerateContent.mockReset();
 
   const module: TestingModule = await Test.createTestingModule({
     providers: [
@@ -49,36 +39,39 @@ describe('VoiceTtsService', () => {
   });
 
   it('should return synthesis result when successful', async () => {
-    mockRequest.mockResolvedValue({
-      getStream: async () => Promise.resolve(createMockStream(MOCK_AUDIO)),
-      getHeaders: async () => Promise.resolve(new Headers()),
+    mockGenerateContent.mockResolvedValue({
+      candidates: [{ content: { parts: [{ inlineData: { data: MOCK_AUDIO_BASE64 } }] } }],
     });
 
     const result = await service.synthesize('Hello', MOCK_VOICE_ID);
 
-    expect(result.content_type).toBe('audio/mpeg');
+    expect(result.content_type).toBe('audio/wav');
     expect(result.audio.length).toBeGreaterThan(0);
   });
 
-  it('should throw when stream is null', async () => {
-    mockRequest.mockResolvedValue({
-      getStream: async () => Promise.resolve(null),
-      getHeaders: async () => Promise.resolve(new Headers()),
-    });
+  it('should throw when no audio data is returned', async () => {
+    mockGenerateContent.mockResolvedValue({ candidates: [] });
 
     await expect(service.synthesize('Hello', MOCK_VOICE_ID)).rejects.toThrow(
-      'Deepgram TTS returned no audio stream',
+      'Gemini TTS returned no audio data',
     );
   });
 
-  it('should call Deepgram with correct voice model', async () => {
-    mockRequest.mockResolvedValue({
-      getStream: async () => Promise.resolve(createMockStream(MOCK_AUDIO)),
-      getHeaders: async () => Promise.resolve(new Headers()),
+  it('should call Gemini with correct voice config', async () => {
+    mockGenerateContent.mockResolvedValue({
+      candidates: [{ content: { parts: [{ inlineData: { data: MOCK_AUDIO_BASE64 } }] } }],
     });
 
     await service.synthesize('Test text', MOCK_VOICE_ID);
 
-    expect(mockRequest).toHaveBeenCalledWith({ text: 'Test text' }, { model: MOCK_VOICE_ID });
+    expect(mockGenerateContent).toHaveBeenCalledWith(
+      expect.objectContaining({
+        config: expect.objectContaining({
+          speechConfig: {
+            voiceConfig: { prebuiltVoiceConfig: { voiceName: MOCK_VOICE_ID } },
+          },
+        }),
+      }),
+    );
   });
 });

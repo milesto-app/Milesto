@@ -21,7 +21,8 @@ enum BackendError: LocalizedError {
 final class BackendClient {
     static let shared = BackendClient()
 
-    private let baseURL = URL(string: "http://localhost:3000/api")!
+    let baseURLString = "http://localhost:3000/api"
+    private lazy var baseURL = URL(string: baseURLString)!
     private let decoder = JSONDecoder()
     private let encoder = JSONEncoder()
 

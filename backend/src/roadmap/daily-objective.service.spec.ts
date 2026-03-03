@@ -1,10 +1,10 @@
-/* eslint-disable max-lines-per-function */
 import type { TestingModule } from '@nestjs/testing';
 import { Test } from '@nestjs/testing';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { DailyObjectiveService } from './daily-objective.service.js';
 import { DailyObjectiveStorageService } from './daily-objective-storage.service.js';
+import { UserLanguageService } from '../common/user-language.service.js';
 import { ContextPipelineService } from './context-pipeline.service.js';
 import { GenerationService } from './generation.service.js';
 import { WeeklyPlanService } from './weekly-plan.service.js';
@@ -53,6 +53,10 @@ describe('DailyObjectiveService', () => {
         { provide: DailyObjectiveStorageService, useValue: mockStorageService },
         { provide: EventEmitter2, useValue: mockEventEmitter },
         { provide: WeeklyPlanService, useValue: mockWeeklyPlanService },
+        {
+          provide: UserLanguageService,
+          useValue: { getLanguage: jest.fn().mockResolvedValue('en') },
+        },
       ],
     }).compile();
 

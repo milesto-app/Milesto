@@ -17,6 +17,7 @@ interface GenerateParams {
   nextBatchNumber: number;
   userId: string;
   goalId: string;
+  language: string;
 }
 
 @Injectable()
@@ -69,18 +70,20 @@ export class IntakeGenerationService {
     params: GenerateParams,
     attempt: number,
   ): Promise<BatchGenerationResult | null> {
-    const generated = await this.promptService.generateNextBatch(
-      params.goalDescription,
-      params.priorBatches,
-      params.nextBatchNumber,
-    );
+    const generated = await this.promptService.generateNextBatch({
+      goalDescription: params.goalDescription,
+      priorBatches: params.priorBatches,
+      batchNumber: params.nextBatchNumber,
+      language: params.language,
+    });
 
     if (generated.is_complete) {
-      const profileResult = await this.profileService.generateAndStoreProfile(
-        params.userId,
-        params.goalId,
-        params.goalDescription,
-      );
+      const profileResult = await this.profileService.generateAndStoreProfile({
+        userId: params.userId,
+        goalId: params.goalId,
+        goalDescription: params.goalDescription,
+        language: params.language,
+      });
       return { kind: 'complete', profileResult };
     }
 

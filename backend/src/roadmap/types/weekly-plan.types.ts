@@ -57,6 +57,18 @@ export interface WeekData {
   energyDistribution: Record<string, number>;
 }
 
+import type { Milestone } from './roadmap.types.js';
+
+export interface GenerateAndStoreParams {
+  goalId: string;
+  userId: string;
+  roadmap: { id: string };
+  milestone: Milestone;
+  weekNumber: number;
+  generationContext: GenerationContext;
+  language: string;
+}
+
 export interface StorePlanRow {
   roadmap_id: string;
   milestone_id: string;

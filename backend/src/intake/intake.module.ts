@@ -13,10 +13,13 @@ import { IntakeContextService } from './intake-context.service.js';
 import { IntakeGenerationService } from './intake-generation.service.js';
 import { IntakeReembedService } from './intake-reembed.service.js';
 import { IntakeFallbackService } from './intake-fallback.service.js';
+import { IntakeTargetDateService } from './intake-target-date.service.js';
+import { IntakeProfileStoreService } from './intake-profile-store.service.js';
 
 const PROVIDERS = [
   IntakeBatchService,
   IntakeProfileService,
+  IntakeProfileStoreService,
   IntakeEmbeddingService,
   IntakePromptService,
   IntakeQualityService,
@@ -26,6 +29,7 @@ const PROVIDERS = [
   IntakeGenerationService,
   IntakeReembedService,
   IntakeFallbackService,
+  IntakeTargetDateService,
 ];
 
 @Module({

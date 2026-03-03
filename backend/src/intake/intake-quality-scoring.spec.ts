@@ -1,4 +1,3 @@
-/* eslint-disable no-magic-numbers, max-lines-per-function */
 import { buildQualityUserPrompt, computeComposite } from './intake-quality-scoring.js';
 
 const sampleQuestions = [

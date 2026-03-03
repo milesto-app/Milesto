@@ -1,4 +1,3 @@
-/* eslint-disable no-magic-numbers, max-lines-per-function */
 import { validate } from 'class-validator';
 import { plainToInstance } from 'class-transformer';
 import { SubmitCheckInDto } from './submit-check-in.dto.js';

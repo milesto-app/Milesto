@@ -58,14 +58,14 @@ describe('VoiceController.transcribe', () => {
       mimetype: 'audio/wav',
     } as Express.Multer.File;
 
-    const result = await controller.transcribe(file);
+    const result = await controller.transcribe(file, 'user-123');
 
     expect(result).toEqual(MOCK_TRANSCRIPTION);
-    expect(voiceService.transcribe).toHaveBeenCalledWith(file.buffer, 'audio/wav');
+    expect(voiceService.transcribe).toHaveBeenCalledWith(file.buffer, 'audio/wav', 'user-123');
   });
 
   it('should throw BadRequestException when no file is provided', async () => {
-    await expect(controller.transcribe(undefined)).rejects.toThrow(BadRequestException);
+    await expect(controller.transcribe(undefined, 'user-123')).rejects.toThrow(BadRequestException);
   });
 
   it('should throw BadRequestException for unsupported format', async () => {
@@ -74,7 +74,7 @@ describe('VoiceController.transcribe', () => {
       mimetype: 'audio/ogg',
     } as Express.Multer.File;
 
-    await expect(controller.transcribe(file)).rejects.toThrow(BadRequestException);
+    await expect(controller.transcribe(file, 'user-123')).rejects.toThrow(BadRequestException);
   });
 });
 

@@ -1,3 +1,4 @@
+import { buildLanguageBlock } from '../../common/language-prompt.helper.js';
 import type { AssembledContext } from '../types/context.types.js';
 import type { EnergyLevel } from '../types/daily.types.js';
 import type { WeeklyPlan } from '../types/weekly-plan.types.js';
@@ -13,7 +14,7 @@ interface DailyObjectivePromptParams {
   };
 }
 
-export function buildDailyObjectivesSystemPrompt(): string {
+export function buildDailyObjectivesSystemPrompt(language: string): string {
   return `You are a coaching AI that creates personalized daily objectives.
 
 Your task is to generate daily objectives calibrated to the user's current energy level and weekly plan progress.
@@ -35,7 +36,7 @@ Return a JSON array of objects with these exact fields:
 - "order_index": Sequential index starting from 1
 - "difficulty_rating": One of "easy", "moderate", or "hard"
 
-Return ONLY the JSON array, no other text.`;
+Return ONLY the JSON array, no other text.${buildLanguageBlock(language)}`;
 }
 
 export function buildDailyObjectivesUserPrompt(params: DailyObjectivePromptParams): string {

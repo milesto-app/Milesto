@@ -50,7 +50,6 @@ const SCORES = {
   redundancy_avoidance: 0.85,
 };
 
-// eslint-disable-next-line max-lines-per-function
 describe('IntakeQualityService', () => {
   let service: IntakeQualityService;
   let mockAi: { generateJSON: jest.Mock };
@@ -86,7 +85,6 @@ describe('IntakeQualityService', () => {
     });
   });
 
-  // eslint-disable-next-line max-lines-per-function
   describe('handleBatchServed', () => {
     function setupAllMocks(scores = SCORES): { updateChain: Record<string, jest.Mock> } {
       const updateChain = mockUpdateChain();

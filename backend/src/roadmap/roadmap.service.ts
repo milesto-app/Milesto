@@ -1,5 +1,6 @@
 import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
+import { UserLanguageService } from '../common/user-language.service.js';
 import { SupabaseService } from '../supabase/supabase.service.js';
 import { GoalService } from '../goal/goal.service.js';
 import { ContextPipelineService } from './context-pipeline.service.js';
@@ -19,6 +20,7 @@ export class RoadmapService {
     private readonly goal: GoalService,
     private readonly events: EventEmitter2,
     private readonly roadmapStorage: RoadmapStorageService,
+    private readonly languageService: UserLanguageService,
   ) {}
 
   public async generateMilestones(goalId: string, userId: string): Promise<Roadmap> {
@@ -28,9 +30,11 @@ export class RoadmapService {
     try {
       const context = await this.contextPipeline.assembleContext(goalId, userId);
       const fullGoalData = await this.buildGoalData(goalData, goalId, userId);
+      const language = await this.languageService.getLanguage(userId);
       const { milestones, metadata } = await this.generation.generateMilestones(
         context,
         fullGoalData,
+        language,
       );
 
       await this.roadmapStorage.storeMilestones(roadmap.id, goalId, milestones);

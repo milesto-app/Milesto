@@ -1,3 +1,4 @@
+import { buildLanguageBlock } from '../../common/language-prompt.helper.js';
 import type { AssembledContext } from '../types/context.types.js';
 import type { Milestone } from '../types/roadmap.types.js';
 import type { GenerationContext, WeekData } from '../types/weekly-plan.types.js';
@@ -16,7 +17,7 @@ interface MonthlySummaryPromptParams {
   weeklyNarratives: string[];
 }
 
-export function buildWeeklyPlanSystemPrompt(): string {
+export function buildWeeklyPlanSystemPrompt(language: string): string {
   return `You are a coaching AI that creates personalized weekly plans.
 
 Your task is to generate a focused weekly plan based on the user's current milestone, progress, and context.
@@ -33,7 +34,7 @@ Return a JSON object with these exact fields:
 - "focus": A concise statement of the week's primary focus area
 - "objectives": An array of specific, actionable objective strings
 
-Return ONLY the JSON object, no other text.`;
+Return ONLY the JSON object, no other text.${buildLanguageBlock(language)}`;
 }
 
 export function buildWeeklyPlanUserPrompt(params: WeeklyPlanPromptParams): string {
@@ -88,11 +89,11 @@ function appendRetrievedContextSections(sections: string[], context: AssembledCo
   }
 }
 
-export function buildWeeklySummaryNarrativeSystemPrompt(): string {
+export function buildWeeklySummaryNarrativeSystemPrompt(language: string): string {
   return `You are a coaching progress analyst. Summarize the user's weekly progress into a brief narrative.
 Focus on patterns, achievements, and areas for improvement.
 Return a JSON object with a single field: "narrative" containing a concise 1-3 sentence summary.
-Return ONLY the JSON object, no other text.`;
+Return ONLY the JSON object, no other text.${buildLanguageBlock(language)}`;
 }
 
 export function buildWeeklySummaryNarrativeUserPrompt(
@@ -107,11 +108,11 @@ Debrief Notes:
 ${weekData.debriefNotes.map((note, i) => `${String(i + 1)}. ${note}`).join('\n')}`;
 }
 
-export function buildMonthlySummaryNarrativeSystemPrompt(): string {
+export function buildMonthlySummaryNarrativeSystemPrompt(language: string): string {
   return `You are a coaching progress analyst. Summarize this month's progress based on weekly summaries.
 Focus on overall trends, consistency, and growth areas.
 Return a JSON object with a single field: "narrative" containing a concise monthly progress narrative.
-Return ONLY the JSON object, no other text.`;
+Return ONLY the JSON object, no other text.${buildLanguageBlock(language)}`;
 }
 
 export function buildMonthlySummaryNarrativeUserPrompt(params: MonthlySummaryPromptParams): string {

@@ -46,7 +46,15 @@ import { DebriefController } from './debrief.controller.js';
     QualityWeeklyService,
     QualityDailyService,
   ],
-  exports: [ContextPipelineService, RoadmapService, WeeklyPlanService, DailyObjectiveService],
+  exports: [
+    ContextPipelineService,
+    RerankService,
+    RoadmapService,
+    WeeklyPlanService,
+    DailyObjectiveService,
+    CheckInService,
+    DebriefService,
+  ],
 })
 // eslint-disable-next-line @typescript-eslint/no-extraneous-class
 export class RoadmapModule {}

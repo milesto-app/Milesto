@@ -5,6 +5,7 @@ import {
   Logger,
 } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
+import { UserLanguageService } from '../common/user-language.service.js';
 import { ContextPipelineService } from './context-pipeline.service.js';
 import { GenerationService } from './generation.service.js';
 import { DailyObjectiveStorageService } from './daily-objective-storage.service.js';
@@ -19,6 +20,7 @@ interface GenerateParams {
   userId: string;
   energyLevel: EnergyLevel;
   today: string;
+  language: string;
 }
 
 interface FallbackParams {
@@ -39,6 +41,7 @@ export class DailyObjectiveService {
     private readonly storage: DailyObjectiveStorageService,
     private readonly events: EventEmitter2,
     private readonly weeklyPlan: WeeklyPlanService,
+    private readonly languageService: UserLanguageService,
   ) {}
 
   public async getDailyObjectives(
@@ -86,6 +89,8 @@ export class DailyObjectiveService {
       throw new BadRequestException('No active weekly plan found. Generate a weekly plan first.');
     }
 
+    const language = await this.languageService.getLanguage(params.userId);
+
     try {
       return await this.generateAndStore({
         weeklyPlan: plan,
@@ -93,6 +98,7 @@ export class DailyObjectiveService {
         userId: params.userId,
         energyLevel: params.energyLevel,
         today: params.today,
+        language,
       });
     } catch (error) {
       this.logger.warn(
@@ -120,6 +126,7 @@ export class DailyObjectiveService {
         totalObjectives: weekData.objectivesTotal,
         debriefNotes: weekData.debriefNotes,
       },
+      language: params.language,
     });
 
     const stored = await this.storage.storeObjectives({

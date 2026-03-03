@@ -1,6 +1,7 @@
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 
 import { SupabaseService } from '../supabase/supabase.service.js';
+import { UserLanguageService } from '../common/user-language.service.js';
 import { VoiceSttService } from './voice-stt.service.js';
 import { VoiceTtsService } from './voice-tts.service.js';
 import type { TranscriptionResult, SynthesisResult } from './voice.types.js';
@@ -9,14 +10,21 @@ import type { TranscriptionResult, SynthesisResult } from './voice.types.js';
 export class VoiceService {
   private readonly logger = new Logger(VoiceService.name);
 
+  // eslint-disable-next-line max-params
   constructor(
     private readonly supabaseService: SupabaseService,
     private readonly sttService: VoiceSttService,
     private readonly ttsService: VoiceTtsService,
+    private readonly languageService: UserLanguageService,
   ) {}
 
-  public async transcribe(audioBuffer: Buffer, mimetype: string): Promise<TranscriptionResult> {
-    return this.sttService.transcribe(audioBuffer, mimetype);
+  public async transcribe(
+    audioBuffer: Buffer,
+    mimetype: string,
+    userId: string,
+  ): Promise<TranscriptionResult> {
+    const language = await this.languageService.getLanguage(userId);
+    return this.sttService.transcribe(audioBuffer, mimetype, language);
   }
 
   public async synthesize(text: string, coachId: number): Promise<SynthesisResult> {
@@ -30,7 +38,7 @@ export class VoiceService {
 
     const { data, error } = await supabase
       .from('coaches')
-      .select('deepgram_voice_id')
+      .select('google_voice_name')
       .eq('id', coachId)
       .eq('is_active', true)
       .single();
@@ -39,6 +47,6 @@ export class VoiceService {
       throw new NotFoundException(`Coach with id ${String(coachId)} not found`);
     }
 
-    return (data as { deepgram_voice_id: string }).deepgram_voice_id;
+    return (data as { google_voice_name: string }).google_voice_name;
   }
 }

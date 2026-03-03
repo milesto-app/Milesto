@@ -1,4 +1,3 @@
-/* eslint-disable no-magic-numbers, max-lines-per-function */
 import { validateSemantic, validateGoalProfile } from './intake-batch-validator.js';
 
 const semanticBatch = [

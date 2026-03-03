@@ -12,10 +12,13 @@ import { IntakeModule } from './intake/intake.module.js';
 import { CoachModule } from './coach/coach.module.js';
 import { RoadmapModule } from './roadmap/roadmap.module.js';
 import { VoiceModule } from './voice/voice.module.js';
+import { VoiceChatModule } from './voice-chat/voice-chat.module.js';
 import { ChatModule } from './chat/chat.module.js';
+import { CommonModule } from './common/common.module.js';
 
 @Module({
   imports: [
+    CommonModule,
     ConfigModule,
     EventEmitterModule.forRoot(),
     ThrottlerModule.forRoot([
@@ -31,6 +34,7 @@ import { ChatModule } from './chat/chat.module.js';
     RoadmapModule,
     CoachModule,
     VoiceModule,
+    VoiceChatModule,
     ChatModule,
   ],
   providers: [

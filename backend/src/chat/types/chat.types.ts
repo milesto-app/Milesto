@@ -41,3 +41,21 @@ export interface ToolExecutionContext {
   userId: string;
   goalId: string;
 }
+
+export interface ConversationPreview {
+  id: string;
+  goal_id: string;
+  created_at: string;
+  updated_at: string;
+  preview: string | null;
+}
+
+export interface ConversationListResult {
+  conversations: ConversationPreview[];
+  total: number;
+}
+
+export interface MessageListResult {
+  messages: StoredMessage[];
+  has_more: boolean;
+}

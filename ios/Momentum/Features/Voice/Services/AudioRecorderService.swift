@@ -1,4 +1,5 @@
 import AVFoundation
+import Observation
 
 @Observable
 final class AudioRecorderService {

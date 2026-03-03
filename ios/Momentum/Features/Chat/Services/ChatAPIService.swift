@@ -1,6 +1,28 @@
 import Foundation
 import Supabase
 
+private struct ConversationListResponse: Decodable {
+    let conversations: [ConversationSummary]
+}
+
+private struct MessageDTO: Decodable {
+    let id: String
+    let role: String
+    let content: String?
+    let createdAt: String
+
+    private enum CodingKeys: String, CodingKey {
+        case id
+        case role
+        case content
+        case createdAt = "created_at"
+    }
+}
+
+private struct MessageListResponse: Decodable {
+    let messages: [MessageDTO]
+}
+
 final class ChatAPIService {
     static let shared = ChatAPIService()
 
@@ -9,6 +31,35 @@ final class ChatAPIService {
     private let decoder = JSONDecoder()
 
     private init() {}
+
+    func listConversations(goalId: String) async throws -> [ConversationSummary] {
+        let response: ConversationListResponse = try await BackendClient.shared.request(
+            method: "GET",
+            path: "chat/conversations?goalId=\(goalId)"
+        )
+        return response.conversations
+    }
+
+    func getConversationMessages(conversationId: String) async throws -> [ChatMessage] {
+        let response: MessageListResponse = try await BackendClient.shared.request(
+            method: "GET",
+            path: "chat/conversations/\(conversationId)/messages"
+        )
+
+        let dateFormatter = ISO8601DateFormatter()
+        dateFormatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+
+        return response.messages
+            .filter { ($0.role == "user" || $0.role == "assistant") && $0.content != nil }
+            .map { dto in
+                ChatMessage(
+                    id: dto.id,
+                    role: dto.role == "user" ? .user : .assistant,
+                    content: dto.content ?? "",
+                    createdAt: dateFormatter.date(from: dto.createdAt) ?? Date()
+                )
+            }
+    }
 
     func sendMessage(conversationId: String?, goalId: String, content: String) -> AsyncThrowingStream<ChatStreamEvent, Error> {
         AsyncThrowingStream { continuation in

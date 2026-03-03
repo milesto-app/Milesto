@@ -25,6 +25,7 @@ export class GenerationNarrativeService {
   public async generateWeeklySummary(
     completedPlan: WeeklyPlan,
     weekData: WeekData,
+    language: string,
   ): Promise<WeeklySummary> {
     const completionRate =
       weekData.objectivesTotal > 0
@@ -35,7 +36,7 @@ export class GenerationNarrativeService {
 
     const narrative = await this.tryGenerateNarrative({
       shouldGenerate: weekData.debriefNotes.length > 0,
-      systemPrompt: buildWeeklySummaryNarrativeSystemPrompt(),
+      systemPrompt: buildWeeklySummaryNarrativeSystemPrompt(language),
       userPrompt: buildWeeklySummaryNarrativeUserPrompt(completionRate, weekData),
       label: 'Weekly summary',
     });
@@ -50,7 +51,10 @@ export class GenerationNarrativeService {
     };
   }
 
-  public async generateMonthlySummary(weeklySummaries: WeeklySummary[]): Promise<MonthlySummary> {
+  public async generateMonthlySummary(
+    weeklySummaries: WeeklySummary[],
+    language: string,
+  ): Promise<MonthlySummary> {
     if (weeklySummaries.length === 0) {
       return {
         completion_rate: 0,
@@ -68,7 +72,7 @@ export class GenerationNarrativeService {
 
     const narrative = await this.tryGenerateNarrative({
       shouldGenerate: weeklyNarratives.length > 0,
-      systemPrompt: buildMonthlySummaryNarrativeSystemPrompt(),
+      systemPrompt: buildMonthlySummaryNarrativeSystemPrompt(language),
       userPrompt: buildMonthlySummaryNarrativeUserPrompt({
         avgCompletionRate: totals.avgCompletionRate,
         totalCompleted: totals.totalCompleted,
