@@ -2,6 +2,7 @@ import SwiftUI
 
 struct ChatEmptyState: View {
     var onSelectPrompt: (String) -> Void
+    var onVoiceChatTap: (() -> Void)?
 
     @State private var appeared = false
 
@@ -47,6 +48,22 @@ struct ChatEmptyState: View {
                     .offset(y: appeared ? 0 : 12)
                     .animation(.easeOut(duration: 0.35).delay(Double(index) * 0.08), value: appeared)
                 }
+            }
+
+            if let onVoiceChatTap {
+                Button(action: onVoiceChatTap) {
+                    HStack(spacing: AppTheme.Spacing.sm) {
+                        TablerIcon(.headphones, size: 20, color: AppTheme.Colors.textOnAccent)
+                        AppText("chat.voice.start", table: "Chat", style: .subheadline)
+                            .color(AppTheme.Colors.textOnAccent)
+                    }
+                    .padding(.horizontal, AppTheme.Spacing.lg)
+                    .padding(.vertical, AppTheme.Spacing.sm)
+                    .background(AppTheme.Colors.accent, in: .capsule)
+                }
+                .opacity(appeared ? 1 : 0)
+                .offset(y: appeared ? 0 : 12)
+                .animation(.easeOut(duration: 0.35).delay(Double(prompts.count) * 0.08), value: appeared)
             }
         }
         .padding(.horizontal, AppTheme.Spacing.lg)

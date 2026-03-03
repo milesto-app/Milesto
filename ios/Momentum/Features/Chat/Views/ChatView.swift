@@ -34,9 +34,11 @@ struct ChatView: View {
                 ScrollViewReader { proxy in
                     ScrollView {
                         if messages.isEmpty {
-                            ChatEmptyState { prompt in
+                            ChatEmptyState(onSelectPrompt: { prompt in
                                 inputText = prompt
-                            }
+                            }, onVoiceChatTap: {
+                                isVoiceChatActive = true
+                            })
                             .frame(maxHeight: .infinity)
                             .padding(.top, AppTheme.Spacing.xxl)
                         } else {
@@ -68,9 +70,7 @@ struct ChatView: View {
                 }
             }
             .overlay(alignment: .bottom) {
-                ChatInputBar(text: $inputText, isDisabled: isStreaming, isFocused: $isInputFocused, onVoiceChatTap: {
-                    isVoiceChatActive = true
-                }) {
+                ChatInputBar(text: $inputText, isDisabled: isStreaming, isFocused: $isInputFocused) {
                     sendMessage()
                 }
             }
