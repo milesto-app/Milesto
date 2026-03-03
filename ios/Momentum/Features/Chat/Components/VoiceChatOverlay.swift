@@ -36,7 +36,7 @@ struct VoiceChatOverlay: View {
 
             VStack(spacing: 0) {
                 topBar
-                    .padding(.top, AppTheme.Spacing.xl)
+                    .padding(.top, 32)
 
                 Spacer()
 
@@ -46,13 +46,13 @@ struct VoiceChatOverlay: View {
 
                 if let toolName = activeToolName {
                     ToolStatusIndicator(toolName: toolName)
-                        .padding(.bottom, AppTheme.Spacing.md)
+                        .padding(.bottom, 16)
                 }
 
                 bottomControls
-                    .padding(.bottom, AppTheme.Spacing.xxl)
+                    .padding(.bottom, 40)
             }
-            .padding(.horizontal, AppTheme.Spacing.lg)
+            .padding(.horizontal, 24)
         }
         .ignoresSafeArea()
         .task { await startSession() }
@@ -61,8 +61,8 @@ struct VoiceChatOverlay: View {
 
     private var topBar: some View {
         HStack {
-            VStack(alignment: .leading, spacing: AppTheme.Spacing.xxs) {
-                HStack(spacing: AppTheme.Spacing.xs) {
+            VStack(alignment: .leading, spacing: 4) {
+                HStack(spacing: 8) {
                     TablerIcon(coachIcon, size: 20, color: AppTheme.Colors.accent)
                     AppText(verbatim: coachName, style: .headline)
                         .color(.white)
@@ -89,7 +89,7 @@ struct VoiceChatOverlay: View {
 
     @ViewBuilder
     private var centerContent: some View {
-        VStack(spacing: AppTheme.Spacing.lg) {
+        VStack(spacing: 24) {
             ZStack {
                 Circle()
                     .fill(AppTheme.Colors.accent.opacity(0.15))
@@ -113,7 +113,7 @@ struct VoiceChatOverlay: View {
                     .color(AppTheme.Colors.error)
                     .multilineTextAlignment(.center)
             } else if isConnecting {
-                HStack(spacing: AppTheme.Spacing.xs) {
+                HStack(spacing: 8) {
                     ProgressView()
                         .tint(.white)
                     AppText("chat.voice.connecting", table: "Chat", style: .subheadline)
@@ -147,9 +147,9 @@ struct VoiceChatOverlay: View {
     }
 
     private var bottomControls: some View {
-        HStack(spacing: AppTheme.Spacing.xxl) {
+        HStack(spacing: 40) {
             Button(action: toggleMute) {
-                VStack(spacing: AppTheme.Spacing.xs) {
+                VStack(spacing: 8) {
                     TablerIcon(
                         isMuted ? .microphoneOff : .microphone,
                         size: 24,
@@ -172,7 +172,7 @@ struct VoiceChatOverlay: View {
             .disabled(isConnecting)
 
             Button(action: dismissOverlay) {
-                VStack(spacing: AppTheme.Spacing.xs) {
+                VStack(spacing: 8) {
                     TablerIcon(.phoneOff, size: 24, color: .white)
                         .frame(width: 56, height: 56)
                         .background(

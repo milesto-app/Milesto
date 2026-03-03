@@ -15,7 +15,7 @@ struct CoachCard: View {
 
     var body: some View {
         Button(action: onSelect) {
-            HStack(spacing: AppTheme.Spacing.md) {
+            HStack(spacing: 16) {
                 ZStack {
                     Circle()
                         .fill(AppTheme.Colors.accent.opacity(0.1))
@@ -24,7 +24,7 @@ struct CoachCard: View {
                     TablerIcon(personality.icon, size: 28, color: AppTheme.Colors.accent)
                 }
 
-                VStack(alignment: .leading, spacing: AppTheme.Spacing.xxs) {
+                VStack(alignment: .leading, spacing: 4) {
                     AppText(verbatim: personality.title, style: .headline)
 
                     AppText(verbatim: personality.description, style: .subheadline)
@@ -37,7 +37,7 @@ struct CoachCard: View {
                     .scaleEffect(isSelected ? 1 : 0.5)
                     .animation(.spring(response: 0.3, dampingFraction: 0.7), value: isSelected)
             }
-            .padding(AppTheme.Spacing.md)
+            .padding(16)
             .contentShape(Rectangle())
             .glassEffect(.clear, in: RoundedRectangle(cornerRadius: AppTheme.CornerRadius.md))
             .overlay(
@@ -52,7 +52,7 @@ struct CoachCard: View {
 }
 
 #Preview {
-    VStack(spacing: AppTheme.Spacing.md) {
+    VStack(spacing: 16) {
         CoachCard(
             personality: .motivateur,
             isSelected: true,

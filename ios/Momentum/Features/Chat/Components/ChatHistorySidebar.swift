@@ -47,7 +47,7 @@ struct ChatHistorySidebar: View {
 
     private var panel: some View {
         GeometryReader { geometry in
-            VStack(alignment: .leading, spacing: AppTheme.Spacing.xs) {
+            VStack(alignment: .leading, spacing: 8) {
                 header
                 if conversations.isEmpty {
                     emptyState
@@ -67,13 +67,13 @@ struct ChatHistorySidebar: View {
     private var header: some View {
         AppText("chat.history.title", table: "Chat", style: .headline)
             .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(.leading, AppTheme.Spacing.xs + AppTheme.Spacing.md)
+        .padding(.leading, 8 + 16)
         .padding(.top, 64)
-        .padding(.bottom, AppTheme.Spacing.xxs)
+        .padding(.bottom, 4)
     }
 
     private var emptyState: some View {
-        VStack(spacing: AppTheme.Spacing.sm) {
+        VStack(spacing: 12) {
             TablerIcon(.messagesOff, size: 40, color: AppTheme.Colors.textSecondary)
             AppText("chat.history.empty", table: "Chat", style: .subheadline)
         }
@@ -105,7 +105,7 @@ struct ChatHistorySidebar: View {
                     }
                 }
             }
-            .padding(.bottom, AppTheme.Spacing.md)
+            .padding(.bottom, 16)
         }
     }
 

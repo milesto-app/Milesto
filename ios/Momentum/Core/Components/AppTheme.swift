@@ -21,21 +21,12 @@ enum AppTheme {
                 : UIColor(red: 0.88, green: 0.87, blue: 0.86, alpha: 1)
         })
 
-        static let fieldBackground = Color(.secondarySystemBackground)
         static let codeBackground = Color(.systemGray5)
+
+        static let fieldBackground = Color(.secondarySystemBackground)
         static let fieldBorderFocused = Color(red: 0.18, green: 0.72, blue: 0.53)
         static let fieldBorderError = Color.red
         static let fieldBorderDefault = Color(.separator).opacity(0.45)
-    }
-
-    enum Spacing {
-        static let xxs: CGFloat = 4
-        static let xs: CGFloat = 8
-        static let sm: CGFloat = 12
-        static let md: CGFloat = 16
-        static let lg: CGFloat = 24
-        static let xl: CGFloat = 32
-        static let xxl: CGFloat = 40
     }
 
     enum CornerRadius {

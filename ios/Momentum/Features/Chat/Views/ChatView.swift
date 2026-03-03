@@ -28,7 +28,7 @@ struct ChatView: View {
     var body: some View {
         ScrollViewReader { proxy in
             ScrollView {
-                LazyVStack(spacing: AppTheme.Spacing.xl) {
+                LazyVStack(spacing: 32) {
                     ForEach(messages) { message in
                         ChatBubble(message: message)
                             .id(message.id)
@@ -40,7 +40,7 @@ struct ChatView: View {
                             .transition(.opacity)
                     }
                 }
-                .padding(.vertical, AppTheme.Spacing.md)
+                .padding(.vertical, 16)
             }
             .scrollDismissesKeyboard(.interactively)
             .contentMargins(.top, 56)
@@ -70,7 +70,7 @@ struct ChatView: View {
             }
         }
         .overlay(alignment: .top) {
-            StatusBarBlur()
+            ProgressiveBlur()
                 .allowsHitTesting(false)
         }
         .overlay(alignment: .top) {
@@ -109,8 +109,8 @@ struct ChatView: View {
                     }
                 }
             }
-            .padding(.horizontal, AppTheme.Spacing.md)
-            .padding(.top, AppTheme.Spacing.xs)
+            .padding(.horizontal, 16)
+            .padding(.top, 8)
         }
         .overlay {
             ChatHistorySidebar(

@@ -4,7 +4,7 @@ struct IntakeLoadingView: View {
     var isGeneratingProfile: Bool = false
 
     var body: some View {
-        VStack(spacing: AppTheme.Spacing.lg) {
+        VStack(spacing: 24) {
             Spacer()
 
             ProgressView()
@@ -21,7 +21,7 @@ struct IntakeLoadingView: View {
 
             Spacer()
         }
-        .padding(.horizontal, AppTheme.Spacing.lg)
+        .padding(.horizontal, 24)
     }
 }
 

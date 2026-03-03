@@ -13,8 +13,8 @@ struct WeeklyPlanDetailView: View {
             AnimatedBackground()
 
             ScrollView(showsIndicators: false) {
-                VStack(spacing: AppTheme.Spacing.lg) {
-                    VStack(alignment: .leading, spacing: AppTheme.Spacing.xxs) {
+                VStack(spacing: 24) {
+                    VStack(alignment: .leading, spacing: 4) {
                         AppText(
                             verbatim: String(
                                 format: String(localized: "roadmap.weeklyPlan.title", table: "Roadmap"),
@@ -36,16 +36,16 @@ struct WeeklyPlanDetailView: View {
                         summaryCard(summary)
                     }
                 }
-                .padding(.horizontal, AppTheme.Spacing.lg)
-                .padding(.top, AppTheme.Spacing.lg)
-                .padding(.bottom, AppTheme.Spacing.xxl)
+                .padding(.horizontal, 24)
+                .padding(.top, 24)
+                .padding(.bottom, 40)
             }
         }
     }
 
     private var focusCard: some View {
-        VStack(alignment: .leading, spacing: AppTheme.Spacing.sm) {
-            HStack(spacing: AppTheme.Spacing.xs) {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack(spacing: 8) {
                 TablerIcon(.target, size: 20, color: AppTheme.Colors.accent)
                 AppText("roadmap.weeklyPlan.focus", table: "Roadmap", style: .headline)
             }
@@ -54,29 +54,29 @@ struct WeeklyPlanDetailView: View {
                 .color(AppTheme.Colors.textSecondary)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(AppTheme.Spacing.md)
+        .padding(16)
         .glassEffect(.clear, in: RoundedRectangle(cornerRadius: AppTheme.CornerRadius.lg))
     }
 
     private var objectivesCard: some View {
-        VStack(alignment: .leading, spacing: AppTheme.Spacing.sm) {
+        VStack(alignment: .leading, spacing: 12) {
             AppText("roadmap.weeklyPlan.objectives", table: "Roadmap", style: .headline)
 
             ForEach(objectives, id: \.self) { objective in
-                HStack(alignment: .top, spacing: AppTheme.Spacing.xs) {
+                HStack(alignment: .top, spacing: 8) {
                     TablerIcon(.listCheck, size: 18, color: AppTheme.Colors.accent)
                     AppText(verbatim: objective, style: .body)
                 }
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(AppTheme.Spacing.md)
+        .padding(16)
         .glassEffect(.clear, in: RoundedRectangle(cornerRadius: AppTheme.CornerRadius.lg))
     }
 
     private func summaryCard(_ summary: WeeklySummaryDTO) -> some View {
-        VStack(alignment: .leading, spacing: AppTheme.Spacing.sm) {
-            HStack(spacing: AppTheme.Spacing.xs) {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack(spacing: 8) {
                 TablerIcon(.chartBar, size: 20, color: AppTheme.Colors.accent)
                 AppText("roadmap.weeklyPlan.summary", table: "Roadmap", style: .headline)
             }
@@ -99,7 +99,7 @@ struct WeeklyPlanDetailView: View {
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(AppTheme.Spacing.md)
+        .padding(16)
         .glassEffect(.clear, in: RoundedRectangle(cornerRadius: AppTheme.CornerRadius.lg))
     }
 }

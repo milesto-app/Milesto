@@ -24,7 +24,7 @@ struct MilestoneStatusBadge: View {
     }
 
     var body: some View {
-        HStack(spacing: AppTheme.Spacing.xxs) {
+        HStack(spacing: 4) {
             if let icon {
                 TablerIcon(icon, size: 14, color: isAccented ? AppTheme.Colors.textOnAccent : AppTheme.Colors.textSecondary)
             }
@@ -33,8 +33,8 @@ struct MilestoneStatusBadge: View {
                 .weight(.semibold)
                 .color(isAccented ? AppTheme.Colors.textOnAccent : AppTheme.Colors.textSecondary)
         }
-        .padding(.horizontal, AppTheme.Spacing.sm)
-        .padding(.vertical, AppTheme.Spacing.xxs)
+        .padding(.horizontal, 12)
+        .padding(.vertical, 4)
         .background {
             if isAccented {
                 Capsule().fill(AppTheme.Colors.accent)
@@ -46,7 +46,7 @@ struct MilestoneStatusBadge: View {
 }
 
 #Preview {
-    VStack(spacing: AppTheme.Spacing.md) {
+    VStack(spacing: 16) {
         MilestoneStatusBadge(status: .completed)
         MilestoneStatusBadge(status: .current)
         MilestoneStatusBadge(status: .upcoming)

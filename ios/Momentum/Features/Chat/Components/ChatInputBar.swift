@@ -7,13 +7,13 @@ struct ChatInputBar: View {
     var onSend: () -> Void
 
     var body: some View {
-        HStack(alignment: .bottom, spacing: AppTheme.Spacing.sm) {
+        HStack(alignment: .bottom, spacing: 12) {
             TextField(String(localized: "chat.input.placeholder", table: "Chat"), text: $text, axis: .vertical)
                 .textFieldStyle(.plain)
                 .lineLimit(1...6)
                 .focused(isFocused)
-                .padding(.horizontal, AppTheme.Spacing.md)
-                .padding(.vertical, AppTheme.Spacing.md)
+                .padding(.horizontal, 16)
+                .padding(.vertical, 16)
 
             if hasText {
                 Button {
@@ -24,12 +24,12 @@ struct ChatInputBar: View {
                         .background(isDisabled ? AppTheme.Colors.textSecondary : AppTheme.Colors.accent, in: Circle())
                 }
                 .disabled(isDisabled)
-                .padding(.trailing, AppTheme.Spacing.sm)
+                .padding(.trailing, 12)
                 .padding(.bottom, 10)
                 .transition(.opacity)
             } else {
                 VoiceToggleButton(transcribedText: $text, coachId: nil, size: .compact)
-                    .padding(.trailing, AppTheme.Spacing.sm)
+                    .padding(.trailing, 12)
                     .padding(.bottom, 10)
                     .transition(.opacity)
             }
@@ -37,8 +37,8 @@ struct ChatInputBar: View {
         .animation(.easeInOut(duration: 0.2), value: hasText)
         .animation(.easeInOut(duration: 0.2), value: isDisabled)
         .glassEffect(.regular.interactive(), in: .rect(cornerRadius: 24))
-        .padding(.horizontal, AppTheme.Spacing.md)
-        .padding(.bottom, AppTheme.Spacing.xs)
+        .padding(.horizontal, 16)
+        .padding(.bottom, 8)
     }
 
     private var hasText: Bool {

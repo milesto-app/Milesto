@@ -45,7 +45,7 @@ struct AppTextField: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: AppTheme.Spacing.xxs) {
+        VStack(alignment: .leading, spacing: 4) {
             ZStack(alignment: multiline ? .topLeading : .leading) {
                 RoundedRectangle(cornerRadius: AppTheme.CornerRadius.md)
                     .fill(AppTheme.Colors.fieldBackground)
@@ -55,11 +55,11 @@ struct AppTextField: View {
                             .stroke(borderColor, lineWidth: hasError || isFocused ? 2 : 1)
                     )
 
-                HStack(alignment: multiline ? .top : .center, spacing: AppTheme.Spacing.sm) {
+                HStack(alignment: multiline ? .top : .center, spacing: 12) {
                     if let icon = icon {
                         TablerIcon(icon, size: 20, color: iconColor)
                             .frame(width: 20)
-                            .padding(.top, multiline ? AppTheme.Spacing.md : 0)
+                            .padding(.top, multiline ? 16 : 0)
                     }
 
                     ZStack(alignment: multiline ? .topLeading : .leading) {
@@ -67,7 +67,7 @@ struct AppTextField: View {
                             Text(label, tableName: table)
                                 .font(shouldFloatLabel ? .caption : .body)
                                 .foregroundColor(hasError ? AppTheme.Colors.error : (isFocused ? AppTheme.Colors.accent : AppTheme.Colors.iconDefault))
-                                .offset(y: shouldFloatLabel ? (multiline ? 0 : -12) : (multiline ? AppTheme.Spacing.xs : 0))
+                                .offset(y: shouldFloatLabel ? (multiline ? 0 : -12) : (multiline ? 8 : 0))
                                 .animation(.easeOut(duration: 0.2), value: shouldFloatLabel)
                         }
 
@@ -109,8 +109,8 @@ struct AppTextField: View {
                         .buttonStyle(.plain)
                     }
                 }
-                .padding(.horizontal, AppTheme.Spacing.md)
-                .padding(.vertical, multiline ? AppTheme.Spacing.xs : 0)
+                .padding(.horizontal, 16)
+                .padding(.vertical, multiline ? 8 : 0)
             }
             .frame(height: multiline ? 150 : 56)
             .clipShape(RoundedRectangle(cornerRadius: AppTheme.CornerRadius.md))
@@ -119,12 +119,12 @@ struct AppTextField: View {
                 Text(errorMessage)
                     .font(.caption)
                     .foregroundColor(AppTheme.Colors.error)
-                    .padding(.horizontal, AppTheme.Spacing.xxs)
+                    .padding(.horizontal, 4)
             } else if let helperText = helperText {
                 Text(helperText)
                     .font(.caption)
                     .foregroundColor(AppTheme.Colors.iconDefault)
-                    .padding(.horizontal, AppTheme.Spacing.xxs)
+                    .padding(.horizontal, 4)
             }
         }
     }

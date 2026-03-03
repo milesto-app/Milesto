@@ -32,14 +32,14 @@ struct ObjectiveRowView: View {
 
     var body: some View {
         Button(action: onToggle) {
-            HStack(spacing: AppTheme.Spacing.sm) {
+            HStack(spacing: 12) {
                 TablerIcon(
                     objective.isCompleted ? .circleCheck : .circle,
                     size: 22,
                     color: objective.isCompleted ? AppTheme.Colors.accent : AppTheme.Colors.iconDefault
                 )
 
-                VStack(alignment: .leading, spacing: AppTheme.Spacing.xxs) {
+                VStack(alignment: .leading, spacing: 4) {
                     AppText(verbatim: objective.title, style: .body)
                         .color(objective.isCompleted ? AppTheme.Colors.textSecondary : AppTheme.Colors.textPrimary)
 
@@ -54,8 +54,8 @@ struct ObjectiveRowView: View {
                     AppText(verbatim: difficultyLabel, style: .caption)
                         .weight(.medium)
                         .color(difficultyColor)
-                        .padding(.horizontal, AppTheme.Spacing.xs)
-                        .padding(.vertical, AppTheme.Spacing.xxs)
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 4)
                         .background(
                             Capsule()
                                 .fill(difficultyColor.opacity(0.15))

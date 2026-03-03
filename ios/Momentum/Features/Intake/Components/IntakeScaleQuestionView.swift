@@ -12,7 +12,7 @@ struct IntakeScaleQuestionView: View {
     }
 
     var body: some View {
-        VStack(spacing: AppTheme.Spacing.sm) {
+        VStack(spacing: 12) {
             AppText(verbatim: "\(Int(currentValue))", style: .largeTitle)
                 .color(AppTheme.Colors.accent)
                 .alignment(.center)

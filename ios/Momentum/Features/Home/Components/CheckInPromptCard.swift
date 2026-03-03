@@ -12,7 +12,7 @@ struct CheckInPromptCard: View {
     @State private var error: String?
 
     var body: some View {
-        VStack(alignment: .leading, spacing: AppTheme.Spacing.md) {
+        VStack(alignment: .leading, spacing: 16) {
             TablerIcon(.sunrise, size: 28, color: AppTheme.Colors.accent)
 
             AppText(
@@ -26,7 +26,7 @@ struct CheckInPromptCard: View {
             AppText("home.checkin.question", table: "Home", style: .subheadline)
                 .color(AppTheme.Colors.textSecondary)
 
-            HStack(spacing: AppTheme.Spacing.sm) {
+            HStack(spacing: 12) {
                 energyButton(.high, icon: .bolt, label: String(localized: "home.checkin.energy.high", table: "Home"))
                 energyButton(.good, icon: .sunHigh, label: String(localized: "home.checkin.energy.good", table: "Home"))
                 energyButton(.low, icon: .battery1, label: String(localized: "home.checkin.energy.low", table: "Home"))
@@ -34,7 +34,7 @@ struct CheckInPromptCard: View {
             }
 
             if showNote {
-                HStack(alignment: .bottom, spacing: AppTheme.Spacing.sm) {
+                HStack(alignment: .bottom, spacing: 12) {
                     AppTextField(
                         text: $note,
                         placeholder: "home.checkin.note.placeholder",
@@ -57,7 +57,7 @@ struct CheckInPromptCard: View {
             .fullWidth()
             .disabled(selectedEnergy == nil || isSubmitting)
         }
-        .padding(AppTheme.Spacing.lg)
+        .padding(24)
         .glassEffect(.clear.interactive(), in: RoundedRectangle(cornerRadius: AppTheme.CornerRadius.xl))
     }
 
@@ -70,13 +70,13 @@ struct CheckInPromptCard: View {
             }
             UISelectionFeedbackGenerator().selectionChanged()
         } label: {
-            VStack(spacing: AppTheme.Spacing.xxs) {
+            VStack(spacing: 4) {
                 TablerIcon(icon, size: 24, color: isSelected ? AppTheme.Colors.accent : AppTheme.Colors.iconDefault)
                 AppText(verbatim: label, style: .caption)
                     .color(isSelected ? AppTheme.Colors.accent : AppTheme.Colors.textSecondary)
             }
             .frame(maxWidth: .infinity)
-            .padding(.vertical, AppTheme.Spacing.sm)
+            .padding(.vertical, 12)
             .background(
                 RoundedRectangle(cornerRadius: AppTheme.CornerRadius.md)
                     .fill(isSelected ? AppTheme.Colors.accent.opacity(0.15) : Color.clear)

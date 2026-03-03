@@ -5,7 +5,7 @@ struct IntakeErrorView: View {
     let onRetry: () -> Void
 
     var body: some View {
-        VStack(spacing: AppTheme.Spacing.lg) {
+        VStack(spacing: 24) {
             Spacer()
 
             TablerIcon(.alertTriangle, size: 48, color: AppTheme.Colors.error)
@@ -21,9 +21,9 @@ struct IntakeErrorView: View {
 
             AppButton("intake.error.retry", table: "Intake", action: onRetry)
                 .fullWidth()
-                .padding(.bottom, AppTheme.Spacing.lg)
+                .padding(.bottom, 24)
         }
-        .padding(.horizontal, AppTheme.Spacing.lg)
+        .padding(.horizontal, 24)
     }
 }
 

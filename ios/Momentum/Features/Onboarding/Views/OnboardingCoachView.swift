@@ -5,18 +5,18 @@ struct OnboardingCoachView: View {
     let onContinue: () -> Void
 
     var body: some View {
-        VStack(spacing: AppTheme.Spacing.lg) {
-            VStack(spacing: AppTheme.Spacing.xs) {
+        VStack(spacing: 24) {
+            VStack(spacing: 8) {
                 AppText("onboarding.coach.title", table: "Onboarding", style: .title)
                     .alignment(.center)
 
                 AppText("onboarding.coach.subtitle", table: "Onboarding", style: .subheadline)
             }
-            .padding(.top, AppTheme.Spacing.xxl)
-            .padding(.bottom, AppTheme.Spacing.md)
-            .padding(.horizontal, AppTheme.Spacing.lg)
+            .padding(.top, 40)
+            .padding(.bottom, 16)
+            .padding(.horizontal, 24)
 
-            VStack(spacing: AppTheme.Spacing.sm) {
+            VStack(spacing: 12) {
                 ForEach(CoachPersonality.allCases) { personality in
                     CoachCard(
                         personality: personality,
@@ -25,11 +25,11 @@ struct OnboardingCoachView: View {
                     )
                 }
             }
-            .padding(.horizontal, AppTheme.Spacing.lg)
+            .padding(.horizontal, 24)
 
             Spacer()
 
-            VStack(spacing: AppTheme.Spacing.md) {
+            VStack(spacing: 16) {
                 AppButton("common.continue", table: "Common", action: onContinue)
                     .fullWidth()
                     .disabled(selectedCoach == nil)
@@ -37,7 +37,7 @@ struct OnboardingCoachView: View {
                 AppText("onboarding.editLater", table: "Onboarding", style: .caption)
                     .alignment(.center)
             }
-            .padding(.bottom, AppTheme.Spacing.lg)
+            .padding(.bottom, 24)
         }
     }
 }

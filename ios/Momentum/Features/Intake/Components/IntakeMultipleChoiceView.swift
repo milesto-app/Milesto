@@ -10,7 +10,7 @@ struct IntakeMultipleChoiceView: View {
     }
 
     var body: some View {
-        VStack(spacing: AppTheme.Spacing.xs) {
+        VStack(spacing: 8) {
             ForEach(options, id: \.self) { option in
                 let isSelected = selectedOptions.contains(option)
                 Button {
@@ -25,7 +25,7 @@ struct IntakeMultipleChoiceView: View {
                             color: isSelected ? AppTheme.Colors.accent : AppTheme.Colors.iconDefault
                         )
                     }
-                    .padding(AppTheme.Spacing.md)
+                    .padding(16)
                     .background(AppTheme.Colors.fieldBackground)
                     .cornerRadius(AppTheme.CornerRadius.sm)
                     .overlay(

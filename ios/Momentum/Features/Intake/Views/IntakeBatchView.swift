@@ -41,15 +41,15 @@ struct IntakeBatchView: View {
     var body: some View {
         VStack(spacing: 0) {
             IntakeProgressBar(current: currentQuestionIndex + 1, total: questions.count)
-                .padding(.horizontal, AppTheme.Spacing.lg)
-                .padding(.top, AppTheme.Spacing.md)
-                .padding(.bottom, AppTheme.Spacing.sm)
+                .padding(.horizontal, 24)
+                .padding(.top, 16)
+                .padding(.bottom, 12)
 
             if let question = currentQuestion {
                 IntakeQuestionCard(question: question, answers: $answers, coachId: coachId)
                     .id(question.id)
                     .transition(.push(from: .trailing))
-                    .padding(.horizontal, AppTheme.Spacing.lg)
+                    .padding(.horizontal, 24)
             }
 
             Spacer()
@@ -57,9 +57,9 @@ struct IntakeBatchView: View {
             AppButton("intake.submit", table: "Intake", action: advance)
                 .fullWidth()
                 .disabled(!currentAnswered)
-                .padding(.horizontal, AppTheme.Spacing.lg)
-                .padding(.bottom, AppTheme.Spacing.lg)
-                .padding(.top, AppTheme.Spacing.sm)
+                .padding(.horizontal, 24)
+                .padding(.bottom, 24)
+                .padding(.top, 12)
         }
         .animation(.easeInOut(duration: 0.3), value: currentQuestionIndex)
     }

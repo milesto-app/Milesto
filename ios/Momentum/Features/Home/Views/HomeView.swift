@@ -47,7 +47,7 @@ struct HomeView: View {
 
                         if isLoading {
                             ProgressView()
-                                .padding(.top, AppTheme.Spacing.xxl)
+                                .padding(.top, 40)
                         } else {
                             contentSection
                         }
@@ -95,7 +95,7 @@ struct HomeView: View {
     }
 
     private var heroSection: some View {
-        VStack(alignment: .leading, spacing: AppTheme.Spacing.md) {
+        VStack(alignment: .leading, spacing: 16) {
             HStack {
                 AppText(
                     verbatim: String(
@@ -112,7 +112,7 @@ struct HomeView: View {
 
             AppText(verbatim: currentGoal?.title ?? "", style: .title)
 
-            VStack(alignment: .leading, spacing: AppTheme.Spacing.xs) {
+            VStack(alignment: .leading, spacing: 8) {
                 GeometryReader { geometry in
                     ZStack(alignment: .leading) {
                         Capsule()
@@ -139,11 +139,11 @@ struct HomeView: View {
                 }
             }
         }
-        .padding(AppTheme.Spacing.lg)
+        .padding(24)
         .glassEffect(.clear.interactive(), in: RoundedRectangle(cornerRadius: AppTheme.CornerRadius.xl))
-        .padding(.horizontal, AppTheme.Spacing.md)
-        .padding(.top, AppTheme.Spacing.xl)
-        .padding(.bottom, AppTheme.Spacing.md)
+        .padding(.horizontal, 16)
+        .padding(.top, 32)
+        .padding(.bottom, 16)
     }
 
     private var goalProgress: Double {
@@ -154,7 +154,7 @@ struct HomeView: View {
     }
 
     private var contentSection: some View {
-        VStack(spacing: AppTheme.Spacing.md) {
+        VStack(spacing: 16) {
             if !hasCheckedIn {
                 CheckInPromptCard(
                     firstName: firstName,
@@ -168,8 +168,8 @@ struct HomeView: View {
                         }
                     }
                 )
-                .padding(.horizontal, AppTheme.Spacing.md)
-                .padding(.top, AppTheme.Spacing.sm)
+                .padding(.horizontal, 16)
+                .padding(.top, 12)
             }
 
             if let weeklyPlan {
@@ -182,7 +182,7 @@ struct HomeView: View {
                 WeeklyFocusCard(weeklyPlan: focusData) {
                     showWeeklyPlanDetail = true
                 }
-                .padding(.horizontal, AppTheme.Spacing.md)
+                .padding(.horizontal, 16)
             }
 
             if hasCheckedIn {
@@ -195,8 +195,8 @@ struct HomeView: View {
                     )
                     .color(AppTheme.Colors.accent)
                 }
-                .padding(.horizontal, AppTheme.Spacing.lg)
-                .padding(.top, AppTheme.Spacing.sm)
+                .padding(.horizontal, 24)
+                .padding(.top, 12)
 
                 objectivesSection
             }
@@ -205,10 +205,10 @@ struct HomeView: View {
                 DebriefPromptCard {
                     showDebriefSheet = true
                 }
-                .padding(.horizontal, AppTheme.Spacing.md)
+                .padding(.horizontal, 16)
             }
         }
-        .padding(.bottom, AppTheme.Spacing.xxl)
+        .padding(.bottom, 40)
         .navigationDestination(isPresented: $showWeeklyPlanDetail) {
             if let weeklyPlan {
                 WeeklyPlanDetailView(
@@ -228,16 +228,16 @@ struct HomeView: View {
         if objectives.isEmpty {
             AppText("home.objectives.locked", table: "Home", style: .subheadline)
                 .color(AppTheme.Colors.textSecondary)
-                .padding(.horizontal, AppTheme.Spacing.lg)
-                .padding(.vertical, AppTheme.Spacing.md)
+                .padding(.horizontal, 24)
+                .padding(.vertical, 16)
         } else {
-            VStack(spacing: AppTheme.Spacing.xxs) {
+            VStack(spacing: 4) {
                 ForEach(objectives.sorted(by: { $0.orderIndex < $1.orderIndex })) { objective in
                     ObjectiveRowView(objective: objective) {
                         toggleObjective(objective)
                     }
-                    .padding(.horizontal, AppTheme.Spacing.lg)
-                    .padding(.vertical, AppTheme.Spacing.sm)
+                    .padding(.horizontal, 24)
+                    .padding(.vertical, 12)
                 }
             }
         }

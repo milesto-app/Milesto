@@ -5,7 +5,7 @@ struct ChatHistoryRow: View {
     let isActive: Bool
 
     var body: some View {
-        VStack(alignment: .leading, spacing: AppTheme.Spacing.xxs) {
+        VStack(alignment: .leading, spacing: 4) {
             AppText(
                 verbatim: conversation.preview ?? String(localized: "chat.history.empty", table: "Chat"),
                 style: .body
@@ -15,14 +15,14 @@ struct ChatHistoryRow: View {
             AppText(verbatim: conversation.relativeDate, style: .caption)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(.horizontal, AppTheme.Spacing.md)
-        .padding(.vertical, AppTheme.Spacing.sm)
+        .padding(.horizontal, 16)
+        .padding(.vertical, 12)
         .background(
             isActive
                 ? AppTheme.Colors.textPrimary.opacity(0.08)
                 : Color.clear
         )
         .clipShape(RoundedRectangle(cornerRadius: AppTheme.CornerRadius.md))
-        .padding(.horizontal, AppTheme.Spacing.xs)
+        .padding(.horizontal, 8)
     }
 }

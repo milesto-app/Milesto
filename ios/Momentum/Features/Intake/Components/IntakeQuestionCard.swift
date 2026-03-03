@@ -6,8 +6,8 @@ struct IntakeQuestionCard: View {
     let coachId: Int
 
     var body: some View {
-        VStack(alignment: .leading, spacing: AppTheme.Spacing.md) {
-            HStack(alignment: .top, spacing: AppTheme.Spacing.xs) {
+        VStack(alignment: .leading, spacing: 16) {
+            HStack(alignment: .top, spacing: 8) {
                 AppText(verbatim: question.questionText, style: .headline)
                 VoicePlaybackButton(text: question.questionText, coachId: coachId)
             }
@@ -27,6 +27,6 @@ struct IntakeQuestionCard: View {
                 IntakeMultipleChoiceView(question: question, answers: $answers)
             }
         }
-        .padding(.vertical, AppTheme.Spacing.md)
+        .padding(.vertical, 16)
     }
 }

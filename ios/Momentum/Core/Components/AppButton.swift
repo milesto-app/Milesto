@@ -71,7 +71,7 @@ struct AppButton: View {
     }
 
     private var buttonContent: some View {
-        HStack(spacing: AppTheme.Spacing.xs) {
+        HStack(spacing: 8) {
             if let icon = icon, iconPosition == .leading {
                 TablerIcon(icon, size: 20, color: style.foregroundColor)
             }
@@ -84,8 +84,8 @@ struct AppButton: View {
             }
         }
         .frame(maxWidth: isFullWidth ? .infinity : nil)
-        .padding(.vertical, AppTheme.Spacing.md)
-        .padding(.horizontal, AppTheme.Spacing.lg)
+        .padding(.vertical, 16)
+        .padding(.horizontal, 24)
         .background(style.backgroundColor)
         .foregroundStyle(style.foregroundColor)
     }
@@ -129,7 +129,7 @@ struct AppButton: View {
 }
 
 #Preview("Primary Buttons") {
-    VStack(spacing: AppTheme.Spacing.md) {
+    VStack(spacing: 16) {
         AppButton("Primary Button", style: .primary) {}
 
         AppButton("Full Width", style: .primary) {}
@@ -147,7 +147,7 @@ struct AppButton: View {
 }
 
 #Preview("Secondary Buttons") {
-    VStack(spacing: AppTheme.Spacing.md) {
+    VStack(spacing: 16) {
         AppButton("Secondary", style: .secondary) {}
 
         AppButton("Full Width", style: .secondary) {}
@@ -164,7 +164,7 @@ struct AppButton: View {
 }
 
 #Preview("Text Buttons") {
-    VStack(spacing: AppTheme.Spacing.md) {
+    VStack(spacing: 16) {
         AppButton("Text Button", style: .text) {}
 
         AppButton("Disabled", style: .text) {}

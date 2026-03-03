@@ -8,7 +8,7 @@ struct IntakeSingleChoiceView: View {
     private var selectedOption: String? { answers[question.id]?.selectedOptions?.first }
 
     var body: some View {
-        VStack(spacing: AppTheme.Spacing.xs) {
+        VStack(spacing: 8) {
             ForEach(options, id: \.self) { option in
                 Button {
                     answers[question.id] = IntakeAnswerDTO(
@@ -25,7 +25,7 @@ struct IntakeSingleChoiceView: View {
                             TablerIcon(.circleCheck, size: 22, color: AppTheme.Colors.accent)
                         }
                     }
-                    .padding(AppTheme.Spacing.md)
+                    .padding(16)
                     .background(AppTheme.Colors.fieldBackground)
                     .cornerRadius(AppTheme.CornerRadius.sm)
                     .overlay(

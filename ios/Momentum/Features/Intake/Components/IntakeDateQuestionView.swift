@@ -15,7 +15,7 @@ struct IntakeDateQuestionView: View {
     }()
 
     var body: some View {
-        VStack(spacing: AppTheme.Spacing.md) {
+        VStack(spacing: 16) {
             if hasSelected {
                 AppText(verbatim: selectedDate.formatted(.dateTime.day().month(.wide).year()), style: .title)
                     .color(AppTheme.Colors.accent)

@@ -23,7 +23,7 @@ struct EditNameSheet: View {
 
     var body: some View {
         NavigationStack {
-            VStack(spacing: AppTheme.Spacing.lg) {
+            VStack(spacing: 24) {
                 AppTextField(
                     text: $firstName,
                     label: "settings.edit.firstName",
@@ -52,7 +52,7 @@ struct EditNameSheet: View {
                 .fullWidth()
                 .disabled(!isValid)
             }
-            .padding(AppTheme.Spacing.lg)
+            .padding(24)
             .navigationTitle(String(localized: "settings.edit.name.title", table: "Settings"))
             .navigationBarTitleDisplayMode(.inline)
         }
@@ -67,7 +67,7 @@ struct EditBirthdateSheet: View {
 
     var body: some View {
         NavigationStack {
-            VStack(spacing: AppTheme.Spacing.lg) {
+            VStack(spacing: 24) {
                 DatePicker(
                     String(localized: "settings.profile.birthDate", table: "Settings"),
                     selection: $dateOfBirth,
@@ -89,7 +89,7 @@ struct EditBirthdateSheet: View {
                 }
                 .fullWidth()
             }
-            .padding(AppTheme.Spacing.lg)
+            .padding(24)
             .navigationTitle(String(localized: "settings.edit.birthdate.title", table: "Settings"))
             .navigationBarTitleDisplayMode(.inline)
         }
@@ -104,8 +104,8 @@ struct EditCoachSheet: View {
 
     var body: some View {
         NavigationStack {
-            VStack(spacing: AppTheme.Spacing.lg) {
-                VStack(spacing: AppTheme.Spacing.sm) {
+            VStack(spacing: 24) {
+                VStack(spacing: 12) {
                     ForEach(CoachPersonality.allCases) { personality in
                         CoachCard(
                             personality: personality,
@@ -126,7 +126,7 @@ struct EditCoachSheet: View {
                 .fullWidth()
                 .disabled(selectedCoach == nil)
             }
-            .padding(AppTheme.Spacing.lg)
+            .padding(24)
             .navigationTitle(String(localized: "settings.edit.coach.title", table: "Settings"))
             .navigationBarTitleDisplayMode(.inline)
         }
@@ -146,13 +146,13 @@ struct EditLanguageSheet: View {
 
     var body: some View {
         NavigationStack {
-            VStack(spacing: AppTheme.Spacing.lg) {
-                VStack(spacing: AppTheme.Spacing.sm) {
+            VStack(spacing: 24) {
+                VStack(spacing: 12) {
                     ForEach(languages, id: \.0) { code, labelKey in
                         Button {
                             selectedLanguage = code
                         } label: {
-                            HStack(spacing: AppTheme.Spacing.md) {
+                            HStack(spacing: 16) {
                                 AppText(LocalizedStringKey(labelKey), table: "Settings", style: .body)
 
                                 Spacer()
@@ -162,7 +162,7 @@ struct EditLanguageSheet: View {
                                     .scaleEffect(selectedLanguage == code ? 1 : 0.5)
                                     .animation(.spring(response: 0.3, dampingFraction: 0.7), value: selectedLanguage)
                             }
-                            .padding(AppTheme.Spacing.md)
+                            .padding(16)
                             .contentShape(Rectangle())
                             .background(AppTheme.Colors.fieldBackground, in: RoundedRectangle(cornerRadius: AppTheme.CornerRadius.md))
                             .overlay(
@@ -183,7 +183,7 @@ struct EditLanguageSheet: View {
                 }
                 .fullWidth()
             }
-            .padding(AppTheme.Spacing.lg)
+            .padding(24)
             .navigationTitle(String(localized: "settings.edit.language.title", table: "Settings"))
             .navigationBarTitleDisplayMode(.inline)
         }

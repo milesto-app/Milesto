@@ -10,30 +10,30 @@ struct GoalSetupView: View {
     }
 
     var body: some View {
-        VStack(spacing: AppTheme.Spacing.lg) {
-            VStack(spacing: AppTheme.Spacing.xs) {
+        VStack(spacing: 24) {
+            VStack(spacing: 8) {
                 AppText("intake.goal.title", table: "Intake", style: .title)
                     .alignment(.center)
 
                 AppText("intake.goal.subtitle", table: "Intake", style: .subheadline)
                     .alignment(.center)
             }
-            .padding(.top, AppTheme.Spacing.xxl)
-            .padding(.bottom, AppTheme.Spacing.md)
-            .padding(.horizontal, AppTheme.Spacing.lg)
+            .padding(.top, 40)
+            .padding(.bottom, 16)
+            .padding(.horizontal, 24)
 
-            VStack(spacing: AppTheme.Spacing.md) {
+            VStack(spacing: 16) {
                 AppTextField(text: $goalDescription, label: "intake.goal.descriptionPlaceholder", table: "Intake", multiline: true)
             }
-            .padding(.horizontal, AppTheme.Spacing.lg)
+            .padding(.horizontal, 24)
 
             Spacer()
 
             AppButton("common.continue", table: "Common", action: onContinue)
                 .fullWidth()
                 .disabled(!canContinue || isLoading)
-                .padding(.horizontal, AppTheme.Spacing.lg)
-                .padding(.bottom, AppTheme.Spacing.lg)
+                .padding(.horizontal, 24)
+                .padding(.bottom, 24)
         }
         .overlay {
             if isLoading {

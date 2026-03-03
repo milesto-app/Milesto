@@ -32,7 +32,7 @@ struct RoadmapGenerationView: View {
     }
 
     private var loadingContent: some View {
-        VStack(spacing: AppTheme.Spacing.lg) {
+        VStack(spacing: 24) {
             Spacer()
 
             TablerIcon(.sparkles, size: 56, color: AppTheme.Colors.accent)
@@ -57,20 +57,20 @@ struct RoadmapGenerationView: View {
                 .color(AppTheme.Colors.textSecondary)
                 .alignment(.center)
                 .opacity(tipOpacity)
-                .padding(.top, AppTheme.Spacing.md)
+                .padding(.top, 16)
 
             Spacer()
 
             ProgressView()
                 .controlSize(.large)
                 .tint(AppTheme.Colors.accent)
-                .padding(.bottom, AppTheme.Spacing.xxl)
+                .padding(.bottom, 40)
         }
-        .padding(.horizontal, AppTheme.Spacing.lg)
+        .padding(.horizontal, 24)
     }
 
     private var errorContent: some View {
-        VStack(spacing: AppTheme.Spacing.lg) {
+        VStack(spacing: 24) {
             Spacer()
 
             TablerIcon(.alertCircle, size: 48, color: AppTheme.Colors.error)
@@ -90,9 +90,9 @@ struct RoadmapGenerationView: View {
                 }
             }
             .fullWidth()
-            .padding(.bottom, AppTheme.Spacing.lg)
+            .padding(.bottom, 24)
         }
-        .padding(.horizontal, AppTheme.Spacing.lg)
+        .padding(.horizontal, 24)
     }
 
     private func startGeneration() async {

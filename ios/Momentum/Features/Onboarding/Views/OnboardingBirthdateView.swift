@@ -13,16 +13,16 @@ struct OnboardingBirthdateView: View {
     }
 
     var body: some View {
-        VStack(spacing: AppTheme.Spacing.lg) {
-            VStack(spacing: AppTheme.Spacing.xs) {
+        VStack(spacing: 24) {
+            VStack(spacing: 8) {
                 AppText("onboarding.birthdate.title", table: "Onboarding", style: .title)
                     .alignment(.center)
 
                 AppText("onboarding.birthdate.subtitle", table: "Onboarding", style: .subheadline)
             }
-            .padding(.top, AppTheme.Spacing.xxl)
-            .padding(.bottom, AppTheme.Spacing.md)
-            .padding(.horizontal, AppTheme.Spacing.lg)
+            .padding(.top, 40)
+            .padding(.bottom, 16)
+            .padding(.horizontal, 24)
 
             DatePicker(
                 "",
@@ -35,14 +35,14 @@ struct OnboardingBirthdateView: View {
 
             Spacer()
 
-            VStack(spacing: AppTheme.Spacing.md) {
+            VStack(spacing: 16) {
                 AppButton("common.continue", table: "Common", action: onContinue)
                     .fullWidth()
 
                 AppText("onboarding.editLater", table: "Onboarding", style: .caption)
                     .alignment(.center)
             }
-            .padding(.bottom, AppTheme.Spacing.lg)
+            .padding(.bottom, 24)
         }
     }
 }

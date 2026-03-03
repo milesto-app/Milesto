@@ -6,7 +6,7 @@ struct TaskRowView: View {
 
     var body: some View {
         Button(action: onToggle) {
-            HStack(spacing: AppTheme.Spacing.sm) {
+            HStack(spacing: 12) {
                 TablerIcon(task.isCompleted ? .circleCheck : .circle, size: 22, color: task.isCompleted ? AppTheme.Colors.accent : AppTheme.Colors.iconDefault)
 
                 AppText(verbatim: task.title, style: .body)

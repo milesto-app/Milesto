@@ -14,7 +14,7 @@ struct MarkdownText: View {
     var codeBackground: Color = AppTheme.Colors.codeBackground
 
     var body: some View {
-        VStack(alignment: .leading, spacing: AppTheme.Spacing.sm) {
+        VStack(alignment: .leading, spacing: 12) {
             ForEach(Array(parse(content).enumerated()), id: \.offset) { _, block in
                 renderBlock(block)
             }
@@ -32,7 +32,7 @@ struct MarkdownText: View {
                 .font(.system(.body, design: .monospaced))
                 .foregroundStyle(textColor)
                 .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(AppTheme.Spacing.sm)
+                .padding(12)
                 .background(codeBackground)
                 .clipShape(RoundedRectangle(cornerRadius: AppTheme.CornerRadius.sm))
 
@@ -42,7 +42,7 @@ struct MarkdownText: View {
                 .bold()
 
         case .unorderedList(let items):
-            VStack(alignment: .leading, spacing: AppTheme.Spacing.xxs) {
+            VStack(alignment: .leading, spacing: 4) {
                 ForEach(Array(items.enumerated()), id: \.offset) { _, item in
                     HStack(alignment: .top, spacing: 0) {
                         Text(verbatim: "\u{2022}  ")
@@ -53,7 +53,7 @@ struct MarkdownText: View {
             }
 
         case .orderedList(let items):
-            VStack(alignment: .leading, spacing: AppTheme.Spacing.xxs) {
+            VStack(alignment: .leading, spacing: 4) {
                 ForEach(Array(items.enumerated()), id: \.offset) { index, item in
                     HStack(alignment: .top, spacing: 0) {
                         Text(verbatim: "\(index + 1).  ")

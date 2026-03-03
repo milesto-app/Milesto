@@ -13,15 +13,15 @@ private struct AuthModeToggle: View {
             textLabel("auth.form.toggle.signup", for: .signUp)
             textLabel("auth.form.toggle.signin", for: .signIn)
         }
-        .padding(AppTheme.Spacing.xxs)
+        .padding(4)
         .background {
             GeometryReader { geo in
                 GlassEffectContainer(spacing: 0) {
                     Capsule()
                         .fill(.clear)
                         .glassEffect(.regular.interactive(), in: Capsule())
-                        .frame(width: (geo.size.width - AppTheme.Spacing.xxs * 2) / 2)
-                        .padding(AppTheme.Spacing.xxs)
+                        .frame(width: (geo.size.width - 4 * 2) / 2)
+                        .padding(4)
                 }
                 .frame(maxWidth: .infinity, alignment: mode == .signUp ? .leading : .trailing)
             }
@@ -34,7 +34,7 @@ private struct AuthModeToggle: View {
             .weight(.semibold)
             .color(mode == targetMode ? AppTheme.Colors.textPrimary : AppTheme.Colors.textSecondary)
             .frame(maxWidth: .infinity)
-            .padding(.vertical, AppTheme.Spacing.sm)
+            .padding(.vertical, 12)
             .contentShape(Capsule())
             .onTapGesture {
                 mode = targetMode
@@ -64,21 +64,21 @@ struct AuthEmailView: View {
     }
 
     var body: some View {
-        VStack(spacing: AppTheme.Spacing.lg) {
-            VStack(spacing: AppTheme.Spacing.xs) {
+        VStack(spacing: 24) {
+            VStack(spacing: 8) {
                 AppText(mode == .signUp ? "auth.signup.title" : "auth.signin.title", table: "Auth", style: .title)
 
                 AppText(mode == .signUp ? "auth.signup.subtitle" : "auth.signin.subtitle", table: "Auth", style: .subheadline)
             }
-            .padding(.top, AppTheme.Spacing.xxl * 2)
-            .padding(.bottom, AppTheme.Spacing.md)
+            .padding(.top, 40 * 2)
+            .padding(.bottom, 16)
             .contentTransition(.opacity)
             .animation(.easeInOut(duration: 0.25), value: mode)
 
             AuthModeToggle(mode: $mode)
-                .padding(.horizontal, AppTheme.Spacing.lg)
+                .padding(.horizontal, 24)
 
-            VStack(spacing: AppTheme.Spacing.md) {
+            VStack(spacing: 16) {
                 AppTextField(
                     text: $email,
                     label: "auth.form.email",
@@ -95,7 +95,7 @@ struct AuthEmailView: View {
                     textContentType: mode == .signUp ? .newPassword : .password
                 )
             }
-            .padding(.horizontal, AppTheme.Spacing.lg)
+            .padding(.horizontal, 24)
 
             AppButton(
                 mode == .signUp ? "auth.signup.button" : "auth.signin.button",
@@ -104,7 +104,7 @@ struct AuthEmailView: View {
             )
             .fullWidth()
             .disabled(!canContinue || isLoading)
-            .padding(.horizontal, AppTheme.Spacing.lg)
+            .padding(.horizontal, 24)
             .contentTransition(.opacity)
             .animation(.easeInOut(duration: 0.25), value: mode)
 

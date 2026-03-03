@@ -11,16 +11,16 @@ struct OnboardingGoalDescriptionView: View {
     }
 
     var body: some View {
-        VStack(spacing: AppTheme.Spacing.lg) {
-            VStack(spacing: AppTheme.Spacing.xs) {
+        VStack(spacing: 24) {
+            VStack(spacing: 8) {
                 AppText("onboarding.goal.title", table: "Onboarding", style: .title)
                     .alignment(.center)
 
                 AppText("onboarding.goal.subtitle", table: "Onboarding", style: .subheadline)
             }
-            .padding(.top, AppTheme.Spacing.xxl)
-            .padding(.bottom, AppTheme.Spacing.md)
-            .padding(.horizontal, AppTheme.Spacing.lg)
+            .padding(.top, 40)
+            .padding(.bottom, 16)
+            .padding(.horizontal, 24)
 
             ZStack(alignment: .topLeading) {
                 RoundedRectangle(cornerRadius: AppTheme.CornerRadius.md)
@@ -35,20 +35,20 @@ struct OnboardingGoalDescriptionView: View {
                 if goalDescription.isEmpty && !isFocused {
                     AppText("onboarding.goal.placeholder", table: "Onboarding", style: .body)
                         .color(AppTheme.Colors.textPlaceholder)
-                        .padding(AppTheme.Spacing.md)
+                        .padding(16)
                 }
 
                 TextEditor(text: $goalDescription)
                     .focused($isFocused)
                     .scrollContentBackground(.hidden)
-                    .padding(AppTheme.Spacing.sm)
+                    .padding(12)
             }
             .frame(height: 150)
-            .padding(.horizontal, AppTheme.Spacing.lg)
+            .padding(.horizontal, 24)
 
             Spacer()
 
-            VStack(spacing: AppTheme.Spacing.md) {
+            VStack(spacing: 16) {
                 AppButton("common.continue", table: "Common", action: onContinue)
                     .fullWidth()
                     .disabled(!canContinue)
@@ -56,7 +56,7 @@ struct OnboardingGoalDescriptionView: View {
                 AppText("onboarding.editLater", table: "Onboarding", style: .caption)
                     .alignment(.center)
             }
-            .padding(.bottom, AppTheme.Spacing.lg)
+            .padding(.bottom, 24)
         }
     }
 }

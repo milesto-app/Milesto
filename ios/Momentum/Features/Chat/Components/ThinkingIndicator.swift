@@ -23,8 +23,8 @@ struct ThinkingIndicator: View {
                 .mask(shimmerMask)
             Spacer()
         }
-        .padding(.horizontal, AppTheme.Spacing.md)
-        .padding(.vertical, AppTheme.Spacing.xxs)
+        .padding(.horizontal, 16)
+        .padding(.vertical, 4)
         .onAppear {
             withAnimation(.linear(duration: 1.5).repeatForever(autoreverses: false)) {
                 shimmerOffset = 1.0

@@ -102,24 +102,21 @@ AppButton("Label", table: "Common", action: doSomething)
     .icon(.arrowRight, position: .trailing)
 ```
 
-**AppTheme** (`Core/Components/AppTheme.swift`) - Use for all design tokens (colors, spacing, corner radii). Never use hardcoded values.
+**AppTheme** (`Core/Components/AppTheme.swift`) - Use for all design tokens (colors, corner radii). Never use hardcoded color values.
 
 ```swift
 // Use this:
 .foregroundStyle(AppTheme.Colors.accent)
-.padding(AppTheme.Spacing.md)
 .cornerRadius(AppTheme.CornerRadius.sm)
 
 // NOT this:
 .foregroundStyle(.orange)
-.padding(16)
 .cornerRadius(8)
 ```
 
 Available tokens:
 
 - `AppTheme.Colors`: `.accent`, `.success`, `.error`, `.disabled`, `.textPrimary`, `.textSecondary`, `.textPlaceholder`, `.textOnAccent`, `.iconDefault`, `.fieldBackground`, `.fieldBorderFocused`, `.fieldBorderError`, `.fieldBorderDefault`
-- `AppTheme.Spacing`: `.xxs` (4), `.xs` (8), `.sm` (12), `.md` (16), `.lg` (24), `.xl` (32), `.xxl` (40)
 - `AppTheme.CornerRadius`: `.sm` (8), `.md` (12), `.lg` (16), `.xl` (24)
 
 ## Localization

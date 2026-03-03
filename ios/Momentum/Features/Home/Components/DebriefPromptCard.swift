@@ -4,7 +4,7 @@ struct DebriefPromptCard: View {
     let onTap: () -> Void
 
     var body: some View {
-        VStack(alignment: .leading, spacing: AppTheme.Spacing.md) {
+        VStack(alignment: .leading, spacing: 16) {
             TablerIcon(.moonStars, size: 28, color: AppTheme.Colors.accent)
 
             AppText("home.debrief.prompt.title", table: "Home", style: .headline)
@@ -15,7 +15,7 @@ struct DebriefPromptCard: View {
             AppButton("home.debrief.prompt.action", table: "Home", style: .secondary, action: onTap)
                 .fullWidth()
         }
-        .padding(AppTheme.Spacing.lg)
+        .padding(24)
         .glassEffect(.clear.interactive(), in: RoundedRectangle(cornerRadius: AppTheme.CornerRadius.xl))
     }
 }

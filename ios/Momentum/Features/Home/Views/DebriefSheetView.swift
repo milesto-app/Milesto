@@ -18,9 +18,9 @@ struct DebriefSheetView: View {
     var body: some View {
         NavigationStack {
             ScrollView {
-                VStack(alignment: .leading, spacing: AppTheme.Spacing.lg) {
+                VStack(alignment: .leading, spacing: 24) {
                     AppText("home.debrief.title", table: "Home", style: .title)
-                        .padding(.bottom, AppTheme.Spacing.xs)
+                        .padding(.bottom, 8)
 
                     if !completedObjectives.isEmpty {
                         ratingsSection
@@ -39,21 +39,21 @@ struct DebriefSheetView: View {
                     .fullWidth()
                     .disabled(!canSubmit)
                 }
-                .padding(AppTheme.Spacing.lg)
+                .padding(24)
             }
         }
         .presentationDetents([.large])
     }
 
     private var ratingsSection: some View {
-        VStack(alignment: .leading, spacing: AppTheme.Spacing.md) {
+        VStack(alignment: .leading, spacing: 16) {
             AppText("home.debrief.ratings.title", table: "Home", style: .headline)
 
             ForEach(completedObjectives) { objective in
-                VStack(alignment: .leading, spacing: AppTheme.Spacing.xs) {
+                VStack(alignment: .leading, spacing: 8) {
                     AppText(verbatim: objective.title, style: .body)
 
-                    HStack(spacing: AppTheme.Spacing.xs) {
+                    HStack(spacing: 8) {
                         ratingPill(.easy, label: String(localized: "home.debrief.ratings.easy", table: "Home"), objectiveId: objective.id)
                         ratingPill(.moderate, label: String(localized: "home.debrief.ratings.moderate", table: "Home"), objectiveId: objective.id)
                         ratingPill(.hard, label: String(localized: "home.debrief.ratings.hard", table: "Home"), objectiveId: objective.id)
@@ -79,8 +79,8 @@ struct DebriefSheetView: View {
             AppText(verbatim: label, style: .caption)
                 .weight(.medium)
                 .color(isSelected ? pillColor : AppTheme.Colors.textSecondary)
-                .padding(.horizontal, AppTheme.Spacing.sm)
-                .padding(.vertical, AppTheme.Spacing.xs)
+                .padding(.horizontal, 12)
+                .padding(.vertical, 8)
                 .background(
                     Capsule()
                         .fill(isSelected ? pillColor.opacity(0.15) : Color.clear)
@@ -94,7 +94,7 @@ struct DebriefSheetView: View {
     }
 
     private var reflectionSection: some View {
-        VStack(alignment: .leading, spacing: AppTheme.Spacing.sm) {
+        VStack(alignment: .leading, spacing: 12) {
             AppText("home.debrief.reflection.title", table: "Home", style: .headline)
 
             AppTextField(

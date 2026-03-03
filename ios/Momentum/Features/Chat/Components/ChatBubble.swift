@@ -16,7 +16,7 @@ struct ChatBubble: View {
             if isUser {
                 AppText(verbatim: message.content, style: .body)
                     .color(AppTheme.Colors.textOnAccent)
-                    .padding(AppTheme.Spacing.sm)
+                    .padding(12)
                     .background(
                         RoundedRectangle(cornerRadius: AppTheme.CornerRadius.lg)
                             .fill(AppTheme.Colors.accent)
@@ -27,8 +27,8 @@ struct ChatBubble: View {
 
             if !isUser { Spacer(minLength: 0) }
         }
-        .padding(.horizontal, AppTheme.Spacing.md)
-        .padding(isUser ? .leading : .trailing, AppTheme.Spacing.xxl)
+        .padding(.horizontal, 16)
+        .padding(isUser ? .leading : .trailing, 40)
         .opacity(appeared ? 1 : 0)
         .offset(y: appeared ? 0 : 12)
         .onAppear {

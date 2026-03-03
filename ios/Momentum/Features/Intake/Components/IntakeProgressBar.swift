@@ -10,7 +10,7 @@ struct IntakeProgressBar: View {
     }
 
     var body: some View {
-        VStack(spacing: AppTheme.Spacing.xxs) {
+        VStack(spacing: 4) {
             GeometryReader { geometry in
                 ZStack(alignment: .leading) {
                     Capsule()

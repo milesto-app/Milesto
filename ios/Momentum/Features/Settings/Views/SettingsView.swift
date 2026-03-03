@@ -124,20 +124,20 @@ struct SettingsView: View {
                     ProgressView()
                     Spacer()
                 }
-                .padding(.vertical, AppTheme.Spacing.xl)
+                .padding(.vertical, 32)
                 .listRowBackground(Color.clear)
             } else {
                 Button {
                     activeSheet = .name
                 } label: {
-                    VStack(spacing: AppTheme.Spacing.md) {
+                    VStack(spacing: 16) {
                         ProfileAvatarView(
                             url: localProfile?.avatarURL.flatMap { URL(string: $0) },
                             initials: initials,
                             size: 80
                         )
 
-                        VStack(spacing: AppTheme.Spacing.xxs) {
+                        VStack(spacing: 4) {
                             if !fullName.isEmpty {
                                 AppText(verbatim: fullName, style: .title)
                                     .alignment(.center)
@@ -150,7 +150,7 @@ struct SettingsView: View {
                         }
                     }
                     .frame(maxWidth: .infinity)
-                    .padding(.vertical, AppTheme.Spacing.lg)
+                    .padding(.vertical, 24)
                 }
                 .buttonStyle(.plain)
                 .listRowBackground(Color.clear)
@@ -203,7 +203,7 @@ struct SettingsView: View {
 
     private func editableRow(icon: TablerIconOutline, label: LocalizedStringKey, value: String, action: @escaping () -> Void) -> some View {
         Button(action: action) {
-            HStack(spacing: AppTheme.Spacing.sm) {
+            HStack(spacing: 12) {
                 TablerIcon(icon, size: 24, color: AppTheme.Colors.accent)
                 AppText(label, table: "Settings", style: .body)
                 Spacer()
@@ -217,7 +217,7 @@ struct SettingsView: View {
     }
 
     private func detailRow(icon: TablerIconOutline, label: LocalizedStringKey, value: String) -> some View {
-        HStack(spacing: AppTheme.Spacing.sm) {
+        HStack(spacing: 12) {
             TablerIcon(icon, size: 24, color: AppTheme.Colors.accent)
             AppText(label, table: "Settings", style: .body)
             Spacer()
@@ -229,12 +229,12 @@ struct SettingsView: View {
     private var proSection: some View {
         Section {
             if storeService.isPro {
-                HStack(spacing: AppTheme.Spacing.sm) {
+                HStack(spacing: 12) {
                     TablerIcon(.crown, size: 24, color: AppTheme.Colors.accent)
                     AppText("settings.pro", table: "Paywall", style: .body)
                         .weight(.semibold)
                     Spacer()
-                    HStack(spacing: AppTheme.Spacing.xxs) {
+                    HStack(spacing: 4) {
                         TablerIcon(.circleCheck, size: 16, color: AppTheme.Colors.success)
                         AppText("settings.pro.active", table: "Paywall", style: .caption)
                             .color(AppTheme.Colors.success)
@@ -245,7 +245,7 @@ struct SettingsView: View {
                 Button {
                     showPaywall = true
                 } label: {
-                    HStack(spacing: AppTheme.Spacing.sm) {
+                    HStack(spacing: 12) {
                         TablerIcon(.crown, size: 24, color: AppTheme.Colors.accent)
                         AppText("settings.pro", table: "Paywall", style: .body)
                             .weight(.semibold)
@@ -264,7 +264,7 @@ struct SettingsView: View {
             Button {
                 showNewGoal = true
             } label: {
-                HStack(spacing: AppTheme.Spacing.sm) {
+                HStack(spacing: 12) {
                     TablerIcon(.target, size: 24, color: AppTheme.Colors.accent)
                     AppText("settings.newGoal", table: "Settings", style: .body)
                 }
@@ -279,7 +279,7 @@ struct SettingsView: View {
             Button(role: .destructive) {
                 showSignOutAlert = true
             } label: {
-                HStack(spacing: AppTheme.Spacing.sm) {
+                HStack(spacing: 12) {
                     TablerIcon(.logout, size: 24, color: AppTheme.Colors.error)
                     AppText("settings.signOut", table: "Settings", style: .body)
                         .color(AppTheme.Colors.error)
@@ -293,7 +293,7 @@ struct SettingsView: View {
                     .color(AppTheme.Colors.textSecondary)
                 Spacer()
             }
-            .padding(.top, AppTheme.Spacing.lg)
+            .padding(.top, 24)
         }
     }
 

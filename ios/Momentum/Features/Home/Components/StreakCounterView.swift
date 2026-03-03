@@ -20,11 +20,11 @@ struct StreakCounterView: View {
     let streak: MockStreak
 
     var body: some View {
-        VStack(alignment: .leading, spacing: AppTheme.Spacing.md) {
+        VStack(alignment: .leading, spacing: 16) {
             HStack {
                 AppText("home.streak.title", table: "Home", style: .headline)
                 Spacer()
-                HStack(spacing: AppTheme.Spacing.xxs) {
+                HStack(spacing: 4) {
                     TablerIcon(.flame, size: 16, color: AppTheme.Colors.accent)
                     AppText(verbatim: "\(streak.currentStreak)", style: .headline)
                         .weight(.regular)
@@ -32,12 +32,12 @@ struct StreakCounterView: View {
                 }
             }
 
-            HStack(spacing: AppTheme.Spacing.xs) {
+            HStack(spacing: 8) {
                 ForEach(Array(zip(StreakPreviewData.weekdayLabels.indices, StreakPreviewData.weekdayLabels)), id: \.0) { index, label in
                     let isActive = streak.weekActivity[index]
                     let isToday = index == streak.weekActivity.count - 1
 
-                    VStack(spacing: AppTheme.Spacing.xxs) {
+                    VStack(spacing: 4) {
                         AppText(verbatim: label, style: .caption)
                             .color(AppTheme.Colors.textSecondary)
 
@@ -62,15 +62,15 @@ struct StreakCounterView: View {
                 }
             }
 
-            HStack(spacing: AppTheme.Spacing.lg) {
-                HStack(spacing: AppTheme.Spacing.xxs) {
+            HStack(spacing: 24) {
+                HStack(spacing: 4) {
                     Circle()
                         .fill(AppTheme.Colors.accent.opacity(0.15))
                         .frame(width: 8, height: 8)
                     AppText("home.streak.completed", table: "Home", style: .caption)
                         .color(AppTheme.Colors.textSecondary)
                 }
-                HStack(spacing: AppTheme.Spacing.xxs) {
+                HStack(spacing: 4) {
                     Circle()
                         .fill(AppTheme.Colors.textSecondary.opacity(0.1))
                         .frame(width: 8, height: 8)
@@ -79,7 +79,7 @@ struct StreakCounterView: View {
                 }
             }
         }
-        .padding(.horizontal, AppTheme.Spacing.lg)
+        .padding(.horizontal, 24)
     }
 }
 

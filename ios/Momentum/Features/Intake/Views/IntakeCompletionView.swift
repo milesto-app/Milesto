@@ -4,7 +4,7 @@ struct IntakeCompletionView: View {
     let onContinue: () -> Void
 
     var body: some View {
-        VStack(spacing: AppTheme.Spacing.lg) {
+        VStack(spacing: 24) {
             Spacer()
 
             TablerIcon(.circleCheck, size: 64, color: AppTheme.Colors.success)
@@ -20,9 +20,9 @@ struct IntakeCompletionView: View {
 
             AppButton("intake.complete.action", table: "Intake", action: onContinue)
                 .fullWidth()
-                .padding(.bottom, AppTheme.Spacing.lg)
+                .padding(.bottom, 24)
         }
-        .padding(.horizontal, AppTheme.Spacing.lg)
+        .padding(.horizontal, 24)
     }
 }
 

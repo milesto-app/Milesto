@@ -34,7 +34,7 @@ struct ToolStatusIndicator: View {
                 }
             Spacer()
         }
-        .padding(.horizontal, AppTheme.Spacing.md)
-        .padding(.vertical, AppTheme.Spacing.xxs)
+        .padding(.horizontal, 16)
+        .padding(.vertical, 4)
     }
 }

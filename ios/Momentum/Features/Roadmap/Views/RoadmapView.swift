@@ -24,7 +24,7 @@ struct RoadmapView: View {
     @State private var selectedMilestone: DisplayMilestone?
 
     private let nodeSpacing: CGFloat = 110
-    private let sidePadding: CGFloat = AppTheme.Spacing.md
+    private let sidePadding: CGFloat = 16
     private let labelWidth: CGFloat = 180
 
     private var currentGoal: LocalGoal? {
@@ -70,7 +70,7 @@ struct RoadmapView: View {
                                         .opacity(appeared ? 1 : 0)
                                         .animation(.easeOut(duration: 0.3).delay(Double(index) * 0.05 + 0.1), value: appeared)
 
-                                        let labelGap = nodeSize(milestone) / 2 + AppTheme.Spacing.sm
+                                        let labelGap = nodeSize(milestone) / 2 + 12
 
                                         Button {
                                             selectedMilestone = milestone
@@ -92,7 +92,7 @@ struct RoadmapView: View {
                             }
                             .frame(height: CGFloat(milestones.count) * nodeSpacing + nodeSpacing / 2)
                         }
-                        .padding(.bottom, AppTheme.Spacing.xxl * 2)
+                        .padding(.bottom, 40 * 2)
                     }
                     .refreshable {
                         let impact = UIImpactFeedbackGenerator(style: .medium)
@@ -146,7 +146,7 @@ struct RoadmapView: View {
     }
 
     private var headerSection: some View {
-        VStack(alignment: .leading, spacing: AppTheme.Spacing.xs) {
+        VStack(alignment: .leading, spacing: 8) {
             AppText("roadmap.journey.subtitle", table: "Roadmap", style: .caption)
                 .color(AppTheme.Colors.textSecondary)
 
@@ -160,7 +160,7 @@ struct RoadmapView: View {
                         }
                     }
                 } label: {
-                    HStack(spacing: AppTheme.Spacing.xs) {
+                    HStack(spacing: 8) {
                         AppText(verbatim: currentGoal?.title ?? "", style: .largeTitle)
                         TablerIcon(.chevronDown, size: 20, color: AppTheme.Colors.textSecondary)
                     }
@@ -169,7 +169,7 @@ struct RoadmapView: View {
                 AppText(verbatim: currentGoal?.title ?? "", style: .largeTitle)
             }
 
-            HStack(spacing: AppTheme.Spacing.xs) {
+            HStack(spacing: 8) {
                 AppText(
                     verbatim: "\(milestones.filter { $0.status == .completed }.count)/\(milestones.count)",
                     style: .subheadline
@@ -178,9 +178,9 @@ struct RoadmapView: View {
                 .color(AppTheme.Colors.accent)
             }
         }
-        .padding(.horizontal, AppTheme.Spacing.lg)
-        .padding(.top, AppTheme.Spacing.xl)
-        .padding(.bottom, AppTheme.Spacing.sm)
+        .padding(.horizontal, 24)
+        .padding(.top, 32)
+        .padding(.bottom, 12)
         .frame(maxWidth: .infinity, alignment: .leading)
         .opacity(appeared ? 1 : 0)
         .animation(.easeOut(duration: 0.5), value: appeared)
@@ -312,7 +312,7 @@ struct RoadmapView: View {
                 .weight(milestone.isKeyMilestone ? .bold : .semibold)
                 .color(milestone.status == .upcoming ? AppTheme.Colors.textSecondary : AppTheme.Colors.textPrimary)
 
-            HStack(spacing: AppTheme.Spacing.xxs) {
+            HStack(spacing: 4) {
                 AppText(
                     verbatim: String(
                         format: String(localized: "roadmap.milestone.targetMonth", table: "Roadmap"),

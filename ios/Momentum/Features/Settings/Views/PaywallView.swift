@@ -28,15 +28,15 @@ struct PaywallView: View {
     var body: some View {
         ZStack(alignment: .topTrailing) {
             ScrollView {
-                VStack(spacing: AppTheme.Spacing.xl) {
+                VStack(spacing: 32) {
                     headerSection
                     planSelector
                     featuresSection
                     ctaSection
                 }
-                .padding(.horizontal, AppTheme.Spacing.lg)
+                .padding(.horizontal, 24)
                 .padding(.top, 60)
-                .padding(.bottom, AppTheme.Spacing.xxl)
+                .padding(.bottom, 40)
             }
 
             Button {
@@ -47,8 +47,8 @@ struct PaywallView: View {
                     .background(AppTheme.Colors.fieldBackground)
                     .clipShape(Circle())
             }
-            .padding(.top, AppTheme.Spacing.md)
-            .padding(.trailing, AppTheme.Spacing.lg)
+            .padding(.top, 16)
+            .padding(.trailing, 24)
         }
         .task {
             await storeService.loadProducts()
@@ -61,7 +61,7 @@ struct PaywallView: View {
     }
 
     private var headerSection: some View {
-        VStack(spacing: AppTheme.Spacing.md) {
+        VStack(spacing: 16) {
             ZStack {
                 Circle()
                     .fill(AppTheme.Colors.accent.opacity(0.12))
@@ -70,7 +70,7 @@ struct PaywallView: View {
                 TablerIcon(.crown, size: 40, color: AppTheme.Colors.accent)
             }
 
-            VStack(spacing: AppTheme.Spacing.xs) {
+            VStack(spacing: 8) {
                 AppText("paywall.title", table: "Paywall", style: .largeTitle)
                     .alignment(.center)
 
@@ -81,7 +81,7 @@ struct PaywallView: View {
     }
 
     private var planSelector: some View {
-        HStack(spacing: AppTheme.Spacing.sm) {
+        HStack(spacing: 12) {
             planCard(
                 plan: .yearly,
                 price: product(for: .yearly)?.displayPrice ?? String(localized: "paywall.plan.yearly.price", table: "Paywall"),
@@ -106,13 +106,13 @@ struct PaywallView: View {
                 selectedPlan = plan
             }
         } label: {
-            VStack(spacing: AppTheme.Spacing.xs) {
+            VStack(spacing: 8) {
                 if let badge {
                     AppText(verbatim: badge, style: .caption)
                         .color(AppTheme.Colors.textOnAccent)
                         .weight(.semibold)
-                        .padding(.horizontal, AppTheme.Spacing.xs)
-                        .padding(.vertical, AppTheme.Spacing.xxs)
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 4)
                         .background(AppTheme.Colors.accent)
                         .clipShape(Capsule())
                 } else {
@@ -127,8 +127,8 @@ struct PaywallView: View {
                     .color(AppTheme.Colors.textSecondary)
             }
             .frame(maxWidth: .infinity)
-            .padding(.vertical, AppTheme.Spacing.md)
-            .padding(.horizontal, AppTheme.Spacing.sm)
+            .padding(.vertical, 16)
+            .padding(.horizontal, 12)
             .background(AppTheme.Colors.fieldBackground)
             .cornerRadius(AppTheme.CornerRadius.lg)
             .overlay(
@@ -147,13 +147,13 @@ struct PaywallView: View {
             featureRow(icon: .chartLine, key: "paywall.feature.stats")
             featureRow(icon: .refresh, key: "paywall.feature.replan")
         }
-        .padding(AppTheme.Spacing.md)
+        .padding(16)
         .background(AppTheme.Colors.fieldBackground)
         .cornerRadius(AppTheme.CornerRadius.lg)
     }
 
     private func featureRow(icon: TablerIconOutline, key: LocalizedStringKey) -> some View {
-        HStack(spacing: AppTheme.Spacing.sm) {
+        HStack(spacing: 12) {
             TablerIcon(icon, size: 22, color: AppTheme.Colors.accent)
                 .frame(width: 28)
 
@@ -163,11 +163,11 @@ struct PaywallView: View {
 
             TablerIcon(.circleCheck, size: 20, color: AppTheme.Colors.accent)
         }
-        .padding(.vertical, AppTheme.Spacing.sm)
+        .padding(.vertical, 12)
     }
 
     private var ctaSection: some View {
-        VStack(spacing: AppTheme.Spacing.md) {
+        VStack(spacing: 16) {
             AppButton("paywall.cta", table: "Paywall") {
                 Task {
                     guard let selectedProduct = product(for: selectedPlan) else { return }

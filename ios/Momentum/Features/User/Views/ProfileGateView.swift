@@ -58,7 +58,7 @@ struct ProfileGateView: View {
                 .labelStyle(.iconOnly)
                 .tint(AppTheme.Colors.accent)
                 .overlay(alignment: .top) {
-                    StatusBarBlur()
+                    ProgressiveBlur()
                 }
                 .onChange(of: selectedTab) { oldValue, newValue in
                     if newValue == 3 {
@@ -108,7 +108,7 @@ struct ProfileGateView: View {
                 )
                 .transition(.opacity)
             } else if connectionError {
-                VStack(spacing: AppTheme.Spacing.lg) {
+                VStack(spacing: 24) {
                     TablerIcon(.wifiOff, size: 48, color: AppTheme.Colors.textSecondary)
 
                     AppText("common.error.noConnection", table: "Common", style: .title)
@@ -122,7 +122,7 @@ struct ProfileGateView: View {
                         retry()
                     }
                 }
-                .padding(AppTheme.Spacing.xl)
+                .padding(32)
             } else {
                 ProgressView()
             }

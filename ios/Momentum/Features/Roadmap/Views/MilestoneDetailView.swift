@@ -12,7 +12,7 @@ struct MilestoneDetailView: View {
             AnimatedBackground()
 
             ScrollView(showsIndicators: false) {
-                VStack(spacing: AppTheme.Spacing.lg) {
+                VStack(spacing: 24) {
                     HStack {
                         MilestoneStatusBadge(status: status)
                         Spacer()
@@ -27,16 +27,16 @@ struct MilestoneDetailView: View {
 
                     targetCard
                 }
-                .padding(.horizontal, AppTheme.Spacing.lg)
-                .padding(.top, AppTheme.Spacing.lg)
-                .padding(.bottom, AppTheme.Spacing.xxl)
+                .padding(.horizontal, 24)
+                .padding(.top, 24)
+                .padding(.bottom, 40)
             }
         }
     }
 
     private var descriptionCard: some View {
-        VStack(alignment: .leading, spacing: AppTheme.Spacing.sm) {
-            HStack(spacing: AppTheme.Spacing.xs) {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack(spacing: 8) {
                 TablerIcon(.notebook, size: 20, color: AppTheme.Colors.accent)
                 AppText("roadmap.milestone.description", table: "Roadmap", style: .headline)
             }
@@ -45,13 +45,13 @@ struct MilestoneDetailView: View {
                 .color(AppTheme.Colors.textSecondary)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(AppTheme.Spacing.md)
+        .padding(16)
         .glassEffect(.clear, in: RoundedRectangle(cornerRadius: AppTheme.CornerRadius.lg))
     }
 
     private var expectedOutcomeCard: some View {
-        VStack(alignment: .leading, spacing: AppTheme.Spacing.sm) {
-            HStack(spacing: AppTheme.Spacing.xs) {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack(spacing: 8) {
                 TablerIcon(.flag, size: 20, color: AppTheme.Colors.accent)
                 AppText("roadmap.milestone.expectedOutcome", table: "Roadmap", style: .headline)
             }
@@ -60,13 +60,13 @@ struct MilestoneDetailView: View {
                 .color(AppTheme.Colors.textSecondary)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(AppTheme.Spacing.md)
+        .padding(16)
         .glassEffect(.clear, in: RoundedRectangle(cornerRadius: AppTheme.CornerRadius.lg))
     }
 
     private var targetCard: some View {
-        VStack(alignment: .leading, spacing: AppTheme.Spacing.sm) {
-            HStack(spacing: AppTheme.Spacing.xs) {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack(spacing: 8) {
                 TablerIcon(.calendar, size: 20, color: AppTheme.Colors.accent)
                 AppText("roadmap.milestone.target", table: "Roadmap", style: .headline)
             }
@@ -81,7 +81,7 @@ struct MilestoneDetailView: View {
             .color(AppTheme.Colors.accent)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(AppTheme.Spacing.md)
+        .padding(16)
         .glassEffect(.clear, in: RoundedRectangle(cornerRadius: AppTheme.CornerRadius.lg))
     }
 }

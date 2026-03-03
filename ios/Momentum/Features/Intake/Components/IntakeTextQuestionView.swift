@@ -34,13 +34,13 @@ struct IntakeTextQuestionView: View {
             if (answers[question.id]?.answerText ?? "").isEmpty && !isFocused {
                 AppText("intake.question.placeholder", table: "Intake", style: .body)
                     .color(AppTheme.Colors.textPlaceholder)
-                    .padding(AppTheme.Spacing.md)
+                    .padding(16)
             }
 
             TextEditor(text: text)
                 .focused($isFocused)
                 .scrollContentBackground(.hidden)
-                .padding(AppTheme.Spacing.sm)
+                .padding(12)
         }
         .frame(minHeight: 100, maxHeight: 150)
 

@@ -16,15 +16,15 @@ struct ChatEmptyState: View {
     }
 
     private let columns = [
-        GridItem(.flexible(), spacing: AppTheme.Spacing.md),
-        GridItem(.flexible(), spacing: AppTheme.Spacing.md)
+        GridItem(.flexible(), spacing: 16),
+        GridItem(.flexible(), spacing: 16)
     ]
 
     var body: some View {
-        VStack(spacing: AppTheme.Spacing.xxl) {
+        VStack(spacing: 40) {
             Spacer(minLength: 0)
 
-            VStack(spacing: AppTheme.Spacing.md) {
+            VStack(spacing: 16) {
                     ZStack {
                         Circle()
                             .fill(AppTheme.Colors.accent.opacity(0.1))
@@ -39,24 +39,24 @@ struct ChatEmptyState: View {
                         TablerIcon(.messageChatbot, size: 32, color: AppTheme.Colors.accent)
                     }
 
-                    VStack(spacing: AppTheme.Spacing.xs) {
+                    VStack(spacing: 8) {
                         AppText("chat.empty", table: "Chat", style: .title)
                             .color(AppTheme.Colors.textPrimary)
 
                         AppText("chat.empty.subtitle", table: "Chat", style: .body)
                             .color(AppTheme.Colors.textSecondary)
                             .multilineTextAlignment(.center)
-                            .padding(.horizontal, AppTheme.Spacing.xl)
+                            .padding(.horizontal, 32)
                     }
                 }
 
                 // Suggestion Prompts Grid
-                LazyVGrid(columns: columns, spacing: AppTheme.Spacing.md) {
+                LazyVGrid(columns: columns, spacing: 16) {
                     ForEach(Array(prompts.enumerated()), id: \.offset) { index, prompt in
                         Button {
                             onSelectPrompt(String(localized: String.LocalizationValue(prompt.key), table: "Chat"))
                         } label: {
-                            VStack(alignment: .leading, spacing: AppTheme.Spacing.sm) {
+                            VStack(alignment: .leading, spacing: 12) {
                                 TablerIcon(prompt.icon, size: 24, color: AppTheme.Colors.accent)
                                     .frame(width: 40, height: 40)
                                     .background(AppTheme.Colors.accent.opacity(0.1), in: .circle)
@@ -69,7 +69,7 @@ struct ChatEmptyState: View {
                                 Spacer(minLength: 0)
                             }
                             .frame(maxWidth: .infinity, alignment: .leading)
-                            .padding(AppTheme.Spacing.md)
+                            .padding(16)
                             .glassEffect(.regular.interactive(), in: RoundedRectangle(cornerRadius: AppTheme.CornerRadius.lg))
                         }
                         .opacity(appeared ? 1 : 0)
@@ -77,19 +77,19 @@ struct ChatEmptyState: View {
                         .animation(.easeOut(duration: 0.5).delay(Double(index) * 0.1), value: appeared)
                     }
                 }
-                .padding(.horizontal, AppTheme.Spacing.md)
+                .padding(.horizontal, 16)
 
                 // Voice Chat Button
                 if let onVoiceChatTap {
                     Button(action: onVoiceChatTap) {
-                        HStack(spacing: AppTheme.Spacing.xxs) {
+                        HStack(spacing: 4) {
                             TablerIcon(.headset, size: 16, color: AppTheme.Colors.textSecondary)
                             AppText("chat.voice.start", table: "Chat", style: .caption)
                                 .color(AppTheme.Colors.textSecondary)
                         }
-                        .padding(.leading, AppTheme.Spacing.sm)
-                        .padding(.trailing, AppTheme.Spacing.md)
-                        .padding(.vertical, AppTheme.Spacing.xs)
+                        .padding(.leading, 12)
+                        .padding(.trailing, 16)
+                        .padding(.vertical, 8)
                         .glassEffect(.regular.interactive(), in: .capsule)
                     }
                     .opacity(appeared ? 1 : 0)

@@ -13,25 +13,25 @@ struct AuthView: View {
         VStack(spacing: 0) {
             Spacer()
 
-            VStack(spacing: AppTheme.Spacing.xs) {
+            VStack(spacing: 8) {
                 AppText("auth.welcome.title", table: "Auth", style: .largeTitle)
                     .alignment(.center)
 
                 AppText("auth.welcome.subtitle", table: "Auth", style: .subheadline)
                     .alignment(.center)
             }
-            .padding(.horizontal, AppTheme.Spacing.xl)
+            .padding(.horizontal, 32)
 
             Spacer()
 
-            VStack(spacing: AppTheme.Spacing.sm) {
+            VStack(spacing: 12) {
                 Button(action: onSignInWithApple) {
                     Group {
                         if isAppleLoading {
                             ProgressView()
                                 .tint(AppTheme.Colors.textPrimary)
                         } else {
-                            HStack(spacing: AppTheme.Spacing.sm) {
+                            HStack(spacing: 12) {
                                 Image("AppleLogo")
                                     .renderingMode(.template)
                                     .resizable()
@@ -44,7 +44,7 @@ struct AuthView: View {
                         }
                     }
                     .frame(maxWidth: .infinity)
-                    .padding(.vertical, AppTheme.Spacing.md)
+                    .padding(.vertical, 16)
                     .foregroundColor(AppTheme.Colors.textPrimary)
                     .background(.clear)
                     .glassEffect(.regular.interactive(), in: RoundedRectangle(cornerRadius: AppTheme.CornerRadius.md))
@@ -57,7 +57,7 @@ struct AuthView: View {
                             ProgressView()
                                 .tint(AppTheme.Colors.textPrimary)
                         } else {
-                            HStack(spacing: AppTheme.Spacing.sm) {
+                            HStack(spacing: 12) {
                                 Image("GoogleLogo")
                                     .resizable()
                                     .scaledToFit()
@@ -69,14 +69,14 @@ struct AuthView: View {
                         }
                     }
                     .frame(maxWidth: .infinity)
-                    .padding(.vertical, AppTheme.Spacing.md)
+                    .padding(.vertical, 16)
                     .foregroundColor(AppTheme.Colors.textPrimary)
                     .background(.clear)
                     .glassEffect(.regular.interactive(), in: RoundedRectangle(cornerRadius: AppTheme.CornerRadius.md))
                 }
                 .disabled(isAnyLoading)
 
-                HStack(spacing: AppTheme.Spacing.md) {
+                HStack(spacing: 16) {
                     Rectangle()
                         .fill(Color.secondary.opacity(0.5))
                         .frame(height: 0.5)
@@ -87,19 +87,19 @@ struct AuthView: View {
                         .fill(Color.secondary.opacity(0.5))
                         .frame(height: 0.5)
                 }
-                .padding(.horizontal, AppTheme.Spacing.md)
-                .padding(.vertical, AppTheme.Spacing.xxs)
+                .padding(.horizontal, 16)
+                .padding(.vertical, 4)
 
             }
-            .padding(.horizontal, AppTheme.Spacing.lg)
+            .padding(.horizontal, 24)
 
             AppButton("auth.welcome.email", table: "Auth", action: onContinueWithEmail)
                 .icon(.mail)
                 .fullWidth()
                 .disabled(isAnyLoading)
-                .padding(.horizontal, AppTheme.Spacing.lg)
-                .padding(.top, AppTheme.Spacing.sm)
-                .padding(.bottom, AppTheme.Spacing.xl)
+                .padding(.horizontal, 24)
+                .padding(.top, 12)
+                .padding(.bottom, 32)
         }
     }
 }
