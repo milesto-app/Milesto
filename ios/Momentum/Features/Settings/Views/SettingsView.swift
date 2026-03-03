@@ -232,11 +232,8 @@ struct SettingsView: View {
             } label: {
                 HStack(spacing: AppTheme.Spacing.sm) {
                     TablerIcon(.crown, size: 24, color: AppTheme.Colors.accent)
-                    VStack(alignment: .leading, spacing: AppTheme.Spacing.xxs) {
-                        AppText("settings.pro", table: "Paywall", style: .body)
-                            .weight(.semibold)
-                        AppText("settings.pro.description", table: "Paywall", style: .caption)
-                    }
+                    AppText("settings.pro", table: "Paywall", style: .body)
+                        .weight(.semibold)
                     Spacer()
                     TablerIcon(.chevronRight, size: 16, color: AppTheme.Colors.textSecondary)
                 }

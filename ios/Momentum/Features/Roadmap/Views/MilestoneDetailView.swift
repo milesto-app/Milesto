@@ -13,7 +13,10 @@ struct MilestoneDetailView: View {
 
             ScrollView(showsIndicators: false) {
                 VStack(spacing: AppTheme.Spacing.lg) {
-                    MilestoneStatusBadge(status: status)
+                    HStack {
+                        MilestoneStatusBadge(status: status)
+                        Spacer()
+                    }
 
                     AppText(verbatim: title, style: .largeTitle)
                         .frame(maxWidth: .infinity, alignment: .leading)
