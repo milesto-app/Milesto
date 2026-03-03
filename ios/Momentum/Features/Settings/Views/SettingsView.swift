@@ -321,7 +321,7 @@ struct SettingsView: View {
 
     private func syncProfileData() async {
         guard let userId = authService.currentUserId else { return }
-        await ProfileSyncService.shared.sync(userId: userId, in: modelContext)
+        try? await ProfileSyncService.shared.sync(userId: userId, in: modelContext)
     }
 
     private var fullName: String {

@@ -8,14 +8,11 @@ final class ProfileSyncService {
 
     private init() {}
 
-    func sync(userId: String, in modelContext: ModelContext) async {
-        var fetchedProfile: ProfileDTO?
+    func sync(userId: String, in modelContext: ModelContext) async throws {
+        let fetchedProfile = try await ProfileService.shared.fetchProfile(userId: userId)
+
         var fetchedEmail: String?
         var fetchedAvatarURL: String?
-
-        do {
-            fetchedProfile = try await ProfileService.shared.fetchProfile(userId: userId)
-        } catch {}
 
         if let session = try? await SupabaseConfig.client.auth.session {
             fetchedEmail = session.user.email

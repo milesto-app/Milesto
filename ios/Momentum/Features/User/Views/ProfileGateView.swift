@@ -14,6 +14,8 @@ struct ProfileGateView: View {
     @State private var activeGoalId: String?
     @State private var selectedTab = 0
     @State private var isChatPresented = false
+    @State private var connectionError = false
+    @State private var retryId = 0
 
     private var localProfile: LocalProfile? {
         localProfiles.first { $0.userId == userId }
@@ -111,18 +113,40 @@ struct ProfileGateView: View {
                     }
                 )
                 .transition(.opacity)
+            } else if connectionError {
+                VStack(spacing: AppTheme.Spacing.lg) {
+                    TablerIcon(.wifiOff, size: 48, color: AppTheme.Colors.textSecondary)
+
+                    AppText("common.error.noConnection", table: "Common", style: .title)
+                        .alignment(.center)
+
+                    AppText("common.error.noConnectionMessage", table: "Common", style: .body)
+                        .color(AppTheme.Colors.textSecondary)
+                        .alignment(.center)
+
+                    AppButton("common.retry", table: "Common") {
+                        retry()
+                    }
+                }
+                .padding(AppTheme.Spacing.xl)
             } else {
                 ProgressView()
             }
         }
-        .task {
+        .task(id: retryId) {
             guard !hasSynced else { return }
+            connectionError = false
             let locallyComplete = localProfile?.isProfileComplete == true
             if locallyComplete {
                 profileComplete = true
                 resolveGoalState()
             }
-            await ProfileSyncService.shared.sync(userId: userId, in: modelContext)
+            do {
+                try await ProfileSyncService.shared.sync(userId: userId, in: modelContext)
+            } catch {
+                connectionError = true
+                return
+            }
             await syncGoals()
             let remoteComplete = localProfile?.isProfileComplete == true
             if locallyComplete && !remoteComplete {
@@ -203,6 +227,11 @@ struct ProfileGateView: View {
             return false
         }
         return roadmap.status == .complete
+    }
+
+    private func retry() {
+        hasSynced = false
+        retryId += 1
     }
 
     private func handleGoalChanged(_ newGoalId: String) {

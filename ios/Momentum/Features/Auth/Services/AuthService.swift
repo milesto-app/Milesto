@@ -27,16 +27,10 @@ final class AuthService: NSObject, ObservableObject {
         for await (event, session) in client.auth.authStateChanges {
             switch event {
             case .initialSession:
-                guard session != nil else {
-                    authState = .unauthenticated
-                    currentUserId = nil
-                    break
-                }
-                do {
-                    let refreshedSession = try await client.auth.session
-                    authState = .authenticated(userId: refreshedSession.user.id.uuidString)
-                    currentUserId = refreshedSession.user.id.uuidString
-                } catch {
+                if let session {
+                    authState = .authenticated(userId: session.user.id.uuidString)
+                    currentUserId = session.user.id.uuidString
+                } else {
                     authState = .unauthenticated
                     currentUserId = nil
                 }
