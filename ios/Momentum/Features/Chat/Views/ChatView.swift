@@ -126,6 +126,9 @@ struct ChatView: View {
                         conversationId = nil
                         inputText = ""
                     }
+                },
+                onDeleteConversation: { id in
+                    deleteConversation(id)
                 }
             )
             .ignoresSafeArea()
@@ -247,6 +250,25 @@ struct ChatView: View {
                 conversations = try await ChatAPIService.shared.listConversations(goalId: goalId)
             } catch {}
             isLoadingHistory = false
+        }
+    }
+
+    private func deleteConversation(_ id: String) {
+        Task {
+            do {
+                try await ChatAPIService.shared.deleteConversation(conversationId: id)
+                withAnimation {
+                    conversations.removeAll { $0.id == id }
+                    if conversationId == id {
+                        messages = []
+                        conversationId = nil
+                        inputText = ""
+                    }
+                }
+            } catch {
+                errorMessage = String(localized: "chat.error.generic", table: "Chat")
+                showError = true
+            }
         }
     }
 

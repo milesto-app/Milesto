@@ -6,6 +6,7 @@ struct ChatHistorySidebar: View {
     let activeConversationId: String?
     let onSelectConversation: (String) -> Void
     let onNewConversation: () -> Void
+    let onDeleteConversation: (String) -> Void
 
     @State private var dragOffset: CGFloat = 0
 
@@ -95,6 +96,13 @@ struct ChatHistorySidebar: View {
                         .contentShape(.rect)
                     }
                     .buttonStyle(.plain)
+                    .contextMenu {
+                        Button(role: .destructive) {
+                            onDeleteConversation(conversation.id)
+                        } label: {
+                            Label(String(localized: "chat.history.delete", table: "Chat"), systemImage: "trash")
+                        }
+                    }
                 }
             }
             .padding(.bottom, AppTheme.Spacing.md)

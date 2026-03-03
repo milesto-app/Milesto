@@ -61,6 +61,14 @@ final class ChatAPIService {
             }
     }
 
+    func deleteConversation(conversationId: String) async throws {
+        try await SupabaseConfig.client
+            .from("conversations")
+            .delete()
+            .eq("id", value: conversationId)
+            .execute()
+    }
+
     func sendMessage(conversationId: String?, goalId: String, content: String) -> AsyncThrowingStream<ChatStreamEvent, Error> {
         AsyncThrowingStream { continuation in
             Task {
