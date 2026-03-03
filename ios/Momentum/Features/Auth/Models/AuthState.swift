@@ -27,6 +27,7 @@ enum AuthError: LocalizedError {
     case emailAlreadyInUse
     case weakPassword
     case networkError
+    case cancelled
     case unknown(String)
 
     var errorDescription: String? {
@@ -39,6 +40,8 @@ enum AuthError: LocalizedError {
             return String(localized: "auth.error.weakPassword", table: "Auth")
         case .networkError:
             return String(localized: "auth.error.networkError", table: "Auth")
+        case .cancelled:
+            return nil
         case .unknown(let message):
             return message
         }

@@ -19,7 +19,5 @@
 	<array>
 		<string>tabler-icons.ttf</string>
 	</array>
-	<key>NSMicrophoneUsageDescription</key>
-	<string>Momentum needs microphone access so you can answer questions by speaking.</string>
 </dict>
 </plist>

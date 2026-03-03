@@ -5,6 +5,7 @@ struct SettingsView: View {
     var onNewGoal: ((String) -> Void)?
 
     @EnvironmentObject private var authService: AuthService
+    @EnvironmentObject private var storeService: StoreService
     @Environment(\.modelContext) private var modelContext
     @Query private var localProfiles: [LocalProfile]
     @State private var showSignOutAlert = false
@@ -227,19 +228,34 @@ struct SettingsView: View {
 
     private var proSection: some View {
         Section {
-            Button {
-                showPaywall = true
-            } label: {
+            if storeService.isPro {
                 HStack(spacing: AppTheme.Spacing.sm) {
                     TablerIcon(.crown, size: 24, color: AppTheme.Colors.accent)
                     AppText("settings.pro", table: "Paywall", style: .body)
                         .weight(.semibold)
                     Spacer()
-                    TablerIcon(.chevronRight, size: 16, color: AppTheme.Colors.textSecondary)
+                    HStack(spacing: AppTheme.Spacing.xxs) {
+                        TablerIcon(.circleCheck, size: 16, color: AppTheme.Colors.success)
+                        AppText("settings.pro.active", table: "Paywall", style: .caption)
+                            .color(AppTheme.Colors.success)
+                            .weight(.semibold)
+                    }
                 }
-                .contentShape(Rectangle())
+            } else {
+                Button {
+                    showPaywall = true
+                } label: {
+                    HStack(spacing: AppTheme.Spacing.sm) {
+                        TablerIcon(.crown, size: 24, color: AppTheme.Colors.accent)
+                        AppText("settings.pro", table: "Paywall", style: .body)
+                            .weight(.semibold)
+                        Spacer()
+                        TablerIcon(.chevronRight, size: 16, color: AppTheme.Colors.textSecondary)
+                    }
+                    .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
             }
-            .buttonStyle(.plain)
         }
     }
 
@@ -341,5 +357,6 @@ struct SettingsView: View {
 #Preview {
     SettingsView()
         .environmentObject(AuthService.shared)
+        .environmentObject(StoreService.shared)
         .modelContainer(for: LocalProfile.self, inMemory: true)
 }

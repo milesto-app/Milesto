@@ -101,7 +101,12 @@ final class AuthService: NSObject, ObservableObject {
         request.requestedScopes = [.fullName, .email]
         request.nonce = hashedNonce
 
-        let result = try await performAppleSignIn(request: request)
+        let result: ASAuthorization
+        do {
+            result = try await performAppleSignIn(request: request)
+        } catch let error as ASAuthorizationError where error.code == .canceled {
+            throw AuthError.cancelled
+        }
 
         guard let appleIDCredential = result.credential as? ASAuthorizationAppleIDCredential,
               let identityTokenData = appleIDCredential.identityToken,

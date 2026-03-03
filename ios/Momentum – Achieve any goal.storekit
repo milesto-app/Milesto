@@ -1,0 +1,107 @@
+{
+  "appPolicies" : {
+    "eula" : "",
+    "policies" : [
+      {
+        "locale" : "en_US",
+        "policyText" : "",
+        "policyURL" : ""
+      }
+    ]
+  },
+  "identifier" : "F7C4E244",
+  "nonRenewingSubscriptions" : [
+
+  ],
+  "products" : [
+
+  ],
+  "settings" : {
+    "_applicationInternalID" : "6759965427",
+    "_askToBuyEnabled" : false,
+    "_billingGracePeriodEnabled" : false,
+    "_billingIssuesEnabled" : false,
+    "_developerTeamID" : "6W6LHS996D",
+    "_disableDialogs" : false,
+    "_failTransactionsEnabled" : false,
+    "_lastSynchronizedDate" : 794235383.92229199,
+    "_locale" : "en_US",
+    "_renewalBillingIssuesEnabled" : false,
+    "_storefront" : "USA",
+    "_storeKitErrors" : [
+
+    ],
+    "_timeRate" : 0
+  },
+  "subscriptionGroups" : [
+    {
+      "id" : "21958916",
+      "localizations" : [
+
+      ],
+      "name" : "Momentum Premium",
+      "subscriptions" : [
+        {
+          "adHocOffers" : [
+
+          ],
+          "codeOffers" : [
+
+          ],
+          "displayPrice" : "14.99",
+          "familyShareable" : false,
+          "groupNumber" : 2,
+          "internalID" : "6759965329",
+          "introductoryOffer" : null,
+          "localizations" : [
+            {
+              "description" : "AI coaching, personalized roadmaps, and daily check-ins",
+              "displayName" : "Momentum Premium",
+              "locale" : "fr"
+            }
+          ],
+          "productID" : "momentum_monthly",
+          "recurringSubscriptionPeriod" : "P1M",
+          "referenceName" : "Momentum Monthly",
+          "subscriptionGroupID" : "21958916",
+          "type" : "RecurringSubscription",
+          "winbackOffers" : [
+
+          ]
+        },
+        {
+          "adHocOffers" : [
+
+          ],
+          "codeOffers" : [
+
+          ],
+          "displayPrice" : "99.99",
+          "familyShareable" : false,
+          "groupNumber" : 1,
+          "internalID" : "6759965333",
+          "introductoryOffer" : null,
+          "localizations" : [
+            {
+              "description" : "AI coaching, personalized roadmaps, and daily check-ins",
+              "displayName" : "Momentum Premium",
+              "locale" : "fr"
+            }
+          ],
+          "productID" : "momentum_yearly",
+          "recurringSubscriptionPeriod" : "P1Y",
+          "referenceName" : "Momentum Yearly",
+          "subscriptionGroupID" : "21958916",
+          "type" : "RecurringSubscription",
+          "winbackOffers" : [
+
+          ]
+        }
+      ]
+    }
+  ],
+  "version" : {
+    "major" : 4,
+    "minor" : 0
+  }
+}

@@ -26,7 +26,7 @@ private struct MessageListResponse: Decodable {
 final class ChatAPIService {
     static let shared = ChatAPIService()
 
-    private let baseURL = URL(string: "http://localhost:3000/api")!
+    private let baseURL = URL(string: BackendClient.shared.baseURLString)!
     private let encoder = JSONEncoder()
     private let decoder = JSONDecoder()
 

@@ -1,12 +1,28 @@
 import SwiftUI
+import StoreKit
 
 struct PaywallView: View {
     @Environment(\.dismiss) private var dismiss
+    @EnvironmentObject private var storeService: StoreService
     @State private var selectedPlan: Plan = .yearly
+    @State private var isPurchasing = false
+    @State private var errorMessage: String?
+    @State private var showError = false
 
     enum Plan: String, CaseIterable {
         case yearly
         case monthly
+
+        var productID: String {
+            switch self {
+            case .yearly: return "6759965333"
+            case .monthly: return "6759965329"
+            }
+        }
+    }
+
+    private func product(for plan: Plan) -> Product? {
+        storeService.products.first { $0.id == plan.productID }
     }
 
     var body: some View {
@@ -34,6 +50,14 @@ struct PaywallView: View {
             .padding(.top, AppTheme.Spacing.md)
             .padding(.trailing, AppTheme.Spacing.lg)
         }
+        .task {
+            await storeService.loadProducts()
+        }
+        .alert(String(localized: "paywall.error.title", table: "Paywall"), isPresented: $showError) {
+            Button(String(localized: "common.ok", table: "Common"), role: .cancel) {}
+        } message: {
+            Text(verbatim: errorMessage ?? "")
+        }
     }
 
     private var headerSection: some View {
@@ -60,14 +84,14 @@ struct PaywallView: View {
         HStack(spacing: AppTheme.Spacing.sm) {
             planCard(
                 plan: .yearly,
-                price: String(localized: "paywall.plan.yearly.price", table: "Paywall"),
+                price: product(for: .yearly)?.displayPrice ?? String(localized: "paywall.plan.yearly.price", table: "Paywall"),
                 period: String(localized: "paywall.plan.yearly.period", table: "Paywall"),
                 badge: String(localized: "paywall.plan.yearly.badge", table: "Paywall")
             )
 
             planCard(
                 plan: .monthly,
-                price: String(localized: "paywall.plan.monthly.price", table: "Paywall"),
+                price: product(for: .monthly)?.displayPrice ?? String(localized: "paywall.plan.monthly.price", table: "Paywall"),
                 period: String(localized: "paywall.plan.monthly.period", table: "Paywall"),
                 badge: nil
             )
@@ -145,13 +169,38 @@ struct PaywallView: View {
     private var ctaSection: some View {
         VStack(spacing: AppTheme.Spacing.md) {
             AppButton("paywall.cta", table: "Paywall") {
+                Task {
+                    guard let selectedProduct = product(for: selectedPlan) else { return }
+                    isPurchasing = true
+                    defer { isPurchasing = false }
 
+                    do {
+                        try await storeService.purchase(selectedProduct)
+                        if storeService.isPro {
+                            dismiss()
+                        }
+                    } catch {
+                        errorMessage = error.localizedDescription
+                        showError = true
+                    }
+                }
             }
             .fullWidth()
+            .disabled(isPurchasing || product(for: selectedPlan) == nil)
+
+            if isPurchasing {
+                ProgressView()
+            }
 
             AppButton("paywall.restore", table: "Paywall", style: .text) {
-
+                Task {
+                    await storeService.restorePurchases()
+                    if storeService.isPro {
+                        dismiss()
+                    }
+                }
             }
+            .disabled(isPurchasing)
 
             AppText("paywall.terms", table: "Paywall", style: .caption)
                 .alignment(.center)
@@ -161,4 +210,5 @@ struct PaywallView: View {
 
 #Preview {
     PaywallView()
+        .environmentObject(StoreService.shared)
 }

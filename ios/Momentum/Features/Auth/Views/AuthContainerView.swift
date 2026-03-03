@@ -97,6 +97,7 @@ struct AuthContainerView: View {
 
             do {
                 _ = try await authService.signInWithApple()
+            } catch AuthError.cancelled {
             } catch {
                 errorMessage = error.localizedDescription
                 showErrorAlert = true
