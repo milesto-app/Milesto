@@ -14,34 +14,34 @@ struct ChatInputBar: View {
                 .focused(isFocused)
                 .padding(.horizontal, AppTheme.Spacing.md)
                 .padding(.vertical, AppTheme.Spacing.md)
-                .disabled(isDisabled)
 
-            if canSend {
+            if hasText {
                 Button {
                     onSend()
                 } label: {
                     TablerIcon(.arrowUp, size: 18, color: AppTheme.Colors.textOnAccent)
                         .frame(width: 32, height: 32)
-                        .background(AppTheme.Colors.accent, in: Circle())
+                        .background(isDisabled ? AppTheme.Colors.textSecondary : AppTheme.Colors.accent, in: Circle())
                 }
+                .disabled(isDisabled)
                 .padding(.trailing, AppTheme.Spacing.sm)
                 .padding(.bottom, 10)
                 .transition(.opacity)
-            } else if !isDisabled {
+            } else {
                 VoiceToggleButton(transcribedText: $text, coachId: nil, size: .compact)
                     .padding(.trailing, AppTheme.Spacing.sm)
                     .padding(.bottom, 10)
                     .transition(.opacity)
             }
         }
-        .animation(.easeInOut(duration: 0.2), value: canSend)
+        .animation(.easeInOut(duration: 0.2), value: hasText)
         .animation(.easeInOut(duration: 0.2), value: isDisabled)
         .glassEffect(.regular.interactive(), in: .rect(cornerRadius: 24))
         .padding(.horizontal, AppTheme.Spacing.md)
         .padding(.bottom, AppTheme.Spacing.xs)
     }
 
-    private var canSend: Bool {
-        !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty && !isDisabled
+    private var hasText: Bool {
+        !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
     }
 }
