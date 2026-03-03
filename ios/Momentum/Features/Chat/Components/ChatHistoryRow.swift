@@ -19,9 +19,10 @@ struct ChatHistoryRow: View {
         .padding(.vertical, AppTheme.Spacing.sm)
         .background(
             isActive
-                ? AppTheme.Colors.accent.opacity(0.12)
+                ? AppTheme.Colors.textPrimary.opacity(0.08)
                 : Color.clear
         )
         .clipShape(RoundedRectangle(cornerRadius: AppTheme.CornerRadius.sm))
+        .padding(.horizontal, AppTheme.Spacing.xs)
     }
 }

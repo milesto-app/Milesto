@@ -131,6 +131,7 @@ struct ChatView: View {
                         }
                     }
                 )
+                .ignoresSafeArea()
             }
         }
         .onChange(of: isSidebarOpen) { _, isOpen in

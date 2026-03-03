@@ -54,26 +54,19 @@ struct ChatHistorySidebar: View {
 
     private var panel: some View {
         GeometryReader { geometry in
-            VStack(alignment: .leading, spacing: 0) {
+            VStack(alignment: .leading, spacing: AppTheme.Spacing.xs) {
                 header
-                Divider()
                 if conversations.isEmpty {
                     emptyState
                 } else {
                     conversationList
                 }
             }
-            .frame(width: geometry.size.width * 0.78)
-            .frame(maxHeight: .infinity)
-            .background(.ultraThinMaterial)
-            .clipShape(
-                UnevenRoundedRectangle(
-                    topLeadingRadius: 0,
-                    bottomLeadingRadius: 0,
-                    bottomTrailingRadius: AppTheme.CornerRadius.lg,
-                    topTrailingRadius: AppTheme.CornerRadius.lg
-                )
-            )
+            .safeAreaPadding(.top)
+            .frame(width: geometry.size.width * 0.8 + 8, height: geometry.size.height + 8)
+            .glassEffect(.regular, in: .rect)
+            .ignoresSafeArea()
+            .offset(x: -4, y: -4)
             .transition(.move(edge: .leading))
         }
     }
@@ -88,12 +81,12 @@ struct ChatHistorySidebar: View {
             }) {
                 TablerIcon(.edit, size: 20, color: AppTheme.Colors.textPrimary)
                     .frame(width: 36, height: 36)
-                    .background(.ultraThinMaterial)
-                    .clipShape(Circle())
+                    .glassEffect(.regular.interactive(), in: .circle)
             }
         }
         .padding(.horizontal, AppTheme.Spacing.md)
-        .padding(.vertical, AppTheme.Spacing.sm)
+        .padding(.top, 48)
+        .padding(.bottom, AppTheme.Spacing.xxs)
     }
 
     private var emptyState: some View {
