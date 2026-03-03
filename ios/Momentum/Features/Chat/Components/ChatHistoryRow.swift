@@ -22,7 +22,7 @@ struct ChatHistoryRow: View {
                 ? AppTheme.Colors.textPrimary.opacity(0.08)
                 : Color.clear
         )
-        .clipShape(RoundedRectangle(cornerRadius: AppTheme.CornerRadius.sm))
+        .clipShape(RoundedRectangle(cornerRadius: AppTheme.CornerRadius.md))
         .padding(.horizontal, AppTheme.Spacing.xs)
     }
 }

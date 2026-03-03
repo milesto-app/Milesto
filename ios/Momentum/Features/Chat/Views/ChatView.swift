@@ -77,9 +77,7 @@ struct ChatView: View {
             HStack {
                 Button {
                     isInputFocused = false
-                    withAnimation(.spring(duration: 0.3)) {
-                        isSidebarOpen = true
-                    }
+                    isSidebarOpen = true
                 } label: {
                     TablerIcon(.menu2, size: 24, color: AppTheme.Colors.textPrimary)
                         .frame(width: 44, height: 44)
@@ -115,24 +113,22 @@ struct ChatView: View {
             .padding(.top, AppTheme.Spacing.xs)
         }
         .overlay {
-            if isSidebarOpen {
-                ChatHistorySidebar(
-                    isOpen: $isSidebarOpen,
-                    conversations: conversations,
-                    activeConversationId: conversationId,
-                    onSelectConversation: { id in
-                        loadConversation(id)
-                    },
-                    onNewConversation: {
-                        withAnimation {
-                            messages = []
-                            conversationId = nil
-                            inputText = ""
-                        }
+            ChatHistorySidebar(
+                isOpen: $isSidebarOpen,
+                conversations: conversations,
+                activeConversationId: conversationId,
+                onSelectConversation: { id in
+                    loadConversation(id)
+                },
+                onNewConversation: {
+                    withAnimation {
+                        messages = []
+                        conversationId = nil
+                        inputText = ""
                     }
-                )
-                .ignoresSafeArea()
-            }
+                }
+            )
+            .ignoresSafeArea()
         }
         .onChange(of: isSidebarOpen) { _, isOpen in
             if isOpen {

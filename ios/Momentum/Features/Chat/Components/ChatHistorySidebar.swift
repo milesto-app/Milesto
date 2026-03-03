@@ -9,47 +9,39 @@ struct ChatHistorySidebar: View {
 
     @State private var dragOffset: CGFloat = 0
 
-    private enum TimePeriod: CaseIterable {
-        case today, yesterday, week, month, older
-
-        var label: String {
-            switch self {
-            case .today: return String(localized: "chat.history.today", table: "Chat")
-            case .yesterday: return String(localized: "chat.history.yesterday", table: "Chat")
-            case .week: return String(localized: "chat.history.week", table: "Chat")
-            case .month: return String(localized: "chat.history.month", table: "Chat")
-            case .older: return String(localized: "chat.history.older", table: "Chat")
-            }
-        }
-    }
 
     var body: some View {
         ZStack(alignment: .leading) {
-            Color.black.opacity(0.4)
-                .ignoresSafeArea()
-                .onTapGesture { dismiss() }
+            if isOpen {
+                Color.black.opacity(0.4)
+                    .ignoresSafeArea()
+                    .onTapGesture { dismiss() }
+                    .transition(.opacity)
 
-            panel
-                .offset(x: dragOffset)
-                .gesture(
-                    DragGesture()
-                        .onChanged { value in
-                            if value.translation.width < 0 {
-                                dragOffset = value.translation.width
-                            }
-                        }
-                        .onEnded { value in
-                            if value.translation.width < -80 {
-                                dismiss()
-                            } else {
-                                withAnimation(.spring(duration: 0.3)) {
-                                    dragOffset = 0
+                panel
+                    .offset(x: dragOffset)
+                    .gesture(
+                        DragGesture()
+                            .onChanged { value in
+                                if value.translation.width < 0 {
+                                    dragOffset = value.translation.width
                                 }
                             }
-                        }
-                )
+                            .onEnded { value in
+                                if value.translation.width < -80 {
+                                    dismiss()
+                                } else {
+                                    withAnimation(.spring(duration: 0.3)) {
+                                        dragOffset = 0
+                                    }
+                                }
+                            }
+                    )
+                    .transition(.move(edge: .leading))
+            }
         }
-        .transition(.opacity)
+        .allowsHitTesting(isOpen)
+        .animation(.spring(duration: 0.3), value: isOpen)
     }
 
     private var panel: some View {
@@ -72,20 +64,10 @@ struct ChatHistorySidebar: View {
     }
 
     private var header: some View {
-        HStack {
-            AppText("chat.history.title", table: "Chat", style: .headline)
-            Spacer()
-            Button(action: {
-                dismiss()
-                onNewConversation()
-            }) {
-                TablerIcon(.edit, size: 20, color: AppTheme.Colors.textPrimary)
-                    .frame(width: 36, height: 36)
-                    .glassEffect(.regular.interactive(), in: .circle)
-            }
-        }
-        .padding(.horizontal, AppTheme.Spacing.md)
-        .padding(.top, 48)
+        AppText("chat.history.title", table: "Chat", style: .headline)
+            .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(.leading, AppTheme.Spacing.xs + AppTheme.Spacing.md)
+        .padding(.top, 64)
         .padding(.bottom, AppTheme.Spacing.xxs)
     }
 
@@ -99,64 +81,26 @@ struct ChatHistorySidebar: View {
 
     private var conversationList: some View {
         ScrollView {
-            LazyVStack(alignment: .leading, spacing: 0) {
-                ForEach(TimePeriod.allCases, id: \.self) { period in
-                    let items = conversations(for: period)
-                    if !items.isEmpty {
-                        Section {
-                            ForEach(items) { conversation in
-                                Button {
-                                    dismiss()
-                                    onSelectConversation(conversation.id)
-                                } label: {
-                                    ChatHistoryRow(
-                                        conversation: conversation,
-                                        isActive: conversation.id == activeConversationId
-                                    )
-                                }
-                                .buttonStyle(.plain)
-                            }
-                        } header: {
-                            AppText(verbatim: period.label, style: .caption)
-                                .weight(.semibold)
-                                .padding(.horizontal, AppTheme.Spacing.md)
-                                .padding(.top, AppTheme.Spacing.md)
-                                .padding(.bottom, AppTheme.Spacing.xxs)
-                        }
+            LazyVStack(spacing: 0) {
+                ForEach(conversations) { conversation in
+                    Button {
+                        dismiss()
+                        onSelectConversation(conversation.id)
+                    } label: {
+                        ChatHistoryRow(
+                            conversation: conversation,
+                            isActive: conversation.id == activeConversationId
+                        )
+                        .frame(maxWidth: .infinity)
+                        .contentShape(.rect)
                     }
+                    .buttonStyle(.plain)
                 }
             }
             .padding(.bottom, AppTheme.Spacing.md)
         }
     }
 
-    private func conversations(for period: TimePeriod) -> [ConversationSummary] {
-        let calendar = Calendar.current
-        let now = Date()
-        let startOfToday = calendar.startOfDay(for: now)
-
-        return conversations.filter { conversation in
-            let date = conversation.date
-            switch period {
-            case .today:
-                return date >= startOfToday
-            case .yesterday:
-                let startOfYesterday = calendar.date(byAdding: .day, value: -1, to: startOfToday)!
-                return date >= startOfYesterday && date < startOfToday
-            case .week:
-                let sevenDaysAgo = calendar.date(byAdding: .day, value: -7, to: startOfToday)!
-                let startOfYesterday = calendar.date(byAdding: .day, value: -1, to: startOfToday)!
-                return date >= sevenDaysAgo && date < startOfYesterday
-            case .month:
-                let thirtyDaysAgo = calendar.date(byAdding: .day, value: -30, to: startOfToday)!
-                let sevenDaysAgo = calendar.date(byAdding: .day, value: -7, to: startOfToday)!
-                return date >= thirtyDaysAgo && date < sevenDaysAgo
-            case .older:
-                let thirtyDaysAgo = calendar.date(byAdding: .day, value: -30, to: startOfToday)!
-                return date < thirtyDaysAgo
-            }
-        }
-    }
 
     private func dismiss() {
         withAnimation(.spring(duration: 0.3)) {
