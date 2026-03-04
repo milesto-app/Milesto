@@ -5,7 +5,6 @@ import {
 } from '../../intake/constants/intake.constants.js';
 
 export { buildIntakeBatchSystemPrompt } from './intake-system-prompt.config.js';
-export type { BatchPromptParams } from './intake-system-prompt.config.js';
 
 interface BatchUserPromptParams {
   goalDescription: string;

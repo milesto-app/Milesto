@@ -150,4 +150,4 @@ export function getUniversalBatch1(language: string): UniversalQuestion[] {
   return language === 'fr' ? UNIVERSAL_BATCH_1_FR : UNIVERSAL_BATCH_1;
 }
 
-export { FALLBACK_POOLS, getFallbackPools } from './fallback-questions.config.js';
+export { getFallbackPools } from './fallback-questions.config.js';

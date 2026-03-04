@@ -27,19 +27,6 @@ export interface AnswerInput {
   selected_options?: string[];
 }
 
-export interface BatchResult {
-  batch_id: string | null;
-  batch_number: number | null;
-  is_complete: boolean;
-  questions: Array<{
-    id: string;
-    question_text: string;
-    question_type: string;
-    config: Record<string, unknown> | null;
-    order_in_batch: number;
-  }>;
-}
-
 export interface ProfileResult {
   profile_id: string | null;
   profile_status: string;
