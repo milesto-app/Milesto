@@ -50,7 +50,7 @@ export interface EvaluateParams {
 export async function evaluateQuality<T>(params: EvaluateParams): Promise<T> {
   const userPrompt = `## Content to Evaluate\n${params.content}\n\n## Context\n${params.context}`;
 
-  return params.aiService.generateJSON<T>(
+  return params.aiService.generateJson<T>(
     params.systemPrompt,
     userPrompt,
     appConfig.eval.judgeModel,

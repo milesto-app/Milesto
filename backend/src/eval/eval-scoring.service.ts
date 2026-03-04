@@ -22,7 +22,7 @@ export class EvalScoringService {
   ): Promise<T> {
     for (let attempt = 0; attempt <= DEFAULT_JUDGE_RETRIES; attempt++) {
       try {
-        const result = await this.aiService.generateJSON<T>(
+        const result = await this.aiService.generateJson<T>(
           systemPrompt,
           userPrompt,
           appConfig.eval.judgeModel,

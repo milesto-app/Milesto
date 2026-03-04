@@ -105,7 +105,7 @@ export class GenerationNarrativeService {
     }
     try {
       const model = appConfig.ai.defaultModel;
-      const result = await this.aiService.generateJSON<{ narrative: string }>(
+      const result = await this.aiService.generateJson<{ narrative: string }>(
         params.systemPrompt,
         params.userPrompt,
         model,

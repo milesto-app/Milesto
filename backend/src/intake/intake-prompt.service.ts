@@ -79,7 +79,7 @@ export class IntakePromptService {
       priorBatches,
     });
 
-    return this.aiService.generateJSON<GoalProfile>(
+    return this.aiService.generateJson<GoalProfile>(
       systemPrompt,
       userPrompt,
       appConfig.intake.model,
@@ -108,7 +108,7 @@ export class IntakePromptService {
       maxBatches: appConfig.intake.maxBatches,
     });
 
-    return this.aiService.generateJSON<{
+    return this.aiService.generateJson<{
       questions: GeneratedQuestion[];
       is_complete: boolean;
     }>(systemPrompt, userPrompt, appConfig.intake.model);

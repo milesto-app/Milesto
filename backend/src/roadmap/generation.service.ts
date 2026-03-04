@@ -125,7 +125,7 @@ export class GenerationService {
     for (let attempt = 0; attempt < MAX_GENERATION_ATTEMPTS; attempt++) {
       try {
         const usageRef: UsageRef = {};
-        const raw = await this.aiService.generateJSON<unknown>(
+        const raw = await this.aiService.generateJson<unknown>(
           params.systemPrompt,
           params.userPrompt,
           params.model,

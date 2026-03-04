@@ -73,7 +73,7 @@ export class GoalService {
     const FALLBACK_MAX_LENGTH = 200;
 
     try {
-      const result = await this.aiService.generateJSON<{ title: string }>(
+      const result = await this.aiService.generateJson<{ title: string }>(
         buildGoalTitleSystemPrompt(),
         buildGoalTitleUserPrompt(description),
         undefined,
