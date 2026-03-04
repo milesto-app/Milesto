@@ -1,3 +1,4 @@
+import { ApiProperty } from '@nestjs/swagger';
 import {
   IsInt,
   IsNotEmpty,
@@ -6,7 +7,6 @@ import {
   MaxLength,
   Min,
 } from 'class-validator';
-import { ApiProperty } from '@nestjs/swagger';
 
 const MAX_TEXT_LENGTH = 5000;
 const MAX_COACH_ID = 100;

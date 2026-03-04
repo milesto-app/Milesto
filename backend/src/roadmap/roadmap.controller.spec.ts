@@ -1,10 +1,11 @@
+import { NotFoundException } from '@nestjs/common';
 import type { TestingModule } from '@nestjs/testing';
 import { Test } from '@nestjs/testing';
-import { NotFoundException } from '@nestjs/common';
+
+import { SupabaseService } from '../supabase/supabase.service.js';
 import { RoadmapController } from './roadmap.controller.js';
 import { RoadmapService } from './roadmap.service.js';
 import { WeeklyPlanService } from './weekly-plan.service.js';
-import { SupabaseService } from '../supabase/supabase.service.js';
 
 describe('RoadmapController', () => {
   let controller: RoadmapController;

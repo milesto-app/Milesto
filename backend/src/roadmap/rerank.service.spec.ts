@@ -1,10 +1,11 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion, @typescript-eslint/no-unnecessary-type-conversion */
+import { ConfigService } from '@nestjs/config';
 import type { TestingModule } from '@nestjs/testing';
 import { Test } from '@nestjs/testing';
-import { ConfigService } from '@nestjs/config';
+
+import { appConfig } from '../config/app.config.js';
 import { RerankService } from './rerank.service.js';
 import type { ContextChunk } from './types/context.types.js';
-import { appConfig } from '../config/app.config.js';
 
 describe('RerankService', () => {
   let service: RerankService;

@@ -1,8 +1,9 @@
+import { NotFoundException } from '@nestjs/common';
 import type { TestingModule } from '@nestjs/testing';
 import { Test } from '@nestjs/testing';
-import { NotFoundException } from '@nestjs/common';
-import { CoachService } from './coach.service.js';
+
 import { SupabaseService } from '../supabase/supabase.service.js';
+import { CoachService } from './coach.service.js';
 import type { Coach } from './coach.types.js';
 
 const NONEXISTENT_COACH_ID = 999;

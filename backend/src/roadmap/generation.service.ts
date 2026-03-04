@@ -1,11 +1,16 @@
 import { Injectable, Logger } from '@nestjs/common';
+
 import { AiService } from '../ai/ai.service.js';
 import { appConfig } from '../config/app.config.js';
 import {
+  validateDailyObjectives,
   validateMilestones,
   validateWeeklyPlan,
-  validateDailyObjectives,
 } from './generation-validator.js';
+import {
+  buildDailyObjectivesSystemPrompt,
+  buildDailyObjectivesUserPrompt,
+} from './prompts/daily-objective-prompts.js';
 import {
   buildMilestoneSystemPrompt,
   buildMilestoneUserPrompt,
@@ -14,22 +19,18 @@ import {
   buildWeeklyPlanSystemPrompt,
   buildWeeklyPlanUserPrompt,
 } from './prompts/weekly-plan-prompts.js';
-import {
-  buildDailyObjectivesSystemPrompt,
-  buildDailyObjectivesUserPrompt,
-} from './prompts/daily-objective-prompts.js';
 import type { AssembledContext } from './types/context.types.js';
+import type { GeneratedDailyObjective } from './types/generated-daily-objective.js';
 import type { GeneratedMilestone } from './types/generated-milestone.js';
 import type { GeneratedWeeklyPlan } from './types/generated-weekly-plan.js';
-import type { GeneratedDailyObjective } from './types/generated-daily-objective.js';
-import type { GenerationMetadata, GoalData } from './types/roadmap.types.js';
 import type {
-  UsageRef,
-  RetryParams,
-  GenerateWeeklyPlanParams,
   GenerateDailyParams,
+  GenerateWeeklyPlanParams,
   MetadataParams,
+  RetryParams,
+  UsageRef,
 } from './types/generation.types.js';
+import type { GenerationMetadata, GoalData } from './types/roadmap.types.js';
 
 const MAX_GENERATION_ATTEMPTS = 2;
 

@@ -5,8 +5,9 @@ import {
   Logger,
   NotFoundException,
 } from '@nestjs/common';
-import type { Database } from '../supabase/database.types.js';
+
 import { AiService } from '../ai/ai.service.js';
+import type { Database } from '../supabase/database.types.js';
 import { SupabaseService } from '../supabase/supabase.service.js';
 import {
   DELETABLE_STATUSES,

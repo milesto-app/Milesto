@@ -1,8 +1,9 @@
 import type { TestingModule } from '@nestjs/testing';
 import { Test } from '@nestjs/testing';
+
+import { SupabaseService } from '../supabase/supabase.service.js';
 import { CheckInController } from './check-in.controller.js';
 import { CheckInService } from './check-in.service.js';
-import { SupabaseService } from '../supabase/supabase.service.js';
 
 describe('CheckInController', () => {
   let controller: CheckInController;

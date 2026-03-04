@@ -1,6 +1,6 @@
-import type { ChatToolExecutor } from './types/chat.types.js';
 import type { ChatCheckInToolsService } from './chat-checkin-tools.service.js';
 import type { ChatRoadmapToolsService } from './chat-roadmap-tools.service.js';
+import type { ChatToolExecutor } from './types/chat.types.js';
 
 interface ToolConfig {
   name: string;

@@ -1,9 +1,10 @@
 import type { TestingModule } from '@nestjs/testing';
 import { Test } from '@nestjs/testing';
+
+import { SupabaseService } from '../supabase/supabase.service.js';
 import { IntakeController } from './intake.controller.js';
 import { IntakeBatchService } from './intake-batch.service.js';
 import { IntakeProfileService } from './intake-profile.service.js';
-import { SupabaseService } from '../supabase/supabase.service.js';
 
 describe('IntakeController', () => {
   let controller: IntakeController;

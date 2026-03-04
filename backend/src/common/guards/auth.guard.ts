@@ -5,6 +5,7 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import type { Request } from 'express';
+
 import { SupabaseService } from '../../supabase/supabase.service.js';
 
 const BEARER_PREFIX_LENGTH = 7;

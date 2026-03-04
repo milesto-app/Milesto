@@ -1,8 +1,9 @@
+import { ConfigService } from '@nestjs/config';
 import type { TestingModule } from '@nestjs/testing';
 import { Test } from '@nestjs/testing';
-import { ConfigService } from '@nestjs/config';
-import { AiService } from './ai.service.js';
+
 import { appConfig } from '../config/app.config.js';
+import { AiService } from './ai.service.js';
 
 const MOCK_EMBEDDING_VALUE = 0.1;
 

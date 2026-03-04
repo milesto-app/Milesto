@@ -1,6 +1,6 @@
+import type { FunctionDeclaration, Schema } from '@google/genai';
 import { Type } from '@google/genai';
 
-import type { FunctionDeclaration, Schema } from '@google/genai';
 import type { ChatToolEntry } from '../chat/types/chat.types.js';
 
 interface OpenAiParameters {

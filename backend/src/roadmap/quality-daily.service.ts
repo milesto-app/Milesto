@@ -1,14 +1,15 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
+
 import { AiService } from '../ai/ai.service.js';
+import type { Json } from '../supabase/database.types.js';
 import { SupabaseService } from '../supabase/supabase.service.js';
 import { DAILY_OBJECTIVE_JUDGE_SYSTEM_PROMPT } from './prompts/quality-prompts.js';
 import {
-  clampScore,
   checkWarnings,
+  clampScore,
   evaluateQuality,
 } from './quality-helpers.js';
-import type { Json } from '../supabase/database.types.js';
 import type {
   DailyObjectiveQualityScores,
   DailyObjectivesGeneratedEvent,

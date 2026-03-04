@@ -4,18 +4,17 @@ import {
   OnGatewayDisconnect,
   WebSocketGateway,
 } from '@nestjs/websockets';
-
-import type { WebSocket } from 'ws';
 import type { IncomingMessage } from 'http';
+import type { WebSocket } from 'ws';
 
-import { CoachService } from '../coach/coach.service.js';
 import { ChatPromptService } from '../chat/chat-prompt.service.js';
-import { VoiceChatAuthService } from './voice-chat-auth.service.js';
-import { VoiceChatSessionService } from './voice-chat-session.service.js';
+import { CoachService } from '../coach/coach.service.js';
 import type {
   WsClientMessage,
   WsServerMessage,
 } from './types/voice-chat.types.js';
+import { VoiceChatAuthService } from './voice-chat-auth.service.js';
+import { VoiceChatSessionService } from './voice-chat-session.service.js';
 
 const WS_CLOSE_POLICY = 1008;
 const MAX_MESSAGES_PER_SECOND = 50;

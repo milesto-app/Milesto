@@ -1,8 +1,9 @@
 import type { TestingModule } from '@nestjs/testing';
 import { Test } from '@nestjs/testing';
+
+import { SupabaseService } from '../supabase/supabase.service.js';
 import { DebriefController } from './debrief.controller.js';
 import { DebriefService } from './debrief.service.js';
-import { SupabaseService } from '../supabase/supabase.service.js';
 
 describe('DebriefController', () => {
   let controller: DebriefController;

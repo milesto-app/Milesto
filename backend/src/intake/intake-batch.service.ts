@@ -5,21 +5,22 @@ import {
   Logger,
 } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
-import { GoalService } from '../goal/goal.service.js';
+
 import { UserLanguageService } from '../common/user-language.service.js';
-import { IntakeStoreService } from './intake-store.service.js';
-import { IntakeGenerationService } from './intake-generation.service.js';
+import { GoalService } from '../goal/goal.service.js';
+import { validateAnswerSet } from './intake-answer-validator.js';
 import { IntakeContextService } from './intake-context.service.js';
 import { IntakeFallbackService } from './intake-fallback.service.js';
+import { IntakeGenerationService } from './intake-generation.service.js';
+import type { StoreBatchOptions, StoredBatch } from './intake-store.service.js';
+import { IntakeStoreService } from './intake-store.service.js';
 import { IntakeTargetDateService } from './intake-target-date.service.js';
-import { validateAnswerSet } from './intake-answer-validator.js';
 import type {
   AnswerInput,
   BatchAnsweredEvent,
   BatchParams,
   BatchServedEvent,
 } from './types/intake.types.js';
-import type { StoredBatch, StoreBatchOptions } from './intake-store.service.js';
 
 @Injectable()
 export class IntakeBatchService {

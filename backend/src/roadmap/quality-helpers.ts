@@ -1,11 +1,12 @@
 import type { Logger } from '@nestjs/common';
+
 import type { AiService } from '../ai/ai.service.js';
 import { appConfig } from '../config/app.config.js';
 import type {
-  MilestoneQualityScores,
-  WeeklyPlanQualityScores,
   DailyObjectiveQualityScores,
   GenerationType,
+  MilestoneQualityScores,
+  WeeklyPlanQualityScores,
 } from './types/quality.types.js';
 
 const MIN_SCORE = 0;

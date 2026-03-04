@@ -2,6 +2,7 @@ import type {
   ChatCompletionChunk,
   ChatCompletionMessageParam,
 } from 'openai/resources/chat/completions';
+
 import type { ChatStreamEvent } from './types/chat.types.js';
 import type { StoredMessage } from './types/chat.types.js';
 

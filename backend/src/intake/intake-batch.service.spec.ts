@@ -1,12 +1,13 @@
 import { BadRequestException } from '@nestjs/common';
 import type { EventEmitter2 } from '@nestjs/event-emitter';
-import { IntakeBatchService } from './intake-batch.service.js';
+
+import type { UserLanguageService } from '../common/user-language.service.js';
 import type { GoalService } from '../goal/goal.service.js';
-import type { IntakeStoreService } from './intake-store.service.js';
-import type { IntakeGenerationService } from './intake-generation.service.js';
+import { IntakeBatchService } from './intake-batch.service.js';
 import type { IntakeContextService } from './intake-context.service.js';
 import type { IntakeFallbackService } from './intake-fallback.service.js';
-import type { UserLanguageService } from '../common/user-language.service.js';
+import type { IntakeGenerationService } from './intake-generation.service.js';
+import type { IntakeStoreService } from './intake-store.service.js';
 import type { IntakeTargetDateService } from './intake-target-date.service.js';
 
 describe('IntakeBatchService', () => {

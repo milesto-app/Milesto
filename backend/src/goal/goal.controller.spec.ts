@@ -1,8 +1,9 @@
 import type { TestingModule } from '@nestjs/testing';
 import { Test } from '@nestjs/testing';
+
+import { SupabaseService } from '../supabase/supabase.service.js';
 import { GoalController } from './goal.controller.js';
 import { GoalService } from './goal.service.js';
-import { SupabaseService } from '../supabase/supabase.service.js';
 
 const DEFAULT_LIMIT = 20;
 const CUSTOM_LIMIT = 10;

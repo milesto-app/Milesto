@@ -1,9 +1,10 @@
 import { Injectable, Logger } from '@nestjs/common';
+
 import { appConfig } from '../config/app.config.js';
-import { IntakePromptService } from './intake-prompt.service.js';
-import { IntakeStoreService } from './intake-store.service.js';
 import { FIRST_BATCH_NUMBER } from './constants/intake.constants.js';
+import { IntakePromptService } from './intake-prompt.service.js';
 import type { StoredBatch } from './intake-store.service.js';
+import { IntakeStoreService } from './intake-store.service.js';
 
 @Injectable()
 export class IntakeFallbackService {

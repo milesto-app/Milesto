@@ -1,13 +1,14 @@
-import type { TestingModule } from '@nestjs/testing';
-import { Test } from '@nestjs/testing';
 import {
   BadRequestException,
   ConflictException,
   InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
-import { CheckInService } from './check-in.service.js';
+import type { TestingModule } from '@nestjs/testing';
+import { Test } from '@nestjs/testing';
+
 import { SupabaseService } from '../supabase/supabase.service.js';
+import { CheckInService } from './check-in.service.js';
 
 describe('CheckInService', () => {
   let service: CheckInService;

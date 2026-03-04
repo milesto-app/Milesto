@@ -1,6 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import OpenAI from 'openai';
+
 import { appConfig } from '../config/app.config.js';
 
 const DEFAULT_MAX_RETRIES = 3;

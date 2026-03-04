@@ -1,5 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
+
 import { AiService } from '../ai/ai.service.js';
 import { SupabaseService } from '../supabase/supabase.service.js';
 import type {

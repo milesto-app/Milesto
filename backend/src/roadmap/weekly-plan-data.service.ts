@@ -1,14 +1,15 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
+
+import type { Json } from '../supabase/database.types.js';
 import { SupabaseService } from '../supabase/supabase.service.js';
 import { GenerationNarrativeService } from './generation-narrative.service.js';
-import { WeeklyPlanQueryService } from './weekly-plan-query.service.js';
-import type { Json } from '../supabase/database.types.js';
 import type {
   MonthlySummary,
-  WeeklySummary,
   WeeklyPlan,
+  WeeklySummary,
 } from './types/weekly-plan.types.js';
+import { WeeklyPlanQueryService } from './weekly-plan-query.service.js';
 
 const MONTHLY_SUMMARY_MIN_PLANS = 2;
 

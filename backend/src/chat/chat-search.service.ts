@@ -1,9 +1,10 @@
 import { Injectable, Logger } from '@nestjs/common';
+
 import { AiService } from '../ai/ai.service.js';
-import { SupabaseService } from '../supabase/supabase.service.js';
-import { RerankService } from '../roadmap/rerank.service.js';
 import { appConfig } from '../config/app.config.js';
+import { RerankService } from '../roadmap/rerank.service.js';
 import type { ContextChunk } from '../roadmap/types/context.types.js';
+import { SupabaseService } from '../supabase/supabase.service.js';
 
 export interface SearchResult {
   content_type: string;

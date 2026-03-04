@@ -1,9 +1,10 @@
-import type { TestingModule } from '@nestjs/testing';
-import { Test } from '@nestjs/testing';
 import { ConflictException } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
-import { DebriefService } from './debrief.service.js';
+import type { TestingModule } from '@nestjs/testing';
+import { Test } from '@nestjs/testing';
+
 import { SupabaseService } from '../supabase/supabase.service.js';
+import { DebriefService } from './debrief.service.js';
 
 describe('DebriefService', () => {
   let service: DebriefService;

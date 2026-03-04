@@ -6,13 +6,14 @@ import {
   Logger,
   NotFoundException,
 } from '@nestjs/common';
-import { SupabaseService } from '../supabase/supabase.service.js';
+
 import {
   SUPABASE_NOT_FOUND,
   SUPABASE_UNIQUE_VIOLATION,
 } from '../supabase/error-codes.js';
-import type { CheckIn } from './types/daily.types.js';
+import { SupabaseService } from '../supabase/supabase.service.js';
 import type { SubmitCheckInDto } from './dto/submit-check-in.dto.js';
+import type { CheckIn } from './types/daily.types.js';
 
 @Injectable()
 export class CheckInService {

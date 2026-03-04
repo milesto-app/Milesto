@@ -1,12 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import OpenAI from 'openai';
-import type { Stream } from 'openai/streaming';
 import type {
   ChatCompletionChunk,
   ChatCompletionMessageParam,
   ChatCompletionTool,
 } from 'openai/resources/chat/completions';
+import type { Stream } from 'openai/streaming';
+
 import { appConfig } from '../config/app.config.js';
 
 @Injectable()

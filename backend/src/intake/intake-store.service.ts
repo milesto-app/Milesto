@@ -4,11 +4,12 @@ import {
   InternalServerErrorException,
   Logger,
 } from '@nestjs/common';
-import { SupabaseService } from '../supabase/supabase.service.js';
-import { SUPABASE_UNIQUE_VIOLATION } from '../supabase/error-codes.js';
-import { IntakeStoreQueryService } from './intake-store-query.service.js';
+
 import type { Json } from '../supabase/database.types.js';
+import { SUPABASE_UNIQUE_VIOLATION } from '../supabase/error-codes.js';
+import { SupabaseService } from '../supabase/supabase.service.js';
 import type { GeneratedQuestion } from './intake-prompt.service.js';
+import { IntakeStoreQueryService } from './intake-store-query.service.js';
 import type { AnswerInput } from './types/intake.types.js';
 
 export interface StoreBatchOptions {

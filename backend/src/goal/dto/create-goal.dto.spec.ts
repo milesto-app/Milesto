@@ -1,5 +1,6 @@
-import { validate } from 'class-validator';
 import { plainToInstance } from 'class-transformer';
+import { validate } from 'class-validator';
+
 import { CreateGoalDto } from './create-goal.dto.js';
 
 const EXCEEDS_MAX_LENGTH = 201;

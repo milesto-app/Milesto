@@ -1,10 +1,11 @@
+import { NotFoundException } from '@nestjs/common';
 import type { TestingModule } from '@nestjs/testing';
 import { Test } from '@nestjs/testing';
-import { NotFoundException } from '@nestjs/common';
-import { WeeklyPlanService } from './weekly-plan.service.js';
+
 import { UserLanguageService } from '../common/user-language.service.js';
 import { ContextPipelineService } from './context-pipeline.service.js';
 import { GenerationService } from './generation.service.js';
+import { WeeklyPlanService } from './weekly-plan.service.js';
 import { WeeklyPlanDataService } from './weekly-plan-data.service.js';
 import { WeeklyPlanQueryService } from './weekly-plan-query.service.js';
 import { WeeklyPlanStorageService } from './weekly-plan-storage.service.js';

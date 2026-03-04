@@ -1,9 +1,9 @@
 import type { PriorBatchContext } from '../intake/intake-prompt.service.js';
-import { WEIGHT_LOSS_STANDARD } from './gold-standards/weight-loss.js';
 import { CAREER_PIVOT_STANDARD } from './gold-standards/career-pivot.js';
+import { DATING_STANDARD } from './gold-standards/dating.js';
 import { LANGUAGE_LEARNING_STANDARD } from './gold-standards/language-learning.js';
 import { SAVING_MONEY_STANDARD } from './gold-standards/saving-money.js';
-import { DATING_STANDARD } from './gold-standards/dating.js';
+import { WEIGHT_LOSS_STANDARD } from './gold-standards/weight-loss.js';
 
 export interface GoldStandardQuestion {
   question_text: string;

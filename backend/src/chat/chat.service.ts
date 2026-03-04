@@ -3,22 +3,23 @@ import type {
   ChatCompletionMessageParam,
   ChatCompletionTool,
 } from 'openai/resources/chat/completions';
+
 import { appConfig } from '../config/app.config.js';
 import { ChatAiService } from './chat-ai.service.js';
+import { ChatCheckInToolsService } from './chat-checkin-tools.service.js';
 import { ChatHistoryService } from './chat-history.service.js';
 import { ChatPromptService } from './chat-prompt.service.js';
-import { ChatToolsService } from './chat-tools.service.js';
-import { ChatCheckInToolsService } from './chat-checkin-tools.service.js';
 import { ChatRoadmapToolsService } from './chat-roadmap-tools.service.js';
-import { buildToolRegistry } from './chat-tool-registry.js';
+import type { ToolCallResult } from './chat-stream.utils.js';
 import { consumeStream, toOpenAiMessages } from './chat-stream.utils.js';
+import { buildToolRegistry } from './chat-tool-registry.js';
+import { ChatToolsService } from './chat-tools.service.js';
 import type { SendMessageDto } from './dto/send-message.dto.js';
 import type {
   ChatStreamEvent,
   ChatToolEntry,
   ToolExecutionContext,
 } from './types/chat.types.js';
-import type { ToolCallResult } from './chat-stream.utils.js';
 
 interface AgentLoopOptions {
   messages: ChatCompletionMessageParam[];

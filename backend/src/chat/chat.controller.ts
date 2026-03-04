@@ -17,12 +17,13 @@ import {
 } from '@nestjs/swagger';
 import { Throttle } from '@nestjs/throttler';
 import type { Response } from 'express';
-import { AuthGuard } from '../common/guards/auth.guard.js';
+
 import { UserId } from '../common/decorators/user.decorator.js';
+import { AuthGuard } from '../common/guards/auth.guard.js';
 import { appConfig } from '../config/app.config.js';
+import { ChatService } from './chat.service.js';
 import { ChatHistoryService } from './chat-history.service.js';
 import { ChatListService } from './chat-list.service.js';
-import { ChatService } from './chat.service.js';
 import { ListConversationsQueryDto } from './dto/list-conversations-query.dto.js';
 import { ListMessagesQueryDto } from './dto/list-messages-query.dto.js';
 import { SendMessageDto } from './dto/send-message.dto.js';

@@ -1,6 +1,6 @@
+import { GoogleGenAI, Modality, Session } from '@google/genai';
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { GoogleGenAI, Modality, Session } from '@google/genai';
 
 import { appConfig } from '../config/app.config.js';
 import type {

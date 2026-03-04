@@ -1,12 +1,13 @@
 import { Injectable, Logger } from '@nestjs/common';
+
 import { AiService } from '../ai/ai.service.js';
-import { SupabaseService } from '../supabase/supabase.service.js';
-import { RerankService } from './rerank.service.js';
 import { appConfig } from '../config/app.config.js';
+import { SupabaseService } from '../supabase/supabase.service.js';
 import {
   assemblePromptSections,
   logRetrievalObservability,
 } from './context-assembler.js';
+import { RerankService } from './rerank.service.js';
 import type {
   AssembledContext,
   ContextChunk,

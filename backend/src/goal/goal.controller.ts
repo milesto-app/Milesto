@@ -17,9 +17,10 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import type { Database } from '../supabase/database.types.js';
-import { AuthGuard } from '../common/guards/auth.guard.js';
+
 import { UserId } from '../common/decorators/user.decorator.js';
+import { AuthGuard } from '../common/guards/auth.guard.js';
+import type { Database } from '../supabase/database.types.js';
 import { CreateGoalDto } from './dto/create-goal.dto.js';
 import { ListGoalsQueryDto } from './dto/list-goals-query.dto.js';
 import { GoalService } from './goal.service.js';

@@ -1,17 +1,18 @@
-import type { TestingModule } from '@nestjs/testing';
-import { Test } from '@nestjs/testing';
 import {
   BadRequestException,
   ConflictException,
   NotFoundException,
 } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
-import { RoadmapService } from './roadmap.service.js';
-import { SupabaseService } from '../supabase/supabase.service.js';
+import type { TestingModule } from '@nestjs/testing';
+import { Test } from '@nestjs/testing';
+
 import { UserLanguageService } from '../common/user-language.service.js';
 import { GoalService } from '../goal/goal.service.js';
+import { SupabaseService } from '../supabase/supabase.service.js';
 import { ContextPipelineService } from './context-pipeline.service.js';
 import { GenerationService } from './generation.service.js';
+import { RoadmapService } from './roadmap.service.js';
 import { RoadmapStorageService } from './roadmap-storage.service.js';
 import type { AssembledContext } from './types/context.types.js';
 

@@ -1,4 +1,4 @@
-export type { PersonaJudge, MetaJudgeResult, DimensionScore, PersonaScores };
+export type { DimensionScore, MetaJudgeResult, PersonaJudge, PersonaScores };
 export {
   ALL_PERSONA_JUDGES,
   META_JUDGE_SYSTEM_PROMPT,

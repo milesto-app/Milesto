@@ -1,7 +1,8 @@
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
-import { SupabaseService } from '../supabase/supabase.service.js';
-import { appConfig } from '../config/app.config.js';
 import type { SupabaseClient } from '@supabase/supabase-js';
+
+import { appConfig } from '../config/app.config.js';
+import { SupabaseService } from '../supabase/supabase.service.js';
 import type { Conversation, StoredMessage } from './types/chat.types.js';
 
 export interface StoreMessageInput {

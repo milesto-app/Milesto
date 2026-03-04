@@ -1,9 +1,10 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion, @typescript-eslint/no-unsafe-member-access */
 import type { TestingModule } from '@nestjs/testing';
 import { Test } from '@nestjs/testing';
-import { ContextPipelineService } from './context-pipeline.service.js';
+
 import { AiService } from '../ai/ai.service.js';
 import { SupabaseService } from '../supabase/supabase.service.js';
+import { ContextPipelineService } from './context-pipeline.service.js';
 import { RerankService } from './rerank.service.js';
 import type {
   ContextChunk,

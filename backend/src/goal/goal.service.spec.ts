@@ -1,12 +1,13 @@
-import type { TestingModule } from '@nestjs/testing';
-import { Test } from '@nestjs/testing';
 import {
   InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
-import { GoalService } from './goal.service.js';
+import type { TestingModule } from '@nestjs/testing';
+import { Test } from '@nestjs/testing';
+
 import { AiService } from '../ai/ai.service.js';
 import { SupabaseService } from '../supabase/supabase.service.js';
+import { GoalService } from './goal.service.js';
 import { GOAL_STATUS } from './goal-status.constants.js';
 
 const DEFAULT_LIMIT = 20;

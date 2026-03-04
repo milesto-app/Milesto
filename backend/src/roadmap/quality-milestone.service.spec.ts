@@ -1,8 +1,9 @@
 import type { TestingModule } from '@nestjs/testing';
 import { Test } from '@nestjs/testing';
-import { QualityMilestoneService } from './quality-milestone.service.js';
+
 import { AiService } from '../ai/ai.service.js';
 import { SupabaseService } from '../supabase/supabase.service.js';
+import { QualityMilestoneService } from './quality-milestone.service.js';
 
 describe('QualityMilestoneService', () => {
   let service: QualityMilestoneService;

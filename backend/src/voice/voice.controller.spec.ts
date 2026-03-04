@@ -1,11 +1,12 @@
+import { BadRequestException, NotFoundException } from '@nestjs/common';
 import type { TestingModule } from '@nestjs/testing';
 import { Test } from '@nestjs/testing';
-import { BadRequestException, NotFoundException } from '@nestjs/common';
+import type { Response } from 'express';
+
+import { SupabaseService } from '../supabase/supabase.service.js';
 import { VoiceController } from './voice.controller.js';
 import { VoiceService } from './voice.service.js';
-import { SupabaseService } from '../supabase/supabase.service.js';
-import type { Response } from 'express';
-import type { TranscriptionResult, SynthesisResult } from './voice.types.js';
+import type { SynthesisResult, TranscriptionResult } from './voice.types.js';
 
 const MOCK_TRANSCRIPTION: TranscriptionResult = {
   text: 'Hello, how are you?',

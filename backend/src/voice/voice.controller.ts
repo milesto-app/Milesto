@@ -19,11 +19,11 @@ import {
 import { Throttle } from '@nestjs/throttler';
 import type { Response } from 'express';
 
-import { appConfig } from '../config/app.config.js';
-import { AuthGuard } from '../common/guards/auth.guard.js';
 import { UserId } from '../common/decorators/user.decorator.js';
-import { VoiceService } from './voice.service.js';
+import { AuthGuard } from '../common/guards/auth.guard.js';
+import { appConfig } from '../config/app.config.js';
 import { SynthesizeDto } from './dto/synthesize.dto.js';
+import { VoiceService } from './voice.service.js';
 import type { TranscriptionResult } from './voice.types.js';
 
 const AI_LIMIT = appConfig.throttle.aiEndpointLimit;

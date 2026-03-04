@@ -1,8 +1,9 @@
 import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
+
 import { UserLanguageService } from '../common/user-language.service.js';
-import { SupabaseService } from '../supabase/supabase.service.js';
 import { GoalService } from '../goal/goal.service.js';
+import { SupabaseService } from '../supabase/supabase.service.js';
 import { ContextPipelineService } from './context-pipeline.service.js';
 import { GenerationService } from './generation.service.js';
 import { RoadmapStorageService } from './roadmap-storage.service.js';

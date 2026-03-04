@@ -1,6 +1,7 @@
 import { APP_GUARD } from '@nestjs/core';
 import type { EventEmitter2 } from '@nestjs/event-emitter';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
+
 import { AppModule } from './app.module.js';
 
 describe('AppModule - event handling', () => {

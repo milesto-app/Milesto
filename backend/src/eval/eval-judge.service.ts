@@ -1,11 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { ALL_PERSONA_JUDGES, META_JUDGE_SYSTEM_PROMPT } from './personas.js';
-import type {
-  MetaJudgeResult,
-  PersonaJudge,
-  PersonaScores,
-} from './personas.js';
-import type { GoldStandard } from './gold-standards.js';
+
 import type {
   BatchEvalResult,
   EvalBatchOptions,
@@ -19,6 +13,13 @@ import {
   formatQuestions,
 } from './eval-prompt.builder.js';
 import { EvalScoringService } from './eval-scoring.service.js';
+import type { GoldStandard } from './gold-standards.js';
+import type {
+  MetaJudgeResult,
+  PersonaJudge,
+  PersonaScores,
+} from './personas.js';
+import { ALL_PERSONA_JUDGES, META_JUDGE_SYSTEM_PROMPT } from './personas.js';
 
 const SCORE_DECIMAL_PLACES = 2;
 

@@ -1,8 +1,9 @@
 import type { TestingModule } from '@nestjs/testing';
 import { Test } from '@nestjs/testing';
-import { SummaryEmbeddingService } from './summary-embedding.service.js';
+
 import { AiService } from '../ai/ai.service.js';
 import { SupabaseService } from '../supabase/supabase.service.js';
+import { SummaryEmbeddingService } from './summary-embedding.service.js';
 
 describe('SummaryEmbeddingService', () => {
   let service: SummaryEmbeddingService;

@@ -1,8 +1,9 @@
 import { plainToInstance } from 'class-transformer';
 import { validateSync } from 'class-validator';
+
+import { GeneratedDailyObjective } from './types/generated-daily-objective.js';
 import { GeneratedMilestone } from './types/generated-milestone.js';
 import { GeneratedWeeklyPlan } from './types/generated-weekly-plan.js';
-import { GeneratedDailyObjective } from './types/generated-daily-objective.js';
 
 const FIRST_ORDER_INDEX = 1;
 

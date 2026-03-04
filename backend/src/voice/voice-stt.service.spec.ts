@@ -1,6 +1,7 @@
+import { ConfigService } from '@nestjs/config';
 import type { TestingModule } from '@nestjs/testing';
 import { Test } from '@nestjs/testing';
-import { ConfigService } from '@nestjs/config';
+
 import { VoiceSttService } from './voice-stt.service.js';
 
 const MOCK_TRANSCRIPT = 'Hello, how are you?';

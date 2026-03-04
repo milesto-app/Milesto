@@ -1,10 +1,10 @@
 import {
-  IsString,
-  IsNotEmpty,
-  IsInt,
-  IsPositive,
-  IsOptional,
   IsIn,
+  IsInt,
+  IsNotEmpty,
+  IsOptional,
+  IsPositive,
+  IsString,
 } from 'class-validator';
 
 export class GeneratedDailyObjective {

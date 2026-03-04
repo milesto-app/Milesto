@@ -1,11 +1,11 @@
-import type { ChatToolEntry, ChatToolExecutor } from './types/chat.types.js';
-import type { ChatToolsService } from './chat-tools.service.js';
-import type { ChatCheckInToolsService } from './chat-checkin-tools.service.js';
-import type { ChatRoadmapToolsService } from './chat-roadmap-tools.service.js';
 import {
   buildCheckInTools,
   buildRoadmapTools,
 } from './chat-checkin-registry.js';
+import type { ChatCheckInToolsService } from './chat-checkin-tools.service.js';
+import type { ChatRoadmapToolsService } from './chat-roadmap-tools.service.js';
+import type { ChatToolsService } from './chat-tools.service.js';
+import type { ChatToolEntry, ChatToolExecutor } from './types/chat.types.js';
 
 export interface ToolRegistryDeps {
   toolsService: ChatToolsService;

@@ -3,9 +3,10 @@ import {
   InternalServerErrorException,
   Logger,
 } from '@nestjs/common';
-import { SupabaseService } from '../supabase/supabase.service.js';
+
 import { SUPABASE_NOT_FOUND } from '../supabase/error-codes.js';
-import type { StoredBatch, QuestionConfig } from './intake-store.service.js';
+import { SupabaseService } from '../supabase/supabase.service.js';
+import type { QuestionConfig, StoredBatch } from './intake-store.service.js';
 
 @Injectable()
 export class IntakeStoreQueryService {

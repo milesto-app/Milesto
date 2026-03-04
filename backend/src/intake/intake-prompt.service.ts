@@ -1,16 +1,7 @@
 import { Injectable } from '@nestjs/common';
+
 import { AiService } from '../ai/ai.service.js';
 import { appConfig } from '../config/app.config.js';
-import {
-  getUniversalBatch1,
-  getFallbackPools,
-} from '../config/questions.config.js';
-import type {
-  UniversalQuestion,
-  GeneratedQuestion,
-  PriorBatchContext,
-  GoalProfile,
-} from '../config/questions.config.js';
 import {
   buildIntakeBatchSystemPrompt,
   buildIntakeBatchUserPrompt,
@@ -19,6 +10,16 @@ import {
   buildProfileSystemPrompt,
   buildProfileUserPrompt,
 } from '../config/prompts/profile-prompts.config.js';
+import type {
+  GeneratedQuestion,
+  GoalProfile,
+  PriorBatchContext,
+  UniversalQuestion,
+} from '../config/questions.config.js';
+import {
+  getFallbackPools,
+  getUniversalBatch1,
+} from '../config/questions.config.js';
 
 export interface NextBatchParams {
   goalDescription: string;
@@ -28,10 +29,10 @@ export interface NextBatchParams {
 }
 
 export type {
-  UniversalQuestion,
   GeneratedQuestion,
-  PriorBatchContext,
   GoalProfile,
+  PriorBatchContext,
+  UniversalQuestion,
 };
 
 @Injectable()

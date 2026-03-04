@@ -5,17 +5,18 @@ import {
   Logger,
 } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
-import { SupabaseService } from '../supabase/supabase.service.js';
+
+import { UserLanguageService } from '../common/user-language.service.js';
 import { appConfig } from '../config/app.config.js';
 import { GoalService } from '../goal/goal.service.js';
-import { UserLanguageService } from '../common/user-language.service.js';
+import type { Json } from '../supabase/database.types.js';
+import { SupabaseService } from '../supabase/supabase.service.js';
+import { IntakeContextService } from './intake-context.service.js';
+import { buildProfileData } from './intake-profile-data.js';
+import { IntakeProfileStoreService } from './intake-profile-store.service.js';
+import type { GoalProfile } from './intake-prompt.service.js';
 import { IntakePromptService } from './intake-prompt.service.js';
 import { IntakeQualityService } from './intake-quality.service.js';
-import { IntakeContextService } from './intake-context.service.js';
-import { IntakeProfileStoreService } from './intake-profile-store.service.js';
-import { buildProfileData } from './intake-profile-data.js';
-import type { Json } from '../supabase/database.types.js';
-import type { GoalProfile } from './intake-prompt.service.js';
 import type {
   ProfileGeneratedEvent,
   ProfileGenParams,

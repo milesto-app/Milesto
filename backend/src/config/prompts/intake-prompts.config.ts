@@ -1,8 +1,8 @@
-import type { PriorBatchContext } from '../questions.config.js';
 import {
-  MIN_ANSWER_LENGTH_SHORT,
   MAX_ANSWER_LENGTH_LONG,
+  MIN_ANSWER_LENGTH_SHORT,
 } from '../../intake/constants/intake.constants.js';
+import type { PriorBatchContext } from '../questions.config.js';
 
 export { buildIntakeBatchSystemPrompt } from './intake-system-prompt.config.js';
 

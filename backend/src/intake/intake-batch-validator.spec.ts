@@ -1,6 +1,6 @@
 import {
-  validateSemantic,
   validateGoalProfile,
+  validateSemantic,
 } from './intake-batch-validator.js';
 
 const semanticBatch = [

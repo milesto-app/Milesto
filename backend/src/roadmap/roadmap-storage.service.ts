@@ -6,8 +6,9 @@ import {
   Logger,
   NotFoundException,
 } from '@nestjs/common';
-import { SupabaseService } from '../supabase/supabase.service.js';
+
 import { appConfig } from '../config/app.config.js';
+import { SupabaseService } from '../supabase/supabase.service.js';
 import type {
   GenerationMetadata,
   MilestoneSummary,

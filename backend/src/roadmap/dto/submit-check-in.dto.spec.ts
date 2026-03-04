@@ -1,5 +1,6 @@
-import { validate } from 'class-validator';
 import { plainToInstance } from 'class-transformer';
+import { validate } from 'class-validator';
+
 import { SubmitCheckInDto } from './submit-check-in.dto.js';
 
 describe('SubmitCheckInDto', () => {

@@ -1,9 +1,10 @@
 import type { TestingModule } from '@nestjs/testing';
 import { Test } from '@nestjs/testing';
+
+import { AuthGuard } from '../common/guards/auth.guard.js';
+import { SupabaseService } from '../supabase/supabase.service.js';
 import { AdminController } from './admin.controller.js';
 import { IntakeReembedService } from './intake-reembed.service.js';
-import { SupabaseService } from '../supabase/supabase.service.js';
-import { AuthGuard } from '../common/guards/auth.guard.js';
 
 describe('AdminController', () => {
   let controller: AdminController;

@@ -3,8 +3,8 @@ import { Injectable, Logger } from '@nestjs/common';
 import { CoachService } from '../coach/coach.service.js';
 import { appConfig } from '../config/app.config.js';
 import { SupabaseService } from '../supabase/supabase.service.js';
-import { buildCoachPrompt } from './chat-prompt.builder.js';
 import type { PromptInput } from './chat-prompt.builder.js';
+import { buildCoachPrompt } from './chat-prompt.builder.js';
 
 interface ActivePlan {
   week_number: number;

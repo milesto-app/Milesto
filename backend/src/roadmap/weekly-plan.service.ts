@@ -1,14 +1,8 @@
 import { Injectable, Logger } from '@nestjs/common';
+
 import { UserLanguageService } from '../common/user-language.service.js';
 import { ContextPipelineService } from './context-pipeline.service.js';
 import { GenerationService } from './generation.service.js';
-import { WeeklyPlanDataService } from './weekly-plan-data.service.js';
-import { WeeklyPlanQueryService } from './weekly-plan-query.service.js';
-import { WeeklyPlanStorageService } from './weekly-plan-storage.service.js';
-import {
-  formatSummaryForEmbedding,
-  formatMonthlySummaryForEmbedding,
-} from './weekly-plan-format.js';
 import type { Milestone, Roadmap } from './types/roadmap.types.js';
 import type {
   GenerateAndStoreParams,
@@ -17,6 +11,13 @@ import type {
   WeekData,
   WeeklyPlan,
 } from './types/weekly-plan.types.js';
+import { WeeklyPlanDataService } from './weekly-plan-data.service.js';
+import {
+  formatMonthlySummaryForEmbedding,
+  formatSummaryForEmbedding,
+} from './weekly-plan-format.js';
+import { WeeklyPlanQueryService } from './weekly-plan-query.service.js';
+import { WeeklyPlanStorageService } from './weekly-plan-storage.service.js';
 
 const DAYS_PER_WEEK = 7;
 

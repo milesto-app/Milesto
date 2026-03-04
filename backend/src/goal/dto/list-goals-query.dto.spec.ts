@@ -1,6 +1,8 @@
 import 'reflect-metadata';
-import { validate } from 'class-validator';
+
 import { plainToInstance } from 'class-transformer';
+import { validate } from 'class-validator';
+
 import { ListGoalsQueryDto } from './list-goals-query.dto.js';
 
 const DEFAULT_LIMIT = 20;

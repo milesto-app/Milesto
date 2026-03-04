@@ -4,6 +4,7 @@ import {
   Logger,
   NotFoundException,
 } from '@nestjs/common';
+
 import { SupabaseService } from '../supabase/supabase.service.js';
 import type { CheckIn, DailyObjective } from './types/daily.types.js';
 

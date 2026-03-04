@@ -1,5 +1,5 @@
-import type { GoldStandard, GoldStandardQuestion } from './gold-standards.js';
 import type { EvalPriorBatch, EvalQuestion } from './eval.types.js';
+import type { GoldStandard, GoldStandardQuestion } from './gold-standards.js';
 
 export interface JudgePromptInput {
   goalDescription: string;

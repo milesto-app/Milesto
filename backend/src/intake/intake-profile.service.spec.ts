@@ -1,13 +1,14 @@
 import { BadRequestException } from '@nestjs/common';
 import type { EventEmitter2 } from '@nestjs/event-emitter';
-import { IntakeProfileService } from './intake-profile.service.js';
-import type { SupabaseService } from '../supabase/supabase.service.js';
+
+import type { UserLanguageService } from '../common/user-language.service.js';
 import type { GoalService } from '../goal/goal.service.js';
+import type { SupabaseService } from '../supabase/supabase.service.js';
+import type { IntakeContextService } from './intake-context.service.js';
+import { IntakeProfileService } from './intake-profile.service.js';
+import type { IntakeProfileStoreService } from './intake-profile-store.service.js';
 import type { IntakePromptService } from './intake-prompt.service.js';
 import type { IntakeQualityService } from './intake-quality.service.js';
-import type { IntakeContextService } from './intake-context.service.js';
-import type { UserLanguageService } from '../common/user-language.service.js';
-import type { IntakeProfileStoreService } from './intake-profile-store.service.js';
 
 describe('IntakeProfileService', () => {
   let service: IntakeProfileService;

@@ -1,4 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
+
 import { SupabaseService } from '../supabase/supabase.service.js';
 import type { PriorBatchContext } from './intake-prompt.service.js';
 

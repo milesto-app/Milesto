@@ -1,16 +1,17 @@
 /* eslint-disable max-params, @typescript-eslint/no-non-null-assertion, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/require-await, @typescript-eslint/no-unnecessary-condition, no-restricted-syntax, @typescript-eslint/naming-convention, @typescript-eslint/no-unused-vars */
 import type { TestingModule } from '@nestjs/testing';
 import { Test } from '@nestjs/testing';
-import { GenerationService } from './generation.service.js';
+
 import { AiService } from '../ai/ai.service.js';
 import { appConfig } from '../config/app.config.js';
+import { GenerationService } from './generation.service.js';
 import type { AssembledContext } from './types/context.types.js';
+import type { EnergyLevel } from './types/daily.types.js';
 import type { GoalData, Milestone } from './types/roadmap.types.js';
 import type {
   GenerationContext,
   WeeklyPlan,
 } from './types/weekly-plan.types.js';
-import type { EnergyLevel } from './types/daily.types.js';
 
 describe('GenerationService', () => {
   let service: GenerationService;

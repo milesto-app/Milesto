@@ -1,17 +1,18 @@
 import { Injectable, Logger } from '@nestjs/common';
+
 import { AiService } from '../ai/ai.service.js';
 import { appConfig } from '../config/app.config.js';
 import {
-  buildWeeklySummaryNarrativeSystemPrompt,
-  buildWeeklySummaryNarrativeUserPrompt,
   buildMonthlySummaryNarrativeSystemPrompt,
   buildMonthlySummaryNarrativeUserPrompt,
+  buildWeeklySummaryNarrativeSystemPrompt,
+  buildWeeklySummaryNarrativeUserPrompt,
 } from './prompts/weekly-plan-prompts.js';
 import type {
   MonthlySummary,
   WeekData,
-  WeeklySummary,
   WeeklyPlan,
+  WeeklySummary,
 } from './types/weekly-plan.types.js';
 
 const PERCENTAGE_MULTIPLIER = 100;

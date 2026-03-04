@@ -1,6 +1,7 @@
+import { ConfigService } from '@nestjs/config';
 import type { TestingModule } from '@nestjs/testing';
 import { Test } from '@nestjs/testing';
-import { ConfigService } from '@nestjs/config';
+
 import { VoiceTtsService } from './voice-tts.service.js';
 
 const MOCK_VOICE_ID = 'Kore';

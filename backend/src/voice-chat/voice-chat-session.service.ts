@@ -1,11 +1,13 @@
 import { Injectable, Logger } from '@nestjs/common';
 
-import { appConfig } from '../config/app.config.js';
-import { ChatHistoryService } from '../chat/chat-history.service.js';
-import { ChatToolsService } from '../chat/chat-tools.service.js';
 import { ChatCheckInToolsService } from '../chat/chat-checkin-tools.service.js';
+import { ChatHistoryService } from '../chat/chat-history.service.js';
 import { ChatRoadmapToolsService } from '../chat/chat-roadmap-tools.service.js';
 import { buildToolRegistry } from '../chat/chat-tool-registry.js';
+import { ChatToolsService } from '../chat/chat-tools.service.js';
+import type { ChatToolEntry } from '../chat/types/chat.types.js';
+import type { ToolExecutionContext } from '../chat/types/chat.types.js';
+import { appConfig } from '../config/app.config.js';
 import { GeminiLiveService } from './gemini-live.service.js';
 import { adaptToolsToGemini } from './gemini-tool-adapter.js';
 import type {
@@ -14,8 +16,6 @@ import type {
   GeminiSessionCallbacks,
   WsServerMessage,
 } from './types/voice-chat.types.js';
-import type { ChatToolEntry } from '../chat/types/chat.types.js';
-import type { ToolExecutionContext } from '../chat/types/chat.types.js';
 
 export interface ActiveSession {
   readonly geminiSession: GeminiLiveSession;

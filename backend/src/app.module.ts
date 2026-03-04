@@ -2,6 +2,7 @@ import { Logger, Module, OnModuleInit } from '@nestjs/common';
 import { APP_GUARD } from '@nestjs/core';
 import { EventEmitter2, EventEmitterModule } from '@nestjs/event-emitter';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
+
 import { AiModule } from './ai/ai.module.js';
 import { ChatModule } from './chat/chat.module.js';
 import { CoachModule } from './coach/coach.module.js';
@@ -12,8 +13,8 @@ import { GoalModule } from './goal/goal.module.js';
 import { IntakeModule } from './intake/intake.module.js';
 import { RoadmapModule } from './roadmap/roadmap.module.js';
 import { SupabaseModule } from './supabase/supabase.module.js';
-import { VoiceChatModule } from './voice-chat/voice-chat.module.js';
 import { VoiceModule } from './voice/voice.module.js';
+import { VoiceChatModule } from './voice-chat/voice-chat.module.js';
 
 @Module({
   imports: [

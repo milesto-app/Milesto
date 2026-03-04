@@ -1,7 +1,8 @@
 import type { TestingModule } from '@nestjs/testing';
 import { Test } from '@nestjs/testing';
-import { GenerationNarrativeService } from './generation-narrative.service.js';
+
 import { AiService } from '../ai/ai.service.js';
+import { GenerationNarrativeService } from './generation-narrative.service.js';
 import type { WeekData, WeeklyPlan } from './types/weekly-plan.types.js';
 
 describe('GenerationNarrativeService', () => {

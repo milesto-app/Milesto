@@ -1,7 +1,9 @@
 /* eslint-disable no-console */
-import { NestFactory } from '@nestjs/core';
 import { writeFileSync } from 'node:fs';
 import { join } from 'node:path';
+
+import { NestFactory } from '@nestjs/core';
+
 import { EvalModule } from './eval.module.js';
 import { EvalService } from './eval.service.js';
 

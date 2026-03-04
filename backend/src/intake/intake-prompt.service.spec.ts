@@ -1,9 +1,10 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import type { TestingModule } from '@nestjs/testing';
 import { Test } from '@nestjs/testing';
-import { IntakePromptService } from './intake-prompt.service.js';
+
 import { AiService } from '../ai/ai.service.js';
 import { appConfig } from '../config/app.config.js';
+import { IntakePromptService } from './intake-prompt.service.js';
 
 describe('IntakePromptService', () => {
   let service: IntakePromptService;

@@ -1,3 +1,4 @@
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import {
   IsIn,
   IsNotEmpty,
@@ -5,9 +6,9 @@ import {
   IsString,
   MaxLength,
 } from 'class-validator';
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { ENERGY_LEVELS } from '../types/daily.types.js';
+
 import type { EnergyLevel } from '../types/daily.types.js';
+import { ENERGY_LEVELS } from '../types/daily.types.js';
 
 const NOTE_MAX_LENGTH = 1000;
 

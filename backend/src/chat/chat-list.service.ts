@@ -1,6 +1,9 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { SupabaseService } from '../supabase/supabase.service.js';
 import type { SupabaseClient } from '@supabase/supabase-js';
+
+import { SupabaseService } from '../supabase/supabase.service.js';
+import type { ListConversationsQueryDto } from './dto/list-conversations-query.dto.js';
+import type { ListMessagesQueryDto } from './dto/list-messages-query.dto.js';
 import type {
   Conversation,
   ConversationListResult,
@@ -8,8 +11,6 @@ import type {
   MessageListResult,
   StoredMessage,
 } from './types/chat.types.js';
-import type { ListConversationsQueryDto } from './dto/list-conversations-query.dto.js';
-import type { ListMessagesQueryDto } from './dto/list-messages-query.dto.js';
 
 const PREVIEW_MAX_LENGTH = 100;
 

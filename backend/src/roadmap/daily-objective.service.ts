@@ -5,14 +5,15 @@ import {
   Logger,
 } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
+
 import { UserLanguageService } from '../common/user-language.service.js';
 import { ContextPipelineService } from './context-pipeline.service.js';
-import { GenerationService } from './generation.service.js';
+import type { UpdateParams } from './daily-objective-storage.service.js';
 import { DailyObjectiveStorageService } from './daily-objective-storage.service.js';
-import { WeeklyPlanService } from './weekly-plan.service.js';
+import { GenerationService } from './generation.service.js';
 import type { DailyObjective, EnergyLevel } from './types/daily.types.js';
 import type { WeeklyPlan } from './types/weekly-plan.types.js';
-import type { UpdateParams } from './daily-objective-storage.service.js';
+import { WeeklyPlanService } from './weekly-plan.service.js';
 
 interface GenerateParams {
   weeklyPlan: WeeklyPlan;

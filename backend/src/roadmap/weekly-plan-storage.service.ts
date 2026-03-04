@@ -6,8 +6,9 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
-import { SupabaseService } from '../supabase/supabase.service.js';
+
 import type { Json } from '../supabase/database.types.js';
+import { SupabaseService } from '../supabase/supabase.service.js';
 import type { Milestone, Roadmap } from './types/roadmap.types.js';
 import type { StorePlanRow, WeeklyPlan } from './types/weekly-plan.types.js';
 

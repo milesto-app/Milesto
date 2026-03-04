@@ -1,4 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
+
 import { SupabaseService } from '../supabase/supabase.service.js';
 import type { WeekData, WeeklyPlan } from './types/weekly-plan.types.js';
 

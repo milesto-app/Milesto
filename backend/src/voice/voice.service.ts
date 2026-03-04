@@ -1,10 +1,10 @@
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 
-import { SupabaseService } from '../supabase/supabase.service.js';
 import { UserLanguageService } from '../common/user-language.service.js';
+import { SupabaseService } from '../supabase/supabase.service.js';
+import type { SynthesisResult, TranscriptionResult } from './voice.types.js';
 import { VoiceSttService } from './voice-stt.service.js';
 import { VoiceTtsService } from './voice-tts.service.js';
-import type { TranscriptionResult, SynthesisResult } from './voice.types.js';
 
 @Injectable()
 export class VoiceService {

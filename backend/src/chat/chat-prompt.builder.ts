@@ -1,7 +1,7 @@
 import type { Coach } from '../coach/coach.types.js';
 import {
-  buildToolUsagePrompt,
   buildBoundariesPrompt,
+  buildToolUsagePrompt,
 } from './prompts/chat-tool-prompts.js';
 
 interface GoalContext {

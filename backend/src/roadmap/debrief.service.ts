@@ -6,11 +6,12 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
-import { SupabaseService } from '../supabase/supabase.service.js';
-import { SUPABASE_UNIQUE_VIOLATION } from '../supabase/error-codes.js';
+
 import type { Json } from '../supabase/database.types.js';
-import type { Debrief } from './types/daily.types.js';
+import { SUPABASE_UNIQUE_VIOLATION } from '../supabase/error-codes.js';
+import { SupabaseService } from '../supabase/supabase.service.js';
 import type { SubmitDebriefDto } from './dto/submit-debrief.dto.js';
+import type { Debrief } from './types/daily.types.js';
 
 @Injectable()
 export class DebriefService {

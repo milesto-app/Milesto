@@ -1,5 +1,5 @@
-import { adaptToolsToGemini } from './gemini-tool-adapter.js';
 import type { ChatToolEntry } from '../chat/types/chat.types.js';
+import { adaptToolsToGemini } from './gemini-tool-adapter.js';
 
 const EXPECTED_TOOL_COUNT = 2;
 

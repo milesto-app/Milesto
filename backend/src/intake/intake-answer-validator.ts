@@ -1,7 +1,8 @@
 import { BadRequestException } from '@nestjs/common';
+
 import {
-  DEFAULT_SCALE_MIN,
   DEFAULT_SCALE_MAX,
+  DEFAULT_SCALE_MIN,
   SINGLE_CHOICE_OPTION_COUNT,
 } from './constants/intake.constants.js';
 

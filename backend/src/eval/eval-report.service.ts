@@ -1,8 +1,9 @@
 import { Injectable } from '@nestjs/common';
+
 import type {
+  BatchEvalResult,
   EvalReport,
   GoalEvalResult,
-  BatchEvalResult,
 } from './eval.types.js';
 
 const DECIMAL_PLACES = 2;

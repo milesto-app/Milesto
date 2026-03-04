@@ -1,16 +1,17 @@
 import { Body, Controller, Get, Param, Patch, UseGuards } from '@nestjs/common';
-import { Throttle } from '@nestjs/throttler';
 import {
-  ApiTags,
-  ApiOperation,
-  ApiResponse,
   ApiBearerAuth,
+  ApiOperation,
   ApiParam,
+  ApiResponse,
+  ApiTags,
 } from '@nestjs/swagger';
-import { AuthGuard } from '../common/guards/auth.guard.js';
+import { Throttle } from '@nestjs/throttler';
+
 import { UserId } from '../common/decorators/user.decorator.js';
-import { DailyObjectiveService } from './daily-objective.service.js';
+import { AuthGuard } from '../common/guards/auth.guard.js';
 import { appConfig } from '../config/app.config.js';
+import { DailyObjectiveService } from './daily-objective.service.js';
 import { UpdateDailyObjectiveDto } from './dto/update-daily-objective.dto.js';
 import type { DailyObjective } from './types/daily.types.js';
 

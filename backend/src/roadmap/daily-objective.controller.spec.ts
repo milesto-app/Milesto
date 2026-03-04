@@ -1,8 +1,9 @@
 import type { TestingModule } from '@nestjs/testing';
 import { Test } from '@nestjs/testing';
+
+import { SupabaseService } from '../supabase/supabase.service.js';
 import { DailyObjectiveController } from './daily-objective.controller.js';
 import { DailyObjectiveService } from './daily-objective.service.js';
-import { SupabaseService } from '../supabase/supabase.service.js';
 
 describe('DailyObjectiveController', () => {
   let controller: DailyObjectiveController;

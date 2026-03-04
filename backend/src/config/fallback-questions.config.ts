@@ -1,5 +1,5 @@
-import type { GeneratedQuestion } from './questions.config.js';
 import { FALLBACK_POOLS_FR } from './fallback-questions-fr.config.js';
+import type { GeneratedQuestion } from './questions.config.js';
 
 // ── Fallback pools (used when AI generation fails validation) ──
 // Designed with mixed question types, normalizing language, and shame-safe options.

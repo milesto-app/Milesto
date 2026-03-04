@@ -1,19 +1,20 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
+
 import { AiService } from '../ai/ai.service.js';
 import { appConfig } from '../config/app.config.js';
 import { QUALITY_JUDGE_SYSTEM_PROMPT } from '../config/prompts/quality-prompts.config.js';
 import { SupabaseService } from '../supabase/supabase.service.js';
 import {
-  validateStructural,
-  validateSemantic,
   validateGoalProfile,
+  validateSemantic,
+  validateStructural,
 } from './intake-batch-validator.js';
+import type { QualityScores } from './intake-quality-scoring.js';
 import {
   buildQualityUserPrompt,
   computeComposite,
 } from './intake-quality-scoring.js';
-import type { QualityScores } from './intake-quality-scoring.js';
 import type { BatchServedEvent } from './types/intake.types.js';
 
 const SCORE_DECIMAL_PLACES = 2;

@@ -1,19 +1,20 @@
 import { Injectable, Logger } from '@nestjs/common';
+
 import { appConfig } from '../config/app.config.js';
-import { IntakePromptService } from '../intake/intake-prompt.service.js';
 import type { PriorBatchContext } from '../intake/intake-prompt.service.js';
-import { GOLD_STANDARDS } from './gold-standards.js';
-import type { GoldStandard } from './gold-standards.js';
-import { EvalJudgeService } from './eval-judge.service.js';
-import { EvalReportService } from './eval-report.service.js';
+import { IntakePromptService } from '../intake/intake-prompt.service.js';
 import type {
   BatchEvalResult,
   EvalPriorBatch,
   EvalReport,
   GoalEvalResult,
 } from './eval.types.js';
-import { computeDeltas, mapToEvalQuestions } from './eval.utils.js';
 import type { RawQuestion } from './eval.utils.js';
+import { computeDeltas, mapToEvalQuestions } from './eval.utils.js';
+import { EvalJudgeService } from './eval-judge.service.js';
+import { EvalReportService } from './eval-report.service.js';
+import type { GoldStandard } from './gold-standards.js';
+import { GOLD_STANDARDS } from './gold-standards.js';
 
 @Injectable()
 export class EvalService {

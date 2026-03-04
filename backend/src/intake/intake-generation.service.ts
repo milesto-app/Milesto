@@ -1,12 +1,13 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { IntakePromptService } from './intake-prompt.service.js';
-import { IntakeQualityService } from './intake-quality.service.js';
-import { IntakeProfileService } from './intake-profile.service.js';
+
 import { MAX_GENERATION_ATTEMPTS } from './constants/intake.constants.js';
+import { IntakeProfileService } from './intake-profile.service.js';
 import type {
   GeneratedQuestion,
   PriorBatchContext,
 } from './intake-prompt.service.js';
+import { IntakePromptService } from './intake-prompt.service.js';
+import { IntakeQualityService } from './intake-quality.service.js';
 import type { ProfileResult } from './types/intake.types.js';
 
 export type BatchGenerationResult =

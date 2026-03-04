@@ -1,17 +1,18 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
+
 import { AiService } from '../ai/ai.service.js';
+import type { Json } from '../supabase/database.types.js';
 import { SupabaseService } from '../supabase/supabase.service.js';
 import { WEEKLY_PLAN_JUDGE_SYSTEM_PROMPT } from './prompts/quality-prompts.js';
 import {
-  clampScore,
   checkWarnings,
+  clampScore,
   evaluateQuality,
 } from './quality-helpers.js';
-import type { Json } from '../supabase/database.types.js';
 import type {
-  WeeklyPlanQualityScores,
   WeeklyPlanGeneratedEvent,
+  WeeklyPlanQualityScores,
 } from './types/quality.types.js';
 
 const PLAN_SCORE_DIMENSIONS = 3;

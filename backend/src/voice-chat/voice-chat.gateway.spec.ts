@@ -1,10 +1,11 @@
 import { Test } from '@nestjs/testing';
-import { VoiceChatGateway } from './voice-chat.gateway.js';
-import { VoiceChatAuthService } from './voice-chat-auth.service.js';
-import { VoiceChatSessionService } from './voice-chat-session.service.js';
+
 import { ChatPromptService } from '../chat/chat-prompt.service.js';
 import { CoachService } from '../coach/coach.service.js';
+import { VoiceChatGateway } from './voice-chat.gateway.js';
+import { VoiceChatAuthService } from './voice-chat-auth.service.js';
 import type { ActiveSession } from './voice-chat-session.service.js';
+import { VoiceChatSessionService } from './voice-chat-session.service.js';
 
 const WS_CLOSE_POLICY = 1008;
 

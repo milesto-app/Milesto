@@ -1,5 +1,6 @@
-import { Test } from '@nestjs/testing';
 import { ConfigService } from '@nestjs/config';
+import { Test } from '@nestjs/testing';
+
 import { GeminiLiveService } from './gemini-live.service.js';
 import type { GeminiSessionCallbacks } from './types/voice-chat.types.js';
 
