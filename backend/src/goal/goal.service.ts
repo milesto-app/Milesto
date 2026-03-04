@@ -69,15 +69,12 @@ export class GoalService {
   }
 
   private async generateTitle(description: string): Promise<string> {
-    const TITLE_TIMEOUT_MS = 10_000;
     const FALLBACK_MAX_LENGTH = 200;
 
     try {
       const result = await this.aiService.generateJson<{ title: string }>(
         buildGoalTitleSystemPrompt(),
         buildGoalTitleUserPrompt(description),
-        undefined,
-        { timeoutMs: TITLE_TIMEOUT_MS },
       );
       return result.title;
     } catch (error) {

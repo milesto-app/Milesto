@@ -26,10 +26,6 @@ export class EvalScoringService {
           systemPrompt,
           userPrompt,
           appConfig.eval.judgeModel,
-          {
-            temperature: appConfig.eval.judgeTemperature,
-            timeoutMs: appConfig.eval.callTimeoutMs,
-          },
         );
         this.logger.log(`    ${judgeName}: OK`);
         return result;

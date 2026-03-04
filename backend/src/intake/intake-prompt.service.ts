@@ -83,7 +83,7 @@ export class IntakePromptService {
       systemPrompt,
       userPrompt,
       appConfig.intake.model,
-      { reasoning: { effort: 'high' } },
+      'high',
     );
   }
 

@@ -3,6 +3,7 @@ export const appConfig = {
     baseUrl: 'https://openrouter.ai/api/v1',
     defaultModel: 'google/gemini-3-flash-preview',
     callTimeoutMs: 30_000,
+    maxRetries: 3,
     embeddingModel: 'text-embedding-3-small',
     embeddingDimensions: 1536,
   },
@@ -16,8 +17,6 @@ export const appConfig = {
   },
   eval: {
     judgeModel: 'x-ai/grok-4.1-fast',
-    judgeTemperature: 0,
-    callTimeoutMs: 120_000,
   },
   throttle: {
     globalLimit: 60,
@@ -33,9 +32,6 @@ export const appConfig = {
     weeklyModel: 'default',
     dailyModel: 'default',
     maxGenerationAttempts: 3,
-    generationTimeoutMs: 30_000,
-    weeklyPlanTimeoutMs: 15_000,
-    dailyObjectiveTimeoutMs: 10_000,
   },
   cohere: {
     apiVersion: '2',

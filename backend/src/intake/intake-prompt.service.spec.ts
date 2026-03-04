@@ -156,14 +156,14 @@ describe('IntakePromptService', () => {
       expect(typeof userPrompt).toBe('string');
     });
 
-    it('should pass intake model and reasoning options to AiService', async () => {
+    it('should pass intake model and reasoning to AiService', async () => {
       mockAiService.generateJSON.mockResolvedValue(mockProfile);
 
       await service.generateGoalProfile('Run a marathon', priorBatches, 'en');
 
-      const [, , model, options] = mockAiService.generateJSON.mock.calls[0];
+      const [, , model, reasoning] = mockAiService.generateJSON.mock.calls[0];
       expect(model).toBe(appConfig.intake.model);
-      expect(options).toEqual({ reasoning: { effort: 'high' } });
+      expect(reasoning).toBe('high');
     });
 
     it('should include all 6 required profile sections in system prompt', async () => {
@@ -322,7 +322,7 @@ describe('IntakePromptService', () => {
       expect(typeof userPrompt).toBe('string');
     });
 
-    it('should pass intake model to AiService without reasoning options', async () => {
+    it('should pass intake model to AiService', async () => {
       mockAiService.generateJSON.mockResolvedValue(mockGeneratedBatch);
 
       await service.generateNextBatch({
@@ -332,9 +332,8 @@ describe('IntakePromptService', () => {
         language: 'en',
       });
 
-      const [, , model, options] = mockAiService.generateJSON.mock.calls[0];
+      const [, , model] = mockAiService.generateJSON.mock.calls[0];
       expect(model).toBe(appConfig.intake.model);
-      expect(options).toBeUndefined();
     });
 
     it('should include goal description in user prompt', async () => {

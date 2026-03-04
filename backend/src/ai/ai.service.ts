@@ -10,15 +10,6 @@ import type { Stream } from 'openai/streaming';
 
 import { appConfig } from '../config/app.config.js';
 
-const DEFAULT_MAX_RETRIES = 3;
-
-export interface GenerateJsonOptions {
-  temperature?: number;
-  timeoutMs?: number;
-  reasoning?: { effort?: string };
-  maxRetries?: number;
-}
-
 @Injectable()
 export class AiService {
   private readonly logger = new Logger(AiService.name);
@@ -77,12 +68,9 @@ export class AiService {
     system: string,
     user: string,
     model?: string,
-    options?: GenerateJsonOptions,
+    reasoning?: string,
   ): Promise<T> {
-    const maxRetries = options?.maxRetries ?? DEFAULT_MAX_RETRIES;
-    const timeoutMs = options?.timeoutMs ?? appConfig.ai.callTimeoutMs;
-
-    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    for (let attempt = 1; attempt <= appConfig.ai.maxRetries; attempt++) {
       try {
         return await this.withTimeout(async (signal) => {
           const response = await this.openai.chat.completions.create(
@@ -92,17 +80,20 @@ export class AiService {
                 { role: 'system', content: system },
                 { role: 'user', content: user },
               ],
+              ...(reasoning !== undefined && {
+                reasoning: { effort: reasoning },
+              }),
             } as OpenAI.Chat.ChatCompletionCreateParamsNonStreaming,
             { signal },
           );
           return this.extractJson(response) as T;
-        }, timeoutMs);
+        });
       } catch (error) {
-        const isLastAttempt = attempt >= maxRetries;
+        const isLastAttempt = attempt >= appConfig.ai.maxRetries;
         if (!this.isRetryableError(error) || isLastAttempt) {
           throw error;
         }
-        this.logRetryWarning(attempt, maxRetries, error);
+        this.logRetryWarning(attempt, error);
       }
     }
     throw new Error('All retry attempts exhausted');
@@ -127,25 +118,20 @@ export class AiService {
     );
   }
 
-  private logRetryWarning(
-    attempt: number,
-    maxRetries: number,
-    error: unknown,
-  ): void {
+  private logRetryWarning(attempt: number, error: unknown): void {
     const message = error instanceof Error ? error.message : String(error);
     this.logger.warn(
-      `JSON parse failed (attempt ${attempt}/${maxRetries}): ${message}. Retrying...`,
+      `JSON parse failed (attempt ${attempt}/${appConfig.ai.maxRetries}): ${message}. Retrying...`,
     );
   }
 
   private async withTimeout<T>(
     operation: (signal: AbortSignal) => Promise<T>,
-    timeoutMs: number = appConfig.ai.callTimeoutMs,
   ): Promise<T> {
     const controller = new AbortController();
     const timeout = setTimeout(() => {
       controller.abort();
-    }, timeoutMs);
+    }, appConfig.ai.callTimeoutMs);
 
     try {
       return await operation(controller.signal);

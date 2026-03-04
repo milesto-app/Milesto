@@ -160,9 +160,6 @@ describe('GenerationService', () => {
         expect.any(String),
         expect.any(String),
         appConfig.ai.defaultModel,
-        expect.objectContaining({
-          timeoutMs: appConfig.roadmap.generationTimeoutMs,
-        }),
       );
     });
 
@@ -250,10 +247,6 @@ describe('GenerationService', () => {
         expect.any(String),
         expect.any(String),
         expect.any(String),
-        expect.objectContaining({
-          timeoutMs: appConfig.roadmap.generationTimeoutMs,
-          captureUsage: expect.any(Object),
-        }),
       );
     });
 
@@ -362,7 +355,7 @@ describe('GenerationService', () => {
       expect(result.metadata.attempts).toBe(1);
     });
 
-    it('should use weeklyPlanTimeoutMs from config', async () => {
+    it('should use default model from config', async () => {
       mockAiService.generateJSON.mockResolvedValue(validWeeklyPlanResponse);
 
       await service.generateWeeklyPlan({
@@ -377,9 +370,6 @@ describe('GenerationService', () => {
         expect.any(String),
         expect.any(String),
         appConfig.ai.defaultModel,
-        expect.objectContaining({
-          timeoutMs: appConfig.roadmap.weeklyPlanTimeoutMs,
-        }),
       );
     });
 
@@ -639,7 +629,7 @@ describe('GenerationService', () => {
       expect(result.metadata.completion_tokens).toBe(150);
     });
 
-    it('should use dailyObjectiveTimeoutMs from config', async () => {
+    it('should use default model from config', async () => {
       mockAiService.generateJSON.mockResolvedValue(
         validDailyObjectivesResponse,
       );
@@ -656,9 +646,6 @@ describe('GenerationService', () => {
         expect.any(String),
         expect.any(String),
         appConfig.ai.defaultModel,
-        expect.objectContaining({
-          timeoutMs: appConfig.roadmap.dailyObjectiveTimeoutMs,
-        }),
       );
     });
 

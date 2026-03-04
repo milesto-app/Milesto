@@ -54,9 +54,5 @@ export async function evaluateQuality<T>(params: EvaluateParams): Promise<T> {
     params.systemPrompt,
     userPrompt,
     appConfig.eval.judgeModel,
-    {
-      temperature: appConfig.eval.judgeTemperature,
-      timeoutMs: appConfig.eval.callTimeoutMs,
-    },
   );
 }

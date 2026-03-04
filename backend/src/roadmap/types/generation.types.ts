@@ -7,7 +7,6 @@ export interface RetryParams {
   systemPrompt: string;
   userPrompt: string;
   model: string;
-  timeoutMs: number;
   totalChunks: number;
   label: string;
   validate: (raw: unknown) => unknown;

@@ -52,7 +52,6 @@ export class GenerationService {
       systemPrompt: buildMilestoneSystemPrompt(language),
       userPrompt: buildMilestoneUserPrompt(context, goal),
       model,
-      timeoutMs: appConfig.roadmap.generationTimeoutMs,
       totalChunks: context.totalChunks,
       label: 'Milestone',
       validate: validateMilestones,
@@ -76,7 +75,6 @@ export class GenerationService {
         generationContext: params.generationContext,
       }),
       model,
-      timeoutMs: appConfig.roadmap.weeklyPlanTimeoutMs,
       totalChunks: params.context.totalChunks,
       label: 'Weekly plan',
       validate: validateWeeklyPlan,
@@ -101,7 +99,6 @@ export class GenerationService {
         weekData: params.weekData,
       }),
       model,
-      timeoutMs: appConfig.roadmap.dailyObjectiveTimeoutMs,
       totalChunks: params.context.totalChunks,
       label: 'Daily objectives',
       validate: validateDailyObjectives,
@@ -127,7 +124,6 @@ export class GenerationService {
           params.systemPrompt,
           params.userPrompt,
           params.model,
-          { timeoutMs: params.timeoutMs },
         );
         const validated = params.validate(raw);
         return {
