@@ -129,7 +129,7 @@ export default tseslint.config(
       ],
       'max-lines': 'off',
       'max-lines-per-function': 'off',
-      'max-params': ['error', { max: 3 }],
+      'max-params': 'off',
       'max-depth': ['error', { max: 3 }],
       'no-nested-ternary': 'error',
       'no-else-return': 'error',

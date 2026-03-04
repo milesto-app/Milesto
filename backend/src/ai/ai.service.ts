@@ -62,7 +62,6 @@ export class AiService {
     }
   }
 
-  // eslint-disable-next-line max-params -- public API used across many modules
   public async generateJSON<T>(
     system: string,
     user: string,
@@ -102,7 +101,6 @@ export class AiService {
     );
   }
 
-  // eslint-disable-next-line max-params -- mirrors public generateJSON signature
   private async attemptJsonGeneration<T>(
     system: string,
     user: string,
@@ -129,7 +127,6 @@ export class AiService {
     }
   }
 
-  // eslint-disable-next-line max-params -- pass-through to OpenAI SDK
   private async callChatCompletion(
     system: string,
     user: string,
