@@ -69,7 +69,6 @@ export class DebriefService {
     }
   }
 
-  // eslint-disable-next-line max-params
   private async insertDebrief(
     goalId: string,
     userId: string,

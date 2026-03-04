@@ -47,7 +47,6 @@ export class VoiceChatSessionService {
   private readonly logger = new Logger(VoiceChatSessionService.name);
   private readonly activeSessions = new Map<string, ActiveSession>();
 
-  // eslint-disable-next-line max-params -- NestJS DI requires individual constructor params
   constructor(
     private readonly geminiLiveService: GeminiLiveService,
     private readonly chatToolsService: ChatToolsService,

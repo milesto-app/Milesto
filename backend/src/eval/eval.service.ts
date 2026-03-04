@@ -104,7 +104,6 @@ export class EvalService {
       batchNum <= appConfig.intake.maxBatches;
       batchNum++
     ) {
-      // eslint-disable-next-line no-await-in-loop -- sequential batch generation
       const result = await this.processAiBatch(gs, tag, priorBatches, batchNum);
       if (result === null) {
         completedAtBatch = batchNum;
@@ -117,7 +116,6 @@ export class EvalService {
     return { aiBatches, completedAtBatch };
   }
 
-  // eslint-disable-next-line max-params -- tightly coupled loop context
   private async processAiBatch(
     gs: GoldStandard,
     tag: string,
@@ -156,7 +154,6 @@ export class EvalService {
     }
   }
 
-  // eslint-disable-next-line max-params -- tightly coupled eval context
   private async evaluateGeneratedBatch(
     gs: GoldStandard,
     tag: string,

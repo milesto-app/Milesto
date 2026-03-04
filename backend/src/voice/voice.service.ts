@@ -10,7 +10,6 @@ import { VoiceTtsService } from './voice-tts.service.js';
 export class VoiceService {
   private readonly logger = new Logger(VoiceService.name);
 
-  // eslint-disable-next-line max-params
   constructor(
     private readonly supabaseService: SupabaseService,
     private readonly sttService: VoiceSttService,

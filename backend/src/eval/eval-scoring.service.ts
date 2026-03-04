@@ -22,7 +22,6 @@ export class EvalScoringService {
   ): Promise<T> {
     for (let attempt = 0; attempt <= DEFAULT_JUDGE_RETRIES; attempt++) {
       try {
-        // eslint-disable-next-line no-await-in-loop -- sequential retry loop requires await
         const result = await this.aiService.generateJSON<T>(
           systemPrompt,
           userPrompt,

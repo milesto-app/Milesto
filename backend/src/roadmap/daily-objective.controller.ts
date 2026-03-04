@@ -57,7 +57,6 @@ export class DailyObjectiveController {
     return this.dailyObjectiveService.getDailyObjectives(goalId, userId);
   }
 
-  // eslint-disable-next-line max-params
   @Patch(':objectiveId')
   @Throttle({
     default: {

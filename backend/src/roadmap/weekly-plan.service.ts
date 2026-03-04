@@ -35,7 +35,6 @@ export class WeeklyPlanService {
   private readonly logger = new Logger(WeeklyPlanService.name);
   private readonly deps: WeeklyPlanDeps;
 
-  // eslint-disable-next-line max-params
   constructor(
     contextPipeline: ContextPipelineService,
     generation: GenerationService,
@@ -196,7 +195,6 @@ export class WeeklyPlanService {
     return weeklyPlan;
   }
 
-  // eslint-disable-next-line max-params
   private async createFallbackOrThrow(
     milestone: Milestone,
     goalId: string,

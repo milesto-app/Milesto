@@ -73,7 +73,6 @@ export class AiService {
 
     for (let attempt = 1; attempt <= maxRetries; attempt++) {
       try {
-        // eslint-disable-next-line no-await-in-loop -- sequential retry loop requires await
         return await this.attemptJsonGeneration<T>(
           system,
           user,

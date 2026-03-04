@@ -125,7 +125,6 @@ export class GenerationService {
     for (let attempt = 0; attempt < MAX_GENERATION_ATTEMPTS; attempt++) {
       try {
         const usageRef: UsageRef = {};
-        // eslint-disable-next-line no-await-in-loop
         const raw = await this.aiService.generateJSON<unknown>(
           params.systemPrompt,
           params.userPrompt,

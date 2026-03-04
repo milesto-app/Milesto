@@ -1,4 +1,4 @@
-/* eslint-disable max-params, @typescript-eslint/no-non-null-assertion, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/require-await, @typescript-eslint/no-unnecessary-condition, no-restricted-syntax, @typescript-eslint/naming-convention, @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-non-null-assertion, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/require-await, @typescript-eslint/no-unnecessary-condition, no-restricted-syntax, @typescript-eslint/naming-convention, @typescript-eslint/no-unused-vars */
 import type { TestingModule } from '@nestjs/testing';
 import { Test } from '@nestjs/testing';
 

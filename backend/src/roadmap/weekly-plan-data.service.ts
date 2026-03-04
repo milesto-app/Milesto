@@ -37,7 +37,6 @@ interface MonthlyParams {
 export class WeeklyPlanDataService {
   private readonly logger = new Logger(WeeklyPlanDataService.name);
 
-  // eslint-disable-next-line max-params
   constructor(
     private readonly supabaseService: SupabaseService,
     private readonly narrativeService: GenerationNarrativeService,

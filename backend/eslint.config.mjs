@@ -115,7 +115,7 @@ export default tseslint.config(
       'prefer-template': 'error',
       'no-useless-return': 'error',
       'array-callback-return': 'error',
-      'no-await-in-loop': 'error',
+      'no-await-in-loop': 'off',
       'no-promise-executor-return': 'error',
       eqeqeq: 'error',
       complexity: ['error', { max: 10 }],

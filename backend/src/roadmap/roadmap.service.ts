@@ -17,7 +17,6 @@ import type {
 export class RoadmapService {
   private readonly logger = new Logger(RoadmapService.name);
 
-  // eslint-disable-next-line max-params
   constructor(
     private readonly supabaseService: SupabaseService,
     private readonly contextPipeline: ContextPipelineService,

@@ -28,7 +28,6 @@ export class VoiceChatGateway
   private readonly clientUserMap = new Map<WebSocket, string>();
   private readonly messageTimestamps = new Map<string, number[]>();
 
-  // eslint-disable-next-line max-params -- NestJS DI requires individual constructor params
   constructor(
     private readonly authService: VoiceChatAuthService,
     private readonly sessionService: VoiceChatSessionService,

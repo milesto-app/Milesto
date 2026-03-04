@@ -35,7 +35,6 @@ interface FallbackParams {
 export class DailyObjectiveService {
   private readonly logger = new Logger(DailyObjectiveService.name);
 
-  // eslint-disable-next-line max-params
   constructor(
     private readonly contextPipeline: ContextPipelineService,
     private readonly generation: GenerationService,

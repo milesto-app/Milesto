@@ -96,7 +96,6 @@ export class CheckInService {
     }
   }
 
-  // eslint-disable-next-line max-params
   private async insertCheckIn(
     goalId: string,
     userId: string,

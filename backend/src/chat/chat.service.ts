@@ -34,7 +34,6 @@ export class ChatService {
   private readonly logger = new Logger(ChatService.name);
   private readonly toolRegistry: Map<string, ChatToolEntry>;
 
-  // eslint-disable-next-line max-params -- NestJS DI requires individual constructor params
   constructor(
     private readonly chatAi: ChatAiService,
     private readonly history: ChatHistoryService,
@@ -94,13 +93,10 @@ export class ChatService {
 
   private async runAgentLoop(opts: AgentLoopOptions): Promise<void> {
     for (let round = 0; round < appConfig.chat.maxToolRounds; round++) {
-      // eslint-disable-next-line no-await-in-loop -- sequential agentic loop requires await
       const stream = await this.chatAi.createStream(opts.messages, opts.tools);
-      // eslint-disable-next-line no-await-in-loop -- must consume before next round
       const { content, toolCalls } = await consumeStream(stream, opts.onEvent);
 
       if (toolCalls.length === 0) {
-        // eslint-disable-next-line no-await-in-loop -- final store before return
         await this.history.storeMessage(opts.conversationId, {
           role: 'assistant',
           content,
@@ -108,9 +104,7 @@ export class ChatService {
         return;
       }
 
-      // eslint-disable-next-line no-await-in-loop -- must store before tool execution
       await this.storeAssistantToolCalls(opts, content, toolCalls);
-      // eslint-disable-next-line no-await-in-loop -- tool execution is sequential
       await this.executeToolCalls(opts, toolCalls);
     }
   }
@@ -144,7 +138,6 @@ export class ChatService {
   ): Promise<void> {
     for (const tc of toolCalls) {
       opts.onEvent({ type: 'tool_start', toolName: tc.name });
-      // eslint-disable-next-line no-await-in-loop -- tools must execute sequentially
       const result = await this.executeTool(tc.name, tc.arguments, opts.ctx);
       const resultStr = JSON.stringify(result);
       opts.messages.push({
@@ -152,7 +145,6 @@ export class ChatService {
         tool_call_id: tc.id,
         content: resultStr,
       });
-      // eslint-disable-next-line no-await-in-loop -- must store before next tool
       await this.history.storeMessage(opts.conversationId, {
         role: 'tool',
         content: resultStr,

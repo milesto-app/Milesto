@@ -10,7 +10,6 @@ import type { ToolExecutionContext } from './types/chat.types.js';
 export class ChatToolsService {
   private readonly logger = new Logger(ChatToolsService.name);
 
-  // eslint-disable-next-line max-params -- NestJS DI requires separate constructor params
   constructor(
     private readonly dailyObjectiveService: DailyObjectiveService,
     private readonly weeklyPlanService: WeeklyPlanService,
