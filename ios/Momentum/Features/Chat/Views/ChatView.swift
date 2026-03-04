@@ -45,17 +45,6 @@ struct ChatView: View {
             .scrollDismissesKeyboard(.interactively)
             .contentMargins(.top, 56)
             .contentMargins(.bottom, 72)
-            .overlay {
-                if messages.isEmpty {
-                    ChatEmptyState(onSelectPrompt: { prompt in
-                        inputText = prompt
-                        isInputFocused = true
-                    }, onVoiceChatTap: {
-                        isVoiceChatActive = true
-                    })
-                    .transition(.opacity.combined(with: .scale(scale: 0.95)).combined(with: .offset(y: -20)))
-                }
-            }
             .onChange(of: messages.count) {
                 if let lastId = messages.last?.id {
                     withAnimation(.easeOut(duration: 0.2)) {
@@ -65,9 +54,20 @@ struct ChatView: View {
             }
         }
         .overlay(alignment: .bottom) {
-            ChatInputBar(text: $inputText, isDisabled: isStreaming, isFocused: $isInputFocused) {
-                sendMessage()
+            VStack(spacing: 16) {
+                if messages.isEmpty && inputText.isEmpty {
+                    ChatEmptyState(onSelectPrompt: { prompt in
+                        inputText = prompt
+                        isInputFocused = true
+                    })
+                    .transition(.opacity.combined(with: .scale(scale: 0.95)))
+                }
+
+                ChatInputBar(text: $inputText, isDisabled: isStreaming, isFocused: $isInputFocused) {
+                    sendMessage()
+                }
             }
+            .animation(.smooth(duration: 0.25), value: inputText.isEmpty)
         }
         .overlay(alignment: .top) {
             ProgressiveBlur()
