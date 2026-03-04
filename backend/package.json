@@ -1,5 +1,5 @@
 {
-  "name": "momentum_back",
+  "name": "momentum_backend",
   "version": "0.0.1",
   "description": "",
   "author": "",
@@ -7,12 +7,11 @@
   "license": "UNLICENSED",
   "scripts": {
     "build": "nest build",
-    "format": "prettier --write \"src/**/*.ts\" \"tests/**/*.ts\"",
     "start": "nest start",
     "start:dev": "nest start --watch",
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/main",
-    "lint": "eslint \"{src,apps,libs,tests}/**/*.ts\" --fix",
+    "lint": "prettier --write . && eslint . --fix",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
