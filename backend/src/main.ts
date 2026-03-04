@@ -23,13 +23,12 @@ async function bootstrap(): Promise<void> {
 
   const config = new DocumentBuilder()
     .setTitle('Momentum API')
-    .setDescription(
-      'AI-powered personal coaching platform — Goal Intake System API',
-    )
+    .setDescription('AI-powered personal coaching app API')
     .setVersion('1.0')
     .addBearerAuth()
     .build();
   const document = SwaggerModule.createDocument(app, config);
+
   SwaggerModule.setup('docs', app, document);
 
   await app.listen(process.env.PORT ?? DEFAULT_PORT);

@@ -1,6 +1,6 @@
-import { Logger, Module, OnModuleInit } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { APP_GUARD } from '@nestjs/core';
-import { EventEmitter2, EventEmitterModule } from '@nestjs/event-emitter';
+import { EventEmitterModule } from '@nestjs/event-emitter';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 
 import { AiModule } from './ai/ai.module.js';
@@ -44,17 +44,4 @@ import { VoiceChatModule } from './voice-chat/voice-chat.module.js';
     },
   ],
 })
-export class AppModule implements OnModuleInit {
-  private readonly logger = new Logger(AppModule.name);
-
-  constructor(private readonly eventEmitter: EventEmitter2) {}
-
-  public onModuleInit(): void {
-    this.eventEmitter.on('error', (error: Error) => {
-      this.logger.error(
-        `Unhandled event listener error: ${error.message}`,
-        error.stack,
-      );
-    });
-  }
-}
+export class AppModule {}
