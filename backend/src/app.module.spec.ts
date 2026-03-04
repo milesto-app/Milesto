@@ -26,8 +26,14 @@ describe('AppModule - event handling', () => {
 
     const testError = new Error('test error');
     testError.stack = 'test stack';
+
+    const errorHandler = handlers['error'];
+
+    if (errorHandler === undefined) {
+      throw new Error('error handler not registered');
+    }
     expect(() => {
-      handlers['error'](testError);
+      errorHandler(testError);
     }).not.toThrow();
   });
 });
