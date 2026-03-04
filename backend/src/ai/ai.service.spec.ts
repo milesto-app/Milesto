@@ -91,3 +91,40 @@ describe('AiService.generateEmbedding', () => {
     expect(options.signal).toBeInstanceOf(AbortSignal);
   });
 });
+
+describe('AiService.createStream', () => {
+  it('should call OpenAI chat completions with correct params', async () => {
+    const mockStream = { async *[Symbol.asyncIterator]() {} };
+    mockOpenai.chat.completions.create.mockResolvedValue(mockStream);
+
+    const messages = [{ role: 'user' as const, content: 'hello' }];
+    const tools = [
+      {
+        type: 'function' as const,
+        function: {
+          name: 'test_tool',
+          description: 'A test tool',
+          parameters: { type: 'object', properties: {} },
+        },
+      },
+    ];
+
+    await service.generateStream(messages, tools);
+
+    expect(mockOpenai.chat.completions.create).toHaveBeenCalledWith({
+      model: appConfig.chat.model,
+      messages,
+      tools,
+      stream: true,
+    });
+  });
+
+  it('should return the stream from OpenAI', async () => {
+    const mockStream = { async *[Symbol.asyncIterator]() {} };
+    mockOpenai.chat.completions.create.mockResolvedValue(mockStream);
+
+    const result = await service.generateStream([], []);
+
+    expect(result).toBe(mockStream);
+  });
+});

@@ -1,6 +1,12 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import OpenAI from 'openai';
+import type {
+  ChatCompletionChunk,
+  ChatCompletionMessageParam,
+  ChatCompletionTool,
+} from 'openai/resources/chat/completions';
+import type { Stream } from 'openai/streaming';
 
 import { appConfig } from '../config/app.config.js';
 
@@ -30,22 +36,16 @@ export class AiService {
     });
   }
 
-  private async generateChatResponse(
-    system: string,
-    user: string,
-    model: string | undefined,
-    signal: AbortSignal,
-  ): Promise<OpenAI.Chat.Completions.ChatCompletion> {
-    return this.openai.chat.completions.create(
-      {
-        model: model ?? appConfig.ai.defaultModel,
-        messages: [
-          { role: 'system', content: system },
-          { role: 'user', content: user },
-        ],
-      } as OpenAI.Chat.ChatCompletionCreateParamsNonStreaming,
-      { signal },
-    );
+  public async generateStream(
+    messages: ChatCompletionMessageParam[],
+    tools: ChatCompletionTool[],
+  ): Promise<Stream<ChatCompletionChunk>> {
+    return this.openai.chat.completions.create({
+      model: appConfig.chat.model,
+      messages,
+      tools,
+      stream: true,
+    });
   }
 
   public async generateEmbedding(text: string): Promise<number[]> {
@@ -90,11 +90,15 @@ export class AiService {
     for (let attempt = 1; attempt <= maxRetries; attempt++) {
       try {
         return await this.withTimeout(async (signal) => {
-          const response = await this.generateChatResponse(
-            system,
-            user,
-            model,
-            signal,
+          const response = await this.openai.chat.completions.create(
+            {
+              model: model ?? appConfig.ai.defaultModel,
+              messages: [
+                { role: 'system', content: system },
+                { role: 'user', content: user },
+              ],
+            } as OpenAI.Chat.ChatCompletionCreateParamsNonStreaming,
+            { signal },
           );
           this.captureUsage(options, response);
           return this.extractJson(response) as T;

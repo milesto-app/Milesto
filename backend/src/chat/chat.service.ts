@@ -4,8 +4,8 @@ import type {
   ChatCompletionTool,
 } from 'openai/resources/chat/completions';
 
+import { AiService } from '../ai/ai.service.js';
 import { appConfig } from '../config/app.config.js';
-import { ChatAiService } from './chat-ai.service.js';
 import { ChatCheckInToolsService } from './chat-checkin-tools.service.js';
 import { ChatHistoryService } from './chat-history.service.js';
 import { ChatPromptService } from './chat-prompt.service.js';
@@ -35,7 +35,7 @@ export class ChatService {
   private readonly toolRegistry: Map<string, ChatToolEntry>;
 
   constructor(
-    private readonly chatAi: ChatAiService,
+    private readonly ai: AiService,
     private readonly history: ChatHistoryService,
     private readonly prompt: ChatPromptService,
     private readonly toolsService: ChatToolsService,
@@ -93,7 +93,7 @@ export class ChatService {
 
   private async runAgentLoop(opts: AgentLoopOptions): Promise<void> {
     for (let round = 0; round < appConfig.chat.maxToolRounds; round++) {
-      const stream = await this.chatAi.createStream(opts.messages, opts.tools);
+      const stream = await this.ai.generateStream(opts.messages, opts.tools);
       const { content, toolCalls } = await consumeStream(stream, opts.onEvent);
 
       if (toolCalls.length === 0) {

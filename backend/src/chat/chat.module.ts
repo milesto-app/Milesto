@@ -4,7 +4,6 @@ import { CoachModule } from '../coach/coach.module.js';
 import { RoadmapModule } from '../roadmap/roadmap.module.js';
 import { ChatController } from './chat.controller.js';
 import { ChatService } from './chat.service.js';
-import { ChatAiService } from './chat-ai.service.js';
 import { ChatCheckInToolsService } from './chat-checkin-tools.service.js';
 import { ChatHistoryService } from './chat-history.service.js';
 import { ChatListService } from './chat-list.service.js';
@@ -17,7 +16,6 @@ import { ChatToolsService } from './chat-tools.service.js';
   imports: [CoachModule, RoadmapModule],
   controllers: [ChatController],
   providers: [
-    ChatAiService,
     ChatHistoryService,
     ChatListService,
     ChatSearchService,
