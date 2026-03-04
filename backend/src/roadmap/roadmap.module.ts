@@ -61,5 +61,4 @@ import { DebriefController } from './debrief.controller.js';
     DebriefService,
   ],
 })
-// eslint-disable-next-line @typescript-eslint/no-extraneous-class
 export class RoadmapModule {}

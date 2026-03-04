@@ -10,5 +10,4 @@ import { VoiceTtsService } from './voice-tts.service.js';
   providers: [VoiceService, VoiceSttService, VoiceTtsService],
   exports: [VoiceService],
 })
-// eslint-disable-next-line @typescript-eslint/no-extraneous-class
 export class VoiceModule {}

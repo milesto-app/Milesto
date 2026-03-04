@@ -7,5 +7,4 @@ import { CoachService } from './coach.service.js';
   providers: [CoachService],
   exports: [CoachService],
 })
-// eslint-disable-next-line @typescript-eslint/no-extraneous-class
 export class CoachModule {}

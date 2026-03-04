@@ -7,5 +7,4 @@ import { GoalService } from './goal.service.js';
   providers: [GoalService],
   exports: [GoalService],
 })
-// eslint-disable-next-line @typescript-eslint/no-extraneous-class
 export class GoalModule {}

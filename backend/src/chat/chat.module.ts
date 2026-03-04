@@ -35,5 +35,4 @@ import { ChatRoadmapToolsService } from './chat-roadmap-tools.service.js';
     ChatService,
   ],
 })
-// eslint-disable-next-line @typescript-eslint/no-extraneous-class
 export class ChatModule {}

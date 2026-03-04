@@ -9,5 +9,4 @@ import { ConfigModule as NestConfigModule } from '@nestjs/config';
     }),
   ],
 })
-// eslint-disable-next-line @typescript-eslint/no-extraneous-class
 export class ConfigModule {}

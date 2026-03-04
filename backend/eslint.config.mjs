@@ -48,6 +48,10 @@ export default tseslint.config(
       ],
       '@typescript-eslint/no-unnecessary-type-assertion': 'error',
       '@typescript-eslint/prefer-readonly': 'error',
+      '@typescript-eslint/no-extraneous-class': [
+        'error',
+        { allowWithDecorator: true },
+      ],
 
       '@typescript-eslint/no-unsafe-call': 'error',
       '@typescript-eslint/no-misused-promises': 'error',

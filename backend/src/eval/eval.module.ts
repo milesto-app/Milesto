@@ -24,5 +24,4 @@ import { EvalScoringService } from './eval-scoring.service.js';
     EvalScoringService,
   ],
 })
-// eslint-disable-next-line @typescript-eslint/no-extraneous-class
 export class EvalModule {}

@@ -6,5 +6,4 @@ import { AiService } from './ai.service.js';
   providers: [AiService],
   exports: [AiService],
 })
-// eslint-disable-next-line @typescript-eslint/no-extraneous-class
 export class AiModule {}

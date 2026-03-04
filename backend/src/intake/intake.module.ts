@@ -38,5 +38,4 @@ const PROVIDERS = [
   providers: PROVIDERS,
   exports: [IntakeBatchService, IntakeProfileService, IntakePromptService],
 })
-// eslint-disable-next-line @typescript-eslint/no-extraneous-class
 export class IntakeModule {}
