@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 
-import { appConfig } from '../config/app.config.js';
+import { config } from '../config/app.config.js';
 import type {
   ContextChunk,
   RankedChunk,
@@ -61,7 +61,7 @@ export class RerankService {
     chunks: ContextChunk[],
     signal: AbortSignal,
   ): Promise<RerankResult> {
-    const url = `https://api.cohere.com/v${appConfig.cohere.apiVersion}/rerank`;
+    const url = `https://api.cohere.com/v${config.cohere.apiVersion}/rerank`;
     const response = await fetch(url, {
       method: 'POST',
       headers: {
@@ -69,7 +69,7 @@ export class RerankService {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: appConfig.cohere.model,
+        model: config.cohere.model,
         query,
         documents: chunks.map((c) => c.content_text),
         top_n: chunks.length,
@@ -93,7 +93,7 @@ export class RerankService {
       // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
       .sort((a, b) => (b.rerank_score ?? 0) - (a.rerank_score ?? 0));
 
-    const selected = allCandidates.slice(0, appConfig.roadmap.rerankTopN);
+    const selected = allCandidates.slice(0, config.roadmap.rerankTopN);
     return { selected, allCandidates, rerankApplied: true };
   }
 

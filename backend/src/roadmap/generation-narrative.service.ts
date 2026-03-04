@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 
 import { AiService } from '../ai/ai.service.js';
-import { appConfig } from '../config/app.config.js';
+import { config } from '../config/app.config.js';
 import {
   buildMonthlySummaryNarrativeSystemPrompt,
   buildMonthlySummaryNarrativeUserPrompt,
@@ -104,7 +104,7 @@ export class GenerationNarrativeService {
       return undefined;
     }
     try {
-      const model = appConfig.ai.defaultModel;
+      const model = config.ai.defaultModel;
       const result = await this.aiService.generateJson<{ narrative: string }>(
         params.systemPrompt,
         params.userPrompt,

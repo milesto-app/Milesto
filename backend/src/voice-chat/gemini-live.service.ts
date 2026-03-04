@@ -2,7 +2,7 @@ import { GoogleGenAI, Modality, Session } from '@google/genai';
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 
-import { appConfig } from '../config/app.config.js';
+import { config } from '../config/app.config.js';
 import type {
   GeminiFunctionCall,
   GeminiLiveSession,
@@ -49,7 +49,7 @@ export class GeminiLiveService {
     );
 
     const session = await this.ai.live.connect({
-      model: appConfig.voice.liveModel,
+      model: config.voice.liveModel,
       config: {
         responseModalities: [Modality.AUDIO],
         systemInstruction: { parts: [{ text: options.systemInstruction }] },

@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 
 import { AiService } from '../ai/ai.service.js';
-import { appConfig } from '../config/app.config.js';
+import { config } from '../config/app.config.js';
 import {
   validateDailyObjectives,
   validateMilestones,
@@ -47,7 +47,7 @@ export class GenerationService {
     milestones: GeneratedMilestone[];
     metadata: GenerationMetadata;
   }> {
-    const model = this.resolveModel(appConfig.roadmap.milestoneModel);
+    const model = this.resolveModel(config.roadmap.milestoneModel);
     const result = await this.generateWithRetry({
       systemPrompt: buildMilestoneSystemPrompt(language),
       userPrompt: buildMilestoneUserPrompt(context, goal),
@@ -65,7 +65,7 @@ export class GenerationService {
   public async generateWeeklyPlan(
     params: GenerateWeeklyPlanParams,
   ): Promise<{ plan: GeneratedWeeklyPlan; metadata: GenerationMetadata }> {
-    const model = this.resolveModel(appConfig.roadmap.weeklyModel);
+    const model = this.resolveModel(config.roadmap.weeklyModel);
     const result = await this.generateWithRetry({
       systemPrompt: buildWeeklyPlanSystemPrompt(params.language),
       userPrompt: buildWeeklyPlanUserPrompt({
@@ -89,7 +89,7 @@ export class GenerationService {
     objectives: GeneratedDailyObjective[];
     metadata: GenerationMetadata;
   }> {
-    const model = this.resolveModel(appConfig.roadmap.dailyModel);
+    const model = this.resolveModel(config.roadmap.dailyModel);
     const result = await this.generateWithRetry({
       systemPrompt: buildDailyObjectivesSystemPrompt(params.language),
       userPrompt: buildDailyObjectivesUserPrompt({
@@ -110,7 +110,7 @@ export class GenerationService {
   }
 
   private resolveModel(configModel: string): string {
-    return configModel === 'default' ? appConfig.ai.defaultModel : configModel;
+    return configModel === 'default' ? config.ai.defaultModel : configModel;
   }
 
   private async generateWithRetry(

@@ -10,7 +10,7 @@ import { Throttle } from '@nestjs/throttler';
 
 import { UserId } from '../common/decorators/user.decorator.js';
 import { AuthGuard } from '../common/guards/auth.guard.js';
-import { appConfig } from '../config/app.config.js';
+import { config } from '../config/app.config.js';
 import { SubmitAnswersDto } from './dto/submit-answers.dto.js';
 import { IntakeBatchService } from './intake-batch.service.js';
 import { IntakeProfileService } from './intake-profile.service.js';
@@ -28,8 +28,8 @@ export class IntakeController {
   @Get('next-batch')
   @Throttle({
     default: {
-      limit: appConfig.throttle.aiEndpointLimit,
-      ttl: appConfig.throttle.aiEndpointTtlMs,
+      limit: config.throttle.aiEndpointLimit,
+      ttl: config.throttle.aiEndpointTtlMs,
     },
   })
   @ApiOperation({ summary: 'Get the next unanswered intake batch' })
@@ -55,8 +55,8 @@ export class IntakeController {
   @Post('submit-batch')
   @Throttle({
     default: {
-      limit: appConfig.throttle.aiEndpointLimit,
-      ttl: appConfig.throttle.aiEndpointTtlMs,
+      limit: config.throttle.aiEndpointLimit,
+      ttl: config.throttle.aiEndpointTtlMs,
     },
   })
   @ApiOperation({ summary: 'Submit answers for the current batch' })

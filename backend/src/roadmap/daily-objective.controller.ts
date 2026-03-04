@@ -10,7 +10,7 @@ import { Throttle } from '@nestjs/throttler';
 
 import { UserId } from '../common/decorators/user.decorator.js';
 import { AuthGuard } from '../common/guards/auth.guard.js';
-import { appConfig } from '../config/app.config.js';
+import { config } from '../config/app.config.js';
 import { DailyObjectiveService } from './daily-objective.service.js';
 import { UpdateDailyObjectiveDto } from './dto/update-daily-objective.dto.js';
 import type { DailyObjective } from './types/daily.types.js';
@@ -33,7 +33,7 @@ export class DailyObjectiveController {
   @Throttle({
     default: {
       limit: GLOBAL_ENDPOINT_LIMIT,
-      ttl: appConfig.throttle.aiEndpointTtlMs,
+      ttl: config.throttle.aiEndpointTtlMs,
     },
   })
   @ApiOperation({
@@ -61,7 +61,7 @@ export class DailyObjectiveController {
   @Throttle({
     default: {
       limit: GLOBAL_ENDPOINT_LIMIT,
-      ttl: appConfig.throttle.aiEndpointTtlMs,
+      ttl: config.throttle.aiEndpointTtlMs,
     },
   })
   @ApiOperation({ summary: 'Mark daily objective as done or not done' })

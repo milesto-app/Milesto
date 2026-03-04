@@ -18,7 +18,7 @@ import { Throttle } from '@nestjs/throttler';
 
 import { UserId } from '../common/decorators/user.decorator.js';
 import { AuthGuard } from '../common/guards/auth.guard.js';
-import { appConfig } from '../config/app.config.js';
+import { config } from '../config/app.config.js';
 import { DebriefService } from './debrief.service.js';
 import { SubmitDebriefDto } from './dto/submit-debrief.dto.js';
 import type { Debrief } from './types/daily.types.js';
@@ -44,7 +44,7 @@ export class DebriefController {
   @Throttle({
     default: {
       limit: AI_ENDPOINT_LIMIT,
-      ttl: appConfig.throttle.aiEndpointTtlMs,
+      ttl: config.throttle.aiEndpointTtlMs,
     },
   })
   @ApiOperation({ summary: 'Submit end-of-day debrief' })
@@ -75,7 +75,7 @@ export class DebriefController {
   @Throttle({
     default: {
       limit: GLOBAL_ENDPOINT_LIMIT,
-      ttl: appConfig.throttle.globalTtlMs,
+      ttl: config.throttle.globalTtlMs,
     },
   })
   @ApiOperation({ summary: 'Get debrief history for goal' })

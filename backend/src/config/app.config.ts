@@ -1,4 +1,4 @@
-export const appConfig = {
+export const config = {
   ai: {
     baseUrl: 'https://openrouter.ai/api/v1',
     defaultModel: 'google/gemini-3-flash-preview',

@@ -7,7 +7,7 @@ import { AiModule } from './ai/ai.module.js';
 import { ChatModule } from './chat/chat.module.js';
 import { CoachModule } from './coach/coach.module.js';
 import { CommonModule } from './common/common.module.js';
-import { appConfig } from './config/app.config.js';
+import { config } from './config/app.config.js';
 import { ConfigModule } from './config/config.module.js';
 import { GoalModule } from './goal/goal.module.js';
 import { IntakeModule } from './intake/intake.module.js';
@@ -23,8 +23,8 @@ import { VoiceChatModule } from './voice-chat/voice-chat.module.js';
     EventEmitterModule.forRoot(),
     ThrottlerModule.forRoot([
       {
-        ttl: appConfig.throttle.globalTtlMs,
-        limit: appConfig.throttle.globalLimit,
+        ttl: config.throttle.globalTtlMs,
+        limit: config.throttle.globalLimit,
       },
     ]),
     SupabaseModule,

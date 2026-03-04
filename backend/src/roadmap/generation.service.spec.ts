@@ -3,7 +3,7 @@ import type { TestingModule } from '@nestjs/testing';
 import { Test } from '@nestjs/testing';
 
 import { AiService } from '../ai/ai.service.js';
-import { appConfig } from '../config/app.config.js';
+import { config } from '../config/app.config.js';
 import { GenerationService } from './generation.service.js';
 import type { AssembledContext } from './types/context.types.js';
 import type { EnergyLevel } from './types/daily.types.js';
@@ -91,7 +91,7 @@ describe('GenerationService', () => {
 
       expect(result.milestones).toHaveLength(3);
       expect(result.milestones[0]!.title).toBe('Build base endurance');
-      expect(result.metadata.model_used).toBe(appConfig.ai.defaultModel);
+      expect(result.metadata.model_used).toBe(config.ai.defaultModel);
       expect(result.metadata.context_chunks_used).toBe(5);
       expect(result.metadata.attempts).toBe(1);
       expect(result.metadata.latency_ms).toBeGreaterThanOrEqual(0);
@@ -159,7 +159,7 @@ describe('GenerationService', () => {
       expect(mockAiService.generateJSON).toHaveBeenCalledWith(
         expect.any(String),
         expect.any(String),
-        appConfig.ai.defaultModel,
+        config.ai.defaultModel,
       );
     });
 
@@ -351,7 +351,7 @@ describe('GenerationService', () => {
 
       expect(result.plan.focus).toBe('Build foundation habits');
       expect(result.plan.objectives).toHaveLength(3);
-      expect(result.metadata.model_used).toBe(appConfig.ai.defaultModel);
+      expect(result.metadata.model_used).toBe(config.ai.defaultModel);
       expect(result.metadata.attempts).toBe(1);
     });
 
@@ -369,7 +369,7 @@ describe('GenerationService', () => {
       expect(mockAiService.generateJSON).toHaveBeenCalledWith(
         expect.any(String),
         expect.any(String),
-        appConfig.ai.defaultModel,
+        config.ai.defaultModel,
       );
     });
 
@@ -544,7 +544,7 @@ describe('GenerationService', () => {
 
       expect(result.objectives).toHaveLength(3);
       expect(result.objectives[0]!.title).toBe('Morning run - 5km easy pace');
-      expect(result.metadata.model_used).toBe(appConfig.ai.defaultModel);
+      expect(result.metadata.model_used).toBe(config.ai.defaultModel);
       expect(result.metadata.attempts).toBe(1);
     });
 
@@ -645,7 +645,7 @@ describe('GenerationService', () => {
       expect(mockAiService.generateJSON).toHaveBeenCalledWith(
         expect.any(String),
         expect.any(String),
-        appConfig.ai.defaultModel,
+        config.ai.defaultModel,
       );
     });
 

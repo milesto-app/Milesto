@@ -1,4 +1,4 @@
-import { appConfig } from '../config/app.config.js';
+import { config } from '../config/app.config.js';
 import { VALID_QUESTION_TYPES } from './constants/intake.constants.js';
 
 interface ValidationResult {
@@ -8,7 +8,7 @@ interface ValidationResult {
 
 export function validateStructural(questions: unknown[]): ValidationResult {
   const errors: string[] = [];
-  const { min, max } = appConfig.intake.questionsPerBatch;
+  const { min, max } = config.intake.questionsPerBatch;
 
   if (!Array.isArray(questions)) {
     return { valid: false, errors: ['Input is not an array'] };

@@ -18,7 +18,7 @@ import { Throttle } from '@nestjs/throttler';
 
 import { UserId } from '../common/decorators/user.decorator.js';
 import { AuthGuard } from '../common/guards/auth.guard.js';
-import { appConfig } from '../config/app.config.js';
+import { config } from '../config/app.config.js';
 import { CheckInService } from './check-in.service.js';
 import { SubmitCheckInDto } from './dto/submit-check-in.dto.js';
 import type { CheckIn } from './types/daily.types.js';
@@ -43,7 +43,7 @@ export class CheckInController {
   @Throttle({
     default: {
       limit: AI_ENDPOINT_LIMIT,
-      ttl: appConfig.throttle.aiEndpointTtlMs,
+      ttl: config.throttle.aiEndpointTtlMs,
     },
   })
   @ApiOperation({ summary: 'Submit morning check-in' })

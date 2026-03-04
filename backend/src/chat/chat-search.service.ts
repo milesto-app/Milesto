@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 
 import { AiService } from '../ai/ai.service.js';
-import { appConfig } from '../config/app.config.js';
+import { config } from '../config/app.config.js';
 import { RerankService } from '../roadmap/rerank.service.js';
 import type { ContextChunk } from '../roadmap/types/context.types.js';
 import { SupabaseService } from '../supabase/supabase.service.js';
@@ -96,7 +96,7 @@ export class ChatSearchService {
 
     const rerankResult = await this.rerankService.rerank(query, chunks);
     const topResults = rerankResult.allCandidates
-      .slice(0, appConfig.chat.searchResultCount)
+      .slice(0, config.chat.searchResultCount)
       .map((chunk) => ({
         content_type: chunk.content_type,
         content_text: chunk.content_text,
@@ -124,8 +124,8 @@ export class ChatSearchService {
       p_user_id: params.userId,
       p_content_types:
         params.contentTypes ?? (undefined as unknown as string[]),
-      match_threshold: appConfig.chat.searchMatchThreshold,
-      match_count: appConfig.chat.searchMatchCount,
+      match_threshold: config.chat.searchMatchThreshold,
+      match_count: config.chat.searchMatchCount,
     });
 
     if (error !== null) {
@@ -155,8 +155,8 @@ export class ChatSearchService {
         p_goal_id: params.goalId,
         p_user_id: params.userId,
         p_content_types: ['coach_insight'],
-        match_threshold: appConfig.chat.insightDuplicateThreshold,
-        match_count: appConfig.chat.insightDuplicateCheckCount,
+        match_threshold: config.chat.insightDuplicateThreshold,
+        match_count: config.chat.insightDuplicateCheckCount,
       });
 
       if (error !== null) {

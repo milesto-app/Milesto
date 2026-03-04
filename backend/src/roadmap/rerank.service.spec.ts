@@ -3,7 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import type { TestingModule } from '@nestjs/testing';
 import { Test } from '@nestjs/testing';
 
-import { appConfig } from '../config/app.config.js';
+import { config } from '../config/app.config.js';
 import { RerankService } from './rerank.service.js';
 import type { ContextChunk } from './types/context.types.js';
 
@@ -91,10 +91,10 @@ describe('RerankService', () => {
     });
     // selected is top-N from allCandidates
     expect(result.selected.length).toBeLessThanOrEqual(
-      appConfig.roadmap.rerankTopN,
+      config.roadmap.rerankTopN,
     );
     expect(result.selected).toEqual(
-      result.allCandidates.slice(0, appConfig.roadmap.rerankTopN),
+      result.allCandidates.slice(0, config.roadmap.rerankTopN),
     );
     expect(result.failureReason).toBeUndefined();
   });
@@ -112,7 +112,7 @@ describe('RerankService', () => {
     await service.rerank('my query', [firstChunk]);
 
     expect(fetchSpy).toHaveBeenCalledWith(
-      `https://api.cohere.com/v${String(appConfig.cohere.apiVersion)}/rerank`,
+      `https://api.cohere.com/v${String(config.cohere.apiVersion)}/rerank`,
       expect.objectContaining({
         method: 'POST',
         headers: {
@@ -120,7 +120,7 @@ describe('RerankService', () => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          model: appConfig.cohere.model,
+          model: config.cohere.model,
           query: 'my query',
           documents: [firstChunk.content_text],
           top_n: 1,

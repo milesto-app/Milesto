@@ -3,7 +3,7 @@ import type { TestingModule } from '@nestjs/testing';
 import { Test } from '@nestjs/testing';
 
 import { AiService } from '../ai/ai.service.js';
-import { appConfig } from '../config/app.config.js';
+import { config } from '../config/app.config.js';
 import { IntakePromptService } from './intake-prompt.service.js';
 
 describe('IntakePromptService', () => {
@@ -162,7 +162,7 @@ describe('IntakePromptService', () => {
       await service.generateGoalProfile('Run a marathon', priorBatches, 'en');
 
       const [, , model, reasoning] = mockAiService.generateJSON.mock.calls[0];
-      expect(model).toBe(appConfig.intake.model);
+      expect(model).toBe(config.intake.model);
       expect(reasoning).toBe('high');
     });
 
@@ -333,7 +333,7 @@ describe('IntakePromptService', () => {
       });
 
       const [, , model] = mockAiService.generateJSON.mock.calls[0];
-      expect(model).toBe(appConfig.intake.model);
+      expect(model).toBe(config.intake.model);
     });
 
     it('should include goal description in user prompt', async () => {
@@ -378,7 +378,7 @@ describe('IntakePromptService', () => {
 
       const userPrompt = mockAiService.generateJSON.mock.calls[0][1];
       expect(userPrompt).toContain('batch 2');
-      const remainingBudget = appConfig.intake.maxBatches - 2 + 1;
+      const remainingBudget = config.intake.maxBatches - 2 + 1;
       expect(userPrompt).toContain(`${remainingBudget} batches remaining`);
     });
 
@@ -386,7 +386,7 @@ describe('IntakePromptService', () => {
       const result = await service.generateNextBatch({
         goalDescription: 'Run a marathon',
         priorBatches,
-        batchNumber: appConfig.intake.maxBatches,
+        batchNumber: config.intake.maxBatches,
         language: 'en',
       });
 

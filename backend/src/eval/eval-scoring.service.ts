@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 
 import { AiService } from '../ai/ai.service.js';
-import { appConfig } from '../config/app.config.js';
+import { config } from '../config/app.config.js';
 import type { PersonaScores } from './personas.js';
 
 const DEFAULT_JUDGE_RETRIES = 2;
@@ -25,7 +25,7 @@ export class EvalScoringService {
         const result = await this.aiService.generateJson<T>(
           systemPrompt,
           userPrompt,
-          appConfig.eval.judgeModel,
+          config.eval.judgeModel,
         );
         this.logger.log(`    ${judgeName}: OK`);
         return result;

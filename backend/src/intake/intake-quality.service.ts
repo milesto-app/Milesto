@@ -2,7 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
 
 import { AiService } from '../ai/ai.service.js';
-import { appConfig } from '../config/app.config.js';
+import { config } from '../config/app.config.js';
 import { QUALITY_JUDGE_SYSTEM_PROMPT } from '../config/prompts/quality-prompts.config.js';
 import { SupabaseService } from '../supabase/supabase.service.js';
 import {
@@ -167,7 +167,7 @@ export class IntakeQualityService {
     payload: BatchServedEvent,
   ): void {
     const scoreStr = scores.composite.toFixed(SCORE_DECIMAL_PLACES);
-    if (scores.composite < appConfig.intake.qualityWarnThreshold) {
+    if (scores.composite < config.intake.qualityWarnThreshold) {
       this.logger.warn(
         `Low quality score for batch ${String(payload.batch_number)} (goal ${payload.goal_id}): composite=${scoreStr}`,
       );

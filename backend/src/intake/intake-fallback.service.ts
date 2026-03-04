@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 
-import { appConfig } from '../config/app.config.js';
+import { config } from '../config/app.config.js';
 import { FIRST_BATCH_NUMBER } from './constants/intake.constants.js';
 import { IntakePromptService } from './intake-prompt.service.js';
 import type { StoredBatch } from './intake-store.service.js';
@@ -31,7 +31,7 @@ export class IntakeFallbackService {
     params: { goalId: string; nextBatchNumber: number },
     language: string,
   ): Promise<StoredBatch> {
-    if (params.nextBatchNumber >= appConfig.intake.maxBatches) {
+    if (params.nextBatchNumber >= config.intake.maxBatches) {
       return {
         batch_id: '',
         batch_number: params.nextBatchNumber,

@@ -7,7 +7,7 @@ import { buildToolRegistry } from '../chat/chat-tool-registry.js';
 import { ChatToolsService } from '../chat/chat-tools.service.js';
 import type { ChatToolEntry } from '../chat/types/chat.types.js';
 import type { ToolExecutionContext } from '../chat/types/chat.types.js';
-import { appConfig } from '../config/app.config.js';
+import { config } from '../config/app.config.js';
 import { GeminiLiveService } from './gemini-live.service.js';
 import { adaptToolsToGemini } from './gemini-tool-adapter.js';
 import type {
@@ -172,15 +172,15 @@ export class VoiceChatSessionService {
     expiryTimer: ReturnType<typeof setTimeout>;
   } {
     const remainingMs =
-      appConfig.voice.sessionDurationMs - appConfig.voice.sessionWarningMs;
+      config.voice.sessionDurationMs - config.voice.sessionWarningMs;
     const warningTimer = setTimeout(() => {
       send({ type: 'session_warning', remainingMs });
-    }, appConfig.voice.sessionWarningMs);
+    }, config.voice.sessionWarningMs);
 
     const expiryTimer = setTimeout(() => {
       send({ type: 'session_expired' });
       this.destroySession(userId);
-    }, appConfig.voice.sessionDurationMs);
+    }, config.voice.sessionDurationMs);
 
     return { warningTimer, expiryTimer };
   }

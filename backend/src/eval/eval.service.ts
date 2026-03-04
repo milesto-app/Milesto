@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 
-import { appConfig } from '../config/app.config.js';
+import { config } from '../config/app.config.js';
 import type { PriorBatchContext } from '../intake/intake-prompt.service.js';
 import { IntakePromptService } from '../intake/intake-prompt.service.js';
 import type {
@@ -97,13 +97,9 @@ export class EvalService {
   ): Promise<{ aiBatches: BatchEvalResult[]; completedAtBatch: number }> {
     const aiBatches: BatchEvalResult[] = [];
     const priorBatches: PriorBatchContext[] = [gs.simulatedBatch1Answers];
-    let completedAtBatch = appConfig.intake.maxBatches;
+    let completedAtBatch = config.intake.maxBatches;
 
-    for (
-      let batchNum = 2;
-      batchNum <= appConfig.intake.maxBatches;
-      batchNum++
-    ) {
+    for (let batchNum = 2; batchNum <= config.intake.maxBatches; batchNum++) {
       const result = await this.processAiBatch(gs, tag, priorBatches, batchNum);
       if (result === null) {
         completedAtBatch = batchNum;

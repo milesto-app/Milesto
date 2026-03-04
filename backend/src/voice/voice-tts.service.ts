@@ -2,7 +2,7 @@ import { GoogleGenAI } from '@google/genai';
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 
-import { appConfig } from '../config/app.config.js';
+import { config } from '../config/app.config.js';
 import type { SynthesisResult } from './voice.types.js';
 
 const CONTENT_TYPE = 'audio/wav';
@@ -46,7 +46,7 @@ export class VoiceTtsService {
 
   private async callGeminiTts(text: string, voiceId: string): Promise<Buffer> {
     const response = await this.ai.models.generateContent({
-      model: appConfig.voice.ttsModel,
+      model: config.voice.ttsModel,
       contents: [{ role: 'user', parts: [{ text }] }],
       config: {
         responseModalities: ['AUDIO'],

@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 
 import { AiService } from '../ai/ai.service.js';
-import { appConfig } from '../config/app.config.js';
+import { config } from '../config/app.config.js';
 import {
   buildIntakeBatchSystemPrompt,
   buildIntakeBatchUserPrompt,
@@ -82,7 +82,7 @@ export class IntakePromptService {
     return this.aiService.generateJson<GoalProfile>(
       systemPrompt,
       userPrompt,
-      appConfig.intake.model,
+      config.intake.model,
       'high',
     );
   }
@@ -90,27 +90,27 @@ export class IntakePromptService {
   public async generateNextBatch(
     params: NextBatchParams,
   ): Promise<{ questions: GeneratedQuestion[]; is_complete: boolean }> {
-    if (params.batchNumber >= appConfig.intake.maxBatches) {
+    if (params.batchNumber >= config.intake.maxBatches) {
       return { questions: [], is_complete: true };
     }
 
     const systemPrompt = buildIntakeBatchSystemPrompt({
       batchNumber: params.batchNumber,
-      questionsPerBatchMin: appConfig.intake.questionsPerBatch.min,
-      questionsPerBatchMax: appConfig.intake.questionsPerBatch.max,
-      maxBatches: appConfig.intake.maxBatches,
+      questionsPerBatchMin: config.intake.questionsPerBatch.min,
+      questionsPerBatchMax: config.intake.questionsPerBatch.max,
+      maxBatches: config.intake.maxBatches,
       language: params.language,
     });
     const userPrompt = buildIntakeBatchUserPrompt({
       goalDescription: params.goalDescription,
       priorBatches: params.priorBatches,
       batchNumber: params.batchNumber,
-      maxBatches: appConfig.intake.maxBatches,
+      maxBatches: config.intake.maxBatches,
     });
 
     return this.aiService.generateJson<{
       questions: GeneratedQuestion[];
       is_complete: boolean;
-    }>(systemPrompt, userPrompt, appConfig.intake.model);
+    }>(systemPrompt, userPrompt, config.intake.model);
   }
 }

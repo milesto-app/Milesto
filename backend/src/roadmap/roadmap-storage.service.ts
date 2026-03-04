@@ -7,7 +7,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 
-import { appConfig } from '../config/app.config.js';
+import { config } from '../config/app.config.js';
 import { SupabaseService } from '../supabase/supabase.service.js';
 import type {
   GenerationMetadata,
@@ -184,7 +184,7 @@ export class RoadmapStorageService {
     }
     if (
       (existing.generation_attempts as number) >=
-      appConfig.roadmap.maxGenerationAttempts
+      config.roadmap.maxGenerationAttempts
     ) {
       throw new BadRequestException('Maximum generation attempts exceeded');
     }

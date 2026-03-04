@@ -7,7 +7,7 @@ import {
 import { EventEmitter2 } from '@nestjs/event-emitter';
 
 import { UserLanguageService } from '../common/user-language.service.js';
-import { appConfig } from '../config/app.config.js';
+import { config } from '../config/app.config.js';
 import { GoalService } from '../goal/goal.service.js';
 import type { Json } from '../supabase/database.types.js';
 import { SupabaseService } from '../supabase/supabase.service.js';
@@ -61,15 +61,13 @@ export class IntakeProfileService {
         'Profile retry is only available for goals with failed profile generation',
       );
     }
-    if (
-      goal.profile_generation_attempts >= appConfig.intake.maxProfileRetries
-    ) {
+    if (goal.profile_generation_attempts >= config.intake.maxProfileRetries) {
       throw new BadRequestException(
-        `Maximum profile generation attempts (${String(appConfig.intake.maxProfileRetries)}) exceeded`,
+        `Maximum profile generation attempts (${String(config.intake.maxProfileRetries)}) exceeded`,
       );
     }
     this.logger.log(
-      `Retrying profile for goal ${goalId} (attempt ${String(goal.profile_generation_attempts + 1)}/${String(appConfig.intake.maxProfileRetries)})`,
+      `Retrying profile for goal ${goalId} (attempt ${String(goal.profile_generation_attempts + 1)}/${String(config.intake.maxProfileRetries)})`,
     );
     const language = await this.languageService.getLanguage(userId);
     const result = await this.generateAndStoreProfile({

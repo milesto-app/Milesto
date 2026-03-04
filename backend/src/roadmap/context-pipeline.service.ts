@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 
 import { AiService } from '../ai/ai.service.js';
-import { appConfig } from '../config/app.config.js';
+import { config } from '../config/app.config.js';
 import { SupabaseService } from '../supabase/supabase.service.js';
 import {
   assemblePromptSections,
@@ -127,8 +127,8 @@ export class ContextPipelineService {
       p_goal_id: goalId,
       p_user_id: userId,
       p_content_types: undefined as unknown as string[],
-      match_threshold: appConfig.roadmap.matchThreshold,
-      match_count: appConfig.roadmap.matchCount,
+      match_threshold: config.roadmap.matchThreshold,
+      match_count: config.roadmap.matchCount,
     });
     if (error) {
       throw error;

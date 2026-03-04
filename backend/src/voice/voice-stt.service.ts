@@ -2,7 +2,7 @@ import { GoogleGenAI } from '@google/genai';
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 
-import { appConfig } from '../config/app.config.js';
+import { config } from '../config/app.config.js';
 import type { TranscriptionResult } from './voice.types.js';
 
 const DEFAULT_CONFIDENCE = 0.95;
@@ -51,7 +51,7 @@ export class VoiceSttService {
   ): Promise<string> {
     const languageName = LANGUAGE_NAMES[language] ?? 'English';
     const response = await this.ai.models.generateContent({
-      model: appConfig.voice.sttModel,
+      model: config.voice.sttModel,
       contents: [
         {
           role: 'user',

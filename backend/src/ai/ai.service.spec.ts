@@ -2,7 +2,7 @@ import { ConfigService } from '@nestjs/config';
 import type { TestingModule } from '@nestjs/testing';
 import { Test } from '@nestjs/testing';
 
-import { appConfig } from '../config/app.config.js';
+import { config } from '../config/app.config.js';
 import { AiService } from './ai.service.js';
 
 const MOCK_EMBEDDING_VALUE = 0.1;
@@ -34,7 +34,7 @@ beforeEach(async () => {
 });
 
 describe('AiService.generateEmbedding', () => {
-  const mockVector = new Array(appConfig.ai.embeddingDimensions).fill(
+  const mockVector = new Array(config.ai.embeddingDimensions).fill(
     MOCK_EMBEDDING_VALUE,
   ) as number[];
 
@@ -47,9 +47,9 @@ describe('AiService.generateEmbedding', () => {
 
     expect(mockOpenai.embeddings.create).toHaveBeenCalledWith(
       {
-        model: appConfig.ai.embeddingModel,
+        model: config.ai.embeddingModel,
         input: 'test text',
-        dimensions: appConfig.ai.embeddingDimensions,
+        dimensions: config.ai.embeddingDimensions,
       },
       expect.objectContaining({
         signal: expect.any(AbortSignal) as AbortSignal,
@@ -65,7 +65,7 @@ describe('AiService.generateEmbedding', () => {
     const result = await service.generateEmbedding('test text');
 
     expect(result).toEqual(mockVector);
-    expect(result).toHaveLength(appConfig.ai.embeddingDimensions);
+    expect(result).toHaveLength(config.ai.embeddingDimensions);
   });
 
   it('should propagate errors from the OpenAI SDK', async () => {
@@ -112,7 +112,7 @@ describe('AiService.createStream', () => {
     await service.generateStream(messages, tools);
 
     expect(mockOpenai.chat.completions.create).toHaveBeenCalledWith({
-      model: appConfig.chat.model,
+      model: config.chat.model,
       messages,
       tools,
       stream: true,

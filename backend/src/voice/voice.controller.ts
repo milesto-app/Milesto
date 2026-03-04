@@ -21,13 +21,13 @@ import type { Response } from 'express';
 
 import { UserId } from '../common/decorators/user.decorator.js';
 import { AuthGuard } from '../common/guards/auth.guard.js';
-import { appConfig } from '../config/app.config.js';
+import { config } from '../config/app.config.js';
 import { SynthesizeDto } from './dto/synthesize.dto.js';
 import { VoiceService } from './voice.service.js';
 import type { TranscriptionResult } from './voice.types.js';
 
-const AI_LIMIT = appConfig.throttle.aiEndpointLimit;
-const AI_TTL = appConfig.throttle.aiEndpointTtlMs;
+const AI_LIMIT = config.throttle.aiEndpointLimit;
+const AI_TTL = config.throttle.aiEndpointTtlMs;
 
 @ApiTags('voice')
 @ApiBearerAuth()
@@ -45,7 +45,7 @@ export class VoiceController {
   @Throttle({ default: { limit: AI_LIMIT, ttl: AI_TTL } })
   @UseInterceptors(
     FileInterceptor('audio', {
-      limits: { fileSize: appConfig.voice.maxAudioSizeBytes },
+      limits: { fileSize: config.voice.maxAudioSizeBytes },
     }),
   )
   public async transcribe(
@@ -56,9 +56,9 @@ export class VoiceController {
       throw new BadRequestException('Audio file is required');
     }
 
-    if (!appConfig.voice.supportedInputFormats.includes(file.mimetype)) {
+    if (!config.voice.supportedInputFormats.includes(file.mimetype)) {
       throw new BadRequestException(
-        `Unsupported audio format: ${file.mimetype}. Supported: ${appConfig.voice.supportedInputFormats.join(', ')}`,
+        `Unsupported audio format: ${file.mimetype}. Supported: ${config.voice.supportedInputFormats.join(', ')}`,
       );
     }
 

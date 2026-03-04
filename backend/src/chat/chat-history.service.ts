@@ -1,7 +1,7 @@
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import type { SupabaseClient } from '@supabase/supabase-js';
 
-import { appConfig } from '../config/app.config.js';
+import { config } from '../config/app.config.js';
 import { SupabaseService } from '../supabase/supabase.service.js';
 import type { Conversation, StoredMessage } from './types/chat.types.js';
 
@@ -99,7 +99,7 @@ export class ChatHistoryService {
       .select('*')
       .eq('conversation_id', conversationId)
       .order('created_at', { ascending: true })
-      .limit(appConfig.chat.maxHistoryMessages);
+      .limit(config.chat.maxHistoryMessages);
 
     if (error) {
       this.logger.error(`Failed to fetch messages: ${error.message}`);

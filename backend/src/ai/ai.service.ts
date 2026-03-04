@@ -8,7 +8,7 @@ import type {
 } from 'openai/resources/chat/completions';
 import type { Stream } from 'openai/streaming';
 
-import { appConfig } from '../config/app.config.js';
+import { config } from '../config/app.config.js';
 
 @Injectable()
 export class AiService {
@@ -17,7 +17,7 @@ export class AiService {
 
   constructor(private readonly configService: ConfigService) {
     this.openai = new OpenAI({
-      baseURL: appConfig.ai.baseUrl,
+      baseURL: config.ai.baseUrl,
       apiKey: this.configService.getOrThrow<string>('OPENROUTER_API_KEY'),
     });
   }
@@ -27,7 +27,7 @@ export class AiService {
     tools: ChatCompletionTool[],
   ): Promise<Stream<ChatCompletionChunk>> {
     return this.openai.chat.completions.create({
-      model: appConfig.chat.model,
+      model: config.chat.model,
       messages,
       tools,
       stream: true,
@@ -39,9 +39,9 @@ export class AiService {
       try {
         const response = await this.openai.embeddings.create(
           {
-            model: appConfig.ai.embeddingModel,
+            model: config.ai.embeddingModel,
             input: text,
-            dimensions: appConfig.ai.embeddingDimensions,
+            dimensions: config.ai.embeddingDimensions,
           },
           { signal },
         );
@@ -70,12 +70,12 @@ export class AiService {
     model?: string,
     reasoning?: string,
   ): Promise<T> {
-    for (let attempt = 1; attempt <= appConfig.ai.maxRetries; attempt++) {
+    for (let attempt = 1; attempt <= config.ai.maxRetries; attempt++) {
       try {
         return await this.withTimeout(async (signal) => {
           const response = await this.openai.chat.completions.create(
             {
-              model: model ?? appConfig.ai.defaultModel,
+              model: model ?? config.ai.defaultModel,
               messages: [
                 { role: 'system', content: system },
                 { role: 'user', content: user },
@@ -89,7 +89,7 @@ export class AiService {
           return this.extractJson(response) as T;
         });
       } catch (error) {
-        const isLastAttempt = attempt >= appConfig.ai.maxRetries;
+        const isLastAttempt = attempt >= config.ai.maxRetries;
         if (!this.isRetryableError(error) || isLastAttempt) {
           throw error;
         }
@@ -121,7 +121,7 @@ export class AiService {
   private logRetryWarning(attempt: number, error: unknown): void {
     const message = error instanceof Error ? error.message : String(error);
     this.logger.warn(
-      `JSON parse failed (attempt ${attempt}/${appConfig.ai.maxRetries}): ${message}. Retrying...`,
+      `JSON parse failed (attempt ${attempt}/${config.ai.maxRetries}): ${message}. Retrying...`,
     );
   }
 
@@ -131,7 +131,7 @@ export class AiService {
     const controller = new AbortController();
     const timeout = setTimeout(() => {
       controller.abort();
-    }, appConfig.ai.callTimeoutMs);
+    }, config.ai.callTimeoutMs);
 
     try {
       return await operation(controller.signal);

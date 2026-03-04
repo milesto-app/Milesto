@@ -20,7 +20,7 @@ import type { Response } from 'express';
 
 import { UserId } from '../common/decorators/user.decorator.js';
 import { AuthGuard } from '../common/guards/auth.guard.js';
-import { appConfig } from '../config/app.config.js';
+import { config } from '../config/app.config.js';
 import { ChatService } from './chat.service.js';
 import { ChatHistoryService } from './chat-history.service.js';
 import { ChatListService } from './chat-list.service.js';
@@ -47,7 +47,7 @@ export class ChatController {
   ) {}
 
   @Post('messages')
-  @Throttle({ default: { limit: 10, ttl: appConfig.throttle.aiEndpointTtlMs } })
+  @Throttle({ default: { limit: 10, ttl: config.throttle.aiEndpointTtlMs } })
   public async sendMessage(
     @Body() dto: SendMessageDto,
     @UserId() userId: string,

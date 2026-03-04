@@ -1,7 +1,7 @@
 import type { Logger } from '@nestjs/common';
 
 import type { AiService } from '../ai/ai.service.js';
-import { appConfig } from '../config/app.config.js';
+import { config } from '../config/app.config.js';
 import type {
   DailyObjectiveQualityScores,
   GenerationType,
@@ -53,6 +53,6 @@ export async function evaluateQuality<T>(params: EvaluateParams): Promise<T> {
   return params.aiService.generateJson<T>(
     params.systemPrompt,
     userPrompt,
-    appConfig.eval.judgeModel,
+    config.eval.judgeModel,
   );
 }

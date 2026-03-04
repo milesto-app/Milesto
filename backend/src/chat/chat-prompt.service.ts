@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 
 import { CoachService } from '../coach/coach.service.js';
-import { appConfig } from '../config/app.config.js';
+import { config } from '../config/app.config.js';
 import { SupabaseService } from '../supabase/supabase.service.js';
 import type { PromptInput } from './chat-prompt.builder.js';
 import { buildCoachPrompt } from './chat-prompt.builder.js';
@@ -37,11 +37,11 @@ export class ChatPromptService {
 
     if (error !== null) {
       this.logger.warn(`No profile for user ${userId}, using defaults`);
-      return { coachId: appConfig.coach.defaultCoachId, language: 'en' };
+      return { coachId: config.coach.defaultCoachId, language: 'en' };
     }
 
     return {
-      coachId: data.coach_id ?? appConfig.coach.defaultCoachId,
+      coachId: data.coach_id ?? config.coach.defaultCoachId,
       language: data.language ?? 'en',
     };
   }
