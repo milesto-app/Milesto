@@ -1,7 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { AiService } from '../ai/ai.service.js';
 import { appConfig } from '../config/app.config.js';
-import { getUniversalBatch1, getFallbackPools } from '../config/questions.config.js';
+import {
+  getUniversalBatch1,
+  getFallbackPools,
+} from '../config/questions.config.js';
 import type {
   UniversalQuestion,
   GeneratedQuestion,
@@ -24,7 +27,12 @@ export interface NextBatchParams {
   language: string;
 }
 
-export type { UniversalQuestion, GeneratedQuestion, PriorBatchContext, GoalProfile };
+export type {
+  UniversalQuestion,
+  GeneratedQuestion,
+  PriorBatchContext,
+  GoalProfile,
+};
 
 @Injectable()
 export class IntakePromptService {
@@ -34,7 +42,10 @@ export class IntakePromptService {
     return getUniversalBatch1(language).map((q) => ({ ...q }));
   }
 
-  public getFallbackBatch(usedFallbackIndexes: number[], language: string): GeneratedQuestion[] {
+  public getFallbackBatch(
+    usedFallbackIndexes: number[],
+    language: string,
+  ): GeneratedQuestion[] {
     const pools = getFallbackPools(language);
     for (let i = 0; i < pools.length; i++) {
       const pool = pools[i];
@@ -51,7 +62,9 @@ export class IntakePromptService {
 
   public findFallbackPoolIndex(firstQuestionText: string): number {
     const pools = getFallbackPools('en');
-    return pools.findIndex((pool) => pool[0]?.question_text === firstQuestionText);
+    return pools.findIndex(
+      (pool) => pool[0]?.question_text === firstQuestionText,
+    );
   }
 
   public async generateGoalProfile(

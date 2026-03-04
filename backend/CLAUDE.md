@@ -11,8 +11,7 @@ Momentum is an AI-powered personal coaching backend built with NestJS + TypeScri
 ```bash
 bun run build              # Compile (nest build)
 bun run start:dev          # Dev server with watch mode
-bun run lint               # ESLint with auto-fix
-bun run format             # Prettier
+bun run lint               # Prettier + ESLint with auto-fix
 bun run test               # All unit tests (Jest)
 bun run test -- --testPathPattern=intake.service  # Single test file
 bun run test:e2e           # End-to-end tests
@@ -60,7 +59,7 @@ Key services: `ContextPipelineService` (3-tier retrieval), `GenerationService` (
 
 ### Formatting
 
-- Single quotes, trailing commas, 100 char print width (Prettier)
+- Single quotes, trailing commas, 80 char print width (Prettier)
 - `strict: true` in tsconfig with `noUnusedLocals`, `noUnusedParameters`, `noUncheckedIndexedAccess`, `exactOptionalPropertyTypes`
 
 ### TypeScript & Type Safety
@@ -94,13 +93,11 @@ Key services: `ContextPipelineService` (3-tier retrieval), `GenerationService` (
 
 ### File Structure
 
-- **Max 175 lines** per file (excluding comments and blank lines).
 - **Max 10 functions/methods** per file. Split by responsibility if exceeded.
 - One class per file (plus small helpers if tightly coupled).
 
 ### Functions & Methods
 
-- **Max 35 lines** per function/method.
 - **Max 3 parameters.** Beyond that, use an options object.
 - **Max nesting depth: 3.** No nested callbacks deeper than 2 levels.
 - **Max cyclomatic complexity: 10.** Reduce branching with early returns and extracted helpers.

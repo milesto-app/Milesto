@@ -1,9 +1,15 @@
-import { buildQualityUserPrompt, computeComposite } from './intake-quality-scoring.js';
+import {
+  buildQualityUserPrompt,
+  computeComposite,
+} from './intake-quality-scoring.js';
 
 const sampleQuestions = [
   { question_text: 'What is your goal?', question_type: 'text' },
   { question_text: 'How motivated are you?', question_type: 'scale' },
-  { question_text: 'What approach do you prefer?', question_type: 'single_choice' },
+  {
+    question_text: 'What approach do you prefer?',
+    question_type: 'single_choice',
+  },
 ];
 const goalDescription = 'Run a marathon in under 4 hours';
 

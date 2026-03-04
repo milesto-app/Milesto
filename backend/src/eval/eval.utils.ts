@@ -25,8 +25,10 @@ export function computeDeltas(
 
   for (const axis of axes) {
     const sourceAvg =
-      sourceBatches.reduce((sum, b) => sum + (b.compositeByAxis[axis] ?? 0), 0) /
-      sourceBatches.length;
+      sourceBatches.reduce(
+        (sum, b) => sum + (b.compositeByAxis[axis] ?? 0),
+        0,
+      ) / sourceBatches.length;
     delta[axis] = sourceAvg - (goldBatch.compositeByAxis[axis] ?? 0);
   }
 

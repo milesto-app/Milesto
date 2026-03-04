@@ -30,21 +30,26 @@ export class GenerationNarrativeService {
     const completionRate =
       weekData.objectivesTotal > 0
         ? Math.round(
-            (weekData.objectivesCompleted / weekData.objectivesTotal) * PERCENTAGE_MULTIPLIER,
+            (weekData.objectivesCompleted / weekData.objectivesTotal) *
+              PERCENTAGE_MULTIPLIER,
           )
         : 0;
 
     const narrative = await this.tryGenerateNarrative({
       shouldGenerate: weekData.debriefNotes.length > 0,
       systemPrompt: buildWeeklySummaryNarrativeSystemPrompt(language),
-      userPrompt: buildWeeklySummaryNarrativeUserPrompt(completionRate, weekData),
+      userPrompt: buildWeeklySummaryNarrativeUserPrompt(
+        completionRate,
+        weekData,
+      ),
       label: 'Weekly summary',
     });
 
     return {
       completion_rate: completionRate,
       objectives_completed: weekData.objectivesCompleted,
-      objectives_total: weekData.objectivesTotal || completedPlan.objectives.length,
+      objectives_total:
+        weekData.objectivesTotal || completedPlan.objectives.length,
       debrief_count: weekData.debriefNotes.length,
       energy_distribution: weekData.energyDistribution,
       ...(narrative !== undefined ? { narrative } : {}),
@@ -119,12 +124,22 @@ export class GenerationNarrativeService {
     avgCompletionRate: number;
     summary: Omit<MonthlySummary, 'narrative'>;
   } {
-    const totalCompleted = weeklySummaries.reduce((sum, ws) => sum + ws.objectives_completed, 0);
-    const totalObjectives = weeklySummaries.reduce((sum, ws) => sum + ws.objectives_total, 0);
-    const avgCompletionRate = Math.round(
-      weeklySummaries.reduce((sum, ws) => sum + ws.completion_rate, 0) / weeklySummaries.length,
+    const totalCompleted = weeklySummaries.reduce(
+      (sum, ws) => sum + ws.objectives_completed,
+      0,
     );
-    const totalDebriefs = weeklySummaries.reduce((sum, ws) => sum + (ws.debrief_count ?? 0), 0);
+    const totalObjectives = weeklySummaries.reduce(
+      (sum, ws) => sum + ws.objectives_total,
+      0,
+    );
+    const avgCompletionRate = Math.round(
+      weeklySummaries.reduce((sum, ws) => sum + ws.completion_rate, 0) /
+        weeklySummaries.length,
+    );
+    const totalDebriefs = weeklySummaries.reduce(
+      (sum, ws) => sum + (ws.debrief_count ?? 0),
+      0,
+    );
 
     const aggregatedEnergy: Record<string, number> = {};
     for (const ws of weeklySummaries) {

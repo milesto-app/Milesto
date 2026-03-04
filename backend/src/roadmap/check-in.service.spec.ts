@@ -1,4 +1,3 @@
-/* eslint-disable max-lines */
 import type { TestingModule } from '@nestjs/testing';
 import { Test } from '@nestjs/testing';
 import {
@@ -21,7 +20,10 @@ describe('CheckInService', () => {
     mockSupabaseService = { getAdminClient: jest.fn() };
 
     const module: TestingModule = await Test.createTestingModule({
-      providers: [CheckInService, { provide: SupabaseService, useValue: mockSupabaseService }],
+      providers: [
+        CheckInService,
+        { provide: SupabaseService, useValue: mockSupabaseService },
+      ],
     }).compile();
 
     service = module.get<CheckInService>(CheckInService);
@@ -50,9 +52,10 @@ describe('CheckInService', () => {
               select: jest.fn().mockReturnValue({
                 eq: jest.fn().mockReturnValue({
                   eq: jest.fn().mockReturnValue({
-                    single: jest
-                      .fn()
-                      .mockResolvedValue({ data: { status: 'complete' }, error: null }),
+                    single: jest.fn().mockResolvedValue({
+                      data: { status: 'complete' },
+                      error: null,
+                    }),
                   }),
                 }),
               }),
@@ -61,7 +64,9 @@ describe('CheckInService', () => {
           return {
             insert: jest.fn().mockReturnValue({
               select: jest.fn().mockReturnValue({
-                single: jest.fn().mockResolvedValue({ data: mockCheckIn, error: null }),
+                single: jest
+                  .fn()
+                  .mockResolvedValue({ data: mockCheckIn, error: null }),
               }),
             }),
           };
@@ -82,9 +87,10 @@ describe('CheckInService', () => {
               select: jest.fn().mockReturnValue({
                 eq: jest.fn().mockReturnValue({
                   eq: jest.fn().mockReturnValue({
-                    single: jest
-                      .fn()
-                      .mockResolvedValue({ data: { status: 'complete' }, error: null }),
+                    single: jest.fn().mockResolvedValue({
+                      data: { status: 'complete' },
+                      error: null,
+                    }),
                   }),
                 }),
               }),
@@ -103,7 +109,9 @@ describe('CheckInService', () => {
         }),
       });
 
-      await expect(service.submitCheckIn(goalId, userId, dto)).rejects.toThrow(ConflictException);
+      await expect(service.submitCheckIn(goalId, userId, dto)).rejects.toThrow(
+        ConflictException,
+      );
     });
 
     it('should throw NotFoundException when no roadmap exists', async () => {
@@ -112,14 +120,19 @@ describe('CheckInService', () => {
           select: jest.fn().mockReturnValue({
             eq: jest.fn().mockReturnValue({
               eq: jest.fn().mockReturnValue({
-                single: jest.fn().mockResolvedValue({ data: null, error: { code: 'PGRST116' } }),
+                single: jest.fn().mockResolvedValue({
+                  data: null,
+                  error: { code: 'PGRST116' },
+                }),
               }),
             }),
           }),
         }),
       });
 
-      await expect(service.submitCheckIn(goalId, userId, dto)).rejects.toThrow(NotFoundException);
+      await expect(service.submitCheckIn(goalId, userId, dto)).rejects.toThrow(
+        NotFoundException,
+      );
     });
 
     it('should throw BadRequestException when roadmap is not complete', async () => {
@@ -128,16 +141,19 @@ describe('CheckInService', () => {
           select: jest.fn().mockReturnValue({
             eq: jest.fn().mockReturnValue({
               eq: jest.fn().mockReturnValue({
-                single: jest
-                  .fn()
-                  .mockResolvedValue({ data: { status: 'generating' }, error: null }),
+                single: jest.fn().mockResolvedValue({
+                  data: { status: 'generating' },
+                  error: null,
+                }),
               }),
             }),
           }),
         }),
       });
 
-      await expect(service.submitCheckIn(goalId, userId, dto)).rejects.toThrow(BadRequestException);
+      await expect(service.submitCheckIn(goalId, userId, dto)).rejects.toThrow(
+        BadRequestException,
+      );
     });
   });
 
@@ -150,7 +166,9 @@ describe('CheckInService', () => {
             eq: jest.fn().mockReturnValue({
               eq: jest.fn().mockReturnValue({
                 eq: jest.fn().mockReturnValue({
-                  single: jest.fn().mockResolvedValue({ data: mockCheckIn, error: null }),
+                  single: jest
+                    .fn()
+                    .mockResolvedValue({ data: mockCheckIn, error: null }),
                 }),
               }),
             }),
@@ -196,7 +214,9 @@ describe('CheckInService', () => {
           select: jest.fn().mockReturnValue({
             eq: jest.fn().mockReturnValue({
               eq: jest.fn().mockReturnValue({
-                order: jest.fn().mockResolvedValue({ data: mockHistory, error: null }),
+                order: jest
+                  .fn()
+                  .mockResolvedValue({ data: mockHistory, error: null }),
               }),
             }),
           }),
@@ -213,7 +233,10 @@ describe('CheckInService', () => {
           select: jest.fn().mockReturnValue({
             eq: jest.fn().mockReturnValue({
               eq: jest.fn().mockReturnValue({
-                order: jest.fn().mockResolvedValue({ data: null, error: { message: 'fail' } }),
+                order: jest.fn().mockResolvedValue({
+                  data: null,
+                  error: { message: 'fail' },
+                }),
               }),
             }),
           }),

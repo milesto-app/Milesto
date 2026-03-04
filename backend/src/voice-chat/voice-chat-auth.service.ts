@@ -12,7 +12,9 @@ export class VoiceChatAuthService {
 
   constructor(private readonly supabaseService: SupabaseService) {}
 
-  public async authenticateToken(token: string): Promise<AuthenticatedUser | null> {
+  public async authenticateToken(
+    token: string,
+  ): Promise<AuthenticatedUser | null> {
     const client = this.supabaseService.getClientForUser(token);
 
     const {

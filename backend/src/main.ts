@@ -22,7 +22,9 @@ async function bootstrap(): Promise<void> {
 
   const config = new DocumentBuilder()
     .setTitle('Momentum API')
-    .setDescription('AI-powered personal coaching platform — Goal Intake System API')
+    .setDescription(
+      'AI-powered personal coaching platform — Goal Intake System API',
+    )
     .setVersion('1.0')
     .addBearerAuth()
     .build();

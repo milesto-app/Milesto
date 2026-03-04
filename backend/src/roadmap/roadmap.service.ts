@@ -6,7 +6,11 @@ import { GoalService } from '../goal/goal.service.js';
 import { ContextPipelineService } from './context-pipeline.service.js';
 import { GenerationService } from './generation.service.js';
 import { RoadmapStorageService } from './roadmap-storage.service.js';
-import type { GoalData, MilestoneSummary, Roadmap } from './types/roadmap.types.js';
+import type {
+  GoalData,
+  MilestoneSummary,
+  Roadmap,
+} from './types/roadmap.types.js';
 
 @Injectable()
 export class RoadmapService {
@@ -23,12 +27,21 @@ export class RoadmapService {
     private readonly languageService: UserLanguageService,
   ) {}
 
-  public async generateMilestones(goalId: string, userId: string): Promise<Roadmap> {
+  public async generateMilestones(
+    goalId: string,
+    userId: string,
+  ): Promise<Roadmap> {
     const goalData = await this.validateGoalStatus(goalId, userId);
-    const roadmap = await this.roadmapStorage.acquireGenerationLock(goalId, userId);
+    const roadmap = await this.roadmapStorage.acquireGenerationLock(
+      goalId,
+      userId,
+    );
 
     try {
-      const context = await this.contextPipeline.assembleContext(goalId, userId);
+      const context = await this.contextPipeline.assembleContext(
+        goalId,
+        userId,
+      );
       const fullGoalData = await this.buildGoalData(goalData, goalId, userId);
       const language = await this.languageService.getLanguage(userId);
       const { milestones, metadata } = await this.generation.generateMilestones(
@@ -38,7 +51,11 @@ export class RoadmapService {
       );
 
       await this.roadmapStorage.storeMilestones(roadmap.id, goalId, milestones);
-      await this.roadmapStorage.updateRoadmapStatus(roadmap.id, 'complete', metadata);
+      await this.roadmapStorage.updateRoadmapStatus(
+        roadmap.id,
+        'complete',
+        metadata,
+      );
       await this.goal.updateStatus(goalId, 'active');
 
       this.events.emit('roadmap.generated', { roadmapId: roadmap.id, goalId });
@@ -48,7 +65,11 @@ export class RoadmapService {
 
       return await this.roadmapStorage.getRoadmap(goalId, userId);
     } catch (error) {
-      await this.roadmapStorage.updateRoadmapStatus(roadmap.id, 'failed', undefined);
+      await this.roadmapStorage.updateRoadmapStatus(
+        roadmap.id,
+        'failed',
+        undefined,
+      );
       throw error;
     }
   }
@@ -57,7 +78,10 @@ export class RoadmapService {
     return this.roadmapStorage.getRoadmap(goalId, userId);
   }
 
-  public async getMilestones(goalId: string, userId: string): Promise<MilestoneSummary[]> {
+  public async getMilestones(
+    goalId: string,
+    userId: string,
+  ): Promise<MilestoneSummary[]> {
     return this.roadmapStorage.getMilestones(goalId, userId);
   }
 
@@ -76,7 +100,8 @@ export class RoadmapService {
         .eq('user_id', userId)
         .single();
       profileData =
-        (profile?.profile_data as Record<string, unknown> | null | undefined) ?? undefined;
+        (profile?.profile_data as Record<string, unknown> | null | undefined) ??
+        undefined;
     } catch (error) {
       this.logger.warn(
         `Could not fetch goal profile for constraints: ${goalId}: ${error instanceof Error ? error.message : String(error)}`,
@@ -88,12 +113,17 @@ export class RoadmapService {
       title: goalData.title,
       description: goalData.description,
       status: goalData.status,
-      ...(goalData.target_date !== undefined ? { target_date: goalData.target_date } : {}),
+      ...(goalData.target_date !== undefined
+        ? { target_date: goalData.target_date }
+        : {}),
       ...(profileData !== undefined ? { profile_data: profileData } : {}),
     };
   }
 
-  private async validateGoalStatus(goalId: string, userId: string): Promise<GoalData> {
+  private async validateGoalStatus(
+    goalId: string,
+    userId: string,
+  ): Promise<GoalData> {
     const foundGoal = await this.goal.findOne(userId, goalId);
     const GENERATION_ALLOWED_STATUSES = ['intake_completed', 'active'];
     if (!GENERATION_ALLOWED_STATUSES.includes(foundGoal.status)) {

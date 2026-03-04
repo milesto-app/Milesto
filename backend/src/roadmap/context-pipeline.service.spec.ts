@@ -1,11 +1,15 @@
-/* eslint-disable max-lines, @typescript-eslint/no-non-null-assertion, @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-non-null-assertion, @typescript-eslint/no-unsafe-member-access */
 import type { TestingModule } from '@nestjs/testing';
 import { Test } from '@nestjs/testing';
 import { ContextPipelineService } from './context-pipeline.service.js';
 import { AiService } from '../ai/ai.service.js';
 import { SupabaseService } from '../supabase/supabase.service.js';
 import { RerankService } from './rerank.service.js';
-import type { ContextChunk, RankedChunk, RerankResult } from './types/context.types.js';
+import type {
+  ContextChunk,
+  RankedChunk,
+  RerankResult,
+} from './types/context.types.js';
 
 describe('ContextPipelineService', () => {
   let service: ContextPipelineService;
@@ -67,12 +71,16 @@ describe('ContextPipelineService', () => {
   };
 
   // Helper to set up the from() chain for goal_profiles query
-  function setupGoalProfileQuery(profileData: { narrative_summary: string } | null): {
+  function setupGoalProfileQuery(
+    profileData: { narrative_summary: string } | null,
+  ): {
     select: jest.Mock;
     eq: jest.Mock;
     single: jest.Mock;
   } {
-    const singleMock = jest.fn().mockResolvedValue({ data: profileData, error: null });
+    const singleMock = jest
+      .fn()
+      .mockResolvedValue({ data: profileData, error: null });
     const eqMock = jest.fn().mockReturnValue({ single: singleMock });
     const selectMock = jest.fn().mockReturnValue({ eq: eqMock });
     return { select: selectMock, eq: eqMock, single: singleMock };
@@ -85,7 +93,9 @@ describe('ContextPipelineService', () => {
       description: string;
     } | null,
   ): { select: jest.Mock; eq: jest.Mock; single: jest.Mock } {
-    const singleMock = jest.fn().mockResolvedValue({ data: goalData, error: null });
+    const singleMock = jest
+      .fn()
+      .mockResolvedValue({ data: goalData, error: null });
     const eqMock = jest.fn().mockReturnValue({ single: singleMock });
     const selectMock = jest.fn().mockReturnValue({ eq: eqMock });
     return { select: selectMock, eq: eqMock, single: singleMock };
@@ -153,7 +163,9 @@ describe('ContextPipelineService', () => {
     const result = await service.assembleContext(goalId, userId);
 
     // Verify embedding was generated from goal profile narrative
-    expect(mockAiService.generateEmbedding).toHaveBeenCalledWith('Run a marathon in 6 months');
+    expect(mockAiService.generateEmbedding).toHaveBeenCalledWith(
+      'Run a marathon in 6 months',
+    );
 
     // Verify HNSW RPC was called
     expect(mockSupabase.rpc).toHaveBeenCalledWith('match_goal_context', {
@@ -166,7 +178,10 @@ describe('ContextPipelineService', () => {
     });
 
     // Verify rerank was called
-    expect(mockRerankService.rerank).toHaveBeenCalledWith('Run a marathon in 6 months', mockChunks);
+    expect(mockRerankService.rerank).toHaveBeenCalledWith(
+      'Run a marathon in 6 months',
+      mockChunks,
+    );
 
     // Verify assembled context has all sections
     expect(result.goalProfileSection).toBe('My goal profile narrative');
@@ -271,13 +286,21 @@ describe('ContextPipelineService', () => {
     expect(result.totalChunks).toBe(1);
 
     // Verify warn logging for HNSW fallback
-    expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('HNSW retrieval failed'));
-    expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('RPC function timeout'));
+    expect(warnSpy).toHaveBeenCalledWith(
+      expect.stringContaining('HNSW retrieval failed'),
+    );
+    expect(warnSpy).toHaveBeenCalledWith(
+      expect.stringContaining('RPC function timeout'),
+    );
 
     // Verify SQL fallback query used correct filters
-    expect(sqlChain.select).toHaveBeenCalledWith('id, content_text, content_type, metadata');
+    expect(sqlChain.select).toHaveBeenCalledWith(
+      'id, content_text, content_type, metadata',
+    );
     expect(sqlChain.eq).toHaveBeenCalledWith('user_id', userId);
-    expect(sqlChain.or).toHaveBeenCalledWith(`goal_id.eq.${goalId},goal_id.is.null`);
+    expect(sqlChain.or).toHaveBeenCalledWith(
+      `goal_id.eq.${goalId},goal_id.is.null`,
+    );
     expect(sqlChain.order).toHaveBeenCalledWith('created_at', {
       ascending: false,
     });
@@ -298,10 +321,15 @@ describe('ContextPipelineService', () => {
     });
 
     // SQL fallback also fails
-    const sqlChain = setupSqlContextStuffingQuery(null, new Error('SQL query failed'));
+    const sqlChain = setupSqlContextStuffingQuery(
+      null,
+      new Error('SQL query failed'),
+    );
     mockSupabase.from.mockReturnValueOnce(sqlChain);
 
-    await expect(service.assembleContext(goalId, userId)).rejects.toThrow('SQL query failed');
+    await expect(service.assembleContext(goalId, userId)).rejects.toThrow(
+      'SQL query failed',
+    );
   });
 
   it('should include cross-goal chunks (goal_id IS NULL) via user_profile content type', async () => {
@@ -415,7 +443,9 @@ describe('ContextPipelineService', () => {
 
   describe('retrieval observability logging', () => {
     it('should log per-chunk details at debug level with both scores and selection decisions on normal path (hnsw_reranked)', async () => {
-      const debugSpy = jest.spyOn(service['logger'], 'debug').mockImplementation();
+      const debugSpy = jest
+        .spyOn(service['logger'], 'debug')
+        .mockImplementation();
       const logSpy = jest.spyOn(service['logger'], 'log').mockImplementation();
 
       const profileChain = setupGoalProfileQuery({
@@ -428,8 +458,12 @@ describe('ContextPipelineService', () => {
         error: null,
       });
 
-      const selected: RankedChunk[] = [{ ...mockChunks[0]!, rerank_score: 0.95 }];
-      const excluded: RankedChunk[] = [{ ...mockChunks[1]!, rerank_score: 0.31 }];
+      const selected: RankedChunk[] = [
+        { ...mockChunks[0]!, rerank_score: 0.95 },
+      ];
+      const excluded: RankedChunk[] = [
+        { ...mockChunks[1]!, rerank_score: 0.31 },
+      ];
       const allCandidates = [...selected, ...excluded];
 
       mockRerankService.rerank.mockResolvedValueOnce({
@@ -470,7 +504,9 @@ describe('ContextPipelineService', () => {
       expect(logSpy).toHaveBeenCalledTimes(1);
       const summaryCall = logSpy.mock.calls[0]![0] as string;
       expect(summaryCall).toContain('Retrieval complete:');
-      const summaryJson = JSON.parse(summaryCall.replace('Retrieval complete: ', ''));
+      const summaryJson = JSON.parse(
+        summaryCall.replace('Retrieval complete: ', ''),
+      );
       expect(summaryJson.goal_id).toBe(goalId);
       expect(summaryJson.tier).toBe('hnsw_reranked');
       expect(summaryJson.total_candidates).toBe(2);
@@ -484,7 +520,9 @@ describe('ContextPipelineService', () => {
     });
 
     it('should log per-chunk with HNSW scores only (no rerank) and summary with tier hnsw_only on rerank fallback', async () => {
-      const debugSpy = jest.spyOn(service['logger'], 'debug').mockImplementation();
+      const debugSpy = jest
+        .spyOn(service['logger'], 'debug')
+        .mockImplementation();
       const logSpy = jest.spyOn(service['logger'], 'log').mockImplementation();
 
       const profileChain = setupGoalProfileQuery({
@@ -521,7 +559,9 @@ describe('ContextPipelineService', () => {
 
       // Verify summary with hnsw_only tier and fallback_reason
       const summaryCall = logSpy.mock.calls[0]![0] as string;
-      const summaryJson = JSON.parse(summaryCall.replace('Retrieval complete: ', ''));
+      const summaryJson = JSON.parse(
+        summaryCall.replace('Retrieval complete: ', ''),
+      );
       expect(summaryJson.tier).toBe('hnsw_only');
       expect(summaryJson.fallback_reason).toBe('Cohere API error: 503');
 
@@ -530,9 +570,13 @@ describe('ContextPipelineService', () => {
     });
 
     it('should log chunks without scores and summary with tier sql_fallback and fallback_reason on SQL fallback', async () => {
-      const debugSpy = jest.spyOn(service['logger'], 'debug').mockImplementation();
+      const debugSpy = jest
+        .spyOn(service['logger'], 'debug')
+        .mockImplementation();
       const logSpy = jest.spyOn(service['logger'], 'log').mockImplementation();
-      const warnSpy = jest.spyOn(service['logger'], 'warn').mockImplementation();
+      const warnSpy = jest
+        .spyOn(service['logger'], 'warn')
+        .mockImplementation();
 
       const profileChain = setupGoalProfileQuery({
         narrative_summary: 'Test goal',
@@ -586,9 +630,13 @@ describe('ContextPipelineService', () => {
 
       // Verify summary with sql_fallback tier and fallback_reason
       const summaryCall = logSpy.mock.calls[0]![0] as string;
-      const summaryJson = JSON.parse(summaryCall.replace('Retrieval complete: ', ''));
+      const summaryJson = JSON.parse(
+        summaryCall.replace('Retrieval complete: ', ''),
+      );
       expect(summaryJson.tier).toBe('sql_fallback');
-      expect(summaryJson.fallback_reason).toBe('HNSW search error: connection timeout');
+      expect(summaryJson.fallback_reason).toBe(
+        'HNSW search error: connection timeout',
+      );
       expect(summaryJson.total_candidates).toBe(1);
       expect(summaryJson.selected_count).toBe(1);
       expect(summaryJson.excluded_count).toBe(0);
@@ -599,9 +647,13 @@ describe('ContextPipelineService', () => {
     });
 
     it('should force rerank_score to null when tier is sql_fallback even if Cohere succeeded', async () => {
-      const debugSpy = jest.spyOn(service['logger'], 'debug').mockImplementation();
+      const debugSpy = jest
+        .spyOn(service['logger'], 'debug')
+        .mockImplementation();
       const logSpy = jest.spyOn(service['logger'], 'log').mockImplementation();
-      const warnSpy = jest.spyOn(service['logger'], 'warn').mockImplementation();
+      const warnSpy = jest
+        .spyOn(service['logger'], 'warn')
+        .mockImplementation();
 
       const profileChain = setupGoalProfileQuery({
         narrative_summary: 'Test goal',
@@ -657,7 +709,9 @@ describe('ContextPipelineService', () => {
 
       // Verify tier is sql_fallback with fallback_reason
       const summaryCall = logSpy.mock.calls[0]![0] as string;
-      const summaryJson = JSON.parse(summaryCall.replace('Retrieval complete: ', ''));
+      const summaryJson = JSON.parse(
+        summaryCall.replace('Retrieval complete: ', ''),
+      );
       expect(summaryJson.tier).toBe('sql_fallback');
       expect(summaryJson.fallback_reason).toBe('HNSW connection timeout');
 
@@ -667,7 +721,9 @@ describe('ContextPipelineService', () => {
     });
 
     it('should verify logger.debug called for each chunk and logger.log called once for summary', async () => {
-      const debugSpy = jest.spyOn(service['logger'], 'debug').mockImplementation();
+      const debugSpy = jest
+        .spyOn(service['logger'], 'debug')
+        .mockImplementation();
       const logSpy = jest.spyOn(service['logger'], 'log').mockImplementation();
 
       const profileChain = setupGoalProfileQuery({
@@ -710,7 +766,9 @@ describe('ContextPipelineService', () => {
         error: null,
       });
 
-      const singleRanked: RankedChunk[] = [{ ...mockChunks[0]!, rerank_score: 0.95 }];
+      const singleRanked: RankedChunk[] = [
+        { ...mockChunks[0]!, rerank_score: 0.95 },
+      ];
       mockRerankService.rerank.mockResolvedValueOnce({
         selected: singleRanked,
         allCandidates: singleRanked,
@@ -720,7 +778,9 @@ describe('ContextPipelineService', () => {
       await service.assembleContext(goalId, userId);
 
       const summaryCall = logSpy.mock.calls[0]![0] as string;
-      const summaryJson = JSON.parse(summaryCall.replace('Retrieval complete: ', ''));
+      const summaryJson = JSON.parse(
+        summaryCall.replace('Retrieval complete: ', ''),
+      );
       expect(typeof summaryJson.latency_ms).toBe('number');
       expect(summaryJson.latency_ms).toBeGreaterThanOrEqual(0);
 

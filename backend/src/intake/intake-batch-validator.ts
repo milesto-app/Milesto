@@ -22,7 +22,10 @@ export function validateSemantic(questions: QuestionInput[]): ValidationResult {
   return { valid: errors.length === 0, errors };
 }
 
-function validateQuestionMarks(questions: QuestionInput[], errors: string[]): void {
+function validateQuestionMarks(
+  questions: QuestionInput[],
+  errors: string[],
+): void {
   for (const [i, question] of questions.entries()) {
     if (!question.question_text.endsWith('?')) {
       errors.push(`Question ${String(i + 1)}: question_text must end with "?"`);
@@ -30,20 +33,31 @@ function validateQuestionMarks(questions: QuestionInput[], errors: string[]): vo
   }
 }
 
-function validateNoDuplicates(questions: QuestionInput[], errors: string[]): void {
+function validateNoDuplicates(
+  questions: QuestionInput[],
+  errors: string[],
+): void {
   const seen = new Set<string>();
   for (const [i, question] of questions.entries()) {
     const lower = question.question_text.toLowerCase();
     if (seen.has(lower)) {
-      errors.push(`Question ${String(i + 1)}: duplicate question_text "${question.question_text}"`);
+      errors.push(
+        `Question ${String(i + 1)}: duplicate question_text "${question.question_text}"`,
+      );
     }
     seen.add(lower);
   }
 }
 
-function validateChoiceOptions(questions: QuestionInput[], errors: string[]): void {
+function validateChoiceOptions(
+  questions: QuestionInput[],
+  errors: string[],
+): void {
   for (const [i, q] of questions.entries()) {
-    if (q.question_type !== 'single_choice' && q.question_type !== 'multiple_choice') {
+    if (
+      q.question_type !== 'single_choice' &&
+      q.question_type !== 'multiple_choice'
+    ) {
       continue;
     }
     const options = (q.config as { options?: string[] } | null)?.options ?? [];
@@ -56,7 +70,10 @@ function validateChoiceOptions(questions: QuestionInput[], errors: string[]): vo
   }
 }
 
-function validateTypeVariety(questions: QuestionInput[], errors: string[]): void {
+function validateTypeVariety(
+  questions: QuestionInput[],
+  errors: string[],
+): void {
   const types = new Set(questions.map((q) => q.question_type));
   if (types.size < MIN_DISTINCT_OPTIONS) {
     errors.push(
@@ -90,7 +107,10 @@ export function validateGoalProfile(profile: unknown): ValidationResult {
   return { valid: errors.length === 0, errors };
 }
 
-function validateRequiredSections(p: Record<string, unknown>, errors: string[]): void {
+function validateRequiredSections(
+  p: Record<string, unknown>,
+  errors: string[],
+): void {
   for (const key of REQUIRED_PROFILE_SECTIONS) {
     if (!(key in p)) {
       errors.push(`Missing required section: ${key}`);
@@ -113,9 +133,13 @@ function validateInsights(p: Record<string, unknown>, errors: string[]): void {
     errors.push('goal_specific_insights must be a non-array object');
     return;
   }
-  for (const [key, value] of Object.entries(insights as Record<string, unknown>)) {
+  for (const [key, value] of Object.entries(
+    insights as Record<string, unknown>,
+  )) {
     if (typeof value !== 'string' || value.trim() === '') {
-      errors.push(`goal_specific_insights["${key}"] must be a non-empty string`);
+      errors.push(
+        `goal_specific_insights["${key}"] must be a non-empty string`,
+      );
     }
   }
 }

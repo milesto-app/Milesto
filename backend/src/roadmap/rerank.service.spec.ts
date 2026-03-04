@@ -1,4 +1,4 @@
-/* eslint-disable max-lines, @typescript-eslint/no-non-null-assertion, @typescript-eslint/no-unnecessary-type-conversion */
+/* eslint-disable @typescript-eslint/no-non-null-assertion, @typescript-eslint/no-unnecessary-type-conversion */
 import type { TestingModule } from '@nestjs/testing';
 import { Test } from '@nestjs/testing';
 import { ConfigService } from '@nestjs/config';
@@ -89,8 +89,12 @@ describe('RerankService', () => {
       rerank_score: 0.72,
     });
     // selected is top-N from allCandidates
-    expect(result.selected.length).toBeLessThanOrEqual(appConfig.roadmap.rerankTopN);
-    expect(result.selected).toEqual(result.allCandidates.slice(0, appConfig.roadmap.rerankTopN));
+    expect(result.selected.length).toBeLessThanOrEqual(
+      appConfig.roadmap.rerankTopN,
+    );
+    expect(result.selected).toEqual(
+      result.allCandidates.slice(0, appConfig.roadmap.rerankTopN),
+    );
     expect(result.failureReason).toBeUndefined();
   });
 
@@ -139,7 +143,9 @@ describe('RerankService', () => {
     expect(result.selected[0]).toEqual(mockChunks[0]);
     expect(result.selected).toEqual(result.allCandidates);
     expect(result.failureReason).toBe('Cohere API error: 429');
-    expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('Rerank failed'));
+    expect(warnSpy).toHaveBeenCalledWith(
+      expect.stringContaining('Rerank failed'),
+    );
   });
 
   it('should return all as selected with rerankApplied: false when Cohere is unavailable (network error)', async () => {
@@ -152,7 +158,9 @@ describe('RerankService', () => {
     expect(result.allCandidates).toHaveLength(3);
     expect(result.selected[0]).toEqual(mockChunks[0]);
     expect(result.failureReason).toBe('ECONNREFUSED');
-    expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('ECONNREFUSED'));
+    expect(warnSpy).toHaveBeenCalledWith(
+      expect.stringContaining('ECONNREFUSED'),
+    );
   });
 
   it('should return all as selected with rerankApplied: false on timeout (AbortController)', async () => {
@@ -165,7 +173,9 @@ describe('RerankService', () => {
     expect(result.allCandidates).toHaveLength(3);
     expect(result.selected[0]).toEqual(mockChunks[0]);
     expect(result.failureReason).toContain('Aborted');
-    expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('Rerank failed'));
+    expect(warnSpy).toHaveBeenCalledWith(
+      expect.stringContaining('Rerank failed'),
+    );
   });
 
   it('should return empty RerankResult for empty chunks input without calling API', async () => {
@@ -194,7 +204,9 @@ describe('RerankService', () => {
     }).compile();
 
     const serviceNoKey = module.get<RerankService>(RerankService);
-    const noKeyWarnSpy = jest.spyOn(serviceNoKey['logger'], 'warn').mockImplementation();
+    const noKeyWarnSpy = jest
+      .spyOn(serviceNoKey['logger'], 'warn')
+      .mockImplementation();
 
     const result = await serviceNoKey.rerank('test query', mockChunks);
 

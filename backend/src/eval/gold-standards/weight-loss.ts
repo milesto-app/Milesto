@@ -31,7 +31,8 @@ export const WEIGHT_LOSS_STANDARD: GoldStandard = {
           'I get enough sleep but still wake up tired',
         ],
       },
-      rationale: 'Identifies blocker type: Mental fatigue vs Time scarcity vs Procrastination.',
+      rationale:
+        'Identifies blocker type: Mental fatigue vs Time scarcity vs Procrastination.',
     },
     {
       question_text:
@@ -67,7 +68,8 @@ export const WEIGHT_LOSS_STANDARD: GoldStandard = {
           'Have energy to play with my kids',
         ],
       },
-      rationale: 'Concrete emotional anchor. Moves from abstract "weight loss" to visceral reward.',
+      rationale:
+        'Concrete emotional anchor. Moves from abstract "weight loss" to visceral reward.',
     },
   ],
   simulatedBatch1Answers: {
@@ -76,7 +78,8 @@ export const WEIGHT_LOSS_STANDARD: GoldStandard = {
       {
         question_text: 'Which best describes your starting point with this?',
         question_type: 'single_choice',
-        answer: 'I used to be further along but lost ground and need to rebuild',
+        answer:
+          'I used to be further along but lost ground and need to rebuild',
       },
       {
         question_text:

@@ -25,7 +25,9 @@ function createEntry(
   };
 }
 
-function buildRegistry(...entries: [string, ChatToolEntry][]): Map<string, ChatToolEntry> {
+function buildRegistry(
+  ...entries: [string, ChatToolEntry][]
+): Map<string, ChatToolEntry> {
   return new Map(entries);
 }
 

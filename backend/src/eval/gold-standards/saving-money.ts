@@ -37,10 +37,12 @@ export const SAVING_MONEY_STANDARD: GoldStandard = {
           'When my card gets declined',
         ],
       },
-      rationale: 'Measures Financial Anxiety. Avoidance is a key psychological barrier.',
+      rationale:
+        'Measures Financial Anxiety. Avoidance is a key psychological barrier.',
     },
     {
-      question_text: 'Why is buying a house important to you personally (not just financially)?',
+      question_text:
+        'Why is buying a house important to you personally (not just financially)?',
       question_type: 'single_choice',
       config: {
         options: [
@@ -54,7 +56,8 @@ export const SAVING_MONEY_STANDARD: GoldStandard = {
         '"Stability" needs conservative plan. "Status" implies different timeline pressure.',
     },
     {
-      question_text: 'What is the first thing you will do when you get the keys?',
+      question_text:
+        'What is the first thing you will do when you get the keys?',
       question_type: 'text',
       config: null,
       rationale: 'Emotional reward hook. Creates visceral anchor.',
@@ -66,7 +69,8 @@ export const SAVING_MONEY_STANDARD: GoldStandard = {
       {
         question_text: 'Which best describes your starting point with this?',
         question_type: 'single_choice',
-        answer: "I've tried bits and pieces but nothing consistent or structured",
+        answer:
+          "I've tried bits and pieces but nothing consistent or structured",
       },
       {
         question_text:

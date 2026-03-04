@@ -21,10 +21,14 @@ export class ChatCheckInToolsService {
       const energyLevel = args.energy_level as EnergyLevel;
       const note = typeof args.note === 'string' ? args.note : undefined;
 
-      const checkIn = await this.checkInService.submitCheckIn(ctx.goalId, ctx.userId, {
-        energy_level: energyLevel,
-        ...(note !== undefined ? { note } : {}),
-      });
+      const checkIn = await this.checkInService.submitCheckIn(
+        ctx.goalId,
+        ctx.userId,
+        {
+          energy_level: energyLevel,
+          ...(note !== undefined ? { note } : {}),
+        },
+      );
 
       return {
         success: true,
@@ -34,7 +38,8 @@ export class ChatCheckInToolsService {
     } catch (error) {
       if (error instanceof ConflictException) {
         return {
-          error: 'You have already checked in today. Only one check-in per day is allowed.',
+          error:
+            'You have already checked in today. Only one check-in per day is allowed.',
         };
       }
       const message = error instanceof Error ? error.message : String(error);
@@ -50,7 +55,11 @@ export class ChatCheckInToolsService {
     try {
       const note = args.note as string;
 
-      const debrief = await this.debriefService.submitDebrief(ctx.goalId, ctx.userId, { note });
+      const debrief = await this.debriefService.submitDebrief(
+        ctx.goalId,
+        ctx.userId,
+        { note },
+      );
 
       return {
         success: true,
@@ -59,7 +68,8 @@ export class ChatCheckInToolsService {
     } catch (error) {
       if (error instanceof ConflictException) {
         return {
-          error: 'You have already submitted a debrief today. Only one per day is allowed.',
+          error:
+            'You have already submitted a debrief today. Only one per day is allowed.',
         };
       }
       const message = error instanceof Error ? error.message : String(error);

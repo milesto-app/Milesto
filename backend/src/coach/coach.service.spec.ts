@@ -50,7 +50,10 @@ beforeEach(async () => {
   const module: TestingModule = await Test.createTestingModule({
     providers: [
       CoachService,
-      { provide: SupabaseService, useValue: { getAdminClient: () => mockSupabase } },
+      {
+        provide: SupabaseService,
+        useValue: { getAdminClient: () => mockSupabase },
+      },
     ],
   }).compile();
 
@@ -91,6 +94,8 @@ describe('CoachService.getCoach', () => {
   it('should throw NotFoundException when coach not found', async () => {
     mockSelectOneChain(null, { code: 'PGRST116', message: 'not found' });
 
-    await expect(service.getCoach(NONEXISTENT_COACH_ID)).rejects.toThrow(NotFoundException);
+    await expect(service.getCoach(NONEXISTENT_COACH_ID)).rejects.toThrow(
+      NotFoundException,
+    );
   });
 });

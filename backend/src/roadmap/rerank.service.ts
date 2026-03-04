@@ -1,7 +1,11 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { appConfig } from '../config/app.config.js';
-import type { ContextChunk, RankedChunk, RerankResult } from './types/context.types.js';
+import type {
+  ContextChunk,
+  RankedChunk,
+  RerankResult,
+} from './types/context.types.js';
 
 const RERANK_TIMEOUT_MS = 10_000;
 
@@ -19,7 +23,10 @@ export class RerankService {
     this.cohereApiKey = this.configService.get<string>('COHERE_API_KEY') ?? '';
   }
 
-  public async rerank(query: string, chunks: ContextChunk[]): Promise<RerankResult> {
+  public async rerank(
+    query: string,
+    chunks: ContextChunk[],
+  ): Promise<RerankResult> {
     if (chunks.length === 0) {
       return { selected: [], allCandidates: [], rerankApplied: false };
     }
@@ -37,8 +44,11 @@ export class RerankService {
     try {
       return await this.callCohereApi(query, chunks, controller.signal);
     } catch (error) {
-      const failureReason = error instanceof Error ? error.message : String(error);
-      this.logger.warn(`Rerank failed, using raw HNSW results: ${failureReason}`);
+      const failureReason =
+        error instanceof Error ? error.message : String(error);
+      this.logger.warn(
+        `Rerank failed, using raw HNSW results: ${failureReason}`,
+      );
       return this.buildFallbackResult(chunks, failureReason);
     } finally {
       clearTimeout(timeout);
@@ -86,7 +96,10 @@ export class RerankService {
     return { selected, allCandidates, rerankApplied: true };
   }
 
-  private buildFallbackResult(chunks: ContextChunk[], failureReason: string): RerankResult {
+  private buildFallbackResult(
+    chunks: ContextChunk[],
+    failureReason: string,
+  ): RerankResult {
     const allAsSelected: RankedChunk[] = chunks.map((c) => ({ ...c }));
     return {
       selected: allAsSelected,

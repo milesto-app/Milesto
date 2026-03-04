@@ -43,14 +43,27 @@ export class WeeklyPlanService {
     storage: WeeklyPlanStorageService,
     languageService: UserLanguageService,
   ) {
-    this.deps = { contextPipeline, generation, data, query, storage, languageService };
+    this.deps = {
+      contextPipeline,
+      generation,
+      data,
+      query,
+      storage,
+      languageService,
+    };
   }
 
-  public async getCurrentWeeklyPlan(goalId: string, userId: string): Promise<WeeklyPlan | null> {
+  public async getCurrentWeeklyPlan(
+    goalId: string,
+    userId: string,
+  ): Promise<WeeklyPlan | null> {
     return this.deps.storage.getCurrentWeeklyPlan(goalId, userId);
   }
 
-  public async generateWeeklyPlan(goalId: string, userId: string): Promise<WeeklyPlan> {
+  public async generateWeeklyPlan(
+    goalId: string,
+    userId: string,
+  ): Promise<WeeklyPlan> {
     await this.deps.storage.autoCompleteExpiredPlans(goalId, DAYS_PER_WEEK);
     const language = await this.deps.languageService.getLanguage(userId);
     await this.summarizePreviousWeek(goalId, userId, language);
@@ -68,17 +81,24 @@ export class WeeklyPlanService {
     userId: string,
     language: string,
   ): Promise<WeeklyPlan> {
-    const { roadmap, milestone } = await this.getActiveRoadmapAndMilestone(goalId, userId);
+    const { roadmap, milestone } = await this.getActiveRoadmapAndMilestone(
+      goalId,
+      userId,
+    );
     const weekNumber = await this.deps.storage.calculateWeekNumber(roadmap.id);
-    const lastCompleted = await this.deps.storage.getLastCompletedPlanWithoutSummary(goalId);
-    const ms = milestone as Milestone & { monthly_summary?: MonthlySummary | null };
+    const lastCompleted =
+      await this.deps.storage.getLastCompletedPlanWithoutSummary(goalId);
+    const ms = milestone as Milestone & {
+      monthly_summary?: MonthlySummary | null;
+    };
     const generationContext: GenerationContext = {
       milestone_title: ms.title,
       milestone_description: ms.description,
       milestone_expected_outcome: ms.expected_outcome,
       milestone_target_month: ms.target_month,
       last_weekly_summary: lastCompleted?.summary ?? null,
-      last_monthly_summary: (ms.monthly_summary as Record<string, unknown> | null) ?? null,
+      last_monthly_summary:
+        (ms.monthly_summary as Record<string, unknown> | null) ?? null,
     };
 
     try {
@@ -95,11 +115,20 @@ export class WeeklyPlanService {
       this.logger.warn(
         `Weekly plan generation failed, creating fallback: ${error instanceof Error ? error.message : String(error)}`,
       );
-      return this.createFallbackOrThrow(milestone, goalId, userId, weekNumber, roadmap.id);
+      return this.createFallbackOrThrow(
+        milestone,
+        goalId,
+        userId,
+        weekNumber,
+        roadmap.id,
+      );
     }
   }
 
-  public async queryWeekData(plan: WeeklyPlan, goalId: string): Promise<WeekData> {
+  public async queryWeekData(
+    plan: WeeklyPlan,
+    goalId: string,
+  ): Promise<WeekData> {
     return this.deps.query.queryWeekData(plan, goalId);
   }
 
@@ -115,7 +144,8 @@ export class WeeklyPlanService {
     userId: string,
     language: string,
   ): Promise<void> {
-    const lastCompleted = await this.deps.storage.getLastCompletedPlanWithoutSummary(goalId);
+    const lastCompleted =
+      await this.deps.storage.getLastCompletedPlanWithoutSummary(goalId);
     if (lastCompleted !== null) {
       await this.deps.data.generateAndStoreSummary({
         lastCompleted,
@@ -127,15 +157,21 @@ export class WeeklyPlanService {
     }
   }
 
-  private async generateAndStorePlan(params: GenerateAndStoreParams): Promise<WeeklyPlan> {
-    const context = await this.deps.contextPipeline.assembleContext(params.goalId, params.userId);
-    const { plan: generated, metadata } = await this.deps.generation.generateWeeklyPlan({
-      context,
-      milestone: params.milestone,
-      weekNumber: params.weekNumber,
-      generationContext: params.generationContext,
-      language: params.language,
-    });
+  private async generateAndStorePlan(
+    params: GenerateAndStoreParams,
+  ): Promise<WeeklyPlan> {
+    const context = await this.deps.contextPipeline.assembleContext(
+      params.goalId,
+      params.userId,
+    );
+    const { plan: generated, metadata } =
+      await this.deps.generation.generateWeeklyPlan({
+        context,
+        milestone: params.milestone,
+        weekNumber: params.weekNumber,
+        generationContext: params.generationContext,
+        language: params.language,
+      });
 
     const weeklyPlan = await this.deps.storage.storeWeeklyPlan({
       roadmap_id: params.roadmap.id,
@@ -146,7 +182,10 @@ export class WeeklyPlanService {
       week_start_date: this.deps.storage.getCurrentWeekStart(),
       focus: generated.focus,
       objectives: generated.objectives,
-      generation_context: params.generationContext as unknown as Record<string, unknown>,
+      generation_context: params.generationContext as unknown as Record<
+        string,
+        unknown
+      >,
       is_fallback: false,
       model_used: metadata.model_used,
       generation_metadata: metadata as unknown as Record<string, unknown>,

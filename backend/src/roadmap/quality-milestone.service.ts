@@ -3,9 +3,16 @@ import { OnEvent } from '@nestjs/event-emitter';
 import { AiService } from '../ai/ai.service.js';
 import { SupabaseService } from '../supabase/supabase.service.js';
 import { MILESTONE_JUDGE_SYSTEM_PROMPT } from './prompts/quality-prompts.js';
-import { clampScore, checkWarnings, evaluateQuality } from './quality-helpers.js';
+import {
+  clampScore,
+  checkWarnings,
+  evaluateQuality,
+} from './quality-helpers.js';
 import type { Json } from '../supabase/database.types.js';
-import type { MilestoneQualityScores, RoadmapGeneratedEvent } from './types/quality.types.js';
+import type {
+  MilestoneQualityScores,
+  RoadmapGeneratedEvent,
+} from './types/quality.types.js';
 
 const MILESTONE_SCORE_DIMENSIONS = 4;
 const JSON_INDENT = 2;
@@ -20,7 +27,9 @@ export class QualityMilestoneService {
   ) {}
 
   @OnEvent('roadmap.generated')
-  public async handleRoadmapGenerated(payload: RoadmapGeneratedEvent): Promise<void> {
+  public async handleRoadmapGenerated(
+    payload: RoadmapGeneratedEvent,
+  ): Promise<void> {
     try {
       await this.evaluateAndStore(payload);
     } catch (error) {
@@ -30,7 +39,9 @@ export class QualityMilestoneService {
     }
   }
 
-  private async evaluateAndStore(payload: RoadmapGeneratedEvent): Promise<void> {
+  private async evaluateAndStore(
+    payload: RoadmapGeneratedEvent,
+  ): Promise<void> {
     const supabase = this.supabaseService.getAdminClient();
     const context = await this.loadMilestoneContext(supabase, payload);
     if (context === null) {
@@ -141,13 +152,17 @@ export class QualityMilestoneService {
       .single();
     // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
     if (error !== null || data === null) {
-      this.logger.error(`Failed to load goal for quality evaluation (${goalId}): ${error.message}`);
+      this.logger.error(
+        `Failed to load goal for quality evaluation (${goalId}): ${error.message}`,
+      );
       return null;
     }
     return data as { title: string; description: string };
   }
 
-  private buildScores(rawScores: MilestoneQualityScores): MilestoneQualityScores {
+  private buildScores(
+    rawScores: MilestoneQualityScores,
+  ): MilestoneQualityScores {
     const clamped = {
       coherence: clampScore(rawScores.coherence),
       personalization: clampScore(rawScores.personalization),

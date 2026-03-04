@@ -24,13 +24,23 @@ interface QuestionInput {
   config: QuestionConfig | null;
 }
 
-function validateTextAnswer(answer: AnswerInput, config: QuestionConfig | null): void {
+function validateTextAnswer(
+  answer: AnswerInput,
+  config: QuestionConfig | null,
+): void {
   if (answer.answer_text === undefined || answer.answer_text.trim() === '') {
-    throw new BadRequestException('Text question requires a non-empty answer_text');
+    throw new BadRequestException(
+      'Text question requires a non-empty answer_text',
+    );
   }
   validateDateFormat(answer.answer_text, config);
-  if (answer.answer_numeric !== undefined || answer.selected_options !== undefined) {
-    throw new BadRequestException('Text question must not have answer_numeric or selected_options');
+  if (
+    answer.answer_numeric !== undefined ||
+    answer.selected_options !== undefined
+  ) {
+    throw new BadRequestException(
+      'Text question must not have answer_numeric or selected_options',
+    );
   }
 }
 
@@ -44,17 +54,28 @@ function validateDateFormat(text: string, config: QuestionConfig | null): void {
   }
 }
 
-function validateScaleAnswer(answer: AnswerInput, config: QuestionConfig | null): void {
+function validateScaleAnswer(
+  answer: AnswerInput,
+  config: QuestionConfig | null,
+): void {
   if (answer.answer_numeric === undefined) {
     throw new BadRequestException('Scale question requires answer_numeric');
   }
   validateScaleRange(answer.answer_numeric, config);
-  if (answer.answer_text !== undefined || answer.selected_options !== undefined) {
-    throw new BadRequestException('Scale question must not have answer_text or selected_options');
+  if (
+    answer.answer_text !== undefined ||
+    answer.selected_options !== undefined
+  ) {
+    throw new BadRequestException(
+      'Scale question must not have answer_text or selected_options',
+    );
   }
 }
 
-function validateScaleRange(value: number, config: QuestionConfig | null): void {
+function validateScaleRange(
+  value: number,
+  config: QuestionConfig | null,
+): void {
   const min = config?.min ?? DEFAULT_SCALE_MIN;
   const max = config?.max ?? DEFAULT_SCALE_MAX;
   if (!Number.isInteger(value) || value < min || value > max) {
@@ -64,13 +85,18 @@ function validateScaleRange(value: number, config: QuestionConfig | null): void 
   }
 }
 
-function validateSingleChoiceAnswer(answer: AnswerInput, config: QuestionConfig | null): void {
+function validateSingleChoiceAnswer(
+  answer: AnswerInput,
+  config: QuestionConfig | null,
+): void {
   const options = config?.options ?? [];
   if (
     !Array.isArray(answer.selected_options) ||
     answer.selected_options.length !== SINGLE_CHOICE_OPTION_COUNT
   ) {
-    throw new BadRequestException('Single choice question requires exactly one selected option');
+    throw new BadRequestException(
+      'Single choice question requires exactly one selected option',
+    );
   }
   const selected = answer.selected_options[0];
   if (selected === undefined || !options.includes(selected)) {
@@ -83,10 +109,18 @@ function validateSingleChoiceAnswer(answer: AnswerInput, config: QuestionConfig 
   }
 }
 
-function validateMultipleChoiceAnswer(answer: AnswerInput, config: QuestionConfig | null): void {
+function validateMultipleChoiceAnswer(
+  answer: AnswerInput,
+  config: QuestionConfig | null,
+): void {
   const options = config?.options ?? [];
-  if (!Array.isArray(answer.selected_options) || answer.selected_options.length === 0) {
-    throw new BadRequestException('Multiple choice question requires at least one selected option');
+  if (
+    !Array.isArray(answer.selected_options) ||
+    answer.selected_options.length === 0
+  ) {
+    throw new BadRequestException(
+      'Multiple choice question requires at least one selected option',
+    );
   }
   for (const opt of answer.selected_options) {
     if (!options.includes(opt)) {
@@ -102,7 +136,11 @@ function validateMultipleChoiceAnswer(answer: AnswerInput, config: QuestionConfi
 
 export function validateAnswerSet(
   answers: AnswerInput[],
-  questions: Array<{ id: string; question_type: string; config: QuestionConfig | null }>,
+  questions: Array<{
+    id: string;
+    question_type: string;
+    config: QuestionConfig | null;
+  }>,
 ): void {
   if (answers.length !== questions.length) {
     throw new BadRequestException(
@@ -113,13 +151,18 @@ export function validateAnswerSet(
   for (const answer of answers) {
     const question = questionMap.get(answer.question_id);
     if (question === undefined) {
-      throw new BadRequestException(`Question ${answer.question_id} does not belong to this batch`);
+      throw new BadRequestException(
+        `Question ${answer.question_id} does not belong to this batch`,
+      );
     }
     validateAnswer(answer, question);
   }
 }
 
-export function validateAnswer(answer: AnswerInput, question: QuestionInput): void {
+export function validateAnswer(
+  answer: AnswerInput,
+  question: QuestionInput,
+): void {
   switch (question.question_type) {
     case 'text':
       validateTextAnswer(answer, question.config);
@@ -134,6 +177,8 @@ export function validateAnswer(answer: AnswerInput, question: QuestionInput): vo
       validateMultipleChoiceAnswer(answer, question.config);
       break;
     default:
-      throw new BadRequestException(`Unknown question type: ${question.question_type}`);
+      throw new BadRequestException(
+        `Unknown question type: ${question.question_type}`,
+      );
   }
 }

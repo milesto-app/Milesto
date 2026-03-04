@@ -73,6 +73,8 @@ describe('CoachController.getCoach', () => {
       new NotFoundException(`Coach with id ${NONEXISTENT_COACH_ID} not found`),
     );
 
-    await expect(controller.getCoach(NONEXISTENT_COACH_ID)).rejects.toThrow(NotFoundException);
+    await expect(controller.getCoach(NONEXISTENT_COACH_ID)).rejects.toThrow(
+      NotFoundException,
+    );
   });
 });

@@ -44,7 +44,9 @@ export async function consumeStream(
   return { content, toolCalls: [...toolCallMap.values()] };
 }
 
-function createToolCallEntry(tc: ChatCompletionChunk.Choice.Delta.ToolCall): ToolCallResult {
+function createToolCallEntry(
+  tc: ChatCompletionChunk.Choice.Delta.ToolCall,
+): ToolCallResult {
   return {
     id: tc.id ?? '',
     name: tc.function?.name ?? '',
@@ -86,11 +88,19 @@ function convertStoredMessage(msg: StoredMessage): ChatCompletionMessageParam {
   }
 
   if (msg.role === 'tool') {
-    return { role: 'tool', tool_call_id: msg.tool_call_id ?? '', content: msg.content ?? '' };
+    return {
+      role: 'tool',
+      tool_call_id: msg.tool_call_id ?? '',
+      content: msg.content ?? '',
+    };
   }
 
   if (msg.tool_calls !== null && msg.tool_calls.length > 0) {
-    return { role: 'assistant', content: msg.content ?? null, tool_calls: msg.tool_calls };
+    return {
+      role: 'assistant',
+      content: msg.content ?? null,
+      tool_calls: msg.tool_calls,
+    };
   }
 
   return { role: 'assistant', content: msg.content ?? '' };
@@ -100,7 +110,9 @@ export function toOpenAiMessages(
   systemPrompt: string,
   stored: StoredMessage[],
 ): ChatCompletionMessageParam[] {
-  const messages: ChatCompletionMessageParam[] = [{ role: 'system', content: systemPrompt }];
+  const messages: ChatCompletionMessageParam[] = [
+    { role: 'system', content: systemPrompt },
+  ];
 
   for (const msg of stored) {
     messages.push(convertStoredMessage(msg));

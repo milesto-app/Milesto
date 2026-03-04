@@ -17,20 +17,28 @@ interface MockClient {
 }
 
 function createMockClient(): MockClient {
-  return { send: jest.fn(), close: jest.fn(), on: jest.fn(), readyState: 1, OPEN: 1 };
+  return {
+    send: jest.fn(),
+    close: jest.fn(),
+    on: jest.fn(),
+    readyState: 1,
+    OPEN: 1,
+  };
 }
 
 function getMessageHandler(client: MockClient): (raw: Buffer) => void {
-  const onCall = client.on.mock.calls.find((c: [string, unknown]) => c[0] === 'message') as [
-    string,
-    (raw: Buffer) => void,
-  ];
+  const onCall = client.on.mock.calls.find(
+    (c: [string, unknown]) => c[0] === 'message',
+  ) as [string, (raw: Buffer) => void];
   return onCall[1];
 }
 
 describe('VoiceChatGateway', () => {
   let gateway: VoiceChatGateway;
-  let authService: { authenticateToken: jest.Mock; extractTokenFromUrl: jest.Mock };
+  let authService: {
+    authenticateToken: jest.Mock;
+    extractTokenFromUrl: jest.Mock;
+  };
   let sessionService: {
     hasActiveSession: jest.Mock;
     createSession: jest.Mock;
@@ -50,7 +58,9 @@ describe('VoiceChatGateway', () => {
       getSession: jest.fn(),
     };
     const promptService = {
-      getUserProfile: jest.fn().mockResolvedValue({ coachId: 1, language: 'en' }),
+      getUserProfile: jest
+        .fn()
+        .mockResolvedValue({ coachId: 1, language: 'en' }),
       fetchGoalContext: jest
         .fn()
         .mockResolvedValue({ goal: null, milestone: null, weeklyPlan: null }),
@@ -78,7 +88,10 @@ describe('VoiceChatGateway', () => {
     authService.extractTokenFromUrl.mockReturnValue(null);
     const client = createMockClient();
 
-    await gateway.handleConnection(client as never, { url: '/api/voice-chat' } as never);
+    await gateway.handleConnection(
+      client as never,
+      { url: '/api/voice-chat' } as never,
+    );
 
     expect(client.close).toHaveBeenCalledWith(WS_CLOSE_POLICY, 'Missing token');
   });
@@ -88,7 +101,10 @@ describe('VoiceChatGateway', () => {
     authService.authenticateToken.mockResolvedValue(null);
     const client = createMockClient();
 
-    await gateway.handleConnection(client as never, { url: '?token=bad' } as never);
+    await gateway.handleConnection(
+      client as never,
+      { url: '?token=bad' } as never,
+    );
 
     expect(client.close).toHaveBeenCalledWith(WS_CLOSE_POLICY, 'Invalid token');
   });
@@ -98,7 +114,10 @@ describe('VoiceChatGateway', () => {
     authService.authenticateToken.mockResolvedValue({ id: 'user-1' });
     const client = createMockClient();
 
-    await gateway.handleConnection(client as never, { url: '?token=good' } as never);
+    await gateway.handleConnection(
+      client as never,
+      { url: '?token=good' } as never,
+    );
 
     expect(client.close).not.toHaveBeenCalled();
     expect(client.on).toHaveBeenCalledWith('message', expect.any(Function));
@@ -109,7 +128,10 @@ describe('VoiceChatGateway', () => {
     authService.authenticateToken.mockResolvedValue({ id: 'user-1' });
     const client = createMockClient();
 
-    await gateway.handleConnection(client as never, { url: '?token=t' } as never);
+    await gateway.handleConnection(
+      client as never,
+      { url: '?token=t' } as never,
+    );
     gateway.handleDisconnect(client as never);
 
     expect(sessionService.destroySession).toHaveBeenCalledWith('user-1');
@@ -121,9 +143,14 @@ describe('VoiceChatGateway', () => {
     sessionService.hasActiveSession.mockReturnValue(true);
     const client = createMockClient();
 
-    await gateway.handleConnection(client as never, { url: '?token=t' } as never);
+    await gateway.handleConnection(
+      client as never,
+      { url: '?token=t' } as never,
+    );
     const handler = getMessageHandler(client);
-    handler(Buffer.from(JSON.stringify({ type: 'start_session', goalId: 'g1' })));
+    handler(
+      Buffer.from(JSON.stringify({ type: 'start_session', goalId: 'g1' })),
+    );
     await new Promise(process.nextTick);
 
     expect(client.send).toHaveBeenCalledWith(
@@ -139,9 +166,14 @@ describe('VoiceChatGateway', () => {
     } as ActiveSession);
     const client = createMockClient();
 
-    await gateway.handleConnection(client as never, { url: '?token=t' } as never);
+    await gateway.handleConnection(
+      client as never,
+      { url: '?token=t' } as never,
+    );
     const handler = getMessageHandler(client);
-    handler(Buffer.from(JSON.stringify({ type: 'start_session', goalId: 'g1' })));
+    handler(
+      Buffer.from(JSON.stringify({ type: 'start_session', goalId: 'g1' })),
+    );
     await new Promise(process.nextTick);
 
     expect(sessionService.createSession).toHaveBeenCalled();

@@ -1,4 +1,4 @@
-/* eslint-disable max-lines, @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import type { TestingModule } from '@nestjs/testing';
 import { Test } from '@nestjs/testing';
 import { IntakePromptService } from './intake-prompt.service.js';
@@ -13,7 +13,10 @@ describe('IntakePromptService', () => {
     mockAiService = { generateJSON: jest.fn() };
 
     const module: TestingModule = await Test.createTestingModule({
-      providers: [IntakePromptService, { provide: AiService, useValue: mockAiService }],
+      providers: [
+        IntakePromptService,
+        { provide: AiService, useValue: mockAiService },
+      ],
     }).compile();
 
     service = module.get<IntakePromptService>(IntakePromptService);
@@ -33,13 +36,17 @@ describe('IntakePromptService', () => {
 
     it('should include at least one scale type question', () => {
       const questions = service.getUniversalBatch('en');
-      const scaleQuestions = questions.filter((q) => q.question_type === 'scale');
+      const scaleQuestions = questions.filter(
+        (q) => q.question_type === 'scale',
+      );
       expect(scaleQuestions.length).toBeGreaterThanOrEqual(1);
     });
 
     it('should include at least one single_choice type question', () => {
       const questions = service.getUniversalBatch('en');
-      const choiceQuestions = questions.filter((q) => q.question_type === 'single_choice');
+      const choiceQuestions = questions.filter(
+        (q) => q.question_type === 'single_choice',
+      );
       expect(choiceQuestions.length).toBeGreaterThanOrEqual(1);
     });
 
@@ -55,7 +62,9 @@ describe('IntakePromptService', () => {
 
     it('should have min, max, min_label, max_label in config for scale questions', () => {
       const questions = service.getUniversalBatch('en');
-      const scaleQuestions = questions.filter((q) => q.question_type === 'scale');
+      const scaleQuestions = questions.filter(
+        (q) => q.question_type === 'scale',
+      );
       for (const q of scaleQuestions) {
         expect(q.config).toHaveProperty('min');
         expect(q.config).toHaveProperty('max');
@@ -66,11 +75,17 @@ describe('IntakePromptService', () => {
 
     it('should have non-empty options array in config for single_choice questions', () => {
       const questions = service.getUniversalBatch('en');
-      const choiceQuestions = questions.filter((q) => q.question_type === 'single_choice');
+      const choiceQuestions = questions.filter(
+        (q) => q.question_type === 'single_choice',
+      );
       for (const q of choiceQuestions) {
         expect(q.config).toHaveProperty('options');
-        expect(Array.isArray((q.config as { options: string[] }).options)).toBe(true);
-        expect((q.config as { options: string[] }).options.length).toBeGreaterThan(0);
+        expect(Array.isArray((q.config as { options: string[] }).options)).toBe(
+          true,
+        );
+        expect(
+          (q.config as { options: string[] }).options.length,
+        ).toBeGreaterThan(0);
       }
     });
 
@@ -124,7 +139,8 @@ describe('IntakePromptService', () => {
       constraints: 'Limited to 10 hours per week',
       motivation: 'Health improvement',
       domain_context: 'Distance running and endurance training',
-      narrative_summary: 'You are a beginner runner looking to complete a marathon.',
+      narrative_summary:
+        'You are a beginner runner looking to complete a marathon.',
     };
 
     it('should call AiService.generateJSON with system and user prompts', async () => {
@@ -133,7 +149,8 @@ describe('IntakePromptService', () => {
       await service.generateGoalProfile('Run a marathon', priorBatches, 'en');
 
       expect(mockAiService.generateJSON).toHaveBeenCalledTimes(1);
-      const [systemPrompt, userPrompt] = mockAiService.generateJSON.mock.calls[0];
+      const [systemPrompt, userPrompt] =
+        mockAiService.generateJSON.mock.calls[0];
       expect(typeof systemPrompt).toBe('string');
       expect(typeof userPrompt).toBe('string');
     });
@@ -209,7 +226,11 @@ describe('IntakePromptService', () => {
         },
       ];
 
-      await service.generateGoalProfile('Run a marathon', batchesWithDate, 'en');
+      await service.generateGoalProfile(
+        'Run a marathon',
+        batchesWithDate,
+        'en',
+      );
 
       const userPrompt = mockAiService.generateJSON.mock.calls[0][1];
       expect(userPrompt).toContain("Today's date: 2026-02-20");
@@ -230,7 +251,9 @@ describe('IntakePromptService', () => {
     });
 
     it('should propagate AiService errors (does not catch them)', async () => {
-      mockAiService.generateJSON.mockRejectedValue(new Error('AI service unavailable'));
+      mockAiService.generateJSON.mockRejectedValue(
+        new Error('AI service unavailable'),
+      );
 
       await expect(
         service.generateGoalProfile('Run a marathon', priorBatches, 'en'),
@@ -292,7 +315,8 @@ describe('IntakePromptService', () => {
       });
 
       expect(mockAiService.generateJSON).toHaveBeenCalledTimes(1);
-      const [systemPrompt, userPrompt] = mockAiService.generateJSON.mock.calls[0];
+      const [systemPrompt, userPrompt] =
+        mockAiService.generateJSON.mock.calls[0];
       expect(typeof systemPrompt).toBe('string');
       expect(typeof userPrompt).toBe('string');
     });
@@ -467,7 +491,9 @@ describe('IntakePromptService', () => {
       });
 
       const userPrompt = mockAiService.generateJSON.mock.calls[0][1];
-      expect(userPrompt).toContain('[SHORT ANSWER - possible avoidance signal]');
+      expect(userPrompt).toContain(
+        '[SHORT ANSWER - possible avoidance signal]',
+      );
     });
 
     it('should not annotate choice/scale answers regardless of length', async () => {
@@ -520,7 +546,9 @@ describe('IntakePromptService', () => {
     });
 
     it('should propagate AiService errors (does not catch them)', async () => {
-      mockAiService.generateJSON.mockRejectedValue(new Error('AI service unavailable'));
+      mockAiService.generateJSON.mockRejectedValue(
+        new Error('AI service unavailable'),
+      );
 
       await expect(
         service.generateNextBatch({
@@ -724,31 +752,41 @@ describe('IntakePromptService', () => {
   describe('getFallbackBatch', () => {
     it('should return first pool when no indexes are used', () => {
       const questions = service.getFallbackBatch([], 'en');
-      expect(questions[0].question_text).toContain('What do you already have going for you');
+      expect(questions[0].question_text).toContain(
+        'What do you already have going for you',
+      );
       expect(questions).toHaveLength(3);
     });
 
     it('should return second pool when first index is used', () => {
       const questions = service.getFallbackBatch([0], 'en');
-      expect(questions[0].question_text).toContain("is this more about what you'll be able to do");
+      expect(questions[0].question_text).toContain(
+        "is this more about what you'll be able to do",
+      );
       expect(questions).toHaveLength(2);
     });
 
     it('should return third pool when first two indexes are used', () => {
       const questions = service.getFallbackBatch([0, 1], 'en');
-      expect(questions[0].question_text).toContain('How supportive is your immediate circle');
+      expect(questions[0].question_text).toContain(
+        'How supportive is your immediate circle',
+      );
       expect(questions).toHaveLength(3);
     });
 
     it('should wrap around to first pool when all indexes are used', () => {
       const questions = service.getFallbackBatch([0, 1, 2], 'en');
-      expect(questions[0].question_text).toContain('What do you already have going for you');
+      expect(questions[0].question_text).toContain(
+        'What do you already have going for you',
+      );
     });
 
     it('should return questions with valid question types and configs', () => {
       const questions = service.getFallbackBatch([], 'en');
       for (const q of questions) {
-        expect(['text', 'scale', 'single_choice', 'multiple_choice']).toContain(q.question_type);
+        expect(['text', 'scale', 'single_choice', 'multiple_choice']).toContain(
+          q.question_type,
+        );
       }
     });
 

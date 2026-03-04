@@ -3,7 +3,11 @@ import { OnEvent } from '@nestjs/event-emitter';
 import { AiService } from '../ai/ai.service.js';
 import { SupabaseService } from '../supabase/supabase.service.js';
 import { DAILY_OBJECTIVE_JUDGE_SYSTEM_PROMPT } from './prompts/quality-prompts.js';
-import { clampScore, checkWarnings, evaluateQuality } from './quality-helpers.js';
+import {
+  clampScore,
+  checkWarnings,
+  evaluateQuality,
+} from './quality-helpers.js';
 import type { Json } from '../supabase/database.types.js';
 import type {
   DailyObjectiveQualityScores,
@@ -36,7 +40,9 @@ export class QualityDailyService {
     }
   }
 
-  private async evaluateAndStore(payload: DailyObjectivesGeneratedEvent): Promise<void> {
+  private async evaluateAndStore(
+    payload: DailyObjectivesGeneratedEvent,
+  ): Promise<void> {
     const supabase = this.supabaseService.getAdminClient();
     const context = await this.loadDailyContext(supabase, payload);
     if (context === null) {
@@ -77,7 +83,11 @@ export class QualityDailyService {
   private async loadDailyContext(
     supabase: ReturnType<SupabaseService['getAdminClient']>,
     payload: DailyObjectivesGeneratedEvent,
-  ): Promise<{ content: string; checkInContext: string; objectiveIds: string[] } | null> {
+  ): Promise<{
+    content: string;
+    checkInContext: string;
+    objectiveIds: string[];
+  } | null> {
     const objectives = await this.loadObjectives(supabase, payload);
     if (objectives === null) {
       return null;
@@ -161,14 +171,18 @@ export class QualityDailyService {
     return data as { energy_level: string };
   }
 
-  private buildScores(rawScores: DailyObjectiveQualityScores): DailyObjectiveQualityScores {
+  private buildScores(
+    rawScores: DailyObjectiveQualityScores,
+  ): DailyObjectiveQualityScores {
     const clamped = {
       energy_calibration: clampScore(rawScores.energy_calibration),
       specificity: clampScore(rawScores.specificity),
       achievability: clampScore(rawScores.achievability),
     };
     const composite =
-      (clamped.energy_calibration + clamped.specificity + clamped.achievability) /
+      (clamped.energy_calibration +
+        clamped.specificity +
+        clamped.achievability) /
       PLAN_SCORE_DIMENSIONS;
 
     return { ...clamped, composite };

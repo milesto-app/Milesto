@@ -31,7 +31,10 @@ export class DebriefService {
     return this.insertDebrief(goalId, userId, today, dto);
   }
 
-  public async getDebriefHistory(goalId: string, userId: string): Promise<Debrief[]> {
+  public async getDebriefHistory(
+    goalId: string,
+    userId: string,
+  ): Promise<Debrief[]> {
     const supabase = this.supabaseService.getAdminClient();
     const { data, error } = await supabase
       .from('debriefs')
@@ -41,12 +44,17 @@ export class DebriefService {
       .order('date', { ascending: false });
     if (error) {
       this.logger.error(`Failed to retrieve debrief history: ${error.message}`);
-      throw new InternalServerErrorException('Failed to retrieve debrief history');
+      throw new InternalServerErrorException(
+        'Failed to retrieve debrief history',
+      );
     }
     return data as unknown as Debrief[];
   }
 
-  private async validateGoalExists(goalId: string, userId: string): Promise<void> {
+  private async validateGoalExists(
+    goalId: string,
+    userId: string,
+  ): Promise<void> {
     const supabase = this.supabaseService.getAdminClient();
     const { data, error } = await supabase
       .from('goals')
@@ -81,7 +89,9 @@ export class DebriefService {
       .single();
     if (error) {
       if (error.code === SUPABASE_UNIQUE_VIOLATION) {
-        throw new ConflictException('Debrief already submitted for this goal today');
+        throw new ConflictException(
+          'Debrief already submitted for this goal today',
+        );
       }
       this.logger.error(`Failed to store debrief: ${error.message}`);
       throw new InternalServerErrorException('Failed to store debrief');

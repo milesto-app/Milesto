@@ -17,7 +17,9 @@ export class IntakeProfileStoreService {
       .update({ status: FAILED_STATUS, updated_at: new Date().toISOString() })
       .eq('id', goalId);
     if (error !== null) {
-      this.logger.error(`Failed to update goal ${goalId} to ${FAILED_STATUS}: ${error.message}`);
+      this.logger.error(
+        `Failed to update goal ${goalId} to ${FAILED_STATUS}: ${error.message}`,
+      );
     }
     return { profile_id: null, profile_status: FAILED_STATUS };
   }
@@ -29,7 +31,9 @@ export class IntakeProfileStoreService {
       .update({ status, updated_at: new Date().toISOString() })
       .eq('id', goalId);
     if (error !== null) {
-      this.logger.error(`Failed to update goal ${goalId} status to ${status}: ${error.message}`);
+      this.logger.error(
+        `Failed to update goal ${goalId} status to ${status}: ${error.message}`,
+      );
       throw new Error(`Failed to update goal status: ${error.message}`);
     }
   }

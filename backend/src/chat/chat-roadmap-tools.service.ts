@@ -10,7 +10,10 @@ export class ChatRoadmapToolsService {
 
   public async getRoadmap(ctx: ToolExecutionContext): Promise<unknown> {
     try {
-      const roadmap = await this.roadmapService.getRoadmap(ctx.goalId, ctx.userId);
+      const roadmap = await this.roadmapService.getRoadmap(
+        ctx.goalId,
+        ctx.userId,
+      );
 
       return {
         status: roadmap.status,
@@ -27,7 +30,10 @@ export class ChatRoadmapToolsService {
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       this.logger.warn(`getRoadmap failed: ${message}`);
-      return { error: 'Unable to fetch roadmap. The goal may not have a generated roadmap yet.' };
+      return {
+        error:
+          'Unable to fetch roadmap. The goal may not have a generated roadmap yet.',
+      };
     }
   }
 }

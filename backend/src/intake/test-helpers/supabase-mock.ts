@@ -1,6 +1,9 @@
 type Chain = Record<string, jest.Mock>;
 
-export function mockQuestionsChain(data: unknown, error: unknown = null): Chain {
+export function mockQuestionsChain(
+  data: unknown,
+  error: unknown = null,
+): Chain {
   return {
     select: jest.fn().mockReturnThis(),
     eq: jest.fn().mockReturnThis(),
@@ -29,5 +32,8 @@ export function mockPriorChain(data: unknown): Chain {
 }
 
 export function mockUpdateChain(error: unknown = null): Chain {
-  return { update: jest.fn().mockReturnThis(), eq: jest.fn().mockResolvedValue({ error }) };
+  return {
+    update: jest.fn().mockReturnThis(),
+    eq: jest.fn().mockResolvedValue({ error }),
+  };
 }

@@ -1,6 +1,12 @@
-import type { MonthlySummary, WeeklySummary } from './types/weekly-plan.types.js';
+import type {
+  MonthlySummary,
+  WeeklySummary,
+} from './types/weekly-plan.types.js';
 
-export function formatSummaryForEmbedding(summary: WeeklySummary, weekNumber: number): string {
+export function formatSummaryForEmbedding(
+  summary: WeeklySummary,
+  weekNumber: number,
+): string {
   const lines = [
     `Weekly Summary (Week ${String(weekNumber)}):`,
     `Completion: ${String(summary.objectives_completed)}/${String(summary.objectives_total)} (${String(summary.completion_rate)}%)`,

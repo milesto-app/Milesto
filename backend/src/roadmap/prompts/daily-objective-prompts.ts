@@ -39,7 +39,9 @@ Return a JSON array of objects with these exact fields:
 Return ONLY the JSON array, no other text.${buildLanguageBlock(language)}`;
 }
 
-export function buildDailyObjectivesUserPrompt(params: DailyObjectivePromptParams): string {
+export function buildDailyObjectivesUserPrompt(
+  params: DailyObjectivePromptParams,
+): string {
   const sections: string[] = [];
 
   sections.push(`## Weekly Plan

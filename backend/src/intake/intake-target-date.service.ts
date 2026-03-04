@@ -11,7 +11,11 @@ export class IntakeTargetDateService {
 
   public async tryExtractTargetDate(
     goalId: string,
-    questions: Array<{ id: string; question_type: string; config: QuestionConfig | null }>,
+    questions: Array<{
+      id: string;
+      question_type: string;
+      config: QuestionConfig | null;
+    }>,
     answers: AnswerInput[],
   ): Promise<void> {
     const dateQuestion = questions.find((q) => q.config?.format === 'date');
@@ -19,7 +23,10 @@ export class IntakeTargetDateService {
       return;
     }
     const dateAnswer = answers.find((a) => a.question_id === dateQuestion.id);
-    if (dateAnswer?.answer_text === undefined || dateAnswer.answer_text.length === 0) {
+    if (
+      dateAnswer?.answer_text === undefined ||
+      dateAnswer.answer_text.length === 0
+    ) {
       return;
     }
     try {

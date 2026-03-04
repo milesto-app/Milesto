@@ -18,7 +18,10 @@ export class WeeklyPlanQueryService {
 
   constructor(private readonly supabaseService: SupabaseService) {}
 
-  public async queryWeekData(plan: WeeklyPlan, goalId: string): Promise<WeekData> {
+  public async queryWeekData(
+    plan: WeeklyPlan,
+    goalId: string,
+  ): Promise<WeekData> {
     const supabase = this.supabaseService.getAdminClient();
     const weekStart = plan.week_start_date;
     const weekEnd =
@@ -27,15 +30,23 @@ export class WeeklyPlanQueryService {
         .split('T')[0] ?? '';
     const range: WeekDateRange = { supabase, goalId, weekStart, weekEnd };
     let objectivesTotal = 0;
-    const objectivesCompleted = await this.queryObjectiveData(range, (total, completed) => {
-      objectivesTotal = total;
-      return completed;
-    });
+    const objectivesCompleted = await this.queryObjectiveData(
+      range,
+      (total, completed) => {
+        objectivesTotal = total;
+        return completed;
+      },
+    );
     const energyDistribution: Record<string, number> = {};
     await this.queryEnergyData(range, energyDistribution);
     const debriefNotes: string[] = [];
     await this.queryDebriefData(range, debriefNotes);
-    return { objectivesCompleted, objectivesTotal, debriefNotes, energyDistribution };
+    return {
+      objectivesCompleted,
+      objectivesTotal,
+      debriefNotes,
+      energyDistribution,
+    };
   }
 
   private async queryObjectiveData(
@@ -55,7 +66,9 @@ export class WeeklyPlanQueryService {
       }
       if (data.length > 0) {
         const total = data.length;
-        const completed = data.filter((d: { is_completed: boolean }) => d.is_completed).length;
+        const completed = data.filter(
+          (d: { is_completed: boolean }) => d.is_completed,
+        ).length;
         return callback(total, completed);
       }
     } catch (err) {
@@ -82,7 +95,8 @@ export class WeeklyPlanQueryService {
         return;
       }
       for (const row of data as Array<{ energy_level: string }>) {
-        energyDistribution[row.energy_level] = (energyDistribution[row.energy_level] ?? 0) + 1;
+        energyDistribution[row.energy_level] =
+          (energyDistribution[row.energy_level] ?? 0) + 1;
       }
     } catch (err) {
       this.logger.debug(
@@ -91,7 +105,10 @@ export class WeeklyPlanQueryService {
     }
   }
 
-  private async queryDebriefData(range: WeekDateRange, debriefNotes: string[]): Promise<void> {
+  private async queryDebriefData(
+    range: WeekDateRange,
+    debriefNotes: string[],
+  ): Promise<void> {
     try {
       const { data, error } = await range.supabase
         .from('debriefs')

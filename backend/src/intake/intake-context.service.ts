@@ -8,7 +8,9 @@ export class IntakeContextService {
 
   constructor(private readonly supabaseService: SupabaseService) {}
 
-  public async loadPriorBatchContext(goalId: string): Promise<PriorBatchContext[]> {
+  public async loadPriorBatchContext(
+    goalId: string,
+  ): Promise<PriorBatchContext[]> {
     const supabase = this.supabaseService.getAdminClient();
 
     const { data: priorData, error } = await supabase
@@ -29,11 +31,17 @@ export class IntakeContextService {
       return [];
     }
 
-    return priorData.map((batch: Record<string, unknown>) => this.mapBatchToPriorContext(batch));
+    return priorData.map((batch: Record<string, unknown>) =>
+      this.mapBatchToPriorContext(batch),
+    );
   }
 
-  private mapBatchToPriorContext(batch: Record<string, unknown>): PriorBatchContext {
-    const questions = batch.intake_questions as Record<string, unknown>[] | null;
+  private mapBatchToPriorContext(
+    batch: Record<string, unknown>,
+  ): PriorBatchContext {
+    const questions = batch.intake_questions as
+      | Record<string, unknown>[]
+      | null;
     return {
       batch_number: batch.batch_number as number,
       questions: (questions ?? []).map((q) => {

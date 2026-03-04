@@ -42,7 +42,11 @@ export interface EvalReport {
 export interface EvalBatchOptions {
   goalDescription: string;
   questions: EvalQuestion[];
-  goldStandard: { questions: EvalQuestion[]; domain: string; goalDescription: string } | null;
+  goldStandard: {
+    questions: EvalQuestion[];
+    domain: string;
+    goalDescription: string;
+  } | null;
   label: string;
   priorBatches: EvalPriorBatch[] | null;
   isGoldStandard: boolean;

@@ -34,7 +34,9 @@ interface ProfileUserPromptParams {
   priorBatches: PriorBatchContext[];
 }
 
-export function buildProfileUserPrompt(params: ProfileUserPromptParams): string {
+export function buildProfileUserPrompt(
+  params: ProfileUserPromptParams,
+): string {
   const { goalDescription, priorBatches } = params;
 
   let priorContext = '';

@@ -13,7 +13,9 @@ interface BatchUserPromptParams {
   maxBatches: number;
 }
 
-export function buildIntakeBatchUserPrompt(params: BatchUserPromptParams): string {
+export function buildIntakeBatchUserPrompt(
+  params: BatchUserPromptParams,
+): string {
   const { goalDescription, priorBatches, batchNumber, maxBatches } = params;
   const remainingBudget = maxBatches - batchNumber + 1;
 
@@ -45,14 +47,20 @@ function buildPriorContext(priorBatches: PriorBatchContext[]): string {
   return context;
 }
 
-function formatPriorQuestion(q: PriorBatchContext['questions'][number]): string {
+function formatPriorQuestion(
+  q: PriorBatchContext['questions'][number],
+): string {
   const annotation = getAnnotation(q);
   const optionsLine = getOptionsLine(q);
   return `Q: ${q.question_text} (${q.question_type})${optionsLine}\nA: ${q.answer}${annotation}\n`;
 }
 
 function getAnnotation(q: PriorBatchContext['questions'][number]): string {
-  if (q.question_type !== 'text' || q.answer === '' || q.answer === '[no answer]') {
+  if (
+    q.question_type !== 'text' ||
+    q.answer === '' ||
+    q.answer === '[no answer]'
+  ) {
     return '';
   }
   if (q.answer.length > MAX_ANSWER_LENGTH_LONG) {
@@ -65,7 +73,10 @@ function getAnnotation(q: PriorBatchContext['questions'][number]): string {
 }
 
 function getOptionsLine(q: PriorBatchContext['questions'][number]): string {
-  if (q.question_type !== 'single_choice' && q.question_type !== 'multiple_choice') {
+  if (
+    q.question_type !== 'single_choice' &&
+    q.question_type !== 'multiple_choice'
+  ) {
     return '';
   }
   if (q.config === null || q.config === undefined) {
@@ -82,7 +93,9 @@ const MS_PER_DAY = 86_400_000;
 const DAYS_PER_MONTH = 30;
 const DATE_STRING_LENGTH = 10;
 
-export function buildTimelineContext(priorBatches: PriorBatchContext[]): string {
+export function buildTimelineContext(
+  priorBatches: PriorBatchContext[],
+): string {
   for (const batch of priorBatches) {
     for (const q of batch.questions) {
       const result = tryBuildTimeline(q);
@@ -94,7 +107,9 @@ export function buildTimelineContext(priorBatches: PriorBatchContext[]): string 
   return '';
 }
 
-function tryBuildTimeline(q: PriorBatchContext['questions'][number]): string | null {
+function tryBuildTimeline(
+  q: PriorBatchContext['questions'][number],
+): string | null {
   if (q.config?.format !== 'date') {
     return null;
   }
@@ -106,7 +121,9 @@ function tryBuildTimeline(q: PriorBatchContext['questions'][number]): string | n
 
   const today = new Date().toISOString().slice(0, DATE_STRING_LENGTH);
   const todayDate = new Date(`${today}T00:00:00Z`);
-  const diffDays = Math.round((targetDate.getTime() - todayDate.getTime()) / MS_PER_DAY);
+  const diffDays = Math.round(
+    (targetDate.getTime() - todayDate.getTime()) / MS_PER_DAY,
+  );
   const timeRemaining = formatTimeRemaining(diffDays);
 
   return `<timeline>\nToday's date: ${today}\nTarget deadline: ${q.answer}\nTime remaining: ${timeRemaining}\n</timeline>\n\n`;

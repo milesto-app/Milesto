@@ -52,7 +52,11 @@ describe('CheckInController', () => {
 
       const result = await controller.submitCheckIn(goalId, userId, dto);
 
-      expect(mockCheckInService.submitCheckIn).toHaveBeenCalledWith(goalId, userId, dto);
+      expect(mockCheckInService.submitCheckIn).toHaveBeenCalledWith(
+        goalId,
+        userId,
+        dto,
+      );
       expect(result).toEqual(mockCheckIn);
     });
 
@@ -77,7 +81,10 @@ describe('CheckInController', () => {
 
       const result = await controller.getCheckInHistory(goalId, userId);
 
-      expect(mockCheckInService.getCheckInHistory).toHaveBeenCalledWith(goalId, userId);
+      expect(mockCheckInService.getCheckInHistory).toHaveBeenCalledWith(
+        goalId,
+        userId,
+      );
       expect(result).toEqual(mockHistory);
     });
 
@@ -86,7 +93,10 @@ describe('CheckInController', () => {
 
       await controller.getCheckInHistory('other-goal', 'other-user');
 
-      expect(mockCheckInService.getCheckInHistory).toHaveBeenCalledWith('other-goal', 'other-user');
+      expect(mockCheckInService.getCheckInHistory).toHaveBeenCalledWith(
+        'other-goal',
+        'other-user',
+      );
     });
   });
 });

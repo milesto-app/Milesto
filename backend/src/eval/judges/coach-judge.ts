@@ -3,7 +3,12 @@ import type { PersonaJudge } from '../personas.js';
 export const COACH_JUDGE: PersonaJudge = {
   name: 'The Coach',
   axis: 'Information Density',
-  scoreFields: ['unique_dimensions', 'actionability', 'redundancy', 'inference_potential'],
+  scoreFields: [
+    'unique_dimensions',
+    'actionability',
+    'redundancy',
+    'inference_potential',
+  ],
   systemPrompt: `You are a veteran life coach with 20 years of experience onboarding 10,000+ clients. You evaluate intake questions purely on how much actionable coaching data each question extracts. You are ruthless about redundancy — if two questions yield overlapping insights, that's a failure.
 
 You will receive a goal description, a batch of intake questions, and optionally a gold standard batch for comparison.

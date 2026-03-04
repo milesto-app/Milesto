@@ -33,7 +33,11 @@ async function main(): Promise<void> {
   const markdown = evalService.generateReport(report);
 
   const timestamp = report.timestamp.replace(/[:.]/g, '-');
-  const reportPath = join(process.cwd(), '_bmad-output', `eval-report-${timestamp}.md`);
+  const reportPath = join(
+    process.cwd(),
+    '_bmad-output',
+    `eval-report-${timestamp}.md`,
+  );
   writeFileSync(reportPath, markdown, 'utf-8');
 
   console.log(`\n${'='.repeat(SEPARATOR_LENGTH)}`);
@@ -51,16 +55,21 @@ function formatGoalRow(goal: GoalSummary): string {
   const aiAvg =
     goal.aiBatches.length > 0
       ? (
-          goal.aiBatches.reduce((s, b) => s + b.overallComposite, 0) / goal.aiBatches.length
+          goal.aiBatches.reduce((s, b) => s + b.overallComposite, 0) /
+          goal.aiBatches.length
         ).toFixed(DECIMAL_PLACES)
       : 'N/A';
   const batches =
-    goal.aiBatches.length > 0 ? `${goal.aiBatches.length}@${goal.completedAtBatch}` : 'N/A';
+    goal.aiBatches.length > 0
+      ? `${goal.aiBatches.length}@${goal.completedAtBatch}`
+      : 'N/A';
   const gold = goal.goldBatch.overallComposite.toFixed(DECIMAL_PLACES);
   const deltaVals = Object.values(goal.delta);
   const deltaAvg =
     deltaVals.length > 0
-      ? (deltaVals.reduce((a, b) => a + b, 0) / deltaVals.length).toFixed(DECIMAL_PLACES)
+      ? (deltaVals.reduce((a, b) => a + b, 0) / deltaVals.length).toFixed(
+          DECIMAL_PLACES,
+        )
       : 'N/A';
 
   return (

@@ -13,7 +13,11 @@ import { ChatRoadmapToolsService } from './chat-roadmap-tools.service.js';
 import { buildToolRegistry } from './chat-tool-registry.js';
 import { consumeStream, toOpenAiMessages } from './chat-stream.utils.js';
 import type { SendMessageDto } from './dto/send-message.dto.js';
-import type { ChatStreamEvent, ChatToolEntry, ToolExecutionContext } from './types/chat.types.js';
+import type {
+  ChatStreamEvent,
+  ChatToolEntry,
+  ToolExecutionContext,
+} from './types/chat.types.js';
 import type { ToolCallResult } from './chat-stream.utils.js';
 
 interface AgentLoopOptions {
@@ -55,7 +59,10 @@ export class ChatService {
         ? await this.history.getConversation(dto.conversationId, userId)
         : await this.history.createConversation(userId, dto.goalId);
 
-    await this.history.storeMessage(conversation.id, { role: 'user', content: dto.content });
+    await this.history.storeMessage(conversation.id, {
+      role: 'user',
+      content: dto.content,
+    });
     const storedMessages = await this.history.getMessages(conversation.id);
     const [{ coachId, language }, goalContext, memory] = await Promise.all([
       this.prompt.getUserProfile(userId),
@@ -69,7 +76,9 @@ export class ChatService {
       memory,
     });
     const messages = toOpenAiMessages(systemPrompt, storedMessages);
-    const tools = [...this.toolRegistry.values()].map((entry) => entry.definition);
+    const tools = [...this.toolRegistry.values()].map(
+      (entry) => entry.definition,
+    );
 
     onEvent({ type: 'message_start', conversationId: conversation.id });
     await this.runAgentLoop({
@@ -91,7 +100,10 @@ export class ChatService {
 
       if (toolCalls.length === 0) {
         // eslint-disable-next-line no-await-in-loop -- final store before return
-        await this.history.storeMessage(opts.conversationId, { role: 'assistant', content });
+        await this.history.storeMessage(opts.conversationId, {
+          role: 'assistant',
+          content,
+        });
         return;
       }
 
@@ -113,7 +125,11 @@ export class ChatService {
       function: { name: tc.name, arguments: tc.arguments },
     }));
 
-    opts.messages.push({ role: 'assistant', content: content || null, tool_calls: formatted });
+    opts.messages.push({
+      role: 'assistant',
+      content: content || null,
+      tool_calls: formatted,
+    });
     await this.history.storeMessage(opts.conversationId, {
       role: 'assistant',
       content: content || null,
@@ -130,7 +146,11 @@ export class ChatService {
       // eslint-disable-next-line no-await-in-loop -- tools must execute sequentially
       const result = await this.executeTool(tc.name, tc.arguments, opts.ctx);
       const resultStr = JSON.stringify(result);
-      opts.messages.push({ role: 'tool', tool_call_id: tc.id, content: resultStr });
+      opts.messages.push({
+        role: 'tool',
+        tool_call_id: tc.id,
+        content: resultStr,
+      });
       // eslint-disable-next-line no-await-in-loop -- must store before next tool
       await this.history.storeMessage(opts.conversationId, {
         role: 'tool',
@@ -153,7 +173,8 @@ export class ChatService {
       return { error: `Unknown tool: ${name}` };
     }
 
-    const parsed = args.length > 0 ? (JSON.parse(args) as Record<string, unknown>) : {};
+    const parsed =
+      args.length > 0 ? (JSON.parse(args) as Record<string, unknown>) : {};
     return entry.executor(parsed, ctx);
   }
 }

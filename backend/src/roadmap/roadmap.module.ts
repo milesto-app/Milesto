@@ -25,7 +25,12 @@ import { DebriefController } from './debrief.controller.js';
 
 @Module({
   imports: [GoalModule],
-  controllers: [RoadmapController, CheckInController, DailyObjectiveController, DebriefController],
+  controllers: [
+    RoadmapController,
+    CheckInController,
+    DailyObjectiveController,
+    DebriefController,
+  ],
   providers: [
     ContextPipelineService,
     RerankService,

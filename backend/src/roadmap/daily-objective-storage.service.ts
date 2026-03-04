@@ -53,14 +53,22 @@ export class DailyObjectiveStorageService {
       .order('order_index', { ascending: true });
 
     if (error) {
-      this.logger.error(`Failed to query existing daily objectives: ${error.message}`);
-      throw new InternalServerErrorException('Failed to retrieve daily objectives');
+      this.logger.error(
+        `Failed to query existing daily objectives: ${error.message}`,
+      );
+      throw new InternalServerErrorException(
+        'Failed to retrieve daily objectives',
+      );
     }
 
     return data as DailyObjective[];
   }
 
-  public async getCheckIn(goalId: string, userId: string, date: string): Promise<CheckIn | null> {
+  public async getCheckIn(
+    goalId: string,
+    userId: string,
+    date: string,
+  ): Promise<CheckIn | null> {
     const supabase = this.supabaseService.getAdminClient();
     const { data, error } = await supabase
       .from('check_ins')
@@ -84,7 +92,7 @@ export class DailyObjectiveStorageService {
   public async updateObjective(params: UpdateParams): Promise<DailyObjective> {
     const supabase = this.supabaseService.getAdminClient();
 
-    const { data: existing, error: findError } = await supabase
+    const { error: findError } = await supabase
       .from('daily_objectives')
       .select('id')
       .eq('id', params.objectiveId)
@@ -92,8 +100,7 @@ export class DailyObjectiveStorageService {
       .eq('user_id', params.userId)
       .single();
 
-    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-    if (findError || existing === null) {
+    if (findError !== null) {
       throw new NotFoundException('Daily objective not found');
     }
 
@@ -106,17 +113,19 @@ export class DailyObjectiveStorageService {
       .select()
       .single();
 
-    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-    if (error || data === null) {
-      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-      this.logger.error(`Failed to update daily objective: ${error?.message ?? 'unknown'}`);
-      throw new InternalServerErrorException('Failed to update daily objective');
+    if (error !== null) {
+      this.logger.error(`Failed to update daily objective: ${error.message}`);
+      throw new InternalServerErrorException(
+        'Failed to update daily objective',
+      );
     }
 
     return data as DailyObjective;
   }
 
-  public async storeObjectives(params: StoreObjectivesParams): Promise<DailyObjective[]> {
+  public async storeObjectives(
+    params: StoreObjectivesParams,
+  ): Promise<DailyObjective[]> {
     const supabase = this.supabaseService.getAdminClient();
     const rows = params.objectives.map((obj) => ({
       weekly_plan_id: params.weeklyPlanId,
@@ -137,11 +146,11 @@ export class DailyObjectiveStorageService {
       .select()
       .order('order_index', { ascending: true });
 
-    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-    if (error || data === null) {
-      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-      this.logger.error(`Failed to store daily objectives: ${error?.message ?? 'unknown'}`);
-      throw new InternalServerErrorException('Failed to store daily objectives');
+    if (error !== null) {
+      this.logger.error(`Failed to store daily objectives: ${error.message}`);
+      throw new InternalServerErrorException(
+        'Failed to store daily objectives',
+      );
     }
 
     return data as DailyObjective[];
@@ -161,12 +170,18 @@ export class DailyObjectiveStorageService {
       .eq('user_id', userId);
 
     if (error) {
-      this.logger.error(`Failed to query weekly completion rate: ${error.message}`);
-      throw new InternalServerErrorException('Failed to query weekly completion rate');
+      this.logger.error(
+        `Failed to query weekly completion rate: ${error.message}`,
+      );
+      throw new InternalServerErrorException(
+        'Failed to query weekly completion rate',
+      );
     }
 
     const total = data.length;
-    const completed = data.filter((d: { is_completed: boolean }) => d.is_completed).length;
+    const completed = data.filter(
+      (d: { is_completed: boolean }) => d.is_completed,
+    ).length;
     const rate = total === 0 ? 0 : completed / total;
 
     return { completed, total, rate };

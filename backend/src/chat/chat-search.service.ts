@@ -60,12 +60,16 @@ export class ChatSearchService {
     private readonly rerankService: RerankService,
   ) {}
 
-  public async saveInsight(params: SaveInsightParams): Promise<SaveInsightResult> {
+  public async saveInsight(
+    params: SaveInsightParams,
+  ): Promise<SaveInsightResult> {
     const embedding = await this.aiService.generateEmbedding(params.insight);
     const isDuplicate = await this.checkDuplicateInsight(embedding, params);
 
     if (isDuplicate) {
-      this.logger.log(`Duplicate insight detected for goal ${params.goalId}, skipping`);
+      this.logger.log(
+        `Duplicate insight detected for goal ${params.goalId}, skipping`,
+      );
       return { saved: false, reason: 'A very similar insight already exists.' };
     }
 
@@ -77,7 +81,12 @@ export class ChatSearchService {
   public async search(params: SearchParams): Promise<SearchResponse> {
     const { query, goalId, userId, contentTypes } = params;
     const queryEmbedding = await this.aiService.generateEmbedding(query);
-    const chunks = await this.fetchMatchingChunks({ queryEmbedding, goalId, userId, contentTypes });
+    const chunks = await this.fetchMatchingChunks({
+      queryEmbedding,
+      goalId,
+      userId,
+      contentTypes,
+    });
 
     if (chunks.length === 0) {
       this.logger.log(`No matching chunks found for query: "${query}"`);
@@ -97,16 +106,23 @@ export class ChatSearchService {
       `Search completed: ${topResults.length}/${rerankResult.allCandidates.length} results for "${query}"`,
     );
 
-    return { results: topResults, query, totalFound: rerankResult.allCandidates.length };
+    return {
+      results: topResults,
+      query,
+      totalFound: rerankResult.allCandidates.length,
+    };
   }
 
-  private async fetchMatchingChunks(params: FetchParams): Promise<ContextChunk[]> {
+  private async fetchMatchingChunks(
+    params: FetchParams,
+  ): Promise<ContextChunk[]> {
     const supabase = this.supabaseService.getAdminClient();
     const { data, error } = await supabase.rpc('match_goal_context', {
       query_embedding: JSON.stringify(params.queryEmbedding),
       p_goal_id: params.goalId,
       p_user_id: params.userId,
-      p_content_types: params.contentTypes ?? (undefined as unknown as string[]),
+      p_content_types:
+        params.contentTypes ?? (undefined as unknown as string[]),
       match_threshold: appConfig.chat.searchMatchThreshold,
       match_count: appConfig.chat.searchMatchCount,
     });
@@ -143,7 +159,9 @@ export class ChatSearchService {
       });
 
       if (error !== null) {
-        this.logger.warn(`Duplicate check failed, allowing insert: ${error.message}`);
+        this.logger.warn(
+          `Duplicate check failed, allowing insert: ${error.message}`,
+        );
         return false;
       }
 
@@ -156,7 +174,10 @@ export class ChatSearchService {
     }
   }
 
-  private async insertInsight(params: SaveInsightParams, embedding: number[]): Promise<void> {
+  private async insertInsight(
+    params: SaveInsightParams,
+    embedding: number[],
+  ): Promise<void> {
     const supabase = this.supabaseService.getAdminClient();
     const { error } = await supabase.from('context_embeddings').insert({
       goal_id: params.goalId,

@@ -1,4 +1,9 @@
-import { BadRequestException, Inject, Injectable, Logger } from '@nestjs/common';
+import {
+  BadRequestException,
+  Inject,
+  Injectable,
+  Logger,
+} from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { SupabaseService } from '../supabase/supabase.service.js';
 import { appConfig } from '../config/app.config.js';
@@ -55,7 +60,9 @@ export class IntakeProfileService {
         'Profile retry is only available for goals with failed profile generation',
       );
     }
-    if (goal.profile_generation_attempts >= appConfig.intake.maxProfileRetries) {
+    if (
+      goal.profile_generation_attempts >= appConfig.intake.maxProfileRetries
+    ) {
       throw new BadRequestException(
         `Maximum profile generation attempts (${String(appConfig.intake.maxProfileRetries)}) exceeded`,
       );
@@ -70,13 +77,23 @@ export class IntakeProfileService {
       goalDescription: goal.description,
       language,
     });
-    return { profile_id: result.profile_id, goal_status: result.profile_status };
+    return {
+      profile_id: result.profile_id,
+      goal_status: result.profile_status,
+    };
   }
 
-  public async generateAndStoreProfile(params: StoreProfileParams): Promise<ProfileResult> {
+  public async generateAndStoreProfile(
+    params: StoreProfileParams,
+  ): Promise<ProfileResult> {
     try {
-      await this.profileStore.updateGoalStatus(params.goalId, 'profile_generating');
-      const priorBatches = await this.contextService.loadPriorBatchContext(params.goalId);
+      await this.profileStore.updateGoalStatus(
+        params.goalId,
+        'profile_generating',
+      );
+      const priorBatches = await this.contextService.loadPriorBatchContext(
+        params.goalId,
+      );
       const genParams: ProfileGenParams = { ...params, priorBatches };
       const profile = await this.tryGenerateProfile(genParams);
       if (profile === null) {
@@ -91,7 +108,9 @@ export class IntakeProfileService {
     }
   }
 
-  private async tryGenerateProfile(params: ProfileGenParams): Promise<GoalProfile | null> {
+  private async tryGenerateProfile(
+    params: ProfileGenParams,
+  ): Promise<GoalProfile | null> {
     let profile: GoalProfile;
     try {
       profile = await this.promptService.generateGoalProfile(
@@ -116,7 +135,9 @@ export class IntakeProfileService {
     return this.callAiWithValidation(params);
   }
 
-  private async callAiWithValidation(params: ProfileGenParams): Promise<GoalProfile | null> {
+  private async callAiWithValidation(
+    params: ProfileGenParams,
+  ): Promise<GoalProfile | null> {
     try {
       const profile = await this.promptService.generateGoalProfile(
         params.goalDescription,
@@ -158,7 +179,9 @@ export class IntakeProfileService {
       .select()
       .single();
     if (error !== null) {
-      this.logger.error(`Failed to insert profile for goal ${goalId}: ${error.message}`);
+      this.logger.error(
+        `Failed to insert profile for goal ${goalId}: ${error.message}`,
+      );
       return this.profileStore.markFailure(goalId);
     }
     await this.profileStore.updateGoalStatus(goalId, 'intake_completed');

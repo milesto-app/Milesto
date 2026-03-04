@@ -1,6 +1,20 @@
-import { Body, Controller, Get, HttpCode, Param, Post, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  HttpCode,
+  Param,
+  Post,
+  UseGuards,
+} from '@nestjs/common';
 import { Throttle } from '@nestjs/throttler';
-import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiParam } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiBearerAuth,
+  ApiParam,
+} from '@nestjs/swagger';
 import { AuthGuard } from '../common/guards/auth.guard.js';
 import { UserId } from '../common/decorators/user.decorator.js';
 import { DebriefService } from './debrief.service.js';
@@ -27,18 +41,27 @@ export class DebriefController {
   @Post()
   @HttpCode(HTTP_CREATED)
   @Throttle({
-    default: { limit: AI_ENDPOINT_LIMIT, ttl: appConfig.throttle.aiEndpointTtlMs },
+    default: {
+      limit: AI_ENDPOINT_LIMIT,
+      ttl: appConfig.throttle.aiEndpointTtlMs,
+    },
   })
   @ApiOperation({ summary: 'Submit end-of-day debrief' })
   @ApiParam({ name: 'goalId', description: 'Goal ID' })
-  @ApiResponse({ status: HTTP_CREATED, description: 'Debrief submitted successfully' })
+  @ApiResponse({
+    status: HTTP_CREATED,
+    description: 'Debrief submitted successfully',
+  })
   @ApiResponse({ status: API_STATUS_BAD_REQUEST, description: 'Invalid input' })
   @ApiResponse({ status: API_STATUS_UNAUTHORIZED, description: 'Unauthorized' })
   @ApiResponse({
     status: API_STATUS_CONFLICT,
     description: 'Debrief already submitted for this goal today',
   })
-  @ApiResponse({ status: API_STATUS_RATE_LIMIT, description: 'Rate limit exceeded' })
+  @ApiResponse({
+    status: API_STATUS_RATE_LIMIT,
+    description: 'Rate limit exceeded',
+  })
   public async submitDebrief(
     @Param('goalId') goalId: string,
     @UserId() userId: string,
@@ -49,13 +72,22 @@ export class DebriefController {
 
   @Get()
   @Throttle({
-    default: { limit: GLOBAL_ENDPOINT_LIMIT, ttl: appConfig.throttle.globalTtlMs },
+    default: {
+      limit: GLOBAL_ENDPOINT_LIMIT,
+      ttl: appConfig.throttle.globalTtlMs,
+    },
   })
   @ApiOperation({ summary: 'Get debrief history for goal' })
   @ApiParam({ name: 'goalId', description: 'Goal ID' })
-  @ApiResponse({ status: API_STATUS_OK, description: 'Debrief history returned' })
+  @ApiResponse({
+    status: API_STATUS_OK,
+    description: 'Debrief history returned',
+  })
   @ApiResponse({ status: API_STATUS_UNAUTHORIZED, description: 'Unauthorized' })
-  @ApiResponse({ status: API_STATUS_RATE_LIMIT, description: 'Rate limit exceeded' })
+  @ApiResponse({
+    status: API_STATUS_RATE_LIMIT,
+    description: 'Rate limit exceeded',
+  })
   public async getDebriefHistory(
     @Param('goalId') goalId: string,
     @UserId() userId: string,

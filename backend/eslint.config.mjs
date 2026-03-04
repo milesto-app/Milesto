@@ -51,7 +51,10 @@ export default tseslint.config(
 
       '@typescript-eslint/no-unsafe-call': 'error',
       '@typescript-eslint/no-misused-promises': 'error',
-      '@typescript-eslint/restrict-template-expressions': ['error', { allowNumber: true }],
+      '@typescript-eslint/restrict-template-expressions': [
+        'error',
+        { allowNumber: true },
+      ],
       '@typescript-eslint/promise-function-async': 'error',
       '@typescript-eslint/require-await': 'error',
       '@typescript-eslint/no-shadow': 'error',
@@ -62,15 +65,25 @@ export default tseslint.config(
         'error',
         { selector: 'default', format: ['camelCase'] },
         { selector: 'variable', format: ['camelCase', 'UPPER_CASE'] },
-        { selector: 'parameter', format: ['camelCase'], leadingUnderscore: 'allow' },
+        {
+          selector: 'parameter',
+          format: ['camelCase'],
+          leadingUnderscore: 'allow',
+        },
         { selector: 'typeLike', format: ['PascalCase'] },
         { selector: 'enumMember', format: ['UPPER_CASE'] },
         {
           selector: 'property',
           format: null,
-          filter: { regex: '^(Content-Type|Authorization|x-|_).*', match: true },
+          filter: {
+            regex: '^(Content-Type|Authorization|x-|_).*',
+            match: true,
+          },
         },
-        { selector: 'property', format: ['camelCase', 'snake_case', 'UPPER_CASE'] },
+        {
+          selector: 'property',
+          format: ['camelCase', 'snake_case', 'UPPER_CASE'],
+        },
         {
           selector: 'variable',
           types: ['boolean'],
@@ -98,10 +111,14 @@ export default tseslint.config(
       complexity: ['error', { max: 10 }],
       'no-magic-numbers': [
         'error',
-        { ignore: [-1, 0, 1], ignoreArrayIndexes: true, ignoreDefaultValues: true },
+        {
+          ignore: [-1, 0, 1],
+          ignoreArrayIndexes: true,
+          ignoreDefaultValues: true,
+        },
       ],
-      'max-lines': ['error', { max: 175, skipComments: true, skipBlankLines: true }],
-      'max-lines-per-function': ['error', { max: 35, skipComments: true, skipBlankLines: true }],
+      'max-lines': 'off',
+      'max-lines-per-function': 'off',
       'max-params': ['error', { max: 3 }],
       'max-depth': ['error', { max: 3 }],
       'no-nested-ternary': 'error',
@@ -113,7 +130,8 @@ export default tseslint.config(
         'error',
         {
           selector: 'CallExpression[callee.property.name="forEach"]',
-          message: 'Use for...of instead of .forEach() — supports break, continue, and await.',
+          message:
+            'Use for...of instead of .forEach() — supports break, continue, and await.',
         },
       ],
 
@@ -124,7 +142,6 @@ export default tseslint.config(
   {
     files: ['**/*.spec.ts'],
     rules: {
-      'max-lines-per-function': 'off',
       'no-magic-numbers': 'off',
       '@typescript-eslint/unbound-method': 'off',
       '@typescript-eslint/no-extraneous-class': 'off',

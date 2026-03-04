@@ -91,7 +91,8 @@ export const UNIVERSAL_BATCH_1: UniversalQuestion[] = [
 
 const UNIVERSAL_BATCH_1_FR: UniversalQuestion[] = [
   {
-    question_text: "Qu'est-ce qui d\u00e9crit le mieux ton point de d\u00e9part ?",
+    question_text:
+      "Qu'est-ce qui d\u00e9crit le mieux ton point de d\u00e9part ?",
     question_type: 'single_choice',
     config: {
       options: [
@@ -124,7 +125,8 @@ const UNIVERSAL_BATCH_1_FR: UniversalQuestion[] = [
     order_in_batch: 3,
   },
   {
-    question_text: "Quand veux-tu pouvoir dire \u00ab j'ai r\u00e9ussi \u00bb ?",
+    question_text:
+      "Quand veux-tu pouvoir dire \u00ab j'ai r\u00e9ussi \u00bb ?",
     question_type: 'text',
     config: { format: 'date' },
     order_in_batch: 4,

@@ -52,7 +52,11 @@ describe('DebriefController', () => {
 
       const result = await controller.submitDebrief(goalId, userId, dto);
 
-      expect(mockDebriefService.submitDebrief).toHaveBeenCalledWith(goalId, userId, dto);
+      expect(mockDebriefService.submitDebrief).toHaveBeenCalledWith(
+        goalId,
+        userId,
+        dto,
+      );
       expect(result).toEqual(mockDebrief);
     });
   });
@@ -75,7 +79,10 @@ describe('DebriefController', () => {
 
       const result = await controller.getDebriefHistory(goalId, userId);
 
-      expect(mockDebriefService.getDebriefHistory).toHaveBeenCalledWith(goalId, userId);
+      expect(mockDebriefService.getDebriefHistory).toHaveBeenCalledWith(
+        goalId,
+        userId,
+      );
       expect(result).toEqual(mockHistory);
     });
   });

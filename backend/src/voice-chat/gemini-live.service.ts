@@ -17,7 +17,9 @@ interface GeminiMessagePart {
 }
 
 interface GeminiRawMessage {
-  readonly toolCall?: { readonly functionCalls?: readonly GeminiFunctionCall[] };
+  readonly toolCall?: {
+    readonly functionCalls?: readonly GeminiFunctionCall[];
+  };
   readonly serverContent?: {
     readonly interrupted?: boolean;
     readonly turnComplete?: boolean;
@@ -39,8 +41,12 @@ export class GeminiLiveService {
     this.ai = new GoogleGenAI({ apiKey });
   }
 
-  public async createSession(options: GeminiSessionOptions): Promise<GeminiLiveSession> {
-    this.logger.log(`Creating Gemini Live session with voice: ${options.voiceName}`);
+  public async createSession(
+    options: GeminiSessionOptions,
+  ): Promise<GeminiLiveSession> {
+    this.logger.log(
+      `Creating Gemini Live session with voice: ${options.voiceName}`,
+    );
 
     const session = await this.ai.live.connect({
       model: appConfig.voice.liveModel,
@@ -49,7 +55,9 @@ export class GeminiLiveService {
         systemInstruction: { parts: [{ text: options.systemInstruction }] },
         tools: [{ functionDeclarations: options.tools }],
         speechConfig: {
-          voiceConfig: { prebuiltVoiceConfig: { voiceName: options.voiceName } },
+          voiceConfig: {
+            prebuiltVoiceConfig: { voiceName: options.voiceName },
+          },
         },
       },
       callbacks: {
@@ -57,7 +65,8 @@ export class GeminiLiveService {
           this.handleMessage(message, options);
         },
         onerror: (e) => {
-          const message = e instanceof Error ? e.message : 'Unknown Gemini error';
+          const message =
+            e instanceof Error ? e.message : 'Unknown Gemini error';
           options.callbacks.onError(new Error(message));
         },
         onclose: () => {
@@ -113,7 +122,9 @@ export class GeminiLiveService {
   private buildSessionWrapper(session: Session): GeminiLiveSession {
     return {
       sendAudio: (base64Audio: string) => {
-        session.sendRealtimeInput({ audio: { data: base64Audio, mimeType: AUDIO_MIME_TYPE } });
+        session.sendRealtimeInput({
+          audio: { data: base64Audio, mimeType: AUDIO_MIME_TYPE },
+        });
       },
       sendToolResponse: (responses: readonly GeminiToolResponse[]) => {
         session.sendToolResponse({

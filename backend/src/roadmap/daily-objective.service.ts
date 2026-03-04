@@ -51,7 +51,11 @@ export class DailyObjectiveService {
   ): Promise<DailyObjective[]> {
     const today = date ?? new Date().toISOString().split('T')[0] ?? '';
 
-    const existing = await this.storage.getExistingObjectives(goalId, userId, today);
+    const existing = await this.storage.getExistingObjectives(
+      goalId,
+      userId,
+      today,
+    );
     if (existing.length > 0) {
       return existing;
     }
@@ -63,10 +67,17 @@ export class DailyObjectiveService {
       );
     }
 
-    return this.generateForDay({ goalId, userId, energyLevel: checkIn.energy_level, today });
+    return this.generateForDay({
+      goalId,
+      userId,
+      energyLevel: checkIn.energy_level,
+      today,
+    });
   }
 
-  public async updateDailyObjective(params: UpdateParams): Promise<DailyObjective> {
+  public async updateDailyObjective(
+    params: UpdateParams,
+  ): Promise<DailyObjective> {
     return this.storage.updateObjective(params);
   }
 
@@ -84,9 +95,14 @@ export class DailyObjectiveService {
     energyLevel: EnergyLevel;
     today: string;
   }): Promise<DailyObjective[]> {
-    const plan = await this.weeklyPlan.getCurrentWeeklyPlan(params.goalId, params.userId);
+    const plan = await this.weeklyPlan.getCurrentWeeklyPlan(
+      params.goalId,
+      params.userId,
+    );
     if (plan === null) {
-      throw new BadRequestException('No active weekly plan found. Generate a weekly plan first.');
+      throw new BadRequestException(
+        'No active weekly plan found. Generate a weekly plan first.',
+      );
     }
 
     const language = await this.languageService.getLanguage(params.userId);
@@ -113,9 +129,17 @@ export class DailyObjectiveService {
     }
   }
 
-  private async generateAndStore(params: GenerateParams): Promise<DailyObjective[]> {
-    const weekData = await this.weeklyPlan.queryWeekData(params.weeklyPlan, params.goalId);
-    const context = await this.contextPipeline.assembleContext(params.goalId, params.userId);
+  private async generateAndStore(
+    params: GenerateParams,
+  ): Promise<DailyObjective[]> {
+    const weekData = await this.weeklyPlan.queryWeekData(
+      params.weeklyPlan,
+      params.goalId,
+    );
+    const context = await this.contextPipeline.assembleContext(
+      params.goalId,
+      params.userId,
+    );
 
     const { objectives } = await this.generation.generateDailyObjectives({
       weeklyPlan: params.weeklyPlan,
@@ -143,22 +167,31 @@ export class DailyObjectiveService {
       isFallback: false,
     });
 
-    this.events.emit('daily-objectives.generated', { goalId: params.goalId, date: params.today });
+    this.events.emit('daily-objectives.generated', {
+      goalId: params.goalId,
+      date: params.today,
+    });
     return stored;
   }
 
-  private async createFallbackOrThrow(params: FallbackParams): Promise<DailyObjective[]> {
+  private async createFallbackOrThrow(
+    params: FallbackParams,
+  ): Promise<DailyObjective[]> {
     try {
       return await this.createFallbackObjectives(params);
     } catch (fallbackError) {
       this.logger.error(
         `Fallback objectives creation also failed: ${fallbackError instanceof Error ? fallbackError.message : String(fallbackError)}`,
       );
-      throw new InternalServerErrorException('Daily objectives generation failed');
+      throw new InternalServerErrorException(
+        'Daily objectives generation failed',
+      );
     }
   }
 
-  private async createFallbackObjectives(params: FallbackParams): Promise<DailyObjective[]> {
+  private async createFallbackObjectives(
+    params: FallbackParams,
+  ): Promise<DailyObjective[]> {
     this.logger.warn(
       `Creating fallback daily objectives from weekly plan for goal ${params.goalId}`,
     );

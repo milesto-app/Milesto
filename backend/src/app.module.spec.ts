@@ -16,9 +16,11 @@ describe('AppModule - event handling', () => {
 
   it('should log errors via the error handler', () => {
     const handlers: Record<string, (...args: unknown[]) => void> = {};
-    const mockOn = jest.fn((event: string, handler: (...args: unknown[]) => void) => {
-      handlers[event] = handler;
-    });
+    const mockOn = jest.fn(
+      (event: string, handler: (...args: unknown[]) => void) => {
+        handlers[event] = handler;
+      },
+    );
     const mockEventEmitter = { on: mockOn } as unknown as EventEmitter2;
 
     const appModule = new AppModule(mockEventEmitter);
@@ -61,7 +63,9 @@ describe('AppModule - module metadata', () => {
         return false;
       }
       const provider = p as { provide?: unknown; useClass?: unknown };
-      return provider.provide === APP_GUARD && provider.useClass === ThrottlerGuard;
+      return (
+        provider.provide === APP_GUARD && provider.useClass === ThrottlerGuard
+      );
     });
     expect(guardProvider).toBeDefined();
   });

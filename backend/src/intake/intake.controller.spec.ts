@@ -93,7 +93,11 @@ describe('IntakeController', () => {
 
       const result = await controller.submitBatch(userId, goalId, { answers });
 
-      expect(batchService.submitBatch).toHaveBeenCalledWith(userId, goalId, answers);
+      expect(batchService.submitBatch).toHaveBeenCalledWith(
+        userId,
+        goalId,
+        answers,
+      );
       expect(result).toEqual(expectedResult);
     });
   });

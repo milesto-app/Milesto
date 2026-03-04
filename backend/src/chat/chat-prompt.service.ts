@@ -24,7 +24,9 @@ export class ChatPromptService {
     private readonly supabaseService: SupabaseService,
   ) {}
 
-  public async getUserProfile(userId: string): Promise<{ coachId: number; language: string }> {
+  public async getUserProfile(
+    userId: string,
+  ): Promise<{ coachId: number; language: string }> {
     const supabase = this.supabaseService.getAdminClient();
 
     const { data, error } = await supabase
@@ -44,17 +46,31 @@ export class ChatPromptService {
     };
   }
 
-  public async fetchGoalContext(goalId: string, userId: string): Promise<GoalContext> {
+  public async fetchGoalContext(
+    goalId: string,
+    userId: string,
+  ): Promise<GoalContext> {
     const supabase = this.supabaseService.getAdminClient();
-    const { goal, plan } = await this.fetchGoalAndPlan(supabase, goalId, userId);
-    const milestone = plan !== null ? await this.fetchMilestone(supabase, plan.milestone_id) : null;
+    const { goal, plan } = await this.fetchGoalAndPlan(
+      supabase,
+      goalId,
+      userId,
+    );
+    const milestone =
+      plan !== null
+        ? await this.fetchMilestone(supabase, plan.milestone_id)
+        : null;
 
     return {
       goal,
       milestone,
       weeklyPlan:
         plan !== null
-          ? { week_number: plan.week_number, focus: plan.focus, objectives: plan.objectives }
+          ? {
+              week_number: plan.week_number,
+              focus: plan.focus,
+              objectives: plan.objectives,
+            }
           : null,
     };
   }

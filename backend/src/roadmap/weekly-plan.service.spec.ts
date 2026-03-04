@@ -38,8 +38,14 @@ describe('WeeklyPlanService', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         WeeklyPlanService,
-        { provide: ContextPipelineService, useValue: { assembleContext: jest.fn() } },
-        { provide: GenerationService, useValue: { generateWeeklyPlan: jest.fn() } },
+        {
+          provide: ContextPipelineService,
+          useValue: { assembleContext: jest.fn() },
+        },
+        {
+          provide: GenerationService,
+          useValue: { generateWeeklyPlan: jest.fn() },
+        },
         {
           provide: WeeklyPlanDataService,
           useValue: {
@@ -47,7 +53,10 @@ describe('WeeklyPlanService', () => {
             generateMonthlySummaryIfNeeded: jest.fn(),
           },
         },
-        { provide: WeeklyPlanQueryService, useValue: { queryWeekData: jest.fn() } },
+        {
+          provide: WeeklyPlanQueryService,
+          useValue: { queryWeekData: jest.fn() },
+        },
         { provide: WeeklyPlanStorageService, useValue: mockStorage },
         {
           provide: UserLanguageService,
@@ -61,7 +70,11 @@ describe('WeeklyPlanService', () => {
 
   describe('getCurrentWeeklyPlan', () => {
     it('should return active weekly plan', async () => {
-      const mockPlan = { id: 'plan-uuid', status: 'active', focus: 'Focus area' };
+      const mockPlan = {
+        id: 'plan-uuid',
+        status: 'active',
+        focus: 'Focus area',
+      };
       mockStorage.getCurrentWeeklyPlan.mockResolvedValue(mockPlan);
 
       const result = await service.getCurrentWeeklyPlan(goalId, userId);
@@ -82,9 +95,9 @@ describe('WeeklyPlanService', () => {
         new NotFoundException('No roadmap found for this goal'),
       );
 
-      await expect(service.getActiveRoadmapAndMilestone(goalId, userId)).rejects.toThrow(
-        NotFoundException,
-      );
+      await expect(
+        service.getActiveRoadmapAndMilestone(goalId, userId),
+      ).rejects.toThrow(NotFoundException);
     });
   });
 });

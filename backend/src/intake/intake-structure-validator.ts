@@ -46,7 +46,11 @@ function validateQuestionShape(params: {
   }
 }
 
-function validateTextField(q: Record<string, unknown>, prefix: string, errors: string[]): void {
+function validateTextField(
+  q: Record<string, unknown>,
+  prefix: string,
+  errors: string[],
+): void {
   if (
     q.question_text === undefined ||
     typeof q.question_text !== 'string' ||
@@ -56,12 +60,20 @@ function validateTextField(q: Record<string, unknown>, prefix: string, errors: s
   }
 }
 
-function validateTypeField(q: Record<string, unknown>, prefix: string, errors: string[]): void {
+function validateTypeField(
+  q: Record<string, unknown>,
+  prefix: string,
+  errors: string[],
+): void {
   if (
     q.question_type === undefined ||
-    !VALID_QUESTION_TYPES.includes(q.question_type as (typeof VALID_QUESTION_TYPES)[number])
+    !VALID_QUESTION_TYPES.includes(
+      q.question_type as (typeof VALID_QUESTION_TYPES)[number],
+    )
   ) {
-    errors.push(`${prefix}: invalid question_type "${String(q.question_type)}"`);
+    errors.push(
+      `${prefix}: invalid question_type "${String(q.question_type)}"`,
+    );
   }
 }
 
@@ -75,9 +87,20 @@ function validateQuestionConfig(
       errors.push(`${prefix}: text question config must be null`);
     }
   } else if (q.question_type === 'scale') {
-    validateScaleConfig(q.config as Record<string, unknown> | null | undefined, prefix, errors);
-  } else if (q.question_type === 'single_choice' || q.question_type === 'multiple_choice') {
-    validateChoiceConfig(q.config as Record<string, unknown> | null | undefined, prefix, errors);
+    validateScaleConfig(
+      q.config as Record<string, unknown> | null | undefined,
+      prefix,
+      errors,
+    );
+  } else if (
+    q.question_type === 'single_choice' ||
+    q.question_type === 'multiple_choice'
+  ) {
+    validateChoiceConfig(
+      q.config as Record<string, unknown> | null | undefined,
+      prefix,
+      errors,
+    );
   }
 }
 
@@ -93,7 +116,9 @@ function validateScaleConfig(
     typeof config.min !== 'number' ||
     typeof config.max !== 'number'
   ) {
-    errors.push(`${prefix}: scale question config must have min and max numbers`);
+    errors.push(
+      `${prefix}: scale question config must have min and max numbers`,
+    );
   }
 }
 

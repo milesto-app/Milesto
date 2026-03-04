@@ -1,4 +1,11 @@
-import { IsString, IsNotEmpty, IsInt, IsPositive, IsOptional, IsIn } from 'class-validator';
+import {
+  IsString,
+  IsNotEmpty,
+  IsInt,
+  IsPositive,
+  IsOptional,
+  IsIn,
+} from 'class-validator';
 
 export class GeneratedDailyObjective {
   @IsString()

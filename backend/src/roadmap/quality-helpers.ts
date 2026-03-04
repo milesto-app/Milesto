@@ -19,7 +19,10 @@ export function clampScore(score: number): number {
 export interface WarningParams {
   logger: Logger;
   generationType: GenerationType;
-  scores: MilestoneQualityScores | WeeklyPlanQualityScores | DailyObjectiveQualityScores;
+  scores:
+    | MilestoneQualityScores
+    | WeeklyPlanQualityScores
+    | DailyObjectiveQualityScores;
   goalId: string;
 }
 

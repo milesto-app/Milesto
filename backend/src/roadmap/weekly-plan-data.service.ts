@@ -4,7 +4,11 @@ import { SupabaseService } from '../supabase/supabase.service.js';
 import { GenerationNarrativeService } from './generation-narrative.service.js';
 import { WeeklyPlanQueryService } from './weekly-plan-query.service.js';
 import type { Json } from '../supabase/database.types.js';
-import type { MonthlySummary, WeeklySummary, WeeklyPlan } from './types/weekly-plan.types.js';
+import type {
+  MonthlySummary,
+  WeeklySummary,
+  WeeklyPlan,
+} from './types/weekly-plan.types.js';
 
 const MONTHLY_SUMMARY_MIN_PLANS = 2;
 
@@ -41,7 +45,10 @@ export class WeeklyPlanDataService {
   ) {}
 
   public async generateAndStoreSummary(params: SummaryParams): Promise<void> {
-    const weekData = await this.queryService.queryWeekData(params.lastCompleted, params.goalId);
+    const weekData = await this.queryService.queryWeekData(
+      params.lastCompleted,
+      params.goalId,
+    );
     const summary = await this.narrativeService.generateWeeklySummary(
       params.lastCompleted,
       weekData,
@@ -57,7 +64,10 @@ export class WeeklyPlanDataService {
         `Failed to persist weekly summary for plan ${params.lastCompleted.id}: ${error.message}`,
       );
     }
-    const contentText = params.formatFn(summary, params.lastCompleted.week_number);
+    const contentText = params.formatFn(
+      summary,
+      params.lastCompleted.week_number,
+    );
     this.eventEmitter.emit('summary.generated', {
       planId: params.lastCompleted.id,
       goalId: params.goalId,
@@ -79,7 +89,13 @@ export class WeeklyPlanDataService {
       if (plans === null || plans.length < MONTHLY_SUMMARY_MIN_PLANS) {
         return;
       }
-      await this.checkAndGenerateMonthly({ plans, goalId, userId, formatFn, language });
+      await this.checkAndGenerateMonthly({
+        plans,
+        goalId,
+        userId,
+        formatFn,
+        language,
+      });
     } catch (error) {
       this.logger.warn(
         `Monthly summary generation failed: ${error instanceof Error ? error.message : String(error)}`,
@@ -87,7 +103,9 @@ export class WeeklyPlanDataService {
     }
   }
 
-  private async loadRecentCompletedPlans(goalId: string): Promise<unknown[] | null> {
+  private async loadRecentCompletedPlans(
+    goalId: string,
+  ): Promise<unknown[] | null> {
     const supabase = this.supabaseService.getAdminClient();
     const { data } = await supabase
       .from('weekly_plans')
@@ -105,14 +123,17 @@ export class WeeklyPlanDataService {
     formatFn: (summary: MonthlySummary, targetMonth: number) => string;
     language: string;
   }): Promise<void> {
-    const current = (params.plans[0] as Record<string, unknown>).milestones as MilestoneRef;
-    const previous = (params.plans[1] as Record<string, unknown>).milestones as MilestoneRef;
+    const current = (params.plans[0] as Record<string, unknown>)
+      .milestones as MilestoneRef;
+    const previous = (params.plans[1] as Record<string, unknown>)
+      .milestones as MilestoneRef;
     if (current.target_month === previous.target_month) {
       return;
     }
     const supabase = this.supabaseService.getAdminClient();
     const resolvedUserId =
-      params.userId ?? ((params.plans[0] as Record<string, unknown>).user_id as string);
+      params.userId ??
+      ((params.plans[0] as Record<string, unknown>).user_id as string);
     await this.storeMonthlySummary({
       supabase,
       milestone: previous,
@@ -131,11 +152,17 @@ export class WeeklyPlanDataService {
     if (row?.monthly_summary !== null && row?.monthly_summary !== undefined) {
       return;
     }
-    const summaries = await this.loadWeeklySummaries(params.supabase, params.milestone.id);
+    const summaries = await this.loadWeeklySummaries(
+      params.supabase,
+      params.milestone.id,
+    );
     if (summaries.length === 0) {
       return;
     }
-    const monthly = await this.narrativeService.generateMonthlySummary(summaries, params.language);
+    const monthly = await this.narrativeService.generateMonthlySummary(
+      summaries,
+      params.language,
+    );
     await this.persistAndEmitMonthlySummary(params, monthly);
   }
 
@@ -170,7 +197,10 @@ export class WeeklyPlanDataService {
       );
       return;
     }
-    const contentText = params.formatFn(monthlySummary, params.milestone.target_month);
+    const contentText = params.formatFn(
+      monthlySummary,
+      params.milestone.target_month,
+    );
     this.eventEmitter.emit('summary.generated', {
       planId: params.milestone.id,
       goalId: params.goalId,

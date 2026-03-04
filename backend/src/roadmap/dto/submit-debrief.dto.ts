@@ -31,7 +31,8 @@ export class TaskRatingDto {
 export class SubmitDebriefDto {
   @ApiProperty({
     description: 'Free-text reflection on the day',
-    example: 'Today was productive. The writing task took longer than expected.',
+    example:
+      'Today was productive. The writing task took longer than expected.',
   })
   @IsString()
   @IsNotEmpty()

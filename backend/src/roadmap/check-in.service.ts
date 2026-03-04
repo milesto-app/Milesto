@@ -7,7 +7,10 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { SupabaseService } from '../supabase/supabase.service.js';
-import { SUPABASE_NOT_FOUND, SUPABASE_UNIQUE_VIOLATION } from '../supabase/error-codes.js';
+import {
+  SUPABASE_NOT_FOUND,
+  SUPABASE_UNIQUE_VIOLATION,
+} from '../supabase/error-codes.js';
 import type { CheckIn } from './types/daily.types.js';
 import type { SubmitCheckInDto } from './dto/submit-check-in.dto.js';
 
@@ -27,7 +30,11 @@ export class CheckInService {
     return this.insertCheckIn(goalId, userId, today, dto);
   }
 
-  public async getCheckIn(goalId: string, userId: string, date: string): Promise<CheckIn | null> {
+  public async getCheckIn(
+    goalId: string,
+    userId: string,
+    date: string,
+  ): Promise<CheckIn | null> {
     const supabase = this.supabaseService.getAdminClient();
     const { data, error } = await supabase
       .from('check_ins')
@@ -46,7 +53,10 @@ export class CheckInService {
     return data as CheckIn;
   }
 
-  public async getCheckInHistory(goalId: string, userId: string): Promise<CheckIn[]> {
+  public async getCheckInHistory(
+    goalId: string,
+    userId: string,
+  ): Promise<CheckIn[]> {
     const supabase = this.supabaseService.getAdminClient();
     const { data, error } = await supabase
       .from('check_ins')
@@ -55,13 +65,20 @@ export class CheckInService {
       .eq('user_id', userId)
       .order('date', { ascending: false });
     if (error) {
-      this.logger.error(`Failed to retrieve check-in history: ${error.message}`);
-      throw new InternalServerErrorException('Failed to retrieve check-in history');
+      this.logger.error(
+        `Failed to retrieve check-in history: ${error.message}`,
+      );
+      throw new InternalServerErrorException(
+        'Failed to retrieve check-in history',
+      );
     }
     return data as CheckIn[];
   }
 
-  private async validateRoadmapActive(goalId: string, userId: string): Promise<void> {
+  private async validateRoadmapActive(
+    goalId: string,
+    userId: string,
+  ): Promise<void> {
     const supabase = this.supabaseService.getAdminClient();
     const { data: roadmap, error } = await supabase
       .from('roadmaps')
@@ -99,12 +116,16 @@ export class CheckInService {
       .single();
     if (error) {
       if (error.code === SUPABASE_UNIQUE_VIOLATION) {
-        throw new ConflictException('Check-in already submitted for this goal today');
+        throw new ConflictException(
+          'Check-in already submitted for this goal today',
+        );
       }
       this.logger.error(`Failed to store check-in: ${error.message}`);
       throw new InternalServerErrorException('Failed to store check-in');
     }
-    this.logger.log(`Check-in submitted for goal ${goalId}, energy: ${dto.energy_level}`);
+    this.logger.log(
+      `Check-in submitted for goal ${goalId}, energy: ${dto.energy_level}`,
+    );
     return data as CheckIn;
   }
 }

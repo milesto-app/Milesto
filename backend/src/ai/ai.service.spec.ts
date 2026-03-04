@@ -38,7 +38,9 @@ describe('AiService.generateEmbedding', () => {
   ) as number[];
 
   it('should call OpenAI embeddings API with correct params', async () => {
-    mockOpenai.embeddings.create.mockResolvedValue({ data: [{ embedding: mockVector }] });
+    mockOpenai.embeddings.create.mockResolvedValue({
+      data: [{ embedding: mockVector }],
+    });
 
     await service.generateEmbedding('test text');
 
@@ -48,12 +50,16 @@ describe('AiService.generateEmbedding', () => {
         input: 'test text',
         dimensions: appConfig.ai.embeddingDimensions,
       },
-      expect.objectContaining({ signal: expect.any(AbortSignal) as AbortSignal }),
+      expect.objectContaining({
+        signal: expect.any(AbortSignal) as AbortSignal,
+      }),
     );
   });
 
   it('should return the embedding vector', async () => {
-    mockOpenai.embeddings.create.mockResolvedValue({ data: [{ embedding: mockVector }] });
+    mockOpenai.embeddings.create.mockResolvedValue({
+      data: [{ embedding: mockVector }],
+    });
 
     const result = await service.generateEmbedding('test text');
 
@@ -62,13 +68,19 @@ describe('AiService.generateEmbedding', () => {
   });
 
   it('should propagate errors from the OpenAI SDK', async () => {
-    mockOpenai.embeddings.create.mockRejectedValue(new Error('OpenAI API error'));
+    mockOpenai.embeddings.create.mockRejectedValue(
+      new Error('OpenAI API error'),
+    );
 
-    await expect(service.generateEmbedding('test text')).rejects.toThrow('OpenAI API error');
+    await expect(service.generateEmbedding('test text')).rejects.toThrow(
+      'OpenAI API error',
+    );
   });
 
   it('should apply timeout via AbortController', async () => {
-    mockOpenai.embeddings.create.mockResolvedValue({ data: [{ embedding: mockVector }] });
+    mockOpenai.embeddings.create.mockResolvedValue({
+      data: [{ embedding: mockVector }],
+    });
 
     await service.generateEmbedding('test text');
 

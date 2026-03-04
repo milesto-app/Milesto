@@ -10,7 +10,10 @@ function toDto(obj: Record<string, unknown>): CreateGoalDto {
 
 describe('CreateGoalDto - valid inputs', () => {
   it('should pass validation with valid title and description', async () => {
-    const dto = toDto({ title: 'Run a marathon', description: 'Complete a full marathon' });
+    const dto = toDto({
+      title: 'Run a marathon',
+      description: 'Complete a full marathon',
+    });
     const errors = await validate(dto);
     expect(errors).toHaveLength(0);
   });
@@ -38,7 +41,10 @@ describe('CreateGoalDto - missing fields', () => {
 
 describe('CreateGoalDto - length constraints', () => {
   it('should fail when title exceeds max length', async () => {
-    const dto = toDto({ title: 'a'.repeat(EXCEEDS_MAX_LENGTH), description: 'Some description' });
+    const dto = toDto({
+      title: 'a'.repeat(EXCEEDS_MAX_LENGTH),
+      description: 'Some description',
+    });
     const errors = await validate(dto);
     expect(errors.length).toBeGreaterThan(0);
   });

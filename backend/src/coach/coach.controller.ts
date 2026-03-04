@@ -1,5 +1,17 @@
-import { Controller, Get, Param, ParseIntPipe, UseGuards } from '@nestjs/common';
-import { ApiBearerAuth, ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  Controller,
+  Get,
+  Param,
+  ParseIntPipe,
+  UseGuards,
+} from '@nestjs/common';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiParam,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 
 import { AuthGuard } from '../common/guards/auth.guard.js';
 import { CoachService } from './coach.service.js';
@@ -26,7 +38,9 @@ export class CoachController {
   @ApiResponse({ status: 200, description: 'Coach returned' })
   @ApiResponse({ status: 404, description: 'Coach not found' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  public async getCoach(@Param('coachId', ParseIntPipe) coachId: number): Promise<Coach> {
+  public async getCoach(
+    @Param('coachId', ParseIntPipe) coachId: number,
+  ): Promise<Coach> {
     return this.coachService.getCoach(coachId);
   }
 }

@@ -61,11 +61,17 @@ describe('VoiceController.transcribe', () => {
     const result = await controller.transcribe(file, 'user-123');
 
     expect(result).toEqual(MOCK_TRANSCRIPTION);
-    expect(voiceService.transcribe).toHaveBeenCalledWith(file.buffer, 'audio/wav', 'user-123');
+    expect(voiceService.transcribe).toHaveBeenCalledWith(
+      file.buffer,
+      'audio/wav',
+      'user-123',
+    );
   });
 
   it('should throw BadRequestException when no file is provided', async () => {
-    await expect(controller.transcribe(undefined, 'user-123')).rejects.toThrow(BadRequestException);
+    await expect(controller.transcribe(undefined, 'user-123')).rejects.toThrow(
+      BadRequestException,
+    );
   });
 
   it('should throw BadRequestException for unsupported format', async () => {
@@ -74,7 +80,9 @@ describe('VoiceController.transcribe', () => {
       mimetype: 'audio/ogg',
     } as Express.Multer.File;
 
-    await expect(controller.transcribe(file, 'user-123')).rejects.toThrow(BadRequestException);
+    await expect(controller.transcribe(file, 'user-123')).rejects.toThrow(
+      BadRequestException,
+    );
   });
 });
 
@@ -94,15 +102,17 @@ describe('VoiceController.synthesize', () => {
   });
 
   it('should propagate NotFoundException for invalid coach', async () => {
-    voiceService.synthesize.mockRejectedValue(new NotFoundException('Coach with id 999 not found'));
+    voiceService.synthesize.mockRejectedValue(
+      new NotFoundException('Coach with id 999 not found'),
+    );
 
     const mockRes = {
       set: jest.fn(),
       send: jest.fn(),
     } as unknown as Response;
 
-    await expect(controller.synthesize({ text: 'Hello', coach_id: 999 }, mockRes)).rejects.toThrow(
-      NotFoundException,
-    );
+    await expect(
+      controller.synthesize({ text: 'Hello', coach_id: 999 }, mockRes),
+    ).rejects.toThrow(NotFoundException);
   });
 });

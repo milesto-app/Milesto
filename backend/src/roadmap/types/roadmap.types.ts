@@ -29,7 +29,12 @@ export interface Milestone {
 
 export type MilestoneSummary = Pick<
   Milestone,
-  'id' | 'title' | 'description' | 'expected_outcome' | 'target_month' | 'order_index'
+  | 'id'
+  | 'title'
+  | 'description'
+  | 'expected_outcome'
+  | 'target_month'
+  | 'order_index'
 >;
 
 export interface GenerationMetadata {

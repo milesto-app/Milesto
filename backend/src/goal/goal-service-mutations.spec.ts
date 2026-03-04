@@ -25,7 +25,10 @@ beforeEach(async () => {
   const module: TestingModule = await Test.createTestingModule({
     providers: [
       GoalService,
-      { provide: SupabaseService, useValue: { getAdminClient: () => mockSupabase } },
+      {
+        provide: SupabaseService,
+        useValue: { getAdminClient: () => mockSupabase },
+      },
       { provide: AiService, useValue: { generateJSON: jest.fn() } },
     ],
   }).compile();
@@ -51,7 +54,9 @@ describe('GoalService.getGoalProfile', () => {
       select: jest.fn().mockReturnValue({
         eq: jest.fn().mockReturnValue({
           eq: jest.fn().mockReturnValue({
-            single: jest.fn().mockResolvedValue({ data: mockProfile, error: null }),
+            single: jest
+              .fn()
+              .mockResolvedValue({ data: mockProfile, error: null }),
           }),
         }),
       }),
@@ -66,7 +71,9 @@ describe('GoalService.getGoalProfile', () => {
       .spyOn(service, 'findOne')
       .mockResolvedValue(mockGoal(GOAL_STATUS.INTAKE_IN_PROGRESS) as never);
 
-    await expect(service.getGoalProfile('user-123', 'goal-456')).rejects.toThrow(NotFoundException);
+    await expect(
+      service.getGoalProfile('user-123', 'goal-456'),
+    ).rejects.toThrow(NotFoundException);
   });
 });
 
@@ -84,13 +91,19 @@ describe('GoalService.delete', () => {
       .mockResolvedValue(mockGoal(GOAL_STATUS.INTAKE_IN_PROGRESS) as never);
     setupDeleteChain();
 
-    await expect(service.delete('user-123', 'goal-456')).resolves.toBeUndefined();
+    await expect(
+      service.delete('user-123', 'goal-456'),
+    ).resolves.toBeUndefined();
   });
 
   it('should throw BadRequestException for goal in active status', async () => {
-    jest.spyOn(service, 'findOne').mockResolvedValue(mockGoal(GOAL_STATUS.ACTIVE) as never);
+    jest
+      .spyOn(service, 'findOne')
+      .mockResolvedValue(mockGoal(GOAL_STATUS.ACTIVE) as never);
 
-    await expect(service.delete('user-123', 'goal-456')).rejects.toThrow(BadRequestException);
+    await expect(service.delete('user-123', 'goal-456')).rejects.toThrow(
+      BadRequestException,
+    );
   });
 
   it('should throw InternalServerErrorException on Supabase delete error', async () => {
@@ -111,11 +124,15 @@ describe('GoalService.updateStatus', () => {
     const updateMock = jest.fn().mockReturnValue({ eq: eqMock });
     mockSupabase.from.mockReturnValue({ update: updateMock });
 
-    await expect(service.updateStatus('goal-456', 'active')).resolves.toBeUndefined();
+    await expect(
+      service.updateStatus('goal-456', 'active'),
+    ).resolves.toBeUndefined();
   });
 
   it('should throw InternalServerErrorException on Supabase error', async () => {
-    const eqMock = jest.fn().mockResolvedValue({ error: { message: 'DB error' } });
+    const eqMock = jest
+      .fn()
+      .mockResolvedValue({ error: { message: 'DB error' } });
     const updateMock = jest.fn().mockReturnValue({ eq: eqMock });
     mockSupabase.from.mockReturnValue({ update: updateMock });
 

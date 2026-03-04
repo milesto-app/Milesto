@@ -19,7 +19,9 @@ export class UserLanguageService {
       .single();
 
     if (error !== null) {
-      this.logger.warn(`No profile for user ${userId}, defaulting to '${DEFAULT_LANGUAGE}'`);
+      this.logger.warn(
+        `No profile for user ${userId}, defaulting to '${DEFAULT_LANGUAGE}'`,
+      );
       return DEFAULT_LANGUAGE;
     }
 

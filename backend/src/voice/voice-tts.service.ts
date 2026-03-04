@@ -18,12 +18,17 @@ export class VoiceTtsService {
     this.ai = new GoogleGenAI({ apiKey });
   }
 
-  public async synthesize(text: string, voiceId: string): Promise<SynthesisResult> {
+  public async synthesize(
+    text: string,
+    voiceId: string,
+  ): Promise<SynthesisResult> {
     try {
       const audioBuffer = await this.callGeminiTts(text, voiceId);
       const duration = this.estimateDuration(audioBuffer);
 
-      this.logger.log(`Synthesis complete: ${String(audioBuffer.length)} bytes`);
+      this.logger.log(
+        `Synthesis complete: ${String(audioBuffer.length)} bytes`,
+      );
 
       return {
         audio: audioBuffer,

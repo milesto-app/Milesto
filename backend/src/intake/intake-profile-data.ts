@@ -1,6 +1,8 @@
 import type { GoalProfile } from './intake-prompt.service.js';
 
-export function buildProfileData(profile: GoalProfile): Record<string, unknown> {
+export function buildProfileData(
+  profile: GoalProfile,
+): Record<string, unknown> {
   return {
     current_state: profile.current_state,
     desired_state: profile.desired_state,

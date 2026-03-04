@@ -37,19 +37,40 @@ describe('validateStructural', () => {
   it('should fail when more than 5 items', () => {
     const sixQuestions = [
       ...validBatch,
-      { question_text: 'Q4?', question_type: 'text', config: null, order_in_batch: 4 },
-      { question_text: 'Q5?', question_type: 'text', config: null, order_in_batch: 5 },
-      { question_text: 'Q6?', question_type: 'text', config: null, order_in_batch: 6 },
+      {
+        question_text: 'Q4?',
+        question_type: 'text',
+        config: null,
+        order_in_batch: 4,
+      },
+      {
+        question_text: 'Q5?',
+        question_type: 'text',
+        config: null,
+        order_in_batch: 5,
+      },
+      {
+        question_text: 'Q6?',
+        question_type: 'text',
+        config: null,
+        order_in_batch: 6,
+      },
     ];
     expect(validateStructural(sixQuestions).valid).toBe(false);
   });
 
   it('should fail when question_text is empty', () => {
-    const batch = [{ ...validBatch[0], question_text: '' }, validBatch[1], validBatch[2]];
+    const batch = [
+      { ...validBatch[0], question_text: '' },
+      validBatch[1],
+      validBatch[2],
+    ];
     const result = validateStructural(batch);
     expect(result.valid).toBe(false);
     expect(result.errors).toEqual(
-      expect.arrayContaining([expect.stringContaining('missing or empty question_text')]),
+      expect.arrayContaining([
+        expect.stringContaining('missing or empty question_text'),
+      ]),
     );
   });
 
@@ -61,7 +82,9 @@ describe('validateStructural', () => {
     ];
     const result = validateStructural(batch);
     expect(result.errors).toEqual(
-      expect.arrayContaining([expect.stringContaining('invalid question_type')]),
+      expect.arrayContaining([
+        expect.stringContaining('invalid question_type'),
+      ]),
     );
   });
 
@@ -88,7 +111,9 @@ describe('validateStructural', () => {
     const result = validateStructural(batch);
     expect(result.errors).toEqual(
       expect.arrayContaining([
-        expect.stringContaining('choice question config must have options array'),
+        expect.stringContaining(
+          'choice question config must have options array',
+        ),
       ]),
     );
   });
@@ -101,7 +126,9 @@ describe('validateStructural', () => {
     ];
     const result = validateStructural(batch);
     expect(result.errors).toEqual(
-      expect.arrayContaining([expect.stringContaining('order_in_batch should be')]),
+      expect.arrayContaining([
+        expect.stringContaining('order_in_batch should be'),
+      ]),
     );
   });
 });

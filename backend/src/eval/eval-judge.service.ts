@@ -1,6 +1,10 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ALL_PERSONA_JUDGES, META_JUDGE_SYSTEM_PROMPT } from './personas.js';
-import type { MetaJudgeResult, PersonaJudge, PersonaScores } from './personas.js';
+import type {
+  MetaJudgeResult,
+  PersonaJudge,
+  PersonaScores,
+} from './personas.js';
 import type { GoldStandard } from './gold-standards.js';
 import type {
   BatchEvalResult,
@@ -31,9 +35,13 @@ export class EvalJudgeService {
 
   constructor(private readonly scoringService: EvalScoringService) {}
 
-  public async evaluateBatch(options: EvalBatchOptions): Promise<BatchEvalResult> {
+  public async evaluateBatch(
+    options: EvalBatchOptions,
+  ): Promise<BatchEvalResult> {
     const judgeResults = await Promise.all(
-      ALL_PERSONA_JUDGES.map(async (judge) => this.runPersonaJudge(judge, options)),
+      ALL_PERSONA_JUDGES.map(async (judge) =>
+        this.runPersonaJudge(judge, options),
+      ),
     );
 
     const personaScores = judgeResults.map((scores, i) => ({
@@ -43,8 +51,10 @@ export class EvalJudgeService {
     }));
 
     const metaJudge = await this.tryRunMetaJudge(options, personaScores);
-    const compositeByAxis = this.scoringService.computeCompositeByAxis(personaScores);
-    const overallComposite = this.scoringService.computeOverallComposite(compositeByAxis);
+    const compositeByAxis =
+      this.scoringService.computeCompositeByAxis(personaScores);
+    const overallComposite =
+      this.scoringService.computeOverallComposite(compositeByAxis);
 
     return {
       label: options.label,
@@ -56,7 +66,9 @@ export class EvalJudgeService {
     };
   }
 
-  public async simulateUserAnswers(input: SimulateAnswersInput): Promise<EvalPriorBatch> {
+  public async simulateUserAnswers(
+    input: SimulateAnswersInput,
+  ): Promise<EvalPriorBatch> {
     const systemPrompt = buildSimulationSystemPrompt();
     const userPrompt = buildSimulationUserPrompt(input);
 
@@ -69,7 +81,9 @@ export class EvalJudgeService {
       questions: input.questions.map((q, i) => ({
         question_text: q.question_text,
         question_type: q.question_type,
-        answer: answers.find((a) => a.question_index === i + 1)?.answer ?? 'No answer provided',
+        answer:
+          answers.find((a) => a.question_index === i + 1)?.answer ??
+          'No answer provided',
       })),
     };
   }
@@ -78,7 +92,9 @@ export class EvalJudgeService {
     persona: PersonaJudge,
     options: EvalBatchOptions,
   ): Promise<PersonaScores> {
-    const goldRef = options.isGoldStandard ? null : (options.goldStandard as GoldStandard | null);
+    const goldRef = options.isGoldStandard
+      ? null
+      : (options.goldStandard as GoldStandard | null);
     const userPrompt = buildJudgeUserPrompt({
       goalDescription: options.goalDescription,
       questions: options.questions,
@@ -91,15 +107,27 @@ export class EvalJudgeService {
       userPrompt,
       persona.name,
     );
-    return this.scoringService.validateAndFixComposite(raw, persona.scoreFields, persona.name);
+    return this.scoringService.validateAndFixComposite(
+      raw,
+      persona.scoreFields,
+      persona.name,
+    );
   }
 
   private async tryRunMetaJudge(
     options: EvalBatchOptions,
-    personaScores: Array<{ judge: string; axis: string; scores: PersonaScores }>,
+    personaScores: Array<{
+      judge: string;
+      axis: string;
+      scores: PersonaScores;
+    }>,
   ): Promise<MetaJudgeResult | null> {
     try {
-      return await this.runMetaJudge(options.goalDescription, options.questions, personaScores);
+      return await this.runMetaJudge(
+        options.goalDescription,
+        options.questions,
+        personaScores,
+      );
     } catch (error) {
       this.logger.warn(
         `  Meta-judge failed for "${options.label}": ${error instanceof Error ? error.message : String(error)}`,
@@ -111,7 +139,11 @@ export class EvalJudgeService {
   private async runMetaJudge(
     goalDescription: string,
     questions: EvalQuestion[],
-    personaScores: Array<{ judge: string; axis: string; scores: PersonaScores }>,
+    personaScores: Array<{
+      judge: string;
+      axis: string;
+      scores: PersonaScores;
+    }>,
   ): Promise<MetaJudgeResult> {
     const questionsFormatted = formatQuestions(questions);
     const scoresFormatted = personaScores

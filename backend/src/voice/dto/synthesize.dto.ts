@@ -1,11 +1,21 @@
-import { IsInt, IsNotEmpty, IsString, Max, MaxLength, Min } from 'class-validator';
+import {
+  IsInt,
+  IsNotEmpty,
+  IsString,
+  Max,
+  MaxLength,
+  Min,
+} from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 const MAX_TEXT_LENGTH = 5000;
 const MAX_COACH_ID = 100;
 
 export class SynthesizeDto {
-  @ApiProperty({ description: 'Text to synthesize into speech', example: 'Hello, how are you?' })
+  @ApiProperty({
+    description: 'Text to synthesize into speech',
+    example: 'Hello, how are you?',
+  })
   @IsString()
   @IsNotEmpty()
   @MaxLength(MAX_TEXT_LENGTH)

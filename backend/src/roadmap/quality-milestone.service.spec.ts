@@ -85,7 +85,10 @@ describe('QualityMilestoneService', () => {
         from: jest.fn().mockReturnValue({
           select: jest.fn().mockReturnValue({
             eq: jest.fn().mockReturnValue({
-              single: jest.fn().mockResolvedValue({ data: null, error: { message: 'not found' } }),
+              single: jest.fn().mockResolvedValue({
+                data: null,
+                error: { message: 'not found' },
+              }),
             }),
           }),
         }),

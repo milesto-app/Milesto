@@ -28,7 +28,9 @@ export class VoiceSttService {
       const text = await this.callGemini(audioBuffer, mimetype, language);
       const duration = this.estimateDuration(audioBuffer);
 
-      this.logger.log(`Transcription complete: ~${String(duration)}s audio, text="${text}"`);
+      this.logger.log(
+        `Transcription complete: ~${String(duration)}s audio, text="${text}"`,
+      );
 
       return {
         text,
@@ -54,7 +56,12 @@ export class VoiceSttService {
         {
           role: 'user',
           parts: [
-            { inlineData: { mimeType: mimetype, data: audioBuffer.toString('base64') } },
+            {
+              inlineData: {
+                mimeType: mimetype,
+                data: audioBuffer.toString('base64'),
+              },
+            },
             {
               text: `Transcribe this audio accurately. The speaker is likely speaking ${languageName}. Return ONLY the transcription text, nothing else.`,
             },

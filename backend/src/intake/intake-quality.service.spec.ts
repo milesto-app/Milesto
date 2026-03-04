@@ -62,7 +62,10 @@ describe('IntakeQualityService', () => {
       providers: [
         IntakeQualityService,
         { provide: AiService, useValue: mockAi },
-        { provide: SupabaseService, useValue: { getAdminClient: () => mockSb } },
+        {
+          provide: SupabaseService,
+          useValue: { getAdminClient: () => mockSb },
+        },
       ],
     }).compile();
     service = module.get<IntakeQualityService>(IntakeQualityService);
@@ -73,7 +76,9 @@ describe('IntakeQualityService', () => {
       expect(service.validateBatch(VALID_BATCH).valid).toBe(true);
     });
     it('should return structural layer on structural failure', () => {
-      expect(service.validateBatch(VALID_BATCH.slice(0, 1)).layer).toBe('structural');
+      expect(service.validateBatch(VALID_BATCH.slice(0, 1)).layer).toBe(
+        'structural',
+      );
     });
     it('should return semantic layer when structural passes but semantic fails', () => {
       const batch = [
@@ -86,7 +91,9 @@ describe('IntakeQualityService', () => {
   });
 
   describe('handleBatchServed', () => {
-    function setupAllMocks(scores = SCORES): { updateChain: Record<string, jest.Mock> } {
+    function setupAllMocks(scores = SCORES): {
+      updateChain: Record<string, jest.Mock>;
+    } {
       const updateChain = mockUpdateChain();
       mockSb.from
         .mockReturnValueOnce(mockQuestionsChain(QUESTIONS))
@@ -121,21 +128,29 @@ describe('IntakeQualityService', () => {
       });
       const spy = jest.spyOn(service['logger'], 'warn');
       await service.handleBatchServed(PAYLOAD);
-      expect(spy).toHaveBeenCalledWith(expect.stringContaining('Low quality score'));
+      expect(spy).toHaveBeenCalledWith(
+        expect.stringContaining('Low quality score'),
+      );
     });
 
     it('should log info when composite >= 0.5', async () => {
       setupAllMocks();
       const spy = jest.spyOn(service['logger'], 'log');
       await service.handleBatchServed(PAYLOAD);
-      expect(spy).toHaveBeenCalledWith(expect.stringContaining('Quality score for batch'));
+      expect(spy).toHaveBeenCalledWith(
+        expect.stringContaining('Quality score for batch'),
+      );
     });
 
     it('should handle question loading failure', async () => {
-      mockSb.from.mockReturnValueOnce(mockQuestionsChain(null, { message: 'DB failed' }));
+      mockSb.from.mockReturnValueOnce(
+        mockQuestionsChain(null, { message: 'DB failed' }),
+      );
       const spy = jest.spyOn(service['logger'], 'error');
       await expect(service.handleBatchServed(PAYLOAD)).resolves.toBeUndefined();
-      expect(spy).toHaveBeenCalledWith(expect.stringContaining('Failed to load questions'));
+      expect(spy).toHaveBeenCalledWith(
+        expect.stringContaining('Failed to load questions'),
+      );
     });
 
     it('should handle goal loading failure', async () => {
@@ -144,7 +159,9 @@ describe('IntakeQualityService', () => {
         .mockReturnValueOnce(mockGoalChain(null, { message: 'Not found' }));
       const spy = jest.spyOn(service['logger'], 'error');
       await expect(service.handleBatchServed(PAYLOAD)).resolves.toBeUndefined();
-      expect(spy).toHaveBeenCalledWith(expect.stringContaining('Failed to load goal'));
+      expect(spy).toHaveBeenCalledWith(
+        expect.stringContaining('Failed to load goal'),
+      );
     });
 
     it('should handle AI scoring failure', async () => {
@@ -155,7 +172,9 @@ describe('IntakeQualityService', () => {
       mockAi.generateJSON.mockRejectedValue(new Error('LLM timeout'));
       const spy = jest.spyOn(service['logger'], 'error');
       await expect(service.handleBatchServed(PAYLOAD)).resolves.toBeUndefined();
-      expect(spy).toHaveBeenCalledWith(expect.stringContaining('Quality scoring failed'));
+      expect(spy).toHaveBeenCalledWith(
+        expect.stringContaining('Quality scoring failed'),
+      );
     });
 
     it('should handle score update failure', async () => {
@@ -167,7 +186,9 @@ describe('IntakeQualityService', () => {
       mockAi.generateJSON.mockResolvedValue(SCORES);
       const spy = jest.spyOn(service['logger'], 'error');
       await expect(service.handleBatchServed(PAYLOAD)).resolves.toBeUndefined();
-      expect(spy).toHaveBeenCalledWith(expect.stringContaining('Failed to store quality score'));
+      expect(spy).toHaveBeenCalledWith(
+        expect.stringContaining('Failed to store quality score'),
+      );
     });
 
     it('should handle empty prior questions (batch 1)', async () => {

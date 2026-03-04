@@ -24,13 +24,16 @@ function repairMilestones(items: unknown[]): GeneratedMilestone[] {
     return {
       title: typeof rec.title === 'string' ? rec.title : '',
       description: typeof rec.description === 'string' ? rec.description : '',
-      expected_outcome: typeof rec.expected_outcome === 'string' ? rec.expected_outcome : '',
+      expected_outcome:
+        typeof rec.expected_outcome === 'string' ? rec.expected_outcome : '',
       target_month: Number(rec.target_month),
       order_index: Number(rec.order_index),
     };
   });
   const repairedInstances = plainToInstance(GeneratedMilestone, cleaned);
-  const repairErrors = repairedInstances.flatMap((i) => validateSync(i as object));
+  const repairErrors = repairedInstances.flatMap((i) =>
+    validateSync(i as object),
+  );
 
   if (repairErrors.length === 0) {
     return repairedInstances;
@@ -42,7 +45,8 @@ function repairMilestones(items: unknown[]): GeneratedMilestone[] {
 }
 
 export function validateWeeklyPlan(raw: unknown): GeneratedWeeklyPlan {
-  const data = typeof raw === 'object' && raw !== null && !Array.isArray(raw) ? raw : {};
+  const data =
+    typeof raw === 'object' && raw !== null && !Array.isArray(raw) ? raw : {};
   const instance = plainToInstance(GeneratedWeeklyPlan, data);
   const errors = validateSync(instance as object);
 
@@ -57,7 +61,9 @@ function repairWeeklyPlan(data: unknown): GeneratedWeeklyPlan {
   const rec = data as Record<string, unknown>;
   const cleaned = {
     focus: typeof rec.focus === 'string' ? rec.focus : '',
-    objectives: Array.isArray(rec.objectives) ? (rec.objectives as unknown[]).map(String) : [],
+    objectives: Array.isArray(rec.objectives)
+      ? (rec.objectives as unknown[]).map(String)
+      : [],
   };
   const repairedInstance = plainToInstance(GeneratedWeeklyPlan, cleaned);
   const repairErrors = validateSync(repairedInstance as object);
@@ -71,7 +77,9 @@ function repairWeeklyPlan(data: unknown): GeneratedWeeklyPlan {
   );
 }
 
-export function validateDailyObjectives(raw: unknown): GeneratedDailyObjective[] {
+export function validateDailyObjectives(
+  raw: unknown,
+): GeneratedDailyObjective[] {
   const items = Array.isArray(raw) ? raw : [raw];
   const instances = plainToInstance(GeneratedDailyObjective, items);
   const errors = instances.flatMap((i) => validateSync(i as object));
@@ -94,7 +102,9 @@ function repairDailyObjectives(items: unknown[]): GeneratedDailyObjective[] {
     };
   });
   const repairedInstances = plainToInstance(GeneratedDailyObjective, cleaned);
-  const repairErrors = repairedInstances.flatMap((i) => validateSync(i as object));
+  const repairErrors = repairedInstances.flatMap((i) =>
+    validateSync(i as object),
+  );
 
   if (repairErrors.length === 0) {
     return repairedInstances;

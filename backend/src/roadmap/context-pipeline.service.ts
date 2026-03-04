@@ -3,8 +3,15 @@ import { AiService } from '../ai/ai.service.js';
 import { SupabaseService } from '../supabase/supabase.service.js';
 import { RerankService } from './rerank.service.js';
 import { appConfig } from '../config/app.config.js';
-import { assemblePromptSections, logRetrievalObservability } from './context-assembler.js';
-import type { AssembledContext, ContextChunk, RetrievalTier } from './types/context.types.js';
+import {
+  assemblePromptSections,
+  logRetrievalObservability,
+} from './context-assembler.js';
+import type {
+  AssembledContext,
+  ContextChunk,
+  RetrievalTier,
+} from './types/context.types.js';
 
 @Injectable()
 export class ContextPipelineService {
@@ -16,7 +23,10 @@ export class ContextPipelineService {
     private readonly rerankService: RerankService,
   ) {}
 
-  public async assembleContext(goalId: string, userId: string): Promise<AssembledContext> {
+  public async assembleContext(
+    goalId: string,
+    userId: string,
+  ): Promise<AssembledContext> {
     const startTime = Date.now();
     const queryText = await this.buildQueryText(goalId);
     if (queryText.length === 0) {
@@ -26,8 +36,14 @@ export class ContextPipelineService {
     }
     const queryEmbedding = await this.aiService.generateEmbedding(queryText);
     const retrieval = await this.retrieveChunks(queryEmbedding, goalId, userId);
-    const rerankResult = await this.rerankService.rerank(queryText, retrieval.chunks);
-    const { tier, fallbackReason } = this.determineTier(retrieval, rerankResult);
+    const rerankResult = await this.rerankService.rerank(
+      queryText,
+      retrieval.chunks,
+    );
+    const { tier, fallbackReason } = this.determineTier(
+      retrieval,
+      rerankResult,
+    );
 
     logRetrievalObservability(this.logger, {
       allCandidates: rerankResult.allCandidates,
@@ -62,7 +78,10 @@ export class ContextPipelineService {
       .eq('goal_id', goalId)
       .single()) as { data: { narrative_summary: string } | null };
 
-    if (typeof profile?.narrative_summary === 'string' && profile.narrative_summary.length > 0) {
+    if (
+      typeof profile?.narrative_summary === 'string' &&
+      profile.narrative_summary.length > 0
+    ) {
       return profile.narrative_summary;
     }
 
@@ -79,12 +98,18 @@ export class ContextPipelineService {
     queryEmbedding: number[],
     goalId: string,
     userId: string,
-  ): Promise<{ chunks: ContextChunk[]; usedSqlFallback: boolean; fallbackReason?: string }> {
+  ): Promise<{
+    chunks: ContextChunk[];
+    usedSqlFallback: boolean;
+    fallbackReason?: string;
+  }> {
     try {
       return await this.hnswRetrieve(queryEmbedding, goalId, userId);
     } catch (error) {
       const reason = error instanceof Error ? error.message : String(error);
-      this.logger.warn(`HNSW retrieval failed, falling back to SQL context stuffing: ${reason}`);
+      this.logger.warn(
+        `HNSW retrieval failed, falling back to SQL context stuffing: ${reason}`,
+      );
       const chunks = await this.sqlContextStuffing(goalId, userId);
       return { chunks, usedSqlFallback: true, fallbackReason: reason };
     }
@@ -128,7 +153,10 @@ export class ContextPipelineService {
     };
   }
 
-  private async sqlContextStuffing(goalId: string, userId: string): Promise<ContextChunk[]> {
+  private async sqlContextStuffing(
+    goalId: string,
+    userId: string,
+  ): Promise<ContextChunk[]> {
     const supabase = this.supabaseService.getAdminClient();
     const { data, error } = await supabase
       .from('context_embeddings')

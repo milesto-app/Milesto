@@ -40,7 +40,9 @@ describe('VoiceTtsService', () => {
 
   it('should return synthesis result when successful', async () => {
     mockGenerateContent.mockResolvedValue({
-      candidates: [{ content: { parts: [{ inlineData: { data: MOCK_AUDIO_BASE64 } }] } }],
+      candidates: [
+        { content: { parts: [{ inlineData: { data: MOCK_AUDIO_BASE64 } }] } },
+      ],
     });
 
     const result = await service.synthesize('Hello', MOCK_VOICE_ID);
@@ -59,7 +61,9 @@ describe('VoiceTtsService', () => {
 
   it('should call Gemini with correct voice config', async () => {
     mockGenerateContent.mockResolvedValue({
-      candidates: [{ content: { parts: [{ inlineData: { data: MOCK_AUDIO_BASE64 } }] } }],
+      candidates: [
+        { content: { parts: [{ inlineData: { data: MOCK_AUDIO_BASE64 } }] } },
+      ],
     });
 
     await service.synthesize('Test text', MOCK_VOICE_ID);

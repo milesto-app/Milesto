@@ -19,11 +19,14 @@ describe('SubmitCheckInDto', () => {
     expect(errors).toHaveLength(0);
   });
 
-  it.each(['high', 'good', 'low', 'very_low'])('should accept energy_level "%s"', async (level) => {
-    const dto = toDto({ energy_level: level });
-    const errors = await validate(dto);
-    expect(errors).toHaveLength(0);
-  });
+  it.each(['high', 'good', 'low', 'very_low'])(
+    'should accept energy_level "%s"',
+    async (level) => {
+      const dto = toDto({ energy_level: level });
+      const errors = await validate(dto);
+      expect(errors).toHaveLength(0);
+    },
+  );
 
   it('should fail validation when energy_level is missing', async () => {
     const dto = toDto({});

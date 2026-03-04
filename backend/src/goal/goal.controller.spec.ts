@@ -43,25 +43,48 @@ it('GoalController should be defined', () => {
 
 describe('GoalController.create', () => {
   it('should call goalService.create with correct params', async () => {
-    const dto = { title: 'Run a marathon', description: 'Complete a full marathon' };
-    const expectedGoal = { id: 'goal-456', ...dto, status: 'intake_in_progress' };
+    const dto = {
+      title: 'Run a marathon',
+      description: 'Complete a full marathon',
+    };
+    const expectedGoal = {
+      id: 'goal-456',
+      ...dto,
+      status: 'intake_in_progress',
+    };
     goalService.create.mockResolvedValue(expectedGoal);
 
     const result = await controller.create('user-123', dto);
 
-    expect(goalService.create).toHaveBeenCalledWith('user-123', dto.description, dto.title);
+    expect(goalService.create).toHaveBeenCalledWith(
+      'user-123',
+      dto.description,
+      dto.title,
+    );
     expect(result).toEqual(expectedGoal);
   });
 });
 
 describe('GoalController.findAll', () => {
   it('should call goalService.findAll with default params', async () => {
-    const expectedResult = { data: [{ id: 'goal-1' }], total: 1, limit: DEFAULT_LIMIT, offset: 0 };
+    const expectedResult = {
+      data: [{ id: 'goal-1' }],
+      total: 1,
+      limit: DEFAULT_LIMIT,
+      offset: 0,
+    };
     goalService.findAll.mockResolvedValue(expectedResult);
 
-    const result = await controller.findAll('user-123', { limit: DEFAULT_LIMIT, offset: 0 });
+    const result = await controller.findAll('user-123', {
+      limit: DEFAULT_LIMIT,
+      offset: 0,
+    });
 
-    expect(goalService.findAll).toHaveBeenCalledWith('user-123', DEFAULT_LIMIT, 0);
+    expect(goalService.findAll).toHaveBeenCalledWith(
+      'user-123',
+      DEFAULT_LIMIT,
+      0,
+    );
     expect(result).toEqual(expectedResult);
   });
 
@@ -73,9 +96,16 @@ describe('GoalController.findAll', () => {
       offset: CUSTOM_OFFSET,
     });
 
-    await controller.findAll('user-123', { limit: CUSTOM_LIMIT, offset: CUSTOM_OFFSET });
+    await controller.findAll('user-123', {
+      limit: CUSTOM_LIMIT,
+      offset: CUSTOM_OFFSET,
+    });
 
-    expect(goalService.findAll).toHaveBeenCalledWith('user-123', CUSTOM_LIMIT, CUSTOM_OFFSET);
+    expect(goalService.findAll).toHaveBeenCalledWith(
+      'user-123',
+      CUSTOM_LIMIT,
+      CUSTOM_OFFSET,
+    );
   });
 });
 
@@ -98,7 +128,10 @@ describe('GoalController.getGoalProfile', () => {
 
     const result = await controller.getGoalProfile('user-123', 'goal-456');
 
-    expect(goalService.getGoalProfile).toHaveBeenCalledWith('user-123', 'goal-456');
+    expect(goalService.getGoalProfile).toHaveBeenCalledWith(
+      'user-123',
+      'goal-456',
+    );
     expect(result).toEqual(expectedProfile);
   });
 });

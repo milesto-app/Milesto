@@ -6,7 +6,12 @@ import { GOLD_STANDARDS } from './gold-standards.js';
 import type { GoldStandard } from './gold-standards.js';
 import { EvalJudgeService } from './eval-judge.service.js';
 import { EvalReportService } from './eval-report.service.js';
-import type { BatchEvalResult, EvalPriorBatch, EvalReport, GoalEvalResult } from './eval.types.js';
+import type {
+  BatchEvalResult,
+  EvalPriorBatch,
+  EvalReport,
+  GoalEvalResult,
+} from './eval.types.js';
 import { computeDeltas, mapToEvalQuestions } from './eval.utils.js';
 import type { RawQuestion } from './eval.utils.js';
 
@@ -22,7 +27,9 @@ export class EvalService {
 
   public async runFullEval(): Promise<EvalReport> {
     const timestamp = new Date().toISOString();
-    this.logger.log(`Running ${GOLD_STANDARDS.length} goal evaluations in parallel...`);
+    this.logger.log(
+      `Running ${GOLD_STANDARDS.length} goal evaluations in parallel...`,
+    );
 
     const goals = await Promise.all(
       GOLD_STANDARDS.map(async (gs) => {
@@ -44,7 +51,9 @@ export class EvalService {
     const [universalBatch, aiLoopResult, goldBatch] = await Promise.all([
       this.judgeService.evaluateBatch({
         goalDescription: gs.goalDescription,
-        questions: mapToEvalQuestions(this.intakePromptService.getUniversalBatch('en')),
+        questions: mapToEvalQuestions(
+          this.intakePromptService.getUniversalBatch('en'),
+        ),
         goldStandard: gs,
         label: `${tag} Universal Batch (Batch 1)`,
         priorBatches: null,
@@ -61,7 +70,11 @@ export class EvalService {
       }),
     ]);
 
-    const delta = computeDeltas(goldBatch, aiLoopResult.aiBatches, universalBatch);
+    const delta = computeDeltas(
+      goldBatch,
+      aiLoopResult.aiBatches,
+      universalBatch,
+    );
     this.logger.log(
       `${tag} Complete — ${aiLoopResult.aiBatches.length} AI batches, completed at batch ${aiLoopResult.completedAtBatch}`,
     );
@@ -85,7 +98,11 @@ export class EvalService {
     const priorBatches: PriorBatchContext[] = [gs.simulatedBatch1Answers];
     let completedAtBatch = appConfig.intake.maxBatches;
 
-    for (let batchNum = 2; batchNum <= appConfig.intake.maxBatches; batchNum++) {
+    for (
+      let batchNum = 2;
+      batchNum <= appConfig.intake.maxBatches;
+      batchNum++
+    ) {
       // eslint-disable-next-line no-await-in-loop -- sequential batch generation
       const result = await this.processAiBatch(gs, tag, priorBatches, batchNum);
       if (result === null) {
@@ -105,7 +122,10 @@ export class EvalService {
     tag: string,
     priorBatches: PriorBatchContext[],
     batchNum: number,
-  ): Promise<{ evalResult: BatchEvalResult; simulatedAnswers: EvalPriorBatch } | null> {
+  ): Promise<{
+    evalResult: BatchEvalResult;
+    simulatedAnswers: EvalPriorBatch;
+  } | null> {
     try {
       this.logger.log(`${tag} Generating AI batch ${batchNum}...`);
       const generated = await this.intakePromptService.generateNextBatch({
@@ -142,7 +162,10 @@ export class EvalService {
     priorBatches: PriorBatchContext[],
     rawQuestions: RawQuestion[],
     batchNum: number,
-  ): Promise<{ evalResult: BatchEvalResult; simulatedAnswers: EvalPriorBatch }> {
+  ): Promise<{
+    evalResult: BatchEvalResult;
+    simulatedAnswers: EvalPriorBatch;
+  }> {
     const aiQuestions = mapToEvalQuestions(rawQuestions);
     const [evalResult, simulatedAnswers] = await Promise.all([
       this.judgeService.evaluateBatch({

@@ -41,25 +41,37 @@ export class IntakeStoreService {
     private readonly queryService: IntakeStoreQueryService,
   ) {}
 
-  public async queryLatestBatch(goalId: string): Promise<Record<string, unknown> | null> {
+  public async queryLatestBatch(
+    goalId: string,
+  ): Promise<Record<string, unknown> | null> {
     return this.queryService.queryLatestBatch(goalId);
   }
 
-  public async queryUnansweredBatch(goalId: string): Promise<{ id: string; batch_number: number }> {
+  public async queryUnansweredBatch(
+    goalId: string,
+  ): Promise<{ id: string; batch_number: number }> {
     const latestBatch = await this.queryService.queryLatestBatch(goalId);
     if (latestBatch === null || (latestBatch.is_answered as boolean)) {
       throw new ConflictException('No unanswered batch available');
     }
-    return { id: latestBatch.id as string, batch_number: latestBatch.batch_number as number };
+    return {
+      id: latestBatch.id as string,
+      batch_number: latestBatch.batch_number as number,
+    };
   }
 
   public async loadBatchQuestions(
     batchId: string,
-  ): Promise<Array<{ id: string; question_type: string; config: QuestionConfig | null }>> {
+  ): Promise<
+    Array<{ id: string; question_type: string; config: QuestionConfig | null }>
+  > {
     return this.queryService.loadBatchQuestions(batchId);
   }
 
-  public async reServeBatch(batch: { id: string; batch_number: number }): Promise<StoredBatch> {
+  public async reServeBatch(batch: {
+    id: string;
+    batch_number: number;
+  }): Promise<StoredBatch> {
     return this.queryService.reServeBatch(batch);
   }
 
@@ -70,7 +82,9 @@ export class IntakeStoreService {
     return this.queryService.getUsedFallbackIndexes(goalId, findPoolIndex);
   }
 
-  public async storeGeneratedBatch(options: StoreBatchOptions): Promise<StoredBatch> {
+  public async storeGeneratedBatch(
+    options: StoreBatchOptions,
+  ): Promise<StoredBatch> {
     const supabase = this.supabaseService.getAdminClient();
 
     const { data: batch, error } = await supabase
@@ -101,7 +115,10 @@ export class IntakeStoreService {
     };
   }
 
-  public async persistAnswers(answers: AnswerInput[], batchId: string): Promise<void> {
+  public async persistAnswers(
+    answers: AnswerInput[],
+    batchId: string,
+  ): Promise<void> {
     const supabase = this.supabaseService.getAdminClient();
     const rows = answers.map((a) => ({
       question_id: a.question_id,

@@ -6,7 +6,8 @@ export const FALLBACK_POOLS_FR: GeneratedQuestion[][] = [
   // Pool 0: Ressources + mécanisme d'échec + habitudes quotidiennes
   [
     {
-      question_text: "Qu'est-ce que tu as déjà de ton côté qui pourrait t'aider ?",
+      question_text:
+        "Qu'est-ce que tu as déjà de ton côté qui pourrait t'aider ?",
       question_type: 'multiple_choice',
       config: {
         options: [

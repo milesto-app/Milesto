@@ -8,8 +8,15 @@ export interface BatchPromptParams {
   language: string;
 }
 
-export function buildIntakeBatchSystemPrompt(params: BatchPromptParams): string {
-  const { batchNumber, questionsPerBatchMin: min, questionsPerBatchMax: max, maxBatches } = params;
+export function buildIntakeBatchSystemPrompt(
+  params: BatchPromptParams,
+): string {
+  const {
+    batchNumber,
+    questionsPerBatchMin: min,
+    questionsPerBatchMax: max,
+    maxBatches,
+  } = params;
 
   return [
     buildRolePurpose(),
@@ -193,7 +200,10 @@ function buildTypesAndRules(params: {
 </rules>`;
 }
 
-function buildPacingAndCompletion(params: { batchNumber: number; maxBatches: number }): string {
+function buildPacingAndCompletion(params: {
+  batchNumber: number;
+  maxBatches: number;
+}): string {
   const { batchNumber, maxBatches } = params;
   return `<pacing batch="${batchNumber}" max="${maxBatches}">
 - Early batches (2-3): Batch 1 captured the user's starting point, concrete desired outcome, time/deadline constraints, and why-now moment. Your priority is to DEEPEN the plan-critical dimensions. What specific knowledge or skill gaps exist in their starting point? What does their desired outcome look like in measurable, observable terms — could a coach use it as a milestone checkpoint? If they indicated prior attempts (ceiling, lost ground), probe the failure mechanism. Also explore what resources and tools they have, and what a typical day looks like (where goal actions could slot in). Mix of text (1 max) and quick-tap (scale, choice). MUST include at least one emotional leverage question.

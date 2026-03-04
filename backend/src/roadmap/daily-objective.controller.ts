@@ -1,6 +1,12 @@
 import { Body, Controller, Get, Param, Patch, UseGuards } from '@nestjs/common';
 import { Throttle } from '@nestjs/throttler';
-import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiParam } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiBearerAuth,
+  ApiParam,
+} from '@nestjs/swagger';
 import { AuthGuard } from '../common/guards/auth.guard.js';
 import { UserId } from '../common/decorators/user.decorator.js';
 import { DailyObjectiveService } from './daily-objective.service.js';
@@ -39,7 +45,10 @@ export class DailyObjectiveController {
     description: 'Check-in required or no active weekly plan',
   })
   @ApiResponse({ status: API_STATUS_UNAUTHORIZED, description: 'Unauthorized' })
-  @ApiResponse({ status: API_STATUS_RATE_LIMIT, description: 'Rate limit exceeded' })
+  @ApiResponse({
+    status: API_STATUS_RATE_LIMIT,
+    description: 'Rate limit exceeded',
+  })
   public async getDailyObjectives(
     @Param('goalId') goalId: string,
     @UserId() userId: string,
@@ -61,8 +70,14 @@ export class DailyObjectiveController {
   @ApiResponse({ status: API_STATUS_OK, description: 'Updated objective' })
   @ApiResponse({ status: API_STATUS_BAD_REQUEST, description: 'Invalid input' })
   @ApiResponse({ status: API_STATUS_UNAUTHORIZED, description: 'Unauthorized' })
-  @ApiResponse({ status: API_STATUS_NOT_FOUND, description: 'Objective not found' })
-  @ApiResponse({ status: API_STATUS_RATE_LIMIT, description: 'Rate limit exceeded' })
+  @ApiResponse({
+    status: API_STATUS_NOT_FOUND,
+    description: 'Objective not found',
+  })
+  @ApiResponse({
+    status: API_STATUS_RATE_LIMIT,
+    description: 'Rate limit exceeded',
+  })
   public async updateObjective(
     @Param('goalId') goalId: string,
     @Param('objectiveId') objectiveId: string,

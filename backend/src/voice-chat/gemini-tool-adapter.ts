@@ -18,7 +18,9 @@ const TYPE_MAP: Record<string, Type> = {
   object: Type.OBJECT,
 };
 
-export function adaptToolsToGemini(registry: Map<string, ChatToolEntry>): FunctionDeclaration[] {
+export function adaptToolsToGemini(
+  registry: Map<string, ChatToolEntry>,
+): FunctionDeclaration[] {
   const declarations: FunctionDeclaration[] = [];
 
   for (const [, entry] of registry) {
@@ -57,11 +59,16 @@ function convertToolEntry(entry: ChatToolEntry): FunctionDeclaration | null {
 
 function hasParameters(value: unknown): value is OpenAiParameters {
   return (
-    typeof value === 'object' && value !== null && 'properties' in value && 'required' in value
+    typeof value === 'object' &&
+    value !== null &&
+    'properties' in value &&
+    'required' in value
   );
 }
 
-function convertPropertyTypes(properties: Record<string, unknown>): Record<string, Schema> {
+function convertPropertyTypes(
+  properties: Record<string, unknown>,
+): Record<string, Schema> {
   const result: Record<string, Schema> = {};
 
   for (const [key, value] of Object.entries(properties)) {

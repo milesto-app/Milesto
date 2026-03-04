@@ -2,7 +2,10 @@ import { Injectable, Logger } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
 import { AiService } from '../ai/ai.service.js';
 import { SupabaseService } from '../supabase/supabase.service.js';
-import type { BatchAnsweredEvent, ProfileGeneratedEvent } from './types/intake.types.js';
+import type {
+  BatchAnsweredEvent,
+  ProfileGeneratedEvent,
+} from './types/intake.types.js';
 
 @Injectable()
 export class IntakeEmbeddingService {
@@ -29,7 +32,9 @@ export class IntakeEmbeddingService {
   }
 
   @OnEvent('profile.generated')
-  public async handleProfileGenerated(payload: ProfileGeneratedEvent): Promise<void> {
+  public async handleProfileGenerated(
+    payload: ProfileGeneratedEvent,
+  ): Promise<void> {
     try {
       const narrative = await this.loadProfileNarrative(payload.profile_id);
       if (narrative === null) {
@@ -52,11 +57,15 @@ export class IntakeEmbeddingService {
       .order('order_in_batch');
 
     if (qError !== null) {
-      this.logger.error(`Failed to load questions for batch ${batchId}: ${qError.message}`);
+      this.logger.error(
+        `Failed to load questions for batch ${batchId}: ${qError.message}`,
+      );
       return null;
     }
     if (questions.length === 0) {
-      this.logger.error(`Failed to load questions for batch ${batchId}: no questions`);
+      this.logger.error(
+        `Failed to load questions for batch ${batchId}: no questions`,
+      );
       return null;
     }
 
@@ -76,7 +85,9 @@ export class IntakeEmbeddingService {
       .in('question_id', questionIds);
 
     if (error !== null) {
-      this.logger.error(`Failed to load answers for batch ${batchId}: ${error.message}`);
+      this.logger.error(
+        `Failed to load answers for batch ${batchId}: ${error.message}`,
+      );
       return null;
     }
 
@@ -111,11 +122,18 @@ export class IntakeEmbeddingService {
       );
       return;
     }
-    await supabase.from('intake_batches').update({ embedded: true }).eq('id', payload.batch_id);
-    this.logger.log(`Batch ${String(payload.batch_number)} embedded for goal ${payload.goal_id}`);
+    await supabase
+      .from('intake_batches')
+      .update({ embedded: true })
+      .eq('id', payload.batch_id);
+    this.logger.log(
+      `Batch ${String(payload.batch_number)} embedded for goal ${payload.goal_id}`,
+    );
   }
 
-  private async loadProfileNarrative(profileId: string): Promise<string | null> {
+  private async loadProfileNarrative(
+    profileId: string,
+  ): Promise<string | null> {
     const supabase = this.supabaseService.getAdminClient();
     const { data, error } = await supabase
       .from('goal_profiles')
@@ -123,7 +141,9 @@ export class IntakeEmbeddingService {
       .eq('id', profileId)
       .single();
     if (error !== null) {
-      this.logger.error(`Failed to load profile ${profileId}: ${error.message}`);
+      this.logger.error(
+        `Failed to load profile ${profileId}: ${error.message}`,
+      );
       return null;
     }
     return data.narrative_summary;
@@ -149,12 +169,17 @@ export class IntakeEmbeddingService {
       );
       return;
     }
-    await supabase.from('goal_profiles').update({ embedded: true }).eq('id', payload.profile_id);
+    await supabase
+      .from('goal_profiles')
+      .update({ embedded: true })
+      .eq('id', payload.profile_id);
     this.logger.log(`Profile embedded for goal ${payload.goal_id}`);
   }
 }
 
-function formatSingleAnswer(answer: Record<string, unknown> | undefined): string {
+function formatSingleAnswer(
+  answer: Record<string, unknown> | undefined,
+): string {
   if (answer === undefined) {
     return '(no answer)';
   }

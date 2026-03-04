@@ -35,14 +35,22 @@ export interface GeminiLiveSession {
 }
 
 export type WsClientMessage =
-  | { readonly type: 'start_session'; readonly goalId: string; readonly conversationId?: string }
+  | {
+      readonly type: 'start_session';
+      readonly goalId: string;
+      readonly conversationId?: string;
+    }
   | { readonly type: 'audio_data'; readonly data: string };
 
 export type WsServerMessage =
   | { readonly type: 'session_started'; readonly conversationId: string }
   | { readonly type: 'audio_data'; readonly data: string }
   | { readonly type: 'tool_start'; readonly toolName: string }
-  | { readonly type: 'tool_end'; readonly toolName: string; readonly result: unknown }
+  | {
+      readonly type: 'tool_end';
+      readonly toolName: string;
+      readonly result: unknown;
+    }
   | { readonly type: 'interrupted' }
   | { readonly type: 'turn_complete' }
   | { readonly type: 'session_warning'; readonly remainingMs: number }

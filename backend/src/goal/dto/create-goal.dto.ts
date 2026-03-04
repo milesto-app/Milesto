@@ -6,7 +6,8 @@ const MAX_TITLE_LENGTH = 200;
 export class CreateGoalDto {
   @ApiPropertyOptional({
     example: 'Run a marathon',
-    description: 'The goal title (max 200 chars). Auto-generated from description if omitted.',
+    description:
+      'The goal title (max 200 chars). Auto-generated from description if omitted.',
   })
   @IsOptional()
   @IsString()

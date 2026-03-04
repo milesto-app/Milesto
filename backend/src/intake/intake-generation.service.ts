@@ -3,7 +3,10 @@ import { IntakePromptService } from './intake-prompt.service.js';
 import { IntakeQualityService } from './intake-quality.service.js';
 import { IntakeProfileService } from './intake-profile.service.js';
 import { MAX_GENERATION_ATTEMPTS } from './constants/intake.constants.js';
-import type { GeneratedQuestion, PriorBatchContext } from './intake-prompt.service.js';
+import type {
+  GeneratedQuestion,
+  PriorBatchContext,
+} from './intake-prompt.service.js';
 import type { ProfileResult } from './types/intake.types.js';
 
 export type BatchGenerationResult =
@@ -30,16 +33,22 @@ export class IntakeGenerationService {
     private readonly profileService: IntakeProfileService,
   ) {}
 
-  public async generateBatch(params: GenerateParams): Promise<BatchGenerationResult> {
+  public async generateBatch(
+    params: GenerateParams,
+  ): Promise<BatchGenerationResult> {
     return this.attemptGeneration(params);
   }
 
-  private async attemptGeneration(params: GenerateParams): Promise<BatchGenerationResult> {
+  private async attemptGeneration(
+    params: GenerateParams,
+  ): Promise<BatchGenerationResult> {
     const results = await this.runAllAttempts(params);
     return results ?? { kind: 'fallback' };
   }
 
-  private async runAllAttempts(params: GenerateParams): Promise<BatchGenerationResult | null> {
+  private async runAllAttempts(
+    params: GenerateParams,
+  ): Promise<BatchGenerationResult | null> {
     return this.runAttempt(params, 1);
   }
 
@@ -100,14 +109,20 @@ export class IntakeGenerationService {
     attempt: number,
     validation: { layer: string; errors: string[] },
   ): void {
-    const suffix = attempt === MAX_GENERATION_ATTEMPTS ? ' Serving fallback.' : ' Retrying...';
+    const suffix =
+      attempt === MAX_GENERATION_ATTEMPTS
+        ? ' Serving fallback.'
+        : ' Retrying...';
     this.logger.warn(
       `Batch attempt ${String(attempt)}/${String(MAX_GENERATION_ATTEMPTS)} validation failed (${validation.layer}): ${validation.errors.join(', ')}.${suffix}`,
     );
   }
 
   private logAttemptError(attempt: number, error: unknown): void {
-    const suffix = attempt === MAX_GENERATION_ATTEMPTS ? ' Serving fallback.' : ' Retrying...';
+    const suffix =
+      attempt === MAX_GENERATION_ATTEMPTS
+        ? ' Serving fallback.'
+        : ' Retrying...';
     this.logger.warn(
       `Batch attempt ${String(attempt)}/${String(MAX_GENERATION_ATTEMPTS)} failed: ${error instanceof Error ? error.message : String(error)}.${suffix}`,
     );

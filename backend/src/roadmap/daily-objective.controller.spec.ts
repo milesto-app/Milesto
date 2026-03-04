@@ -38,13 +38,23 @@ describe('DailyObjectiveController', () => {
   describe('GET /daily-objectives', () => {
     it('should delegate to dailyObjectiveService.getDailyObjectives', async () => {
       const mockObjectives = [
-        { id: 'obj-1', title: 'Morning run', order_index: 1, is_completed: false },
+        {
+          id: 'obj-1',
+          title: 'Morning run',
+          order_index: 1,
+          is_completed: false,
+        },
       ];
-      mockDailyObjectiveService.getDailyObjectives.mockResolvedValue(mockObjectives);
+      mockDailyObjectiveService.getDailyObjectives.mockResolvedValue(
+        mockObjectives,
+      );
 
       const result = await controller.getDailyObjectives(goalId, userId);
 
-      expect(mockDailyObjectiveService.getDailyObjectives).toHaveBeenCalledWith(goalId, userId);
+      expect(mockDailyObjectiveService.getDailyObjectives).toHaveBeenCalledWith(
+        goalId,
+        userId,
+      );
       expect(result).toEqual(mockObjectives);
     });
   });
@@ -53,13 +63,22 @@ describe('DailyObjectiveController', () => {
     it('should delegate to dailyObjectiveService.updateDailyObjective', async () => {
       const objectiveId = 'obj-789';
       const mockUpdated = { id: objectiveId, is_completed: true };
-      mockDailyObjectiveService.updateDailyObjective.mockResolvedValue(mockUpdated);
+      mockDailyObjectiveService.updateDailyObjective.mockResolvedValue(
+        mockUpdated,
+      );
 
-      const result = await controller.updateObjective(goalId, objectiveId, userId, {
-        is_completed: true,
-      });
+      const result = await controller.updateObjective(
+        goalId,
+        objectiveId,
+        userId,
+        {
+          is_completed: true,
+        },
+      );
 
-      expect(mockDailyObjectiveService.updateDailyObjective).toHaveBeenCalledWith({
+      expect(
+        mockDailyObjectiveService.updateDailyObjective,
+      ).toHaveBeenCalledWith({
         objectiveId,
         goalId,
         userId,

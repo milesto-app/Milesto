@@ -25,7 +25,9 @@ describe('App (e2e)', () => {
   });
 
   it('GET /api/goals returns 401 without auth', () => {
-    return request(app.getHttpServer()).get('/api/goals').expect(HTTP_UNAUTHORIZED);
+    return request(app.getHttpServer())
+      .get('/api/goals')
+      .expect(HTTP_UNAUTHORIZED);
   });
 
   it('POST /api/goals returns 401 without auth', () => {

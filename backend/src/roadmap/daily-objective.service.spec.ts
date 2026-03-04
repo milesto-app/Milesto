@@ -48,7 +48,10 @@ describe('DailyObjectiveService', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         DailyObjectiveService,
-        { provide: ContextPipelineService, useValue: mockContextPipelineService },
+        {
+          provide: ContextPipelineService,
+          useValue: mockContextPipelineService,
+        },
         { provide: GenerationService, useValue: mockGenerationService },
         { provide: DailyObjectiveStorageService, useValue: mockStorageService },
         { provide: EventEmitter2, useValue: mockEventEmitter },
@@ -65,10 +68,18 @@ describe('DailyObjectiveService', () => {
 
   describe('getDailyObjectives', () => {
     it('should return existing objectives when available', async () => {
-      const mockObjectives = [{ id: 'obj-1', title: 'Task 1', is_completed: false }];
-      mockStorageService.getExistingObjectives.mockResolvedValue(mockObjectives);
+      const mockObjectives = [
+        { id: 'obj-1', title: 'Task 1', is_completed: false },
+      ];
+      mockStorageService.getExistingObjectives.mockResolvedValue(
+        mockObjectives,
+      );
 
-      const result = await service.getDailyObjectives(goalId, userId, '2026-02-22');
+      const result = await service.getDailyObjectives(
+        goalId,
+        userId,
+        '2026-02-22',
+      );
       expect(result).toEqual(mockObjectives);
     });
 
@@ -76,9 +87,9 @@ describe('DailyObjectiveService', () => {
       mockStorageService.getExistingObjectives.mockResolvedValue([]);
       mockStorageService.getCheckIn.mockResolvedValue(null);
 
-      await expect(service.getDailyObjectives(goalId, userId, '2026-02-22')).rejects.toThrow(
-        BadRequestException,
-      );
+      await expect(
+        service.getDailyObjectives(goalId, userId, '2026-02-22'),
+      ).rejects.toThrow(BadRequestException);
     });
   });
 

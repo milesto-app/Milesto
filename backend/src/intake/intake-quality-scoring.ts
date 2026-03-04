@@ -30,7 +30,9 @@ export function buildQualityUserPrompt(params: QualityPromptParams): string {
   return `## Goal Description\n${goalDescription}\n\n## Current Batch (Batch ${String(batchNumber)})\n${currentBatch}\n\n${priorSection}\n\nScore this batch.`;
 }
 
-export function computeComposite(scores: QualityScores): QualityScores & { composite: number } {
+export function computeComposite(
+  scores: QualityScores,
+): QualityScores & { composite: number } {
   const clamp = (v: number): number => Math.max(0, Math.min(1, v));
   const relevance = clamp(scores.relevance);
   const depthProgression = clamp(scores.depth_progression);

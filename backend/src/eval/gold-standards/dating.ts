@@ -5,7 +5,8 @@ export const DATING_STANDARD: GoldStandard = {
   goalDescription: 'Find a serious long-term partner',
   questions: [
     {
-      question_text: 'Think of the last decent date you went on. What made it "good"?',
+      question_text:
+        'Think of the last decent date you went on. What made it "good"?',
       question_type: 'single_choice',
       config: {
         options: [
@@ -15,10 +16,12 @@ export const DATING_STANDARD: GoldStandard = {
           'We laughed a lot',
         ],
       },
-      rationale: 'Defines priority filter: Intellectual vs Physical vs Emotional.',
+      rationale:
+        'Defines priority filter: Intellectual vs Physical vs Emotional.',
     },
     {
-      question_text: 'In past relationships, what is the pattern that usually causes the end?',
+      question_text:
+        'In past relationships, what is the pattern that usually causes the end?',
       question_type: 'single_choice',
       config: {
         options: [
@@ -56,7 +59,8 @@ export const DATING_STANDARD: GoldStandard = {
           'I finally feel ready after a breakup',
         ],
       },
-      rationale: '"Friends pairing up" = External FOMO. "I feel ready" = Internal growth.',
+      rationale:
+        '"Friends pairing up" = External FOMO. "I feel ready" = Internal growth.',
     },
     {
       question_text:
@@ -80,13 +84,15 @@ export const DATING_STANDARD: GoldStandard = {
       {
         question_text: 'Which best describes your starting point with this?',
         question_type: 'single_choice',
-        answer: "I've tried bits and pieces but nothing consistent or structured",
+        answer:
+          "I've tried bits and pieces but nothing consistent or structured",
       },
       {
         question_text:
           "What specifically will you be able to do, have, or experience when this is achieved — something you can't today?",
         question_type: 'text',
-        answer: 'Being in a relationship where I feel genuinely excited to come home to someone.',
+        answer:
+          'Being in a relationship where I feel genuinely excited to come home to someone.',
       },
       {
         question_text:

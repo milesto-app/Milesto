@@ -9,7 +9,12 @@ import { VoiceChatSessionService } from './voice-chat-session.service.js';
 
 @Module({
   imports: [ChatModule, CoachModule],
-  providers: [GeminiLiveService, VoiceChatAuthService, VoiceChatSessionService, VoiceChatGateway],
+  providers: [
+    GeminiLiveService,
+    VoiceChatAuthService,
+    VoiceChatSessionService,
+    VoiceChatGateway,
+  ],
 })
 // eslint-disable-next-line @typescript-eslint/no-extraneous-class
 export class VoiceChatModule {}

@@ -36,7 +36,9 @@ export class EvalScoringService {
       } catch (error) {
         const msg = error instanceof Error ? error.message : String(error);
         if (attempt < DEFAULT_JUDGE_RETRIES) {
-          this.logger.warn(`    ${judgeName}: attempt ${attempt + 1} failed (${msg}), retrying...`);
+          this.logger.warn(
+            `    ${judgeName}: attempt ${attempt + 1} failed (${msg}), retrying...`,
+          );
         } else {
           this.logger.error(
             `    ${judgeName}: all ${DEFAULT_JUDGE_RETRIES + 1} attempts failed (${msg})`,
@@ -73,7 +75,9 @@ export class EvalScoringService {
     return compositeByAxis;
   }
 
-  public computeOverallComposite(compositeByAxis: Record<string, number>): number {
+  public computeOverallComposite(
+    compositeByAxis: Record<string, number>,
+  ): number {
     const axisValues = Object.values(compositeByAxis);
     if (axisValues.length === 0) {
       return 0;
@@ -81,7 +85,10 @@ export class EvalScoringService {
     return axisValues.reduce((a, b) => a + b, 0) / axisValues.length;
   }
 
-  private recomputeComposite(scores: PersonaScores, scoreFields: string[]): number {
+  private recomputeComposite(
+    scores: PersonaScores,
+    scoreFields: string[],
+  ): number {
     const values: number[] = [];
 
     for (const field of scoreFields) {

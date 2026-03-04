@@ -8,7 +8,8 @@ export const FALLBACK_POOLS: GeneratedQuestion[][] = [
   // Pool 0: Resources + failure mechanism + behavioral baseline
   [
     {
-      question_text: 'What do you already have going for you that could help with this?',
+      question_text:
+        'What do you already have going for you that could help with this?',
       question_type: 'multiple_choice',
       config: {
         options: [
@@ -24,7 +25,8 @@ export const FALLBACK_POOLS: GeneratedQuestion[][] = [
       order_in_batch: 1,
     },
     {
-      question_text: "When you've tried something like this before, what typically got in the way?",
+      question_text:
+        "When you've tried something like this before, what typically got in the way?",
       question_type: 'single_choice',
       config: {
         options: [
@@ -94,7 +96,8 @@ export const FALLBACK_POOLS: GeneratedQuestion[][] = [
       order_in_batch: 1,
     },
     {
-      question_text: "When you're stressed or having a rough day, what's your go-to way of coping?",
+      question_text:
+        "When you're stressed or having a rough day, what's your go-to way of coping?",
       question_type: 'single_choice',
       config: {
         options: [

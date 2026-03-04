@@ -14,7 +14,10 @@ export class IntakeFallbackService {
     private readonly storeService: IntakeStoreService,
   ) {}
 
-  public async serveFirstBatch(goalId: string, language: string): Promise<StoredBatch> {
+  public async serveFirstBatch(
+    goalId: string,
+    language: string,
+  ): Promise<StoredBatch> {
     const questions = this.promptService.getUniversalBatch(language);
     return this.storeService.storeGeneratedBatch({
       goalId,
@@ -35,10 +38,14 @@ export class IntakeFallbackService {
         questions: [],
       };
     }
-    const usedIndexes = await this.storeService.getUsedFallbackIndexes(params.goalId, (text) =>
-      this.promptService.findFallbackPoolIndex(text),
+    const usedIndexes = await this.storeService.getUsedFallbackIndexes(
+      params.goalId,
+      (text) => this.promptService.findFallbackPoolIndex(text),
     );
-    const questions = this.promptService.getFallbackBatch(usedIndexes, language);
+    const questions = this.promptService.getFallbackBatch(
+      usedIndexes,
+      language,
+    );
     this.logger.warn(
       `Serving fallback batch ${String(params.nextBatchNumber)} for goal ${params.goalId}`,
     );

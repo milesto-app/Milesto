@@ -9,11 +9,18 @@ interface ToolConfig {
   parameters?: { properties: Record<string, unknown>; required: string[] };
 }
 
-export function buildCheckInTools(toolsService: ChatCheckInToolsService): ToolConfig[] {
-  return [buildSubmitCheckInTool(toolsService), buildSubmitDebriefTool(toolsService)];
+export function buildCheckInTools(
+  toolsService: ChatCheckInToolsService,
+): ToolConfig[] {
+  return [
+    buildSubmitCheckInTool(toolsService),
+    buildSubmitDebriefTool(toolsService),
+  ];
 }
 
-function buildSubmitCheckInTool(toolsService: ChatCheckInToolsService): ToolConfig {
+function buildSubmitCheckInTool(
+  toolsService: ChatCheckInToolsService,
+): ToolConfig {
   return {
     name: 'submitCheckIn',
     description: "Log the user's morning energy check-in for today.",
@@ -36,7 +43,9 @@ function buildSubmitCheckInTool(toolsService: ChatCheckInToolsService): ToolConf
   };
 }
 
-function buildSubmitDebriefTool(toolsService: ChatCheckInToolsService): ToolConfig {
+function buildSubmitDebriefTool(
+  toolsService: ChatCheckInToolsService,
+): ToolConfig {
   return {
     name: 'submitDebrief',
     description: "Log the user's end-of-day reflection for today.",
@@ -54,12 +63,15 @@ function buildSubmitDebriefTool(toolsService: ChatCheckInToolsService): ToolConf
   };
 }
 
-export function buildRoadmapTools(toolsService: ChatRoadmapToolsService): ToolConfig[] {
+export function buildRoadmapTools(
+  toolsService: ChatRoadmapToolsService,
+): ToolConfig[] {
   return [
     {
       name: 'getRoadmap',
       description: 'Fetch the full milestone roadmap with current progress.',
-      executor: (async (_args, ctx) => toolsService.getRoadmap(ctx)) satisfies ChatToolExecutor,
+      executor: (async (_args, ctx) =>
+        toolsService.getRoadmap(ctx)) satisfies ChatToolExecutor,
     },
   ];
 }

@@ -77,7 +77,9 @@ export class ChatListService {
     return { messages: trimmed.reverse(), has_more: rows.length > query.limit };
   }
 
-  private async attachPreviews(conversations: Conversation[]): Promise<ConversationPreview[]> {
+  private async attachPreviews(
+    conversations: Conversation[],
+  ): Promise<ConversationPreview[]> {
     if (conversations.length === 0) {
       return [];
     }
@@ -92,7 +94,10 @@ export class ChatListService {
       .order('created_at', { ascending: true });
 
     const previewMap = new Map<string, string>();
-    for (const row of (data ?? []) as { conversation_id: string; content: string | null }[]) {
+    for (const row of (data ?? []) as {
+      conversation_id: string;
+      content: string | null;
+    }[]) {
       if (!previewMap.has(row.conversation_id) && row.content !== null) {
         const text =
           row.content.length > PREVIEW_MAX_LENGTH

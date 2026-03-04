@@ -18,13 +18,19 @@ export class ChatHistoryService {
 
   constructor(private readonly supabaseService: SupabaseService) {}
 
-  public async createConversation(userId: string, goalId: string): Promise<Conversation> {
+  public async createConversation(
+    userId: string,
+    goalId: string,
+  ): Promise<Conversation> {
     const supabase = this.getClient();
     const { data, error } = (await supabase
       .from('conversations')
       .insert({ user_id: userId, goal_id: goalId })
       .select('*')
-      .single()) as { data: Conversation | null; error: { message: string } | null };
+      .single()) as {
+      data: Conversation | null;
+      error: { message: string } | null;
+    };
 
     if (error) {
       this.logger.error(`Failed to create conversation: ${error.message}`);
@@ -34,14 +40,20 @@ export class ChatHistoryService {
     return data as Conversation;
   }
 
-  public async getConversation(conversationId: string, userId: string): Promise<Conversation> {
+  public async getConversation(
+    conversationId: string,
+    userId: string,
+  ): Promise<Conversation> {
     const supabase = this.getClient();
     const { data, error } = (await supabase
       .from('conversations')
       .select('*')
       .eq('id', conversationId)
       .eq('user_id', userId)
-      .single()) as { data: Conversation | null; error: { message: string } | null };
+      .single()) as {
+      data: Conversation | null;
+      error: { message: string } | null;
+    };
 
     if (error) {
       throw new NotFoundException('Conversation not found');
@@ -66,7 +78,10 @@ export class ChatHistoryService {
         tool_name: message.tool_name ?? null,
       })
       .select('*')
-      .single()) as { data: StoredMessage | null; error: { message: string } | null };
+      .single()) as {
+      data: StoredMessage | null;
+      error: { message: string } | null;
+    };
 
     if (error) {
       this.logger.error(`Failed to store message: ${error.message}`);

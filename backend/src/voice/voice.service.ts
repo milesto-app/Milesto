@@ -27,9 +27,14 @@ export class VoiceService {
     return this.sttService.transcribe(audioBuffer, mimetype, language);
   }
 
-  public async synthesize(text: string, coachId: number): Promise<SynthesisResult> {
+  public async synthesize(
+    text: string,
+    coachId: number,
+  ): Promise<SynthesisResult> {
     const voiceId = await this.resolveVoiceId(coachId);
-    this.logger.log(`Synthesizing for coach ${String(coachId)} with voice ${voiceId}`);
+    this.logger.log(
+      `Synthesizing for coach ${String(coachId)} with voice ${voiceId}`,
+    );
     return this.ttsService.synthesize(text, voiceId);
   }
 

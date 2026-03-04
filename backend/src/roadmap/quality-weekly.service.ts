@@ -3,9 +3,16 @@ import { OnEvent } from '@nestjs/event-emitter';
 import { AiService } from '../ai/ai.service.js';
 import { SupabaseService } from '../supabase/supabase.service.js';
 import { WEEKLY_PLAN_JUDGE_SYSTEM_PROMPT } from './prompts/quality-prompts.js';
-import { clampScore, checkWarnings, evaluateQuality } from './quality-helpers.js';
+import {
+  clampScore,
+  checkWarnings,
+  evaluateQuality,
+} from './quality-helpers.js';
 import type { Json } from '../supabase/database.types.js';
-import type { WeeklyPlanQualityScores, WeeklyPlanGeneratedEvent } from './types/quality.types.js';
+import type {
+  WeeklyPlanQualityScores,
+  WeeklyPlanGeneratedEvent,
+} from './types/quality.types.js';
 
 const PLAN_SCORE_DIMENSIONS = 3;
 const SCORE_DECIMAL_PLACES = 2;
@@ -20,7 +27,9 @@ export class QualityWeeklyService {
   ) {}
 
   @OnEvent('weekly-plan.generated')
-  public async handleWeeklyPlanGenerated(payload: WeeklyPlanGeneratedEvent): Promise<void> {
+  public async handleWeeklyPlanGenerated(
+    payload: WeeklyPlanGeneratedEvent,
+  ): Promise<void> {
     try {
       await this.evaluateAndStore(payload);
     } catch (error) {
@@ -30,7 +39,9 @@ export class QualityWeeklyService {
     }
   }
 
-  private async evaluateAndStore(payload: WeeklyPlanGeneratedEvent): Promise<void> {
+  private async evaluateAndStore(
+    payload: WeeklyPlanGeneratedEvent,
+  ): Promise<void> {
     const supabase = this.supabaseService.getAdminClient();
     const context = await this.loadWeeklyPlanContext(supabase, payload);
     if (context === null) {
@@ -109,14 +120,18 @@ export class QualityWeeklyService {
     return { content, milestoneContext };
   }
 
-  private buildScores(rawScores: WeeklyPlanQualityScores): WeeklyPlanQualityScores {
+  private buildScores(
+    rawScores: WeeklyPlanQualityScores,
+  ): WeeklyPlanQualityScores {
     const clamped = {
       milestone_alignment: clampScore(rawScores.milestone_alignment),
       progress_adaptation: clampScore(rawScores.progress_adaptation),
       actionability: clampScore(rawScores.actionability),
     };
     const composite =
-      (clamped.milestone_alignment + clamped.progress_adaptation + clamped.actionability) /
+      (clamped.milestone_alignment +
+        clamped.progress_adaptation +
+        clamped.actionability) /
       PLAN_SCORE_DIMENSIONS;
 
     return { ...clamped, composite };

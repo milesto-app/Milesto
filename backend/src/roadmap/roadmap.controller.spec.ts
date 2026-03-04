@@ -71,7 +71,10 @@ describe('RoadmapController', () => {
 
       const result = await controller.generateRoadmap(goalId, userId);
 
-      expect(mockRoadmapService.generateMilestones).toHaveBeenCalledWith(goalId, userId);
+      expect(mockRoadmapService.generateMilestones).toHaveBeenCalledWith(
+        goalId,
+        userId,
+      );
       expect(result).toEqual(mockRoadmap);
     });
   });
@@ -82,7 +85,10 @@ describe('RoadmapController', () => {
 
       const result = await controller.getRoadmap(goalId, userId);
 
-      expect(mockRoadmapService.getRoadmap).toHaveBeenCalledWith(goalId, userId);
+      expect(mockRoadmapService.getRoadmap).toHaveBeenCalledWith(
+        goalId,
+        userId,
+      );
       expect(result).toEqual(mockRoadmap);
     });
   });
@@ -94,35 +100,50 @@ describe('RoadmapController', () => {
 
       const result = await controller.getMilestones(goalId, userId);
 
-      expect(mockRoadmapService.getMilestones).toHaveBeenCalledWith(goalId, userId);
+      expect(mockRoadmapService.getMilestones).toHaveBeenCalledWith(
+        goalId,
+        userId,
+      );
       expect(result).toEqual(mockMilestones);
     });
   });
 
   describe('GET /weekly-plan', () => {
     it('should return existing active plan', async () => {
-      mockWeeklyPlanService.getCurrentWeeklyPlan.mockResolvedValue(mockWeeklyPlan);
+      mockWeeklyPlanService.getCurrentWeeklyPlan.mockResolvedValue(
+        mockWeeklyPlan,
+      );
 
       const result = await controller.getWeeklyPlan(goalId, userId);
 
-      expect(mockWeeklyPlanService.getCurrentWeeklyPlan).toHaveBeenCalledWith(goalId, userId);
+      expect(mockWeeklyPlanService.getCurrentWeeklyPlan).toHaveBeenCalledWith(
+        goalId,
+        userId,
+      );
       expect(result).toEqual(mockWeeklyPlan);
     });
 
     it('should throw NotFoundException when no active plan', async () => {
       mockWeeklyPlanService.getCurrentWeeklyPlan.mockResolvedValue(null);
 
-      await expect(controller.getWeeklyPlan(goalId, userId)).rejects.toThrow(NotFoundException);
+      await expect(controller.getWeeklyPlan(goalId, userId)).rejects.toThrow(
+        NotFoundException,
+      );
     });
   });
 
   describe('POST /weekly-plan/generate', () => {
     it('should call generateWeeklyPlan with goalId and userId', async () => {
-      mockWeeklyPlanService.generateWeeklyPlan.mockResolvedValue(mockWeeklyPlan);
+      mockWeeklyPlanService.generateWeeklyPlan.mockResolvedValue(
+        mockWeeklyPlan,
+      );
 
       const result = await controller.generateWeeklyPlan(goalId, userId);
 
-      expect(mockWeeklyPlanService.generateWeeklyPlan).toHaveBeenCalledWith(goalId, userId);
+      expect(mockWeeklyPlanService.generateWeeklyPlan).toHaveBeenCalledWith(
+        goalId,
+        userId,
+      );
       expect(result).toEqual(mockWeeklyPlan);
     });
   });

@@ -21,10 +21,12 @@ jest.mock('@google/genai', () => ({
   // eslint-disable-next-line @typescript-eslint/naming-convention -- mirrors SDK export
   GoogleGenAI: jest.fn().mockImplementation(() => ({
     live: {
-      connect: jest.fn().mockImplementation(async (opts: { callbacks: MockCallbacks }) => {
-        capturedCallbacks = opts.callbacks;
-        return Promise.resolve(mockSession);
-      }),
+      connect: jest
+        .fn()
+        .mockImplementation(async (opts: { callbacks: MockCallbacks }) => {
+          capturedCallbacks = opts.callbacks;
+          return Promise.resolve(mockSession);
+        }),
     },
   })),
   // eslint-disable-next-line @typescript-eslint/naming-convention -- mirrors SDK export
@@ -68,7 +70,10 @@ describe('GeminiLiveService', () => {
   });
 
   it('should create a session and return a wrapper', async () => {
-    const session = await service.createSession({ ...BASE_OPTIONS, callbacks: mockCallbacks });
+    const session = await service.createSession({
+      ...BASE_OPTIONS,
+      callbacks: mockCallbacks,
+    });
 
     expect(session.sendAudio).toBeDefined();
     expect(session.sendToolResponse).toBeDefined();
@@ -76,7 +81,10 @@ describe('GeminiLiveService', () => {
   });
 
   it('should forward audio data via sendAudio', async () => {
-    const session = await service.createSession({ ...BASE_OPTIONS, callbacks: mockCallbacks });
+    const session = await service.createSession({
+      ...BASE_OPTIONS,
+      callbacks: mockCallbacks,
+    });
 
     session.sendAudio('base64data');
     expect(mockSession.sendRealtimeInput).toHaveBeenCalledWith({
@@ -88,7 +96,9 @@ describe('GeminiLiveService', () => {
     await service.createSession({ ...BASE_OPTIONS, callbacks: mockCallbacks });
 
     capturedCallbacks.onmessage({
-      serverContent: { modelTurn: { parts: [{ inlineData: { data: 'audio-chunk' } }] } },
+      serverContent: {
+        modelTurn: { parts: [{ inlineData: { data: 'audio-chunk' } }] },
+      },
     });
 
     expect(mockCallbacks.onAudioData).toHaveBeenCalledWith('audio-chunk');
@@ -98,7 +108,9 @@ describe('GeminiLiveService', () => {
     await service.createSession({ ...BASE_OPTIONS, callbacks: mockCallbacks });
 
     capturedCallbacks.onmessage({
-      toolCall: { functionCalls: [{ id: '1', name: 'getDailyObjectives', args: {} }] },
+      toolCall: {
+        functionCalls: [{ id: '1', name: 'getDailyObjectives', args: {} }],
+      },
     });
 
     expect(mockCallbacks.onToolCall).toHaveBeenCalledWith([

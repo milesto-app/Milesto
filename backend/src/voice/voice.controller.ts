@@ -9,7 +9,13 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { ApiBearerAuth, ApiConsumes, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiConsumes,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { Throttle } from '@nestjs/throttler';
 import type { Response } from 'express';
 
@@ -38,7 +44,9 @@ export class VoiceController {
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @Throttle({ default: { limit: AI_LIMIT, ttl: AI_TTL } })
   @UseInterceptors(
-    FileInterceptor('audio', { limits: { fileSize: appConfig.voice.maxAudioSizeBytes } }),
+    FileInterceptor('audio', {
+      limits: { fileSize: appConfig.voice.maxAudioSizeBytes },
+    }),
   )
   public async transcribe(
     @UploadedFile() file: Express.Multer.File | undefined,
@@ -64,7 +72,10 @@ export class VoiceController {
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @ApiResponse({ status: 404, description: 'Coach not found' })
   @Throttle({ default: { limit: AI_LIMIT, ttl: AI_TTL } })
-  public async synthesize(@Body() dto: SynthesizeDto, @Res() res: Response): Promise<void> {
+  public async synthesize(
+    @Body() dto: SynthesizeDto,
+    @Res() res: Response,
+  ): Promise<void> {
     const result = await this.voiceService.synthesize(dto.text, dto.coach_id);
 
     res.set('Content-Type', result.content_type);

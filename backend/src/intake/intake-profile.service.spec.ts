@@ -35,7 +35,9 @@ describe('IntakeProfileService', () => {
 
   beforeEach(() => {
     mockSupabase = { from: jest.fn() };
-    supabaseService = { getAdminClient: jest.fn().mockReturnValue(mockSupabase) };
+    supabaseService = {
+      getAdminClient: jest.fn().mockReturnValue(mockSupabase),
+    };
     goalService = { findOne: jest.fn() };
     promptService = { generateGoalProfile: jest.fn() };
     qualityService = { validateGoalProfile: jest.fn() };
@@ -43,9 +45,10 @@ describe('IntakeProfileService', () => {
     eventEmitter = { emit: jest.fn() };
     languageService = { getLanguage: jest.fn().mockResolvedValue('en') };
     profileStore = {
-      markFailure: jest
-        .fn()
-        .mockResolvedValue({ profile_id: null, profile_status: 'profile_generation_failed' }),
+      markFailure: jest.fn().mockResolvedValue({
+        profile_id: null,
+        profile_status: 'profile_generation_failed',
+      }),
       updateGoalStatus: jest.fn().mockResolvedValue(undefined),
     };
 
@@ -72,7 +75,9 @@ describe('IntakeProfileService', () => {
         profile_generation_attempts: 0,
       });
 
-      await expect(service.retryProfile(userId, goalId)).rejects.toThrow(BadRequestException);
+      await expect(service.retryProfile(userId, goalId)).rejects.toThrow(
+        BadRequestException,
+      );
     });
 
     it('should throw when max retries exceeded', async () => {
@@ -82,7 +87,9 @@ describe('IntakeProfileService', () => {
         profile_generation_attempts: 100,
       });
 
-      await expect(service.retryProfile(userId, goalId)).rejects.toThrow(BadRequestException);
+      await expect(service.retryProfile(userId, goalId)).rejects.toThrow(
+        BadRequestException,
+      );
     });
   });
 
@@ -90,7 +97,10 @@ describe('IntakeProfileService', () => {
     it('should generate and store profile successfully', async () => {
       contextService.loadPriorBatchContext.mockResolvedValue([]);
       promptService.generateGoalProfile.mockResolvedValue(mockProfile);
-      qualityService.validateGoalProfile.mockReturnValue({ valid: true, errors: [] });
+      qualityService.validateGoalProfile.mockReturnValue({
+        valid: true,
+        errors: [],
+      });
 
       // Mock storeProfile insert (direct Supabase call for goal_profiles insert)
       mockSupabase.from.mockReturnValue({
@@ -113,7 +123,10 @@ describe('IntakeProfileService', () => {
 
       expect(result.profile_id).toBe('profile-1');
       expect(result.profile_status).toBe('intake_completed');
-      expect(profileStore.updateGoalStatus).toHaveBeenCalledWith(goalId, 'profile_generating');
+      expect(profileStore.updateGoalStatus).toHaveBeenCalledWith(
+        goalId,
+        'profile_generating',
+      );
       expect(eventEmitter.emit).toHaveBeenCalledWith(
         'profile.generated',
         expect.objectContaining({ profile_id: 'profile-1' }),
@@ -122,7 +135,9 @@ describe('IntakeProfileService', () => {
 
     it('should return failure when AI call fails', async () => {
       contextService.loadPriorBatchContext.mockResolvedValue([]);
-      promptService.generateGoalProfile.mockRejectedValue(new Error('AI error'));
+      promptService.generateGoalProfile.mockRejectedValue(
+        new Error('AI error'),
+      );
 
       const result = await service.generateAndStoreProfile({
         userId,
@@ -141,7 +156,10 @@ describe('IntakeProfileService', () => {
       promptService.generateGoalProfile
         .mockResolvedValueOnce(mockProfile)
         .mockResolvedValueOnce(mockProfile);
-      qualityService.validateGoalProfile.mockReturnValue({ valid: false, errors: ['bad profile'] });
+      qualityService.validateGoalProfile.mockReturnValue({
+        valid: false,
+        errors: ['bad profile'],
+      });
 
       const result = await service.generateAndStoreProfile({
         userId,

@@ -10,7 +10,13 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiParam,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import type { Database } from '../supabase/database.types.js';
 import { AuthGuard } from '../common/guards/auth.guard.js';
 import { UserId } from '../common/decorators/user.decorator.js';
@@ -44,7 +50,10 @@ export class GoalController {
   @ApiResponse({ status: 201, description: 'Goal created successfully' })
   @ApiResponse({ status: 400, description: 'Invalid input' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  public async create(@UserId() userId: string, @Body() dto: CreateGoalDto): Promise<GoalRow> {
+  public async create(
+    @UserId() userId: string,
+    @Body() dto: CreateGoalDto,
+  ): Promise<GoalRow> {
     return this.goalService.create(userId, dto.description, dto.title);
   }
 
@@ -63,7 +72,10 @@ export class GoalController {
   @ApiOperation({ summary: 'Get the AI-generated goal profile' })
   @ApiParam({ name: 'goalId', description: 'The goal UUID' })
   @ApiResponse({ status: 200, description: 'Goal profile returned' })
-  @ApiResponse({ status: 404, description: 'Goal not found or intake not complete' })
+  @ApiResponse({
+    status: 404,
+    description: 'Goal not found or intake not complete',
+  })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   public async getGoalProfile(
     @UserId() userId: string,
@@ -90,10 +102,16 @@ export class GoalController {
   @ApiOperation({ summary: 'Delete a goal (restricted by status)' })
   @ApiParam({ name: 'goalId', description: 'The goal UUID' })
   @ApiResponse({ status: 204, description: 'Goal deleted' })
-  @ApiResponse({ status: 400, description: 'Cannot delete goal in current status' })
+  @ApiResponse({
+    status: 400,
+    description: 'Cannot delete goal in current status',
+  })
   @ApiResponse({ status: 404, description: 'Goal not found' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  public async delete(@UserId() userId: string, @Param('goalId') goalId: string): Promise<void> {
+  public async delete(
+    @UserId() userId: string,
+    @Param('goalId') goalId: string,
+  ): Promise<void> {
     await this.goalService.delete(userId, goalId);
   }
 }

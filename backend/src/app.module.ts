@@ -50,7 +50,10 @@ export class AppModule implements OnModuleInit {
 
   public onModuleInit(): void {
     this.eventEmitter.on('error', (error: Error) => {
-      this.logger.error(`Unhandled event listener error: ${error.message}`, error.stack);
+      this.logger.error(
+        `Unhandled event listener error: ${error.message}`,
+        error.stack,
+      );
     });
   }
 }

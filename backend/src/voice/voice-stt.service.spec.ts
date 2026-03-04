@@ -41,7 +41,11 @@ describe('VoiceSttService', () => {
   it('should return transcription result when successful', async () => {
     mockGenerateContent.mockResolvedValue({ text: MOCK_TRANSCRIPT });
 
-    const result = await service.transcribe(Buffer.from('audio'), 'audio/wav', 'en');
+    const result = await service.transcribe(
+      Buffer.from('audio'),
+      'audio/wav',
+      'en',
+    );
 
     expect(result.text).toBe(MOCK_TRANSCRIPT);
     expect(result.confidence).toBe(EXPECTED_CONFIDENCE);
@@ -51,7 +55,11 @@ describe('VoiceSttService', () => {
   it('should return the passed language in the result', async () => {
     mockGenerateContent.mockResolvedValue({ text: MOCK_TRANSCRIPT });
 
-    const result = await service.transcribe(Buffer.from('audio'), 'audio/wav', 'fr');
+    const result = await service.transcribe(
+      Buffer.from('audio'),
+      'audio/wav',
+      'fr',
+    );
 
     expect(result.language).toBe('fr');
   });
@@ -59,7 +67,11 @@ describe('VoiceSttService', () => {
   it('should return empty text when response text is undefined', async () => {
     mockGenerateContent.mockResolvedValue({ text: undefined });
 
-    const result = await service.transcribe(Buffer.from('audio'), 'audio/wav', 'en');
+    const result = await service.transcribe(
+      Buffer.from('audio'),
+      'audio/wav',
+      'en',
+    );
 
     expect(result.text).toBe('');
   });
@@ -70,7 +82,9 @@ describe('VoiceSttService', () => {
     await service.transcribe(Buffer.from('audio'), 'audio/wav', 'fr');
 
     const calls = mockGenerateContent.mock.calls as unknown[][];
-    const firstCall = calls[0] as [{ contents: { parts: { text?: string }[] }[] }];
+    const firstCall = calls[0] as [
+      { contents: { parts: { text?: string }[] }[] },
+    ];
     const promptText = firstCall[0].contents[0].parts[1].text;
     expect(promptText).toContain('The speaker is likely speaking French');
   });
@@ -81,7 +95,9 @@ describe('VoiceSttService', () => {
     await service.transcribe(Buffer.from('audio'), 'audio/wav', 'de');
 
     const calls = mockGenerateContent.mock.calls as unknown[][];
-    const firstCall = calls[0] as [{ contents: { parts: { text?: string }[] }[] }];
+    const firstCall = calls[0] as [
+      { contents: { parts: { text?: string }[] }[] },
+    ];
     const promptText = firstCall[0].contents[0].parts[1].text;
     expect(promptText).toContain('The speaker is likely speaking English');
   });
@@ -91,8 +107,8 @@ describe('VoiceSttService error handling', () => {
   it('should throw when Gemini returns an error', async () => {
     mockGenerateContent.mockRejectedValue(new Error('Invalid audio format'));
 
-    await expect(service.transcribe(Buffer.from('bad'), 'audio/wav', 'en')).rejects.toThrow(
-      'Invalid audio format',
-    );
+    await expect(
+      service.transcribe(Buffer.from('bad'), 'audio/wav', 'en'),
+    ).rejects.toThrow('Invalid audio format');
   });
 });

@@ -1,7 +1,10 @@
 import { buildLanguageBlock } from '../../common/language-prompt.helper.js';
 import type { AssembledContext } from '../types/context.types.js';
 import type { Milestone } from '../types/roadmap.types.js';
-import type { GenerationContext, WeekData } from '../types/weekly-plan.types.js';
+import type {
+  GenerationContext,
+  WeekData,
+} from '../types/weekly-plan.types.js';
 
 interface WeeklyPlanPromptParams {
   context: AssembledContext;
@@ -37,7 +40,9 @@ Return a JSON object with these exact fields:
 Return ONLY the JSON object, no other text.${buildLanguageBlock(language)}`;
 }
 
-export function buildWeeklyPlanUserPrompt(params: WeeklyPlanPromptParams): string {
+export function buildWeeklyPlanUserPrompt(
+  params: WeeklyPlanPromptParams,
+): string {
   const sections: string[] = [];
   sections.push(buildMilestoneSection(params));
   sections.push(`## Week Info\nWeek Number: ${String(params.weekNumber)}`);
@@ -54,8 +59,14 @@ Expected Outcome: ${params.milestone.expected_outcome}
 Target Month: ${String(params.milestone.target_month)}`;
 }
 
-function appendSummaryContextSections(sections: string[], genCtx: GenerationContext): void {
-  if (genCtx.last_weekly_summary !== null && genCtx.last_weekly_summary !== undefined) {
+function appendSummaryContextSections(
+  sections: string[],
+  genCtx: GenerationContext,
+): void {
+  if (
+    genCtx.last_weekly_summary !== null &&
+    genCtx.last_weekly_summary !== undefined
+  ) {
     const ws = genCtx.last_weekly_summary;
     sections.push(`## Last Week Summary
 Completion Rate: ${String(ws.completion_rate)}%
@@ -63,8 +74,13 @@ Objectives Completed: ${String(ws.objectives_completed)}/${String(ws.objectives_
 ${ws.narrative !== undefined ? `Narrative: ${ws.narrative}` : ''}`);
   }
 
-  if (genCtx.last_monthly_summary !== null && genCtx.last_monthly_summary !== undefined) {
-    sections.push(`## Monthly Summary\n${JSON.stringify(genCtx.last_monthly_summary)}`);
+  if (
+    genCtx.last_monthly_summary !== null &&
+    genCtx.last_monthly_summary !== undefined
+  ) {
+    sections.push(
+      `## Monthly Summary\n${JSON.stringify(genCtx.last_monthly_summary)}`,
+    );
   }
 
   if (genCtx.daily_completion_rate !== undefined) {
@@ -74,7 +90,10 @@ Completed: ${String(genCtx.daily_objectives_completed ?? 0)}/${String(genCtx.dai
   }
 }
 
-function appendRetrievedContextSections(sections: string[], context: AssembledContext): void {
+function appendRetrievedContextSections(
+  sections: string[],
+  context: AssembledContext,
+): void {
   if (context.goalProfileSection.length > 0) {
     sections.push(`## Goal Profile\n${context.goalProfileSection}`);
   }
@@ -89,7 +108,9 @@ function appendRetrievedContextSections(sections: string[], context: AssembledCo
   }
 }
 
-export function buildWeeklySummaryNarrativeSystemPrompt(language: string): string {
+export function buildWeeklySummaryNarrativeSystemPrompt(
+  language: string,
+): string {
   return `You are a coaching progress analyst. Summarize the user's weekly progress into a brief narrative.
 Focus on patterns, achievements, and areas for improvement.
 Return a JSON object with a single field: "narrative" containing a concise 1-3 sentence summary.
@@ -108,14 +129,18 @@ Debrief Notes:
 ${weekData.debriefNotes.map((note, i) => `${String(i + 1)}. ${note}`).join('\n')}`;
 }
 
-export function buildMonthlySummaryNarrativeSystemPrompt(language: string): string {
+export function buildMonthlySummaryNarrativeSystemPrompt(
+  language: string,
+): string {
   return `You are a coaching progress analyst. Summarize this month's progress based on weekly summaries.
 Focus on overall trends, consistency, and growth areas.
 Return a JSON object with a single field: "narrative" containing a concise monthly progress narrative.
 Return ONLY the JSON object, no other text.${buildLanguageBlock(language)}`;
 }
 
-export function buildMonthlySummaryNarrativeUserPrompt(params: MonthlySummaryPromptParams): string {
+export function buildMonthlySummaryNarrativeUserPrompt(
+  params: MonthlySummaryPromptParams,
+): string {
   return `Monthly Progress Data:
 Average Completion Rate: ${String(params.avgCompletionRate)}%
 Total Objectives: ${String(params.totalCompleted)}/${String(params.totalObjectives)}

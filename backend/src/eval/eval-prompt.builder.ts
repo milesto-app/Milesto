@@ -19,13 +19,16 @@ export function formatQuestions(questions: EvalQuestion[]): string {
   return questions
     .map((q, i) => {
       const opts = (q.config as { options?: string[] } | null)?.options;
-      const optionsSuffix = opts !== undefined ? `\n   Options: ${opts.join(' / ')}` : '';
+      const optionsSuffix =
+        opts !== undefined ? `\n   Options: ${opts.join(' / ')}` : '';
       return `${i + 1}. [${q.question_type}] ${q.question_text}${optionsSuffix}`;
     })
     .join('\n');
 }
 
-export function formatPriorContext(priorBatches: EvalPriorBatch[] | null): string {
+export function formatPriorContext(
+  priorBatches: EvalPriorBatch[] | null,
+): string {
   if (priorBatches === null || priorBatches.length === 0) {
     return 'None — this is the first batch.';
   }
@@ -33,17 +36,22 @@ export function formatPriorContext(priorBatches: EvalPriorBatch[] | null): strin
     .map(
       (batch) =>
         `--- Batch ${batch.batch_number} ---\n${batch.questions
-          .map((q) => `Q: ${q.question_text} (${q.question_type})\nA: ${q.answer}`)
+          .map(
+            (q) => `Q: ${q.question_text} (${q.question_type})\nA: ${q.answer}`,
+          )
           .join('\n')}`,
     )
     .join('\n\n');
 }
 
-export function formatGoldStandardQuestions(questions: GoldStandardQuestion[]): string {
+export function formatGoldStandardQuestions(
+  questions: GoldStandardQuestion[],
+): string {
   return questions
     .map((q, i) => {
       const opts = (q.config as { options?: string[] } | null)?.options;
-      const optionsSuffix = opts !== undefined ? `\n   Options: ${opts.join(' / ')}` : '';
+      const optionsSuffix =
+        opts !== undefined ? `\n   Options: ${opts.join(' / ')}` : '';
       return `${i + 1}. [${q.question_type}] ${q.question_text}${optionsSuffix}\n   Rationale: ${q.rationale}`;
     })
     .join('\n');
@@ -101,7 +109,9 @@ Respond with ONLY a JSON array:
 [{ "question_index": 1, "answer": "..." }, ...]`;
 }
 
-export function buildSimulationUserPrompt(input: SimulationPromptInput): string {
+export function buildSimulationUserPrompt(
+  input: SimulationPromptInput,
+): string {
   const priorContext = formatPriorContext(input.priorBatches);
   const questionsFormatted = formatQuestionsWithScale(input.questions);
 

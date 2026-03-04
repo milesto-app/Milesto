@@ -9,7 +9,11 @@ export interface GenerateJsonOptions {
   temperature?: number;
   timeoutMs?: number;
   reasoning?: { effort?: string };
-  captureUsage?: { prompt_tokens?: number; completion_tokens?: number; total_tokens?: number };
+  captureUsage?: {
+    prompt_tokens?: number;
+    completion_tokens?: number;
+    total_tokens?: number;
+  };
   maxRetries?: number;
 }
 
@@ -70,7 +74,12 @@ export class AiService {
     for (let attempt = 1; attempt <= maxRetries; attempt++) {
       try {
         // eslint-disable-next-line no-await-in-loop -- sequential retry loop requires await
-        return await this.attemptJsonGeneration<T>(system, user, model, options);
+        return await this.attemptJsonGeneration<T>(
+          system,
+          user,
+          model,
+          options,
+        );
       } catch (error) {
         if (!this.shouldRetry(error) || attempt >= maxRetries) {
           throw error;
@@ -81,14 +90,14 @@ export class AiService {
         lastError = error instanceof Error ? error : new Error(String(error));
       }
     }
-
     throw lastError;
   }
 
   private shouldRetry(error: unknown): boolean {
     return (
       error instanceof SyntaxError ||
-      (error instanceof Error && error.message === 'No JSON found in AI response')
+      (error instanceof Error &&
+        error.message === 'No JSON found in AI response')
     );
   }
 
@@ -106,7 +115,12 @@ export class AiService {
     }, timeoutMs);
 
     try {
-      const response = await this.callChatCompletion(system, user, model, controller.signal);
+      const response = await this.callChatCompletion(
+        system,
+        user,
+        model,
+        controller.signal,
+      );
       this.captureUsageIfNeeded(options, response);
       return this.extractJsonFromResponse(response) as T;
     } finally {
@@ -133,7 +147,9 @@ export class AiService {
     );
   }
 
-  private extractJsonFromResponse(response: OpenAI.Chat.Completions.ChatCompletion): unknown {
+  private extractJsonFromResponse(
+    response: OpenAI.Chat.Completions.ChatCompletion,
+  ): unknown {
     const content = response.choices[0]?.message.content ?? '';
     const match = content.match(/[[{][\s\S]*[}\]]/);
     if (match === null) {

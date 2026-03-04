@@ -48,7 +48,9 @@ describe('DebriefService', () => {
               select: jest.fn().mockReturnValue({
                 eq: jest.fn().mockReturnValue({
                   eq: jest.fn().mockReturnValue({
-                    single: jest.fn().mockResolvedValue({ data: { id: goalId }, error: null }),
+                    single: jest
+                      .fn()
+                      .mockResolvedValue({ data: { id: goalId }, error: null }),
                   }),
                 }),
               }),
@@ -57,7 +59,9 @@ describe('DebriefService', () => {
           return {
             insert: jest.fn().mockReturnValue({
               select: jest.fn().mockReturnValue({
-                single: jest.fn().mockResolvedValue({ data: mockDebrief, error: null }),
+                single: jest
+                  .fn()
+                  .mockResolvedValue({ data: mockDebrief, error: null }),
               }),
             }),
           };
@@ -66,7 +70,10 @@ describe('DebriefService', () => {
 
       const result = await service.submitDebrief(goalId, userId, dto);
       expect(result).toEqual(mockDebrief);
-      expect(mockEventEmitter.emit).toHaveBeenCalledWith('debrief.submitted', expect.any(Object));
+      expect(mockEventEmitter.emit).toHaveBeenCalledWith(
+        'debrief.submitted',
+        expect.any(Object),
+      );
     });
 
     it('should throw ConflictException on duplicate debrief', async () => {
@@ -79,7 +86,9 @@ describe('DebriefService', () => {
               select: jest.fn().mockReturnValue({
                 eq: jest.fn().mockReturnValue({
                   eq: jest.fn().mockReturnValue({
-                    single: jest.fn().mockResolvedValue({ data: { id: goalId }, error: null }),
+                    single: jest
+                      .fn()
+                      .mockResolvedValue({ data: { id: goalId }, error: null }),
                   }),
                 }),
               }),
@@ -98,7 +107,9 @@ describe('DebriefService', () => {
         }),
       });
 
-      await expect(service.submitDebrief(goalId, userId, dto)).rejects.toThrow(ConflictException);
+      await expect(service.submitDebrief(goalId, userId, dto)).rejects.toThrow(
+        ConflictException,
+      );
     });
   });
 
@@ -110,7 +121,9 @@ describe('DebriefService', () => {
           select: jest.fn().mockReturnValue({
             eq: jest.fn().mockReturnValue({
               eq: jest.fn().mockReturnValue({
-                order: jest.fn().mockResolvedValue({ data: mockHistory, error: null }),
+                order: jest
+                  .fn()
+                  .mockResolvedValue({ data: mockHistory, error: null }),
               }),
             }),
           }),

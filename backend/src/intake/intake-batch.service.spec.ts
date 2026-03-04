@@ -53,7 +53,9 @@ describe('IntakeBatchService', () => {
     fallbackService = { serveFirstBatch: jest.fn(), serveFallback: jest.fn() };
     eventEmitter = { emit: jest.fn() };
     languageService = { getLanguage: jest.fn().mockResolvedValue('en') };
-    targetDateService = { tryExtractTargetDate: jest.fn().mockResolvedValue(undefined) };
+    targetDateService = {
+      tryExtractTargetDate: jest.fn().mockResolvedValue(undefined),
+    };
 
     service = new IntakeBatchService(
       goalService as unknown as GoalService,
@@ -63,11 +65,13 @@ describe('IntakeBatchService', () => {
 
     // Property injection
     Object.assign(service, {
-      generationService: generationService as unknown as IntakeGenerationService,
+      generationService:
+        generationService as unknown as IntakeGenerationService,
       contextService: contextService as unknown as IntakeContextService,
       fallbackService: fallbackService as unknown as IntakeFallbackService,
       languageService: languageService as unknown as UserLanguageService,
-      targetDateService: targetDateService as unknown as IntakeTargetDateService,
+      targetDateService:
+        targetDateService as unknown as IntakeTargetDateService,
     });
   });
 
@@ -75,18 +79,28 @@ describe('IntakeBatchService', () => {
     it('should throw when goal is not in intake_in_progress status', async () => {
       goalService.findOne.mockResolvedValue(mockGoal('active'));
 
-      await expect(service.getNextBatch(userId, goalId)).rejects.toThrow(BadRequestException);
+      await expect(service.getNextBatch(userId, goalId)).rejects.toThrow(
+        BadRequestException,
+      );
     });
 
     it('should serve first batch when no batches exist', async () => {
       goalService.findOne.mockResolvedValue(mockGoal());
       storeService.queryLatestBatch.mockResolvedValue(null);
-      const batch = { batch_id: 'b-1', batch_number: 1, is_complete: false, questions: [] };
+      const batch = {
+        batch_id: 'b-1',
+        batch_number: 1,
+        is_complete: false,
+        questions: [],
+      };
       fallbackService.serveFirstBatch.mockResolvedValue(batch);
 
       const result = await service.getNextBatch(userId, goalId);
 
-      expect(fallbackService.serveFirstBatch).toHaveBeenCalledWith(goalId, 'en');
+      expect(fallbackService.serveFirstBatch).toHaveBeenCalledWith(
+        goalId,
+        'en',
+      );
       expect(result).toEqual(batch);
       expect(eventEmitter.emit).toHaveBeenCalledWith(
         'batch.served',
@@ -101,7 +115,12 @@ describe('IntakeBatchService', () => {
         batch_number: 1,
         is_answered: false,
       });
-      const served = { batch_id: 'b-1', batch_number: 1, is_complete: false, questions: [] };
+      const served = {
+        batch_id: 'b-1',
+        batch_number: 1,
+        is_complete: false,
+        questions: [],
+      };
       storeService.reServeBatch.mockResolvedValue(served);
 
       const result = await service.getNextBatch(userId, goalId);
@@ -119,9 +138,17 @@ describe('IntakeBatchService', () => {
       });
       contextService.loadPriorBatchContext.mockResolvedValue([]);
       const questions = [
-        { question_text: 'Q?', question_type: 'text', config: null, order_in_batch: 1 },
+        {
+          question_text: 'Q?',
+          question_type: 'text',
+          config: null,
+          order_in_batch: 1,
+        },
       ];
-      generationService.generateBatch.mockResolvedValue({ kind: 'questions', questions });
+      generationService.generateBatch.mockResolvedValue({
+        kind: 'questions',
+        questions,
+      });
       storeService.storeGeneratedBatch.mockResolvedValue({
         batch_id: 'b-2',
         batch_number: 2,
@@ -144,7 +171,12 @@ describe('IntakeBatchService', () => {
       });
       contextService.loadPriorBatchContext.mockResolvedValue([]);
       generationService.generateBatch.mockRejectedValue(new Error('AI failed'));
-      const fallback = { batch_id: 'fb-1', batch_number: 2, is_complete: false, questions: [] };
+      const fallback = {
+        batch_id: 'fb-1',
+        batch_number: 2,
+        is_complete: false,
+        questions: [],
+      };
       fallbackService.serveFallback.mockResolvedValue(fallback);
 
       const result = await service.getNextBatch(userId, goalId);
@@ -158,12 +190,17 @@ describe('IntakeBatchService', () => {
     it('should throw when goal is not in intake_in_progress status', async () => {
       goalService.findOne.mockResolvedValue(mockGoal('active'));
 
-      await expect(service.submitBatch(userId, goalId, [])).rejects.toThrow(BadRequestException);
+      await expect(service.submitBatch(userId, goalId, [])).rejects.toThrow(
+        BadRequestException,
+      );
     });
 
     it('should persist answers and emit batch.answered event', async () => {
       goalService.findOne.mockResolvedValue(mockGoal());
-      storeService.queryUnansweredBatch.mockResolvedValue({ id: 'b-1', batch_number: 1 });
+      storeService.queryUnansweredBatch.mockResolvedValue({
+        id: 'b-1',
+        batch_number: 1,
+      });
       storeService.loadBatchQuestions.mockResolvedValue([
         { id: 'q-1', question_type: 'text', config: null },
       ]);
@@ -173,7 +210,10 @@ describe('IntakeBatchService', () => {
       contextService.loadPriorBatchContext.mockResolvedValue([]);
       generationService.generateBatch.mockResolvedValue({
         kind: 'complete',
-        profileResult: { profile_id: 'p-1', profile_status: 'intake_completed' },
+        profileResult: {
+          profile_id: 'p-1',
+          profile_status: 'intake_completed',
+        },
       });
 
       const answers = [{ question_id: 'q-1', answer_text: 'My answer' }];

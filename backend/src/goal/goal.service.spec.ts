@@ -1,6 +1,9 @@
 import type { TestingModule } from '@nestjs/testing';
 import { Test } from '@nestjs/testing';
-import { InternalServerErrorException, NotFoundException } from '@nestjs/common';
+import {
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 import { GoalService } from './goal.service.js';
 import { AiService } from '../ai/ai.service.js';
 import { SupabaseService } from '../supabase/supabase.service.js';
@@ -56,7 +59,10 @@ beforeEach(async () => {
   const module: TestingModule = await Test.createTestingModule({
     providers: [
       GoalService,
-      { provide: SupabaseService, useValue: { getAdminClient: () => mockSupabase } },
+      {
+        provide: SupabaseService,
+        useValue: { getAdminClient: () => mockSupabase },
+      },
       { provide: AiService, useValue: mockAiService },
     ],
   }).compile();
@@ -112,7 +118,9 @@ describe('GoalService.create - AI title generation', () => {
 
   it('should generate title via AI when title is omitted', async () => {
     const goal = { ...baseGoal, title: 'Complete a Full Marathon' };
-    mockAiService.generateJSON.mockResolvedValue({ title: 'Complete a Full Marathon' });
+    mockAiService.generateJSON.mockResolvedValue({
+      title: 'Complete a Full Marathon',
+    });
     mockInsertChain(goal);
 
     const result = await service.create('user-123', baseGoal.description);
@@ -136,14 +144,23 @@ describe('GoalService.findAll', () => {
     mockSelectChain(goals, null, 1);
 
     const result = await service.findAll('user-123', DEFAULT_LIMIT, 0);
-    expect(result).toEqual({ data: goals, total: 1, limit: DEFAULT_LIMIT, offset: 0 });
+    expect(result).toEqual({
+      data: goals,
+      total: 1,
+      limit: DEFAULT_LIMIT,
+      offset: 0,
+    });
   });
 
   it('should pass correct range params', async () => {
-    const rangeMock = jest.fn().mockResolvedValue({ data: [], error: null, count: 0 });
+    const rangeMock = jest
+      .fn()
+      .mockResolvedValue({ data: [], error: null, count: 0 });
     const orderMock = jest.fn().mockReturnValue({ range: rangeMock });
     const eqMock = jest.fn().mockReturnValue({ order: orderMock });
-    mockSupabase.from.mockReturnValue({ select: jest.fn().mockReturnValue({ eq: eqMock }) });
+    mockSupabase.from.mockReturnValue({
+      select: jest.fn().mockReturnValue({ eq: eqMock }),
+    });
 
     await service.findAll('user-123', CUSTOM_LIMIT, CUSTOM_OFFSET);
     expect(rangeMock).toHaveBeenCalledWith(CUSTOM_OFFSET, EXPECTED_RANGE_END);
@@ -159,7 +176,11 @@ describe('GoalService.findAll', () => {
 
 describe('GoalService.findOne', () => {
   it('should return goal when found', async () => {
-    const goal = { id: 'goal-456', user_id: 'user-123', status: GOAL_STATUS.INTAKE_IN_PROGRESS };
+    const goal = {
+      id: 'goal-456',
+      user_id: 'user-123',
+      status: GOAL_STATUS.INTAKE_IN_PROGRESS,
+    };
     mockFindOneChain(goal, null);
 
     const result = await service.findOne('user-123', 'goal-456');
@@ -168,6 +189,8 @@ describe('GoalService.findOne', () => {
 
   it('should throw NotFoundException when goal not found', async () => {
     mockFindOneChain(null, { code: 'PGRST116', message: 'not found' });
-    await expect(service.findOne('user-123', 'goal-456')).rejects.toThrow(NotFoundException);
+    await expect(service.findOne('user-123', 'goal-456')).rejects.toThrow(
+      NotFoundException,
+    );
   });
 });

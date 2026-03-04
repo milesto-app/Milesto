@@ -34,7 +34,10 @@ export class ChatToolsService {
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       this.logger.warn(`getDailyObjectives failed: ${message}`);
-      return { error: 'No daily objectives available. Complete your morning check-in first.' };
+      return {
+        error:
+          'No daily objectives available. Complete your morning check-in first.',
+      };
     }
   }
 
@@ -56,16 +59,24 @@ export class ChatToolsService {
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       this.logger.warn(`toggleObjectiveCompletion failed: ${message}`);
-      return { error: 'Unable to update the objective. It may not exist or belong to this goal.' };
+      return {
+        error:
+          'Unable to update the objective. It may not exist or belong to this goal.',
+      };
     }
   }
 
   public async getProgressStats(ctx: ToolExecutionContext): Promise<unknown> {
     try {
-      const plan = await this.weeklyPlanService.getCurrentWeeklyPlan(ctx.goalId, ctx.userId);
+      const plan = await this.weeklyPlanService.getCurrentWeeklyPlan(
+        ctx.goalId,
+        ctx.userId,
+      );
 
       if (plan === null) {
-        return { error: 'No active weekly plan found. Generate a weekly plan first.' };
+        return {
+          error: 'No active weekly plan found. Generate a weekly plan first.',
+        };
       }
 
       const stats = await this.dailyObjectiveService.getWeeklyCompletionRate(
@@ -154,7 +165,9 @@ export class ChatToolsService {
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       this.logger.warn(`searchContext failed: ${message}`);
-      return { error: 'Unable to search context. Please try rephrasing your question.' };
+      return {
+        error: 'Unable to search context. Please try rephrasing your question.',
+      };
     }
   }
 }

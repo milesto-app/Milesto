@@ -9,7 +9,10 @@ import {
   validateSemantic,
   validateGoalProfile,
 } from './intake-batch-validator.js';
-import { buildQualityUserPrompt, computeComposite } from './intake-quality-scoring.js';
+import {
+  buildQualityUserPrompt,
+  computeComposite,
+} from './intake-quality-scoring.js';
 import type { QualityScores } from './intake-quality-scoring.js';
 import type { BatchServedEvent } from './types/intake.types.js';
 
@@ -24,7 +27,10 @@ export class IntakeQualityService {
     private readonly supabaseService: SupabaseService,
   ) {}
 
-  public validateGoalProfile(profile: unknown): { valid: boolean; errors: string[] } {
+  public validateGoalProfile(profile: unknown): {
+    valid: boolean;
+    errors: string[];
+  } {
     return validateGoalProfile(profile);
   }
 
@@ -149,11 +155,16 @@ export class IntakeQualityService {
       .update({ quality_score: composite })
       .eq('id', batchId);
     if (error !== null) {
-      this.logger.error(`Failed to store quality score for batch ${batchId}: ${error.message}`);
+      this.logger.error(
+        `Failed to store quality score for batch ${batchId}: ${error.message}`,
+      );
     }
   }
 
-  private logScore(scores: QualityScores & { composite: number }, payload: BatchServedEvent): void {
+  private logScore(
+    scores: QualityScores & { composite: number },
+    payload: BatchServedEvent,
+  ): void {
     const scoreStr = scores.composite.toFixed(SCORE_DECIMAL_PLACES);
     if (scores.composite < appConfig.intake.qualityWarnThreshold) {
       this.logger.warn(

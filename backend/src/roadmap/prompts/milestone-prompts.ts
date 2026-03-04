@@ -7,7 +7,8 @@ const MS_PER_SECOND = 1000;
 const SECONDS_PER_MINUTE = 60;
 const MINUTES_PER_HOUR = 60;
 const HOURS_PER_DAY = 24;
-const MS_PER_DAY = MS_PER_SECOND * SECONDS_PER_MINUTE * MINUTES_PER_HOUR * HOURS_PER_DAY;
+const MS_PER_DAY =
+  MS_PER_SECOND * SECONDS_PER_MINUTE * MINUTES_PER_HOUR * HOURS_PER_DAY;
 const DAYS_PER_MONTH = 30;
 
 export function buildMilestoneSystemPrompt(language: string): string {
@@ -33,13 +34,17 @@ Return a JSON array of objects with these exact fields:
 Return ONLY the JSON array, no other text.${buildLanguageBlock(language)}`;
 }
 
-export function buildMilestoneUserPrompt(context: AssembledContext, goal: GoalData): string {
+export function buildMilestoneUserPrompt(
+  context: AssembledContext,
+  goal: GoalData,
+): string {
   const monthsUntilDeadline =
     goal.target_date !== undefined
       ? Math.max(
           1,
           Math.ceil(
-            (new Date(goal.target_date).getTime() - Date.now()) / (MS_PER_DAY * DAYS_PER_MONTH),
+            (new Date(goal.target_date).getTime() - Date.now()) /
+              (MS_PER_DAY * DAYS_PER_MONTH),
           ),
         )
       : MIN_MILESTONES;
@@ -94,10 +99,13 @@ function buildConstraintSection(goal: GoalData): string {
   const constraintLines: string[] = [];
   for (const [key, label] of fieldMap) {
     if (pd[key] !== undefined) {
-      const value = typeof pd[key] === 'string' ? pd[key] : JSON.stringify(pd[key]);
+      const value =
+        typeof pd[key] === 'string' ? pd[key] : JSON.stringify(pd[key]);
       constraintLines.push(`${label}: ${value}`);
     }
   }
 
-  return constraintLines.length > 0 ? `## User Constraints\n${constraintLines.join('\n')}` : '';
+  return constraintLines.length > 0
+    ? `## User Constraints\n${constraintLines.join('\n')}`
+    : '';
 }

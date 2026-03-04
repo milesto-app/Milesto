@@ -47,7 +47,12 @@ export const appConfig = {
     liveModel: 'gemini-2.5-flash-native-audio-preview-12-2025',
     callTimeoutMs: 30_000,
     maxAudioSizeBytes: 10_485_760,
-    supportedInputFormats: ['audio/wav', 'audio/mpeg', 'audio/mp4', 'audio/webm'],
+    supportedInputFormats: [
+      'audio/wav',
+      'audio/mpeg',
+      'audio/mp4',
+      'audio/webm',
+    ],
     outputSampleRate: 24_000,
     sessionDurationMs: 840_000,
     sessionWarningMs: 780_000,

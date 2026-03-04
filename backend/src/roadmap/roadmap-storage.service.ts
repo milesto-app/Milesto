@@ -8,7 +8,11 @@ import {
 } from '@nestjs/common';
 import { SupabaseService } from '../supabase/supabase.service.js';
 import { appConfig } from '../config/app.config.js';
-import type { GenerationMetadata, MilestoneSummary, Roadmap } from './types/roadmap.types.js';
+import type {
+  GenerationMetadata,
+  MilestoneSummary,
+  Roadmap,
+} from './types/roadmap.types.js';
 
 @Injectable()
 export class RoadmapStorageService {
@@ -46,7 +50,10 @@ export class RoadmapStorageService {
     } as Roadmap;
   }
 
-  public async getMilestones(goalId: string, userId: string): Promise<MilestoneSummary[]> {
+  public async getMilestones(
+    goalId: string,
+    userId: string,
+  ): Promise<MilestoneSummary[]> {
     const supabase = this.supabaseService.getAdminClient();
     const { data: roadmap, error: roadmapError } = await supabase
       .from('roadmaps')
@@ -59,7 +66,9 @@ export class RoadmapStorageService {
     }
     const { data, error } = await supabase
       .from('milestones')
-      .select('id, title, description, expected_outcome, target_month, order_index')
+      .select(
+        'id, title, description, expected_outcome, target_month, order_index',
+      )
       .eq('roadmap_id', roadmap.id)
       .order('order_index', { ascending: true });
     if (error) {
@@ -68,7 +77,10 @@ export class RoadmapStorageService {
     return data as MilestoneSummary[];
   }
 
-  public async acquireGenerationLock(goalId: string, userId: string): Promise<Roadmap> {
+  public async acquireGenerationLock(
+    goalId: string,
+    userId: string,
+  ): Promise<Roadmap> {
     const supabase = this.supabaseService.getAdminClient();
     const { data: existing } = await supabase
       .from('roadmaps')
@@ -107,7 +119,9 @@ export class RoadmapStorageService {
     }));
     const { error } = await supabase.from('milestones').insert(rows);
     if (error) {
-      throw new InternalServerErrorException(`Failed to store milestones: ${error.message}`);
+      throw new InternalServerErrorException(
+        `Failed to store milestones: ${error.message}`,
+      );
     }
   }
 
@@ -125,7 +139,10 @@ export class RoadmapStorageService {
       updateData.model_used = metadata.model_used;
       updateData.generation_metadata = metadata;
     }
-    const { error } = await supabase.from('roadmaps').update(updateData).eq('id', roadmapId);
+    const { error } = await supabase
+      .from('roadmaps')
+      .update(updateData)
+      .eq('id', roadmapId);
     if (error) {
       this.logger.warn(
         `Failed to update roadmap ${roadmapId} status to ${status}: ${error.message}`,
@@ -164,7 +181,10 @@ export class RoadmapStorageService {
     if (existing.status === 'generating') {
       throw new ConflictException('Roadmap generation already in progress');
     }
-    if ((existing.generation_attempts as number) >= appConfig.roadmap.maxGenerationAttempts) {
+    if (
+      (existing.generation_attempts as number) >=
+      appConfig.roadmap.maxGenerationAttempts
+    ) {
       throw new BadRequestException('Maximum generation attempts exceeded');
     }
     const { data, error } = await supabase

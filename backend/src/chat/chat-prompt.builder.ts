@@ -1,5 +1,8 @@
 import type { Coach } from '../coach/coach.types.js';
-import { buildToolUsagePrompt, buildBoundariesPrompt } from './prompts/chat-tool-prompts.js';
+import {
+  buildToolUsagePrompt,
+  buildBoundariesPrompt,
+} from './prompts/chat-tool-prompts.js';
 
 interface GoalContext {
   goal: { title: string; description: string } | null;
@@ -26,8 +29,10 @@ export interface PromptInput {
 export function buildCoachPrompt(input: PromptInput): string {
   const { coach, language, memory } = input;
   const goalContextSection = buildGoalContextSection(input.goalContext);
-  const displayName = language === 'fr' ? coach.display_name_fr : coach.display_name_en;
-  const description = language === 'fr' ? coach.description_fr : coach.description_en;
+  const displayName =
+    language === 'fr' ? coach.display_name_fr : coach.display_name_en;
+  const description =
+    language === 'fr' ? coach.description_fr : coach.description_en;
   const defaultLanguage = language === 'fr' ? 'French' : 'English';
   const memoryContent = memory.length > 0 ? memory : 'No memory yet.';
 

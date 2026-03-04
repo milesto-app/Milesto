@@ -40,7 +40,9 @@ export class WeeklyPlanStorageService {
       .single();
 
     if (error) {
-      throw new InternalServerErrorException(`Failed to store weekly plan: ${error.message}`);
+      throw new InternalServerErrorException(
+        `Failed to store weekly plan: ${error.message}`,
+      );
     }
     return data as WeeklyPlan;
   }
@@ -52,12 +54,18 @@ export class WeeklyPlanStorageService {
   public getCurrentWeekStart(): string {
     const now = new Date();
     const day = now.getDay();
-    const diff = now.getDate() - day + (day === SUNDAY_DAY ? SUNDAY_OFFSET : MONDAY_OFFSET);
+    const diff =
+      now.getDate() -
+      day +
+      (day === SUNDAY_DAY ? SUNDAY_OFFSET : MONDAY_OFFSET);
     const monday = new Date(now.setDate(diff));
     return monday.toISOString().split('T')[0] ?? '';
   }
 
-  public async autoCompleteExpiredPlans(goalId: string, daysAgo: number): Promise<void> {
+  public async autoCompleteExpiredPlans(
+    goalId: string,
+    daysAgo: number,
+  ): Promise<void> {
     const supabase = this.supabaseService.getAdminClient();
     const cutoffDate = new Date();
     cutoffDate.setDate(cutoffDate.getDate() - daysAgo);
@@ -69,7 +77,9 @@ export class WeeklyPlanStorageService {
       .lt('week_start_date', cutoffDate.toISOString().split('T')[0] ?? '');
   }
 
-  public async getLastCompletedPlanWithoutSummary(goalId: string): Promise<WeeklyPlan | null> {
+  public async getLastCompletedPlanWithoutSummary(
+    goalId: string,
+  ): Promise<WeeklyPlan | null> {
     const supabase = this.supabaseService.getAdminClient();
     const { data } = await supabase
       .from('weekly_plans')
@@ -92,7 +102,10 @@ export class WeeklyPlanStorageService {
     return (count ?? 0) + 1;
   }
 
-  public async getCurrentWeeklyPlan(goalId: string, userId: string): Promise<WeeklyPlan | null> {
+  public async getCurrentWeeklyPlan(
+    goalId: string,
+    userId: string,
+  ): Promise<WeeklyPlan | null> {
     const supabase = this.supabaseService.getAdminClient();
     const { data, error } = await supabase
       .from('weekly_plans')

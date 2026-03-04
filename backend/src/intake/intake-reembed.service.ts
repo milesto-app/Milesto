@@ -40,11 +40,15 @@ export class IntakeReembedService {
   private async reembedBatches(
     batches: Array<Record<string, unknown>>,
   ): Promise<{ succeeded: number; failed: number }> {
-    const results = await Promise.all(batches.map(async (b) => this.reembedSingleBatch(b)));
+    const results = await Promise.all(
+      batches.map(async (b) => this.reembedSingleBatch(b)),
+    );
     return countResults(results);
   }
 
-  private async reembedSingleBatch(batch: Record<string, unknown>): Promise<boolean> {
+  private async reembedSingleBatch(
+    batch: Record<string, unknown>,
+  ): Promise<boolean> {
     try {
       const batchId = batch.id as string;
       const contentText = await this.buildBatchContent(batchId);
@@ -71,7 +75,10 @@ export class IntakeReembedService {
       if (error !== null) {
         throw new Error(`Failed to store embedding: ${error.message}`);
       }
-      await supabase.from('intake_batches').update({ embedded: true }).eq('id', batchId);
+      await supabase
+        .from('intake_batches')
+        .update({ embedded: true })
+        .eq('id', batchId);
       return true;
     } catch (error) {
       this.logger.error(
@@ -90,11 +97,15 @@ export class IntakeReembedService {
       .order('order_in_batch');
 
     if (qError !== null) {
-      this.logger.error(`Failed to load questions for batch ${batchId}: ${qError.message}`);
+      this.logger.error(
+        `Failed to load questions for batch ${batchId}: ${qError.message}`,
+      );
       return null;
     }
     if (questions.length === 0) {
-      this.logger.error(`Failed to load questions for batch ${batchId}: no questions`);
+      this.logger.error(
+        `Failed to load questions for batch ${batchId}: no questions`,
+      );
       return null;
     }
 
@@ -105,7 +116,9 @@ export class IntakeReembedService {
       .in('question_id', questionIds);
 
     if (aError !== null) {
-      this.logger.error(`Failed to load answers for batch ${batchId}: ${aError.message}`);
+      this.logger.error(
+        `Failed to load answers for batch ${batchId}: ${aError.message}`,
+      );
       return null;
     }
 
@@ -115,17 +128,26 @@ export class IntakeReembedService {
   private async reembedProfiles(
     profiles: Array<Record<string, unknown>>,
   ): Promise<{ succeeded: number; failed: number }> {
-    const results = await Promise.all(profiles.map(async (p) => this.reembedSingleProfile(p)));
+    const results = await Promise.all(
+      profiles.map(async (p) => this.reembedSingleProfile(p)),
+    );
     return countResults(results);
   }
 
-  private async reembedSingleProfile(profile: Record<string, unknown>): Promise<boolean> {
+  private async reembedSingleProfile(
+    profile: Record<string, unknown>,
+  ): Promise<boolean> {
     try {
       const supabase = this.supabaseService.getAdminClient();
-      if (typeof profile.narrative_summary !== 'string' || profile.narrative_summary === '') {
+      if (
+        typeof profile.narrative_summary !== 'string' ||
+        profile.narrative_summary === ''
+      ) {
         throw new Error('Missing narrative_summary');
       }
-      const embedding = await this.aiService.generateEmbedding(profile.narrative_summary);
+      const embedding = await this.aiService.generateEmbedding(
+        profile.narrative_summary,
+      );
       const { error } = await supabase.from('context_embeddings').insert({
         goal_id: profile.goal_id as string,
         user_id: profile.user_id as string,
@@ -165,7 +187,9 @@ function formatQAPairs(
     .join('\n\n');
 }
 
-function formatSingleAnswer(answer: Record<string, unknown> | undefined): string {
+function formatSingleAnswer(
+  answer: Record<string, unknown> | undefined,
+): string {
   if (answer === undefined) {
     return '(no answer)';
   }
@@ -185,7 +209,10 @@ function extractAnswerText(answer: Record<string, unknown>): string {
   return '(no answer)';
 }
 
-function countResults(results: boolean[]): { succeeded: number; failed: number } {
+function countResults(results: boolean[]): {
+  succeeded: number;
+  failed: number;
+} {
   const succeeded = results.filter(Boolean).length;
   return { succeeded, failed: results.length - succeeded };
 }

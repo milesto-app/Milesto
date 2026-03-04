@@ -1,5 +1,9 @@
 import { Logger } from '@nestjs/common';
-import { OnGatewayConnection, OnGatewayDisconnect, WebSocketGateway } from '@nestjs/websockets';
+import {
+  OnGatewayConnection,
+  OnGatewayDisconnect,
+  WebSocketGateway,
+} from '@nestjs/websockets';
 
 import type { WebSocket } from 'ws';
 import type { IncomingMessage } from 'http';
@@ -8,14 +12,19 @@ import { CoachService } from '../coach/coach.service.js';
 import { ChatPromptService } from '../chat/chat-prompt.service.js';
 import { VoiceChatAuthService } from './voice-chat-auth.service.js';
 import { VoiceChatSessionService } from './voice-chat-session.service.js';
-import type { WsClientMessage, WsServerMessage } from './types/voice-chat.types.js';
+import type {
+  WsClientMessage,
+  WsServerMessage,
+} from './types/voice-chat.types.js';
 
 const WS_CLOSE_POLICY = 1008;
 const MAX_MESSAGES_PER_SECOND = 50;
 const RATE_LIMIT_WINDOW_MS = 1000;
 
 @WebSocketGateway({ path: '/api/voice-chat' })
-export class VoiceChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
+export class VoiceChatGateway
+  implements OnGatewayConnection, OnGatewayDisconnect
+{
   private readonly logger = new Logger(VoiceChatGateway.name);
   private readonly clientUserMap = new Map<WebSocket, string>();
   private readonly messageTimestamps = new Map<string, number[]>();
@@ -28,7 +37,10 @@ export class VoiceChatGateway implements OnGatewayConnection, OnGatewayDisconnec
     private readonly coachService: CoachService,
   ) {}
 
-  public async handleConnection(client: WebSocket, req: IncomingMessage): Promise<void> {
+  public async handleConnection(
+    client: WebSocket,
+    req: IncomingMessage,
+  ): Promise<void> {
     const token = this.authService.extractTokenFromUrl(req.url);
     if (token === null) {
       this.closeClient(client, WS_CLOSE_POLICY, 'Missing token');
@@ -43,7 +55,10 @@ export class VoiceChatGateway implements OnGatewayConnection, OnGatewayDisconnec
 
     this.clientUserMap.set(client, user.id);
     this.logger.log(`Client connected: ${user.id}`);
-    client.on('message', (raw: Buffer) => void this.handleRawMessage(client, raw));
+    client.on(
+      'message',
+      (raw: Buffer) => void this.handleRawMessage(client, raw),
+    );
   }
 
   public handleDisconnect(client: WebSocket): void {
@@ -56,7 +71,10 @@ export class VoiceChatGateway implements OnGatewayConnection, OnGatewayDisconnec
     }
   }
 
-  private async handleRawMessage(client: WebSocket, raw: Buffer): Promise<void> {
+  private async handleRawMessage(
+    client: WebSocket,
+    raw: Buffer,
+  ): Promise<void> {
     const userId = this.clientUserMap.get(client);
     if (userId === undefined) {
       return;
@@ -117,7 +135,10 @@ export class VoiceChatGateway implements OnGatewayConnection, OnGatewayDisconnec
       },
     });
 
-    this.send(client, { type: 'session_started', conversationId: session.conversationId });
+    this.send(client, {
+      type: 'session_started',
+      conversationId: session.conversationId,
+    });
     this.logger.log(`Session started for ${userId}, goal ${message.goalId}`);
   }
 
@@ -158,7 +179,11 @@ export class VoiceChatGateway implements OnGatewayConnection, OnGatewayDisconnec
     const obj = parsed as Record<string, unknown>;
     if (obj.type === 'start_session' && typeof obj.goalId === 'string') {
       if (typeof obj.conversationId === 'string') {
-        return { type: 'start_session', goalId: obj.goalId, conversationId: obj.conversationId };
+        return {
+          type: 'start_session',
+          goalId: obj.goalId,
+          conversationId: obj.conversationId,
+        };
       }
       return { type: 'start_session', goalId: obj.goalId };
     }

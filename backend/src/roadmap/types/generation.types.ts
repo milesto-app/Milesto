@@ -31,7 +31,11 @@ export interface GenerateDailyParams {
   weeklyPlan: WeeklyPlan;
   energyLevel: EnergyLevel;
   context: AssembledContext;
-  weekData: { completedObjectives: number; totalObjectives: number; debriefNotes: string[] };
+  weekData: {
+    completedObjectives: number;
+    totalObjectives: number;
+    debriefNotes: string[];
+  };
   language: string;
 }
 

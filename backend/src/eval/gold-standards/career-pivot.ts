@@ -5,7 +5,8 @@ export const CAREER_PIVOT_STANDARD: GoldStandard = {
   goalDescription: 'Switch from a stable accounting job to UX design',
   questions: [
     {
-      question_text: 'Which of these tasks currently drains your battery the fastest?',
+      question_text:
+        'Which of these tasks currently drains your battery the fastest?',
       question_type: 'single_choice',
       config: {
         options: [
@@ -31,7 +32,8 @@ export const CAREER_PIVOT_STANDARD: GoldStandard = {
           'Weekends only',
         ],
       },
-      rationale: 'Reality check. "After work" = burnout risk. "Weekends" = slow progress.',
+      rationale:
+        'Reality check. "After work" = burnout risk. "Weekends" = slow progress.',
     },
     {
       question_text:
@@ -60,13 +62,16 @@ export const CAREER_PIVOT_STANDARD: GoldStandard = {
           "I'm not sure yet",
         ],
       },
-      rationale: 'Scope of pivot. "Total reinvention" requires 10x more energy.',
+      rationale:
+        'Scope of pivot. "Total reinvention" requires 10x more energy.',
     },
     {
-      question_text: 'If we succeed, what does your ideal Tuesday morning look like in 6 months?',
+      question_text:
+        'If we succeed, what does your ideal Tuesday morning look like in 6 months?',
       question_type: 'text',
       config: null,
-      rationale: 'Concrete lifestyle visualization. Sustains motivation through job hunting.',
+      rationale:
+        'Concrete lifestyle visualization. Sustains motivation through job hunting.',
     },
   ],
   simulatedBatch1Answers: {
@@ -75,13 +80,15 @@ export const CAREER_PIVOT_STANDARD: GoldStandard = {
       {
         question_text: 'Which best describes your starting point with this?',
         question_type: 'single_choice',
-        answer: 'Complete beginner — I have little to no experience or knowledge here',
+        answer:
+          'Complete beginner — I have little to no experience or knowledge here',
       },
       {
         question_text:
           "What specifically will you be able to do, have, or experience when this is achieved — something you can't today?",
         question_type: 'text',
-        answer: 'Landing a junior UX role at a tech company, even if it means a pay cut initially.',
+        answer:
+          'Landing a junior UX role at a tech company, even if it means a pay cut initially.',
       },
       {
         question_text:

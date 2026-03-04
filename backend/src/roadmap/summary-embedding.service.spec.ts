@@ -41,11 +41,15 @@ describe('SummaryEmbeddingService', () => {
         note: 'Some reflection',
       });
 
-      expect(mockAiService.generateEmbedding).toHaveBeenCalledWith('Some reflection');
+      expect(mockAiService.generateEmbedding).toHaveBeenCalledWith(
+        'Some reflection',
+      );
     });
 
     it('should handle embedding failure gracefully', async () => {
-      mockAiService.generateEmbedding.mockRejectedValue(new Error('API failure'));
+      mockAiService.generateEmbedding.mockRejectedValue(
+        new Error('API failure'),
+      );
 
       await expect(
         service.handleDebriefSubmitted({
@@ -72,11 +76,17 @@ describe('SummaryEmbeddingService', () => {
         planId: 'plan-uuid',
         goalId: 'goal-uuid',
         userId: 'user-uuid',
-        summary: { completion_rate: 80, objectives_completed: 4, objectives_total: 5 },
+        summary: {
+          completion_rate: 80,
+          objectives_completed: 4,
+          objectives_total: 5,
+        },
         contentText: 'Weekly summary text',
       });
 
-      expect(mockAiService.generateEmbedding).toHaveBeenCalledWith('Weekly summary text');
+      expect(mockAiService.generateEmbedding).toHaveBeenCalledWith(
+        'Weekly summary text',
+      );
     });
   });
 });

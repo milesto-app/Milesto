@@ -1,6 +1,19 @@
-import { Controller, Get, NotFoundException, Param, Post, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  NotFoundException,
+  Param,
+  Post,
+  UseGuards,
+} from '@nestjs/common';
 import { Throttle } from '@nestjs/throttler';
-import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiParam } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiBearerAuth,
+  ApiParam,
+} from '@nestjs/swagger';
 import { AuthGuard } from '../common/guards/auth.guard.js';
 import { UserId } from '../common/decorators/user.decorator.js';
 import { RoadmapService } from './roadmap.service.js';
@@ -40,8 +53,14 @@ export class RoadmapController {
     description: 'Goal not in valid status or max retries exceeded',
   })
   @ApiResponse({ status: API_STATUS_UNAUTHORIZED, description: 'Unauthorized' })
-  @ApiResponse({ status: API_STATUS_CONFLICT, description: 'Generation already in progress' })
-  @ApiResponse({ status: API_STATUS_RATE_LIMIT, description: 'Rate limit exceeded' })
+  @ApiResponse({
+    status: API_STATUS_CONFLICT,
+    description: 'Generation already in progress',
+  })
+  @ApiResponse({
+    status: API_STATUS_RATE_LIMIT,
+    description: 'Rate limit exceeded',
+  })
   @Throttle({
     default: {
       limit: GENERATE_ROADMAP_LIMIT,
@@ -58,9 +77,15 @@ export class RoadmapController {
   @Get()
   @ApiOperation({ summary: 'Retrieve roadmap with milestones overview' })
   @ApiParam({ name: 'goalId', description: 'Goal ID' })
-  @ApiResponse({ status: API_STATUS_OK, description: 'Roadmap with milestones array' })
+  @ApiResponse({
+    status: API_STATUS_OK,
+    description: 'Roadmap with milestones array',
+  })
   @ApiResponse({ status: API_STATUS_UNAUTHORIZED, description: 'Unauthorized' })
-  @ApiResponse({ status: API_STATUS_NOT_FOUND, description: 'No roadmap found for this goal' })
+  @ApiResponse({
+    status: API_STATUS_NOT_FOUND,
+    description: 'No roadmap found for this goal',
+  })
   public async getRoadmap(
     @Param('goalId') goalId: string,
     @UserId() userId: string,
@@ -76,7 +101,10 @@ export class RoadmapController {
     description: 'Milestones array ordered by order_index',
   })
   @ApiResponse({ status: API_STATUS_UNAUTHORIZED, description: 'Unauthorized' })
-  @ApiResponse({ status: API_STATUS_NOT_FOUND, description: 'No roadmap found for this goal' })
+  @ApiResponse({
+    status: API_STATUS_NOT_FOUND,
+    description: 'No roadmap found for this goal',
+  })
   public async getMilestones(
     @Param('goalId') goalId: string,
     @UserId() userId: string,
@@ -91,12 +119,18 @@ export class RoadmapController {
   @ApiParam({ name: 'goalId', description: 'Goal ID' })
   @ApiResponse({ status: API_STATUS_OK, description: 'Current weekly plan' })
   @ApiResponse({ status: API_STATUS_UNAUTHORIZED, description: 'Unauthorized' })
-  @ApiResponse({ status: API_STATUS_NOT_FOUND, description: 'No active weekly plan' })
+  @ApiResponse({
+    status: API_STATUS_NOT_FOUND,
+    description: 'No active weekly plan',
+  })
   public async getWeeklyPlan(
     @Param('goalId') goalId: string,
     @UserId() userId: string,
   ): Promise<WeeklyPlan> {
-    const existing = await this.weeklyPlanService.getCurrentWeeklyPlan(goalId, userId);
+    const existing = await this.weeklyPlanService.getCurrentWeeklyPlan(
+      goalId,
+      userId,
+    );
     if (existing === null) {
       throw new NotFoundException('No active weekly plan');
     }
@@ -106,11 +140,23 @@ export class RoadmapController {
   @Post('weekly-plan/generate')
   @ApiOperation({ summary: 'Explicitly generate a new weekly plan' })
   @ApiParam({ name: 'goalId', description: 'Goal ID' })
-  @ApiResponse({ status: API_STATUS_OK, description: 'Newly generated weekly plan' })
-  @ApiResponse({ status: API_STATUS_BAD_REQUEST, description: 'Goal has no active roadmap' })
+  @ApiResponse({
+    status: API_STATUS_OK,
+    description: 'Newly generated weekly plan',
+  })
+  @ApiResponse({
+    status: API_STATUS_BAD_REQUEST,
+    description: 'Goal has no active roadmap',
+  })
   @ApiResponse({ status: API_STATUS_UNAUTHORIZED, description: 'Unauthorized' })
-  @ApiResponse({ status: API_STATUS_NOT_FOUND, description: 'No roadmap found for this goal' })
-  @ApiResponse({ status: API_STATUS_RATE_LIMIT, description: 'Rate limit exceeded' })
+  @ApiResponse({
+    status: API_STATUS_NOT_FOUND,
+    description: 'No roadmap found for this goal',
+  })
+  @ApiResponse({
+    status: API_STATUS_RATE_LIMIT,
+    description: 'Rate limit exceeded',
+  })
   @Throttle({
     default: {
       limit: GENERATE_WEEKLY_LIMIT,

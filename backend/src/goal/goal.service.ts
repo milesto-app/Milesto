@@ -36,7 +36,11 @@ export class GoalService {
     private readonly aiService: AiService,
   ) {}
 
-  public async create(userId: string, description: string, title?: string): Promise<GoalRow> {
+  public async create(
+    userId: string,
+    description: string,
+    title?: string,
+  ): Promise<GoalRow> {
     const resolvedTitle = title ?? (await this.generateTitle(description));
     const supabase = this.supabaseService.getAdminClient();
 
@@ -53,7 +57,9 @@ export class GoalService {
       .single();
 
     if (error) {
-      this.logger.error(`Failed to create goal for user ${userId}: ${error.message}`);
+      this.logger.error(
+        `Failed to create goal for user ${userId}: ${error.message}`,
+      );
       throw new InternalServerErrorException('Failed to create goal');
     }
 
@@ -81,7 +87,11 @@ export class GoalService {
     }
   }
 
-  public async findAll(userId: string, limit: number, offset: number): Promise<GoalListResult> {
+  public async findAll(
+    userId: string,
+    limit: number,
+    offset: number,
+  ): Promise<GoalListResult> {
     const supabase = this.supabaseService.getAdminClient();
 
     const { data, error, count } = await supabase
@@ -92,7 +102,9 @@ export class GoalService {
       .range(offset, offset + limit - 1);
 
     if (error) {
-      this.logger.error(`Failed to list goals for user ${userId}: ${error.message}`);
+      this.logger.error(
+        `Failed to list goals for user ${userId}: ${error.message}`,
+      );
       throw new InternalServerErrorException('Failed to list goals');
     }
 
@@ -147,14 +159,19 @@ export class GoalService {
     return profile;
   }
 
-  public async setTargetDate(goalId: string, targetDate: string): Promise<void> {
+  public async setTargetDate(
+    goalId: string,
+    targetDate: string,
+  ): Promise<void> {
     const supabase = this.supabaseService.getAdminClient();
     const { error } = await supabase
       .from('goals')
       .update({ target_date: targetDate, updated_at: new Date().toISOString() })
       .eq('id', goalId);
     if (error) {
-      this.logger.error(`Failed to set target date for goal ${goalId}: ${error.message}`);
+      this.logger.error(
+        `Failed to set target date for goal ${goalId}: ${error.message}`,
+      );
       throw new InternalServerErrorException('Failed to set target date');
     }
   }
@@ -166,7 +183,9 @@ export class GoalService {
       .update({ status, updated_at: new Date().toISOString() })
       .eq('id', goalId);
     if (error) {
-      throw new InternalServerErrorException(`Failed to update goal status: ${error.message}`);
+      throw new InternalServerErrorException(
+        `Failed to update goal status: ${error.message}`,
+      );
     }
   }
 
@@ -174,14 +193,22 @@ export class GoalService {
     const goal = await this.findOne(userId, goalId);
 
     if (!DELETABLE_STATUSES.includes(goal.status)) {
-      throw new BadRequestException(`Cannot delete a goal in '${goal.status}' status`);
+      throw new BadRequestException(
+        `Cannot delete a goal in '${goal.status}' status`,
+      );
     }
 
     const supabase = this.supabaseService.getAdminClient();
-    const { error } = await supabase.from('goals').delete().eq('id', goalId).eq('user_id', userId);
+    const { error } = await supabase
+      .from('goals')
+      .delete()
+      .eq('id', goalId)
+      .eq('user_id', userId);
 
     if (error) {
-      this.logger.error(`Failed to delete goal ${goalId} for user ${userId}: ${error.message}`);
+      this.logger.error(
+        `Failed to delete goal ${goalId} for user ${userId}: ${error.message}`,
+      );
       throw new InternalServerErrorException('Failed to delete goal');
     }
 

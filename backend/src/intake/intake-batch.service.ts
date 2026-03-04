@@ -1,4 +1,9 @@
-import { BadRequestException, Inject, Injectable, Logger } from '@nestjs/common';
+import {
+  BadRequestException,
+  Inject,
+  Injectable,
+  Logger,
+} from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { GoalService } from '../goal/goal.service.js';
 import { UserLanguageService } from '../common/user-language.service.js';
@@ -50,7 +55,10 @@ export class IntakeBatchService {
     const language = await this.languageService.getLanguage(userId);
     const latestBatch = await this.storeService.queryLatestBatch(goalId);
     if (latestBatch === null) {
-      const result = await this.fallbackService.serveFirstBatch(goalId, language);
+      const result = await this.fallbackService.serveFirstBatch(
+        goalId,
+        language,
+      );
       this.emitBatchEvent('batch.served', {
         goal_id: goalId,
         batch_id: result.batch_id,
@@ -60,7 +68,9 @@ export class IntakeBatchService {
       return result;
     }
     if (!(latestBatch.is_answered as boolean)) {
-      return this.storeService.reServeBatch(latestBatch as { id: string; batch_number: number });
+      return this.storeService.reServeBatch(
+        latestBatch as { id: string; batch_number: number },
+      );
     }
     return this.generateWithLock({
       userId,
@@ -85,7 +95,11 @@ export class IntakeBatchService {
     const questions = await this.storeService.loadBatchQuestions(batch.id);
     validateAnswerSet(answers, questions);
     await this.storeService.persistAnswers(answers, batch.id);
-    await this.targetDateService.tryExtractTargetDate(goalId, questions, answers);
+    await this.targetDateService.tryExtractTargetDate(
+      goalId,
+      questions,
+      answers,
+    );
     this.emitBatchEvent('batch.answered', {
       goal_id: goalId,
       batch_id: batch.id,
@@ -105,11 +119,17 @@ export class IntakeBatchService {
     const existing = this.goalGenerationLocks.get(params.goalId);
     if (existing !== undefined) {
       await existing;
-      const latestBatch = await this.storeService.queryLatestBatch(params.goalId);
+      const latestBatch = await this.storeService.queryLatestBatch(
+        params.goalId,
+      );
       if (latestBatch === null) {
-        throw new BadRequestException('No batch found after concurrent generation');
+        throw new BadRequestException(
+          'No batch found after concurrent generation',
+        );
       }
-      return this.storeService.reServeBatch(latestBatch as { id: string; batch_number: number });
+      return this.storeService.reServeBatch(
+        latestBatch as { id: string; batch_number: number },
+      );
     }
     const promise = this.doGenerate(params);
     this.goalGenerationLocks.set(params.goalId, promise);
@@ -122,8 +142,13 @@ export class IntakeBatchService {
 
   private async doGenerate(params: BatchParams): Promise<unknown> {
     try {
-      const priorBatches = await this.contextService.loadPriorBatchContext(params.goalId);
-      const result = await this.generationService.generateBatch({ ...params, priorBatches });
+      const priorBatches = await this.contextService.loadPriorBatchContext(
+        params.goalId,
+      );
+      const result = await this.generationService.generateBatch({
+        ...params,
+        priorBatches,
+      });
       if (result.kind === 'complete') {
         return {
           batch_id: null,
@@ -134,7 +159,10 @@ export class IntakeBatchService {
         };
       }
       if (result.kind === 'fallback') {
-        return await this.fallbackService.serveFallback(params, params.language);
+        return await this.fallbackService.serveFallback(
+          params,
+          params.language,
+        );
       }
       return await this.storeBatchAndEmit(params, result.questions);
     } catch (error) {
@@ -167,7 +195,10 @@ export class IntakeBatchService {
     submittedBatch: { id: string; batch_number: number },
     params: BatchParams,
   ): Promise<unknown> {
-    const batchRef = { batch_id: submittedBatch.id, batch_number: submittedBatch.batch_number };
+    const batchRef = {
+      batch_id: submittedBatch.id,
+      batch_number: submittedBatch.batch_number,
+    };
     try {
       const nextResult = await this.generateWithLock(params);
       const typed = nextResult as Record<string, unknown>;
@@ -179,11 +210,17 @@ export class IntakeBatchService {
       this.logger.error(
         `Generation after submit failed: ${error instanceof Error ? error.message : String(error)}`,
       );
-      return { submitted_batch: batchRef, message: 'Answers submitted successfully' };
+      return {
+        submitted_batch: batchRef,
+        message: 'Answers submitted successfully',
+      };
     }
   }
 
   private emitBatchEvent(event: string, payload: BatchServedEvent): void {
-    this.eventEmitter.emit(event, payload as BatchServedEvent & BatchAnsweredEvent);
+    this.eventEmitter.emit(
+      event,
+      payload as BatchServedEvent & BatchAnsweredEvent,
+    );
   }
 }

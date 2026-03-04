@@ -64,7 +64,9 @@ export class VoiceChatSessionService {
     return this.activeSessions.get(userId);
   }
 
-  public async createSession(input: CreateSessionInput): Promise<ActiveSession> {
+  public async createSession(
+    input: CreateSessionInput,
+  ): Promise<ActiveSession> {
     const convId = await this.resolveConversationId(input);
     const geminiSession = await this.startGeminiSession(input);
 
@@ -95,16 +97,26 @@ export class VoiceChatSessionService {
     this.logger.log(`Session destroyed for user ${userId}`);
   }
 
-  private async resolveConversationId(input: CreateSessionInput): Promise<string> {
+  private async resolveConversationId(
+    input: CreateSessionInput,
+  ): Promise<string> {
     if (input.conversationId !== undefined) {
-      await this.chatHistoryService.getConversation(input.conversationId, input.userId);
+      await this.chatHistoryService.getConversation(
+        input.conversationId,
+        input.userId,
+      );
       return input.conversationId;
     }
-    const conv = await this.chatHistoryService.createConversation(input.userId, input.goalId);
+    const conv = await this.chatHistoryService.createConversation(
+      input.userId,
+      input.goalId,
+    );
     return conv.id;
   }
 
-  private async startGeminiSession(input: CreateSessionInput): Promise<GeminiLiveSession> {
+  private async startGeminiSession(
+    input: CreateSessionInput,
+  ): Promise<GeminiLiveSession> {
     const registry = buildToolRegistry({
       toolsService: this.chatToolsService,
       checkInToolsService: this.chatCheckInToolsService,
@@ -123,7 +135,10 @@ export class VoiceChatSessionService {
     });
   }
 
-  private buildCallbacks(input: CreateSessionInput, toolCtx: ToolContext): GeminiSessionCallbacks {
+  private buildCallbacks(
+    input: CreateSessionInput,
+    toolCtx: ToolContext,
+  ): GeminiSessionCallbacks {
     return {
       onAudioData: (data) => {
         input.send({ type: 'audio_data', data });
@@ -138,7 +153,10 @@ export class VoiceChatSessionService {
         input.send({ type: 'turn_complete' });
       },
       onError: (err) => {
-        this.logger.error(`Gemini error for ${input.userId}: ${err.message}`, err.stack);
+        this.logger.error(
+          `Gemini error for ${input.userId}: ${err.message}`,
+          err.stack,
+        );
         input.send({ type: 'error', message: 'Voice processing error' });
       },
       onClose: () => {
@@ -154,7 +172,8 @@ export class VoiceChatSessionService {
     warningTimer: ReturnType<typeof setTimeout>;
     expiryTimer: ReturnType<typeof setTimeout>;
   } {
-    const remainingMs = appConfig.voice.sessionDurationMs - appConfig.voice.sessionWarningMs;
+    const remainingMs =
+      appConfig.voice.sessionDurationMs - appConfig.voice.sessionWarningMs;
     const warningTimer = setTimeout(() => {
       send({ type: 'session_warning', remainingMs });
     }, appConfig.voice.sessionWarningMs);

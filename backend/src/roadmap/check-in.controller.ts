@@ -1,6 +1,20 @@
-import { Body, Controller, Get, HttpCode, Param, Post, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  HttpCode,
+  Param,
+  Post,
+  UseGuards,
+} from '@nestjs/common';
 import { Throttle } from '@nestjs/throttler';
-import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiParam } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiBearerAuth,
+  ApiParam,
+} from '@nestjs/swagger';
 import { AuthGuard } from '../common/guards/auth.guard.js';
 import { UserId } from '../common/decorators/user.decorator.js';
 import { CheckInService } from './check-in.service.js';
@@ -26,11 +40,17 @@ export class CheckInController {
   @Post()
   @HttpCode(HTTP_CREATED)
   @Throttle({
-    default: { limit: AI_ENDPOINT_LIMIT, ttl: appConfig.throttle.aiEndpointTtlMs },
+    default: {
+      limit: AI_ENDPOINT_LIMIT,
+      ttl: appConfig.throttle.aiEndpointTtlMs,
+    },
   })
   @ApiOperation({ summary: 'Submit morning check-in' })
   @ApiParam({ name: 'goalId', description: 'Goal ID' })
-  @ApiResponse({ status: HTTP_CREATED, description: 'Check-in submitted successfully' })
+  @ApiResponse({
+    status: HTTP_CREATED,
+    description: 'Check-in submitted successfully',
+  })
   @ApiResponse({
     status: API_STATUS_BAD_REQUEST,
     description: 'Invalid energy_level or goal has no active roadmap',
@@ -40,7 +60,10 @@ export class CheckInController {
     status: API_STATUS_CONFLICT,
     description: 'Check-in already submitted for this goal today',
   })
-  @ApiResponse({ status: API_STATUS_RATE_LIMIT, description: 'Rate limit exceeded' })
+  @ApiResponse({
+    status: API_STATUS_RATE_LIMIT,
+    description: 'Rate limit exceeded',
+  })
   public async submitCheckIn(
     @Param('goalId') goalId: string,
     @UserId() userId: string,
@@ -52,7 +75,10 @@ export class CheckInController {
   @Get()
   @ApiOperation({ summary: 'Get check-in history for goal' })
   @ApiParam({ name: 'goalId', description: 'Goal ID' })
-  @ApiResponse({ status: API_STATUS_OK, description: 'Check-in history returned' })
+  @ApiResponse({
+    status: API_STATUS_OK,
+    description: 'Check-in history returned',
+  })
   @ApiResponse({ status: API_STATUS_UNAUTHORIZED, description: 'Unauthorized' })
   public async getCheckInHistory(
     @Param('goalId') goalId: string,

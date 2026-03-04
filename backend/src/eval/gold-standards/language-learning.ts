@@ -30,7 +30,8 @@ export const LANGUAGE_LEARNING_STANDARD: GoldStandard = {
           "I didn't have anyone to practice with",
         ],
       },
-      rationale: 'Failure mode: Lack of feedback vs Lack of utility vs Schedule slip.',
+      rationale:
+        'Failure mode: Lack of feedback vs Lack of utility vs Schedule slip.',
     },
     {
       question_text:
@@ -44,10 +45,12 @@ export const LANGUAGE_LEARNING_STANDARD: GoldStandard = {
           'I work from home (No commute)',
         ],
       },
-      rationale: "Hidden resource constraint. Can't assign reading exercises to a driver.",
+      rationale:
+        "Hidden resource constraint. Can't assign reading exercises to a driver.",
     },
     {
-      question_text: 'What is the specific interaction you are visualizing having on your trip?',
+      question_text:
+        'What is the specific interaction you are visualizing having on your trip?',
       question_type: 'single_choice',
       config: {
         options: [
@@ -57,7 +60,8 @@ export const LANGUAGE_LEARNING_STANDARD: GoldStandard = {
           'Just not looking like a clueless tourist',
         ],
       },
-      rationale: '"Flirting" vs "Not looking clueless" = Approach vs Avoidance motivation.',
+      rationale:
+        '"Flirting" vs "Not looking clueless" = Approach vs Avoidance motivation.',
     },
     {
       question_text:
@@ -70,7 +74,8 @@ export const LANGUAGE_LEARNING_STANDARD: GoldStandard = {
           "I don't care, I'll talk to anyone even if I look silly",
         ],
       },
-      rationale: '#1 predictor of language success. "None" is a major red flag.',
+      rationale:
+        '#1 predictor of language success. "None" is a major red flag.',
     },
   ],
   simulatedBatch1Answers: {
