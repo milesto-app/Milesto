@@ -39,9 +39,9 @@ export class AiService {
       try {
         const response = await this.openai.embeddings.create(
           {
-            model: config.ai.embeddingModel,
+            model: config.ai.embedding.model,
             input: text,
-            dimensions: config.ai.embeddingDimensions,
+            dimensions: config.ai.embedding.dimensions,
           },
           { signal },
         );

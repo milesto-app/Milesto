@@ -34,7 +34,7 @@ beforeEach(async () => {
 });
 
 describe('AiService.generateEmbedding', () => {
-  const mockVector = new Array(config.ai.embeddingDimensions).fill(
+  const mockVector = new Array(config.ai.embedding.dimensions).fill(
     MOCK_EMBEDDING_VALUE,
   ) as number[];
 
@@ -47,9 +47,9 @@ describe('AiService.generateEmbedding', () => {
 
     expect(mockOpenai.embeddings.create).toHaveBeenCalledWith(
       {
-        model: config.ai.embeddingModel,
+        model: config.ai.embedding.model,
         input: 'test text',
-        dimensions: config.ai.embeddingDimensions,
+        dimensions: config.ai.embedding.dimensions,
       },
       expect.objectContaining({
         signal: expect.any(AbortSignal) as AbortSignal,
@@ -65,7 +65,7 @@ describe('AiService.generateEmbedding', () => {
     const result = await service.generateEmbedding('test text');
 
     expect(result).toEqual(mockVector);
-    expect(result).toHaveLength(config.ai.embeddingDimensions);
+    expect(result).toHaveLength(config.ai.embedding.dimensions);
   });
 
   it('should propagate errors from the OpenAI SDK', async () => {

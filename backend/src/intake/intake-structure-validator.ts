@@ -105,16 +105,16 @@ function validateQuestionConfig(
 }
 
 function validateScaleConfig(
-  config: Record<string, unknown> | null | undefined,
+  questionConfig: Record<string, unknown> | null | undefined,
   prefix: string,
   errors: string[],
 ): void {
   if (
-    config === null ||
-    config === undefined ||
-    typeof config !== 'object' ||
-    typeof config.min !== 'number' ||
-    typeof config.max !== 'number'
+    questionConfig === null ||
+    questionConfig === undefined ||
+    typeof questionConfig !== 'object' ||
+    typeof questionConfig.min !== 'number' ||
+    typeof questionConfig.max !== 'number'
   ) {
     errors.push(
       `${prefix}: scale question config must have min and max numbers`,
@@ -123,15 +123,15 @@ function validateScaleConfig(
 }
 
 function validateChoiceConfig(
-  config: Record<string, unknown> | null | undefined,
+  questionConfig: Record<string, unknown> | null | undefined,
   prefix: string,
   errors: string[],
 ): void {
   if (
-    config === null ||
-    config === undefined ||
-    typeof config !== 'object' ||
-    !Array.isArray(config.options)
+    questionConfig === null ||
+    questionConfig === undefined ||
+    typeof questionConfig !== 'object' ||
+    !Array.isArray(questionConfig.options)
   ) {
     errors.push(`${prefix}: choice question config must have options array`);
   }

@@ -4,8 +4,10 @@ export const config = {
     defaultModel: 'google/gemini-3-flash-preview',
     callTimeoutMs: 30_000,
     maxRetries: 3,
-    embeddingModel: 'text-embedding-3-small',
-    embeddingDimensions: 1536,
+    embedding: {
+      model: 'text-embedding-3-small',
+      dimensions: 1536,
+    },
   },
   intake: {
     targetBatches: 5,
