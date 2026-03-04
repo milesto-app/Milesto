@@ -147,7 +147,7 @@ export class ChatSearchService {
         return false;
       }
 
-      return ((data ?? []) as MatchRow[]).length > 0;
+      return (data as MatchRow[]).length > 0;
     } catch (error) {
       this.logger.warn(
         `Duplicate check error, allowing insert: ${error instanceof Error ? error.message : String(error)}`,

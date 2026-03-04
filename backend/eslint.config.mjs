@@ -6,7 +6,7 @@ import tseslint from 'typescript-eslint';
 
 export default tseslint.config(
   {
-    ignores: ['eslint.config.mjs'],
+    ignores: ['eslint.config.mjs', 'dist/**', 'src/supabase/database.types.ts'],
   },
   eslint.configs.recommended,
   ...tseslint.configs.strictTypeChecked,
@@ -74,7 +74,7 @@ export default tseslint.config(
         {
           selector: 'variable',
           types: ['boolean'],
-          format: ['camelCase'],
+          format: ['PascalCase'],
           prefix: ['is', 'has', 'should', 'can', 'did', 'will'],
         },
         { selector: 'classMethod', format: ['camelCase'] },

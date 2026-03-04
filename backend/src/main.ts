@@ -1,7 +1,7 @@
-import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
-import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
+import { NestFactory } from '@nestjs/core';
 import { WsAdapter } from '@nestjs/platform-ws';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module.js';
 
 const DEFAULT_PORT = 3000;
@@ -31,4 +31,5 @@ async function bootstrap(): Promise<void> {
 
   await app.listen(process.env.PORT ?? DEFAULT_PORT);
 }
+
 void bootstrap();
