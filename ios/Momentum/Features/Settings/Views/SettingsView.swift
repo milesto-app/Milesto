@@ -7,7 +7,9 @@ struct SettingsView: View {
     @EnvironmentObject private var authService: AuthService
     @EnvironmentObject private var storeService: StoreService
     @Environment(\.modelContext) private var modelContext
+
     @Query private var localProfiles: [LocalProfile]
+
     @State private var showSignOutAlert = false
     @State private var showNewGoal = false
     @State private var activeSheet: SettingsSheet?

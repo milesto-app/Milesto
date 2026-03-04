@@ -5,8 +5,10 @@ struct ProfileGateView: View {
     let userId: String
 
     @Environment(\.modelContext) private var modelContext
+
     @Query private var localProfiles: [LocalProfile]
     @Query private var localGoals: [LocalGoal]
+
     @State private var hasSynced = false
     @State private var profileComplete = false
     @State private var goalComplete = false

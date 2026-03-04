@@ -4,6 +4,7 @@ import StoreKit
 struct PaywallView: View {
     @Environment(\.dismiss) private var dismiss
     @EnvironmentObject private var storeService: StoreService
+
     @State private var selectedPlan: Plan = .yearly
     @State private var isPurchasing = false
     @State private var errorMessage: String?
