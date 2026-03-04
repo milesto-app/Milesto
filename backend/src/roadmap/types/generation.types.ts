@@ -3,12 +3,6 @@ import type { EnergyLevel } from './daily.types.js';
 import type { Milestone } from './roadmap.types.js';
 import type { GenerationContext, WeeklyPlan } from './weekly-plan.types.js';
 
-export interface UsageRef {
-  prompt_tokens?: number;
-  completion_tokens?: number;
-  total_tokens?: number;
-}
-
 export interface RetryParams {
   systemPrompt: string;
   userPrompt: string;
@@ -44,5 +38,4 @@ export interface MetadataParams {
   startTime: number;
   totalChunks: number;
   attempt: number;
-  usageRef: UsageRef;
 }

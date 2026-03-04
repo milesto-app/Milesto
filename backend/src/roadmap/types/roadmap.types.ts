@@ -42,8 +42,6 @@ export interface GenerationMetadata {
   latency_ms: number;
   context_chunks_used: number;
   attempts: number;
-  prompt_tokens?: number;
-  completion_tokens?: number;
 }
 
 export interface GoalData {

@@ -28,7 +28,6 @@ import type {
   GenerateWeeklyPlanParams,
   MetadataParams,
   RetryParams,
-  UsageRef,
 } from './types/generation.types.js';
 import type { GenerationMetadata, GoalData } from './types/roadmap.types.js';
 
@@ -124,12 +123,11 @@ export class GenerationService {
     let lastError: Error | undefined;
     for (let attempt = 0; attempt < MAX_GENERATION_ATTEMPTS; attempt++) {
       try {
-        const usageRef: UsageRef = {};
         const raw = await this.aiService.generateJson<unknown>(
           params.systemPrompt,
           params.userPrompt,
           params.model,
-          { timeoutMs: params.timeoutMs, captureUsage: usageRef },
+          { timeoutMs: params.timeoutMs },
         );
         const validated = params.validate(raw);
         return {
@@ -139,7 +137,6 @@ export class GenerationService {
             startTime,
             totalChunks: params.totalChunks,
             attempt,
-            usageRef,
           }),
         };
       } catch (error) {
@@ -159,12 +156,6 @@ export class GenerationService {
       latency_ms: Date.now() - params.startTime,
       context_chunks_used: params.totalChunks,
       attempts: params.attempt + 1,
-      ...(params.usageRef.prompt_tokens !== undefined
-        ? { prompt_tokens: params.usageRef.prompt_tokens }
-        : {}),
-      ...(params.usageRef.completion_tokens !== undefined
-        ? { completion_tokens: params.usageRef.completion_tokens }
-        : {}),
     };
   }
 }

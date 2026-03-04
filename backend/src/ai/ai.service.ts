@@ -16,11 +16,6 @@ export interface GenerateJsonOptions {
   temperature?: number;
   timeoutMs?: number;
   reasoning?: { effort?: string };
-  captureUsage?: {
-    prompt_tokens?: number;
-    completion_tokens?: number;
-    total_tokens?: number;
-  };
   maxRetries?: number;
 }
 
@@ -100,7 +95,6 @@ export class AiService {
             } as OpenAI.Chat.ChatCompletionCreateParamsNonStreaming,
             { signal },
           );
-          this.captureUsage(options, response);
           return this.extractJson(response) as T;
         }, timeoutMs);
       } catch (error) {
@@ -123,17 +117,6 @@ export class AiService {
       throw new Error('No JSON found in AI response');
     }
     return JSON.parse(match[0]) as unknown;
-  }
-
-  private captureUsage(
-    options: GenerateJsonOptions | undefined,
-    response: OpenAI.Chat.Completions.ChatCompletion,
-  ): void {
-    if (options?.captureUsage !== undefined && response.usage !== undefined) {
-      options.captureUsage.prompt_tokens = response.usage.prompt_tokens;
-      options.captureUsage.completion_tokens = response.usage.completion_tokens;
-      options.captureUsage.total_tokens = response.usage.total_tokens;
-    }
   }
 
   private isRetryableError(error: unknown): boolean {
