@@ -13,7 +13,6 @@ bun run build              # Compile (nest build)
 bun run start:dev          # Dev server with watch mode
 bun run lint               # Prettier + ESLint with auto-fix
 bun run test               # All unit tests (Jest)
-bun run test -- --testPathPattern=intake.service  # Single test file
 bun run test:e2e           # End-to-end tests
 bun run eval               # Build + run evaluation suite
 ```
@@ -98,7 +97,6 @@ Key services: `ContextPipelineService` (3-tier retrieval), `GenerationService` (
 
 ### Functions & Methods
 
-- **Max 3 parameters.** Beyond that, use an options object.
 - **Max nesting depth: 3.** No nested callbacks deeper than 2 levels.
 - **Max cyclomatic complexity: 10.** Reduce branching with early returns and extracted helpers.
 - Always `await` promises or explicitly mark fire-and-forget with `void`.
@@ -126,7 +124,6 @@ Key services: `ContextPipelineService` (3-tier retrieval), `GenerationService` (
 ### Imports
 
 - All relative imports use the **`.js` extension** (ESM compatibility with `nodenext`).
-- Group imports (separated by blank lines): 1. Node built-ins, 2. External packages, 3. Internal modules.
 - No barrel exports (`index.ts`) — use direct file imports. No circular imports.
 
 ### NestJS Patterns
