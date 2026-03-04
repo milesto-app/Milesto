@@ -1,0 +1,128 @@
+# OS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+.Spotlight-V100
+.Trashes
+
+# IDE
+*.swp
+*.swo
+*~
+.idea/
+*.iml
+.project
+.classpath
+.c9/
+*.launch
+.settings/
+*.sublime-workspace
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+# Environment / secrets
+.env
+.env.*
+*.env
+secrets/
+
+# Claude Code
+.claude/
+
+# MCP config (local)
+.mcp.json
+
+# Temp
+.temp
+.tmp
+
+# --- iOS (ios/) ---
+
+# Xcode
+ios/build/
+ios/DerivedData/
+ios/*.pbxuser
+!ios/default.pbxuser
+ios/*.mode1v3
+!ios/default.mode1v3
+ios/*.mode2v3
+!ios/default.mode2v3
+ios/*.perspectivev3
+!ios/default.perspectivev3
+ios/xcuserdata/
+ios/*.xccheckout
+ios/*.moved-aside
+ios/*.xcuserstate
+ios/*.xcscmblueprint
+ios/*.xcscheme
+
+# Swift Package Manager
+ios/.build/
+ios/.swiftpm/
+ios/Package.resolved
+
+# CocoaPods
+ios/Pods/
+ios/*.xcworkspace
+!ios/*.xcworkspace/contents.xcworkspacedata
+ios/Podfile.lock
+
+# Carthage
+ios/Carthage/
+
+# fastlane
+ios/fastlane/report.xml
+ios/fastlane/Preview.html
+ios/fastlane/screenshots/**/*.png
+ios/fastlane/test_output
+
+# Archives and builds
+ios/*.ipa
+ios/*.dSYM.zip
+ios/*.dSYM
+ios/*.app
+ios/*.xcarchive
+
+# Playgrounds
+ios/timeline.xctimeline
+ios/playground.xcworkspace
+
+# Tuist
+ios/Derived/
+
+# Generated
+ios/*.generated.swift
+ios/buildServer.json
+
+# --- Backend (backend/) ---
+
+# Compiled output
+backend/dist/
+backend/node_modules/
+backend/build/
+
+# Logs
+backend/logs/
+backend/*.log
+backend/npm-debug.log*
+backend/pnpm-debug.log*
+backend/yarn-debug.log*
+backend/yarn-error.log*
+backend/lerna-debug.log*
+
+# Tests
+backend/coverage/
+backend/.nyc_output/
+
+# Runtime data
+backend/pids/
+backend/*.pid
+backend/*.seed
+backend/*.pid.lock
+
+# Diagnostic reports
+backend/report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
