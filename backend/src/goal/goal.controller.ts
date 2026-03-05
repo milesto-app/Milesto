@@ -100,13 +100,9 @@ export class GoalController {
 
   @Delete(':goalId')
   @HttpCode(HttpStatus.NO_CONTENT)
-  @ApiOperation({ summary: 'Delete a goal (restricted by status)' })
+  @ApiOperation({ summary: 'Delete a goal and all associated data' })
   @ApiParam({ name: 'goalId', description: 'The goal UUID' })
   @ApiResponse({ status: 204, description: 'Goal deleted' })
-  @ApiResponse({
-    status: 400,
-    description: 'Cannot delete goal in current status',
-  })
   @ApiResponse({ status: 404, description: 'Goal not found' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   public async delete(

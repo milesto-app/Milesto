@@ -46,6 +46,12 @@ struct ProfileGateView: View {
                                 goalComplete = true
                                 roadmapReady = false
                             }
+                        }, onDeleteGoal: {
+                            activeGoalId = nil
+                            withAnimation(.easeInOut(duration: 0.4)) {
+                                goalComplete = false
+                                roadmapReady = false
+                            }
                         })
                     } label: {
                         TablerTabLabel(.settings, title: String(localized: "tabs.settings", table: "Common"))

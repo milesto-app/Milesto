@@ -1,5 +1,4 @@
 import {
-  BadRequestException,
   InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
@@ -86,10 +85,10 @@ describe('GoalService.delete', () => {
     mockSupabase.from.mockReturnValue({ delete: deleteFn });
   };
 
-  it('should delete a goal in intake_in_progress status', async () => {
+  it('should delete a goal in active status', async () => {
     jest
       .spyOn(service, 'findOne')
-      .mockResolvedValue(mockGoal(GOAL_STATUS.INTAKE_IN_PROGRESS) as never);
+      .mockResolvedValue(mockGoal(GOAL_STATUS.ACTIVE) as never);
     setupDeleteChain();
 
     await expect(
@@ -97,20 +96,10 @@ describe('GoalService.delete', () => {
     ).resolves.toBeUndefined();
   });
 
-  it('should throw BadRequestException for goal in active status', async () => {
-    jest
-      .spyOn(service, 'findOne')
-      .mockResolvedValue(mockGoal(GOAL_STATUS.ACTIVE) as never);
-
-    await expect(service.delete('user-123', 'goal-456')).rejects.toThrow(
-      BadRequestException,
-    );
-  });
-
   it('should throw InternalServerErrorException on Supabase delete error', async () => {
     jest
       .spyOn(service, 'findOne')
-      .mockResolvedValue(mockGoal(GOAL_STATUS.INTAKE_IN_PROGRESS) as never);
+      .mockResolvedValue(mockGoal(GOAL_STATUS.ACTIVE) as never);
     setupDeleteChain({ message: 'Database error' });
 
     await expect(service.delete('user-123', 'goal-456')).rejects.toThrow(

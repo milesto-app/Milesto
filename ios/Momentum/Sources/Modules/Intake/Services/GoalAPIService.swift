@@ -21,6 +21,10 @@ final class GoalAPIService {
         )
     }
 
+    func deleteGoal(goalId: String) async throws {
+        try await BackendClient.shared.requestVoid(method: "DELETE", path: "goals/\(goalId)")
+    }
+
     func listGoals() async throws -> [GoalDTO] {
         let response: PaginatedResponse<GoalDTO> = try await BackendClient.shared.request(
             method: "GET",

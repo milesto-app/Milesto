@@ -3,14 +3,18 @@ import SwiftUI
 
 struct SettingsView: View {
     var onNewGoal: ((String) -> Void)?
+    var onDeleteGoal: (() -> Void)?
 
     @EnvironmentObject private var authService: AuthService
     @EnvironmentObject private var storeService: StoreService
     @Environment(\.modelContext) private var modelContext
 
     @Query private var localProfiles: [LocalProfile]
+    @Query private var localGoals: [LocalGoal]
 
     @State private var showSignOutAlert = false
+    @State private var showDeleteGoalAlert = false
+    @State private var isDeleting = false
     @State private var showNewGoal = false
     @State private var activeSheet: SettingsSheet?
     @State private var isSaving = false
@@ -22,6 +26,10 @@ struct SettingsView: View {
         localProfiles.first { $0.userId == authService.currentUserId }
     }
 
+    private var activeGoal: LocalGoal? {
+        localGoals.first { $0.userId == authService.currentUserId }
+    }
+
     var body: some View {
         NavigationStack {
             List {
@@ -29,6 +37,7 @@ struct SettingsView: View {
                 profileDetailsSection
                 proSection
                 newGoalSection
+                deleteGoalSection
                 signOutSection
             }
             .refreshable {
@@ -44,6 +53,14 @@ struct SettingsView: View {
             }
             .navigationTitle("")
             .navigationBarHidden(true)
+            .alert(String(localized: "settings.deleteGoal.alert.title", table: "Settings"), isPresented: $showDeleteGoalAlert) {
+                Button(String(localized: "settings.signOut.alert.cancel", table: "Settings"), role: .cancel) {}
+                Button(String(localized: "settings.deleteGoal.alert.confirm", table: "Settings"), role: .destructive) {
+                    deleteGoal()
+                }
+            } message: {
+                Text("settings.deleteGoal.alert.message", tableName: "Settings")
+            }
             .alert(String(localized: "settings.signOut.alert.title", table: "Settings"), isPresented: $showSignOutAlert) {
                 Button(String(localized: "settings.signOut.alert.cancel", table: "Settings"), role: .cancel) {}
                 Button(String(localized: "settings.signOut.alert.confirm", table: "Settings"), role: .destructive) {
@@ -276,6 +293,22 @@ struct SettingsView: View {
         }
     }
 
+    private var deleteGoalSection: some View {
+        Section {
+            Button(role: .destructive) {
+                showDeleteGoalAlert = true
+            } label: {
+                HStack(spacing: 12) {
+                    TablerIcons(.trash, size: 24, color: Colors.error)
+                    AppText("settings.deleteGoal", table: "Settings", style: .body)
+                        .color(Colors.error)
+                }
+                .contentShape(Rectangle())
+            }
+            .disabled(isDeleting)
+        }
+    }
+
     private var signOutSection: some View {
         Section {
             Button(role: .destructive) {
@@ -296,6 +329,22 @@ struct SettingsView: View {
                 Spacer()
             }
             .padding(.top, 24)
+        }
+    }
+
+    private func deleteGoal() {
+        guard let goal = activeGoal else { return }
+        Task { @MainActor in
+            isDeleting = true
+            defer { isDeleting = false }
+            do {
+                try await GoalAPIService.shared.deleteGoal(goalId: goal.id)
+                modelContext.delete(goal)
+                onDeleteGoal?()
+            } catch {
+                errorMessage = error.localizedDescription
+                showError = true
+            }
         }
     }
 

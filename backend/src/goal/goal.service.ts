@@ -1,5 +1,4 @@
 import {
-  BadRequestException,
   Injectable,
   InternalServerErrorException,
   Logger,
@@ -10,7 +9,6 @@ import { AiService } from '../ai/ai.service.js';
 import type { Database } from '../supabase/database.types.js';
 import { SupabaseService } from '../supabase/supabase.service.js';
 import {
-  DELETABLE_STATUSES,
   GOAL_STATUS,
   PROFILE_VIEWABLE_STATUSES,
 } from './goal-status.constants.js';
@@ -188,13 +186,7 @@ export class GoalService {
   }
 
   public async delete(userId: string, goalId: string): Promise<void> {
-    const goal = await this.findOne(userId, goalId);
-
-    if (!DELETABLE_STATUSES.includes(goal.status)) {
-      throw new BadRequestException(
-        `Cannot delete a goal in '${goal.status}' status`,
-      );
-    }
+    await this.findOne(userId, goalId);
 
     const supabase = this.supabaseService.getAdminClient();
     const { error } = await supabase
