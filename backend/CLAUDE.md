@@ -10,7 +10,6 @@ Momentum is an AI-powered personal coaching backend built with NestJS + TypeScri
 
 ```bash
 bun run build              # Compile (nest build)
-bun run start:dev          # Dev server with watch mode
 bun run lint               # Prettier + ESLint with auto-fix
 bun run test               # All unit tests (Jest)
 bun run test:e2e           # End-to-end tests

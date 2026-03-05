@@ -2,6 +2,7 @@ import SwiftUI
 
 struct ChatBubble: View {
     let message: ChatMessage
+    var isStreamingResponse = false
 
     @State private var appeared = false
 
@@ -22,7 +23,7 @@ struct ChatBubble: View {
                             .fill(Colors.accent)
                     )
             } else {
-                MarkdownText(content: message.content)
+                StreamingText(content: message.content, isStreaming: isStreamingResponse)
             }
 
             if !isUser { Spacer(minLength: 0) }

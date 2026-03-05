@@ -30,8 +30,11 @@ struct ChatView: View {
             ScrollView {
                 LazyVStack(spacing: 32) {
                     ForEach(messages) { message in
-                        ChatBubble(message: message)
-                            .id(message.id)
+                        ChatBubble(
+                            message: message,
+                            isStreamingResponse: isStreaming && message.id == messages.last?.id && message.role == .assistant
+                        )
+                        .id(message.id)
                     }
 
                     if isWaitingForResponse && showThinking {
@@ -47,6 +50,13 @@ struct ChatView: View {
             .contentMargins(.bottom, 72)
             .onChange(of: messages.count) {
                 if let lastId = messages.last?.id {
+                    withAnimation(.easeOut(duration: 0.2)) {
+                        proxy.scrollTo(lastId, anchor: .bottom)
+                    }
+                }
+            }
+            .onChange(of: messages.last?.content) {
+                if isStreaming, let lastId = messages.last?.id {
                     withAnimation(.easeOut(duration: 0.2)) {
                         proxy.scrollTo(lastId, anchor: .bottom)
                     }
