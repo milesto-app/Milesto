@@ -9,7 +9,7 @@ struct OnboardingGoalDeadlineView: View {
         let now = Date()
         let minDate = calendar.date(byAdding: .day, value: 1, to: now)!
         let maxDate = calendar.date(byAdding: .year, value: 5, to: now)!
-        return minDate...maxDate
+        return minDate ... maxDate
     }
 
     var body: some View {
@@ -51,7 +51,7 @@ struct OnboardingGoalDeadlineView: View {
     NavigationStack {
         OnboardingGoalDeadlineView(
             deadline: .constant(Calendar.current.date(byAdding: .month, value: 1, to: Date())!),
-            onContinue: { }
+            onContinue: {}
         )
     }
 }

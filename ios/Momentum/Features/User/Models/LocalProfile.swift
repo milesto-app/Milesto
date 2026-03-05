@@ -39,15 +39,16 @@ final class LocalProfile {
 extension LocalProfile {
     var isProfileComplete: Bool {
         firstName?.trimmingCharacters(in: .whitespaces).isEmpty == false
-        && lastName?.trimmingCharacters(in: .whitespaces).isEmpty == false
-        && dateOfBirth != nil
-        && coachId != nil
+            && lastName?.trimmingCharacters(in: .whitespaces).isEmpty == false
+            && dateOfBirth != nil
+            && coachId != nil
     }
 
     var missingOnboardingSteps: [OnboardingStep] {
         var steps: [OnboardingStep] = []
         if firstName?.trimmingCharacters(in: .whitespaces).isEmpty != false
-            || lastName?.trimmingCharacters(in: .whitespaces).isEmpty != false {
+            || lastName?.trimmingCharacters(in: .whitespaces).isEmpty != false
+        {
             steps.append(.name)
         }
         if dateOfBirth == nil {

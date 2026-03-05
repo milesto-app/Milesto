@@ -1,5 +1,5 @@
-import SwiftUI
 import SwiftData
+import SwiftUI
 
 enum GoalIntakeStep {
     case goalSetup
@@ -28,7 +28,7 @@ struct GoalIntakeFlowView: View {
                         isLoading: isCreatingGoal,
                         onContinue: createGoal
                     )
-                case .intake(let goalId):
+                case let .intake(goalId):
                     IntakeContainerView(goalId: goalId, onComplete: {
                         markGoalCompleted(goalId: goalId)
                         onComplete(goalId)

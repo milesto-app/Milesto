@@ -10,7 +10,7 @@ enum BackendError: LocalizedError {
         switch self {
         case .invalidResponse:
             return String(localized: "intake.error.network", table: "Intake")
-        case .httpError(let code, _):
+        case let .httpError(code, _):
             return String(localized: "intake.error.server", table: "Intake") + " (\(code))"
         case .unauthorized:
             return String(localized: "intake.error.network", table: "Intake")
@@ -56,13 +56,13 @@ final class BackendClient {
             if retryResponse.statusCode == 401 {
                 throw BackendError.unauthorized
             }
-            guard (200...299).contains(retryResponse.statusCode) else {
+            guard (200 ... 299).contains(retryResponse.statusCode) else {
                 throw BackendError.httpError(statusCode: retryResponse.statusCode, data: retryData)
             }
             return try decoder.decode(T.self, from: retryData)
         }
 
-        guard (200...299).contains(httpResponse.statusCode) else {
+        guard (200 ... 299).contains(httpResponse.statusCode) else {
             throw BackendError.httpError(statusCode: httpResponse.statusCode, data: data)
         }
 
@@ -102,13 +102,13 @@ final class BackendClient {
             if retryResponse.statusCode == 401 {
                 throw BackendError.unauthorized
             }
-            guard (200...299).contains(retryResponse.statusCode) else {
+            guard (200 ... 299).contains(retryResponse.statusCode) else {
                 throw BackendError.httpError(statusCode: retryResponse.statusCode, data: retryData)
             }
             return try decoder.decode(T.self, from: retryData)
         }
 
-        guard (200...299).contains(httpResponse.statusCode) else {
+        guard (200 ... 299).contains(httpResponse.statusCode) else {
             throw BackendError.httpError(statusCode: httpResponse.statusCode, data: data)
         }
 
@@ -143,13 +143,13 @@ final class BackendClient {
             if retryResponse.statusCode == 401 {
                 throw BackendError.unauthorized
             }
-            guard (200...299).contains(retryResponse.statusCode) else {
+            guard (200 ... 299).contains(retryResponse.statusCode) else {
                 throw BackendError.httpError(statusCode: retryResponse.statusCode, data: retryData)
             }
             return retryData
         }
 
-        guard (200...299).contains(httpResponse.statusCode) else {
+        guard (200 ... 299).contains(httpResponse.statusCode) else {
             throw BackendError.httpError(statusCode: httpResponse.statusCode, data: data)
         }
 

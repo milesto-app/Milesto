@@ -46,7 +46,7 @@ struct OnboardingCoachView: View {
     NavigationStack {
         OnboardingCoachView(
             selectedCoach: .constant(nil),
-            onContinue: { }
+            onContinue: {}
         )
     }
 }

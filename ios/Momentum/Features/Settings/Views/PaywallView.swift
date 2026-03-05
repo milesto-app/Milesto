@@ -1,5 +1,5 @@
-import SwiftUI
 import StoreKit
+import SwiftUI
 
 struct PaywallView: View {
     @Environment(\.dismiss) private var dismiss

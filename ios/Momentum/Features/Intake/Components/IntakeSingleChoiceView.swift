@@ -4,8 +4,13 @@ struct IntakeSingleChoiceView: View {
     let question: IntakeQuestion
     @Binding var answers: [String: IntakeAnswerDTO]
 
-    private var options: [String] { question.config?.options ?? [] }
-    private var selectedOption: String? { answers[question.id]?.selectedOptions?.first }
+    private var options: [String] {
+        question.config?.options ?? []
+    }
+
+    private var selectedOption: String? {
+        answers[question.id]?.selectedOptions?.first
+    }
 
     var body: some View {
         VStack(spacing: 8) {

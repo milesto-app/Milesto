@@ -83,7 +83,7 @@ final class ChatAPIService {
                         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
                         var body: [String: String] = [
                             "goalId": goalId,
-                            "content": content
+                            "content": content,
                         ]
                         if let conversationId {
                             body["conversationId"] = conversationId
@@ -112,7 +112,7 @@ final class ChatAPIService {
                         return
                     }
 
-                    guard (200...299).contains(httpResponse.statusCode) else {
+                    guard (200 ... 299).contains(httpResponse.statusCode) else {
                         continuation.finish(throwing: BackendError.httpError(statusCode: httpResponse.statusCode, data: Data()))
                         return
                     }

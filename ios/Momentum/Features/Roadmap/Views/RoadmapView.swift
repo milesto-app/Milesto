@@ -1,5 +1,5 @@
-import SwiftUI
 import SwiftData
+import SwiftUI
 
 struct DisplayMilestone: Identifiable {
     let id: String
@@ -193,7 +193,7 @@ struct RoadmapView: View {
             let cornerRadius: CGFloat = 16
             let gap: CGFloat = 10
 
-            for i in 0..<milestones.count - 1 {
+            for i in 0 ..< milestones.count - 1 {
                 let start = nodePosition(index: i, centerX: centerX)
                 let end = nodePosition(index: i + 1, centerX: centerX)
                 let startInset = nodeSize(milestones[i]) / 2 + gap
@@ -279,7 +279,7 @@ struct RoadmapView: View {
         }
     }
 
-    private func nodeIcon(milestone: DisplayMilestone, index: Int, size: CGFloat) -> some View {
+    private func nodeIcon(milestone: DisplayMilestone, index: Int, size _: CGFloat) -> some View {
         let isGoal = index == milestones.count - 1
         let icon: TablerIconOutline = isGoal ? .trophy : .star
 

@@ -1,5 +1,5 @@
-import SwiftUI
 import SwiftData
+import SwiftUI
 
 struct HomeView: View {
     let goalId: String
@@ -301,7 +301,7 @@ struct HomeView: View {
     private func loadPostCheckInData() async {
         async let fetchPlan: () = loadWeeklyPlan()
         async let fetchObjectives: () = loadObjectives()
-        _ = await (fetchPlan, fetchObjectives)
+        _ = await(fetchPlan, fetchObjectives)
     }
 
     private func loadWeeklyPlan() async {

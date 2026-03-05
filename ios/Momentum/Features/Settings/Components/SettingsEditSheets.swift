@@ -6,7 +6,9 @@ enum SettingsSheet: Identifiable {
     case coach
     case language
 
-    var id: Self { self }
+    var id: Self {
+        self
+    }
 }
 
 struct EditNameSheet: View {
@@ -18,7 +20,7 @@ struct EditNameSheet: View {
 
     private var isValid: Bool {
         !firstName.trimmingCharacters(in: .whitespaces).isEmpty
-        && !lastName.trimmingCharacters(in: .whitespaces).isEmpty
+            && !lastName.trimmingCharacters(in: .whitespaces).isEmpty
     }
 
     var body: some View {
@@ -141,7 +143,7 @@ struct EditLanguageSheet: View {
 
     private let languages = [
         ("en", "settings.edit.language.en"),
-        ("fr", "settings.edit.language.fr")
+        ("fr", "settings.edit.language.fr"),
     ]
 
     var body: some View {

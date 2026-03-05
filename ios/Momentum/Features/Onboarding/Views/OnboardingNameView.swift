@@ -7,7 +7,7 @@ struct OnboardingNameView: View {
 
     private var canContinue: Bool {
         !firstName.trimmingCharacters(in: .whitespaces).isEmpty &&
-        !lastName.trimmingCharacters(in: .whitespaces).isEmpty
+            !lastName.trimmingCharacters(in: .whitespaces).isEmpty
     }
 
     var body: some View {
@@ -59,7 +59,7 @@ struct OnboardingNameView: View {
         OnboardingNameView(
             firstName: .constant(""),
             lastName: .constant(""),
-            onContinue: { }
+            onContinue: {}
         )
     }
 }

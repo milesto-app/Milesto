@@ -10,7 +10,6 @@ struct ChatHistorySidebar: View {
 
     @State private var dragOffset: CGFloat = 0
 
-
     var body: some View {
         ZStack(alignment: .leading) {
             if isOpen {
@@ -67,9 +66,9 @@ struct ChatHistorySidebar: View {
     private var header: some View {
         AppText("chat.history.title", table: "Chat", style: .headline)
             .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(.leading, 8 + 16)
-        .padding(.top, 64)
-        .padding(.bottom, 4)
+            .padding(.leading, 8 + 16)
+            .padding(.top, 64)
+            .padding(.bottom, 4)
     }
 
     private var emptyState: some View {
@@ -108,7 +107,6 @@ struct ChatHistorySidebar: View {
             .padding(.bottom, 16)
         }
     }
-
 
     private func dismiss() {
         withAnimation(.spring(duration: 0.3)) {

@@ -1,21 +1,23 @@
-import Foundation
-import Combine
-import Supabase
 import AuthenticationServices
+import Combine
 import CryptoKit
+import Foundation
+import Supabase
 
 @MainActor
 final class AuthService: NSObject, ObservableObject {
     static let shared = AuthService()
 
-    private var client: SupabaseClient { SupabaseConfig.client }
+    private var client: SupabaseClient {
+        SupabaseConfig.client
+    }
 
     @Published private(set) var authState: AuthState = .authenticating
     @Published private(set) var currentUserId: String?
 
     private var currentNonce: String?
 
-    private override init() {
+    override private init() {
         super.init()
 
         Task {
@@ -24,7 +26,7 @@ final class AuthService: NSObject, ObservableObject {
     }
 
     private func setupAuthStateListener() async {
-        for await (event, session) in client.auth.authStateChanges {
+        for await(event, session) in client.auth.authStateChanges {
             switch event {
             case .initialSession:
                 if let session {
@@ -105,7 +107,8 @@ final class AuthService: NSObject, ObservableObject {
 
         guard let appleIDCredential = result.credential as? ASAuthorizationAppleIDCredential,
               let identityTokenData = appleIDCredential.identityToken,
-              let identityToken = String(data: identityTokenData, encoding: .utf8) else {
+              let identityToken = String(data: identityTokenData, encoding: .utf8)
+        else {
             throw AuthError.unknown("Failed to get Apple ID token")
         }
 
@@ -202,10 +205,11 @@ final class AuthService: NSObject, ObservableObject {
 }
 
 extension AuthService: ASAuthorizationControllerPresentationContextProviding {
-    nonisolated func presentationAnchor(for controller: ASAuthorizationController) -> ASPresentationAnchor {
+    nonisolated func presentationAnchor(for _: ASAuthorizationController) -> ASPresentationAnchor {
         DispatchQueue.main.sync {
             guard let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-                  let window = scene.windows.first else {
+                  let window = scene.windows.first
+            else {
                 fatalError("No window found")
             }
             return window
@@ -220,11 +224,11 @@ private class AppleSignInDelegate: NSObject, ASAuthorizationControllerDelegate {
         self.continuation = continuation
     }
 
-    func authorizationController(controller: ASAuthorizationController, didCompleteWithAuthorization authorization: ASAuthorization) {
+    func authorizationController(controller _: ASAuthorizationController, didCompleteWithAuthorization authorization: ASAuthorization) {
         continuation.resume(returning: authorization)
     }
 
-    func authorizationController(controller: ASAuthorizationController, didCompleteWithError error: Error) {
+    func authorizationController(controller _: ASAuthorizationController, didCompleteWithError error: Error) {
         continuation.resume(throwing: error)
     }
 }

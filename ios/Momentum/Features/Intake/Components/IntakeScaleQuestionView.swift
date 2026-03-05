@@ -4,8 +4,13 @@ struct IntakeScaleQuestionView: View {
     let question: IntakeQuestion
     @Binding var answers: [String: IntakeAnswerDTO]
 
-    private var minValue: Int { question.config?.min ?? 1 }
-    private var maxValue: Int { Swift.max(question.config?.max ?? 10, minValue + 1) }
+    private var minValue: Int {
+        question.config?.min ?? 1
+    }
+
+    private var maxValue: Int {
+        Swift.max(question.config?.max ?? 10, minValue + 1)
+    }
 
     private var currentValue: Double {
         Double(answers[question.id]?.answerNumeric ?? minValue)
@@ -29,7 +34,7 @@ struct IntakeScaleQuestionView: View {
                         )
                     }
                 ),
-                in: Double(minValue)...Double(maxValue),
+                in: Double(minValue) ... Double(maxValue),
                 step: 1
             )
             .tint(AppTheme.Colors.accent)

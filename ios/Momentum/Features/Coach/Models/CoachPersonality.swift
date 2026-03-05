@@ -6,7 +6,9 @@ enum CoachPersonality: String, CaseIterable, Identifiable {
     case strict
     case complice
 
-    var id: String { rawValue }
+    var id: String {
+        rawValue
+    }
 
     var title: String {
         switch self {

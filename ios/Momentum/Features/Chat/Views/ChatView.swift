@@ -1,9 +1,9 @@
-import SwiftUI
 import SwiftData
+import SwiftUI
 
 struct ChatView: View {
     let goalId: String
-    var onClose: (() -> Void)? = nil
+    var onClose: (() -> Void)?
 
     @Query private var localProfiles: [LocalProfile]
     @State private var messages: [ChatMessage] = []
@@ -201,10 +201,10 @@ struct ChatView: View {
 
                 for try await event in stream {
                     switch event {
-                    case .messageStart(let id):
+                    case let .messageStart(id):
                         conversationId = id
 
-                    case .textDelta(let delta):
+                    case let .textDelta(delta):
                         if var last = messages.last, last.role == .assistant {
                             last.content += delta
                             messages[messages.count - 1] = last
@@ -227,7 +227,7 @@ struct ChatView: View {
                     case .messageEnd:
                         break
 
-                    case .error(let message):
+                    case let .error(message):
                         errorMessage = message
                         showError = true
                     }

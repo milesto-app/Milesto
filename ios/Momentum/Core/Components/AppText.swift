@@ -55,15 +55,15 @@ struct AppText: View {
     private var alignment: TextAlignment
 
     init(_ text: LocalizedStringKey, table: String? = nil, style: AppTextStyle) {
-        self.content = Text(text, tableName: table)
+        content = Text(text, tableName: table)
         self.style = style
-        self.alignment = .leading
+        alignment = .leading
     }
 
     init(verbatim text: String, style: AppTextStyle) {
-        self.content = Text(verbatim: text)
+        content = Text(verbatim: text)
         self.style = style
-        self.alignment = .leading
+        alignment = .leading
     }
 
     var body: some View {

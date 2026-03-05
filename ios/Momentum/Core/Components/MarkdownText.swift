@@ -24,10 +24,10 @@ struct MarkdownText: View {
     @ViewBuilder
     private func renderBlock(_ block: MarkdownBlock) -> some View {
         switch block {
-        case .paragraph(let text):
+        case let .paragraph(text):
             inlineMarkdown(text)
 
-        case .codeBlock(let code, _):
+        case let .codeBlock(code, _):
             Text(verbatim: code)
                 .font(.system(.body, design: .monospaced))
                 .foregroundStyle(textColor)
@@ -36,12 +36,12 @@ struct MarkdownText: View {
                 .background(codeBackground)
                 .clipShape(RoundedRectangle(cornerRadius: AppTheme.CornerRadius.sm))
 
-        case .heading(let text, let level):
+        case let .heading(text, level):
             inlineMarkdown(text)
                 .font(level <= 2 ? .headline : .subheadline)
                 .bold()
 
-        case .unorderedList(let items):
+        case let .unorderedList(items):
             VStack(alignment: .leading, spacing: 4) {
                 ForEach(Array(items.enumerated()), id: \.offset) { _, item in
                     HStack(alignment: .top, spacing: 0) {
@@ -52,7 +52,7 @@ struct MarkdownText: View {
                 }
             }
 
-        case .orderedList(let items):
+        case let .orderedList(items):
             VStack(alignment: .leading, spacing: 4) {
                 ForEach(Array(items.enumerated()), id: \.offset) { index, item in
                     HStack(alignment: .top, spacing: 0) {
@@ -90,7 +90,7 @@ struct MarkdownText: View {
                 let language = String(line.dropFirst(3)).trimmingCharacters(in: .whitespaces)
                 var codeLines: [String] = []
                 index += 1
-                while index < lines.count && !lines[index].hasPrefix("```") {
+                while index < lines.count, !lines[index].hasPrefix("```") {
                     codeLines.append(lines[index])
                     index += 1
                 }
@@ -113,7 +113,8 @@ struct MarkdownText: View {
             if line.range(of: #"^[-*]\s+"#, options: .regularExpression) != nil {
                 var items: [String] = []
                 while index < lines.count,
-                      let match = lines[index].range(of: #"^[-*]\s+"#, options: .regularExpression) {
+                      let match = lines[index].range(of: #"^[-*]\s+"#, options: .regularExpression)
+                {
                     items.append(String(lines[index][match.upperBound...]))
                     index += 1
                 }
@@ -124,7 +125,8 @@ struct MarkdownText: View {
             if line.range(of: #"^\d+\.\s+"#, options: .regularExpression) != nil {
                 var items: [String] = []
                 while index < lines.count,
-                      let match = lines[index].range(of: #"^\d+\.\s+"#, options: .regularExpression) {
+                      let match = lines[index].range(of: #"^\d+\.\s+"#, options: .regularExpression)
+                {
                     items.append(String(lines[index][match.upperBound...]))
                     index += 1
                 }
@@ -144,7 +146,8 @@ struct MarkdownText: View {
                     || current.hasPrefix("```")
                     || current.range(of: #"^#{1,6}\s+"#, options: .regularExpression) != nil
                     || current.range(of: #"^[-*]\s+"#, options: .regularExpression) != nil
-                    || current.range(of: #"^\d+\.\s+"#, options: .regularExpression) != nil {
+                    || current.range(of: #"^\d+\.\s+"#, options: .regularExpression) != nil
+                {
                     break
                 }
                 paragraphLines.append(current)

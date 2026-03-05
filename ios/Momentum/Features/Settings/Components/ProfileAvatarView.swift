@@ -9,7 +9,7 @@ struct ProfileAvatarView: View {
         if let url {
             AsyncImage(url: url) { phase in
                 switch phase {
-                case .success(let image):
+                case let .success(image):
                     image
                         .resizable()
                         .scaledToFill()

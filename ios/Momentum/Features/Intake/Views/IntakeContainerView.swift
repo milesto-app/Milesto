@@ -18,9 +18,9 @@ enum IntakePhase: Equatable {
              (.completed, .completed),
              (.profileFailed, .profileFailed):
             return true
-        case (.error(let a), .error(let b)):
+        case let (.error(a), .error(b)):
             return a == b
-        case (.answering(let a), .answering(let b)):
+        case let (.answering(a), .answering(b)):
             return a.batchId == b.batchId
         default:
             return false
@@ -47,7 +47,7 @@ struct IntakeContainerView: View {
             case .loading:
                 IntakeLoadingView()
 
-            case .answering(let batch):
+            case let .answering(batch):
                 IntakeBatchView(
                     batch: batch,
                     batchNumber: currentBatchNumber,
@@ -68,7 +68,7 @@ struct IntakeContainerView: View {
             case .completed:
                 IntakeCompletionView(onContinue: onComplete)
 
-            case .error(let message):
+            case let .error(message):
                 IntakeErrorView(message: message, onRetry: { loadNextBatch() })
 
             case .profileFailed:
@@ -111,7 +111,8 @@ struct IntakeContainerView: View {
 
                 if let nextBatch = response.nextBatch,
                    let questions = nextBatch.questions,
-                   !questions.isEmpty {
+                   !questions.isEmpty
+                {
                     answers = [:]
                     currentBatchNumber = nextBatch.batchNumber ?? (currentBatchNumber + 1)
                     withAnimation {

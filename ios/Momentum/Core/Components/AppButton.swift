@@ -65,9 +65,9 @@ struct AppButton: View {
         self.table = table
         self.action = action
         self.style = style
-        self.iconPosition = .leading
-        self.isFullWidth = false
-        self.isDisabled = false
+        iconPosition = .leading
+        isFullWidth = false
+        isDisabled = false
     }
 
     private var buttonContent: some View {

@@ -42,7 +42,7 @@ struct AuthContainerView: View {
             }
         }
         .alert(String(localized: "auth.error.title", table: "Auth"), isPresented: $showErrorAlert) {
-            Button(String(localized: "common.ok", table: "Common"), role: .cancel) { }
+            Button(String(localized: "common.ok", table: "Common"), role: .cancel) {}
         } message: {
             Text(errorMessage ?? "")
         }
@@ -50,7 +50,7 @@ struct AuthContainerView: View {
             switch newState {
             case .authenticated:
                 isGoogleLoading = false
-            case .error(let message):
+            case let .error(message):
                 if isGoogleLoading {
                     isGoogleLoading = false
                     errorMessage = message

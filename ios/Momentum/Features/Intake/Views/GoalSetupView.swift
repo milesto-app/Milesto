@@ -52,6 +52,6 @@ struct GoalSetupView: View {
     GoalSetupView(
         goalDescription: .constant(""),
         isLoading: false,
-        onContinue: { }
+        onContinue: {}
     )
 }

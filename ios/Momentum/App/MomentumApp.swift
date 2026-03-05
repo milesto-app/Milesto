@@ -14,7 +14,7 @@ struct MomentumApp: App {
             LocalMilestone.self,
             LocalWeeklyPlan.self,
             LocalDailyObjective.self,
-            LocalCheckIn.self
+            LocalCheckIn.self,
         ])
         let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
 

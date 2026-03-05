@@ -6,7 +6,7 @@ struct TablerIcon: View {
     var color: Color?
 
     init(_ icon: TablerIconOutline, size: CGFloat = 24, color: Color? = nil) {
-        self.unicode = icon.rawValue
+        unicode = icon.rawValue
         self.size = size
         self.color = color
     }

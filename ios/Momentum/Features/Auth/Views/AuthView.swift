@@ -7,7 +7,9 @@ struct AuthView: View {
     var isAppleLoading: Bool = false
     var isGoogleLoading: Bool = false
 
-    private var isAnyLoading: Bool { isAppleLoading || isGoogleLoading }
+    private var isAnyLoading: Bool {
+        isAppleLoading || isGoogleLoading
+    }
 
     var body: some View {
         VStack(spacing: 0) {
@@ -89,7 +91,6 @@ struct AuthView: View {
                 }
                 .padding(.horizontal, 16)
                 .padding(.vertical, 4)
-
             }
             .padding(.horizontal, 24)
 
@@ -106,8 +107,8 @@ struct AuthView: View {
 
 #Preview {
     AuthView(
-        onSignInWithApple: { },
-        onSignInWithGoogle: { },
-        onContinueWithEmail: { }
+        onSignInWithApple: {},
+        onSignInWithGoogle: {},
+        onContinueWithEmail: {}
     )
 }

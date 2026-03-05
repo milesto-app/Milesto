@@ -65,7 +65,7 @@ struct OnboardingGoalDescriptionView: View {
     NavigationStack {
         OnboardingGoalDescriptionView(
             goalDescription: .constant(""),
-            onContinue: { }
+            onContinue: {}
         )
     }
 }

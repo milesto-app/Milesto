@@ -8,7 +8,7 @@ struct RootView: View {
             switch authService.authState {
             case .authenticating:
                 ProgressView()
-            case .authenticated(let userId):
+            case let .authenticated(userId):
                 ProfileGateView(userId: userId)
             case .unauthenticated, .error:
                 AuthContainerView()

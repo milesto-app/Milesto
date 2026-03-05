@@ -23,7 +23,7 @@ enum BlurDirection {
                 UIColor.black.withAlphaComponent(0.7).cgColor,
                 UIColor.black.withAlphaComponent(0.3).cgColor,
                 UIColor.black.withAlphaComponent(0.1).cgColor,
-                UIColor.clear.cgColor
+                UIColor.clear.cgColor,
             ]
         case .bottomToTop:
             return [
@@ -31,7 +31,7 @@ enum BlurDirection {
                 UIColor.black.withAlphaComponent(0.1).cgColor,
                 UIColor.black.withAlphaComponent(0.3).cgColor,
                 UIColor.black.withAlphaComponent(0.7).cgColor,
-                UIColor.black.cgColor
+                UIColor.black.cgColor,
             ]
         }
     }
@@ -61,14 +61,14 @@ private struct VariableBlurView: UIViewRepresentable {
     let radius: Double
     let direction: BlurDirection
 
-    func makeUIView(context: Context) -> UIVisualEffectView {
+    func makeUIView(context _: Context) -> UIVisualEffectView {
         let effectView = UIVisualEffectView()
         effectView.backgroundColor = .clear
         applyEffect(to: effectView)
         return effectView
     }
 
-    func updateUIView(_ uiView: UIVisualEffectView, context: Context) {
+    func updateUIView(_ uiView: UIVisualEffectView, context _: Context) {
         applyEffect(to: uiView)
     }
 

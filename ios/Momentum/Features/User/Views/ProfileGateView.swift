@@ -1,5 +1,5 @@
-import SwiftUI
 import SwiftData
+import SwiftUI
 
 struct ProfileGateView: View {
     let userId: String
@@ -152,7 +152,8 @@ struct ProfileGateView: View {
                 resolveGoalState()
                 if goalComplete, roadmapReady,
                    let goal = localGoals.first(where: { $0.id == activeGoalId }),
-                   goal.status == ProfileStatus.intakeCompleted.rawValue {
+                   goal.status == ProfileStatus.intakeCompleted.rawValue
+                {
                     let hasRoadmap = await checkRoadmapStatus(goalId: goal.id)
                     roadmapReady = hasRoadmap
                 }

@@ -46,7 +46,7 @@ final class VoiceChatService {
 
         var payload: [String: Any] = [
             "type": "start_session",
-            "goalId": goalId
+            "goalId": goalId,
         ]
         if let conversationId {
             payload["conversationId"] = conversationId
@@ -94,10 +94,10 @@ final class VoiceChatService {
     private func handleMessage(_ message: URLSessionWebSocketTask.Message) {
         let data: Data
         switch message {
-        case .string(let text):
+        case let .string(text):
             guard let textData = text.data(using: .utf8) else { return }
             data = textData
-        case .data(let binaryData):
+        case let .data(binaryData):
             data = binaryData
         @unknown default:
             return
@@ -106,26 +106,26 @@ final class VoiceChatService {
         guard let event = try? JSONDecoder().decode(VoiceChatEvent.self, from: data) else { return }
 
         switch event {
-        case .sessionStarted(let id):
+        case let .sessionStarted(id):
             conversationId = id
             isSessionActive = true
-        case .audioData(let base64):
+        case let .audioData(base64):
             guard let audioData = Data(base64Encoded: base64) else { return }
             onAudioReceived?(audioData)
-        case .toolStart(let toolName):
+        case let .toolStart(toolName):
             onToolStart?(toolName)
-        case .toolEnd(let toolName):
+        case let .toolEnd(toolName):
             onToolEnd?(toolName)
         case .turnComplete:
             onTurnComplete?()
         case .interrupted:
             onInterrupted?()
-        case .sessionWarning(let remainingMs):
+        case let .sessionWarning(remainingMs):
             onSessionWarning?(remainingMs)
         case .sessionExpired:
             isSessionActive = false
             onSessionExpired?()
-        case .error(let message):
+        case let .error(message):
             onError?(message)
         }
     }

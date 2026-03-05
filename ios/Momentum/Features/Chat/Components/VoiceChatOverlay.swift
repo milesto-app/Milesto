@@ -87,7 +87,6 @@ struct VoiceChatOverlay: View {
         }
     }
 
-    @ViewBuilder
     private var centerContent: some View {
         VStack(spacing: 24) {
             ZStack {

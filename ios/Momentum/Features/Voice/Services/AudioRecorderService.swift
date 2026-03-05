@@ -32,7 +32,7 @@ final class AudioRecorderService {
             AVNumberOfChannelsKey: 1,
             AVLinearPCMBitDepthKey: 16,
             AVLinearPCMIsFloatKey: false,
-            AVLinearPCMIsBigEndianKey: false
+            AVLinearPCMIsBigEndianKey: false,
         ]
 
         audioRecorder = try AVAudioRecorder(url: url, settings: settings)

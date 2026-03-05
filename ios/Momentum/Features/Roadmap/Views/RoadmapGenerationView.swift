@@ -40,7 +40,7 @@ struct RoadmapGenerationView: View {
                 .onAppear {
                     withAnimation(
                         .easeInOut(duration: 1.2)
-                        .repeatForever(autoreverses: true)
+                            .repeatForever(autoreverses: true)
                     ) {
                         pulseScale = 1.15
                     }
@@ -103,7 +103,8 @@ struct RoadmapGenerationView: View {
             _ = try await RoadmapAPIService.shared.generateRoadmap(goalId: goalId)
         } catch {
             if let backendError = error as? BackendError,
-               case .httpError(statusCode: 409, _) = backendError {
+               case .httpError(statusCode: 409, _) = backendError
+            {
             } else {
                 hasFailed = true
                 isGenerating = false
@@ -113,7 +114,7 @@ struct RoadmapGenerationView: View {
 
         startTipRotation()
 
-        for _ in 0..<60 {
+        for _ in 0 ..< 60 {
             try? await Task.sleep(for: .seconds(3))
 
             do {
@@ -127,8 +128,7 @@ struct RoadmapGenerationView: View {
                     isGenerating = false
                     return
                 }
-            } catch {
-            }
+            } catch {}
         }
 
         hasFailed = true
@@ -153,5 +153,5 @@ struct RoadmapGenerationView: View {
 }
 
 #Preview {
-    RoadmapGenerationView(goalId: "preview-goal-id", onComplete: { })
+    RoadmapGenerationView(goalId: "preview-goal-id", onComplete: {})
 }

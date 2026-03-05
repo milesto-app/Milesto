@@ -123,8 +123,8 @@ struct AuthEmailView: View {
             email: .constant(""),
             password: .constant(""),
             isLoading: false,
-            onSignUp: { },
-            onSignIn: { }
+            onSignUp: {},
+            onSignIn: {}
         )
     }
 }

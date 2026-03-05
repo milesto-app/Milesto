@@ -4,7 +4,10 @@ struct IntakeMultipleChoiceView: View {
     let question: IntakeQuestion
     @Binding var answers: [String: IntakeAnswerDTO]
 
-    private var options: [String] { question.config?.options ?? [] }
+    private var options: [String] {
+        question.config?.options ?? []
+    }
+
     private var selectedOptions: Set<String> {
         Set(answers[question.id]?.selectedOptions ?? [])
     }

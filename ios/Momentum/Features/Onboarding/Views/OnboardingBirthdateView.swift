@@ -9,7 +9,7 @@ struct OnboardingBirthdateView: View {
         let now = Date()
         let minDate = calendar.date(byAdding: .year, value: -120, to: now)!
         let maxDate = calendar.date(byAdding: .year, value: -13, to: now)!
-        return minDate...maxDate
+        return minDate ... maxDate
     }
 
     var body: some View {
@@ -51,7 +51,7 @@ struct OnboardingBirthdateView: View {
     NavigationStack {
         OnboardingBirthdateView(
             dateOfBirth: .constant(Date()),
-            onContinue: { }
+            onContinue: {}
         )
     }
 }

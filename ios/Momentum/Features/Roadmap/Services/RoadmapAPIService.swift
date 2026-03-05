@@ -28,12 +28,11 @@ final class RoadmapAPIService {
 
     func getWeeklyPlan(goalId: String) async throws -> WeeklyPlanDTO? {
         do {
-            let plan: WeeklyPlanDTO = try await BackendClient.shared.request(
+            return try await BackendClient.shared.request(
                 method: "GET",
                 path: "goals/\(goalId)/roadmap/weekly-plan"
             )
-            return plan
-        } catch BackendError.httpError(statusCode: let code, _) where code == 404 {
+        } catch let BackendError.httpError(statusCode: code, _) where code == 404 {
             return nil
         }
     }

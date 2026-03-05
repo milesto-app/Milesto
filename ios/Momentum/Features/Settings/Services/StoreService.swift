@@ -44,7 +44,7 @@ final class StoreService: ObservableObject {
         let result = try await product.purchase()
 
         switch result {
-        case .success(let verification):
+        case let .success(verification):
             let transaction = try checkVerified(verification)
             await transaction.finish()
             purchasedProductIDs.insert(transaction.productID)
@@ -93,7 +93,7 @@ final class StoreService: ObservableObject {
         switch result {
         case .unverified:
             throw StoreError.verificationFailed
-        case .verified(let value):
+        case let .verified(value):
             return value
         }
     }

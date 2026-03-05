@@ -1,6 +1,6 @@
 import Foundation
-import SwiftData
 import Supabase
+import SwiftData
 
 @MainActor
 final class ProfileSyncService {
@@ -16,7 +16,7 @@ final class ProfileSyncService {
 
         if let session = try? await SupabaseConfig.client.auth.session {
             fetchedEmail = session.user.email
-            if case .string(let urlString) = session.user.userMetadata["avatar_url"] {
+            if case let .string(urlString) = session.user.userMetadata["avatar_url"] {
                 fetchedAvatarURL = urlString
             }
         }

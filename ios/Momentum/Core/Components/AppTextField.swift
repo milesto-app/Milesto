@@ -5,7 +5,7 @@ struct AppTextField: View {
     var label: LocalizedStringKey?
     var placeholder: LocalizedStringKey = ""
     var icon: TablerIconOutline?
-    var table: String? = nil
+    var table: String?
     var isSecure: Bool = false
     var errorMessage: String?
     var helperText: String?

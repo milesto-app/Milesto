@@ -27,5 +27,5 @@ struct IntakeCompletionView: View {
 }
 
 #Preview {
-    IntakeCompletionView(onContinue: { })
+    IntakeCompletionView(onContinue: {})
 }

@@ -112,7 +112,7 @@ struct WeeklyPlanDetailView: View {
         objectives: [
             "Courir 8 km sans pause",
             "Faire 2 seances de renforcement musculaire",
-            "Etirer apres chaque seance"
+            "Etirer apres chaque seance",
         ],
         summary: WeeklySummaryDTO(
             completionRate: 0.66,

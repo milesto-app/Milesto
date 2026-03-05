@@ -12,9 +12,9 @@ enum AuthState: Equatable {
             return true
         case (.authenticating, .authenticating):
             return true
-        case (.authenticated(let lhsId), .authenticated(let rhsId)):
+        case let (.authenticated(lhsId), .authenticated(rhsId)):
             return lhsId == rhsId
-        case (.error(let lhsMsg), .error(let rhsMsg)):
+        case let (.error(lhsMsg), .error(rhsMsg)):
             return lhsMsg == rhsMsg
         default:
             return false
@@ -42,7 +42,7 @@ enum AuthError: LocalizedError {
             return String(localized: "auth.error.networkError", table: "Auth")
         case .cancelled:
             return nil
-        case .unknown(let message):
+        case let .unknown(message):
             return message
         }
     }

@@ -32,9 +32,9 @@ enum ProfileUpdateError: LocalizedError {
 
     var errorDescription: String? {
         switch self {
-        case .validationFailed(_, let message):
+        case let .validationFailed(_, message):
             return message
-        case .serverError(let message):
+        case let .serverError(message):
             return message
         }
     }
@@ -47,7 +47,7 @@ final class ProfileService {
 
     func updateProfile(_ fields: ProfileUpdateFields) async throws -> ProfileDTO {
         let session = try await SupabaseConfig.client.auth.session
-        let response: ProfileDTO = try await SupabaseConfig.client
+        return try await SupabaseConfig.client
             .from("profiles")
             .update(fields)
             .eq("id", value: session.user.id)
@@ -55,7 +55,6 @@ final class ProfileService {
             .single()
             .execute()
             .value
-        return response
     }
 
     func fetchProfile(userId: String) async throws -> ProfileDTO? {

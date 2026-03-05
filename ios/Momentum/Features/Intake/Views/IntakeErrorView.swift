@@ -30,6 +30,6 @@ struct IntakeErrorView: View {
 #Preview {
     IntakeErrorView(
         message: "Something went wrong. Please try again.",
-        onRetry: { }
+        onRetry: {}
     )
 }

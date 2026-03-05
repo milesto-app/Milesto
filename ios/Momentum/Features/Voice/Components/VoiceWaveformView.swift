@@ -10,7 +10,7 @@ struct VoiceWaveformView: View {
 
     var body: some View {
         HStack(spacing: 2) {
-            ForEach(0..<barCount, id: \.self) { index in
+            ForEach(0 ..< barCount, id: \.self) { index in
                 RoundedRectangle(cornerRadius: barWidth / 2)
                     .fill(AppTheme.Colors.accent)
                     .frame(width: barWidth, height: isAnimating ? barHeight(for: index) : minHeight)
