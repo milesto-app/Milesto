@@ -15,6 +15,7 @@ struct MomentumApp: App {
             LocalWeeklyPlan.self,
             LocalDailyObjective.self,
             LocalCheckIn.self,
+            LocalDebrief.self,
             LocalConversation.self,
             LocalChatMessage.self,
         ])

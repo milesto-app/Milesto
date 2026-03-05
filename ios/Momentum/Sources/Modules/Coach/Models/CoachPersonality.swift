@@ -49,9 +49,4 @@ enum CoachPersonality: String, CaseIterable, Identifiable {
     static func from(databaseId: Int) -> CoachPersonality? {
         allCases.first { $0.databaseId == databaseId }
     }
-
-    init?(from dto: CoachDTO) {
-        guard let match = Self(rawValue: dto.personality) else { return nil }
-        self = match
-    }
 }
