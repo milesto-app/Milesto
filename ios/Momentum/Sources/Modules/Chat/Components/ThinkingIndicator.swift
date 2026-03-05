@@ -10,7 +10,7 @@ struct ThinkingIndicator: View {
     ]
 
     @State private var currentIndex = 0
-    @State private var shimmerOffset: CGFloat = -1.0
+    @State private var shimmerOffset: CGFloat = -0.3
     @State private var textOpacity: Double = 1.0
 
     private let timer = Timer.publish(every: 3, on: .main, in: .common).autoconnect()
@@ -26,8 +26,8 @@ struct ThinkingIndicator: View {
         .padding(.horizontal, 16)
         .padding(.vertical, 4)
         .onAppear {
-            withAnimation(.linear(duration: 1.5).repeatForever(autoreverses: false)) {
-                shimmerOffset = 1.0
+            withAnimation(.linear(duration: 0.8).repeatForever(autoreverses: false)) {
+                shimmerOffset = 1.3
             }
         }
         .onReceive(timer) { _ in
@@ -54,4 +54,8 @@ struct ThinkingIndicator: View {
             endPoint: UnitPoint(x: shimmerOffset + 0.3, y: 0.5)
         )
     }
+}
+
+#Preview {
+    ThinkingIndicator()
 }
