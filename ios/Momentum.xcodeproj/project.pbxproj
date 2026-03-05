@@ -13,19 +13,17 @@
 		4C824F332F33E27800056D79 /* Realtime in Frameworks */ = {isa = PBXBuildFile; productRef = 4C824F322F33E27800056D79 /* Realtime */; };
 		4C824F352F33E27800056D79 /* Storage in Frameworks */ = {isa = PBXBuildFile; productRef = 4C824F342F33E27800056D79 /* Storage */; };
 		4C824F382F33E35000056D79 /* Supabase in Frameworks */ = {isa = PBXBuildFile; productRef = 4C824F372F33E35000056D79 /* Supabase */; };
-		AE36B5462F5711F400FDDE32 /* Momentum – Achieve any goal.storekit in Resources */ = {isa = PBXBuildFile; fileRef = AE36B5452F5711F400FDDE32 /* Momentum – Achieve any goal.storekit */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		4C824E7D2F30B07D00056D79 /* Momentum.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Momentum.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		AE36B5452F5711F400FDDE32 /* Momentum – Achieve any goal.storekit */ = {isa = PBXFileReference; lastKnownFileType = text; path = "Momentum – Achieve any goal.storekit"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
 		4C824F3A2F33E36B00056D79 /* Exceptions for "Momentum" folder in "Momentum" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
-				Info.plist,
+				Config/Info.plist,
 			);
 			target = 4C824E7C2F30B07D00056D79 /* Momentum */;
 		};
@@ -62,7 +60,6 @@
 		4C824E742F30B07D00056D79 = {
 			isa = PBXGroup;
 			children = (
-				AE36B5452F5711F400FDDE32 /* Momentum – Achieve any goal.storekit */,
 				4C824E7F2F30B07D00056D79 /* Momentum */,
 				4C824E7E2F30B07D00056D79 /* Products */,
 			);
@@ -149,7 +146,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				AE36B5462F5711F400FDDE32 /* Momentum – Achieve any goal.storekit in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -294,13 +290,13 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_ENTITLEMENTS = Momentum/Momentum.entitlements;
+				CODE_SIGN_ENTITLEMENTS = Momentum/Config/Momentum.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 6W6LHS996D;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = Momentum/Info.plist;
+				INFOPLIST_FILE = Momentum/Config/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = Momentum;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Momentum needs microphone access so you can answer questions by speaking.";
@@ -335,13 +331,13 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_ENTITLEMENTS = Momentum/Momentum.entitlements;
+				CODE_SIGN_ENTITLEMENTS = Momentum/Config/Momentum.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 6W6LHS996D;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = Momentum/Info.plist;
+				INFOPLIST_FILE = Momentum/Config/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = Momentum;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Momentum needs microphone access so you can answer questions by speaking.";
