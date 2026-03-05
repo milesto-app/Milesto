@@ -1,5 +1,5 @@
 {
-  "sourceLanguage" : "fr",
+  "sourceLanguage" : "en",
   "strings" : {
     "voice.error.microphonePermission" : {
       "extractionState" : "manual",
