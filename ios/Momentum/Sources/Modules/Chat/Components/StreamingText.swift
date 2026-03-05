@@ -16,7 +16,7 @@ struct StreamingText: View {
             MarkdownText(content: content)
                 .transaction { $0.animation = nil }
         } else {
-            buildRevealedText()
+            MarkdownText(content: String(content.prefix(revealedCount)))
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .onChange(of: content) {
                     startRevealIfNeeded()
@@ -39,15 +39,6 @@ struct StreamingText: View {
                     revealTask = nil
                 }
         }
-    }
-
-    private func buildRevealedText() -> Text {
-        let end = min(revealedCount, content.count)
-        guard end > 0 else {
-            return Text(verbatim: "")
-        }
-        return Text(verbatim: String(content.prefix(end)))
-            .foregroundStyle(Colors.textPrimary)
     }
 
     private func startRevealIfNeeded() {
