@@ -15,7 +15,7 @@ struct AnimatedBackground: View {
 private struct AnimatedBackgroundCanvas: View {
     let t: Double
 
-    private let accent = AppTheme.Colors.accent
+    private let accent = Colors.accent
     private let warmTint = Color(red: 0.95, green: 0.78, blue: 0.42)
     private let coolTint = Color(red: 0.40, green: 0.55, blue: 0.85)
     private let softRose = Color(red: 0.88, green: 0.52, blue: 0.58)

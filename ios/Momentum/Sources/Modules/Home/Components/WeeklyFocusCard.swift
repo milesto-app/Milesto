@@ -15,7 +15,7 @@ struct WeeklyFocusCard: View {
         Button(action: onTap) {
             VStack(alignment: .leading, spacing: 12) {
                 HStack(spacing: 8) {
-                    TablerIcon(.target, size: 20, color: AppTheme.Colors.accent)
+                    TablerIcon(.target, size: 20, color: Colors.accent)
                     AppText("home.weeklyFocus.title", table: "Home", style: .headline)
                 }
 
@@ -30,10 +30,10 @@ struct WeeklyFocusCard: View {
                         ),
                         style: .caption
                     )
-                    .color(AppTheme.Colors.textSecondary)
+                    .color(Colors.textSecondary)
 
                     AppText(verbatim: "·", style: .caption)
-                        .color(AppTheme.Colors.textSecondary)
+                        .color(Colors.textSecondary)
 
                     AppText(
                         verbatim: String(
@@ -43,12 +43,12 @@ struct WeeklyFocusCard: View {
                         ),
                         style: .caption
                     )
-                    .color(AppTheme.Colors.textSecondary)
+                    .color(Colors.textSecondary)
                 }
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(24)
-            .glassEffect(.clear.interactive(), in: RoundedRectangle(cornerRadius: AppTheme.CornerRadius.xl))
+            .glassEffect(.clear.interactive(), in: RoundedRectangle(cornerRadius: 24))
         }
         .buttonStyle(.plain)
     }

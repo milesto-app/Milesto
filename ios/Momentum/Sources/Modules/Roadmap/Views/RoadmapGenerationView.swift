@@ -35,7 +35,7 @@ struct RoadmapGenerationView: View {
         VStack(spacing: 24) {
             Spacer()
 
-            TablerIcon(.sparkles, size: 56, color: AppTheme.Colors.accent)
+            TablerIcon(.sparkles, size: 56, color: Colors.accent)
                 .scaleEffect(pulseScale)
                 .onAppear {
                     withAnimation(
@@ -50,11 +50,11 @@ struct RoadmapGenerationView: View {
                 .alignment(.center)
 
             AppText("roadmap.generation.subtitle", table: "Roadmap", style: .subheadline)
-                .color(AppTheme.Colors.textSecondary)
+                .color(Colors.textSecondary)
                 .alignment(.center)
 
             AppText(verbatim: tips[currentTipIndex], style: .subheadline)
-                .color(AppTheme.Colors.textSecondary)
+                .color(Colors.textSecondary)
                 .alignment(.center)
                 .opacity(tipOpacity)
                 .padding(.top, 16)
@@ -63,7 +63,7 @@ struct RoadmapGenerationView: View {
 
             ProgressView()
                 .controlSize(.large)
-                .tint(AppTheme.Colors.accent)
+                .tint(Colors.accent)
                 .padding(.bottom, 40)
         }
         .padding(.horizontal, 24)
@@ -73,13 +73,13 @@ struct RoadmapGenerationView: View {
         VStack(spacing: 24) {
             Spacer()
 
-            TablerIcon(.alertCircle, size: 48, color: AppTheme.Colors.error)
+            TablerIcon(.alertCircle, size: 48, color: Colors.error)
 
             AppText("roadmap.generation.error.title", table: "Roadmap", style: .title)
                 .alignment(.center)
 
             AppText("roadmap.generation.error.subtitle", table: "Roadmap", style: .subheadline)
-                .color(AppTheme.Colors.textSecondary)
+                .color(Colors.textSecondary)
                 .alignment(.center)
 
             Spacer()

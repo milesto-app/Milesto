@@ -15,11 +15,11 @@ struct ChatBubble: View {
 
             if isUser {
                 AppText(verbatim: message.content, style: .body)
-                    .color(AppTheme.Colors.textOnAccent)
+                    .color(Colors.textOnAccent)
                     .padding(12)
                     .background(
-                        RoundedRectangle(cornerRadius: AppTheme.CornerRadius.lg)
-                            .fill(AppTheme.Colors.accent)
+                        RoundedRectangle(cornerRadius: 16)
+                            .fill(Colors.accent)
                     )
             } else {
                 MarkdownText(content: message.content)

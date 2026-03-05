@@ -7,13 +7,13 @@ struct IntakeCompletionView: View {
         VStack(spacing: 24) {
             Spacer()
 
-            TablerIcon(.circleCheck, size: 64, color: AppTheme.Colors.success)
+            TablerIcon(.circleCheck, size: 64, color: Colors.success)
 
             AppText("intake.complete.title", table: "Intake", style: .title)
                 .alignment(.center)
 
             AppText("intake.complete.subtitle", table: "Intake", style: .subheadline)
-                .color(AppTheme.Colors.textSecondary)
+                .color(Colors.textSecondary)
                 .alignment(.center)
 
             Spacer()

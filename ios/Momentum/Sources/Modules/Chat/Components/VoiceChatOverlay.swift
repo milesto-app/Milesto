@@ -63,7 +63,7 @@ struct VoiceChatOverlay: View {
         HStack {
             VStack(alignment: .leading, spacing: 4) {
                 HStack(spacing: 8) {
-                    TablerIcon(coachIcon, size: 20, color: AppTheme.Colors.accent)
+                    TablerIcon(coachIcon, size: 20, color: Colors.accent)
                     AppText(verbatim: coachName, style: .headline)
                         .color(.white)
                 }
@@ -73,7 +73,7 @@ struct VoiceChatOverlay: View {
                         .color(.white.opacity(0.6))
                 } else {
                     AppText(verbatim: timerText, style: .caption)
-                        .color(isSessionExpiring ? AppTheme.Colors.warning : .white.opacity(0.6))
+                        .color(isSessionExpiring ? Colors.warning : .white.opacity(0.6))
                 }
             }
 
@@ -91,17 +91,17 @@ struct VoiceChatOverlay: View {
         VStack(spacing: 24) {
             ZStack {
                 Circle()
-                    .fill(AppTheme.Colors.accent.opacity(0.15))
+                    .fill(Colors.accent.opacity(0.15))
                     .frame(width: 180, height: 180)
                     .scaleEffect(pulseScale)
 
                 Circle()
-                    .fill(AppTheme.Colors.accent.opacity(0.25))
+                    .fill(Colors.accent.opacity(0.25))
                     .frame(width: 120, height: 120)
                     .scaleEffect(pulseScale * 0.95)
 
                 Circle()
-                    .fill(AppTheme.Colors.accent.opacity(0.5))
+                    .fill(Colors.accent.opacity(0.5))
                     .frame(width: 80, height: 80)
 
                 TablerIcon(coachIcon, size: 36, color: .white)
@@ -109,7 +109,7 @@ struct VoiceChatOverlay: View {
 
             if let errorMessage {
                 AppText(verbatim: errorMessage, style: .subheadline)
-                    .color(AppTheme.Colors.error)
+                    .color(Colors.error)
                     .multilineTextAlignment(.center)
             } else if isConnecting {
                 HStack(spacing: 8) {
@@ -120,7 +120,7 @@ struct VoiceChatOverlay: View {
                 }
             } else if isSessionExpiring {
                 AppText("chat.voice.sessionExpiring", table: "Chat", style: .subheadline)
-                    .color(AppTheme.Colors.warning)
+                    .color(Colors.warning)
             } else {
                 stateLabel
             }
@@ -157,7 +157,7 @@ struct VoiceChatOverlay: View {
                     .frame(width: 56, height: 56)
                     .background(
                         Circle()
-                            .fill(isMuted ? AppTheme.Colors.error.opacity(0.8) : .white.opacity(0.15))
+                            .fill(isMuted ? Colors.error.opacity(0.8) : .white.opacity(0.15))
                     )
 
                     AppText(
@@ -176,7 +176,7 @@ struct VoiceChatOverlay: View {
                         .frame(width: 56, height: 56)
                         .background(
                             Circle()
-                                .fill(AppTheme.Colors.error)
+                                .fill(Colors.error)
                         )
 
                     AppText("chat.voice.close", table: "Chat", style: .caption)

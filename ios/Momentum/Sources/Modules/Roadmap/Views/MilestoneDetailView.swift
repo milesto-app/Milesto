@@ -37,37 +37,37 @@ struct MilestoneDetailView: View {
     private var descriptionCard: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack(spacing: 8) {
-                TablerIcon(.notebook, size: 20, color: AppTheme.Colors.accent)
+                TablerIcon(.notebook, size: 20, color: Colors.accent)
                 AppText("roadmap.milestone.description", table: "Roadmap", style: .headline)
             }
 
             AppText(verbatim: description, style: .body)
-                .color(AppTheme.Colors.textSecondary)
+                .color(Colors.textSecondary)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(16)
-        .glassEffect(.clear, in: RoundedRectangle(cornerRadius: AppTheme.CornerRadius.lg))
+        .glassEffect(.clear, in: RoundedRectangle(cornerRadius: 16))
     }
 
     private var expectedOutcomeCard: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack(spacing: 8) {
-                TablerIcon(.flag, size: 20, color: AppTheme.Colors.accent)
+                TablerIcon(.flag, size: 20, color: Colors.accent)
                 AppText("roadmap.milestone.expectedOutcome", table: "Roadmap", style: .headline)
             }
 
             AppText(verbatim: expectedOutcome, style: .body)
-                .color(AppTheme.Colors.textSecondary)
+                .color(Colors.textSecondary)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(16)
-        .glassEffect(.clear, in: RoundedRectangle(cornerRadius: AppTheme.CornerRadius.lg))
+        .glassEffect(.clear, in: RoundedRectangle(cornerRadius: 16))
     }
 
     private var targetCard: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack(spacing: 8) {
-                TablerIcon(.calendar, size: 20, color: AppTheme.Colors.accent)
+                TablerIcon(.calendar, size: 20, color: Colors.accent)
                 AppText("roadmap.milestone.target", table: "Roadmap", style: .headline)
             }
 
@@ -78,11 +78,11 @@ struct MilestoneDetailView: View {
                 ),
                 style: .body
             )
-            .color(AppTheme.Colors.accent)
+            .color(Colors.accent)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(16)
-        .glassEffect(.clear, in: RoundedRectangle(cornerRadius: AppTheme.CornerRadius.lg))
+        .glassEffect(.clear, in: RoundedRectangle(cornerRadius: 16))
     }
 }
 

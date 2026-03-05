@@ -58,7 +58,7 @@ struct ProfileGateView: View {
                     }
                 }
                 .labelStyle(.iconOnly)
-                .tint(AppTheme.Colors.accent)
+                .tint(Colors.accent)
                 .overlay(alignment: .top) {
                     ProgressiveBlur()
                 }
@@ -111,13 +111,13 @@ struct ProfileGateView: View {
                 .transition(.opacity)
             } else if connectionError {
                 VStack(spacing: 24) {
-                    TablerIcon(.wifiOff, size: 48, color: AppTheme.Colors.textSecondary)
+                    TablerIcon(.wifiOff, size: 48, color: Colors.textSecondary)
 
                     AppText("common.error.noConnection", table: "Common", style: .title)
                         .alignment(.center)
 
                     AppText("common.error.noConnectionMessage", table: "Common", style: .body)
-                        .color(AppTheme.Colors.textSecondary)
+                        .color(Colors.textSecondary)
                         .alignment(.center)
 
                     AppButton("common.retry", table: "Common") {

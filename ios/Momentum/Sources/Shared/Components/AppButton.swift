@@ -15,9 +15,9 @@ enum AppButtonStyle {
 
     var foregroundColor: Color {
         switch self {
-        case .primary: return AppTheme.Colors.textOnAccent
-        case .secondary: return AppTheme.Colors.accent
-        case .text: return AppTheme.Colors.accent
+        case .primary: return Colors.textOnAccent
+        case .secondary: return Colors.accent
+        case .text: return Colors.accent
         }
     }
 
@@ -31,7 +31,7 @@ enum AppButtonStyle {
     var borderColor: Color {
         switch self {
         case .primary: return Color.clear
-        case .secondary: return AppTheme.Colors.accent
+        case .secondary: return Colors.accent
         case .text: return Color.clear
         }
     }
@@ -94,12 +94,12 @@ struct AppButton: View {
         Button(action: action) {
             if style.usesGlass {
                 buttonContent
-                    .glassEffect(.regular.interactive().tint(AppTheme.Colors.accent), in: RoundedRectangle(cornerRadius: AppTheme.CornerRadius.md))
+                    .glassEffect(.regular.interactive().tint(Colors.accent), in: RoundedRectangle(cornerRadius: 12))
             } else {
                 buttonContent
-                    .cornerRadius(AppTheme.CornerRadius.md)
+                    .cornerRadius(12)
                     .overlay(
-                        RoundedRectangle(cornerRadius: AppTheme.CornerRadius.md)
+                        RoundedRectangle(cornerRadius: 12)
                             .stroke(style.borderColor, lineWidth: style.borderWidth)
                     )
             }

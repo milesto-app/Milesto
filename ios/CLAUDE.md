@@ -33,8 +33,8 @@ Available styles: `.largeTitle`, `.title`, `.headline`, `.body`, `.subheadline`,
 ```swift
 // Use this:
 TablerIcon(.home, size: 24)
-TablerIcon(.check, size: 20, color: AppTheme.Colors.accent)
-TablerIcon.filled(.heart, size: 24, color: AppTheme.Colors.error)
+TablerIcon(.check, size: 20, color: Colors.accent)
+TablerIcon.filled(.heart, size: 24, color: Colors.error)
 
 // NOT this:
 Image(systemName: "house.fill")
@@ -60,22 +60,20 @@ AppButton("Label", table: "Common", action: doSomething)
     .icon(.arrowRight, position: .trailing)
 ```
 
-**AppTheme** (`Core/Components/AppTheme.swift`) - Use for all design tokens (colors, corner radii). Never use hardcoded color values.
+**Colors** (`Core/Components/Colors.swift`) - Use for all design tokens (colors). Never use hardcoded color values. Corner radii use raw CGFloat values directly.
 
 ```swift
 // Use this:
-.foregroundStyle(AppTheme.Colors.accent)
-.cornerRadius(AppTheme.CornerRadius.sm)
+.foregroundStyle(Colors.accent)
+.cornerRadius(12)
 
 // NOT this:
 .foregroundStyle(.orange)
-.cornerRadius(8)
 ```
 
 Available tokens:
 
-- `AppTheme.Colors`: `.accent`, `.success`, `.error`, `.disabled`, `.textPrimary`, `.textSecondary`, `.textPlaceholder`, `.textOnAccent`, `.iconDefault`, `.fieldBackground`, `.fieldBorderFocused`, `.fieldBorderError`, `.fieldBorderDefault`
-- `AppTheme.CornerRadius`: `.sm` (8), `.md` (12), `.lg` (16), `.xl` (24)
+- `Colors`: `.accent`, `.success`, `.error`, `.disabled`, `.textPrimary`, `.textSecondary`, `.textPlaceholder`, `.textOnAccent`, `.iconDefault`, `.fieldBackground`, `.fieldBorderFocused`, `.fieldBorderError`, `.fieldBorderDefault`
 
 ## Localization
 

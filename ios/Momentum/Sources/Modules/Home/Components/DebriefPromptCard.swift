@@ -5,17 +5,17 @@ struct DebriefPromptCard: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
-            TablerIcon(.moonStars, size: 28, color: AppTheme.Colors.accent)
+            TablerIcon(.moonStars, size: 28, color: Colors.accent)
 
             AppText("home.debrief.prompt.title", table: "Home", style: .headline)
 
             AppText("home.debrief.prompt.subtitle", table: "Home", style: .subheadline)
-                .color(AppTheme.Colors.textSecondary)
+                .color(Colors.textSecondary)
 
             AppButton("home.debrief.prompt.action", table: "Home", style: .secondary, action: onTap)
                 .fullWidth()
         }
         .padding(24)
-        .glassEffect(.clear.interactive(), in: RoundedRectangle(cornerRadius: AppTheme.CornerRadius.xl))
+        .glassEffect(.clear.interactive(), in: RoundedRectangle(cornerRadius: 24))
     }
 }

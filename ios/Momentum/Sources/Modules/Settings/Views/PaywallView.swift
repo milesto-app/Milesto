@@ -43,9 +43,9 @@ struct PaywallView: View {
             Button {
                 dismiss()
             } label: {
-                TablerIcon(.x, size: 20, color: AppTheme.Colors.textSecondary)
+                TablerIcon(.x, size: 20, color: Colors.textSecondary)
                     .frame(width: 36, height: 36)
-                    .background(AppTheme.Colors.fieldBackground)
+                    .background(Colors.fieldBackground)
                     .clipShape(Circle())
             }
             .padding(.top, 16)
@@ -65,10 +65,10 @@ struct PaywallView: View {
         VStack(spacing: 16) {
             ZStack {
                 Circle()
-                    .fill(AppTheme.Colors.accent.opacity(0.12))
+                    .fill(Colors.accent.opacity(0.12))
                     .frame(width: 88, height: 88)
 
-                TablerIcon(.crown, size: 40, color: AppTheme.Colors.accent)
+                TablerIcon(.crown, size: 40, color: Colors.accent)
             }
 
             VStack(spacing: 8) {
@@ -110,11 +110,11 @@ struct PaywallView: View {
             VStack(spacing: 8) {
                 if let badge {
                     AppText(verbatim: badge, style: .caption)
-                        .color(AppTheme.Colors.textOnAccent)
+                        .color(Colors.textOnAccent)
                         .weight(.semibold)
                         .padding(.horizontal, 8)
                         .padding(.vertical, 4)
-                        .background(AppTheme.Colors.accent)
+                        .background(Colors.accent)
                         .clipShape(Capsule())
                 } else {
                     Spacer()
@@ -122,19 +122,19 @@ struct PaywallView: View {
                 }
 
                 AppText(verbatim: price, style: .title)
-                    .color(isSelected ? AppTheme.Colors.textPrimary : AppTheme.Colors.textSecondary)
+                    .color(isSelected ? Colors.textPrimary : Colors.textSecondary)
 
                 AppText(verbatim: period, style: .caption)
-                    .color(AppTheme.Colors.textSecondary)
+                    .color(Colors.textSecondary)
             }
             .frame(maxWidth: .infinity)
             .padding(.vertical, 16)
             .padding(.horizontal, 12)
-            .background(AppTheme.Colors.fieldBackground)
-            .cornerRadius(AppTheme.CornerRadius.lg)
+            .background(Colors.fieldBackground)
+            .cornerRadius(16)
             .overlay(
-                RoundedRectangle(cornerRadius: AppTheme.CornerRadius.lg)
-                    .stroke(isSelected ? AppTheme.Colors.accent : Color.clear, lineWidth: 2)
+                RoundedRectangle(cornerRadius: 16)
+                    .stroke(isSelected ? Colors.accent : Color.clear, lineWidth: 2)
             )
         }
         .buttonStyle(.plain)
@@ -149,20 +149,20 @@ struct PaywallView: View {
             featureRow(icon: .refresh, key: "paywall.feature.replan")
         }
         .padding(16)
-        .background(AppTheme.Colors.fieldBackground)
-        .cornerRadius(AppTheme.CornerRadius.lg)
+        .background(Colors.fieldBackground)
+        .cornerRadius(16)
     }
 
     private func featureRow(icon: TablerIconOutline, key: LocalizedStringKey) -> some View {
         HStack(spacing: 12) {
-            TablerIcon(icon, size: 22, color: AppTheme.Colors.accent)
+            TablerIcon(icon, size: 22, color: Colors.accent)
                 .frame(width: 28)
 
             AppText(key, table: "Paywall", style: .body)
 
             Spacer()
 
-            TablerIcon(.circleCheck, size: 20, color: AppTheme.Colors.accent)
+            TablerIcon(.circleCheck, size: 20, color: Colors.accent)
         }
         .padding(.vertical, 12)
     }

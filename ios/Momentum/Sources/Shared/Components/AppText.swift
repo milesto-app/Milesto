@@ -40,9 +40,9 @@ enum AppTextStyle {
     var defaultColor: Color {
         switch self {
         case .largeTitle, .title, .headline, .body:
-            return AppTheme.Colors.textPrimary
+            return Colors.textPrimary
         case .subheadline, .caption:
-            return AppTheme.Colors.textSecondary
+            return Colors.textSecondary
         }
     }
 }

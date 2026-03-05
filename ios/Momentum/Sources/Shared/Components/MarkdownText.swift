@@ -10,8 +10,8 @@ enum MarkdownBlock {
 
 struct MarkdownText: View {
     let content: String
-    var textColor: Color = AppTheme.Colors.textPrimary
-    var codeBackground: Color = AppTheme.Colors.codeBackground
+    var textColor: Color = Colors.textPrimary
+    var codeBackground: Color = Colors.codeBackground
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -34,7 +34,7 @@ struct MarkdownText: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(12)
                 .background(codeBackground)
-                .clipShape(RoundedRectangle(cornerRadius: AppTheme.CornerRadius.sm))
+                .clipShape(RoundedRectangle(cornerRadius: 8))
 
         case let .heading(text, level):
             inlineMarkdown(text)

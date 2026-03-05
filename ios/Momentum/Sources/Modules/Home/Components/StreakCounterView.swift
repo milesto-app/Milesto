@@ -25,10 +25,10 @@ struct StreakCounterView: View {
                 AppText("home.streak.title", table: "Home", style: .headline)
                 Spacer()
                 HStack(spacing: 4) {
-                    TablerIcon(.flame, size: 16, color: AppTheme.Colors.accent)
+                    TablerIcon(.flame, size: 16, color: Colors.accent)
                     AppText(verbatim: "\(streak.currentStreak)", style: .headline)
                         .weight(.regular)
-                        .color(AppTheme.Colors.accent)
+                        .color(Colors.accent)
                 }
             }
 
@@ -39,21 +39,21 @@ struct StreakCounterView: View {
 
                     VStack(spacing: 4) {
                         AppText(verbatim: label, style: .caption)
-                            .color(AppTheme.Colors.textSecondary)
+                            .color(Colors.textSecondary)
 
                         ZStack {
-                            RoundedRectangle(cornerRadius: AppTheme.CornerRadius.sm)
-                                .fill(isActive ? AppTheme.Colors.accent.opacity(0.15) : AppTheme.Colors.textSecondary.opacity(0.1))
+                            RoundedRectangle(cornerRadius: 8)
+                                .fill(isActive ? Colors.accent.opacity(0.15) : Colors.textSecondary.opacity(0.1))
                                 .frame(height: 40)
 
                             if isActive {
-                                TablerIcon(.check, size: 16, color: AppTheme.Colors.accent)
+                                TablerIcon(.check, size: 16, color: Colors.accent)
                             }
                         }
                         .overlay(
-                            RoundedRectangle(cornerRadius: AppTheme.CornerRadius.sm)
+                            RoundedRectangle(cornerRadius: 8)
                                 .strokeBorder(
-                                    isToday ? AppTheme.Colors.accent : Color.clear,
+                                    isToday ? Colors.accent : Color.clear,
                                     lineWidth: 1.5
                                 )
                         )
@@ -65,17 +65,17 @@ struct StreakCounterView: View {
             HStack(spacing: 24) {
                 HStack(spacing: 4) {
                     Circle()
-                        .fill(AppTheme.Colors.accent.opacity(0.15))
+                        .fill(Colors.accent.opacity(0.15))
                         .frame(width: 8, height: 8)
                     AppText("home.streak.completed", table: "Home", style: .caption)
-                        .color(AppTheme.Colors.textSecondary)
+                        .color(Colors.textSecondary)
                 }
                 HStack(spacing: 4) {
                     Circle()
-                        .fill(AppTheme.Colors.textSecondary.opacity(0.1))
+                        .fill(Colors.textSecondary.opacity(0.1))
                         .frame(width: 8, height: 8)
                     AppText("home.streak.missed", table: "Home", style: .caption)
-                        .color(AppTheme.Colors.textSecondary)
+                        .color(Colors.textSecondary)
                 }
             }
         }

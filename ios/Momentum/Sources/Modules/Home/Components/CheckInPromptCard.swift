@@ -13,7 +13,7 @@ struct CheckInPromptCard: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
-            TablerIcon(.sunrise, size: 28, color: AppTheme.Colors.accent)
+            TablerIcon(.sunrise, size: 28, color: Colors.accent)
 
             AppText(
                 verbatim: String(
@@ -24,7 +24,7 @@ struct CheckInPromptCard: View {
             )
 
             AppText("home.checkin.question", table: "Home", style: .subheadline)
-                .color(AppTheme.Colors.textSecondary)
+                .color(Colors.textSecondary)
 
             HStack(spacing: 12) {
                 energyButton(.high, icon: .bolt, label: String(localized: "home.checkin.energy.high", table: "Home"))
@@ -48,7 +48,7 @@ struct CheckInPromptCard: View {
 
             if let error {
                 AppText(verbatim: error, style: .caption)
-                    .color(AppTheme.Colors.error)
+                    .color(Colors.error)
             }
 
             AppButton("home.checkin.submit", table: "Home", style: .primary) {
@@ -58,7 +58,7 @@ struct CheckInPromptCard: View {
             .disabled(selectedEnergy == nil || isSubmitting)
         }
         .padding(24)
-        .glassEffect(.clear.interactive(), in: RoundedRectangle(cornerRadius: AppTheme.CornerRadius.xl))
+        .glassEffect(.clear.interactive(), in: RoundedRectangle(cornerRadius: 24))
     }
 
     private func energyButton(_ level: EnergyLevel, icon: TablerIconOutline, label: String) -> some View {
@@ -71,19 +71,19 @@ struct CheckInPromptCard: View {
             UISelectionFeedbackGenerator().selectionChanged()
         } label: {
             VStack(spacing: 4) {
-                TablerIcon(icon, size: 24, color: isSelected ? AppTheme.Colors.accent : AppTheme.Colors.iconDefault)
+                TablerIcon(icon, size: 24, color: isSelected ? Colors.accent : Colors.iconDefault)
                 AppText(verbatim: label, style: .caption)
-                    .color(isSelected ? AppTheme.Colors.accent : AppTheme.Colors.textSecondary)
+                    .color(isSelected ? Colors.accent : Colors.textSecondary)
             }
             .frame(maxWidth: .infinity)
             .padding(.vertical, 12)
             .background(
-                RoundedRectangle(cornerRadius: AppTheme.CornerRadius.md)
-                    .fill(isSelected ? AppTheme.Colors.accent.opacity(0.15) : Color.clear)
+                RoundedRectangle(cornerRadius: 12)
+                    .fill(isSelected ? Colors.accent.opacity(0.15) : Color.clear)
             )
             .overlay(
-                RoundedRectangle(cornerRadius: AppTheme.CornerRadius.md)
-                    .stroke(isSelected ? AppTheme.Colors.accent : Color.clear, lineWidth: 1.5)
+                RoundedRectangle(cornerRadius: 12)
+                    .stroke(isSelected ? Colors.accent : Color.clear, lineWidth: 1.5)
             )
         }
         .buttonStyle(.plain)

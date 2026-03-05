@@ -73,7 +73,7 @@ struct ChatHistorySidebar: View {
 
     private var emptyState: some View {
         VStack(spacing: 12) {
-            TablerIcon(.messagesOff, size: 40, color: AppTheme.Colors.textSecondary)
+            TablerIcon(.messagesOff, size: 40, color: Colors.textSecondary)
             AppText("chat.history.empty", table: "Chat", style: .subheadline)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)

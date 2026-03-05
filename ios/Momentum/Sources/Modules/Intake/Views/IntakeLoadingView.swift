@@ -9,14 +9,14 @@ struct IntakeLoadingView: View {
 
             ProgressView()
                 .controlSize(.large)
-                .tint(AppTheme.Colors.accent)
+                .tint(Colors.accent)
 
             AppText(
                 isGeneratingProfile ? "intake.loading.profile" : "intake.loading.questions",
                 table: "Intake",
                 style: .subheadline
             )
-            .color(AppTheme.Colors.textSecondary)
+            .color(Colors.textSecondary)
             .alignment(.center)
 
             Spacer()

@@ -41,7 +41,7 @@ struct GoalSetupView: View {
                     Color.black.opacity(0.3)
                         .ignoresSafeArea()
                     ProgressView()
-                        .tint(AppTheme.Colors.accent)
+                        .tint(Colors.accent)
                 }
             }
         }

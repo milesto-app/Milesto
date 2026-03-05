@@ -30,7 +30,7 @@ struct DebriefSheetView: View {
 
                     if let error {
                         AppText(verbatim: error, style: .caption)
-                            .color(AppTheme.Colors.error)
+                            .color(Colors.error)
                     }
 
                     AppButton("home.debrief.submit", table: "Home", style: .primary) {
@@ -66,9 +66,9 @@ struct DebriefSheetView: View {
     private func ratingPill(_ rating: DifficultyRating, label: String, objectiveId: String) -> some View {
         let isSelected = ratings[objectiveId] == rating
         let pillColor: Color = switch rating {
-        case .easy: AppTheme.Colors.accent
-        case .moderate: AppTheme.Colors.warning
-        case .hard: AppTheme.Colors.error
+        case .easy: Colors.accent
+        case .moderate: Colors.warning
+        case .hard: Colors.error
         }
 
         return Button {
@@ -78,7 +78,7 @@ struct DebriefSheetView: View {
         } label: {
             AppText(verbatim: label, style: .caption)
                 .weight(.medium)
-                .color(isSelected ? pillColor : AppTheme.Colors.textSecondary)
+                .color(isSelected ? pillColor : Colors.textSecondary)
                 .padding(.horizontal, 12)
                 .padding(.vertical, 8)
                 .background(
@@ -87,7 +87,7 @@ struct DebriefSheetView: View {
                 )
                 .overlay(
                     Capsule()
-                        .stroke(isSelected ? pillColor : AppTheme.Colors.textSecondary.opacity(0.3), lineWidth: 1)
+                        .stroke(isSelected ? pillColor : Colors.textSecondary.opacity(0.3), lineWidth: 1)
                 )
         }
         .buttonStyle(.plain)

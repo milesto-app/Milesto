@@ -206,12 +206,12 @@ struct SettingsView: View {
     private func editableRow(icon: TablerIconOutline, label: LocalizedStringKey, value: String, action: @escaping () -> Void) -> some View {
         Button(action: action) {
             HStack(spacing: 12) {
-                TablerIcon(icon, size: 24, color: AppTheme.Colors.accent)
+                TablerIcon(icon, size: 24, color: Colors.accent)
                 AppText(label, table: "Settings", style: .body)
                 Spacer()
                 AppText(verbatim: value, style: .body)
-                    .color(AppTheme.Colors.textSecondary)
-                TablerIcon(.chevronRight, size: 16, color: AppTheme.Colors.textSecondary)
+                    .color(Colors.textSecondary)
+                TablerIcon(.chevronRight, size: 16, color: Colors.textSecondary)
             }
             .contentShape(Rectangle())
         }
@@ -220,11 +220,11 @@ struct SettingsView: View {
 
     private func detailRow(icon: TablerIconOutline, label: LocalizedStringKey, value: String) -> some View {
         HStack(spacing: 12) {
-            TablerIcon(icon, size: 24, color: AppTheme.Colors.accent)
+            TablerIcon(icon, size: 24, color: Colors.accent)
             AppText(label, table: "Settings", style: .body)
             Spacer()
             AppText(verbatim: value, style: .body)
-                .color(AppTheme.Colors.textSecondary)
+                .color(Colors.textSecondary)
         }
     }
 
@@ -232,14 +232,14 @@ struct SettingsView: View {
         Section {
             if storeService.isPro {
                 HStack(spacing: 12) {
-                    TablerIcon(.crown, size: 24, color: AppTheme.Colors.accent)
+                    TablerIcon(.crown, size: 24, color: Colors.accent)
                     AppText("settings.pro", table: "Paywall", style: .body)
                         .weight(.semibold)
                     Spacer()
                     HStack(spacing: 4) {
-                        TablerIcon(.circleCheck, size: 16, color: AppTheme.Colors.success)
+                        TablerIcon(.circleCheck, size: 16, color: Colors.success)
                         AppText("settings.pro.active", table: "Paywall", style: .caption)
-                            .color(AppTheme.Colors.success)
+                            .color(Colors.success)
                             .weight(.semibold)
                     }
                 }
@@ -248,11 +248,11 @@ struct SettingsView: View {
                     showPaywall = true
                 } label: {
                     HStack(spacing: 12) {
-                        TablerIcon(.crown, size: 24, color: AppTheme.Colors.accent)
+                        TablerIcon(.crown, size: 24, color: Colors.accent)
                         AppText("settings.pro", table: "Paywall", style: .body)
                             .weight(.semibold)
                         Spacer()
-                        TablerIcon(.chevronRight, size: 16, color: AppTheme.Colors.textSecondary)
+                        TablerIcon(.chevronRight, size: 16, color: Colors.textSecondary)
                     }
                     .contentShape(Rectangle())
                 }
@@ -267,7 +267,7 @@ struct SettingsView: View {
                 showNewGoal = true
             } label: {
                 HStack(spacing: 12) {
-                    TablerIcon(.target, size: 24, color: AppTheme.Colors.accent)
+                    TablerIcon(.target, size: 24, color: Colors.accent)
                     AppText("settings.newGoal", table: "Settings", style: .body)
                 }
                 .contentShape(Rectangle())
@@ -282,9 +282,9 @@ struct SettingsView: View {
                 showSignOutAlert = true
             } label: {
                 HStack(spacing: 12) {
-                    TablerIcon(.logout, size: 24, color: AppTheme.Colors.error)
+                    TablerIcon(.logout, size: 24, color: Colors.error)
                     AppText("settings.signOut", table: "Settings", style: .body)
-                        .color(AppTheme.Colors.error)
+                        .color(Colors.error)
                 }
                 .contentShape(Rectangle())
             }
@@ -292,7 +292,7 @@ struct SettingsView: View {
             HStack {
                 Spacer()
                 AppText(verbatim: "Version 1.0.0", style: .caption)
-                    .color(AppTheme.Colors.textSecondary)
+                    .color(Colors.textSecondary)
                 Spacer()
             }
             .padding(.top, 24)

@@ -18,10 +18,10 @@ struct IntakeDateQuestionView: View {
         VStack(spacing: 16) {
             if hasSelected {
                 AppText(verbatim: selectedDate.formatted(.dateTime.day().month(.wide).year()), style: .title)
-                    .color(AppTheme.Colors.accent)
+                    .color(Colors.accent)
             } else {
                 AppText("intake.question.datePlaceholder", table: "Intake", style: .body)
-                    .color(AppTheme.Colors.textSecondary)
+                    .color(Colors.textSecondary)
             }
 
             DatePicker(
@@ -31,7 +31,7 @@ struct IntakeDateQuestionView: View {
                 displayedComponents: .date
             )
             .datePickerStyle(.graphical)
-            .tint(AppTheme.Colors.accent)
+            .tint(Colors.accent)
             .labelsHidden()
             .onChange(of: selectedDate) {
                 hasSelected = true

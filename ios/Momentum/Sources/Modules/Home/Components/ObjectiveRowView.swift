@@ -7,13 +7,13 @@ struct ObjectiveRowView: View {
     private var difficultyColor: Color {
         switch objective.difficultyRating {
         case .easy:
-            return AppTheme.Colors.accent
+            return Colors.accent
         case .moderate:
-            return AppTheme.Colors.warning
+            return Colors.warning
         case .hard:
-            return AppTheme.Colors.error
+            return Colors.error
         case nil:
-            return AppTheme.Colors.textSecondary
+            return Colors.textSecondary
         }
     }
 
@@ -36,15 +36,15 @@ struct ObjectiveRowView: View {
                 TablerIcon(
                     objective.isCompleted ? .circleCheck : .circle,
                     size: 22,
-                    color: objective.isCompleted ? AppTheme.Colors.accent : AppTheme.Colors.iconDefault
+                    color: objective.isCompleted ? Colors.accent : Colors.iconDefault
                 )
 
                 VStack(alignment: .leading, spacing: 4) {
                     AppText(verbatim: objective.title, style: .body)
-                        .color(objective.isCompleted ? AppTheme.Colors.textSecondary : AppTheme.Colors.textPrimary)
+                        .color(objective.isCompleted ? Colors.textSecondary : Colors.textPrimary)
 
                     AppText(verbatim: objective.description, style: .caption)
-                        .color(AppTheme.Colors.textSecondary)
+                        .color(Colors.textSecondary)
                         .lineLimit(1)
                 }
 

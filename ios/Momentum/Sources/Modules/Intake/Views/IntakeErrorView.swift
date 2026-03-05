@@ -8,13 +8,13 @@ struct IntakeErrorView: View {
         VStack(spacing: 24) {
             Spacer()
 
-            TablerIcon(.alertTriangle, size: 48, color: AppTheme.Colors.error)
+            TablerIcon(.alertTriangle, size: 48, color: Colors.error)
 
             AppText("intake.error.title", table: "Intake", style: .title)
                 .alignment(.center)
 
             AppText(verbatim: message, style: .subheadline)
-                .color(AppTheme.Colors.textSecondary)
+                .color(Colors.textSecondary)
                 .alignment(.center)
 
             Spacer()

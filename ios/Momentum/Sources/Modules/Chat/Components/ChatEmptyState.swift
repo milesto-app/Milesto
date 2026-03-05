@@ -29,12 +29,12 @@ struct ChatEmptyState: View {
                     onSelectPrompt(String(localized: String.LocalizationValue(prompt.key), table: "Chat"))
                 } label: {
                     VStack(alignment: .leading, spacing: 12) {
-                        TablerIcon(prompt.icon, size: 24, color: AppTheme.Colors.accent)
+                        TablerIcon(prompt.icon, size: 24, color: Colors.accent)
                             .frame(width: 40, height: 40)
-                            .background(AppTheme.Colors.accent.opacity(0.1), in: .circle)
+                            .background(Colors.accent.opacity(0.1), in: .circle)
 
                         AppText(LocalizedStringKey(prompt.key), table: "Chat", style: .subheadline)
-                            .color(AppTheme.Colors.textPrimary)
+                            .color(Colors.textPrimary)
                             .multilineTextAlignment(.leading)
                             .lineLimit(2)
 
@@ -42,7 +42,7 @@ struct ChatEmptyState: View {
                     }
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(16)
-                    .glassEffect(.regular.interactive(), in: RoundedRectangle(cornerRadius: AppTheme.CornerRadius.lg))
+                    .glassEffect(.regular.interactive(), in: RoundedRectangle(cornerRadius: 16))
                 }
                 .opacity(shouldShow ? 1 : 0)
                 .scaleEffect(shouldShow ? 1 : 0.95)

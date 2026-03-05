@@ -104,10 +104,10 @@ struct HomeView: View {
                     ),
                     style: .subheadline
                 )
-                .color(AppTheme.Colors.textSecondary)
+                .color(Colors.textSecondary)
                 Spacer()
                 AppText(verbatim: formattedDate, style: .caption)
-                    .color(AppTheme.Colors.textSecondary)
+                    .color(Colors.textSecondary)
             }
 
             AppText(verbatim: currentGoal?.title ?? "", style: .title)
@@ -116,10 +116,10 @@ struct HomeView: View {
                 GeometryReader { geometry in
                     ZStack(alignment: .leading) {
                         Capsule()
-                            .fill(AppTheme.Colors.textSecondary.opacity(0.1))
+                            .fill(Colors.textSecondary.opacity(0.1))
                             .frame(height: 8)
                         Capsule()
-                            .fill(AppTheme.Colors.accent)
+                            .fill(Colors.accent)
                             .frame(
                                 width: geometry.size.width * goalProgress,
                                 height: 8
@@ -134,13 +134,13 @@ struct HomeView: View {
                         style: .subheadline
                     )
                     .weight(.semibold)
-                    .color(AppTheme.Colors.accent)
+                    .color(Colors.accent)
                     Spacer()
                 }
             }
         }
         .padding(24)
-        .glassEffect(.clear.interactive(), in: RoundedRectangle(cornerRadius: AppTheme.CornerRadius.xl))
+        .glassEffect(.clear.interactive(), in: RoundedRectangle(cornerRadius: 24))
         .padding(.horizontal, 16)
         .padding(.top, 32)
         .padding(.bottom, 16)
@@ -193,7 +193,7 @@ struct HomeView: View {
                         verbatim: "\(completedCount)/\(objectives.count)",
                         style: .subheadline
                     )
-                    .color(AppTheme.Colors.accent)
+                    .color(Colors.accent)
                 }
                 .padding(.horizontal, 24)
                 .padding(.top, 12)
@@ -227,7 +227,7 @@ struct HomeView: View {
     private var objectivesSection: some View {
         if objectives.isEmpty {
             AppText("home.objectives.locked", table: "Home", style: .subheadline)
-                .color(AppTheme.Colors.textSecondary)
+                .color(Colors.textSecondary)
                 .padding(.horizontal, 24)
                 .padding(.vertical, 16)
         } else {

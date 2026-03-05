@@ -159,17 +159,17 @@ struct EditLanguageSheet: View {
 
                                 Spacer()
 
-                                TablerIcon(.circleCheck, size: 24, color: AppTheme.Colors.accent)
+                                TablerIcon(.circleCheck, size: 24, color: Colors.accent)
                                     .opacity(selectedLanguage == code ? 1 : 0)
                                     .scaleEffect(selectedLanguage == code ? 1 : 0.5)
                                     .animation(.spring(response: 0.3, dampingFraction: 0.7), value: selectedLanguage)
                             }
                             .padding(16)
                             .contentShape(Rectangle())
-                            .background(AppTheme.Colors.fieldBackground, in: RoundedRectangle(cornerRadius: AppTheme.CornerRadius.md))
+                            .background(Colors.fieldBackground, in: RoundedRectangle(cornerRadius: 12))
                             .overlay(
-                                RoundedRectangle(cornerRadius: AppTheme.CornerRadius.md)
-                                    .stroke(selectedLanguage == code ? AppTheme.Colors.accent : AppTheme.Colors.fieldBorderDefault, lineWidth: selectedLanguage == code ? 2 : 1)
+                                RoundedRectangle(cornerRadius: 12)
+                                    .stroke(selectedLanguage == code ? Colors.accent : Colors.fieldBorderDefault, lineWidth: selectedLanguage == code ? 2 : 1)
                                     .animation(.spring(response: 0.3, dampingFraction: 0.7), value: selectedLanguage)
                             )
                         }

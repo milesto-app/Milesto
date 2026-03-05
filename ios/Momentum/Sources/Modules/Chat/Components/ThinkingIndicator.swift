@@ -18,7 +18,7 @@ struct ThinkingIndicator: View {
     var body: some View {
         HStack {
             AppText(verbatim: String(localized: labels[currentIndex]), style: .body)
-                .color(AppTheme.Colors.textPrimary)
+                .color(Colors.textPrimary)
                 .opacity(textOpacity)
                 .mask(shimmerMask)
             Spacer()

@@ -28,30 +28,30 @@ struct AppTextField: View {
 
     private var borderColor: Color {
         if hasError {
-            return AppTheme.Colors.fieldBorderError
+            return Colors.fieldBorderError
         } else if isFocused {
-            return AppTheme.Colors.fieldBorderFocused
+            return Colors.fieldBorderFocused
         }
-        return AppTheme.Colors.fieldBorderDefault
+        return Colors.fieldBorderDefault
     }
 
     private var iconColor: Color {
         if hasError {
-            return AppTheme.Colors.error
+            return Colors.error
         } else if isFocused {
-            return AppTheme.Colors.accent
+            return Colors.accent
         }
-        return AppTheme.Colors.iconDefault
+        return Colors.iconDefault
     }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
             ZStack(alignment: multiline ? .topLeading : .leading) {
-                RoundedRectangle(cornerRadius: AppTheme.CornerRadius.md)
-                    .fill(AppTheme.Colors.fieldBackground)
+                RoundedRectangle(cornerRadius: 12)
+                    .fill(Colors.fieldBackground)
                     .frame(height: multiline ? 150 : 56)
                     .overlay(
-                        RoundedRectangle(cornerRadius: AppTheme.CornerRadius.md)
+                        RoundedRectangle(cornerRadius: 12)
                             .stroke(borderColor, lineWidth: hasError || isFocused ? 2 : 1)
                     )
 
@@ -66,14 +66,14 @@ struct AppTextField: View {
                         if let label = label {
                             Text(label, tableName: table)
                                 .font(shouldFloatLabel ? .caption : .body)
-                                .foregroundColor(hasError ? AppTheme.Colors.error : (isFocused ? AppTheme.Colors.accent : AppTheme.Colors.iconDefault))
+                                .foregroundColor(hasError ? Colors.error : (isFocused ? Colors.accent : Colors.iconDefault))
                                 .offset(y: shouldFloatLabel ? (multiline ? 0 : -12) : (multiline ? 8 : 0))
                                 .animation(.easeOut(duration: 0.2), value: shouldFloatLabel)
                         }
 
                         if text.isEmpty && (label == nil || shouldFloatLabel) {
                             Text(label == nil ? placeholder : (shouldFloatLabel ? placeholder : ""), tableName: table)
-                                .foregroundColor(AppTheme.Colors.textPlaceholder)
+                                .foregroundColor(Colors.textPlaceholder)
                                 .offset(y: label != nil ? (multiline ? 20 : 6) : 0)
                         }
 
@@ -104,7 +104,7 @@ struct AppTextField: View {
                         Button {
                             isPasswordVisible.toggle()
                         } label: {
-                            TablerIcon(isPasswordVisible ? .eyeOff : .eye, size: 16, color: AppTheme.Colors.iconDefault)
+                            TablerIcon(isPasswordVisible ? .eyeOff : .eye, size: 16, color: Colors.iconDefault)
                         }
                         .buttonStyle(.plain)
                     }
@@ -113,17 +113,17 @@ struct AppTextField: View {
                 .padding(.vertical, multiline ? 8 : 0)
             }
             .frame(height: multiline ? 150 : 56)
-            .clipShape(RoundedRectangle(cornerRadius: AppTheme.CornerRadius.md))
+            .clipShape(RoundedRectangle(cornerRadius: 12))
 
             if let errorMessage = errorMessage {
                 Text(errorMessage)
                     .font(.caption)
-                    .foregroundColor(AppTheme.Colors.error)
+                    .foregroundColor(Colors.error)
                     .padding(.horizontal, 4)
             } else if let helperText = helperText {
                 Text(helperText)
                     .font(.caption)
-                    .foregroundColor(AppTheme.Colors.iconDefault)
+                    .foregroundColor(Colors.iconDefault)
                     .padding(.horizontal, 4)
             }
         }

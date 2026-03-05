@@ -20,7 +20,7 @@ struct ProfileAvatarView: View {
                 case .empty:
                     ZStack {
                         Circle()
-                            .fill(AppTheme.Colors.accent.opacity(0.12))
+                            .fill(Colors.accent.opacity(0.12))
                             .frame(width: size, height: size)
                         ProgressView()
                     }
@@ -36,10 +36,10 @@ struct ProfileAvatarView: View {
     private var initialsView: some View {
         ZStack {
             Circle()
-                .fill(AppTheme.Colors.accent.opacity(0.12))
+                .fill(Colors.accent.opacity(0.12))
                 .frame(width: size, height: size)
             AppText(verbatim: initials, style: size > 60 ? .title : .headline)
-                .color(AppTheme.Colors.accent)
+                .color(Colors.accent)
         }
     }
 }

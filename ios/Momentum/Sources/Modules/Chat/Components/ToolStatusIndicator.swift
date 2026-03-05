@@ -25,7 +25,7 @@ struct ToolStatusIndicator: View {
     var body: some View {
         HStack {
             AppText(description, table: "Chat", style: .caption)
-                .color(AppTheme.Colors.textSecondary)
+                .color(Colors.textSecondary)
                 .opacity(opacity)
                 .onAppear {
                     withAnimation(.easeInOut(duration: 0.8).repeatForever(autoreverses: true)) {

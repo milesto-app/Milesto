@@ -22,18 +22,18 @@ struct IntakeTextQuestionView: View {
 
     var body: some View {
         ZStack(alignment: .topLeading) {
-            RoundedRectangle(cornerRadius: AppTheme.CornerRadius.sm)
-                .fill(AppTheme.Colors.fieldBackground)
+            RoundedRectangle(cornerRadius: 8)
+                .fill(Colors.fieldBackground)
 
-            RoundedRectangle(cornerRadius: AppTheme.CornerRadius.sm)
+            RoundedRectangle(cornerRadius: 8)
                 .stroke(
-                    isFocused ? AppTheme.Colors.fieldBorderFocused : AppTheme.Colors.fieldBorderDefault,
+                    isFocused ? Colors.fieldBorderFocused : Colors.fieldBorderDefault,
                     lineWidth: 2
                 )
 
             if (answers[question.id]?.answerText ?? "").isEmpty && !isFocused {
                 AppText("intake.question.placeholder", table: "Intake", style: .body)
-                    .color(AppTheme.Colors.textPlaceholder)
+                    .color(Colors.textPlaceholder)
                     .padding(16)
             }
 

@@ -31,7 +31,7 @@ struct AuthView: View {
                     Group {
                         if isAppleLoading {
                             ProgressView()
-                                .tint(AppTheme.Colors.textPrimary)
+                                .tint(Colors.textPrimary)
                         } else {
                             HStack(spacing: 12) {
                                 Image("AppleLogo")
@@ -47,9 +47,9 @@ struct AuthView: View {
                     }
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 16)
-                    .foregroundColor(AppTheme.Colors.textPrimary)
+                    .foregroundColor(Colors.textPrimary)
                     .background(.clear)
-                    .glassEffect(.regular.interactive(), in: RoundedRectangle(cornerRadius: AppTheme.CornerRadius.md))
+                    .glassEffect(.regular.interactive(), in: RoundedRectangle(cornerRadius: 12))
                 }
                 .disabled(isAnyLoading)
 
@@ -57,7 +57,7 @@ struct AuthView: View {
                     Group {
                         if isGoogleLoading {
                             ProgressView()
-                                .tint(AppTheme.Colors.textPrimary)
+                                .tint(Colors.textPrimary)
                         } else {
                             HStack(spacing: 12) {
                                 Image("GoogleLogo")
@@ -72,9 +72,9 @@ struct AuthView: View {
                     }
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 16)
-                    .foregroundColor(AppTheme.Colors.textPrimary)
+                    .foregroundColor(Colors.textPrimary)
                     .background(.clear)
-                    .glassEffect(.regular.interactive(), in: RoundedRectangle(cornerRadius: AppTheme.CornerRadius.md))
+                    .glassEffect(.regular.interactive(), in: RoundedRectangle(cornerRadius: 12))
                 }
                 .disabled(isAnyLoading)
 

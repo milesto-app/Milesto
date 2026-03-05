@@ -24,7 +24,7 @@ struct WeeklyPlanDetailView: View {
                         )
 
                         AppText(verbatim: weekStartDate, style: .subheadline)
-                            .color(AppTheme.Colors.textSecondary)
+                            .color(Colors.textSecondary)
                     }
                     .frame(maxWidth: .infinity, alignment: .leading)
 
@@ -46,16 +46,16 @@ struct WeeklyPlanDetailView: View {
     private var focusCard: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack(spacing: 8) {
-                TablerIcon(.target, size: 20, color: AppTheme.Colors.accent)
+                TablerIcon(.target, size: 20, color: Colors.accent)
                 AppText("roadmap.weeklyPlan.focus", table: "Roadmap", style: .headline)
             }
 
             AppText(verbatim: focus, style: .body)
-                .color(AppTheme.Colors.textSecondary)
+                .color(Colors.textSecondary)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(16)
-        .glassEffect(.clear, in: RoundedRectangle(cornerRadius: AppTheme.CornerRadius.lg))
+        .glassEffect(.clear, in: RoundedRectangle(cornerRadius: 16))
     }
 
     private var objectivesCard: some View {
@@ -64,25 +64,25 @@ struct WeeklyPlanDetailView: View {
 
             ForEach(objectives, id: \.self) { objective in
                 HStack(alignment: .top, spacing: 8) {
-                    TablerIcon(.listCheck, size: 18, color: AppTheme.Colors.accent)
+                    TablerIcon(.listCheck, size: 18, color: Colors.accent)
                     AppText(verbatim: objective, style: .body)
                 }
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(16)
-        .glassEffect(.clear, in: RoundedRectangle(cornerRadius: AppTheme.CornerRadius.lg))
+        .glassEffect(.clear, in: RoundedRectangle(cornerRadius: 16))
     }
 
     private func summaryCard(_ summary: WeeklySummaryDTO) -> some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack(spacing: 8) {
-                TablerIcon(.chartBar, size: 20, color: AppTheme.Colors.accent)
+                TablerIcon(.chartBar, size: 20, color: Colors.accent)
                 AppText("roadmap.weeklyPlan.summary", table: "Roadmap", style: .headline)
             }
 
             ProgressView(value: summary.completionRate)
-                .tint(AppTheme.Colors.accent)
+                .tint(Colors.accent)
 
             AppText(
                 verbatim: String(
@@ -95,12 +95,12 @@ struct WeeklyPlanDetailView: View {
 
             if let narrative = summary.narrative {
                 AppText(verbatim: narrative, style: .body)
-                    .color(AppTheme.Colors.textSecondary)
+                    .color(Colors.textSecondary)
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(16)
-        .glassEffect(.clear, in: RoundedRectangle(cornerRadius: AppTheme.CornerRadius.lg))
+        .glassEffect(.clear, in: RoundedRectangle(cornerRadius: 16))
     }
 }
 
