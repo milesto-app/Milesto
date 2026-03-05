@@ -8,7 +8,6 @@ struct StreamingText: View {
     @State private var revealTask: Task<Void, Never>?
     @State private var isFinished = false
 
-    private let trailLength = 4
     private let revealInterval: UInt64 = 15_000_000
     private let fastDrainInterval: UInt64 = 5_000_000
 
@@ -17,7 +16,7 @@ struct StreamingText: View {
             MarkdownText(content: content)
                 .transaction { $0.animation = nil }
         } else {
-            buildFadeText()
+            buildRevealedText()
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .onChange(of: content) {
                     startRevealIfNeeded()
@@ -42,27 +41,13 @@ struct StreamingText: View {
         }
     }
 
-    private func buildFadeText() -> Text {
-        let chars = Array(content)
-        let end = min(revealedCount, chars.count)
-
+    private func buildRevealedText() -> Text {
+        let end = min(revealedCount, content.count)
         guard end > 0 else {
             return Text(verbatim: "")
         }
-
-        var attributed = AttributedString(String(chars[0 ..< end]))
-        attributed.foregroundColor = Colors.textPrimary
-
-        let solidEnd = max(0, end - trailLength)
-        for i in solidEnd ..< end {
-            let charStart = attributed.index(attributed.startIndex, offsetByCharacters: i)
-            let charEnd = attributed.index(charStart, offsetByCharacters: 1)
-            let distanceFromEnd = end - 1 - i
-            let opacity = 1.0 - (Double(distanceFromEnd) / Double(trailLength))
-            attributed[charStart ..< charEnd].foregroundColor = Colors.textPrimary.opacity(opacity)
-        }
-
-        return Text(attributed)
+        return Text(verbatim: String(content.prefix(end)))
+            .foregroundStyle(Colors.textPrimary)
     }
 
     private func startRevealIfNeeded() {
