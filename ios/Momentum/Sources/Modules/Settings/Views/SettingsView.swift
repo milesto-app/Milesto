@@ -206,12 +206,12 @@ struct SettingsView: View {
     private func editableRow(icon: TablerIconOutline, label: LocalizedStringKey, value: String, action: @escaping () -> Void) -> some View {
         Button(action: action) {
             HStack(spacing: 12) {
-                TablerIcon(icon, size: 24, color: Colors.accent)
+                TablerIcons(icon, size: 24, color: Colors.accent)
                 AppText(label, table: "Settings", style: .body)
                 Spacer()
                 AppText(verbatim: value, style: .body)
                     .color(Colors.textSecondary)
-                TablerIcon(.chevronRight, size: 16, color: Colors.textSecondary)
+                TablerIcons(.chevronRight, size: 16, color: Colors.textSecondary)
             }
             .contentShape(Rectangle())
         }
@@ -220,7 +220,7 @@ struct SettingsView: View {
 
     private func detailRow(icon: TablerIconOutline, label: LocalizedStringKey, value: String) -> some View {
         HStack(spacing: 12) {
-            TablerIcon(icon, size: 24, color: Colors.accent)
+            TablerIcons(icon, size: 24, color: Colors.accent)
             AppText(label, table: "Settings", style: .body)
             Spacer()
             AppText(verbatim: value, style: .body)
@@ -232,12 +232,12 @@ struct SettingsView: View {
         Section {
             if storeService.isPro {
                 HStack(spacing: 12) {
-                    TablerIcon(.crown, size: 24, color: Colors.accent)
+                    TablerIcons(.crown, size: 24, color: Colors.accent)
                     AppText("settings.pro", table: "Paywall", style: .body)
                         .weight(.semibold)
                     Spacer()
                     HStack(spacing: 4) {
-                        TablerIcon(.circleCheck, size: 16, color: Colors.success)
+                        TablerIcons(.circleCheck, size: 16, color: Colors.success)
                         AppText("settings.pro.active", table: "Paywall", style: .caption)
                             .color(Colors.success)
                             .weight(.semibold)
@@ -248,11 +248,11 @@ struct SettingsView: View {
                     showPaywall = true
                 } label: {
                     HStack(spacing: 12) {
-                        TablerIcon(.crown, size: 24, color: Colors.accent)
+                        TablerIcons(.crown, size: 24, color: Colors.accent)
                         AppText("settings.pro", table: "Paywall", style: .body)
                             .weight(.semibold)
                         Spacer()
-                        TablerIcon(.chevronRight, size: 16, color: Colors.textSecondary)
+                        TablerIcons(.chevronRight, size: 16, color: Colors.textSecondary)
                     }
                     .contentShape(Rectangle())
                 }
@@ -267,7 +267,7 @@ struct SettingsView: View {
                 showNewGoal = true
             } label: {
                 HStack(spacing: 12) {
-                    TablerIcon(.target, size: 24, color: Colors.accent)
+                    TablerIcons(.target, size: 24, color: Colors.accent)
                     AppText("settings.newGoal", table: "Settings", style: .body)
                 }
                 .contentShape(Rectangle())
@@ -282,7 +282,7 @@ struct SettingsView: View {
                 showSignOutAlert = true
             } label: {
                 HStack(spacing: 12) {
-                    TablerIcon(.logout, size: 24, color: Colors.error)
+                    TablerIcons(.logout, size: 24, color: Colors.error)
                     AppText("settings.signOut", table: "Settings", style: .body)
                         .color(Colors.error)
                 }

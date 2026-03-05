@@ -119,7 +119,3 @@ private struct AnimatedBackgroundCanvas: View {
         context.fill(Ellipse().path(in: rect), with: shading)
     }
 }
-
-#Preview {
-    AnimatedBackground()
-}

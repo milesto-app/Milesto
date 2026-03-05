@@ -111,7 +111,7 @@ struct ProfileGateView: View {
                 .transition(.opacity)
             } else if connectionError {
                 VStack(spacing: 24) {
-                    TablerIcon(.wifiOff, size: 48, color: Colors.textSecondary)
+                    TablerIcons(.wifiOff, size: 48, color: Colors.textSecondary)
 
                     AppText("common.error.noConnection", table: "Common", style: .title)
                         .alignment(.center)

@@ -41,7 +41,7 @@ Image(systemName: "house.fill")
 Image(systemName: "checkmark")
 ```
 
-Icon names come from the `TablerIconOutline` and `TablerIconFilled` enums in `Core/Components/TablerIconCatalog.swift`. Use outline icons by default, filled via `TablerIcon.filled(...)`.
+Icon names come from the `TablerIconOutline` and `TablerIconFilled` enums in `Shared/Components/TablerIcon.swift`. Use outline icons by default, filled via `TablerIcon.filled(...)`.
 
 **For tab bars**, use `TablerTabLabel` which converts the icon to an `Image` for tab bar compatibility:
 

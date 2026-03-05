@@ -16,9 +16,9 @@ struct VoicePlaybackButton: View {
                         .controlSize(.small)
                         .tint(Colors.accent)
                 } else if player.isPlaying {
-                    TablerIcon(.playerStop, size: 18, color: Colors.accent)
+                    TablerIcons(.playerStop, size: 18, color: Colors.accent)
                 } else {
-                    TablerIcon(.volume, size: 18, color: Colors.accent)
+                    TablerIcons(.volume, size: 18, color: Colors.accent)
                 }
             }
             .frame(width: 32, height: 32)

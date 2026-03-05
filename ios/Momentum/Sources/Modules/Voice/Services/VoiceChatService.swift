@@ -22,7 +22,7 @@ final class VoiceChatService {
     var onError: ((String) -> Void)?
 
     func connect(goalId: String, conversationId: String? = nil) async throws {
-        let session = try await SupabaseConfig.client.auth.session
+        let session = try await Supabase.client.auth.session
         let token = session.accessToken
 
         let baseURLString = BackendClient.shared.baseURLString

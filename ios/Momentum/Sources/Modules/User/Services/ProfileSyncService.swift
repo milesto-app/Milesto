@@ -14,7 +14,7 @@ final class ProfileSyncService {
         var fetchedEmail: String?
         var fetchedAvatarURL: String?
 
-        if let session = try? await SupabaseConfig.client.auth.session {
+        if let session = try? await Supabase.client.auth.session {
             fetchedEmail = session.user.email
             if case let .string(urlString) = session.user.userMetadata["avatar_url"] {
                 fetchedAvatarURL = urlString

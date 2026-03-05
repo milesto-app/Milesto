@@ -21,7 +21,7 @@ struct CoachCard: View {
                         .fill(Colors.accent.opacity(0.1))
                         .frame(width: 56, height: 56)
 
-                    TablerIcon(personality.icon, size: 28, color: Colors.accent)
+                    TablerIcons(personality.icon, size: 28, color: Colors.accent)
                 }
 
                 VStack(alignment: .leading, spacing: 4) {
@@ -32,7 +32,7 @@ struct CoachCard: View {
 
                 Spacer()
 
-                TablerIcon(.circleCheck, size: 28, color: Colors.accent)
+                TablerIcons(.circleCheck, size: 28, color: Colors.accent)
                     .opacity(isSelected ? 1 : 0)
                     .scaleEffect(isSelected ? 1 : 0.5)
                     .animation(.spring(response: 0.3, dampingFraction: 0.7), value: isSelected)

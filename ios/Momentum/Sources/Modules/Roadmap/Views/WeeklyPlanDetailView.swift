@@ -46,7 +46,7 @@ struct WeeklyPlanDetailView: View {
     private var focusCard: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack(spacing: 8) {
-                TablerIcon(.target, size: 20, color: Colors.accent)
+                TablerIcons(.target, size: 20, color: Colors.accent)
                 AppText("roadmap.weeklyPlan.focus", table: "Roadmap", style: .headline)
             }
 
@@ -64,7 +64,7 @@ struct WeeklyPlanDetailView: View {
 
             ForEach(objectives, id: \.self) { objective in
                 HStack(alignment: .top, spacing: 8) {
-                    TablerIcon(.listCheck, size: 18, color: Colors.accent)
+                    TablerIcons(.listCheck, size: 18, color: Colors.accent)
                     AppText(verbatim: objective, style: .body)
                 }
             }
@@ -77,7 +77,7 @@ struct WeeklyPlanDetailView: View {
     private func summaryCard(_ summary: WeeklySummaryDTO) -> some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack(spacing: 8) {
-                TablerIcon(.chartBar, size: 20, color: Colors.accent)
+                TablerIcons(.chartBar, size: 20, color: Colors.accent)
                 AppText("roadmap.weeklyPlan.summary", table: "Roadmap", style: .headline)
             }
 

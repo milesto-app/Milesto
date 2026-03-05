@@ -47,11 +47,11 @@ final class BackendClient {
             return (data, httpResponse)
         }
 
-        let session = try await SupabaseConfig.client.auth.session
+        let session = try await Supabase.client.auth.session
         let (data, httpResponse) = try await perform(token: session.accessToken)
 
         if httpResponse.statusCode == 401 {
-            let refreshed = try await SupabaseConfig.client.auth.refreshSession()
+            let refreshed = try await Supabase.client.auth.refreshSession()
             let (retryData, retryResponse) = try await perform(token: refreshed.accessToken)
             if retryResponse.statusCode == 401 {
                 throw BackendError.unauthorized
@@ -93,11 +93,11 @@ final class BackendClient {
             return (data, httpResponse)
         }
 
-        let session = try await SupabaseConfig.client.auth.session
+        let session = try await Supabase.client.auth.session
         let (data, httpResponse) = try await perform(token: session.accessToken)
 
         if httpResponse.statusCode == 401 {
-            let refreshed = try await SupabaseConfig.client.auth.refreshSession()
+            let refreshed = try await Supabase.client.auth.refreshSession()
             let (retryData, retryResponse) = try await perform(token: refreshed.accessToken)
             if retryResponse.statusCode == 401 {
                 throw BackendError.unauthorized
@@ -134,11 +134,11 @@ final class BackendClient {
             return (data, httpResponse)
         }
 
-        let session = try await SupabaseConfig.client.auth.session
+        let session = try await Supabase.client.auth.session
         let (data, httpResponse) = try await perform(token: session.accessToken)
 
         if httpResponse.statusCode == 401 {
-            let refreshed = try await SupabaseConfig.client.auth.refreshSession()
+            let refreshed = try await Supabase.client.auth.refreshSession()
             let (retryData, retryResponse) = try await perform(token: refreshed.accessToken)
             if retryResponse.statusCode == 401 {
                 throw BackendError.unauthorized

@@ -80,7 +80,7 @@ struct ChatView: View {
                     isInputFocused = false
                     isSidebarOpen = true
                 } label: {
-                    TablerIcon(.menu2, size: 24, color: Colors.textPrimary)
+                    TablerIcons(.menu2, size: 24, color: Colors.textPrimary)
                         .frame(width: 44, height: 44)
                         .glassEffect(.regular.interactive(), in: .circle)
                 }
@@ -93,7 +93,7 @@ struct ChatView: View {
                             inputText = ""
                         }
                     } label: {
-                        TablerIcon(.edit, size: 24, color: Colors.textPrimary)
+                        TablerIcons(.edit, size: 24, color: Colors.textPrimary)
                             .frame(width: 44, height: 44)
                             .glassEffect(.regular.interactive(), in: .circle)
                     }
@@ -104,7 +104,7 @@ struct ChatView: View {
 
                 if let onClose {
                     Button(action: onClose) {
-                        TablerIcon(.x, size: 24, color: Colors.textPrimary)
+                        TablerIcons(.x, size: 24, color: Colors.textPrimary)
                             .frame(width: 44, height: 44)
                             .glassEffect(.regular.interactive(), in: .circle)
                     }

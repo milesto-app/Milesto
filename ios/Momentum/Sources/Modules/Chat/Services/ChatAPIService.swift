@@ -62,7 +62,7 @@ final class ChatAPIService {
     }
 
     func deleteConversation(conversationId: String) async throws {
-        try await SupabaseConfig.client
+        try await Supabase.client
             .from("conversations")
             .delete()
             .eq("id", value: conversationId)
@@ -92,12 +92,12 @@ final class ChatAPIService {
                         return request
                     }
 
-                    let session = try await SupabaseConfig.client.auth.session
+                    let session = try await Supabase.client.auth.session
                     var request = try buildRequest(token: session.accessToken)
                     var (bytes, response) = try await URLSession.shared.bytes(for: request)
 
                     if let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 401 {
-                        let refreshed = try await SupabaseConfig.client.auth.refreshSession()
+                        let refreshed = try await Supabase.client.auth.refreshSession()
                         request = try buildRequest(token: refreshed.accessToken)
                         (bytes, response) = try await URLSession.shared.bytes(for: request)
                     }

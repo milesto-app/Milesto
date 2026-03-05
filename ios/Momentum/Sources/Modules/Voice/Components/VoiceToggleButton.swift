@@ -51,16 +51,16 @@ struct VoiceToggleButton: View {
     private var content: some View {
         switch voiceState {
         case .idle:
-            TablerIcon(.microphone, size: size.iconSize, color: iconColor)
+            TablerIcons(.microphone, size: size.iconSize, color: iconColor)
         case .recording:
-            TablerIcon(.playerStop, size: size.iconSize, color: Colors.textOnAccent)
+            TablerIcons(.playerStop, size: size.iconSize, color: Colors.textOnAccent)
         case .transcribing:
             ProgressView()
                 .tint(Colors.textOnAccent)
         case .error:
-            TablerIcon(.alertCircle, size: size.iconSize, color: Colors.textOnAccent)
+            TablerIcons(.alertCircle, size: size.iconSize, color: Colors.textOnAccent)
         default:
-            TablerIcon(.microphone, size: size.iconSize, color: iconColor)
+            TablerIcons(.microphone, size: size.iconSize, color: iconColor)
         }
     }
 

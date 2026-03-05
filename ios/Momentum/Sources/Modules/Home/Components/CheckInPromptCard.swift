@@ -13,7 +13,7 @@ struct CheckInPromptCard: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
-            TablerIcon(.sunrise, size: 28, color: Colors.accent)
+            TablerIcons(.sunrise, size: 28, color: Colors.accent)
 
             AppText(
                 verbatim: String(
@@ -71,7 +71,7 @@ struct CheckInPromptCard: View {
             UISelectionFeedbackGenerator().selectionChanged()
         } label: {
             VStack(spacing: 4) {
-                TablerIcon(icon, size: 24, color: isSelected ? Colors.accent : Colors.iconDefault)
+                TablerIcons(icon, size: 24, color: isSelected ? Colors.accent : Colors.iconDefault)
                 AppText(verbatim: label, style: .caption)
                     .color(isSelected ? Colors.accent : Colors.textSecondary)
             }

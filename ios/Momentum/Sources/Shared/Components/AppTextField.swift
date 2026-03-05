@@ -57,7 +57,7 @@ struct AppTextField: View {
 
                 HStack(alignment: multiline ? .top : .center, spacing: 12) {
                     if let icon = icon {
-                        TablerIcon(icon, size: 20, color: iconColor)
+                        TablerIcons(icon, size: 20, color: iconColor)
                             .frame(width: 20)
                             .padding(.top, multiline ? 16 : 0)
                     }
@@ -104,7 +104,7 @@ struct AppTextField: View {
                         Button {
                             isPasswordVisible.toggle()
                         } label: {
-                            TablerIcon(isPasswordVisible ? .eyeOff : .eye, size: 16, color: Colors.iconDefault)
+                            TablerIcons(isPasswordVisible ? .eyeOff : .eye, size: 16, color: Colors.iconDefault)
                         }
                         .buttonStyle(.plain)
                     }

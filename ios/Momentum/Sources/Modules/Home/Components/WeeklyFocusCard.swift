@@ -15,7 +15,7 @@ struct WeeklyFocusCard: View {
         Button(action: onTap) {
             VStack(alignment: .leading, spacing: 12) {
                 HStack(spacing: 8) {
-                    TablerIcon(.target, size: 20, color: Colors.accent)
+                    TablerIcons(.target, size: 20, color: Colors.accent)
                     AppText("home.weeklyFocus.title", table: "Home", style: .headline)
                 }
 

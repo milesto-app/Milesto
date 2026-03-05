@@ -33,7 +33,7 @@ struct ObjectiveRowView: View {
     var body: some View {
         Button(action: onToggle) {
             HStack(spacing: 12) {
-                TablerIcon(
+                TablerIcons(
                     objective.isCompleted ? .circleCheck : .circle,
                     size: 22,
                     color: objective.isCompleted ? Colors.accent : Colors.iconDefault

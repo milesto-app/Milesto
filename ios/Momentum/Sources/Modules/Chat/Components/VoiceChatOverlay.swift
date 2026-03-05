@@ -63,7 +63,7 @@ struct VoiceChatOverlay: View {
         HStack {
             VStack(alignment: .leading, spacing: 4) {
                 HStack(spacing: 8) {
-                    TablerIcon(coachIcon, size: 20, color: Colors.accent)
+                    TablerIcons(coachIcon, size: 20, color: Colors.accent)
                     AppText(verbatim: coachName, style: .headline)
                         .color(.white)
                 }
@@ -80,7 +80,7 @@ struct VoiceChatOverlay: View {
             Spacer()
 
             Button(action: dismissOverlay) {
-                TablerIcon(.x, size: 24, color: .white)
+                TablerIcons(.x, size: 24, color: .white)
                     .frame(width: 44, height: 44)
                     .glassEffect(.regular.interactive(), in: .circle)
             }
@@ -104,7 +104,7 @@ struct VoiceChatOverlay: View {
                     .fill(Colors.accent.opacity(0.5))
                     .frame(width: 80, height: 80)
 
-                TablerIcon(coachIcon, size: 36, color: .white)
+                TablerIcons(coachIcon, size: 36, color: .white)
             }
 
             if let errorMessage {
@@ -149,7 +149,7 @@ struct VoiceChatOverlay: View {
         HStack(spacing: 40) {
             Button(action: toggleMute) {
                 VStack(spacing: 8) {
-                    TablerIcon(
+                    TablerIcons(
                         isMuted ? .microphoneOff : .microphone,
                         size: 24,
                         color: .white
@@ -172,7 +172,7 @@ struct VoiceChatOverlay: View {
 
             Button(action: dismissOverlay) {
                 VStack(spacing: 8) {
-                    TablerIcon(.phoneOff, size: 24, color: .white)
+                    TablerIcons(.phoneOff, size: 24, color: .white)
                         .frame(width: 56, height: 56)
                         .background(
                             Circle()

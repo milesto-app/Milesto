@@ -9,7 +9,7 @@ final class AuthService: NSObject, ObservableObject {
     static let shared = AuthService()
 
     private var client: SupabaseClient {
-        SupabaseConfig.client
+        Supabase.client
     }
 
     @Published private(set) var authState: AuthState = .authenticating

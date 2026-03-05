@@ -35,7 +35,7 @@ struct RoadmapGenerationView: View {
         VStack(spacing: 24) {
             Spacer()
 
-            TablerIcon(.sparkles, size: 56, color: Colors.accent)
+            TablerIcons(.sparkles, size: 56, color: Colors.accent)
                 .scaleEffect(pulseScale)
                 .onAppear {
                     withAnimation(
@@ -73,7 +73,7 @@ struct RoadmapGenerationView: View {
         VStack(spacing: 24) {
             Spacer()
 
-            TablerIcon(.alertCircle, size: 48, color: Colors.error)
+            TablerIcons(.alertCircle, size: 48, color: Colors.error)
 
             AppText("roadmap.generation.error.title", table: "Roadmap", style: .title)
                 .alignment(.center)

@@ -159,7 +159,7 @@ struct EditLanguageSheet: View {
 
                                 Spacer()
 
-                                TablerIcon(.circleCheck, size: 24, color: Colors.accent)
+                                TablerIcons(.circleCheck, size: 24, color: Colors.accent)
                                     .opacity(selectedLanguage == code ? 1 : 0)
                                     .scaleEffect(selectedLanguage == code ? 1 : 0.5)
                                     .animation(.spring(response: 0.3, dampingFraction: 0.7), value: selectedLanguage)

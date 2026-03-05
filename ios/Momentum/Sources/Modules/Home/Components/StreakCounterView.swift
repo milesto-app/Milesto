@@ -25,7 +25,7 @@ struct StreakCounterView: View {
                 AppText("home.streak.title", table: "Home", style: .headline)
                 Spacer()
                 HStack(spacing: 4) {
-                    TablerIcon(.flame, size: 16, color: Colors.accent)
+                    TablerIcons(.flame, size: 16, color: Colors.accent)
                     AppText(verbatim: "\(streak.currentStreak)", style: .headline)
                         .weight(.regular)
                         .color(Colors.accent)
@@ -47,7 +47,7 @@ struct StreakCounterView: View {
                                 .frame(height: 40)
 
                             if isActive {
-                                TablerIcon(.check, size: 16, color: Colors.accent)
+                                TablerIcons(.check, size: 16, color: Colors.accent)
                             }
                         }
                         .overlay(

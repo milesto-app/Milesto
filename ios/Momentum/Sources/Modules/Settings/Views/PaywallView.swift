@@ -43,7 +43,7 @@ struct PaywallView: View {
             Button {
                 dismiss()
             } label: {
-                TablerIcon(.x, size: 20, color: Colors.textSecondary)
+                TablerIcons(.x, size: 20, color: Colors.textSecondary)
                     .frame(width: 36, height: 36)
                     .background(Colors.fieldBackground)
                     .clipShape(Circle())
@@ -68,7 +68,7 @@ struct PaywallView: View {
                     .fill(Colors.accent.opacity(0.12))
                     .frame(width: 88, height: 88)
 
-                TablerIcon(.crown, size: 40, color: Colors.accent)
+                TablerIcons(.crown, size: 40, color: Colors.accent)
             }
 
             VStack(spacing: 8) {
@@ -155,14 +155,14 @@ struct PaywallView: View {
 
     private func featureRow(icon: TablerIconOutline, key: LocalizedStringKey) -> some View {
         HStack(spacing: 12) {
-            TablerIcon(icon, size: 22, color: Colors.accent)
+            TablerIcons(icon, size: 22, color: Colors.accent)
                 .frame(width: 28)
 
             AppText(key, table: "Paywall", style: .body)
 
             Spacer()
 
-            TablerIcon(.circleCheck, size: 20, color: Colors.accent)
+            TablerIcons(.circleCheck, size: 20, color: Colors.accent)
         }
         .padding(.vertical, 12)
     }

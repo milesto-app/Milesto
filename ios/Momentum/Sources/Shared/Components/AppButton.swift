@@ -73,14 +73,14 @@ struct AppButton: View {
     private var buttonContent: some View {
         HStack(spacing: 8) {
             if let icon = icon, iconPosition == .leading {
-                TablerIcon(icon, size: 20, color: style.foregroundColor)
+                TablerIcons(icon, size: 20, color: style.foregroundColor)
             }
 
             Text(title, tableName: table)
                 .font(.headline)
 
             if let icon = icon, iconPosition == .trailing {
-                TablerIcon(icon, size: 20, color: style.foregroundColor)
+                TablerIcons(icon, size: 20, color: style.foregroundColor)
             }
         }
         .frame(maxWidth: isFullWidth ? .infinity : nil)

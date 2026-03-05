@@ -162,7 +162,7 @@ struct RoadmapView: View {
                 } label: {
                     HStack(spacing: 8) {
                         AppText(verbatim: currentGoal?.title ?? "", style: .largeTitle)
-                        TablerIcon(.chevronDown, size: 20, color: Colors.textSecondary)
+                        TablerIcons(.chevronDown, size: 20, color: Colors.textSecondary)
                     }
                 }
             } else {
@@ -287,18 +287,18 @@ struct RoadmapView: View {
             if milestone.isKeyMilestone || isGoal {
                 switch milestone.status {
                 case .completed:
-                    TablerIcon(icon, size: 22, color: Colors.textOnAccent)
+                    TablerIcons(icon, size: 22, color: Colors.textOnAccent)
                 case .current:
-                    TablerIcon(icon, size: 24, color: Colors.textOnAccent)
+                    TablerIcons(icon, size: 24, color: Colors.textOnAccent)
                 case .upcoming:
-                    TablerIcon(icon, size: 22, color: Colors.textSecondary)
+                    TablerIcons(icon, size: 22, color: Colors.textSecondary)
                 }
             } else {
                 switch milestone.status {
                 case .completed:
-                    TablerIcon(.check, size: 20, color: Colors.textOnAccent)
+                    TablerIcons(.check, size: 20, color: Colors.textOnAccent)
                 case .current:
-                    TablerIcon(.mapPin, size: 20, color: Colors.textOnAccent)
+                    TablerIcons(.mapPin, size: 20, color: Colors.textOnAccent)
                 case .upcoming:
                     EmptyView()
                 }

@@ -26,7 +26,7 @@ struct MilestoneStatusBadge: View {
     var body: some View {
         HStack(spacing: 4) {
             if let icon {
-                TablerIcon(icon, size: 14, color: isAccented ? Colors.textOnAccent : Colors.textSecondary)
+                TablerIcons(icon, size: 14, color: isAccented ? Colors.textOnAccent : Colors.textSecondary)
             }
 
             AppText(verbatim: label, style: .caption)

@@ -27,7 +27,7 @@ struct IntakeSingleChoiceView: View {
                         AppText(verbatim: option, style: .body)
                         Spacer()
                         if selectedOption == option {
-                            TablerIcon(.circleCheck, size: 22, color: Colors.accent)
+                            TablerIcons(.circleCheck, size: 22, color: Colors.accent)
                         }
                     }
                     .padding(16)

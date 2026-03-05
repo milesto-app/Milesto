@@ -14,7 +14,7 @@ fi
 cd "$(dirname "$0")"
 
 EXCLUDES=(
-  "Momentum/Sources/Shared/Components/TablerIconCatalog.swift"
+  "Momentum/Sources/Shared/Components/TablerIcons.swift"
 )
 
 trap 'rm -f .swiftlint.yml' EXIT

@@ -22,7 +22,7 @@ struct IntakeMultipleChoiceView: View {
                     HStack {
                         AppText(verbatim: option, style: .body)
                         Spacer()
-                        TablerIcon(
+                        TablerIcons(
                             isSelected ? .squareCheck : .square,
                             size: 22,
                             color: isSelected ? Colors.accent : Colors.iconDefault
