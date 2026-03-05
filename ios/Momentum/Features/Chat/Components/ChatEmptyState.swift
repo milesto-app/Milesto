@@ -1,9 +1,14 @@
 import SwiftUI
 
 struct ChatEmptyState: View {
+    var isVisible: Bool
     var onSelectPrompt: (String) -> Void
 
     @State private var appeared = false
+
+    private var shouldShow: Bool {
+        appeared && isVisible
+    }
 
     private let prompts: [(icon: TablerIconOutline, key: String)] = [
         (.targetArrow, "chat.prompt.progress"),
@@ -39,12 +44,13 @@ struct ChatEmptyState: View {
                     .padding(16)
                     .glassEffect(.regular.interactive(), in: RoundedRectangle(cornerRadius: AppTheme.CornerRadius.lg))
                 }
-                .opacity(appeared ? 1 : 0)
-                .offset(y: appeared ? 0 : 20)
-                .animation(.easeOut(duration: 0.5).delay(Double(index) * 0.1), value: appeared)
+                .opacity(shouldShow ? 1 : 0)
+                .scaleEffect(shouldShow ? 1 : 0.95)
+                .animation(.easeOut(duration: 0.3).delay(Double(index) * 0.05), value: shouldShow)
             }
         }
         .padding(.horizontal, 16)
+        .allowsHitTesting(shouldShow)
         .onAppear {
             appeared = true
         }

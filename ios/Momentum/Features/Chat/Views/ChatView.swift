@@ -55,19 +55,20 @@ struct ChatView: View {
         }
         .overlay(alignment: .bottom) {
             VStack(spacing: 16) {
-                if messages.isEmpty && inputText.isEmpty {
-                    ChatEmptyState(onSelectPrompt: { prompt in
-                        inputText = prompt
-                        isInputFocused = true
-                    })
-                    .transition(.opacity.combined(with: .scale(scale: 0.95)))
+                if messages.isEmpty {
+                    ChatEmptyState(
+                        isVisible: inputText.isEmpty,
+                        onSelectPrompt: { prompt in
+                            inputText = prompt
+                            isInputFocused = true
+                        }
+                    )
                 }
 
                 ChatInputBar(text: $inputText, isDisabled: isStreaming, isFocused: $isInputFocused) {
                     sendMessage()
                 }
             }
-            .animation(.smooth(duration: 0.25), value: inputText.isEmpty)
         }
         .overlay(alignment: .top) {
             ProgressiveBlur()
