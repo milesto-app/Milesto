@@ -5,6 +5,7 @@ struct ChatView: View {
     let goalId: String
     var onClose: (() -> Void)?
 
+    @Environment(\.modelContext) private var modelContext
     @Query private var localProfiles: [LocalProfile]
     @State private var messages: [ChatMessage] = []
     @State private var inputText = ""
@@ -250,17 +251,78 @@ struct ChatView: View {
             isStreaming = false
             isToolRunning = false
             showThinking = false
+            saveStreamedMessagesToCache()
         }
     }
 
     private func fetchConversations() {
         guard !isLoadingHistory else { return }
         isLoadingHistory = true
+
+        let goalId = goalId
+        let descriptor = FetchDescriptor<LocalConversation>(
+            predicate: #Predicate { $0.goalId == goalId },
+            sortBy: [SortDescriptor(\.updatedAt, order: .reverse)]
+        )
+        if let cached = try? modelContext.fetch(descriptor), !cached.isEmpty {
+            let formatter = ISO8601DateFormatter()
+            formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+            conversations = cached.map { local in
+                ConversationSummary(
+                    id: local.id,
+                    goalId: local.goalId,
+                    preview: local.preview,
+                    updatedAt: formatter.string(from: local.updatedAt),
+                    createdAt: formatter.string(from: local.createdAt)
+                )
+            }
+        }
+
         Task {
             do {
-                conversations = try await ChatAPIService.shared.listConversations(goalId: goalId)
+                let fetched = try await ChatAPIService.shared.listConversations(goalId: goalId)
+                conversations = fetched
+                syncConversationsToCache(fetched)
             } catch {}
             isLoadingHistory = false
+        }
+    }
+
+    private func syncConversationsToCache(_ summaries: [ConversationSummary]) {
+        let goalId = goalId
+        let descriptor = FetchDescriptor<LocalConversation>(
+            predicate: #Predicate { $0.goalId == goalId }
+        )
+        let existing = (try? modelContext.fetch(descriptor)) ?? []
+        let existingById = Dictionary(uniqueKeysWithValues: existing.map { ($0.id, $0) })
+
+        let dateFormatter = ISO8601DateFormatter()
+        dateFormatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+
+        let remoteIds = Set(summaries.map(\.id))
+
+        for summary in summaries {
+            let updatedAt = dateFormatter.date(from: summary.updatedAt) ?? Date()
+            let createdAt = dateFormatter.date(from: summary.createdAt) ?? Date()
+
+            if let local = existingById[summary.id] {
+                local.preview = summary.preview
+                local.updatedAt = updatedAt
+                local.createdAt = createdAt
+            } else {
+                let local = LocalConversation(
+                    id: summary.id,
+                    goalId: summary.goalId,
+                    preview: summary.preview,
+                    updatedAt: updatedAt,
+                    createdAt: createdAt
+                )
+                modelContext.insert(local)
+            }
+        }
+
+        for local in existing where !remoteIds.contains(local.id) {
+            modelContext.delete(local)
         }
     }
 
@@ -268,6 +330,12 @@ struct ChatView: View {
         Task {
             do {
                 try await ChatAPIService.shared.deleteConversation(conversationId: id)
+                let descriptor = FetchDescriptor<LocalConversation>(
+                    predicate: #Predicate { $0.id == id }
+                )
+                if let local = try? modelContext.fetch(descriptor).first {
+                    modelContext.delete(local)
+                }
                 withAnimation {
                     conversations.removeAll { $0.id == id }
                     if conversationId == id {
@@ -285,6 +353,25 @@ struct ChatView: View {
 
     private func loadConversation(_ id: String) {
         guard id != conversationId else { return }
+
+        let descriptor = FetchDescriptor<LocalChatMessage>(
+            predicate: #Predicate { $0.conversationId == id },
+            sortBy: [SortDescriptor(\.createdAt)]
+        )
+        if let cached = try? modelContext.fetch(descriptor), !cached.isEmpty {
+            let cachedMessages = cached.compactMap { local -> ChatMessage? in
+                guard local.role == "user" || local.role == "assistant" else { return nil }
+                return ChatMessage(
+                    id: local.id,
+                    role: local.role == "user" ? .user : .assistant,
+                    content: local.content,
+                    createdAt: local.createdAt
+                )
+            }
+            conversationId = id
+            messages = cachedMessages
+        }
+
         Task {
             do {
                 let loadedMessages = try await ChatAPIService.shared.getConversationMessages(conversationId: id)
@@ -292,10 +379,70 @@ struct ChatView: View {
                     conversationId = id
                     messages = loadedMessages
                 }
+                syncMessagesToCache(loadedMessages, conversationId: id)
             } catch {
-                errorMessage = String(localized: "chat.error.generic", table: "Chat")
-                showError = true
+                if messages.isEmpty || conversationId != id {
+                    errorMessage = String(localized: "chat.error.generic", table: "Chat")
+                    showError = true
+                }
             }
         }
+    }
+
+    private func syncMessagesToCache(_ chatMessages: [ChatMessage], conversationId: String) {
+        let descriptor = FetchDescriptor<LocalChatMessage>(
+            predicate: #Predicate { $0.conversationId == conversationId }
+        )
+        let existing = (try? modelContext.fetch(descriptor)) ?? []
+        let existingById = Dictionary(uniqueKeysWithValues: existing.map { ($0.id, $0) })
+
+        let remoteIds = Set(chatMessages.map(\.id))
+
+        for message in chatMessages {
+            let roleString = message.role == .user ? "user" : "assistant"
+
+            if let local = existingById[message.id] {
+                local.content = message.content
+                local.role = roleString
+            } else {
+                let local = LocalChatMessage(
+                    id: message.id,
+                    conversationId: conversationId,
+                    role: roleString,
+                    content: message.content,
+                    createdAt: message.createdAt
+                )
+                modelContext.insert(local)
+            }
+        }
+
+        for local in existing where !remoteIds.contains(local.id) {
+            modelContext.delete(local)
+        }
+    }
+
+    private func saveStreamedMessagesToCache() {
+        guard let conversationId else { return }
+
+        let convDescriptor = FetchDescriptor<LocalConversation>(
+            predicate: #Predicate { $0.id == conversationId }
+        )
+        let lastPreview = messages.last?.content.prefix(100).description
+
+        if let existing = try? modelContext.fetch(convDescriptor).first {
+            existing.preview = lastPreview
+            existing.updatedAt = Date()
+        } else {
+            let conversation = LocalConversation(
+                id: conversationId,
+                goalId: goalId,
+                preview: lastPreview,
+                updatedAt: Date(),
+                createdAt: Date()
+            )
+            modelContext.insert(conversation)
+        }
+
+        syncMessagesToCache(messages, conversationId: conversationId)
     }
 }
