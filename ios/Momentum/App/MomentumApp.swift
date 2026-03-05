@@ -27,14 +27,23 @@ struct MomentumApp: App {
 
     var body: some Scene {
         WindowGroup {
-            RootView()
-                .environmentObject(authService)
-                .environmentObject(storeService)
-                .onOpenURL { url in
-                    Task {
-                        await authService.handleDeepLink(url)
-                    }
+            Group {
+                switch authService.authState {
+                case .authenticating:
+                    ProgressView()
+                case let .authenticated(userId):
+                    ProfileGateView(userId: userId)
+                case .unauthenticated, .error:
+                    AuthContainerView()
                 }
+            }
+            .environmentObject(authService)
+            .environmentObject(storeService)
+            .onOpenURL { url in
+                Task {
+                    await authService.handleDeepLink(url)
+                }
+            }
         }
         .modelContainer(sharedModelContainer)
     }
