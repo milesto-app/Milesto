@@ -47,7 +47,7 @@ struct ChatView: View {
             }
             .scrollDismissesKeyboard(.interactively)
             .contentMargins(.top, 56)
-            .contentMargins(.bottom, 72)
+            .contentMargins(.bottom, 140)
             .onChange(of: messages.count) {
                 if let lastId = messages.last?.id {
                     withAnimation(.easeOut(duration: 0.2)) {
