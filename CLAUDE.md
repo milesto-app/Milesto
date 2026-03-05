@@ -6,7 +6,7 @@ Momentum is an AI-powered personal coaching app. Users set one big goal, and the
 
 The project has two codebases:
 
-- **`ios/`** — SwiftUI iOS app (Swift 5, SwiftData, iOS 26.2+, Xcode 16.2)
+- **`ios/`** — SwiftUI iOS app (Swift 5, SwiftData, iOS 26+, Xcode 26+)
 - **`backend/`** — NestJS + TypeScript API (Supabase Postgres, OpenRouter LLM, Cohere reranking)
 
 Both share a **Supabase** instance for auth, database, and edge functions. A Supabase MCP server is configured for direct database interaction.

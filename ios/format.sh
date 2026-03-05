@@ -13,16 +13,25 @@ fi
 
 cd "$(dirname "$0")"
 
-EXCLUDE="Momentum/Core/Components/TablerIconCatalog.swift"
+EXCLUDES=(
+  "Momentum/Sources/Shared/Components/TablerIconCatalog.swift"
+)
 
 trap 'rm -f .swiftlint.yml' EXIT
-cat > .swiftlint.yml <<YAML
-excluded:
-  - $EXCLUDE
-disabled_rules:
-  - trailing_comma
-  - opening_brace
-YAML
+{
+  echo "excluded:"
+  for path in "${EXCLUDES[@]}"; do
+    echo "  - $path"
+  done
+  echo "disabled_rules:"
+  echo "  - trailing_comma"
+  echo "  - opening_brace"
+} > .swiftlint.yml
+
+SWIFTFORMAT_EXCLUDES=()
+for path in "${EXCLUDES[@]}"; do
+  SWIFTFORMAT_EXCLUDES+=(--exclude "$path")
+done
 
 swiftlint lint --fix .
-swiftformat --swiftversion 5 --exclude "$EXCLUDE" .
+swiftformat --verbose --swiftversion 5 "${SWIFTFORMAT_EXCLUDES[@]}" .
