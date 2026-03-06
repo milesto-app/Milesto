@@ -77,38 +77,6 @@ describe('GoalService.getGoalProfile', () => {
   });
 });
 
-describe('GoalService.delete', () => {
-  const setupDeleteChain = (error: unknown = null): void => {
-    const isMock = jest.fn().mockResolvedValue({ error });
-    const eqUserId = jest.fn().mockReturnValue({ is: isMock });
-    const eqId = jest.fn().mockReturnValue({ eq: eqUserId });
-    const updateFn = jest.fn().mockReturnValue({ eq: eqId });
-    mockSupabase.from.mockReturnValue({ update: updateFn });
-  };
-
-  it('should soft-delete a goal in active status', async () => {
-    jest
-      .spyOn(service, 'findOne')
-      .mockResolvedValue(mockGoal(GOAL_STATUS.ACTIVE) as never);
-    setupDeleteChain();
-
-    await expect(
-      service.delete('user-123', 'goal-456'),
-    ).resolves.toBeUndefined();
-  });
-
-  it('should throw InternalServerErrorException on Supabase soft-delete error', async () => {
-    jest
-      .spyOn(service, 'findOne')
-      .mockResolvedValue(mockGoal(GOAL_STATUS.ACTIVE) as never);
-    setupDeleteChain({ message: 'Database error' });
-
-    await expect(service.delete('user-123', 'goal-456')).rejects.toThrow(
-      InternalServerErrorException,
-    );
-  });
-});
-
 describe('GoalService.updateStatus', () => {
   it('should update goal status successfully', async () => {
     const isMock = jest.fn().mockResolvedValue({ error: null });

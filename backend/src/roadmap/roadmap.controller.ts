@@ -1,11 +1,4 @@
-import {
-  Controller,
-  Get,
-  NotFoundException,
-  Param,
-  Post,
-  UseGuards,
-} from '@nestjs/common';
+import { Controller, Param, Post, UseGuards } from '@nestjs/common';
 import {
   ApiBearerAuth,
   ApiOperation,
@@ -19,7 +12,7 @@ import { UserId } from '../common/decorators/user.decorator.js';
 import { AuthGuard } from '../common/guards/auth.guard.js';
 import { config } from '../config/app.config.js';
 import { RoadmapService } from './roadmap.service.js';
-import type { MilestoneSummary, Roadmap } from './types/roadmap.types.js';
+import type { Roadmap } from './types/roadmap.types.js';
 import type { WeeklyPlan } from './types/weekly-plan.types.js';
 import { WeeklyPlanService } from './weekly-plan.service.js';
 
@@ -73,69 +66,6 @@ export class RoadmapController {
     @UserId() userId: string,
   ): Promise<Roadmap> {
     return this.roadmapService.generateMilestones(goalId, userId);
-  }
-
-  @Get()
-  @ApiOperation({ summary: 'Retrieve roadmap with milestones overview' })
-  @ApiParam({ name: 'goalId', description: 'Goal ID' })
-  @ApiResponse({
-    status: API_STATUS_OK,
-    description: 'Roadmap with milestones array',
-  })
-  @ApiResponse({ status: API_STATUS_UNAUTHORIZED, description: 'Unauthorized' })
-  @ApiResponse({
-    status: API_STATUS_NOT_FOUND,
-    description: 'No roadmap found for this goal',
-  })
-  public async getRoadmap(
-    @Param('goalId') goalId: string,
-    @UserId() userId: string,
-  ): Promise<Roadmap> {
-    return this.roadmapService.getRoadmap(goalId, userId);
-  }
-
-  @Get('milestones')
-  @ApiOperation({ summary: 'Retrieve milestone list (summary view)' })
-  @ApiParam({ name: 'goalId', description: 'Goal ID' })
-  @ApiResponse({
-    status: API_STATUS_OK,
-    description: 'Milestones array ordered by order_index',
-  })
-  @ApiResponse({ status: API_STATUS_UNAUTHORIZED, description: 'Unauthorized' })
-  @ApiResponse({
-    status: API_STATUS_NOT_FOUND,
-    description: 'No roadmap found for this goal',
-  })
-  public async getMilestones(
-    @Param('goalId') goalId: string,
-    @UserId() userId: string,
-  ): Promise<MilestoneSummary[]> {
-    return this.roadmapService.getMilestones(goalId, userId);
-  }
-
-  @Get('weekly-plan')
-  @ApiOperation({
-    summary: 'Retrieve current active weekly plan',
-  })
-  @ApiParam({ name: 'goalId', description: 'Goal ID' })
-  @ApiResponse({ status: API_STATUS_OK, description: 'Current weekly plan' })
-  @ApiResponse({ status: API_STATUS_UNAUTHORIZED, description: 'Unauthorized' })
-  @ApiResponse({
-    status: API_STATUS_NOT_FOUND,
-    description: 'No active weekly plan',
-  })
-  public async getWeeklyPlan(
-    @Param('goalId') goalId: string,
-    @UserId() userId: string,
-  ): Promise<WeeklyPlan> {
-    const existing = await this.weeklyPlanService.getCurrentWeeklyPlan(
-      goalId,
-      userId,
-    );
-    if (existing === null) {
-      throw new NotFoundException('No active weekly plan');
-    }
-    return existing;
   }
 
   @Post('weekly-plan/generate')

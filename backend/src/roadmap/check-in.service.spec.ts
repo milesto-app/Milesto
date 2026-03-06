@@ -1,7 +1,6 @@
 import {
   BadRequestException,
   ConflictException,
-  InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
 import type { TestingModule } from '@nestjs/testing';
@@ -201,52 +200,6 @@ describe('CheckInService', () => {
 
       const result = await service.getCheckIn(goalId, userId, '2026-02-22');
       expect(result).toBeNull();
-    });
-  });
-
-  describe('getCheckInHistory', () => {
-    it('should return check-in array ordered by date', async () => {
-      const mockHistory = [
-        { id: '1', date: '2026-02-22' },
-        { id: '2', date: '2026-02-21' },
-      ];
-      mockSupabaseService.getAdminClient.mockReturnValue({
-        from: jest.fn().mockReturnValue({
-          select: jest.fn().mockReturnValue({
-            eq: jest.fn().mockReturnValue({
-              eq: jest.fn().mockReturnValue({
-                order: jest
-                  .fn()
-                  .mockResolvedValue({ data: mockHistory, error: null }),
-              }),
-            }),
-          }),
-        }),
-      });
-
-      const result = await service.getCheckInHistory(goalId, userId);
-      expect(result).toEqual(mockHistory);
-    });
-
-    it('should throw InternalServerErrorException on DB error', async () => {
-      mockSupabaseService.getAdminClient.mockReturnValue({
-        from: jest.fn().mockReturnValue({
-          select: jest.fn().mockReturnValue({
-            eq: jest.fn().mockReturnValue({
-              eq: jest.fn().mockReturnValue({
-                order: jest.fn().mockResolvedValue({
-                  data: null,
-                  error: { message: 'fail' },
-                }),
-              }),
-            }),
-          }),
-        }),
-      });
-
-      await expect(service.getCheckInHistory(goalId, userId)).rejects.toThrow(
-        InternalServerErrorException,
-      );
     });
   });
 });

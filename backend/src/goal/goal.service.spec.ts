@@ -10,11 +10,6 @@ import { SupabaseService } from '../supabase/supabase.service.js';
 import { GoalService } from './goal.service.js';
 import { GOAL_STATUS } from './goal-status.constants.js';
 
-const DEFAULT_LIMIT = 20;
-const CUSTOM_LIMIT = 10;
-const CUSTOM_OFFSET = 5;
-const EXPECTED_RANGE_END = 14;
-
 let service: GoalService;
 let mockSupabase: { from: jest.Mock };
 let mockAiService: { generateJson: jest.Mock };
@@ -24,20 +19,6 @@ function mockInsertChain(data: unknown, error: unknown = null): void {
     insert: jest.fn().mockReturnValue({
       select: jest.fn().mockReturnValue({
         single: jest.fn().mockResolvedValue({ data, error }),
-      }),
-    }),
-  });
-}
-
-function mockSelectChain(data: unknown, error: unknown, count: unknown): void {
-  mockSupabase.from.mockReturnValue({
-    select: jest.fn().mockReturnValue({
-      eq: jest.fn().mockReturnValue({
-        is: jest.fn().mockReturnValue({
-          order: jest.fn().mockReturnValue({
-            range: jest.fn().mockResolvedValue({ data, error, count }),
-          }),
-        }),
       }),
     }),
   });
@@ -140,43 +121,6 @@ describe('GoalService.create - AI title generation', () => {
 
     const result = await service.create('user-123', baseGoal.description);
     expect(result).toEqual(goal);
-  });
-});
-
-describe('GoalService.findAll', () => {
-  it('should return paginated response', async () => {
-    const goals = [{ id: 'goal-1', status: GOAL_STATUS.INTAKE_IN_PROGRESS }];
-    mockSelectChain(goals, null, 1);
-
-    const result = await service.findAll('user-123', DEFAULT_LIMIT, 0);
-    expect(result).toEqual({
-      data: goals,
-      total: 1,
-      limit: DEFAULT_LIMIT,
-      offset: 0,
-    });
-  });
-
-  it('should pass correct range params', async () => {
-    const rangeMock = jest
-      .fn()
-      .mockResolvedValue({ data: [], error: null, count: 0 });
-    const orderMock = jest.fn().mockReturnValue({ range: rangeMock });
-    const isMock = jest.fn().mockReturnValue({ order: orderMock });
-    const eqMock = jest.fn().mockReturnValue({ is: isMock });
-    mockSupabase.from.mockReturnValue({
-      select: jest.fn().mockReturnValue({ eq: eqMock }),
-    });
-
-    await service.findAll('user-123', CUSTOM_LIMIT, CUSTOM_OFFSET);
-    expect(rangeMock).toHaveBeenCalledWith(CUSTOM_OFFSET, EXPECTED_RANGE_END);
-  });
-
-  it('should throw InternalServerErrorException on Supabase error', async () => {
-    mockSelectChain(null, { message: 'Database error' }, null);
-    await expect(service.findAll('user-123', DEFAULT_LIMIT, 0)).rejects.toThrow(
-      InternalServerErrorException,
-    );
   });
 });
 

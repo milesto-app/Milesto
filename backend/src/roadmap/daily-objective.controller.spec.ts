@@ -9,7 +9,6 @@ describe('DailyObjectiveController', () => {
   let controller: DailyObjectiveController;
   let mockDailyObjectiveService: {
     getDailyObjectives: jest.Mock;
-    updateDailyObjective: jest.Mock;
   };
 
   const userId = 'user-123';
@@ -18,7 +17,6 @@ describe('DailyObjectiveController', () => {
   beforeEach(async () => {
     mockDailyObjectiveService = {
       getDailyObjectives: jest.fn(),
-      updateDailyObjective: jest.fn(),
     };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -57,35 +55,6 @@ describe('DailyObjectiveController', () => {
         userId,
       );
       expect(result).toEqual(mockObjectives);
-    });
-  });
-
-  describe('PATCH /daily-objectives/:objectiveId', () => {
-    it('should delegate to dailyObjectiveService.updateDailyObjective', async () => {
-      const objectiveId = 'obj-789';
-      const mockUpdated = { id: objectiveId, is_completed: true };
-      mockDailyObjectiveService.updateDailyObjective.mockResolvedValue(
-        mockUpdated,
-      );
-
-      const result = await controller.updateObjective(
-        goalId,
-        objectiveId,
-        userId,
-        {
-          is_completed: true,
-        },
-      );
-
-      expect(
-        mockDailyObjectiveService.updateDailyObjective,
-      ).toHaveBeenCalledWith({
-        objectiveId,
-        goalId,
-        userId,
-        isCompleted: true,
-      });
-      expect(result).toEqual(mockUpdated);
     });
   });
 });

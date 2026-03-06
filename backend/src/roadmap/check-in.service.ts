@@ -54,28 +54,6 @@ export class CheckInService {
     return data as CheckIn;
   }
 
-  public async getCheckInHistory(
-    goalId: string,
-    userId: string,
-  ): Promise<CheckIn[]> {
-    const supabase = this.supabaseService.getAdminClient();
-    const { data, error } = await supabase
-      .from('check_ins')
-      .select('*')
-      .eq('goal_id', goalId)
-      .eq('user_id', userId)
-      .order('date', { ascending: false });
-    if (error) {
-      this.logger.error(
-        `Failed to retrieve check-in history: ${error.message}`,
-      );
-      throw new InternalServerErrorException(
-        'Failed to retrieve check-in history',
-      );
-    }
-    return data as CheckIn[];
-  }
-
   private async validateRoadmapActive(
     goalId: string,
     userId: string,

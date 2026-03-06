@@ -1,10 +1,6 @@
 import Foundation
 import Supabase
 
-private struct ConversationListResponse: Decodable {
-    let conversations: [ConversationSummary]
-}
-
 private struct MessageDTO: Decodable {
     let id: String
     let role: String
@@ -19,8 +15,20 @@ private struct MessageDTO: Decodable {
     }
 }
 
-private struct MessageListResponse: Decodable {
+private struct ConversationWithMessages: Decodable {
+    let id: String
+    let goalId: String
+    let updatedAt: String
+    let createdAt: String
     let messages: [MessageDTO]
+
+    private enum CodingKeys: String, CodingKey {
+        case id
+        case goalId = "goal_id"
+        case updatedAt = "updated_at"
+        case createdAt = "created_at"
+        case messages
+    }
 }
 
 final class ChatAPIService {
@@ -33,23 +41,46 @@ final class ChatAPIService {
     private init() {}
 
     func listConversations(goalId: String) async throws -> [ConversationSummary] {
-        let response: ConversationListResponse = try await BackendClient.shared.request(
-            method: "GET",
-            path: "chat/conversations?goalId=\(goalId)"
-        )
-        return response.conversations
+        let rows: [ConversationWithMessages] = try await Supabase.client
+            .from("conversations")
+            .select("*, messages(id, content, role, created_at)")
+            .eq("goal_id", value: goalId)
+            .order("updated_at", ascending: false)
+            .order("created_at", ascending: true, referencedTable: "messages")
+            .execute()
+            .value
+
+        return rows.map { row in
+            let firstUserMessage = row.messages
+                .first { $0.role == "user" && $0.content != nil }
+            let preview = firstUserMessage.flatMap { msg -> String? in
+                guard let content = msg.content else { return nil }
+                return content.count > 100 ? String(content.prefix(100)) : content
+            }
+
+            return ConversationSummary(
+                id: row.id,
+                goalId: row.goalId,
+                preview: preview,
+                updatedAt: row.updatedAt,
+                createdAt: row.createdAt
+            )
+        }
     }
 
     func getConversationMessages(conversationId: String) async throws -> [ChatMessage] {
-        let response: MessageListResponse = try await BackendClient.shared.request(
-            method: "GET",
-            path: "chat/conversations/\(conversationId)/messages"
-        )
+        let rows: [MessageDTO] = try await Supabase.client
+            .from("messages")
+            .select()
+            .eq("conversation_id", value: conversationId)
+            .order("created_at")
+            .execute()
+            .value
 
         let dateFormatter = ISO8601DateFormatter()
         dateFormatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
 
-        return response.messages
+        return rows
             .filter { ($0.role == "user" || $0.role == "assistant") && $0.content != nil }
             .map { dto in
                 ChatMessage(

@@ -1,4 +1,5 @@
 import Foundation
+import Supabase
 
 final class GoalAPIService {
     static let shared = GoalAPIService()
@@ -15,21 +16,44 @@ final class GoalAPIService {
     }
 
     func getGoal(goalId: String) async throws -> GoalDTO {
-        return try await BackendClient.shared.request(
-            method: "GET",
-            path: "goals/\(goalId)"
-        )
+        try await Supabase.client
+            .from("goals")
+            .select()
+            .eq("id", value: goalId)
+            .is("deleted_at", value: nil)
+            .single()
+            .execute()
+            .value
     }
 
     func deleteGoal(goalId: String) async throws {
-        try await BackendClient.shared.requestVoid(method: "DELETE", path: "goals/\(goalId)")
+        struct SoftDeleteBody: Encodable {
+            let deletedAt: String
+            let updatedAt: String
+
+            enum CodingKeys: String, CodingKey {
+                case deletedAt = "deleted_at"
+                case updatedAt = "updated_at"
+            }
+        }
+
+        let now = ISO8601DateFormatter().string(from: Date())
+        let body = SoftDeleteBody(deletedAt: now, updatedAt: now)
+
+        try await Supabase.client
+            .from("goals")
+            .update(body)
+            .eq("id", value: goalId)
+            .execute()
     }
 
     func listGoals() async throws -> [GoalDTO] {
-        let response: PaginatedResponse<GoalDTO> = try await BackendClient.shared.request(
-            method: "GET",
-            path: "goals"
-        )
-        return response.data
+        try await Supabase.client
+            .from("goals")
+            .select()
+            .is("deleted_at", value: nil)
+            .order("created_at", ascending: false)
+            .execute()
+            .value
     }
 }

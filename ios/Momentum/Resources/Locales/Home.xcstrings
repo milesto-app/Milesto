@@ -86,6 +86,9 @@
         }
       }
     },
+    "home.checkin.error.roadmapNotActive" : {
+
+    },
     "home.checkin.greeting" : {
       "extractionState" : "manual",
       "localizations" : {

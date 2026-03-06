@@ -1,4 +1,3 @@
-import { NotFoundException } from '@nestjs/common';
 import type { TestingModule } from '@nestjs/testing';
 import { Test } from '@nestjs/testing';
 
@@ -11,11 +10,8 @@ describe('RoadmapController', () => {
   let controller: RoadmapController;
   let mockRoadmapService: {
     generateMilestones: jest.Mock;
-    getRoadmap: jest.Mock;
-    getMilestones: jest.Mock;
   };
   let mockWeeklyPlanService: {
-    getCurrentWeeklyPlan: jest.Mock;
     generateWeeklyPlan: jest.Mock;
   };
 
@@ -41,12 +37,9 @@ describe('RoadmapController', () => {
   beforeEach(async () => {
     mockRoadmapService = {
       generateMilestones: jest.fn(),
-      getRoadmap: jest.fn(),
-      getMilestones: jest.fn(),
     };
 
     mockWeeklyPlanService = {
-      getCurrentWeeklyPlan: jest.fn(),
       generateWeeklyPlan: jest.fn(),
     };
 
@@ -77,59 +70,6 @@ describe('RoadmapController', () => {
         userId,
       );
       expect(result).toEqual(mockRoadmap);
-    });
-  });
-
-  describe('GET /roadmap', () => {
-    it('should call getRoadmap and return result', async () => {
-      mockRoadmapService.getRoadmap.mockResolvedValue(mockRoadmap);
-
-      const result = await controller.getRoadmap(goalId, userId);
-
-      expect(mockRoadmapService.getRoadmap).toHaveBeenCalledWith(
-        goalId,
-        userId,
-      );
-      expect(result).toEqual(mockRoadmap);
-    });
-  });
-
-  describe('GET /milestones', () => {
-    it('should call getMilestones and return result', async () => {
-      const mockMilestones = [{ id: 'ms-1', title: 'M1' }];
-      mockRoadmapService.getMilestones.mockResolvedValue(mockMilestones);
-
-      const result = await controller.getMilestones(goalId, userId);
-
-      expect(mockRoadmapService.getMilestones).toHaveBeenCalledWith(
-        goalId,
-        userId,
-      );
-      expect(result).toEqual(mockMilestones);
-    });
-  });
-
-  describe('GET /weekly-plan', () => {
-    it('should return existing active plan', async () => {
-      mockWeeklyPlanService.getCurrentWeeklyPlan.mockResolvedValue(
-        mockWeeklyPlan,
-      );
-
-      const result = await controller.getWeeklyPlan(goalId, userId);
-
-      expect(mockWeeklyPlanService.getCurrentWeeklyPlan).toHaveBeenCalledWith(
-        goalId,
-        userId,
-      );
-      expect(result).toEqual(mockWeeklyPlan);
-    });
-
-    it('should throw NotFoundException when no active plan', async () => {
-      mockWeeklyPlanService.getCurrentWeeklyPlan.mockResolvedValue(null);
-
-      await expect(controller.getWeeklyPlan(goalId, userId)).rejects.toThrow(
-        NotFoundException,
-      );
     });
   });
 

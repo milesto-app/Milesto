@@ -1,20 +1,5 @@
-import {
-  Body,
-  Controller,
-  Get,
-  Logger,
-  Param,
-  Post,
-  Query,
-  Res,
-  UseGuards,
-} from '@nestjs/common';
-import {
-  ApiBearerAuth,
-  ApiOperation,
-  ApiResponse,
-  ApiTags,
-} from '@nestjs/swagger';
+import { Body, Controller, Logger, Post, Res, UseGuards } from '@nestjs/common';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { Throttle } from '@nestjs/throttler';
 import type { Response } from 'express';
 
@@ -22,16 +7,8 @@ import { UserId } from '../common/decorators/user.decorator.js';
 import { AuthGuard } from '../common/guards/auth.guard.js';
 import { config } from '../config/app.config.js';
 import { ChatService } from './chat.service.js';
-import { ChatHistoryService } from './chat-history.service.js';
-import { ChatListService } from './chat-list.service.js';
-import { ListConversationsQueryDto } from './dto/list-conversations-query.dto.js';
-import { ListMessagesQueryDto } from './dto/list-messages-query.dto.js';
 import { SendMessageDto } from './dto/send-message.dto.js';
-import type {
-  ChatStreamEvent,
-  ConversationListResult,
-  MessageListResult,
-} from './types/chat.types.js';
+import type { ChatStreamEvent } from './types/chat.types.js';
 
 @ApiTags('chat')
 @ApiBearerAuth()
@@ -40,11 +17,7 @@ import type {
 export class ChatController {
   private readonly logger = new Logger(ChatController.name);
 
-  constructor(
-    private readonly chatService: ChatService,
-    private readonly chatHistoryService: ChatHistoryService,
-    private readonly chatListService: ChatListService,
-  ) {}
+  constructor(private readonly chatService: ChatService) {}
 
   @Post('messages')
   @Throttle({ default: { limit: 10, ttl: config.throttle.aiEndpointTtlMs } })
@@ -74,28 +47,5 @@ export class ChatController {
     } finally {
       res.end();
     }
-  }
-
-  @Get('conversations')
-  @ApiOperation({ summary: 'List conversations with previews' })
-  @ApiResponse({ status: 200, description: 'Paginated list of conversations' })
-  public async listConversations(
-    @UserId() userId: string,
-    @Query() query: ListConversationsQueryDto,
-  ): Promise<ConversationListResult> {
-    return this.chatListService.listConversations(userId, query);
-  }
-
-  @Get('conversations/:conversationId/messages')
-  @ApiOperation({ summary: 'Get messages for a conversation' })
-  @ApiResponse({ status: 200, description: 'Paginated list of messages' })
-  @ApiResponse({ status: 404, description: 'Conversation not found' })
-  public async getMessages(
-    @UserId() userId: string,
-    @Param('conversationId') conversationId: string,
-    @Query() query: ListMessagesQueryDto,
-  ): Promise<MessageListResult> {
-    await this.chatHistoryService.getConversation(conversationId, userId);
-    return this.chatListService.getMessagesPaginated(conversationId, query);
   }
 }

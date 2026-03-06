@@ -1,7 +1,6 @@
 import {
   Body,
   Controller,
-  Get,
   HttpCode,
   Param,
   Post,
@@ -24,13 +23,11 @@ import { SubmitDebriefDto } from './dto/submit-debrief.dto.js';
 import type { Debrief } from './types/daily.types.js';
 
 const HTTP_CREATED = 201;
-const API_STATUS_OK = 200;
 const API_STATUS_BAD_REQUEST = 400;
 const API_STATUS_UNAUTHORIZED = 401;
 const API_STATUS_CONFLICT = 409;
 const API_STATUS_RATE_LIMIT = 429;
 const AI_ENDPOINT_LIMIT = 10;
-const GLOBAL_ENDPOINT_LIMIT = 60;
 
 @ApiTags('debrief')
 @ApiBearerAuth()
@@ -69,30 +66,5 @@ export class DebriefController {
     @Body() dto: SubmitDebriefDto,
   ): Promise<Debrief> {
     return this.debriefService.submitDebrief(goalId, userId, dto);
-  }
-
-  @Get()
-  @Throttle({
-    default: {
-      limit: GLOBAL_ENDPOINT_LIMIT,
-      ttl: config.throttle.globalTtlMs,
-    },
-  })
-  @ApiOperation({ summary: 'Get debrief history for goal' })
-  @ApiParam({ name: 'goalId', description: 'Goal ID' })
-  @ApiResponse({
-    status: API_STATUS_OK,
-    description: 'Debrief history returned',
-  })
-  @ApiResponse({ status: API_STATUS_UNAUTHORIZED, description: 'Unauthorized' })
-  @ApiResponse({
-    status: API_STATUS_RATE_LIMIT,
-    description: 'Rate limit exceeded',
-  })
-  public async getDebriefHistory(
-    @Param('goalId') goalId: string,
-    @UserId() userId: string,
-  ): Promise<Debrief[]> {
-    return this.debriefService.getDebriefHistory(goalId, userId);
   }
 }

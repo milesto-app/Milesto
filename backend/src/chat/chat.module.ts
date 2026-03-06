@@ -6,7 +6,6 @@ import { ChatController } from './chat.controller.js';
 import { ChatService } from './chat.service.js';
 import { ChatCheckInToolsService } from './chat-checkin-tools.service.js';
 import { ChatHistoryService } from './chat-history.service.js';
-import { ChatListService } from './chat-list.service.js';
 import { ChatPromptService } from './chat-prompt.service.js';
 import { ChatRoadmapToolsService } from './chat-roadmap-tools.service.js';
 import { ChatSearchService } from './chat-search.service.js';
@@ -17,7 +16,6 @@ import { ChatToolsService } from './chat-tools.service.js';
   controllers: [ChatController],
   providers: [
     ChatHistoryService,
-    ChatListService,
     ChatSearchService,
     ChatToolsService,
     ChatCheckInToolsService,

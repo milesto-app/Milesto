@@ -119,26 +119,4 @@ describe('DebriefService', () => {
       );
     });
   });
-
-  describe('getDebriefHistory', () => {
-    it('should return debrief array ordered by date', async () => {
-      const mockHistory = [{ id: '1', note: 'Reflection' }];
-      mockSupabaseService.getAdminClient.mockReturnValue({
-        from: jest.fn().mockReturnValue({
-          select: jest.fn().mockReturnValue({
-            eq: jest.fn().mockReturnValue({
-              eq: jest.fn().mockReturnValue({
-                order: jest
-                  .fn()
-                  .mockResolvedValue({ data: mockHistory, error: null }),
-              }),
-            }),
-          }),
-        }),
-      });
-
-      const result = await service.getDebriefHistory(goalId, userId);
-      expect(result).toEqual(mockHistory);
-    });
-  });
 });

@@ -1,7 +1,6 @@
 import { Module } from '@nestjs/common';
 
 import { GoalModule } from '../goal/goal.module.js';
-import { CheckInController } from './check-in.controller.js';
 import { CheckInService } from './check-in.service.js';
 import { ContextPipelineService } from './context-pipeline.service.js';
 import { DailyObjectiveController } from './daily-objective.controller.js';
@@ -26,12 +25,7 @@ import { WeeklyPlanStorageService } from './weekly-plan-storage.service.js';
 
 @Module({
   imports: [GoalModule],
-  controllers: [
-    RoadmapController,
-    CheckInController,
-    DailyObjectiveController,
-    DebriefController,
-  ],
+  controllers: [RoadmapController, DailyObjectiveController, DebriefController],
   providers: [
     ContextPipelineService,
     RerankService,

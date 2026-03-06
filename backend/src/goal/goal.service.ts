@@ -19,13 +19,6 @@ import {
 
 type GoalRow = Database['public']['Tables']['goals']['Row'];
 
-interface GoalListResult {
-  data: GoalRow[];
-  total: number;
-  limit: number;
-  offset: number;
-}
-
 @Injectable()
 export class GoalService {
   private readonly logger = new Logger(GoalService.name);
@@ -81,31 +74,6 @@ export class GoalService {
       );
       return description.substring(0, FALLBACK_MAX_LENGTH);
     }
-  }
-
-  public async findAll(
-    userId: string,
-    limit: number,
-    offset: number,
-  ): Promise<GoalListResult> {
-    const supabase = this.supabaseService.getAdminClient();
-
-    const { data, error, count } = await supabase
-      .from('goals')
-      .select('*', { count: 'exact' })
-      .eq('user_id', userId)
-      .is('deleted_at', null)
-      .order('created_at', { ascending: false })
-      .range(offset, offset + limit - 1);
-
-    if (error) {
-      this.logger.error(
-        `Failed to list goals for user ${userId}: ${error.message}`,
-      );
-      throw new InternalServerErrorException('Failed to list goals');
-    }
-
-    return { data, total: count ?? 0, limit, offset };
   }
 
   public async findOne(userId: string, goalId: string): Promise<GoalRow> {
@@ -187,29 +155,5 @@ export class GoalService {
         `Failed to update goal status: ${error.message}`,
       );
     }
-  }
-
-  public async delete(userId: string, goalId: string): Promise<void> {
-    await this.findOne(userId, goalId);
-
-    const supabase = this.supabaseService.getAdminClient();
-    const { error } = await supabase
-      .from('goals')
-      .update({
-        deleted_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-      })
-      .eq('id', goalId)
-      .eq('user_id', userId)
-      .is('deleted_at', null);
-
-    if (error) {
-      this.logger.error(
-        `Failed to delete goal ${goalId} for user ${userId}: ${error.message}`,
-      );
-      throw new InternalServerErrorException('Failed to delete goal');
-    }
-
-    this.logger.log(`Goal ${goalId} soft-deleted for user ${userId}`);
   }
 }
