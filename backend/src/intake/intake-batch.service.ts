@@ -8,10 +8,11 @@ import { EventEmitter2 } from '@nestjs/event-emitter';
 
 import { UserLanguageService } from '../common/user-language.service.js';
 import { GoalService } from '../goal/goal.service.js';
+import { FIRST_BATCH_NUMBER } from './constants/intake.constants.js';
 import { validateAnswerSet } from './intake-answer-validator.js';
 import { IntakeContextService } from './intake-context.service.js';
-import { IntakeFallbackService } from './intake-fallback.service.js';
 import { IntakeGenerationService } from './intake-generation.service.js';
+import { IntakePromptService } from './intake-prompt.service.js';
 import type { StoreBatchOptions, StoredBatch } from './intake-store.service.js';
 import { IntakeStoreService } from './intake-store.service.js';
 import { IntakeTargetDateService } from './intake-target-date.service.js';
@@ -46,7 +47,7 @@ export class IntakeBatchService {
   private readonly contextService!: IntakeContextService;
 
   @Inject()
-  private readonly fallbackService!: IntakeFallbackService;
+  private readonly promptService!: IntakePromptService;
 
   public async getNextBatch(userId: string, goalId: string): Promise<unknown> {
     const goal = await this.goalService.findOne(userId, goalId);
@@ -56,10 +57,12 @@ export class IntakeBatchService {
     const language = await this.languageService.getLanguage(userId);
     const latestBatch = await this.storeService.queryLatestBatch(goalId);
     if (latestBatch === null) {
-      const result = await this.fallbackService.serveFirstBatch(
+      const questions = this.promptService.getUniversalBatch(language);
+      const result = await this.storeService.storeGeneratedBatch({
         goalId,
-        language,
-      );
+        batchNumber: FIRST_BATCH_NUMBER,
+        questions,
+      });
       this.emitBatchEvent('batch.served', {
         goal_id: goalId,
         batch_id: result.batch_id,
@@ -142,36 +145,23 @@ export class IntakeBatchService {
   }
 
   private async doGenerate(params: BatchParams): Promise<unknown> {
-    try {
-      const priorBatches = await this.contextService.loadPriorBatchContext(
-        params.goalId,
-      );
-      const result = await this.generationService.generateBatch({
-        ...params,
-        priorBatches,
-      });
-      if (result.kind === 'complete') {
-        return {
-          batch_id: null,
-          batch_number: null,
-          is_complete: true,
-          questions: [],
-          ...result.profileResult,
-        };
-      }
-      if (result.kind === 'fallback') {
-        return await this.fallbackService.serveFallback(
-          params,
-          params.language,
-        );
-      }
-      return await this.storeBatchAndEmit(params, result.questions);
-    } catch (error) {
-      this.logger.error(
-        `AI generation failed for goal ${params.goalId}: ${error instanceof Error ? error.message : String(error)}. Serving fallback.`,
-      );
-      return this.fallbackService.serveFallback(params, params.language);
+    const priorBatches = await this.contextService.loadPriorBatchContext(
+      params.goalId,
+    );
+    const result = await this.generationService.generateBatch({
+      ...params,
+      priorBatches,
+    });
+    if (result.kind === 'complete') {
+      return {
+        batch_id: null,
+        batch_number: null,
+        is_complete: true,
+        questions: [],
+        ...result.profileResult,
+      };
     }
+    return await this.storeBatchAndEmit(params, result.questions);
   }
 
   private async storeBatchAndEmit(

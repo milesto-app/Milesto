@@ -16,10 +16,7 @@ import type {
   PriorBatchContext,
   UniversalQuestion,
 } from '../config/questions.config.js';
-import {
-  getFallbackPools,
-  getUniversalBatch1,
-} from '../config/questions.config.js';
+import { getUniversalBatch1 } from '../config/questions.config.js';
 
 export interface NextBatchParams {
   goalDescription: string;
@@ -41,31 +38,6 @@ export class IntakePromptService {
 
   public getUniversalBatch(language: string): UniversalQuestion[] {
     return getUniversalBatch1(language).map((q) => ({ ...q }));
-  }
-
-  public getFallbackBatch(
-    usedFallbackIndexes: number[],
-    language: string,
-  ): GeneratedQuestion[] {
-    const pools = getFallbackPools(language);
-    for (let i = 0; i < pools.length; i++) {
-      const pool = pools[i];
-      if (pool !== undefined && !usedFallbackIndexes.includes(i)) {
-        return pool.map((q) => ({ ...q }));
-      }
-    }
-    const firstPool = pools[0];
-    if (firstPool === undefined) {
-      return [];
-    }
-    return firstPool.map((q) => ({ ...q }));
-  }
-
-  public findFallbackPoolIndex(firstQuestionText: string): number {
-    const pools = getFallbackPools('en');
-    return pools.findIndex(
-      (pool) => pool[0]?.question_text === firstQuestionText,
-    );
   }
 
   public async generateGoalProfile(

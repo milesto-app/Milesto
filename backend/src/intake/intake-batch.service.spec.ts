@@ -5,8 +5,8 @@ import type { UserLanguageService } from '../common/user-language.service.js';
 import type { GoalService } from '../goal/goal.service.js';
 import { IntakeBatchService } from './intake-batch.service.js';
 import type { IntakeContextService } from './intake-context.service.js';
-import type { IntakeFallbackService } from './intake-fallback.service.js';
 import type { IntakeGenerationService } from './intake-generation.service.js';
+import type { IntakePromptService } from './intake-prompt.service.js';
 import type { IntakeStoreService } from './intake-store.service.js';
 import type { IntakeTargetDateService } from './intake-target-date.service.js';
 
@@ -23,7 +23,7 @@ describe('IntakeBatchService', () => {
   };
   let generationService: { generateBatch: jest.Mock };
   let contextService: { loadPriorBatchContext: jest.Mock };
-  let fallbackService: { serveFirstBatch: jest.Mock; serveFallback: jest.Mock };
+  let promptService: { getUniversalBatch: jest.Mock };
   let eventEmitter: { emit: jest.Mock };
   let languageService: { getLanguage: jest.Mock };
   let targetDateService: { tryExtractTargetDate: jest.Mock };
@@ -51,7 +51,7 @@ describe('IntakeBatchService', () => {
     };
     generationService = { generateBatch: jest.fn() };
     contextService = { loadPriorBatchContext: jest.fn() };
-    fallbackService = { serveFirstBatch: jest.fn(), serveFallback: jest.fn() };
+    promptService = { getUniversalBatch: jest.fn().mockReturnValue([]) };
     eventEmitter = { emit: jest.fn() };
     languageService = { getLanguage: jest.fn().mockResolvedValue('en') };
     targetDateService = {
@@ -69,7 +69,7 @@ describe('IntakeBatchService', () => {
       generationService:
         generationService as unknown as IntakeGenerationService,
       contextService: contextService as unknown as IntakeContextService,
-      fallbackService: fallbackService as unknown as IntakeFallbackService,
+      promptService: promptService as unknown as IntakePromptService,
       languageService: languageService as unknown as UserLanguageService,
       targetDateService:
         targetDateService as unknown as IntakeTargetDateService,
@@ -94,14 +94,12 @@ describe('IntakeBatchService', () => {
         is_complete: false,
         questions: [],
       };
-      fallbackService.serveFirstBatch.mockResolvedValue(batch);
+      storeService.storeGeneratedBatch.mockResolvedValue(batch);
 
       const result = await service.getNextBatch(userId, goalId);
 
-      expect(fallbackService.serveFirstBatch).toHaveBeenCalledWith(
-        goalId,
-        'en',
-      );
+      expect(promptService.getUniversalBatch).toHaveBeenCalledWith('en');
+      expect(storeService.storeGeneratedBatch).toHaveBeenCalled();
       expect(result).toEqual(batch);
       expect(eventEmitter.emit).toHaveBeenCalledWith(
         'batch.served',
@@ -163,7 +161,7 @@ describe('IntakeBatchService', () => {
       expect(result).toEqual(expect.objectContaining({ batch_id: 'b-2' }));
     });
 
-    it('should serve fallback when generation fails', async () => {
+    it('should throw when generation fails', async () => {
       goalService.findOne.mockResolvedValue(mockGoal());
       storeService.queryLatestBatch.mockResolvedValue({
         id: 'b-1',
@@ -172,18 +170,10 @@ describe('IntakeBatchService', () => {
       });
       contextService.loadPriorBatchContext.mockResolvedValue([]);
       generationService.generateBatch.mockRejectedValue(new Error('AI failed'));
-      const fallback = {
-        batch_id: 'fb-1',
-        batch_number: 2,
-        is_complete: false,
-        questions: [],
-      };
-      fallbackService.serveFallback.mockResolvedValue(fallback);
 
-      const result = await service.getNextBatch(userId, goalId);
-
-      expect(fallbackService.serveFallback).toHaveBeenCalled();
-      expect(result).toEqual(fallback);
+      await expect(service.getNextBatch(userId, goalId)).rejects.toThrow(
+        'AI failed',
+      );
     });
   });
 

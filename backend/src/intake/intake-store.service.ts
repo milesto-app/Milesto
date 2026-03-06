@@ -16,7 +16,6 @@ export interface StoreBatchOptions {
   goalId: string;
   batchNumber: number;
   questions: GeneratedQuestion[];
-  isFallback?: boolean | undefined;
 }
 
 export interface StoredBatch {
@@ -76,13 +75,6 @@ export class IntakeStoreService {
     return this.queryService.reServeBatch(batch);
   }
 
-  public async getUsedFallbackIndexes(
-    goalId: string,
-    findPoolIndex: (text: string) => number,
-  ): Promise<number[]> {
-    return this.queryService.getUsedFallbackIndexes(goalId, findPoolIndex);
-  }
-
   public async storeGeneratedBatch(
     options: StoreBatchOptions,
   ): Promise<StoredBatch> {
@@ -93,7 +85,7 @@ export class IntakeStoreService {
       .insert({
         goal_id: options.goalId,
         batch_number: options.batchNumber,
-        is_fallback: options.isFallback ?? false,
+        is_fallback: false,
       })
       .select()
       .single();

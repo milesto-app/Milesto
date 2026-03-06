@@ -1,4 +1,8 @@
-import { Injectable, Logger } from '@nestjs/common';
+import {
+  Injectable,
+  InternalServerErrorException,
+  Logger,
+} from '@nestjs/common';
 
 import { MAX_GENERATION_ATTEMPTS } from './constants/intake.constants.js';
 import { IntakeProfileService } from './intake-profile.service.js';
@@ -12,8 +16,7 @@ import type { ProfileResult } from './types/intake.types.js';
 
 export type BatchGenerationResult =
   | { kind: 'questions'; questions: GeneratedQuestion[] }
-  | { kind: 'complete'; profileResult: ProfileResult }
-  | { kind: 'fallback' };
+  | { kind: 'complete'; profileResult: ProfileResult };
 
 interface GenerateParams {
   goalDescription: string;
@@ -44,7 +47,15 @@ export class IntakeGenerationService {
     params: GenerateParams,
   ): Promise<BatchGenerationResult> {
     const results = await this.runAllAttempts(params);
-    return results ?? { kind: 'fallback' };
+    if (results === null) {
+      this.logger.error(
+        `All ${String(MAX_GENERATION_ATTEMPTS)} generation attempts failed for goal ${params.goalId}`,
+      );
+      throw new InternalServerErrorException(
+        'Question generation failed after all retry attempts',
+      );
+    }
+    return results;
   }
 
   private async runAllAttempts(
@@ -112,7 +123,7 @@ export class IntakeGenerationService {
   ): void {
     const suffix =
       attempt === MAX_GENERATION_ATTEMPTS
-        ? ' Serving fallback.'
+        ? ' No attempts remaining.'
         : ' Retrying...';
     this.logger.warn(
       `Batch attempt ${String(attempt)}/${String(MAX_GENERATION_ATTEMPTS)} validation failed (${validation.layer}): ${validation.errors.join(', ')}.${suffix}`,
@@ -122,7 +133,7 @@ export class IntakeGenerationService {
   private logAttemptError(attempt: number, error: unknown): void {
     const suffix =
       attempt === MAX_GENERATION_ATTEMPTS
-        ? ' Serving fallback.'
+        ? ' No attempts remaining.'
         : ' Retrying...';
     this.logger.warn(
       `Batch attempt ${String(attempt)}/${String(MAX_GENERATION_ATTEMPTS)} failed: ${error instanceof Error ? error.message : String(error)}.${suffix}`,

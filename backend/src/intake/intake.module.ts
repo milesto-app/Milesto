@@ -6,7 +6,6 @@ import { IntakeController } from './intake.controller.js';
 import { IntakeBatchService } from './intake-batch.service.js';
 import { IntakeContextService } from './intake-context.service.js';
 import { IntakeEmbeddingService } from './intake-embedding.service.js';
-import { IntakeFallbackService } from './intake-fallback.service.js';
 import { IntakeGenerationService } from './intake-generation.service.js';
 import { IntakeProfileService } from './intake-profile.service.js';
 import { IntakeProfileStoreService } from './intake-profile-store.service.js';
@@ -29,7 +28,6 @@ const PROVIDERS = [
   IntakeContextService,
   IntakeGenerationService,
   IntakeReembedService,
-  IntakeFallbackService,
   IntakeTargetDateService,
 ];
 
