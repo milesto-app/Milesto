@@ -143,7 +143,7 @@ struct SettingsView: View {
                 } label: {
                     VStack(spacing: 16) {
                         ProfileAvatarView(
-                            url: localProfile?.avatarURL.flatMap { URL(string: $0) },
+                            imageData: localProfile?.avatarData,
                             initials: initials,
                             size: 80
                         )

@@ -8,6 +8,7 @@ final class LocalProfile {
     var lastName: String?
     var email: String?
     var avatarURL: String?
+    @Attribute(.externalStorage) var avatarData: Data?
     var coachId: Int?
     var dateOfBirth: Date?
     var language: String?
@@ -19,6 +20,7 @@ final class LocalProfile {
         lastName: String? = nil,
         email: String? = nil,
         avatarURL: String? = nil,
+        avatarData: Data? = nil,
         coachId: Int? = nil,
         dateOfBirth: Date? = nil,
         language: String? = nil,
@@ -29,6 +31,7 @@ final class LocalProfile {
         self.lastName = lastName
         self.email = email
         self.avatarURL = avatarURL
+        self.avatarData = avatarData
         self.coachId = coachId
         self.dateOfBirth = dateOfBirth
         self.language = language
