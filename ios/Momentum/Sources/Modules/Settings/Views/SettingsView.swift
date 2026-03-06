@@ -251,13 +251,11 @@ struct SettingsView: View {
                 HStack(spacing: 12) {
                     TablerIcons(.crown, size: 24, color: Colors.accent)
                     AppText("settings.pro", table: "Paywall", style: .body)
-                        .weight(.semibold)
                     Spacer()
                     HStack(spacing: 4) {
                         TablerIcons(.circleCheck, size: 16, color: Colors.success)
                         AppText("settings.pro.active", table: "Paywall", style: .caption)
                             .color(Colors.success)
-                            .weight(.semibold)
                     }
                 }
             } else {
@@ -267,7 +265,6 @@ struct SettingsView: View {
                     HStack(spacing: 12) {
                         TablerIcons(.crown, size: 24, color: Colors.accent)
                         AppText("settings.pro", table: "Paywall", style: .body)
-                            .weight(.semibold)
                         Spacer()
                         TablerIcons(.chevronRight, size: 16, color: Colors.textSecondary)
                     }
