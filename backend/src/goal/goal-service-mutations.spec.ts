@@ -29,7 +29,7 @@ beforeEach(async () => {
         provide: SupabaseService,
         useValue: { getAdminClient: () => mockSupabase },
       },
-      { provide: AiService, useValue: { generateJSON: jest.fn() } },
+      { provide: AiService, useValue: { generateJson: jest.fn() } },
     ],
   }).compile();
 
@@ -79,13 +79,14 @@ describe('GoalService.getGoalProfile', () => {
 
 describe('GoalService.delete', () => {
   const setupDeleteChain = (error: unknown = null): void => {
-    const eqUserId = jest.fn().mockResolvedValue({ error });
+    const isMock = jest.fn().mockResolvedValue({ error });
+    const eqUserId = jest.fn().mockReturnValue({ is: isMock });
     const eqId = jest.fn().mockReturnValue({ eq: eqUserId });
-    const deleteFn = jest.fn().mockReturnValue({ eq: eqId });
-    mockSupabase.from.mockReturnValue({ delete: deleteFn });
+    const updateFn = jest.fn().mockReturnValue({ eq: eqId });
+    mockSupabase.from.mockReturnValue({ update: updateFn });
   };
 
-  it('should delete a goal in active status', async () => {
+  it('should soft-delete a goal in active status', async () => {
     jest
       .spyOn(service, 'findOne')
       .mockResolvedValue(mockGoal(GOAL_STATUS.ACTIVE) as never);
@@ -96,7 +97,7 @@ describe('GoalService.delete', () => {
     ).resolves.toBeUndefined();
   });
 
-  it('should throw InternalServerErrorException on Supabase delete error', async () => {
+  it('should throw InternalServerErrorException on Supabase soft-delete error', async () => {
     jest
       .spyOn(service, 'findOne')
       .mockResolvedValue(mockGoal(GOAL_STATUS.ACTIVE) as never);
@@ -110,7 +111,8 @@ describe('GoalService.delete', () => {
 
 describe('GoalService.updateStatus', () => {
   it('should update goal status successfully', async () => {
-    const eqMock = jest.fn().mockResolvedValue({ error: null });
+    const isMock = jest.fn().mockResolvedValue({ error: null });
+    const eqMock = jest.fn().mockReturnValue({ is: isMock });
     const updateMock = jest.fn().mockReturnValue({ eq: eqMock });
     mockSupabase.from.mockReturnValue({ update: updateMock });
 
@@ -120,9 +122,10 @@ describe('GoalService.updateStatus', () => {
   });
 
   it('should throw InternalServerErrorException on Supabase error', async () => {
-    const eqMock = jest
+    const isMock = jest
       .fn()
       .mockResolvedValue({ error: { message: 'DB error' } });
+    const eqMock = jest.fn().mockReturnValue({ is: isMock });
     const updateMock = jest.fn().mockReturnValue({ eq: eqMock });
     mockSupabase.from.mockReturnValue({ update: updateMock });
 

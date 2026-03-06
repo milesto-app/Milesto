@@ -150,6 +150,7 @@ export class QualityMilestoneService {
       .from('goals')
       .select('title, description')
       .eq('id', goalId)
+      .is('deleted_at', null)
       .single();
     // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
     if (error !== null || data === null) {

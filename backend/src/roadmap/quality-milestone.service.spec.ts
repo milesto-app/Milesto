@@ -7,11 +7,11 @@ import { QualityMilestoneService } from './quality-milestone.service.js';
 
 describe('QualityMilestoneService', () => {
   let service: QualityMilestoneService;
-  let mockAiService: { generateJSON: jest.Mock };
+  let mockAiService: { generateJson: jest.Mock };
   let mockSupabaseService: { getAdminClient: jest.Mock };
 
   beforeEach(async () => {
-    mockAiService = { generateJSON: jest.fn() };
+    mockAiService = { generateJson: jest.fn() };
     mockSupabaseService = { getAdminClient: jest.fn() };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -52,9 +52,11 @@ describe('QualityMilestoneService', () => {
         .mockReturnValueOnce({
           select: jest.fn().mockReturnValue({
             eq: jest.fn().mockReturnValue({
-              single: jest.fn().mockResolvedValue({
-                data: { title: 'Goal', description: 'Desc' },
-                error: null,
+              is: jest.fn().mockReturnValue({
+                single: jest.fn().mockResolvedValue({
+                  data: { title: 'Goal', description: 'Desc' },
+                  error: null,
+                }),
               }),
             }),
           }),
@@ -66,7 +68,7 @@ describe('QualityMilestoneService', () => {
         });
 
       mockSupabaseService.getAdminClient.mockReturnValue({ from: mockFrom });
-      mockAiService.generateJSON.mockResolvedValue({
+      mockAiService.generateJson.mockResolvedValue({
         coherence: 4,
         personalization: 3,
         progression: 5,
@@ -78,7 +80,7 @@ describe('QualityMilestoneService', () => {
         goalId: 'goal-uuid',
       });
 
-      expect(mockAiService.generateJSON).toHaveBeenCalled();
+      expect(mockAiService.generateJson).toHaveBeenCalled();
     });
 
     it('should handle missing roadmap gracefully', async () => {

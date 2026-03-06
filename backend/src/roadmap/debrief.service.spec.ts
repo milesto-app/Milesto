@@ -49,9 +49,12 @@ describe('DebriefService', () => {
               select: jest.fn().mockReturnValue({
                 eq: jest.fn().mockReturnValue({
                   eq: jest.fn().mockReturnValue({
-                    single: jest
-                      .fn()
-                      .mockResolvedValue({ data: { id: goalId }, error: null }),
+                    is: jest.fn().mockReturnValue({
+                      single: jest.fn().mockResolvedValue({
+                        data: { id: goalId },
+                        error: null,
+                      }),
+                    }),
                   }),
                 }),
               }),
@@ -87,9 +90,12 @@ describe('DebriefService', () => {
               select: jest.fn().mockReturnValue({
                 eq: jest.fn().mockReturnValue({
                   eq: jest.fn().mockReturnValue({
-                    single: jest
-                      .fn()
-                      .mockResolvedValue({ data: { id: goalId }, error: null }),
+                    is: jest.fn().mockReturnValue({
+                      single: jest.fn().mockResolvedValue({
+                        data: { id: goalId },
+                        error: null,
+                      }),
+                    }),
                   }),
                 }),
               }),

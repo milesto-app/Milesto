@@ -360,6 +360,7 @@ export type Database = {
       goals: {
         Row: {
           created_at: string;
+          deleted_at: string | null;
           description: string;
           id: string;
           profile_generation_attempts: number;
@@ -371,6 +372,7 @@ export type Database = {
         };
         Insert: {
           created_at?: string;
+          deleted_at?: string | null;
           description: string;
           id?: string;
           profile_generation_attempts?: number;
@@ -382,6 +384,7 @@ export type Database = {
         };
         Update: {
           created_at?: string;
+          deleted_at?: string | null;
           description?: string;
           id?: string;
           profile_generation_attempts?: number;

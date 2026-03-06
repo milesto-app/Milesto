@@ -62,6 +62,7 @@ export class DebriefService {
       .select('id')
       .eq('id', goalId)
       .eq('user_id', userId)
+      .is('deleted_at', null)
       .single();
     // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
     if (error || data === null) {

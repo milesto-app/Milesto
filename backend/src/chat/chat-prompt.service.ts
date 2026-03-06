@@ -114,6 +114,7 @@ export class ChatPromptService {
         .select('title, description')
         .eq('id', goalId)
         .eq('user_id', userId)
+        .is('deleted_at', null)
         .single(),
       supabase
         .from('weekly_plans')

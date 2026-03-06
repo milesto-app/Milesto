@@ -15,6 +15,7 @@ export function mockGoalChain(data: unknown, error: unknown = null): Chain {
   return {
     select: jest.fn().mockReturnThis(),
     eq: jest.fn().mockReturnThis(),
+    is: jest.fn().mockReturnThis(),
     single: jest.fn().mockResolvedValue({ data, error }),
   };
 }

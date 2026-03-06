@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-non-null-assertion, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/require-await, @typescript-eslint/no-unnecessary-condition, no-restricted-syntax, @typescript-eslint/naming-convention, @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-non-null-assertion, @typescript-eslint/no-unsafe-member-access, no-restricted-syntax, @typescript-eslint/naming-convention, @typescript-eslint/no-unused-vars */
 import type { TestingModule } from '@nestjs/testing';
 import { Test } from '@nestjs/testing';
 
@@ -15,7 +15,7 @@ import type {
 
 describe('GenerationService', () => {
   let service: GenerationService;
-  let mockAiService: { generateJSON: jest.Mock };
+  let mockAiService: { generateJson: jest.Mock };
 
   const mockContext: AssembledContext = {
     goalProfileSection: 'Goal profile content',
@@ -62,7 +62,7 @@ describe('GenerationService', () => {
 
   beforeEach(async () => {
     mockAiService = {
-      generateJSON: jest.fn(),
+      generateJson: jest.fn(),
     };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -81,7 +81,7 @@ describe('GenerationService', () => {
 
   describe('generateMilestones', () => {
     it('should return validated milestones with metadata on success', async () => {
-      mockAiService.generateJSON.mockResolvedValue(validMilestoneResponse);
+      mockAiService.generateJson.mockResolvedValue(validMilestoneResponse);
 
       const result = await service.generateMilestones(
         mockContext,
@@ -98,7 +98,7 @@ describe('GenerationService', () => {
     });
 
     it('should validate well-formed milestone JSON', async () => {
-      mockAiService.generateJSON.mockResolvedValue(validMilestoneResponse);
+      mockAiService.generateJson.mockResolvedValue(validMilestoneResponse);
 
       const result = await service.generateMilestones(
         mockContext,
@@ -121,7 +121,7 @@ describe('GenerationService', () => {
         target_month: String(m.target_month),
         order_index: String(m.order_index),
       }));
-      mockAiService.generateJSON.mockResolvedValue(badResponse);
+      mockAiService.generateJson.mockResolvedValue(badResponse);
 
       const result = await service.generateMilestones(
         mockContext,
@@ -144,7 +144,7 @@ describe('GenerationService', () => {
           order_index: -1,
         },
       ];
-      mockAiService.generateJSON.mockResolvedValue(invalidResponse);
+      mockAiService.generateJson.mockResolvedValue(invalidResponse);
 
       await expect(
         service.generateMilestones(mockContext, mockGoal, 'en'),
@@ -152,11 +152,11 @@ describe('GenerationService', () => {
     });
 
     it('should resolve milestone model from default to appConfig.ai.defaultModel', async () => {
-      mockAiService.generateJSON.mockResolvedValue(validMilestoneResponse);
+      mockAiService.generateJson.mockResolvedValue(validMilestoneResponse);
 
       await service.generateMilestones(mockContext, mockGoal, 'en');
 
-      expect(mockAiService.generateJSON).toHaveBeenCalledWith(
+      expect(mockAiService.generateJson).toHaveBeenCalledWith(
         expect.any(String),
         expect.any(String),
         config.ai.defaultModel,
@@ -164,17 +164,17 @@ describe('GenerationService', () => {
     });
 
     it('should include goal constraints in prompt', async () => {
-      mockAiService.generateJSON.mockResolvedValue(validMilestoneResponse);
+      mockAiService.generateJson.mockResolvedValue(validMilestoneResponse);
 
       await service.generateMilestones(mockContext, mockGoal, 'en');
 
-      const userPrompt = mockAiService.generateJSON.mock.calls[0][1] as string;
+      const userPrompt = mockAiService.generateJson.mock.calls[0][1] as string;
       expect(userPrompt).toContain('Run a marathon');
       expect(userPrompt).toContain('Complete a full marathon in under 4 hours');
     });
 
     it('should inject profile_data as explicit user constraint variables in prompt', async () => {
-      mockAiService.generateJSON.mockResolvedValue(validMilestoneResponse);
+      mockAiService.generateJson.mockResolvedValue(validMilestoneResponse);
 
       const goalWithProfile: GoalData = {
         ...mockGoal,
@@ -189,7 +189,7 @@ describe('GenerationService', () => {
 
       await service.generateMilestones(mockContext, goalWithProfile, 'en');
 
-      const userPrompt = mockAiService.generateJSON.mock.calls[0][1] as string;
+      const userPrompt = mockAiService.generateJson.mock.calls[0][1] as string;
       expect(userPrompt).toContain('User Constraints');
       expect(userPrompt).toContain('Current State: Sedentary lifestyle');
       expect(userPrompt).toContain('Constraints: 3 hours per week available');
@@ -198,11 +198,11 @@ describe('GenerationService', () => {
     });
 
     it('should include all 3 context sections in prompt', async () => {
-      mockAiService.generateJSON.mockResolvedValue(validMilestoneResponse);
+      mockAiService.generateJson.mockResolvedValue(validMilestoneResponse);
 
       await service.generateMilestones(mockContext, mockGoal, 'en');
 
-      const userPrompt = mockAiService.generateJSON.mock.calls[0][1] as string;
+      const userPrompt = mockAiService.generateJson.mock.calls[0][1] as string;
       expect(userPrompt).toContain('Goal Profile');
       expect(userPrompt).toContain('Goal profile content');
       expect(userPrompt).toContain('Intake Q&A');
@@ -212,7 +212,7 @@ describe('GenerationService', () => {
     });
 
     it('should retry on first attempt failure and succeed on second', async () => {
-      mockAiService.generateJSON
+      mockAiService.generateJson
         .mockRejectedValueOnce(new Error('AI error'))
         .mockResolvedValueOnce(validMilestoneResponse);
 
@@ -224,48 +224,34 @@ describe('GenerationService', () => {
 
       expect(result.milestones).toHaveLength(3);
       expect(result.metadata.attempts).toBe(2);
-      expect(mockAiService.generateJSON).toHaveBeenCalledTimes(2);
+      expect(mockAiService.generateJson).toHaveBeenCalledTimes(2);
     });
 
     it('should throw last error when both attempts fail', async () => {
-      mockAiService.generateJSON
+      mockAiService.generateJson
         .mockRejectedValueOnce(new Error('First failure'))
         .mockRejectedValueOnce(new Error('Second failure'));
 
       await expect(
         service.generateMilestones(mockContext, mockGoal, 'en'),
       ).rejects.toThrow('Second failure');
-      expect(mockAiService.generateJSON).toHaveBeenCalledTimes(2);
+      expect(mockAiService.generateJson).toHaveBeenCalledTimes(2);
     });
 
     it('should pass generation timeout and captureUsage via options', async () => {
-      mockAiService.generateJSON.mockResolvedValue(validMilestoneResponse);
+      mockAiService.generateJson.mockResolvedValue(validMilestoneResponse);
 
       await service.generateMilestones(mockContext, mockGoal, 'en');
 
-      expect(mockAiService.generateJSON).toHaveBeenCalledWith(
+      expect(mockAiService.generateJson).toHaveBeenCalledWith(
         expect.any(String),
         expect.any(String),
         expect.any(String),
       );
     });
 
-    it('should include token usage in metadata when available', async () => {
-      mockAiService.generateJSON.mockImplementation(
-        async (
-          _sys: string,
-          _user: string,
-          _model: string,
-          options: { captureUsage?: Record<string, number> },
-        ) => {
-          if (options?.captureUsage) {
-            options.captureUsage.prompt_tokens = 150;
-            options.captureUsage.completion_tokens = 200;
-            options.captureUsage.total_tokens = 350;
-          }
-          return validMilestoneResponse;
-        },
-      );
+    it('should include standard metadata fields', async () => {
+      mockAiService.generateJson.mockResolvedValue(validMilestoneResponse);
 
       const result = await service.generateMilestones(
         mockContext,
@@ -273,14 +259,16 @@ describe('GenerationService', () => {
         'en',
       );
 
-      expect(result.metadata.prompt_tokens).toBe(150);
-      expect(result.metadata.completion_tokens).toBe(200);
+      expect(result.metadata.model_used).toBeDefined();
+      expect(result.metadata.latency_ms).toBeGreaterThanOrEqual(0);
+      expect(result.metadata.context_chunks_used).toBe(mockContext.totalChunks);
+      expect(result.metadata.attempts).toBe(1);
     });
 
     it('should handle goal without target_date', async () => {
       const { target_date: _, ...goalWithoutDate } = mockGoal;
       const goalNoDate: GoalData = goalWithoutDate;
-      mockAiService.generateJSON.mockResolvedValue(validMilestoneResponse);
+      mockAiService.generateJson.mockResolvedValue(validMilestoneResponse);
 
       const result = await service.generateMilestones(
         mockContext,
@@ -289,7 +277,7 @@ describe('GenerationService', () => {
       );
 
       expect(result.milestones).toHaveLength(3);
-      const userPrompt = mockAiService.generateJSON.mock.calls[0][1] as string;
+      const userPrompt = mockAiService.generateJson.mock.calls[0][1] as string;
       expect(userPrompt).toContain('Not specified');
     });
 
@@ -297,7 +285,7 @@ describe('GenerationService', () => {
       const warnSpy = jest
         .spyOn(service['logger'], 'warn')
         .mockImplementation();
-      mockAiService.generateJSON
+      mockAiService.generateJson
         .mockRejectedValueOnce(new Error('AI timeout'))
         .mockResolvedValueOnce(validMilestoneResponse);
 
@@ -339,7 +327,7 @@ describe('GenerationService', () => {
     };
 
     it('should return validated weekly plan with metadata on success', async () => {
-      mockAiService.generateJSON.mockResolvedValue(validWeeklyPlanResponse);
+      mockAiService.generateJson.mockResolvedValue(validWeeklyPlanResponse);
 
       const result = await service.generateWeeklyPlan({
         context: mockContext,
@@ -356,7 +344,7 @@ describe('GenerationService', () => {
     });
 
     it('should use default model from config', async () => {
-      mockAiService.generateJSON.mockResolvedValue(validWeeklyPlanResponse);
+      mockAiService.generateJson.mockResolvedValue(validWeeklyPlanResponse);
 
       await service.generateWeeklyPlan({
         context: mockContext,
@@ -366,7 +354,7 @@ describe('GenerationService', () => {
         language: 'en',
       });
 
-      expect(mockAiService.generateJSON).toHaveBeenCalledWith(
+      expect(mockAiService.generateJson).toHaveBeenCalledWith(
         expect.any(String),
         expect.any(String),
         config.ai.defaultModel,
@@ -378,7 +366,7 @@ describe('GenerationService', () => {
         focus: 'Focus text',
         objectives: [123, true, 'valid objective'],
       };
-      mockAiService.generateJSON.mockResolvedValue(badResponse);
+      mockAiService.generateJson.mockResolvedValue(badResponse);
 
       const result = await service.generateWeeklyPlan({
         context: mockContext,
@@ -397,7 +385,7 @@ describe('GenerationService', () => {
 
     it('should throw on double validation failure', async () => {
       const invalidResponse = { focus: '', objectives: [] };
-      mockAiService.generateJSON.mockResolvedValue(invalidResponse);
+      mockAiService.generateJson.mockResolvedValue(invalidResponse);
 
       await expect(
         service.generateWeeklyPlan({
@@ -410,7 +398,7 @@ describe('GenerationService', () => {
     });
 
     it('should retry on first attempt failure and succeed on second', async () => {
-      mockAiService.generateJSON
+      mockAiService.generateJson
         .mockRejectedValueOnce(new Error('AI error'))
         .mockResolvedValueOnce(validWeeklyPlanResponse);
 
@@ -427,7 +415,7 @@ describe('GenerationService', () => {
     });
 
     it('should throw last error when both attempts fail', async () => {
-      mockAiService.generateJSON
+      mockAiService.generateJson
         .mockRejectedValueOnce(new Error('First failure'))
         .mockRejectedValueOnce(new Error('Second failure'));
 
@@ -442,7 +430,7 @@ describe('GenerationService', () => {
     });
 
     it('should include milestone context in prompt', async () => {
-      mockAiService.generateJSON.mockResolvedValue(validWeeklyPlanResponse);
+      mockAiService.generateJson.mockResolvedValue(validWeeklyPlanResponse);
 
       await service.generateWeeklyPlan({
         context: mockContext,
@@ -452,7 +440,7 @@ describe('GenerationService', () => {
         language: 'en',
       });
 
-      const userPrompt = mockAiService.generateJSON.mock.calls[0][1] as string;
+      const userPrompt = mockAiService.generateJson.mock.calls[0][1] as string;
       expect(userPrompt).toContain('Build base endurance');
       expect(userPrompt).toContain('Establish a running foundation');
       expect(userPrompt).toContain('Week Number: 1');
@@ -462,7 +450,7 @@ describe('GenerationService', () => {
       const warnSpy = jest
         .spyOn(service['logger'], 'warn')
         .mockImplementation();
-      mockAiService.generateJSON
+      mockAiService.generateJson
         .mockRejectedValueOnce(new Error('AI timeout'))
         .mockResolvedValueOnce(validWeeklyPlanResponse);
 
@@ -530,7 +518,7 @@ describe('GenerationService', () => {
     ];
 
     it('should generate daily objectives with energy calibration', async () => {
-      mockAiService.generateJSON.mockResolvedValue(
+      mockAiService.generateJson.mockResolvedValue(
         validDailyObjectivesResponse,
       );
 
@@ -549,7 +537,7 @@ describe('GenerationService', () => {
     });
 
     it('should validate well-formed daily objective JSON', async () => {
-      mockAiService.generateJSON.mockResolvedValue(
+      mockAiService.generateJson.mockResolvedValue(
         validDailyObjectivesResponse,
       );
 
@@ -573,7 +561,7 @@ describe('GenerationService', () => {
         ...obj,
         order_index: String(obj.order_index),
       }));
-      mockAiService.generateJSON.mockResolvedValue(badResponse);
+      mockAiService.generateJson.mockResolvedValue(badResponse);
 
       const result = await service.generateDailyObjectives({
         weeklyPlan: mockWeeklyPlan,
@@ -589,7 +577,7 @@ describe('GenerationService', () => {
 
     it('should throw after repair failure for invalid data', async () => {
       const invalidResponse = [{ title: '', description: '', order_index: -1 }];
-      mockAiService.generateJSON.mockResolvedValue(invalidResponse);
+      mockAiService.generateJson.mockResolvedValue(invalidResponse);
 
       await expect(
         service.generateDailyObjectives({
@@ -601,20 +589,9 @@ describe('GenerationService', () => {
       ).rejects.toThrow('Daily objectives validation failed after repair');
     });
 
-    it('should include token usage in metadata', async () => {
-      mockAiService.generateJSON.mockImplementation(
-        async (
-          _sys: string,
-          _user: string,
-          _model: string,
-          options: { captureUsage?: Record<string, number> },
-        ) => {
-          if (options?.captureUsage) {
-            options.captureUsage.prompt_tokens = 100;
-            options.captureUsage.completion_tokens = 150;
-          }
-          return validDailyObjectivesResponse;
-        },
+    it('should include standard metadata fields', async () => {
+      mockAiService.generateJson.mockResolvedValue(
+        validDailyObjectivesResponse,
       );
 
       const result = await service.generateDailyObjectives({
@@ -625,12 +602,13 @@ describe('GenerationService', () => {
         language: 'en',
       });
 
-      expect(result.metadata.prompt_tokens).toBe(100);
-      expect(result.metadata.completion_tokens).toBe(150);
+      expect(result.metadata.model_used).toBeDefined();
+      expect(result.metadata.latency_ms).toBeGreaterThanOrEqual(0);
+      expect(result.metadata.attempts).toBe(1);
     });
 
     it('should use default model from config', async () => {
-      mockAiService.generateJSON.mockResolvedValue(
+      mockAiService.generateJson.mockResolvedValue(
         validDailyObjectivesResponse,
       );
 
@@ -642,7 +620,7 @@ describe('GenerationService', () => {
         language: 'en',
       });
 
-      expect(mockAiService.generateJSON).toHaveBeenCalledWith(
+      expect(mockAiService.generateJson).toHaveBeenCalledWith(
         expect.any(String),
         expect.any(String),
         config.ai.defaultModel,
@@ -650,7 +628,7 @@ describe('GenerationService', () => {
     });
 
     it('should retry on first attempt failure and succeed on second', async () => {
-      mockAiService.generateJSON
+      mockAiService.generateJson
         .mockRejectedValueOnce(new Error('AI error'))
         .mockResolvedValueOnce(validDailyObjectivesResponse);
 
@@ -664,11 +642,11 @@ describe('GenerationService', () => {
 
       expect(result.objectives).toHaveLength(3);
       expect(result.metadata.attempts).toBe(2);
-      expect(mockAiService.generateJSON).toHaveBeenCalledTimes(2);
+      expect(mockAiService.generateJson).toHaveBeenCalledTimes(2);
     });
 
     it('should throw last error when both attempts fail', async () => {
-      mockAiService.generateJSON
+      mockAiService.generateJson
         .mockRejectedValueOnce(new Error('First failure'))
         .mockRejectedValueOnce(new Error('Second failure'));
 
@@ -680,11 +658,11 @@ describe('GenerationService', () => {
           weekData: mockWeekData,
         }),
       ).rejects.toThrow('Second failure');
-      expect(mockAiService.generateJSON).toHaveBeenCalledTimes(2);
+      expect(mockAiService.generateJson).toHaveBeenCalledTimes(2);
     });
 
     it('should include energy level in prompt', async () => {
-      mockAiService.generateJSON.mockResolvedValue(
+      mockAiService.generateJson.mockResolvedValue(
         validDailyObjectivesResponse,
       );
 
@@ -696,12 +674,12 @@ describe('GenerationService', () => {
         language: 'en',
       });
 
-      const userPrompt = mockAiService.generateJSON.mock.calls[0][1] as string;
+      const userPrompt = mockAiService.generateJson.mock.calls[0][1] as string;
       expect(userPrompt).toContain('Energy: low');
     });
 
     it('should include weekly plan focus in prompt', async () => {
-      mockAiService.generateJSON.mockResolvedValue(
+      mockAiService.generateJson.mockResolvedValue(
         validDailyObjectivesResponse,
       );
 
@@ -713,12 +691,12 @@ describe('GenerationService', () => {
         language: 'en',
       });
 
-      const userPrompt = mockAiService.generateJSON.mock.calls[0][1] as string;
+      const userPrompt = mockAiService.generateJson.mock.calls[0][1] as string;
       expect(userPrompt).toContain('Build foundation habits');
     });
 
     it('should include energy calibration rules in system prompt', async () => {
-      mockAiService.generateJSON.mockResolvedValue(
+      mockAiService.generateJson.mockResolvedValue(
         validDailyObjectivesResponse,
       );
 
@@ -730,7 +708,7 @@ describe('GenerationService', () => {
         language: 'en',
       });
 
-      const systemPrompt = mockAiService.generateJSON.mock
+      const systemPrompt = mockAiService.generateJson.mock
         .calls[0][0] as string;
       expect(systemPrompt).toContain('4-6 objectives');
       expect(systemPrompt).toContain('2-3 objectives');
@@ -740,7 +718,7 @@ describe('GenerationService', () => {
       const warnSpy = jest
         .spyOn(service['logger'], 'warn')
         .mockImplementation();
-      mockAiService.generateJSON
+      mockAiService.generateJson
         .mockRejectedValueOnce(new Error('AI timeout'))
         .mockResolvedValueOnce(validDailyObjectivesResponse);
 

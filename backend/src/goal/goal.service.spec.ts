@@ -17,7 +17,7 @@ const EXPECTED_RANGE_END = 14;
 
 let service: GoalService;
 let mockSupabase: { from: jest.Mock };
-let mockAiService: { generateJSON: jest.Mock };
+let mockAiService: { generateJson: jest.Mock };
 
 function mockInsertChain(data: unknown, error: unknown = null): void {
   mockSupabase.from.mockReturnValue({
@@ -33,8 +33,10 @@ function mockSelectChain(data: unknown, error: unknown, count: unknown): void {
   mockSupabase.from.mockReturnValue({
     select: jest.fn().mockReturnValue({
       eq: jest.fn().mockReturnValue({
-        order: jest.fn().mockReturnValue({
-          range: jest.fn().mockResolvedValue({ data, error, count }),
+        is: jest.fn().mockReturnValue({
+          order: jest.fn().mockReturnValue({
+            range: jest.fn().mockResolvedValue({ data, error, count }),
+          }),
         }),
       }),
     }),
@@ -46,7 +48,9 @@ function mockFindOneChain(data: unknown, error: unknown): void {
     select: jest.fn().mockReturnValue({
       eq: jest.fn().mockReturnValue({
         eq: jest.fn().mockReturnValue({
-          single: jest.fn().mockResolvedValue({ data, error }),
+          is: jest.fn().mockReturnValue({
+            single: jest.fn().mockResolvedValue({ data, error }),
+          }),
         }),
       }),
     }),
@@ -55,7 +59,7 @@ function mockFindOneChain(data: unknown, error: unknown): void {
 
 beforeEach(async () => {
   mockSupabase = { from: jest.fn() };
-  mockAiService = { generateJSON: jest.fn() };
+  mockAiService = { generateJson: jest.fn() };
 
   const module: TestingModule = await Test.createTestingModule({
     providers: [
@@ -95,7 +99,7 @@ describe('GoalService.create', () => {
       'Run a marathon',
     );
     expect(result).toEqual(createdGoal);
-    expect(mockAiService.generateJSON).not.toHaveBeenCalled();
+    expect(mockAiService.generateJson).not.toHaveBeenCalled();
   });
 
   it('should throw InternalServerErrorException on Supabase error', async () => {
@@ -119,19 +123,19 @@ describe('GoalService.create - AI title generation', () => {
 
   it('should generate title via AI when title is omitted', async () => {
     const goal = { ...baseGoal, title: 'Complete a Full Marathon' };
-    mockAiService.generateJSON.mockResolvedValue({
+    mockAiService.generateJson.mockResolvedValue({
       title: 'Complete a Full Marathon',
     });
     mockInsertChain(goal);
 
     const result = await service.create('user-123', baseGoal.description);
     expect(result).toEqual(goal);
-    expect(mockAiService.generateJSON).toHaveBeenCalledTimes(1);
+    expect(mockAiService.generateJson).toHaveBeenCalledTimes(1);
   });
 
   it('should fall back to truncated description when AI fails', async () => {
     const goal = { ...baseGoal, title: baseGoal.description };
-    mockAiService.generateJSON.mockRejectedValue(new Error('AI timeout'));
+    mockAiService.generateJson.mockRejectedValue(new Error('AI timeout'));
     mockInsertChain(goal);
 
     const result = await service.create('user-123', baseGoal.description);
@@ -158,7 +162,8 @@ describe('GoalService.findAll', () => {
       .fn()
       .mockResolvedValue({ data: [], error: null, count: 0 });
     const orderMock = jest.fn().mockReturnValue({ range: rangeMock });
-    const eqMock = jest.fn().mockReturnValue({ order: orderMock });
+    const isMock = jest.fn().mockReturnValue({ order: orderMock });
+    const eqMock = jest.fn().mockReturnValue({ is: isMock });
     mockSupabase.from.mockReturnValue({
       select: jest.fn().mockReturnValue({ eq: eqMock }),
     });

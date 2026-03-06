@@ -111,6 +111,7 @@ export class IntakeQualityService {
       .from('goals')
       .select('description')
       .eq('id', goalId)
+      .is('deleted_at', null)
       .single();
     if (error !== null) {
       this.logger.error(

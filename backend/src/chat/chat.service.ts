@@ -93,7 +93,11 @@ export class ChatService {
 
   private async runAgentLoop(opts: AgentLoopOptions): Promise<void> {
     for (let round = 0; round < config.chat.maxToolRounds; round++) {
-      const stream = await this.ai.generateStream(opts.messages, opts.tools);
+      const stream = await this.ai.generateStream(
+        opts.messages,
+        opts.tools,
+        config.chat.reasoningEffort,
+      );
       const { content, toolCalls } = await consumeStream(stream, opts.onEvent);
 
       if (toolCalls.length === 0) {

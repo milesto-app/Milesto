@@ -90,6 +90,7 @@ export class ContextPipelineService {
       .from('goals')
       .select('title, description')
       .eq('id', goalId)
+      .is('deleted_at', null)
       .single()) as { data: { title: string; description: string } | null };
 
     return `${goal?.title ?? ''} ${goal?.description ?? ''}`.trim();

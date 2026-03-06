@@ -16,7 +16,8 @@ export class IntakeProfileStoreService {
     const { error } = await client
       .from('goals')
       .update({ status: FAILED_STATUS, updated_at: new Date().toISOString() })
-      .eq('id', goalId);
+      .eq('id', goalId)
+      .is('deleted_at', null);
     if (error !== null) {
       this.logger.error(
         `Failed to update goal ${goalId} to ${FAILED_STATUS}: ${error.message}`,
@@ -30,7 +31,8 @@ export class IntakeProfileStoreService {
     const { error } = await client
       .from('goals')
       .update({ status, updated_at: new Date().toISOString() })
-      .eq('id', goalId);
+      .eq('id', goalId)
+      .is('deleted_at', null);
     if (error !== null) {
       this.logger.error(
         `Failed to update goal ${goalId} status to ${status}: ${error.message}`,

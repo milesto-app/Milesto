@@ -7,11 +7,11 @@ import type { WeekData, WeeklyPlan } from './types/weekly-plan.types.js';
 
 describe('GenerationNarrativeService', () => {
   let service: GenerationNarrativeService;
-  let mockAiService: { generateJSON: jest.Mock };
+  let mockAiService: { generateJson: jest.Mock };
 
   beforeEach(async () => {
     mockAiService = {
-      generateJSON: jest.fn(),
+      generateJson: jest.fn(),
     };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -112,7 +112,7 @@ describe('GenerationNarrativeService', () => {
         debriefNotes: ['Day went well', 'Struggled with focus'],
         energyDistribution: {},
       };
-      mockAiService.generateJSON.mockResolvedValue({
+      mockAiService.generateJson.mockResolvedValue({
         narrative: 'Good progress',
       });
 
@@ -132,7 +132,7 @@ describe('GenerationNarrativeService', () => {
         debriefNotes: ['Great day', 'Tough but productive'],
         energyDistribution: { high: 1, good: 3, low: 1 },
       };
-      mockAiService.generateJSON.mockResolvedValue({
+      mockAiService.generateJson.mockResolvedValue({
         narrative: 'Good progress this week with consistent energy levels.',
       });
 
@@ -145,7 +145,7 @@ describe('GenerationNarrativeService', () => {
       expect(result.narrative).toBe(
         'Good progress this week with consistent energy levels.',
       );
-      expect(mockAiService.generateJSON).toHaveBeenCalledWith(
+      expect(mockAiService.generateJson).toHaveBeenCalledWith(
         expect.stringContaining('coaching progress analyst'),
         expect.stringContaining('Debrief Notes'),
         expect.any(String),
@@ -160,7 +160,7 @@ describe('GenerationNarrativeService', () => {
       );
 
       expect(result.narrative).toBeUndefined();
-      expect(mockAiService.generateJSON).not.toHaveBeenCalled();
+      expect(mockAiService.generateJson).not.toHaveBeenCalled();
     });
 
     it('should handle LLM narrative generation failure gracefully', async () => {
@@ -170,7 +170,7 @@ describe('GenerationNarrativeService', () => {
         debriefNotes: ['Some note'],
         energyDistribution: {},
       };
-      mockAiService.generateJSON.mockRejectedValue(new Error('LLM timeout'));
+      mockAiService.generateJson.mockRejectedValue(new Error('LLM timeout'));
       const warnSpy = jest
         .spyOn(service['logger'], 'warn')
         .mockImplementation();
@@ -249,7 +249,7 @@ describe('GenerationNarrativeService', () => {
           narrative: 'Slower week',
         },
       ];
-      mockAiService.generateJSON.mockResolvedValue({
+      mockAiService.generateJson.mockResolvedValue({
         narrative: 'Consistent month overall',
       });
 
@@ -259,7 +259,7 @@ describe('GenerationNarrativeService', () => {
       );
 
       expect(result.narrative).toBe('Consistent month overall');
-      expect(mockAiService.generateJSON).toHaveBeenCalledWith(
+      expect(mockAiService.generateJson).toHaveBeenCalledWith(
         expect.stringContaining('coaching progress analyst'),
         expect.stringContaining('Weekly Narratives'),
         expect.any(String),
@@ -277,7 +277,7 @@ describe('GenerationNarrativeService', () => {
       );
 
       expect(result.narrative).toBeUndefined();
-      expect(mockAiService.generateJSON).not.toHaveBeenCalled();
+      expect(mockAiService.generateJson).not.toHaveBeenCalled();
     });
 
     it('should handle empty weekly summary array', async () => {
@@ -299,7 +299,7 @@ describe('GenerationNarrativeService', () => {
           narrative: 'Good week',
         },
       ];
-      mockAiService.generateJSON.mockRejectedValue(new Error('LLM error'));
+      mockAiService.generateJson.mockRejectedValue(new Error('LLM error'));
       const warnSpy = jest
         .spyOn(service['logger'], 'warn')
         .mockImplementation();

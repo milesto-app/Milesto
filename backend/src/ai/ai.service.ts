@@ -25,13 +25,17 @@ export class AiService {
   public async generateStream(
     messages: ChatCompletionMessageParam[],
     tools: ChatCompletionTool[],
+    reasoning?: string,
   ): Promise<Stream<ChatCompletionChunk>> {
     return this.openai.chat.completions.create({
       model: config.chat.model,
       messages,
       tools,
       stream: true,
-    });
+      ...(reasoning !== undefined && {
+        reasoning: { effort: reasoning },
+      }),
+    } as OpenAI.Chat.ChatCompletionCreateParamsStreaming);
   }
 
   public async generateEmbedding(text: string): Promise<number[]> {

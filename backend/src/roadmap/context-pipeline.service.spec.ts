@@ -93,13 +93,14 @@ describe('ContextPipelineService', () => {
       title: string;
       description: string;
     } | null,
-  ): { select: jest.Mock; eq: jest.Mock; single: jest.Mock } {
+  ): { select: jest.Mock; eq: jest.Mock; is: jest.Mock; single: jest.Mock } {
     const singleMock = jest
       .fn()
       .mockResolvedValue({ data: goalData, error: null });
-    const eqMock = jest.fn().mockReturnValue({ single: singleMock });
+    const isMock = jest.fn().mockReturnValue({ single: singleMock });
+    const eqMock = jest.fn().mockReturnValue({ is: isMock });
     const selectMock = jest.fn().mockReturnValue({ eq: eqMock });
-    return { select: selectMock, eq: eqMock, single: singleMock };
+    return { select: selectMock, eq: eqMock, is: isMock, single: singleMock };
   }
 
   // Helper to set up the from() chain for SQL context stuffing

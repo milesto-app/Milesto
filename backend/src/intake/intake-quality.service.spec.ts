@@ -53,11 +53,11 @@ const SCORES = {
 
 describe('IntakeQualityService', () => {
   let service: IntakeQualityService;
-  let mockAi: { generateJSON: jest.Mock };
+  let mockAi: { generateJson: jest.Mock };
   let mockSb: { from: jest.Mock };
 
   beforeEach(async () => {
-    mockAi = { generateJSON: jest.fn() };
+    mockAi = { generateJson: jest.fn() };
     mockSb = { from: jest.fn() };
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -101,7 +101,7 @@ describe('IntakeQualityService', () => {
         .mockReturnValueOnce(mockGoalChain(GOAL))
         .mockReturnValueOnce(mockPriorChain(PRIOR))
         .mockReturnValueOnce(updateChain);
-      mockAi.generateJSON.mockResolvedValue(scores);
+      mockAi.generateJson.mockResolvedValue(scores);
       return { updateChain };
     }
 
@@ -170,7 +170,7 @@ describe('IntakeQualityService', () => {
         .mockReturnValueOnce(mockQuestionsChain(QUESTIONS))
         .mockReturnValueOnce(mockGoalChain(GOAL))
         .mockReturnValueOnce(mockPriorChain(PRIOR));
-      mockAi.generateJSON.mockRejectedValue(new Error('LLM timeout'));
+      mockAi.generateJson.mockRejectedValue(new Error('LLM timeout'));
       const spy = jest.spyOn(service['logger'], 'error');
       await expect(service.handleBatchServed(PAYLOAD)).resolves.toBeUndefined();
       expect(spy).toHaveBeenCalledWith(
@@ -184,7 +184,7 @@ describe('IntakeQualityService', () => {
         .mockReturnValueOnce(mockGoalChain(GOAL))
         .mockReturnValueOnce(mockPriorChain(PRIOR))
         .mockReturnValueOnce(mockUpdateChain({ message: 'fail' }));
-      mockAi.generateJSON.mockResolvedValue(SCORES);
+      mockAi.generateJson.mockResolvedValue(SCORES);
       const spy = jest.spyOn(service['logger'], 'error');
       await expect(service.handleBatchServed(PAYLOAD)).resolves.toBeUndefined();
       expect(spy).toHaveBeenCalledWith(
@@ -198,10 +198,10 @@ describe('IntakeQualityService', () => {
         .mockReturnValueOnce(mockGoalChain(GOAL))
         .mockReturnValueOnce(mockPriorChain([]))
         .mockReturnValueOnce(mockUpdateChain());
-      mockAi.generateJSON.mockResolvedValue(SCORES);
+      mockAi.generateJson.mockResolvedValue(SCORES);
       await service.handleBatchServed({ ...PAYLOAD, batch_number: 1 });
       // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-      const userPrompt = String(mockAi.generateJSON.mock.calls[0]?.[1]);
+      const userPrompt = String(mockAi.generateJson.mock.calls[0]?.[1]);
       expect(userPrompt).toContain('None (this is the first batch)');
     });
   });

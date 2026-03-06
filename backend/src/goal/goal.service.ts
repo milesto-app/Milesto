@@ -94,6 +94,7 @@ export class GoalService {
       .from('goals')
       .select('*', { count: 'exact' })
       .eq('user_id', userId)
+      .is('deleted_at', null)
       .order('created_at', { ascending: false })
       .range(offset, offset + limit - 1);
 
@@ -115,6 +116,7 @@ export class GoalService {
       .select('*')
       .eq('id', goalId)
       .eq('user_id', userId)
+      .is('deleted_at', null)
       .single();
 
     if (error) {
@@ -163,7 +165,8 @@ export class GoalService {
     const { error } = await supabase
       .from('goals')
       .update({ target_date: targetDate, updated_at: new Date().toISOString() })
-      .eq('id', goalId);
+      .eq('id', goalId)
+      .is('deleted_at', null);
     if (error) {
       this.logger.error(
         `Failed to set target date for goal ${goalId}: ${error.message}`,
@@ -177,7 +180,8 @@ export class GoalService {
     const { error } = await supabase
       .from('goals')
       .update({ status, updated_at: new Date().toISOString() })
-      .eq('id', goalId);
+      .eq('id', goalId)
+      .is('deleted_at', null);
     if (error) {
       throw new InternalServerErrorException(
         `Failed to update goal status: ${error.message}`,
@@ -191,9 +195,13 @@ export class GoalService {
     const supabase = this.supabaseService.getAdminClient();
     const { error } = await supabase
       .from('goals')
-      .delete()
+      .update({
+        deleted_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      })
       .eq('id', goalId)
-      .eq('user_id', userId);
+      .eq('user_id', userId)
+      .is('deleted_at', null);
 
     if (error) {
       this.logger.error(
@@ -202,6 +210,6 @@ export class GoalService {
       throw new InternalServerErrorException('Failed to delete goal');
     }
 
-    this.logger.log(`Goal ${goalId} deleted for user ${userId}`);
+    this.logger.log(`Goal ${goalId} soft-deleted for user ${userId}`);
   }
 }

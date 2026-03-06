@@ -27,7 +27,7 @@ struct SettingsView: View {
     }
 
     private var activeGoal: LocalGoal? {
-        localGoals.first { $0.userId == authService.currentUserId }
+        localGoals.first { $0.userId.caseInsensitiveCompare(authService.currentUserId ?? "") == .orderedSame }
     }
 
     var body: some View {
