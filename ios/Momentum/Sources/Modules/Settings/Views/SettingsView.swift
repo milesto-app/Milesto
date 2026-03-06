@@ -40,16 +40,8 @@ struct SettingsView: View {
                 deleteGoalSection
                 signOutSection
             }
-            .refreshable {
-                let impact = UIImpactFeedbackGenerator(style: .medium)
-                impact.prepare()
-                impact.impactOccurred()
-
-                try? await Task.sleep(for: .milliseconds(800))
+            .hapticRefreshable {
                 await syncProfileData()
-
-                let notification = UINotificationFeedbackGenerator()
-                notification.notificationOccurred(.success)
             }
             .navigationTitle("")
             .navigationBarHidden(true)

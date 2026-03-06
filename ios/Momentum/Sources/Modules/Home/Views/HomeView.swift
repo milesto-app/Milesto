@@ -57,15 +57,8 @@ struct HomeView: View {
                         }
                     }
                 }
-                .refreshable {
-                    let impact = UIImpactFeedbackGenerator(style: .medium)
-                    impact.prepare()
-                    impact.impactOccurred()
-
+                .hapticRefreshable {
                     await loadAllData()
-
-                    let notification = UINotificationFeedbackGenerator()
-                    notification.notificationOccurred(.success)
                 }
             }
         }
@@ -103,19 +96,8 @@ struct HomeView: View {
 
     private var heroSection: some View {
         VStack(alignment: .leading, spacing: 16) {
-            HStack {
-                AppText(
-                    verbatim: String(
-                        format: String(localized: "home.greeting", table: "Home"),
-                        firstName
-                    ),
-                    style: .subheadline
-                )
+            AppText(verbatim: formattedDate, style: .caption)
                 .color(Colors.textSecondary)
-                Spacer()
-                AppText(verbatim: formattedDate, style: .caption)
-                    .color(Colors.textSecondary)
-            }
 
             AppText(verbatim: currentGoal?.title ?? "", style: .title)
 
@@ -146,11 +128,9 @@ struct HomeView: View {
                 }
             }
         }
-        .padding(24)
-        .glassEffect(.clear.interactive(), in: RoundedRectangle(cornerRadius: 24))
-        .padding(.horizontal, 16)
+        .padding(.horizontal, 24)
         .padding(.top, 32)
-        .padding(.bottom, 16)
+        .padding(.bottom, 32)
     }
 
     private var goalProgress: Double {

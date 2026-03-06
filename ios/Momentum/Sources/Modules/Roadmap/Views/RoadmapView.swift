@@ -94,15 +94,8 @@ struct RoadmapView: View {
                         }
                         .padding(.bottom, 40 * 2)
                     }
-                    .refreshable {
-                        let impact = UIImpactFeedbackGenerator(style: .medium)
-                        impact.prepare()
-                        impact.impactOccurred()
-
+                    .hapticRefreshable {
                         await loadMilestones()
-
-                        let notification = UINotificationFeedbackGenerator()
-                        notification.notificationOccurred(.success)
                     }
                 }
             }
