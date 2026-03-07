@@ -83,6 +83,9 @@ struct SettingsView: View {
                     GoalIntakeFlowView(
                         userId: userId,
                         existingGoalId: nil,
+                        onClose: {
+                            showNewGoal = false
+                        },
                         onComplete: { goalId in
                             showNewGoal = false
                             onNewGoal?(goalId)
@@ -275,6 +278,7 @@ struct SettingsView: View {
                 HStack(spacing: 12) {
                     TablerIcons(.target, size: 24, color: Colors.accent)
                     AppText("settings.newGoal", table: "Settings", style: .body)
+                    Spacer()
                 }
                 .contentShape(Rectangle())
             }

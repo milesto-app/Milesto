@@ -9,6 +9,7 @@ enum GoalIntakeStep {
 struct GoalIntakeFlowView: View {
     let userId: String
     let existingGoalId: String?
+    let onClose: (() -> Void)?
     let onComplete: (String) -> Void
 
     @Environment(\.modelContext) private var modelContext
@@ -33,6 +34,17 @@ struct GoalIntakeFlowView: View {
                         markGoalCompleted(goalId: goalId)
                         onComplete(goalId)
                     })
+                }
+            }
+            .overlay(alignment: .topTrailing) {
+                if let onClose {
+                    Button(action: onClose) {
+                        TablerIcons(.x, size: 24, color: Colors.textPrimary)
+                            .frame(width: 44, height: 44)
+                            .glassEffect(.regular.interactive(), in: .circle)
+                    }
+                    .padding(.top, 8)
+                    .padding(.trailing, 16)
                 }
             }
         }

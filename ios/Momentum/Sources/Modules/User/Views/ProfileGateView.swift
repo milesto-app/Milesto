@@ -100,6 +100,7 @@ struct ProfileGateView: View {
                 GoalIntakeFlowView(
                     userId: userId,
                     existingGoalId: activeGoalId,
+                    onClose: nil,
                     onComplete: { goalId in
                         activeGoalId = goalId
 
