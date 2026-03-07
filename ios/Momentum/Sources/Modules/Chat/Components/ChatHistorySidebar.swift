@@ -64,11 +64,23 @@ struct ChatHistorySidebar: View {
     }
 
     private var header: some View {
-        AppText("chat.history.title", table: "Chat", style: .headline)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(.leading, 8 + 16)
-            .padding(.top, 64)
-            .padding(.bottom, 4)
+        HStack(spacing: 12) {
+            AppText("chat.history.title", table: "Chat", style: .headline)
+                .frame(maxWidth: .infinity, alignment: .leading)
+
+            Button {
+                dismiss()
+                onNewConversation()
+            } label: {
+                TablerIcons(.edit, size: 20, color: Colors.textPrimary)
+                    .frame(width: 36, height: 36)
+                    .glassEffect(.regular.interactive(), in: .circle)
+            }
+            .accessibilityLabel(String(localized: "chat.history.new", table: "Chat"))
+        }
+        .padding(.horizontal, 8 + 16)
+        .padding(.top, 64)
+        .padding(.bottom, 4)
     }
 
     private var emptyState: some View {
@@ -99,7 +111,10 @@ struct ChatHistorySidebar: View {
                         Button(role: .destructive) {
                             onDeleteConversation(conversation.id)
                         } label: {
-                            Label(String(localized: "chat.history.delete", table: "Chat"), systemImage: "trash")
+                            HStack(spacing: 8) {
+                                TablerIcons(.trash, size: 16, color: Colors.error)
+                                AppText("chat.history.delete", table: "Chat", style: .body)
+                            }
                         }
                     }
                 }

@@ -596,6 +596,23 @@
         }
       }
     },
+    "chat.history.new" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "New chat"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nouveau chat"
+          }
+        }
+      }
+    },
     "chat.history.older" : {
       "extractionState" : "manual",
       "localizations" : {
