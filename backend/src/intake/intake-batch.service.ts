@@ -161,7 +161,7 @@ export class IntakeBatchService {
         ...result.profileResult,
       };
     }
-    return await this.storeBatchAndEmit(params, result.questions);
+    return this.storeBatchAndEmit(params, result.questions);
   }
 
   private async storeBatchAndEmit(

@@ -83,5 +83,4 @@ export class IntakeStoreQueryService {
       questions: data,
     };
   }
-
 }

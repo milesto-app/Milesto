@@ -151,4 +151,3 @@ const UNIVERSAL_BATCH_1_FR: UniversalQuestion[] = [
 export function getUniversalBatch1(language: string): UniversalQuestion[] {
   return language === 'fr' ? UNIVERSAL_BATCH_1_FR : UNIVERSAL_BATCH_1;
 }
-

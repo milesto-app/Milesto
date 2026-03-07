@@ -748,5 +748,4 @@ describe('IntakePromptService', () => {
       });
     });
   });
-
 });
