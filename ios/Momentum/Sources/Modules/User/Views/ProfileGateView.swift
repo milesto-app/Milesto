@@ -70,7 +70,6 @@ struct ProfileGateView: View {
                     }
                 }
                 .labelStyle(.iconOnly)
-                .tint(Colors.accent)
                 .overlay(alignment: .top) {
                     ProgressiveBlur()
                 }
