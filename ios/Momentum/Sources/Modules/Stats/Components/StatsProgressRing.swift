@@ -44,7 +44,7 @@ struct StatsProgressRing: View {
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(20)
-        .glassEffect(.clear.interactive(), in: RoundedRectangle(cornerRadius: 20))
+        .glassEffect(.regular.interactive(), in: RoundedRectangle(cornerRadius: 20))
         .onAppear {
             withAnimation(.spring(duration: 1.0, bounce: 0.15)) {
                 animatedRate = rate
@@ -71,9 +71,6 @@ struct StatsProgressRing: View {
 }
 
 #Preview {
-    ZStack {
-        AnimatedBackground()
-        StatsProgressRing(rate: 0.85, completed: 17, total: 20)
-            .padding(16)
-    }
+    StatsProgressRing(rate: 0.85, completed: 17, total: 20)
+        .padding(16)
 }

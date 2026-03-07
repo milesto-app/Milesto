@@ -38,8 +38,6 @@ struct RoadmapView: View {
     var body: some View {
         NavigationStack {
             ZStack(alignment: .top) {
-                AnimatedBackground()
-
                 if isLoading && milestones.isEmpty {
                     ProgressView()
                         .frame(maxWidth: .infinity, maxHeight: .infinity)

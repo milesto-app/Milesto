@@ -48,7 +48,7 @@ struct WeeklyFocusCard: View {
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(24)
-            .glassEffect(.clear.interactive(), in: RoundedRectangle(cornerRadius: 24))
+            .glassEffect(.regular.interactive(), in: RoundedRectangle(cornerRadius: 24))
         }
         .buttonStyle(.plain)
     }

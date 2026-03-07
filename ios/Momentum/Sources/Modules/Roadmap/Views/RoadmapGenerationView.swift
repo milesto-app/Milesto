@@ -18,8 +18,6 @@ struct RoadmapGenerationView: View {
 
     var body: some View {
         ZStack {
-            AnimatedBackground()
-
             if hasFailed {
                 errorContent
             } else {

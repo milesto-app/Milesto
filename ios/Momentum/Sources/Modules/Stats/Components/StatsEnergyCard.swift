@@ -55,14 +55,11 @@ struct StatsEnergyCard: View {
             }
         }
         .padding(20)
-        .glassEffect(.clear.interactive(), in: RoundedRectangle(cornerRadius: 20))
+        .glassEffect(.regular.interactive(), in: RoundedRectangle(cornerRadius: 20))
     }
 }
 
 #Preview {
-    ZStack {
-        AnimatedBackground()
-        StatsEnergyCard(distribution: StatsPreviewData.stats.energy.distribution)
-            .padding(16)
-    }
+    StatsEnergyCard(distribution: StatsPreviewData.stats.energy.distribution)
+        .padding(16)
 }

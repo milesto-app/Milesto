@@ -16,6 +16,6 @@ struct DebriefPromptCard: View {
                 .fullWidth()
         }
         .padding(24)
-        .glassEffect(.clear.interactive(), in: RoundedRectangle(cornerRadius: 24))
+        .glassEffect(.regular.interactive(), in: RoundedRectangle(cornerRadius: 24))
     }
 }

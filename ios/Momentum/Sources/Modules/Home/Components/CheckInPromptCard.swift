@@ -58,7 +58,7 @@ struct CheckInPromptCard: View {
             .disabled(selectedEnergy == nil || isSubmitting)
         }
         .padding(24)
-        .glassEffect(.clear.interactive(), in: RoundedRectangle(cornerRadius: 24))
+        .glassEffect(.regular.interactive(), in: RoundedRectangle(cornerRadius: 24))
     }
 
     private func energyButton(_ level: EnergyLevel, icon: TablerIconOutline, label: String) -> some View {

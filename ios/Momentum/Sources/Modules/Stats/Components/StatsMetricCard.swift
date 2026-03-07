@@ -18,7 +18,7 @@ struct StatsMetricCard: View {
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(16)
-        .glassEffect(.clear.interactive(), in: RoundedRectangle(cornerRadius: 16))
+        .glassEffect(.regular.interactive(), in: RoundedRectangle(cornerRadius: 16))
     }
 }
 

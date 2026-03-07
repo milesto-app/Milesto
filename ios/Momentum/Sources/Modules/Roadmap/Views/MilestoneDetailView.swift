@@ -9,8 +9,6 @@ struct MilestoneDetailView: View {
 
     var body: some View {
         ZStack {
-            AnimatedBackground()
-
             ScrollView(showsIndicators: false) {
                 VStack(spacing: 24) {
                     HStack {
@@ -46,7 +44,7 @@ struct MilestoneDetailView: View {
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(16)
-        .glassEffect(.clear, in: RoundedRectangle(cornerRadius: 16))
+        .glassEffect(.regular, in: RoundedRectangle(cornerRadius: 16))
     }
 
     private var expectedOutcomeCard: some View {
@@ -61,7 +59,7 @@ struct MilestoneDetailView: View {
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(16)
-        .glassEffect(.clear, in: RoundedRectangle(cornerRadius: 16))
+        .glassEffect(.regular, in: RoundedRectangle(cornerRadius: 16))
     }
 
     private var targetCard: some View {
@@ -82,7 +80,7 @@ struct MilestoneDetailView: View {
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(16)
-        .glassEffect(.clear, in: RoundedRectangle(cornerRadius: 16))
+        .glassEffect(.regular, in: RoundedRectangle(cornerRadius: 16))
     }
 }
 

@@ -26,7 +26,6 @@ struct AuthContainerView: View {
                 isAppleLoading: isAppleLoading,
                 isGoogleLoading: isGoogleLoading
             )
-            .background { AnimatedBackground().ignoresSafeArea() }
             .navigationDestination(for: AuthRoute.self) { route in
                 switch route {
                 case .emailAuth:
@@ -37,7 +36,6 @@ struct AuthContainerView: View {
                         onSignUp: { performSignUp() },
                         onSignIn: { performSignIn() }
                     )
-                    .background { AnimatedBackground().ignoresSafeArea() }
                 }
             }
         }

@@ -43,8 +43,6 @@ struct HomeView: View {
     var body: some View {
         NavigationStack {
             ZStack(alignment: .top) {
-                AnimatedBackground()
-
                 ScrollView(showsIndicators: false) {
                     VStack(spacing: 0) {
                         heroSection

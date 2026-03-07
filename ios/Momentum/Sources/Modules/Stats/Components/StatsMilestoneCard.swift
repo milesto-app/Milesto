@@ -47,7 +47,7 @@ struct StatsMilestoneCard: View {
             }
         }
         .padding(20)
-        .glassEffect(.clear.interactive(), in: RoundedRectangle(cornerRadius: 20))
+        .glassEffect(.regular.interactive(), in: RoundedRectangle(cornerRadius: 20))
         .onAppear {
             isAnimated = true
         }
@@ -55,9 +55,6 @@ struct StatsMilestoneCard: View {
 }
 
 #Preview {
-    ZStack {
-        AnimatedBackground()
-        StatsMilestoneCard(completed: 3, total: 7)
-            .padding(16)
-    }
+    StatsMilestoneCard(completed: 3, total: 7)
+        .padding(16)
 }

@@ -39,7 +39,7 @@ struct CoachCard: View {
             }
             .padding(16)
             .contentShape(Rectangle())
-            .glassEffect(.clear, in: RoundedRectangle(cornerRadius: 12))
+            .glassEffect(.regular, in: RoundedRectangle(cornerRadius: 12))
             .overlay(
                 RoundedRectangle(cornerRadius: 12)
                     .stroke(Colors.accent, lineWidth: 2)

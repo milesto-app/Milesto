@@ -31,8 +31,8 @@ struct VoiceChatOverlay: View {
 
     var body: some View {
         ZStack {
-            AnimatedBackground()
-                .overlay(Color.black.opacity(0.3))
+            Color.black.opacity(0.3)
+                .ignoresSafeArea()
 
             VStack(spacing: 0) {
                 topBar

@@ -9,46 +9,42 @@ struct StatsView: View {
     @State private var loadError: Error?
 
     var body: some View {
-        NavigationStack {
-            ZStack(alignment: .top) {
-                AnimatedBackground()
-
-                if isLoading && stats == nil {
-                    ProgressView()
-                        .frame(maxHeight: .infinity)
-                } else if let stats {
-                    ScrollView(showsIndicators: false) {
-                        VStack(spacing: 16) {
-                            statsContent(stats)
-                        }
-                        .padding(.horizontal, 16)
-                        .padding(.top, 32)
-                        .padding(.bottom, 40)
+        Group {
+            if isLoading && stats == nil {
+                ProgressView()
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+            } else if let stats {
+                ScrollView(showsIndicators: false) {
+                    VStack(spacing: 12) {
+                        statsContent(stats)
                     }
-                    .hapticRefreshable {
-                        await loadStats()
-                    }
-                } else if loadError != nil {
-                    VStack(spacing: 24) {
-                        TablerIcons(.wifiOff, size: 48, color: Colors.textSecondary)
-
-                        AppText("stats.error.title", table: "Stats", style: .title)
-                            .alignment(.center)
-
-                        AppText(verbatim: loadError?.localizedDescription ?? "", style: .caption)
-                            .color(Colors.textSecondary)
-                            .alignment(.center)
-
-                        AppButton("stats.error.retry", table: "Stats") {
-                            Task { await loadStats() }
-                        }
-                    }
-                    .padding(32)
-                    .frame(maxHeight: .infinity)
-                } else {
-                    StatsEmptyState()
-                        .frame(maxHeight: .infinity)
+                    .safeAreaPadding(.horizontal, 20)
+                    .safeAreaPadding(.top, 16)
+                    .safeAreaPadding(.bottom, 100)
                 }
+                .hapticRefreshable {
+                    await loadStats()
+                }
+            } else if loadError != nil {
+                VStack(spacing: 24) {
+                    TablerIcons(.wifiOff, size: 48, color: Colors.textSecondary)
+
+                    AppText("stats.error.title", table: "Stats", style: .title)
+                        .alignment(.center)
+
+                    AppText(verbatim: loadError?.localizedDescription ?? "", style: .caption)
+                        .color(Colors.textSecondary)
+                        .alignment(.center)
+
+                    AppButton("stats.error.retry", table: "Stats") {
+                        Task { await loadStats() }
+                    }
+                }
+                .padding(32)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+            } else {
+                StatsEmptyState()
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
         }
         .task {
@@ -65,6 +61,7 @@ struct StatsView: View {
         )
         .opacity(hasAppeared ? 1 : 0)
         .offset(y: hasAppeared ? 0 : 12)
+        .padding(.bottom, 12)
 
         StatsWeeklyChart(days: stats.streak.last7Days)
             .opacity(hasAppeared ? 1 : 0)

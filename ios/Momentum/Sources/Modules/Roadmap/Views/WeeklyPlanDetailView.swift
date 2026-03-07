@@ -10,8 +10,6 @@ struct WeeklyPlanDetailView: View {
 
     var body: some View {
         ZStack {
-            AnimatedBackground()
-
             ScrollView(showsIndicators: false) {
                 VStack(spacing: 24) {
                     VStack(alignment: .leading, spacing: 4) {
@@ -55,7 +53,7 @@ struct WeeklyPlanDetailView: View {
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(16)
-        .glassEffect(.clear, in: RoundedRectangle(cornerRadius: 16))
+        .glassEffect(.regular, in: RoundedRectangle(cornerRadius: 16))
     }
 
     private var objectivesCard: some View {
@@ -71,7 +69,7 @@ struct WeeklyPlanDetailView: View {
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(16)
-        .glassEffect(.clear, in: RoundedRectangle(cornerRadius: 16))
+        .glassEffect(.regular, in: RoundedRectangle(cornerRadius: 16))
     }
 
     private func summaryCard(_ summary: WeeklySummaryDTO) -> some View {
@@ -100,7 +98,7 @@ struct WeeklyPlanDetailView: View {
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(16)
-        .glassEffect(.clear, in: RoundedRectangle(cornerRadius: 16))
+        .glassEffect(.regular, in: RoundedRectangle(cornerRadius: 16))
     }
 }
 
