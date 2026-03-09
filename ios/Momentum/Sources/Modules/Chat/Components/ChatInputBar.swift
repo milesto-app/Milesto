@@ -6,6 +6,8 @@ struct ChatInputBar: View {
     var isFocused: FocusState<Bool>.Binding
     var onSend: () -> Void
 
+    private let sendHaptic = UIImpactFeedbackGenerator(style: .medium)
+
     var body: some View {
         HStack(alignment: .bottom, spacing: 12) {
             TextField(String(localized: "chat.input.placeholder", table: "Chat"), text: $text, axis: .vertical)
@@ -17,6 +19,7 @@ struct ChatInputBar: View {
 
             if hasText {
                 Button {
+                    sendHaptic.impactOccurred()
                     onSend()
                 } label: {
                     TablerIcons(.arrowUp, size: 18, color: Color("TextOnAccent"))

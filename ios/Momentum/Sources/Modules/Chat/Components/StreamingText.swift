@@ -10,6 +10,9 @@ struct StreamingText: View {
 
     private let revealInterval: UInt64 = 15_000_000
     private let fastDrainInterval: UInt64 = 5_000_000
+    private let hapticInterval = 20
+    private let streamHaptic = UIImpactFeedbackGenerator(style: .soft)
+    private let completionHaptic = UINotificationFeedbackGenerator()
 
     var body: some View {
         if isFinished {
@@ -28,6 +31,7 @@ struct StreamingText: View {
                 }
                 .onAppear {
                     if isStreaming {
+                        streamHaptic.prepare()
                         startRevealIfNeeded()
                     } else {
                         revealedCount = content.count
@@ -47,7 +51,11 @@ struct StreamingText: View {
             while !Task.isCancelled {
                 if revealedCount < content.count {
                     revealedCount += 1
+                    if revealedCount % hapticInterval == 0 {
+                        streamHaptic.impactOccurred(intensity: 0.4)
+                    }
                 } else if !isStreaming {
+                    completionHaptic.notificationOccurred(.success)
                     isFinished = true
                     break
                 }
@@ -65,6 +73,7 @@ struct StreamingText: View {
                 try? await Task.sleep(nanoseconds: fastDrainInterval)
             }
             if !Task.isCancelled {
+                completionHaptic.notificationOccurred(.success)
                 isFinished = true
             }
         }
