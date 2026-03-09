@@ -69,7 +69,7 @@ struct ProfileGateView: View {
                         TablerTabLabel(.sparkles, title: String(localized: "tabs.chat", table: "Common"))
                     }
                 }
-                .labelStyle(.iconOnly)
+                .labelStyle(.titleAndIcon)
                 .overlay(alignment: .top) {
                     ProgressiveBlur()
                 }

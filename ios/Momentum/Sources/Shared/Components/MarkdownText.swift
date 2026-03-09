@@ -10,8 +10,8 @@ enum MarkdownBlock {
 
 struct MarkdownText: View {
     let content: String
-    var textColor: Color = .init("text-primary")
-    var codeBackground: Color = .init("bg-surface")
+    var textColor: Color = .init("TextPrimary")
+    var codeBackground: Color = .init("BgSurface")
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
