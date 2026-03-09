@@ -10,8 +10,8 @@ enum MarkdownBlock {
 
 struct MarkdownText: View {
     let content: String
-    var textColor: Color = Colors.textPrimary
-    var codeBackground: Color = Colors.codeBackground
+    var textColor: Color = .init("text-primary")
+    var codeBackground: Color = .init("bg-surface")
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -38,7 +38,7 @@ struct MarkdownText: View {
 
         case let .heading(text, level):
             inlineMarkdown(text)
-                .font(level <= 2 ? .headline : .subheadline)
+                .font(level <= 2 ? Fonts.display(size: 20, relativeTo: .headline, weight: .bold) : Fonts.display(size: 15, relativeTo: .subheadline, weight: .medium))
                 .bold()
 
         case let .unorderedList(items):

@@ -18,7 +18,7 @@ struct ThinkingIndicator: View {
     var body: some View {
         HStack {
             AppText(verbatim: String(localized: labels[currentIndex]), style: .body)
-                .color(Colors.textPrimary)
+                .color(Color("TextPrimary"))
                 .opacity(textOpacity)
                 .mask(shimmerMask)
             Spacer()
@@ -46,9 +46,9 @@ struct ThinkingIndicator: View {
     private var shimmerMask: some View {
         LinearGradient(
             colors: [
-                .white.opacity(0.5),
-                .white,
-                .white.opacity(0.5),
+                Color("TextOnAccent").opacity(0.5),
+                Color("TextOnAccent"),
+                Color("TextOnAccent").opacity(0.5),
             ],
             startPoint: UnitPoint(x: shimmerOffset - 0.3, y: 0.5),
             endPoint: UnitPoint(x: shimmerOffset + 0.3, y: 0.5)

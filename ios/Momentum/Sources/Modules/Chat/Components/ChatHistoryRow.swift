@@ -19,7 +19,7 @@ struct ChatHistoryRow: View {
         .padding(.vertical, 12)
         .background(
             isActive
-                ? Colors.textPrimary.opacity(0.08)
+                ? Color("TextPrimary").opacity(0.08)
                 : Color.clear
         )
         .clipShape(RoundedRectangle(cornerRadius: 12))

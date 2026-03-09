@@ -31,7 +31,7 @@ struct AuthView: View {
                     Group {
                         if isAppleLoading {
                             ProgressView()
-                                .tint(Colors.textPrimary)
+                                .tint(Color("TextPrimary"))
                         } else {
                             HStack(spacing: 12) {
                                 Image("AppleLogo")
@@ -41,13 +41,13 @@ struct AuthView: View {
                                     .frame(width: 18, height: 18)
 
                                 Text("auth.welcome.apple", tableName: "Auth")
-                                    .font(.headline)
+                                    .font(Fonts.ui(size: 17, relativeTo: .headline, weight: .semibold))
                             }
                         }
                     }
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 16)
-                    .foregroundColor(Colors.textPrimary)
+                    .foregroundColor(Color("TextPrimary"))
                     .background(.clear)
                     .glassEffect(.regular.interactive(), in: RoundedRectangle(cornerRadius: 12))
                 }
@@ -57,7 +57,7 @@ struct AuthView: View {
                     Group {
                         if isGoogleLoading {
                             ProgressView()
-                                .tint(Colors.textPrimary)
+                                .tint(Color("TextPrimary"))
                         } else {
                             HStack(spacing: 12) {
                                 Image("GoogleLogo")
@@ -66,13 +66,13 @@ struct AuthView: View {
                                     .frame(width: 18, height: 18)
 
                                 Text("auth.welcome.google", tableName: "Auth")
-                                    .font(.headline)
+                                    .font(Fonts.ui(size: 17, relativeTo: .headline, weight: .semibold))
                             }
                         }
                     }
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 16)
-                    .foregroundColor(Colors.textPrimary)
+                    .foregroundColor(Color("TextPrimary"))
                     .background(.clear)
                     .glassEffect(.regular.interactive(), in: RoundedRectangle(cornerRadius: 12))
                 }

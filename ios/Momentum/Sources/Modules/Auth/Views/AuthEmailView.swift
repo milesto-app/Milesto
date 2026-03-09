@@ -32,7 +32,7 @@ private struct AuthModeToggle: View {
     private func textLabel(_ key: LocalizedStringKey, for targetMode: AuthFormMode) -> some View {
         AppText(key, table: "Auth", style: .headline)
             .weight(.semibold)
-            .color(mode == targetMode ? Colors.textPrimary : Colors.textSecondary)
+            .color(mode == targetMode ? Color("TextPrimary") : Color("TextSecondary"))
             .frame(maxWidth: .infinity)
             .padding(.vertical, 12)
             .contentShape(Capsule())

@@ -31,7 +31,7 @@ struct VoiceChatOverlay: View {
 
     var body: some View {
         ZStack {
-            Color.black.opacity(0.3)
+            Color("TextPrimary").opacity(0.3)
                 .ignoresSafeArea()
 
             VStack(spacing: 0) {
@@ -63,24 +63,24 @@ struct VoiceChatOverlay: View {
         HStack {
             VStack(alignment: .leading, spacing: 4) {
                 HStack(spacing: 8) {
-                    TablerIcons(coachIcon, size: 20, color: Colors.accent)
+                    TablerIcons(coachIcon, size: 20, color: Color("TintPrimary"))
                     AppText(verbatim: coachName, style: .headline)
-                        .color(.white)
+                        .color(Color("TextOnAccent"))
                 }
 
                 if isConnecting {
                     AppText("chat.voice.connecting", table: "Chat", style: .caption)
-                        .color(.white.opacity(0.6))
+                        .color(Color("TextOnAccent").opacity(0.6))
                 } else {
                     AppText(verbatim: timerText, style: .caption)
-                        .color(isSessionExpiring ? Colors.warning : .white.opacity(0.6))
+                        .color(isSessionExpiring ? Color("AccentAmber") : Color("TextOnAccent").opacity(0.6))
                 }
             }
 
             Spacer()
 
             Button(action: dismissOverlay) {
-                TablerIcons(.x, size: 24, color: .white)
+                TablerIcons(.x, size: 24, color: Color("TextOnAccent"))
                     .frame(width: 44, height: 44)
                     .glassEffect(.regular.interactive(), in: .circle)
             }
@@ -91,36 +91,36 @@ struct VoiceChatOverlay: View {
         VStack(spacing: 24) {
             ZStack {
                 Circle()
-                    .fill(Colors.accent.opacity(0.15))
+                    .fill(Color("TintPrimary").opacity(0.15))
                     .frame(width: 180, height: 180)
                     .scaleEffect(pulseScale)
 
                 Circle()
-                    .fill(Colors.accent.opacity(0.25))
+                    .fill(Color("TintPrimary").opacity(0.25))
                     .frame(width: 120, height: 120)
                     .scaleEffect(pulseScale * 0.95)
 
                 Circle()
-                    .fill(Colors.accent.opacity(0.5))
+                    .fill(Color("TintPrimary").opacity(0.5))
                     .frame(width: 80, height: 80)
 
-                TablerIcons(coachIcon, size: 36, color: .white)
+                TablerIcons(coachIcon, size: 36, color: Color("TextOnAccent"))
             }
 
             if let errorMessage {
                 AppText(verbatim: errorMessage, style: .subheadline)
-                    .color(Colors.error)
+                    .color(Color("StatusError"))
                     .multilineTextAlignment(.center)
             } else if isConnecting {
                 HStack(spacing: 8) {
                     ProgressView()
-                        .tint(.white)
+                        .tint(Color("TextOnAccent"))
                     AppText("chat.voice.connecting", table: "Chat", style: .subheadline)
-                        .color(.white.opacity(0.8))
+                        .color(Color("TextOnAccent").opacity(0.8))
                 }
             } else if isSessionExpiring {
                 AppText("chat.voice.sessionExpiring", table: "Chat", style: .subheadline)
-                    .color(Colors.warning)
+                    .color(Color("AccentAmber"))
             } else {
                 stateLabel
             }
@@ -132,16 +132,16 @@ struct VoiceChatOverlay: View {
         switch voiceState {
         case .liveListening:
             AppText("chat.voice.listening", table: "Chat", style: .subheadline)
-                .color(.white.opacity(0.8))
+                .color(Color("TextOnAccent").opacity(0.8))
         case .liveResponding:
             AppText("chat.voice.speaking", table: "Chat", style: .subheadline)
-                .color(.white.opacity(0.8))
+                .color(Color("TextOnAccent").opacity(0.8))
         case .liveToolRunning:
             AppText("chat.voice.speaking", table: "Chat", style: .subheadline)
-                .color(.white.opacity(0.8))
+                .color(Color("TextOnAccent").opacity(0.8))
         default:
             AppText("chat.voice.listening", table: "Chat", style: .subheadline)
-                .color(.white.opacity(0.8))
+                .color(Color("TextOnAccent").opacity(0.8))
         }
     }
 
@@ -152,12 +152,12 @@ struct VoiceChatOverlay: View {
                     TablerIcons(
                         isMuted ? .microphoneOff : .microphone,
                         size: 24,
-                        color: .white
+                        color: Color("TextOnAccent")
                     )
                     .frame(width: 56, height: 56)
                     .background(
                         Circle()
-                            .fill(isMuted ? Colors.error.opacity(0.8) : .white.opacity(0.15))
+                            .fill(isMuted ? Color("StatusError").opacity(0.8) : Color("TextOnAccent").opacity(0.15))
                     )
 
                     AppText(
@@ -165,22 +165,22 @@ struct VoiceChatOverlay: View {
                         table: "Chat",
                         style: .caption
                     )
-                    .color(.white.opacity(0.7))
+                    .color(Color("TextOnAccent").opacity(0.7))
                 }
             }
             .disabled(isConnecting)
 
             Button(action: dismissOverlay) {
                 VStack(spacing: 8) {
-                    TablerIcons(.phoneOff, size: 24, color: .white)
+                    TablerIcons(.phoneOff, size: 24, color: Color("TextOnAccent"))
                         .frame(width: 56, height: 56)
                         .background(
                             Circle()
-                                .fill(Colors.error)
+                                .fill(Color("StatusError"))
                         )
 
                     AppText("chat.voice.close", table: "Chat", style: .caption)
-                        .color(.white.opacity(0.7))
+                        .color(Color("TextOnAccent").opacity(0.7))
                 }
             }
         }

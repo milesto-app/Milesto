@@ -22,7 +22,7 @@ struct WeeklyPlanDetailView: View {
                         )
 
                         AppText(verbatim: weekStartDate, style: .subheadline)
-                            .color(Colors.textSecondary)
+                            .color(Color("TextSecondary"))
                     }
                     .frame(maxWidth: .infinity, alignment: .leading)
 
@@ -44,12 +44,12 @@ struct WeeklyPlanDetailView: View {
     private var focusCard: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack(spacing: 8) {
-                TablerIcons(.target, size: 20, color: Colors.accent)
+                TablerIcons(.target, size: 20, color: Color("TintPrimary"))
                 AppText("roadmap.weeklyPlan.focus", table: "Roadmap", style: .headline)
             }
 
             AppText(verbatim: focus, style: .body)
-                .color(Colors.textSecondary)
+                .color(Color("TextSecondary"))
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(16)
@@ -62,7 +62,7 @@ struct WeeklyPlanDetailView: View {
 
             ForEach(objectives, id: \.self) { objective in
                 HStack(alignment: .top, spacing: 8) {
-                    TablerIcons(.listCheck, size: 18, color: Colors.accent)
+                    TablerIcons(.listCheck, size: 18, color: Color("TintPrimary"))
                     AppText(verbatim: objective, style: .body)
                 }
             }
@@ -75,12 +75,12 @@ struct WeeklyPlanDetailView: View {
     private func summaryCard(_ summary: WeeklySummaryDTO) -> some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack(spacing: 8) {
-                TablerIcons(.chartBar, size: 20, color: Colors.accent)
+                TablerIcons(.chartBar, size: 20, color: Color("TintPrimary"))
                 AppText("roadmap.weeklyPlan.summary", table: "Roadmap", style: .headline)
             }
 
             ProgressView(value: summary.completionRate)
-                .tint(Colors.accent)
+                .tint(Color("TintPrimary"))
 
             AppText(
                 verbatim: String(
@@ -93,7 +93,7 @@ struct WeeklyPlanDetailView: View {
 
             if let narrative = summary.narrative {
                 AppText(verbatim: narrative, style: .body)
-                    .color(Colors.textSecondary)
+                    .color(Color("TextSecondary"))
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)

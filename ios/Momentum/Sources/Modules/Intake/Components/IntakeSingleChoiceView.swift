@@ -27,16 +27,16 @@ struct IntakeSingleChoiceView: View {
                         AppText(verbatim: option, style: .body)
                         Spacer()
                         if selectedOption == option {
-                            TablerIcons(.circleCheck, size: 22, color: Colors.accent)
+                            TablerIcons(.circleCheck, size: 22, color: Color("TintPrimary"))
                         }
                     }
                     .padding(16)
-                    .background(Colors.fieldBackground)
+                    .background(Color("BgSurface"))
                     .cornerRadius(8)
                     .overlay(
                         RoundedRectangle(cornerRadius: 8)
                             .stroke(
-                                selectedOption == option ? Colors.accent : Color.clear,
+                                selectedOption == option ? Color("TintPrimary") : Color.clear,
                                 lineWidth: 2
                             )
                     )

@@ -8,13 +8,13 @@ struct StatsMetricCard: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
-            TablerIcons(icon, size: 20, color: Colors.accent)
+            TablerIcons(icon, size: 20, color: Color("TintPrimary"))
 
             AppText(verbatim: value, style: .title)
                 .weight(.bold)
 
             AppText(label, table: table, style: .caption)
-                .color(Colors.textSecondary)
+                .color(Color("TextSecondary"))
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(16)

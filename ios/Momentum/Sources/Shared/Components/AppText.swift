@@ -8,14 +8,20 @@ enum AppTextStyle {
     case subheadline
     case caption
 
-    var font: Font {
+    func font(weight: Font.Weight) -> Font {
         switch self {
-        case .largeTitle: return .largeTitle
-        case .title: return .title
-        case .headline: return .headline
-        case .body: return .body
-        case .subheadline: return .subheadline
-        case .caption: return .caption
+        case .largeTitle:
+            return Fonts.display(size: 34, relativeTo: .largeTitle, weight: weight)
+        case .title:
+            return Fonts.display(size: 28, relativeTo: .title, weight: weight)
+        case .headline:
+            return Fonts.display(size: 20, relativeTo: .headline, weight: weight)
+        case .body:
+            return Fonts.ui(size: 17, relativeTo: .body, weight: weight)
+        case .subheadline:
+            return Fonts.ui(size: 15, relativeTo: .subheadline, weight: weight)
+        case .caption:
+            return Fonts.ui(size: 12, relativeTo: .caption, weight: weight)
         }
     }
 
@@ -31,7 +37,7 @@ enum AppTextStyle {
     var defaultWeight: Font.Weight {
         switch self {
         case .largeTitle, .title, .headline:
-            return .bold
+            return .medium
         case .body, .subheadline, .caption:
             return .regular
         }
@@ -40,9 +46,9 @@ enum AppTextStyle {
     var defaultColor: Color {
         switch self {
         case .largeTitle, .title, .headline, .body:
-            return Colors.textPrimary
+            return Color("TextPrimary")
         case .subheadline, .caption:
-            return Colors.textSecondary
+            return Color("TextSecondary")
         }
     }
 }
@@ -68,8 +74,7 @@ struct AppText: View {
 
     var body: some View {
         content
-            .font(style.font)
-            .fontWeight(weight ?? style.defaultWeight)
+            .font(style.font(weight: weight ?? style.defaultWeight))
             .tracking(style.tracking)
             .foregroundStyle(color ?? style.defaultColor)
             .multilineTextAlignment(alignment)

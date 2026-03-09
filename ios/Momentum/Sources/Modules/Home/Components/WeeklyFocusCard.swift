@@ -15,7 +15,7 @@ struct WeeklyFocusCard: View {
         Button(action: onTap) {
             VStack(alignment: .leading, spacing: 12) {
                 HStack(spacing: 8) {
-                    TablerIcons(.target, size: 20, color: Colors.accent)
+                    TablerIcons(.target, size: 20, color: Color("TintPrimary"))
                     AppText("home.weeklyFocus.title", table: "Home", style: .headline)
                 }
 
@@ -30,10 +30,10 @@ struct WeeklyFocusCard: View {
                         ),
                         style: .caption
                     )
-                    .color(Colors.textSecondary)
+                    .color(Color("TextSecondary"))
 
                     AppText(verbatim: "·", style: .caption)
-                        .color(Colors.textSecondary)
+                        .color(Color("TextSecondary"))
 
                     AppText(
                         verbatim: String(
@@ -43,7 +43,7 @@ struct WeeklyFocusCard: View {
                         ),
                         style: .caption
                     )
-                    .color(Colors.textSecondary)
+                    .color(Color("TextSecondary"))
                 }
             }
             .frame(maxWidth: .infinity, alignment: .leading)

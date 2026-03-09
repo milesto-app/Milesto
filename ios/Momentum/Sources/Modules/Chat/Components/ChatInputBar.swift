@@ -19,9 +19,9 @@ struct ChatInputBar: View {
                 Button {
                     onSend()
                 } label: {
-                    TablerIcons(.arrowUp, size: 18, color: Colors.textOnAccent)
+                    TablerIcons(.arrowUp, size: 18, color: Color("TextOnAccent"))
                         .frame(width: 32, height: 32)
-                        .background(isDisabled ? Colors.textSecondary : Colors.accent, in: Circle())
+                        .background(isDisabled ? Color("TextSecondary") : Color("TintPrimary"), in: Circle())
                 }
                 .disabled(isDisabled)
                 .padding(.trailing, 12)

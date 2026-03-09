@@ -19,7 +19,7 @@ struct IntakeScaleQuestionView: View {
     var body: some View {
         VStack(spacing: 12) {
             AppText(verbatim: "\(Int(currentValue))", style: .largeTitle)
-                .color(Colors.accent)
+                .color(Color("TintPrimary"))
                 .alignment(.center)
 
             Slider(
@@ -37,14 +37,14 @@ struct IntakeScaleQuestionView: View {
                 in: Double(minValue) ... Double(maxValue),
                 step: 1
             )
-            .tint(Colors.accent)
+            .tint(Color("TintPrimary"))
 
             HStack {
                 AppText(verbatim: "\(minValue)", style: .caption)
-                    .color(Colors.textSecondary)
+                    .color(Color("TextSecondary"))
                 Spacer()
                 AppText(verbatim: "\(maxValue)", style: .caption)
-                    .color(Colors.textSecondary)
+                    .color(Color("TextSecondary"))
             }
         }
         .onAppear {

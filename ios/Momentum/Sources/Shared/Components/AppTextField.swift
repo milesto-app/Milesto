@@ -28,27 +28,27 @@ struct AppTextField: View {
 
     private var borderColor: Color {
         if hasError {
-            return Colors.fieldBorderError
+            return Color("StatusError")
         } else if isFocused {
-            return Colors.fieldBorderFocused
+            return Color("TintPrimary")
         }
-        return Colors.fieldBorderDefault
+        return Color("TextSecondary").opacity(0.2)
     }
 
     private var iconColor: Color {
         if hasError {
-            return Colors.error
+            return Color("StatusError")
         } else if isFocused {
-            return Colors.accent
+            return Color("TintPrimary")
         }
-        return Colors.iconDefault
+        return Color("TextSecondary")
     }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
             ZStack(alignment: multiline ? .topLeading : .leading) {
                 RoundedRectangle(cornerRadius: 12)
-                    .fill(Colors.fieldBackground)
+                    .fill(Color("BgSurface"))
                     .frame(height: multiline ? 150 : 56)
                     .overlay(
                         RoundedRectangle(cornerRadius: 12)
@@ -65,15 +65,15 @@ struct AppTextField: View {
                     ZStack(alignment: multiline ? .topLeading : .leading) {
                         if let label = label {
                             Text(label, tableName: table)
-                                .font(shouldFloatLabel ? .caption : .body)
-                                .foregroundColor(hasError ? Colors.error : (isFocused ? Colors.accent : Colors.iconDefault))
+                                .font(shouldFloatLabel ? Fonts.ui(size: 12, relativeTo: .caption) : Fonts.ui(size: 17, relativeTo: .body))
+                                .foregroundColor(hasError ? Color("StatusError") : (isFocused ? Color("TintPrimary") : Color("TextSecondary")))
                                 .offset(y: shouldFloatLabel ? (multiline ? 0 : -12) : (multiline ? 8 : 0))
                                 .animation(.easeOut(duration: 0.2), value: shouldFloatLabel)
                         }
 
                         if text.isEmpty && (label == nil || shouldFloatLabel) {
                             Text(label == nil ? placeholder : (shouldFloatLabel ? placeholder : ""), tableName: table)
-                                .foregroundColor(Colors.textPlaceholder)
+                                .foregroundColor(Color("TextSecondary"))
                                 .offset(y: label != nil ? (multiline ? 20 : 6) : 0)
                         }
 
@@ -104,7 +104,7 @@ struct AppTextField: View {
                         Button {
                             isPasswordVisible.toggle()
                         } label: {
-                            TablerIcons(isPasswordVisible ? .eyeOff : .eye, size: 16, color: Colors.iconDefault)
+                            TablerIcons(isPasswordVisible ? .eyeOff : .eye, size: 16, color: Color("TextSecondary"))
                         }
                         .buttonStyle(.plain)
                     }
@@ -117,13 +117,13 @@ struct AppTextField: View {
 
             if let errorMessage = errorMessage {
                 Text(errorMessage)
-                    .font(.caption)
-                    .foregroundColor(Colors.error)
+                    .font(Fonts.ui(size: 12, relativeTo: .caption))
+                    .foregroundColor(Color("StatusError"))
                     .padding(.horizontal, 4)
             } else if let helperText = helperText {
                 Text(helperText)
-                    .font(.caption)
-                    .foregroundColor(Colors.iconDefault)
+                    .font(Fonts.ui(size: 12, relativeTo: .caption))
+                    .foregroundColor(Color("TextSecondary"))
                     .padding(.horizontal, 4)
             }
         }

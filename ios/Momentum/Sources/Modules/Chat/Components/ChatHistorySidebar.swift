@@ -13,7 +13,7 @@ struct ChatHistorySidebar: View {
     var body: some View {
         ZStack(alignment: .leading) {
             if isOpen {
-                Color.black.opacity(0.4)
+                Color("TextPrimary").opacity(0.4)
                     .ignoresSafeArea()
                     .onTapGesture { dismiss() }
                     .transition(.opacity)
@@ -72,7 +72,7 @@ struct ChatHistorySidebar: View {
                 dismiss()
                 onNewConversation()
             } label: {
-                TablerIcons(.edit, size: 20, color: Colors.textPrimary)
+                TablerIcons(.edit, size: 20, color: Color("TextPrimary"))
                     .frame(width: 36, height: 36)
                     .glassEffect(.regular.interactive(), in: .circle)
             }
@@ -85,7 +85,7 @@ struct ChatHistorySidebar: View {
 
     private var emptyState: some View {
         VStack(spacing: 12) {
-            TablerIcons(.messagesOff, size: 40, color: Colors.textSecondary)
+            TablerIcons(.messagesOff, size: 40, color: Color("TextSecondary"))
             AppText("chat.history.empty", table: "Chat", style: .subheadline)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -112,7 +112,7 @@ struct ChatHistorySidebar: View {
                             onDeleteConversation(conversation.id)
                         } label: {
                             HStack(spacing: 8) {
-                                TablerIcons(.trash, size: 16, color: Colors.error)
+                                TablerIcons(.trash, size: 16, color: Color("StatusError"))
                                 AppText("chat.history.delete", table: "Chat", style: .body)
                             }
                         }

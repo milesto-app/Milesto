@@ -54,7 +54,7 @@ struct ProfileOnboardingView: View {
             .transition(.push(from: .trailing))
             .overlay {
                 if isSaving {
-                    Color.black.opacity(0.3)
+                    Color("TextPrimary").opacity(0.3)
                         .ignoresSafeArea()
                     ProgressView()
                 }

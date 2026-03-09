@@ -29,7 +29,7 @@ struct StatsWeeklyChart: View {
                     VStack(spacing: 8) {
                         ZStack(alignment: .bottom) {
                             RoundedRectangle(cornerRadius: 6)
-                                .fill(Colors.textSecondary.opacity(0.12))
+                                .fill(Color("TextSecondary").opacity(0.12))
                                 .frame(height: 100)
 
                             RoundedRectangle(cornerRadius: 6)
@@ -45,10 +45,10 @@ struct StatsWeeklyChart: View {
                         VStack(spacing: 2) {
                             AppText(verbatim: dayNumber(from: day.date), style: .subheadline)
                                 .weight(.semibold)
-                                .color(isToday ? Colors.accent : Colors.textPrimary)
+                                .color(isToday ? Color("TintPrimary") : Color("TextPrimary"))
 
                             AppText(verbatim: dayName(from: day.date), style: .caption)
-                                .color(Colors.textSecondary)
+                                .color(Color("TextSecondary"))
                         }
                     }
                 }
@@ -63,11 +63,11 @@ struct StatsWeeklyChart: View {
 
     private func colorForRatio(_ ratio: Double, hasActivity: Bool) -> Color {
         if !hasActivity && ratio == 0 {
-            return Colors.textSecondary.opacity(0.3)
+            return Color("TextSecondary").opacity(0.3)
         }
-        if ratio >= 0.7 { return Colors.accent }
-        if ratio >= 0.3 { return Colors.warning }
-        return Colors.error.opacity(0.7)
+        if ratio >= 0.7 { return Color("TintPrimary") }
+        if ratio >= 0.3 { return Color("AccentAmber") }
+        return Color("StatusError").opacity(0.7)
     }
 
     private func dayNumber(from dateString: String) -> String {

@@ -139,7 +139,7 @@ struct RoadmapView: View {
     private var headerSection: some View {
         VStack(alignment: .leading, spacing: 8) {
             AppText("roadmap.journey.subtitle", table: "Roadmap", style: .caption)
-                .color(Colors.textSecondary)
+                .color(Color("TextSecondary"))
 
             if switchableGoals.count > 1 {
                 Menu {
@@ -153,7 +153,7 @@ struct RoadmapView: View {
                 } label: {
                     HStack(spacing: 8) {
                         AppText(verbatim: currentGoal?.title ?? "", style: .largeTitle)
-                        TablerIcons(.chevronDown, size: 20, color: Colors.textSecondary)
+                        TablerIcons(.chevronDown, size: 20, color: Color("TextSecondary"))
                     }
                 }
             } else {
@@ -166,7 +166,7 @@ struct RoadmapView: View {
                     style: .subheadline
                 )
                 .weight(.semibold)
-                .color(Colors.accent)
+                .color(Color("TintPrimary"))
             }
         }
         .padding(.horizontal, 24)
@@ -211,7 +211,7 @@ struct RoadmapView: View {
                 if nextIsUpcoming {
                     context.stroke(
                         segment,
-                        with: .color(Colors.textSecondary.opacity(0.15)),
+                        with: .color(Color("TextSecondary").opacity(0.15)),
                         style: StrokeStyle(lineWidth: 4, lineCap: .round, lineJoin: .round, dash: [8, 6])
                     )
                 } else {
@@ -219,8 +219,8 @@ struct RoadmapView: View {
                         segment,
                         with: .color(
                             bothCompleted
-                                ? Colors.accent.opacity(0.4)
-                                : Colors.accent.opacity(0.25)
+                                ? Color("TintPrimary").opacity(0.4)
+                                : Color("TintPrimary").opacity(0.25)
                         ),
                         style: StrokeStyle(lineWidth: 4, lineCap: .round, lineJoin: .round)
                     )
@@ -250,19 +250,19 @@ struct RoadmapView: View {
 
             if milestone.isKeyMilestone && milestone.status != .upcoming {
                 Circle()
-                    .strokeBorder(Colors.textOnAccent.opacity(0.2), lineWidth: 2)
+                    .strokeBorder(Color("TextOnAccent").opacity(0.2), lineWidth: 2)
                     .frame(width: size - 6, height: size - 6)
             }
 
             if milestone.status == .upcoming && !milestone.isKeyMilestone {
                 Circle()
-                    .strokeBorder(Colors.textSecondary.opacity(0.2), lineWidth: 2)
+                    .strokeBorder(Color("TextSecondary").opacity(0.2), lineWidth: 2)
                     .frame(width: size, height: size)
             }
 
             if milestone.status == .upcoming && milestone.isKeyMilestone {
                 Circle()
-                    .strokeBorder(Colors.textSecondary.opacity(0.25), lineWidth: 2.5)
+                    .strokeBorder(Color("TextSecondary").opacity(0.25), lineWidth: 2.5)
                     .frame(width: size, height: size)
             }
 
@@ -278,18 +278,18 @@ struct RoadmapView: View {
             if milestone.isKeyMilestone || isGoal {
                 switch milestone.status {
                 case .completed:
-                    TablerIcons(icon, size: 22, color: Colors.textOnAccent)
+                    TablerIcons(icon, size: 22, color: Color("TextOnAccent"))
                 case .current:
-                    TablerIcons(icon, size: 24, color: Colors.textOnAccent)
+                    TablerIcons(icon, size: 24, color: Color("TextOnAccent"))
                 case .upcoming:
-                    TablerIcons(icon, size: 22, color: Colors.textSecondary)
+                    TablerIcons(icon, size: 22, color: Color("TextSecondary"))
                 }
             } else {
                 switch milestone.status {
                 case .completed:
-                    TablerIcons(.check, size: 20, color: Colors.textOnAccent)
+                    TablerIcons(.check, size: 20, color: Color("TextOnAccent"))
                 case .current:
-                    TablerIcons(.mapPin, size: 20, color: Colors.textOnAccent)
+                    TablerIcons(.mapPin, size: 20, color: Color("TextOnAccent"))
                 case .upcoming:
                     EmptyView()
                 }
@@ -301,7 +301,7 @@ struct RoadmapView: View {
         VStack(alignment: alignTrailing ? .trailing : .leading, spacing: 2) {
             AppText(verbatim: milestone.title, style: milestone.isKeyMilestone ? .headline : .subheadline)
                 .weight(milestone.isKeyMilestone ? .bold : .semibold)
-                .color(milestone.status == .upcoming ? Colors.textSecondary : Colors.textPrimary)
+                .color(milestone.status == .upcoming ? Color("TextSecondary") : Color("TextPrimary"))
 
             HStack(spacing: 4) {
                 AppText(
@@ -311,14 +311,14 @@ struct RoadmapView: View {
                     ),
                     style: .caption
                 )
-                .color(Colors.textSecondary)
+                .color(Color("TextSecondary"))
 
                 if milestone.status == .current {
                     AppText(verbatim: "·", style: .caption)
-                        .color(Colors.textSecondary)
+                        .color(Color("TextSecondary"))
                     AppText(verbatim: "\(Int(milestone.progress * 100))%", style: .caption)
                         .weight(.semibold)
-                        .color(Colors.accent)
+                        .color(Color("TintPrimary"))
                 }
             }
         }
@@ -327,9 +327,9 @@ struct RoadmapView: View {
 
     private func nodeColor(_ status: MilestoneStatus) -> Color {
         switch status {
-        case .completed: return Colors.accent
-        case .current: return Colors.accent
-        case .upcoming: return Colors.nodeUpcoming
+        case .completed: return Color("TintPrimary")
+        case .current: return Color("TintPrimary")
+        case .upcoming: return Color("BgSurface")
         }
     }
 

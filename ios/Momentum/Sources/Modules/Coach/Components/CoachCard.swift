@@ -18,10 +18,10 @@ struct CoachCard: View {
             HStack(spacing: 16) {
                 ZStack {
                     Circle()
-                        .fill(Colors.accent.opacity(0.1))
+                        .fill(Color("TintPrimary").opacity(0.1))
                         .frame(width: 56, height: 56)
 
-                    TablerIcons(personality.icon, size: 28, color: Colors.accent)
+                    TablerIcons(personality.icon, size: 28, color: Color("TintPrimary"))
                 }
 
                 VStack(alignment: .leading, spacing: 4) {
@@ -32,7 +32,7 @@ struct CoachCard: View {
 
                 Spacer()
 
-                TablerIcons(.circleCheck, size: 28, color: Colors.accent)
+                TablerIcons(.circleCheck, size: 28, color: Color("TintPrimary"))
                     .opacity(isSelected ? 1 : 0)
                     .scaleEffect(isSelected ? 1 : 0.5)
                     .animation(.spring(response: 0.3, dampingFraction: 0.7), value: isSelected)
@@ -42,7 +42,7 @@ struct CoachCard: View {
             .glassEffect(.regular, in: RoundedRectangle(cornerRadius: 12))
             .overlay(
                 RoundedRectangle(cornerRadius: 12)
-                    .stroke(Colors.accent, lineWidth: 2)
+                    .stroke(Color("TintPrimary"), lineWidth: 2)
                     .opacity(isSelected ? 1 : 0)
                     .animation(.spring(response: 0.3, dampingFraction: 0.7), value: isSelected)
             )
@@ -66,5 +66,5 @@ struct CoachCard: View {
         )
     }
     .padding()
-    .background(Color(.systemGroupedBackground))
+    .background(Color("BgPrimary"))
 }

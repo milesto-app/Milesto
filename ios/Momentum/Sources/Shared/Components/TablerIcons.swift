@@ -24,7 +24,7 @@ struct TablerIcons: View {
     var body: some View {
         Text(unicode)
             .font(.custom("tabler-icons", size: size))
-            .foregroundStyle(color ?? Colors.iconDefault)
+            .foregroundStyle(color ?? Color("TextSecondary"))
     }
 }
 

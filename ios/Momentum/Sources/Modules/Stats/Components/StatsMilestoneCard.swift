@@ -12,20 +12,20 @@ struct StatsMilestoneCard: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 14) {
             HStack(spacing: 8) {
-                TablerIcons(.target, size: 20, color: Colors.accent)
+                TablerIcons(.target, size: 20, color: Color("TintPrimary"))
                 AppText("stats.milestones.title", table: "Stats", style: .headline)
                 Spacer()
                 AppText(verbatim: "\(completed)/\(total)", style: .subheadline)
                     .weight(.semibold)
-                    .color(Colors.accent)
+                    .color(Color("TintPrimary"))
             }
 
             GeometryReader { geometry in
                 ZStack(alignment: .leading) {
                     Capsule()
-                        .fill(Colors.textSecondary.opacity(0.12))
+                        .fill(Color("TextSecondary").opacity(0.12))
                     Capsule()
-                        .fill(Colors.accent)
+                        .fill(Color("TintPrimary"))
                         .frame(width: geometry.size.width * (isAnimated ? progress : 0))
                         .animation(.spring(duration: 0.8, bounce: 0.15), value: isAnimated)
                 }
@@ -35,7 +35,7 @@ struct StatsMilestoneCard: View {
             HStack(spacing: 6) {
                 ForEach(0 ..< total, id: \.self) { index in
                     Circle()
-                        .fill(index < completed ? Colors.accent : Colors.textSecondary.opacity(0.2))
+                        .fill(index < completed ? Color("TintPrimary") : Color("TextSecondary").opacity(0.2))
                         .frame(width: 10, height: 10)
                         .scaleEffect(isAnimated ? 1 : 0.3)
                         .animation(

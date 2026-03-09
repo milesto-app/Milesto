@@ -53,27 +53,27 @@ struct VoiceToggleButton: View {
         case .idle:
             TablerIcons(.microphone, size: size.iconSize, color: iconColor)
         case .recording:
-            TablerIcons(.playerStop, size: size.iconSize, color: Colors.textOnAccent)
+            TablerIcons(.playerStop, size: size.iconSize, color: Color("TextOnAccent"))
         case .transcribing:
             ProgressView()
-                .tint(Colors.textOnAccent)
+                .tint(Color("TextOnAccent"))
         case .error:
-            TablerIcons(.alertCircle, size: size.iconSize, color: Colors.textOnAccent)
+            TablerIcons(.alertCircle, size: size.iconSize, color: Color("TextOnAccent"))
         default:
             TablerIcons(.microphone, size: size.iconSize, color: iconColor)
         }
     }
 
     private var iconColor: Color {
-        voiceState == .idle ? Colors.textSecondary : Colors.textOnAccent
+        voiceState == .idle ? Color("TextSecondary") : Color("TextOnAccent")
     }
 
     private var backgroundFill: Color {
         switch voiceState {
         case .recording:
-            return Colors.error
+            return Color("StatusError")
         case .error:
-            return Colors.warning
+            return Color("AccentAmber")
         default:
             return .clear
         }

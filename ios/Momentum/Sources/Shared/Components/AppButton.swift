@@ -15,9 +15,9 @@ enum AppButtonStyle {
 
     var foregroundColor: Color {
         switch self {
-        case .primary: return Colors.textOnAccent
-        case .secondary: return Colors.accent
-        case .text: return Colors.accent
+        case .primary: return Color("TextOnAccent")
+        case .secondary: return Color("TintPrimary")
+        case .text: return Color("TintPrimary")
         }
     }
 
@@ -31,7 +31,7 @@ enum AppButtonStyle {
     var borderColor: Color {
         switch self {
         case .primary: return Color.clear
-        case .secondary: return Colors.accent
+        case .secondary: return Color("TintPrimary")
         case .text: return Color.clear
         }
     }
@@ -77,7 +77,7 @@ struct AppButton: View {
             }
 
             Text(title, tableName: table)
-                .font(.headline)
+                .font(Fonts.ui(size: 17, relativeTo: .headline, weight: .semibold))
 
             if let icon = icon, iconPosition == .trailing {
                 TablerIcons(icon, size: 20, color: style.foregroundColor)
@@ -94,7 +94,7 @@ struct AppButton: View {
         Button(action: action) {
             if style.usesGlass {
                 buttonContent
-                    .glassEffect(.regular.interactive().tint(Colors.accent), in: RoundedRectangle(cornerRadius: 12))
+                    .glassEffect(.regular.interactive().tint(Color("TintPrimary")), in: RoundedRectangle(cornerRadius: 12))
             } else {
                 buttonContent
                     .cornerRadius(12)

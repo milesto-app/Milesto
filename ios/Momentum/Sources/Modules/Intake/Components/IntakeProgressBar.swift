@@ -14,11 +14,11 @@ struct IntakeProgressBar: View {
             GeometryReader { geometry in
                 ZStack(alignment: .leading) {
                     Capsule()
-                        .fill(Colors.textSecondary.opacity(0.15))
+                        .fill(Color("TextSecondary").opacity(0.15))
                         .frame(height: 6)
 
                     Capsule()
-                        .fill(Colors.accent)
+                        .fill(Color("TintPrimary"))
                         .frame(width: geometry.size.width * progress, height: 6)
                         .animation(.easeInOut(duration: 0.3), value: progress)
                 }
@@ -28,7 +28,7 @@ struct IntakeProgressBar: View {
             HStack {
                 Spacer()
                 AppText(verbatim: "\(current)/\(total)", style: .caption)
-                    .color(Colors.textSecondary)
+                    .color(Color("TextSecondary"))
             }
         }
     }

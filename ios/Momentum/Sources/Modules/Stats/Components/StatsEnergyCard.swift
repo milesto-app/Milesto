@@ -9,17 +9,17 @@ struct StatsEnergyCard: View {
 
     private var segments: [(label: LocalizedStringKey, count: Int, color: Color)] {
         [
-            ("stats.energy.high", distribution.high, Colors.accent),
-            ("stats.energy.good", distribution.good, Colors.warning),
-            ("stats.energy.low", distribution.low, Colors.error.opacity(0.7)),
-            ("stats.energy.veryLow", distribution.veryLow, Colors.error.opacity(0.4)),
+            ("stats.energy.high", distribution.high, Color("TintPrimary")),
+            ("stats.energy.good", distribution.good, Color("AccentAmber")),
+            ("stats.energy.low", distribution.low, Color("StatusError").opacity(0.7)),
+            ("stats.energy.veryLow", distribution.veryLow, Color("StatusError").opacity(0.4)),
         ]
     }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 14) {
             HStack(spacing: 8) {
-                TablerIcons(.bolt, size: 20, color: Colors.accent)
+                TablerIcons(.bolt, size: 20, color: Color("TintPrimary"))
                 AppText("stats.energy.title", table: "Stats", style: .headline)
             }
 
@@ -48,7 +48,7 @@ struct StatsEnergyCard: View {
                                 .fill(segment.color)
                                 .frame(width: 6, height: 6)
                             AppText(verbatim: "\(segment.count)", style: .caption)
-                                .color(Colors.textSecondary)
+                                .color(Color("TextSecondary"))
                         }
                     }
                 }

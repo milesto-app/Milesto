@@ -27,13 +27,13 @@ struct StatsView: View {
                 }
             } else if loadError != nil {
                 VStack(spacing: 24) {
-                    TablerIcons(.wifiOff, size: 48, color: Colors.textSecondary)
+                    TablerIcons(.wifiOff, size: 48, color: Color("TextSecondary"))
 
                     AppText("stats.error.title", table: "Stats", style: .title)
                         .alignment(.center)
 
                     AppText(verbatim: loadError?.localizedDescription ?? "", style: .caption)
-                        .color(Colors.textSecondary)
+                        .color(Color("TextSecondary"))
                         .alignment(.center)
 
                     AppButton("stats.error.retry", table: "Stats") {

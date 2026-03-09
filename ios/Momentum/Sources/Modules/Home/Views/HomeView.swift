@@ -95,7 +95,7 @@ struct HomeView: View {
     private var heroSection: some View {
         VStack(alignment: .leading, spacing: 16) {
             AppText(verbatim: formattedDate, style: .caption)
-                .color(Colors.textSecondary)
+                .color(Color("TextSecondary"))
 
             AppText(verbatim: currentGoal?.title ?? "", style: .title)
 
@@ -103,10 +103,10 @@ struct HomeView: View {
                 GeometryReader { geometry in
                     ZStack(alignment: .leading) {
                         Capsule()
-                            .fill(Colors.textSecondary.opacity(0.1))
+                            .fill(Color("TextSecondary").opacity(0.1))
                             .frame(height: 8)
                         Capsule()
-                            .fill(Colors.accent)
+                            .fill(Color("TintPrimary"))
                             .frame(
                                 width: geometry.size.width * goalProgress,
                                 height: 8
@@ -121,7 +121,7 @@ struct HomeView: View {
                         style: .subheadline
                     )
                     .weight(.semibold)
-                    .color(Colors.accent)
+                    .color(Color("TintPrimary"))
                     Spacer()
                 }
             }
@@ -175,7 +175,7 @@ struct HomeView: View {
                         verbatim: "\(completedCount)/\(objectives.count)",
                         style: .subheadline
                     )
-                    .color(Colors.accent)
+                    .color(Color("TintPrimary"))
                 }
                 .padding(.horizontal, 24)
                 .padding(.top, 12)
@@ -209,7 +209,7 @@ struct HomeView: View {
     private var objectivesSection: some View {
         if objectives.isEmpty {
             AppText("home.objectives.locked", table: "Home", style: .subheadline)
-                .color(Colors.textSecondary)
+                .color(Color("TextSecondary"))
                 .padding(.horizontal, 24)
                 .padding(.vertical, 16)
         } else {

@@ -16,11 +16,11 @@ struct ChatBubble: View {
 
             if isUser {
                 AppText(verbatim: message.content, style: .body)
-                    .color(Colors.textOnAccent)
+                    .color(Color("TextOnAccent"))
                     .padding(12)
                     .background(
                         RoundedRectangle(cornerRadius: 16)
-                            .fill(Colors.accent)
+                            .fill(Color("TintPrimary"))
                     )
             } else {
                 StreamingText(content: message.content, isStreaming: isStreamingResponse)

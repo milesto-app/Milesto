@@ -40,6 +40,7 @@ struct MomentumApp: App {
                     AuthContainerView()
                 }
             }
+            .tint(Color("TintPrimary"))
             .environmentObject(authService)
             .environmentObject(storeService)
             .onOpenURL { url in

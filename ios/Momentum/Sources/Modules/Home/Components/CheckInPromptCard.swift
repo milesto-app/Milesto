@@ -13,7 +13,7 @@ struct CheckInPromptCard: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
-            TablerIcons(.sunrise, size: 28, color: Colors.accent)
+            TablerIcons(.sunrise, size: 28, color: Color("TintPrimary"))
 
             AppText(
                 verbatim: String(
@@ -24,7 +24,7 @@ struct CheckInPromptCard: View {
             )
 
             AppText("home.checkin.question", table: "Home", style: .subheadline)
-                .color(Colors.textSecondary)
+                .color(Color("TextSecondary"))
 
             HStack(spacing: 12) {
                 energyButton(.high, icon: .bolt, label: String(localized: "home.checkin.energy.high", table: "Home"))
@@ -48,7 +48,7 @@ struct CheckInPromptCard: View {
 
             if let error {
                 AppText(verbatim: error, style: .caption)
-                    .color(Colors.error)
+                    .color(Color("StatusError"))
             }
 
             AppButton("home.checkin.submit", table: "Home", style: .primary) {
@@ -71,19 +71,19 @@ struct CheckInPromptCard: View {
             UISelectionFeedbackGenerator().selectionChanged()
         } label: {
             VStack(spacing: 4) {
-                TablerIcons(icon, size: 24, color: isSelected ? Colors.accent : Colors.iconDefault)
+                TablerIcons(icon, size: 24, color: isSelected ? Color("TintPrimary") : Color("TextSecondary"))
                 AppText(verbatim: label, style: .caption)
-                    .color(isSelected ? Colors.accent : Colors.textSecondary)
+                    .color(isSelected ? Color("TintPrimary") : Color("TextSecondary"))
             }
             .frame(maxWidth: .infinity)
             .padding(.vertical, 12)
             .background(
                 RoundedRectangle(cornerRadius: 12)
-                    .fill(isSelected ? Colors.accent.opacity(0.15) : Color.clear)
+                    .fill(isSelected ? Color("TintPrimary").opacity(0.15) : Color.clear)
             )
             .overlay(
                 RoundedRectangle(cornerRadius: 12)
-                    .stroke(isSelected ? Colors.accent : Color.clear, lineWidth: 1.5)
+                    .stroke(isSelected ? Color("TintPrimary") : Color.clear, lineWidth: 1.5)
             )
         }
         .buttonStyle(.plain)

@@ -38,10 +38,10 @@ struct GoalSetupView: View {
         .overlay {
             if isLoading {
                 ZStack {
-                    Color.black.opacity(0.3)
+                    Color("TextPrimary").opacity(0.3)
                         .ignoresSafeArea()
                     ProgressView()
-                        .tint(Colors.accent)
+                        .tint(Color("TintPrimary"))
                 }
             }
         }

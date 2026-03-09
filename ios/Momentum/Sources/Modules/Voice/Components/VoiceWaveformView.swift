@@ -12,7 +12,7 @@ struct VoiceWaveformView: View {
         HStack(spacing: 2) {
             ForEach(0 ..< barCount, id: \.self) { index in
                 RoundedRectangle(cornerRadius: barWidth / 2)
-                    .fill(Colors.accent)
+                    .fill(Color("TintPrimary"))
                     .frame(width: barWidth, height: isAnimating ? barHeight(for: index) : minHeight)
                     .animation(
                         .easeInOut(duration: 0.5)

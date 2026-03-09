@@ -218,12 +218,12 @@ struct SettingsView: View {
     private func editableRow(icon: TablerIconOutline, label: LocalizedStringKey, value: String, action: @escaping () -> Void) -> some View {
         Button(action: action) {
             HStack(spacing: 12) {
-                TablerIcons(icon, size: 24, color: Colors.accent)
+                TablerIcons(icon, size: 24, color: Color("TintPrimary"))
                 AppText(label, table: "Settings", style: .body)
                 Spacer()
                 AppText(verbatim: value, style: .body)
-                    .color(Colors.textSecondary)
-                TablerIcons(.chevronRight, size: 16, color: Colors.textSecondary)
+                    .color(Color("TextSecondary"))
+                TablerIcons(.chevronRight, size: 16, color: Color("TextSecondary"))
             }
             .contentShape(Rectangle())
         }
@@ -232,11 +232,11 @@ struct SettingsView: View {
 
     private func detailRow(icon: TablerIconOutline, label: LocalizedStringKey, value: String) -> some View {
         HStack(spacing: 12) {
-            TablerIcons(icon, size: 24, color: Colors.accent)
+            TablerIcons(icon, size: 24, color: Color("TintPrimary"))
             AppText(label, table: "Settings", style: .body)
             Spacer()
             AppText(verbatim: value, style: .body)
-                .color(Colors.textSecondary)
+                .color(Color("TextSecondary"))
         }
     }
 
@@ -244,13 +244,13 @@ struct SettingsView: View {
         Section {
             if storeService.isPro {
                 HStack(spacing: 12) {
-                    TablerIcons(.crown, size: 24, color: Colors.accent)
+                    TablerIcons(.crown, size: 24, color: Color("TintPrimary"))
                     AppText("settings.pro", table: "Paywall", style: .body)
                     Spacer()
                     HStack(spacing: 4) {
-                        TablerIcons(.circleCheck, size: 16, color: Colors.success)
+                        TablerIcons(.circleCheck, size: 16, color: Color("StatusSuccess"))
                         AppText("settings.pro.active", table: "Paywall", style: .caption)
-                            .color(Colors.success)
+                            .color(Color("StatusSuccess"))
                     }
                 }
             } else {
@@ -258,10 +258,10 @@ struct SettingsView: View {
                     showPaywall = true
                 } label: {
                     HStack(spacing: 12) {
-                        TablerIcons(.crown, size: 24, color: Colors.accent)
+                        TablerIcons(.crown, size: 24, color: Color("TintPrimary"))
                         AppText("settings.pro", table: "Paywall", style: .body)
                         Spacer()
-                        TablerIcons(.chevronRight, size: 16, color: Colors.textSecondary)
+                        TablerIcons(.chevronRight, size: 16, color: Color("TextSecondary"))
                     }
                     .contentShape(Rectangle())
                 }
@@ -276,7 +276,7 @@ struct SettingsView: View {
                 showNewGoal = true
             } label: {
                 HStack(spacing: 12) {
-                    TablerIcons(.target, size: 24, color: Colors.accent)
+                    TablerIcons(.target, size: 24, color: Color("TintPrimary"))
                     AppText("settings.newGoal", table: "Settings", style: .body)
                     Spacer()
                 }
@@ -292,9 +292,9 @@ struct SettingsView: View {
                 showDeleteGoalAlert = true
             } label: {
                 HStack(spacing: 12) {
-                    TablerIcons(.trash, size: 24, color: Colors.error)
+                    TablerIcons(.trash, size: 24, color: Color("StatusError"))
                     AppText("settings.deleteGoal", table: "Settings", style: .body)
-                        .color(Colors.error)
+                        .color(Color("StatusError"))
                 }
                 .contentShape(Rectangle())
             }
@@ -308,9 +308,9 @@ struct SettingsView: View {
                 showSignOutAlert = true
             } label: {
                 HStack(spacing: 12) {
-                    TablerIcons(.logout, size: 24, color: Colors.error)
+                    TablerIcons(.logout, size: 24, color: Color("StatusError"))
                     AppText("settings.signOut", table: "Settings", style: .body)
-                        .color(Colors.error)
+                        .color(Color("StatusError"))
                 }
                 .contentShape(Rectangle())
             }
@@ -318,7 +318,7 @@ struct SettingsView: View {
             HStack {
                 Spacer()
                 AppText(verbatim: "Version 1.0.0", style: .caption)
-                    .color(Colors.textSecondary)
+                    .color(Color("TextSecondary"))
                 Spacer()
             }
             .padding(.top, 24)

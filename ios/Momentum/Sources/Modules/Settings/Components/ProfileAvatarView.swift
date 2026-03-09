@@ -20,10 +20,10 @@ struct ProfileAvatarView: View {
     private var initialsView: some View {
         ZStack {
             Circle()
-                .fill(Colors.accent.opacity(0.12))
+                .fill(Color("TintPrimary").opacity(0.12))
                 .frame(width: size, height: size)
             AppText(verbatim: initials, style: size > 60 ? .title : .headline)
-                .color(Colors.accent)
+                .color(Color("TintPrimary"))
         }
     }
 }

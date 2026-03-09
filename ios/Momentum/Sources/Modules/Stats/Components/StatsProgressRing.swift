@@ -13,11 +13,11 @@ struct StatsProgressRing: View {
         HStack(spacing: 24) {
             ZStack {
                 Circle()
-                    .stroke(Colors.textSecondary.opacity(0.12), lineWidth: lineWidth)
+                    .stroke(Color("TextSecondary").opacity(0.12), lineWidth: lineWidth)
 
                 Circle()
                     .trim(from: 0, to: animatedRate)
-                    .stroke(Colors.accent, style: StrokeStyle(lineWidth: lineWidth, lineCap: .round))
+                    .stroke(Color("TintPrimary"), style: StrokeStyle(lineWidth: lineWidth, lineCap: .round))
                     .rotationEffect(.degrees(-90))
 
                 AppText(verbatim: "\(Int(animatedRate * 100))%", style: .title)
@@ -30,12 +30,12 @@ struct StatsProgressRing: View {
 
                 VStack(alignment: .leading, spacing: 8) {
                     legendRow(
-                        color: Colors.accent,
+                        color: Color("TintPrimary"),
                         label: "stats.ring.completed",
                         count: completed
                     )
                     legendRow(
-                        color: Colors.textSecondary.opacity(0.3),
+                        color: Color("TextSecondary").opacity(0.3),
                         label: "stats.ring.remaining",
                         count: max(0, total - completed)
                     )
@@ -59,13 +59,13 @@ struct StatsProgressRing: View {
                 .frame(width: 12, height: 6)
 
             AppText(label, table: "Stats", style: .subheadline)
-                .color(color == Colors.accent ? Colors.accent : Colors.textSecondary)
+                .color(color == Color("TintPrimary") ? Color("TintPrimary") : Color("TextSecondary"))
 
             Spacer()
 
             AppText(verbatim: "\(count)", style: .subheadline)
                 .weight(.semibold)
-                .color(Colors.textSecondary)
+                .color(Color("TextSecondary"))
         }
     }
 }

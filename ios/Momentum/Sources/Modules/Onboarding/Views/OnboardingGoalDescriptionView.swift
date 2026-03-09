@@ -24,17 +24,17 @@ struct OnboardingGoalDescriptionView: View {
 
             ZStack(alignment: .topLeading) {
                 RoundedRectangle(cornerRadius: 12)
-                    .fill(Colors.fieldBackground)
+                    .fill(Color("BgSurface"))
 
                 RoundedRectangle(cornerRadius: 12)
                     .stroke(
-                        isFocused ? Colors.fieldBorderFocused : Colors.fieldBorderDefault,
+                        isFocused ? Color("TintPrimary") : Color("TextSecondary").opacity(0.2),
                         lineWidth: 2
                     )
 
                 if goalDescription.isEmpty && !isFocused {
                     AppText("onboarding.goal.placeholder", table: "Onboarding", style: .body)
-                        .color(Colors.textPlaceholder)
+                        .color(Color("TextSecondary"))
                         .padding(16)
                 }
 

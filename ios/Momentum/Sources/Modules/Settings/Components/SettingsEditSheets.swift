@@ -159,17 +159,17 @@ struct EditLanguageSheet: View {
 
                                 Spacer()
 
-                                TablerIcons(.circleCheck, size: 24, color: Colors.accent)
+                                TablerIcons(.circleCheck, size: 24, color: Color("TintPrimary"))
                                     .opacity(selectedLanguage == code ? 1 : 0)
                                     .scaleEffect(selectedLanguage == code ? 1 : 0.5)
                                     .animation(.spring(response: 0.3, dampingFraction: 0.7), value: selectedLanguage)
                             }
                             .padding(16)
                             .contentShape(Rectangle())
-                            .background(Colors.fieldBackground, in: RoundedRectangle(cornerRadius: 12))
+                            .background(Color("BgSurface"), in: RoundedRectangle(cornerRadius: 12))
                             .overlay(
                                 RoundedRectangle(cornerRadius: 12)
-                                    .stroke(selectedLanguage == code ? Colors.accent : Colors.fieldBorderDefault, lineWidth: selectedLanguage == code ? 2 : 1)
+                                    .stroke(selectedLanguage == code ? Color("TintPrimary") : Color("TextSecondary").opacity(0.2), lineWidth: selectedLanguage == code ? 2 : 1)
                                     .animation(.spring(response: 0.3, dampingFraction: 0.7), value: selectedLanguage)
                             )
                         }

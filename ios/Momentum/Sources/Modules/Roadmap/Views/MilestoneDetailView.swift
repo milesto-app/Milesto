@@ -35,12 +35,12 @@ struct MilestoneDetailView: View {
     private var descriptionCard: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack(spacing: 8) {
-                TablerIcons(.notebook, size: 20, color: Colors.accent)
+                TablerIcons(.notebook, size: 20, color: Color("TintPrimary"))
                 AppText("roadmap.milestone.description", table: "Roadmap", style: .headline)
             }
 
             AppText(verbatim: description, style: .body)
-                .color(Colors.textSecondary)
+                .color(Color("TextSecondary"))
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(16)
@@ -50,12 +50,12 @@ struct MilestoneDetailView: View {
     private var expectedOutcomeCard: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack(spacing: 8) {
-                TablerIcons(.flag, size: 20, color: Colors.accent)
+                TablerIcons(.flag, size: 20, color: Color("TintPrimary"))
                 AppText("roadmap.milestone.expectedOutcome", table: "Roadmap", style: .headline)
             }
 
             AppText(verbatim: expectedOutcome, style: .body)
-                .color(Colors.textSecondary)
+                .color(Color("TextSecondary"))
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(16)
@@ -65,7 +65,7 @@ struct MilestoneDetailView: View {
     private var targetCard: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack(spacing: 8) {
-                TablerIcons(.calendar, size: 20, color: Colors.accent)
+                TablerIcons(.calendar, size: 20, color: Color("TintPrimary"))
                 AppText("roadmap.milestone.target", table: "Roadmap", style: .headline)
             }
 
@@ -76,7 +76,7 @@ struct MilestoneDetailView: View {
                 ),
                 style: .body
             )
-            .color(Colors.accent)
+            .color(Color("TintPrimary"))
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(16)

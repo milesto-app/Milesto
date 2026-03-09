@@ -13,23 +13,23 @@ struct StatsHeroCard: View {
                 VStack(alignment: .leading, spacing: 2) {
                     AppText("stats.hero.overallProgress", table: "Stats", style: .headline)
                     AppText(verbatim: "\(completedCount)/\(totalCount)", style: .caption)
-                        .color(Colors.textSecondary)
+                        .color(Color("TextSecondary"))
                 }
 
                 Spacer()
 
                 AppText(verbatim: "\(Int(animatedRate * 100))%", style: .title)
                     .weight(.bold)
-                    .color(Colors.accent)
+                    .color(Color("TintPrimary"))
             }
 
             GeometryReader { geometry in
                 ZStack(alignment: .leading) {
                     Capsule()
-                        .fill(Colors.textSecondary.opacity(0.12))
+                        .fill(Color("TextSecondary").opacity(0.12))
 
                     Capsule()
-                        .fill(Colors.accent)
+                        .fill(Color("TintPrimary"))
                         .frame(width: geometry.size.width * animatedRate)
                 }
             }

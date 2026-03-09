@@ -26,20 +26,20 @@ struct MilestoneStatusBadge: View {
     var body: some View {
         HStack(spacing: 4) {
             if let icon {
-                TablerIcons(icon, size: 14, color: isAccented ? Colors.textOnAccent : Colors.textSecondary)
+                TablerIcons(icon, size: 14, color: isAccented ? Color("TextOnAccent") : Color("TextSecondary"))
             }
 
             AppText(verbatim: label, style: .caption)
                 .weight(.semibold)
-                .color(isAccented ? Colors.textOnAccent : Colors.textSecondary)
+                .color(isAccented ? Color("TextOnAccent") : Color("TextSecondary"))
         }
         .padding(.horizontal, 12)
         .padding(.vertical, 4)
         .background {
             if isAccented {
-                Capsule().fill(Colors.accent)
+                Capsule().fill(Color("TintPrimary"))
             } else {
-                Capsule().stroke(Colors.textSecondary, lineWidth: 1)
+                Capsule().stroke(Color("TextSecondary"), lineWidth: 1)
             }
         }
     }

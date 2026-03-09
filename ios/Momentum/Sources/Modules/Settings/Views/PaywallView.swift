@@ -43,9 +43,9 @@ struct PaywallView: View {
             Button {
                 dismiss()
             } label: {
-                TablerIcons(.x, size: 20, color: Colors.textSecondary)
+                TablerIcons(.x, size: 20, color: Color("TextSecondary"))
                     .frame(width: 36, height: 36)
-                    .background(Colors.fieldBackground)
+                    .background(Color("BgSurface"))
                     .clipShape(Circle())
             }
             .padding(.top, 16)
@@ -65,10 +65,10 @@ struct PaywallView: View {
         VStack(spacing: 16) {
             ZStack {
                 Circle()
-                    .fill(Colors.accent.opacity(0.12))
+                    .fill(Color("TintPrimary").opacity(0.12))
                     .frame(width: 88, height: 88)
 
-                TablerIcons(.crown, size: 40, color: Colors.accent)
+                TablerIcons(.crown, size: 40, color: Color("TintPrimary"))
             }
 
             VStack(spacing: 8) {
@@ -110,11 +110,11 @@ struct PaywallView: View {
             VStack(spacing: 8) {
                 if let badge {
                     AppText(verbatim: badge, style: .caption)
-                        .color(Colors.textOnAccent)
+                        .color(Color("TextOnAccent"))
                         .weight(.semibold)
                         .padding(.horizontal, 8)
                         .padding(.vertical, 4)
-                        .background(Colors.accent)
+                        .background(Color("TintPrimary"))
                         .clipShape(Capsule())
                 } else {
                     Spacer()
@@ -122,19 +122,19 @@ struct PaywallView: View {
                 }
 
                 AppText(verbatim: price, style: .title)
-                    .color(isSelected ? Colors.textPrimary : Colors.textSecondary)
+                    .color(isSelected ? Color("TextPrimary") : Color("TextSecondary"))
 
                 AppText(verbatim: period, style: .caption)
-                    .color(Colors.textSecondary)
+                    .color(Color("TextSecondary"))
             }
             .frame(maxWidth: .infinity)
             .padding(.vertical, 16)
             .padding(.horizontal, 12)
-            .background(Colors.fieldBackground)
+            .background(Color("BgSurface"))
             .cornerRadius(16)
             .overlay(
                 RoundedRectangle(cornerRadius: 16)
-                    .stroke(isSelected ? Colors.accent : Color.clear, lineWidth: 2)
+                    .stroke(isSelected ? Color("TintPrimary") : Color.clear, lineWidth: 2)
             )
         }
         .buttonStyle(.plain)
@@ -149,20 +149,20 @@ struct PaywallView: View {
             featureRow(icon: .refresh, key: "paywall.feature.replan")
         }
         .padding(16)
-        .background(Colors.fieldBackground)
+        .background(Color("BgSurface"))
         .cornerRadius(16)
     }
 
     private func featureRow(icon: TablerIconOutline, key: LocalizedStringKey) -> some View {
         HStack(spacing: 12) {
-            TablerIcons(icon, size: 22, color: Colors.accent)
+            TablerIcons(icon, size: 22, color: Color("TintPrimary"))
                 .frame(width: 28)
 
             AppText(key, table: "Paywall", style: .body)
 
             Spacer()
 
-            TablerIcons(.circleCheck, size: 20, color: Colors.accent)
+            TablerIcons(.circleCheck, size: 20, color: Color("TintPrimary"))
         }
         .padding(.vertical, 12)
     }
