@@ -30,7 +30,7 @@ struct ProfileGateView: View {
                     Tab(value: 0) {
                         HomeView(goalId: activeGoalId ?? "", firstName: localProfile?.firstName ?? "")
                     } label: {
-                        TablerTabLabel(.home2, title: String(localized: "tabs.home", table: "Common"))
+                        TablerTabLabel(.home, title: String(localized: "tabs.home", table: "Common"))
                     }
 
                     Tab(value: 1) {
@@ -66,7 +66,7 @@ struct ProfileGateView: View {
                     Tab(value: 4, role: .search) {
                         Color.clear
                     } label: {
-                        TablerTabLabel(.sparkles, title: String(localized: "tabs.chat", table: "Common"))
+                        TablerTabLabel(.brain, title: String(localized: "tabs.chat", table: "Common"))
                     }
                 }
                 .labelStyle(.titleAndIcon)
