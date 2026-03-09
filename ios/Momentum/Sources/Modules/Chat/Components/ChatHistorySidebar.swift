@@ -13,7 +13,7 @@ struct ChatHistorySidebar: View {
     var body: some View {
         ZStack(alignment: .leading) {
             if isOpen {
-                Color("TextPrimary").opacity(0.4)
+                Color.black.opacity(0.4)
                     .ignoresSafeArea()
                     .onTapGesture { dismiss() }
                     .transition(.opacity)
