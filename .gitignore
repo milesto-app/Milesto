@@ -59,6 +59,8 @@ ios/*.moved-aside
 ios/*.xcuserstate
 ios/*.xcscmblueprint
 ios/*.xcscheme
+**/xcuserdata/
+**/*.xcuserstate
 
 # Swift Package Manager
 ios/.build/
