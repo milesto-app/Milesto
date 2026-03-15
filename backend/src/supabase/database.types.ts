@@ -528,11 +528,16 @@ export type Database = {
           content: string | null;
           conversation_id: string;
           created_at: string;
+          effective_timestamp: string | null;
           id: string;
           role: string;
+          source_timestamp: string | null;
+          source_type: string;
           tool_call_id: string | null;
           tool_calls: Json | null;
           tool_name: string | null;
+          turn_index: number | null;
+          voice_session_id: string | null;
         };
         Insert: {
           content?: string | null;
@@ -540,9 +545,13 @@ export type Database = {
           created_at?: string;
           id?: string;
           role: string;
+          source_timestamp?: string | null;
+          source_type?: string;
           tool_call_id?: string | null;
           tool_calls?: Json | null;
           tool_name?: string | null;
+          turn_index?: number | null;
+          voice_session_id?: string | null;
         };
         Update: {
           content?: string | null;
@@ -550,9 +559,13 @@ export type Database = {
           created_at?: string;
           id?: string;
           role?: string;
+          source_timestamp?: string | null;
+          source_type?: string;
           tool_call_id?: string | null;
           tool_calls?: Json | null;
           tool_name?: string | null;
+          turn_index?: number | null;
+          voice_session_id?: string | null;
         };
         Relationships: [
           {
@@ -560,6 +573,13 @@ export type Database = {
             columns: ['conversation_id'];
             isOneToOne: false;
             referencedRelation: 'conversations';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'messages_voice_session_id_fkey';
+            columns: ['voice_session_id'];
+            isOneToOne: false;
+            referencedRelation: 'voice_sessions';
             referencedColumns: ['id'];
           },
         ];
@@ -571,10 +591,12 @@ export type Database = {
           expected_outcome: string;
           goal_id: string;
           id: string;
+          is_monthly_checkpoint: boolean;
           monthly_summary: Json | null;
           order_index: number;
           roadmap_id: string;
           target_month: number;
+          target_week: number;
           title: string;
         };
         Insert: {
@@ -583,10 +605,12 @@ export type Database = {
           expected_outcome: string;
           goal_id: string;
           id?: string;
+          is_monthly_checkpoint?: boolean;
           monthly_summary?: Json | null;
           order_index: number;
           roadmap_id: string;
           target_month: number;
+          target_week?: number;
           title: string;
         };
         Update: {
@@ -595,10 +619,12 @@ export type Database = {
           expected_outcome?: string;
           goal_id?: string;
           id?: string;
+          is_monthly_checkpoint?: boolean;
           monthly_summary?: Json | null;
           order_index?: number;
           roadmap_id?: string;
           target_month?: number;
+          target_week?: number;
           title?: string;
         };
         Relationships: [

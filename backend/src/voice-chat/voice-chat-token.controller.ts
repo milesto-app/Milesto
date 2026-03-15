@@ -5,6 +5,7 @@ import {
   ForbiddenException,
   HttpCode,
   HttpStatus,
+  Logger,
   Param,
   Patch,
   Post,
@@ -17,8 +18,10 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 
+import { ChatHistoryService } from '../chat/chat-history.service.js';
 import { UserId } from '../common/decorators/user.decorator.js';
 import { AuthGuard } from '../common/guards/auth.guard.js';
+import { ClientTranscriptDto } from './dto/client-transcript.dto.js';
 import { CreateSessionDto } from './dto/create-session.dto.js';
 import { SetElevenLabsConversationIdDto } from './dto/set-elevenlabs-conversation-id.dto.js';
 import { VoiceChatSessionStore } from './voice-chat-session.store.js';
@@ -29,9 +32,12 @@ import { VoiceChatTokenService } from './voice-chat-token.service.js';
 @Controller('voice-chat')
 @UseGuards(AuthGuard)
 export class VoiceChatTokenController {
+  private readonly logger = new Logger(VoiceChatTokenController.name);
+
   constructor(
     private readonly tokenService: VoiceChatTokenService,
     private readonly sessionStore: VoiceChatSessionStore,
+    private readonly chatHistoryService: ChatHistoryService,
   ) {}
 
   @Post('session')
@@ -106,5 +112,53 @@ export class VoiceChatTokenController {
     }
 
     await this.sessionStore.endSession(sessionId);
+  }
+
+  @Post('session/:sessionId/client-transcript')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Submit client-collected voice transcript' })
+  @ApiResponse({ status: 200, description: 'Transcript stored' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Not session owner or expired' })
+  async submitClientTranscript(
+    @Param('sessionId') sessionId: string,
+    @Body() dto: ClientTranscriptDto,
+    @UserId() userId: string,
+  ): Promise<{ stored: number }> {
+    const session = await this.sessionStore.get(sessionId);
+
+    if (!session) {
+      throw new ForbiddenException('Session not found or expired');
+    }
+
+    if (session.userId !== userId) {
+      throw new ForbiddenException('Not session owner');
+    }
+
+    let stored = 0;
+    for (const turn of dto.turns) {
+      const role = turn.role === 'agent' ? 'assistant' : 'user';
+      try {
+        await this.chatHistoryService.storeVoiceMessage(
+          session.conversationId,
+          {
+            role: role as 'user' | 'assistant',
+            content: turn.content,
+            source_type: 'voice',
+            voice_session_id: sessionId,
+            turn_index: turn.turnIndex,
+            source_timestamp: turn.timestamp,
+          },
+        );
+        stored++;
+      } catch (error) {
+        this.logger.error(
+          `Failed to upsert client transcript turn ${String(turn.turnIndex)}`,
+          error instanceof Error ? error.stack : undefined,
+        );
+      }
+    }
+
+    return { stored };
   }
 }

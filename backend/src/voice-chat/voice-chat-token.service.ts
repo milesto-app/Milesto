@@ -3,6 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { randomUUID } from 'node:crypto';
 
 import { ChatHistoryService } from '../chat/chat-history.service.js';
+import { wrapPromptForVoice } from '../chat/chat-prompt.builder.js';
 import { ChatPromptService } from '../chat/chat-prompt.service.js';
 import { CoachService } from '../coach/coach.service.js';
 import { VoiceChatSessionStore } from './voice-chat-session.store.js';
@@ -70,8 +71,10 @@ export class VoiceChatTokenService {
 
     void this.sessionStore.purgeStale();
 
+    const voicePrompt = wrapPromptForVoice(systemPrompt);
+
     const overrides: SessionOverrides = {
-      prompt: systemPrompt,
+      prompt: voicePrompt,
       language: profile.language,
       voiceId: coach.elevenlabs_voice_id,
     };
@@ -91,7 +94,15 @@ export class VoiceChatTokenService {
     conversationId?: string,
   ): Promise<string> {
     if (conversationId) {
-      await this.chatHistoryService.getConversation(conversationId, userId);
+      const conversation = await this.chatHistoryService.getConversation(
+        conversationId,
+        userId,
+      );
+      if (conversation.goal_id !== goalId) {
+        throw new BadRequestException(
+          'Conversation does not belong to the specified goal',
+        );
+      }
       return conversationId;
     }
 

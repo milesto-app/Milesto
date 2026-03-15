@@ -46,30 +46,30 @@ export class VoiceChatTranscriptController {
       return { status: 'ok' };
     }
 
-    const claimed = await this.sessionStore.markTranscriptStored(session.id);
-    if (!claimed) {
-      this.logger.warn(
-        `Transcript already stored for session ${session.id}, skipping duplicate`,
-      );
-      return { status: 'ok' };
-    }
-
     const turns = body.transcript ?? [];
 
-    for (const turn of turns) {
+    for (const [index, turn] of turns.entries()) {
       const role = turn.role === 'agent' ? 'assistant' : 'user';
       try {
-        await this.chatHistoryService.storeMessage(session.conversationId, {
-          role: role as 'user' | 'assistant',
-          content: turn.message,
-        });
+        await this.chatHistoryService.storeVoiceMessage(
+          session.conversationId,
+          {
+            role: role as 'user' | 'assistant',
+            content: turn.message,
+            source_type: 'voice',
+            voice_session_id: session.id,
+            turn_index: index,
+          },
+        );
       } catch (error) {
         this.logger.error(
-          `Failed to store transcript turn: ${error instanceof Error ? error.message : String(error)}`,
+          `Failed to upsert transcript turn ${String(index)}`,
           error instanceof Error ? error.stack : undefined,
         );
       }
     }
+
+    await this.sessionStore.markTranscriptStored(session.id);
 
     return { status: 'ok' };
   }

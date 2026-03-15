@@ -113,6 +113,17 @@ struct ChatView: View {
 
                 Spacer()
 
+                Button {
+                    isVoiceChatActive = true
+                } label: {
+                    TablerIcons(.microphone, size: 24, color: Color("TextPrimary"))
+                        .frame(width: 44, height: 44)
+                        .glassEffect(.regular.interactive(), in: .circle)
+                }
+                .disabled(isStreaming)
+                .opacity(isStreaming ? 0.5 : 1)
+                .accessibilityLabel(String(localized: "chat.voice.start", table: "Chat"))
+
                 if let onClose {
                     Button(action: onClose) {
                         TablerIcons(.x, size: 24, color: Color("TextPrimary"))
@@ -156,7 +167,11 @@ struct ChatView: View {
         .alert(String(localized: "chat.error.generic", table: "Chat"), isPresented: $showError) {
             Button(String(localized: "common.ok", table: "Common"), role: .cancel) {}
         }
-        .fullScreenCover(isPresented: $isVoiceChatActive) {
+        .fullScreenCover(isPresented: $isVoiceChatActive, onDismiss: {
+            if let conversationId {
+                refreshConversation(conversationId)
+            }
+        }) {
             VoiceChatOverlay(
                 goalId: goalId,
                 conversationId: $conversationId,
@@ -386,6 +401,19 @@ struct ChatView: View {
                     showError = true
                 }
             }
+        }
+    }
+
+    private func refreshConversation(_ id: String) {
+        Task {
+            do {
+                let loadedMessages = try await ChatAPIService.shared.getConversationMessages(conversationId: id)
+                withAnimation {
+                    conversationId = id
+                    messages = loadedMessages
+                }
+                syncMessagesToCache(loadedMessages, conversationId: id)
+            } catch {}
         }
     }
 

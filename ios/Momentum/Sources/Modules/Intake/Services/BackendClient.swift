@@ -21,7 +21,7 @@ enum BackendError: LocalizedError {
 final class BackendClient {
     static let shared = BackendClient()
 
-    let baseURLString = "http://localhost:3000/api"
+    let baseURLString = "https://backend.momentum-ai.app/api"
     private lazy var baseURL = URL(string: baseURLString)!
     private let decoder = JSONDecoder()
     private let encoder = JSONEncoder()
