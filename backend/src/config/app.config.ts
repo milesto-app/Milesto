@@ -40,9 +40,8 @@ export const config = {
     model: 'rerank-v3.5',
   },
   voice: {
-    sttModel: 'gemini-2.5-flash',
-    ttsModel: 'gemini-2.5-flash-preview-tts',
-    liveModel: 'gemini-2.5-flash-native-audio-preview-12-2025',
+    ttsModelId: 'eleven_flash_v2_5',
+    outputFormat: 'mp3_44100_128' as const,
     callTimeoutMs: 30_000,
     maxAudioSizeBytes: 10_485_760,
     supportedInputFormats: [
@@ -51,7 +50,6 @@ export const config = {
       'audio/mp4',
       'audio/webm',
     ],
-    outputSampleRate: 24_000,
     sessionDurationMs: 840_000,
     sessionWarningMs: 780_000,
   },

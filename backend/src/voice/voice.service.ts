@@ -42,7 +42,7 @@ export class VoiceService {
 
     const { data, error } = await supabase
       .from('coaches')
-      .select('google_voice_name')
+      .select('elevenlabs_voice_id')
       .eq('id', coachId)
       .eq('is_active', true)
       .single();
@@ -51,6 +51,6 @@ export class VoiceService {
       throw new NotFoundException(`Coach with id ${String(coachId)} not found`);
     }
 
-    return (data as { google_voice_name: string }).google_voice_name;
+    return (data as { elevenlabs_voice_id: string }).elevenlabs_voice_id;
   }
 }

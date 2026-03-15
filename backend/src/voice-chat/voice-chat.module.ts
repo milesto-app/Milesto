@@ -2,18 +2,26 @@ import { Module } from '@nestjs/common';
 
 import { ChatModule } from '../chat/chat.module.js';
 import { CoachModule } from '../coach/coach.module.js';
-import { GeminiLiveService } from './gemini-live.service.js';
-import { VoiceChatGateway } from './voice-chat.gateway.js';
-import { VoiceChatAuthService } from './voice-chat-auth.service.js';
-import { VoiceChatSessionService } from './voice-chat-session.service.js';
+import { ElevenLabsToolAuthGuard } from './guards/elevenlabs-tool-auth.guard.js';
+import { ElevenLabsWebhookAuthGuard } from './guards/elevenlabs-webhook-auth.guard.js';
+import { VoiceChatSessionStore } from './voice-chat-session.store.js';
+import { VoiceChatTokenController } from './voice-chat-token.controller.js';
+import { VoiceChatTokenService } from './voice-chat-token.service.js';
+import { VoiceChatToolsController } from './voice-chat-tools.controller.js';
+import { VoiceChatTranscriptController } from './voice-chat-transcript.controller.js';
 
 @Module({
   imports: [ChatModule, CoachModule],
+  controllers: [
+    VoiceChatTokenController,
+    VoiceChatToolsController,
+    VoiceChatTranscriptController,
+  ],
   providers: [
-    GeminiLiveService,
-    VoiceChatAuthService,
-    VoiceChatSessionService,
-    VoiceChatGateway,
+    VoiceChatSessionStore,
+    VoiceChatTokenService,
+    ElevenLabsToolAuthGuard,
+    ElevenLabsWebhookAuthGuard,
   ],
 })
 export class VoiceChatModule {}

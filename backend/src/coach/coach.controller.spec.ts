@@ -17,7 +17,7 @@ const MOCK_COACH: Coach = {
   description_fr: 'Un coach energique',
   description_en: 'An energetic coach',
   icon: 'fire',
-  google_voice_name: 'Kore',
+  elevenlabs_voice_id: 'Kore',
   is_active: true,
 };
 

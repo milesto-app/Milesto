@@ -1,21 +1,23 @@
-import { GoogleGenAI } from '@google/genai';
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { ElevenLabsClient } from 'elevenlabs';
+import type { Readable } from 'stream';
 
 import { config } from '../config/app.config.js';
 import type { SynthesisResult } from './voice.types.js';
 
-const CONTENT_TYPE = 'audio/wav';
-const WAV_BYTES_PER_SECOND = 48_000;
+const CONTENT_TYPE = 'audio/mpeg';
+const MP3_BITRATE_BYTES_PER_SECOND = 16_000;
 
 @Injectable()
 export class VoiceTtsService {
   private readonly logger = new Logger(VoiceTtsService.name);
-  private readonly ai: GoogleGenAI;
+  private readonly client: ElevenLabsClient;
 
   constructor(private readonly configService: ConfigService) {
-    const apiKey = this.configService.getOrThrow<string>('GOOGLE_AI_API_KEY');
-    this.ai = new GoogleGenAI({ apiKey });
+    this.client = new ElevenLabsClient({
+      apiKey: this.configService.getOrThrow<string>('ELEVENLABS_API_KEY'),
+    });
   }
 
   public async synthesize(
@@ -23,8 +25,14 @@ export class VoiceTtsService {
     voiceId: string,
   ): Promise<SynthesisResult> {
     try {
-      const audioBuffer = await this.callGeminiTts(text, voiceId);
-      const duration = this.estimateDuration(audioBuffer);
+      const audioStream = await this.client.textToSpeech.convert(voiceId, {
+        text,
+        model_id: config.voice.ttsModelId,
+        output_format: config.voice.outputFormat,
+      });
+
+      const audioBuffer = await this.streamToBuffer(audioStream);
+      const duration = audioBuffer.length / MP3_BITRATE_BYTES_PER_SECOND;
 
       this.logger.log(
         `Synthesis complete: ${String(audioBuffer.length)} bytes`,
@@ -44,29 +52,11 @@ export class VoiceTtsService {
     }
   }
 
-  private async callGeminiTts(text: string, voiceId: string): Promise<Buffer> {
-    const response = await this.ai.models.generateContent({
-      model: config.voice.ttsModel,
-      contents: [{ role: 'user', parts: [{ text }] }],
-      config: {
-        responseModalities: ['AUDIO'],
-        speechConfig: {
-          voiceConfig: { prebuiltVoiceConfig: { voiceName: voiceId } },
-        },
-      },
-    });
-
-    const audioPart = response.candidates?.[0]?.content?.parts?.[0];
-    const audioData = audioPart?.inlineData?.data;
-
-    if (audioData === undefined) {
-      throw new Error('Gemini TTS returned no audio data');
+  private async streamToBuffer(stream: Readable): Promise<Buffer> {
+    const chunks: Buffer[] = [];
+    for await (const chunk of stream) {
+      chunks.push(Buffer.from(chunk as Buffer));
     }
-
-    return Buffer.from(audioData, 'base64');
-  }
-
-  private estimateDuration(audioBuffer: Buffer): number {
-    return audioBuffer.length / WAV_BYTES_PER_SECOND;
+    return Buffer.concat(chunks);
   }
 }

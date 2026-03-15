@@ -6,14 +6,11 @@ import type {
 
 import { AiService } from '../ai/ai.service.js';
 import { config } from '../config/app.config.js';
-import { ChatCheckInToolsService } from './chat-checkin-tools.service.js';
 import { ChatHistoryService } from './chat-history.service.js';
 import { ChatPromptService } from './chat-prompt.service.js';
-import { ChatRoadmapToolsService } from './chat-roadmap-tools.service.js';
 import type { ToolCallResult } from './chat-stream.utils.js';
 import { consumeStream, toOpenAiMessages } from './chat-stream.utils.js';
-import { buildToolRegistry } from './chat-tool-registry.js';
-import { ChatToolsService } from './chat-tools.service.js';
+import { ChatToolRegistryService } from './chat-tool-registry.service.js';
 import type { SendMessageDto } from './dto/send-message.dto.js';
 import type {
   ChatStreamEvent,
@@ -38,15 +35,9 @@ export class ChatService {
     private readonly ai: AiService,
     private readonly history: ChatHistoryService,
     private readonly prompt: ChatPromptService,
-    private readonly toolsService: ChatToolsService,
-    private readonly checkInToolsService: ChatCheckInToolsService,
-    private readonly roadmapToolsService: ChatRoadmapToolsService,
+    private readonly toolRegistryService: ChatToolRegistryService,
   ) {
-    this.toolRegistry = buildToolRegistry({
-      toolsService: this.toolsService,
-      checkInToolsService: this.checkInToolsService,
-      roadmapToolsService: this.roadmapToolsService,
-    });
+    this.toolRegistry = this.toolRegistryService.getRegistry();
   }
 
   public async handleMessage(

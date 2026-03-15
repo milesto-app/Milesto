@@ -9,6 +9,7 @@ import { ChatHistoryService } from './chat-history.service.js';
 import { ChatPromptService } from './chat-prompt.service.js';
 import { ChatRoadmapToolsService } from './chat-roadmap-tools.service.js';
 import { ChatSearchService } from './chat-search.service.js';
+import { ChatToolRegistryService } from './chat-tool-registry.service.js';
 import { ChatToolsService } from './chat-tools.service.js';
 
 @Module({
@@ -20,6 +21,7 @@ import { ChatToolsService } from './chat-tools.service.js';
     ChatToolsService,
     ChatCheckInToolsService,
     ChatRoadmapToolsService,
+    ChatToolRegistryService,
     ChatPromptService,
     ChatService,
   ],
@@ -28,6 +30,7 @@ import { ChatToolsService } from './chat-tools.service.js';
     ChatToolsService,
     ChatCheckInToolsService,
     ChatRoadmapToolsService,
+    ChatToolRegistryService,
     ChatPromptService,
     ChatService,
   ],

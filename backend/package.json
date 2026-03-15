@@ -20,23 +20,20 @@
     "eval": "nest build && node dist/eval/run-eval.js"
   },
   "dependencies": {
-    "@google/genai": "^1.43.0",
     "@nestjs/common": "^11.1.14",
     "@nestjs/config": "^4.0.3",
     "@nestjs/core": "^11.1.14",
     "@nestjs/event-emitter": "^3.0.1",
     "@nestjs/platform-express": "^11.1.14",
-    "@nestjs/platform-ws": "^11.1.14",
     "@nestjs/swagger": "^11.2.6",
     "@nestjs/throttler": "^6.5.0",
-    "@nestjs/websockets": "^11.1.14",
     "@supabase/supabase-js": "^2.98.0",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.15.1",
+    "elevenlabs": "^1.59.0",
     "openai": "^6.25.0",
     "reflect-metadata": "^0.2.2",
-    "rxjs": "^7.8.2",
-    "ws": "^8.19.0"
+    "rxjs": "^7.8.2"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.4",
@@ -49,7 +46,6 @@
     "@types/multer": "^2.0.0",
     "@types/node": "^25.3.3",
     "@types/supertest": "^7.2.0",
-    "@types/ws": "^8.18.1",
     "eslint": "^10.0.2",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-prettier": "^5.5.5",

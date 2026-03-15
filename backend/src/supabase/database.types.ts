@@ -93,7 +93,7 @@ export type Database = {
           description_fr: string;
           display_name_en: string;
           display_name_fr: string;
-          google_voice_name: string;
+          elevenlabs_voice_id: string;
           icon: string;
           id: number;
           is_active: boolean;
@@ -105,7 +105,7 @@ export type Database = {
           description_fr: string;
           display_name_en: string;
           display_name_fr: string;
-          google_voice_name?: string;
+          elevenlabs_voice_id?: string;
           icon: string;
           id?: number;
           is_active?: boolean;
@@ -117,7 +117,7 @@ export type Database = {
           description_fr?: string;
           display_name_en?: string;
           display_name_fr?: string;
-          google_voice_name?: string;
+          elevenlabs_voice_id?: string;
           icon?: string;
           id?: number;
           is_active?: boolean;
@@ -746,6 +746,48 @@ export type Database = {
             referencedColumns: ['id'];
           },
         ];
+      };
+      voice_sessions: {
+        Row: {
+          conversation_id: string;
+          created_at: string;
+          elevenlabs_conversation_id: string | null;
+          ended_at: string | null;
+          expires_at: string;
+          goal_id: string;
+          id: string;
+          session_secret_hash: string;
+          status: string;
+          transcript_stored: boolean;
+          user_id: string;
+        };
+        Insert: {
+          conversation_id: string;
+          created_at?: string;
+          elevenlabs_conversation_id?: string | null;
+          ended_at?: string | null;
+          expires_at: string;
+          goal_id: string;
+          id?: string;
+          session_secret_hash: string;
+          status?: string;
+          transcript_stored?: boolean;
+          user_id: string;
+        };
+        Update: {
+          conversation_id?: string;
+          created_at?: string;
+          elevenlabs_conversation_id?: string | null;
+          ended_at?: string | null;
+          expires_at?: string;
+          goal_id?: string;
+          id?: string;
+          session_secret_hash?: string;
+          status?: string;
+          transcript_stored?: boolean;
+          user_id?: string;
+        };
+        Relationships: [];
       };
       weekly_plans: {
         Row: {

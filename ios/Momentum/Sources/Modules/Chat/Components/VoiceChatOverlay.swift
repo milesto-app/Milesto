@@ -1,3 +1,4 @@
+import ElevenLabs
 import SwiftUI
 
 struct VoiceChatOverlay: View {
@@ -7,11 +8,8 @@ struct VoiceChatOverlay: View {
     let coachIcon: TablerIconOutline
     var onClose: () -> Void
 
-    @State private var voiceChatService = VoiceChatService()
-    @State private var audioStream = AudioStreamService()
-    @State private var pcmPlayer = PCMAudioPlayerService()
+    @State private var conversationService = ElevenLabsConversationService()
     @State private var isMuted = false
-    @State private var activeToolName: String?
     @State private var sessionTimeRemaining: TimeInterval = 840
     @State private var isConnecting = true
     @State private var errorMessage: String?
@@ -44,11 +42,6 @@ struct VoiceChatOverlay: View {
 
                 Spacer()
 
-                if let toolName = activeToolName {
-                    ToolStatusIndicator(toolName: toolName)
-                        .padding(.bottom, 16)
-                }
-
                 bottomControls
                     .padding(.bottom, 40)
             }
@@ -57,6 +50,35 @@ struct VoiceChatOverlay: View {
         .ignoresSafeArea()
         .task { await startSession() }
         .onDisappear { cleanup() }
+        .onChange(of: conversationService.agentState) { _, newState in
+            switch newState {
+            case .speaking:
+                voiceState = .liveResponding
+                withAnimation(.easeInOut(duration: 0.6).repeatForever(autoreverses: true)) {
+                    pulseScale = 1.15
+                }
+            case .listening:
+                voiceState = .liveListening
+                withAnimation(.easeInOut(duration: 0.8).repeatForever(autoreverses: true)) {
+                    pulseScale = 1.08
+                }
+            case .thinking:
+                voiceState = .liveToolRunning
+                withAnimation(.easeInOut(duration: 0.4).repeatForever(autoreverses: true)) {
+                    pulseScale = 1.05
+                }
+            }
+        }
+        .onChange(of: conversationService.isSessionActive) { _, isActive in
+            if !isActive && !isConnecting {
+                voiceState = .idle
+                errorMessage = String(localized: "chat.voice.sessionExpired", table: "Chat")
+            }
+        }
+        .onReceive(NotificationCenter.default.publisher(for: UIApplication.willResignActiveNotification)) { _ in
+            cleanup()
+            onClose()
+        }
     }
 
     private var topBar: some View {
@@ -136,9 +158,6 @@ struct VoiceChatOverlay: View {
         case .liveResponding:
             AppText("chat.voice.speaking", table: "Chat", style: .subheadline)
                 .color(Color("TextOnAccent").opacity(0.8))
-        case .liveToolRunning:
-            AppText("chat.voice.speaking", table: "Chat", style: .subheadline)
-                .color(Color("TextOnAccent").opacity(0.8))
         default:
             AppText("chat.voice.listening", table: "Chat", style: .subheadline)
                 .color(Color("TextOnAccent").opacity(0.8))
@@ -187,73 +206,9 @@ struct VoiceChatOverlay: View {
     }
 
     private func startSession() async {
-        let granted = await audioStream.requestPermission()
-        guard granted else {
-            errorMessage = String(localized: "chat.voice.error", table: "Chat")
-            isConnecting = false
-            return
-        }
-
-        voiceChatService.onAudioReceived = { (data: Data) in
-            pcmPlayer.enqueueChunk(data: data)
-            voiceState = .liveResponding
-            withAnimation(.easeInOut(duration: 0.6).repeatForever(autoreverses: true)) {
-                pulseScale = 1.15
-            }
-        }
-
-        voiceChatService.onToolStart = { (toolName: String) in
-            activeToolName = toolName
-            voiceState = .liveToolRunning
-        }
-
-        voiceChatService.onToolEnd = { (_: String) in
-            activeToolName = nil
-        }
-
-        voiceChatService.onTurnComplete = {
-            voiceState = .liveListening
-            withAnimation(.easeInOut(duration: 0.8).repeatForever(autoreverses: true)) {
-                pulseScale = 1.08
-            }
-        }
-
-        voiceChatService.onInterrupted = {
-            pcmPlayer.interrupt()
-            voiceState = .liveListening
-        }
-
-        voiceChatService.onSessionWarning = { (remainingMs: Int) in
-            sessionTimeRemaining = Double(remainingMs) / 1000.0
-        }
-
-        voiceChatService.onSessionExpired = {
-            voiceState = .idle
-            errorMessage = String(localized: "chat.voice.sessionExpired", table: "Chat")
-            stopAudio()
-        }
-
-        voiceChatService.onError = { (message: String) in
-            errorMessage = message
-            voiceState = .idle
-            stopAudio()
-        }
-
-        audioStream.onAudioCaptured = { (data: Data) in
-            if !isMuted {
-                if voiceState == .liveResponding {
-                    pcmPlayer.interrupt()
-                    voiceState = .liveListening
-                }
-                voiceChatService.sendAudio(data: data)
-            }
-        }
-
         do {
-            try await voiceChatService.connect(goalId: goalId, conversationId: conversationId)
-            conversationId = voiceChatService.conversationId
-            try pcmPlayer.start()
-            try audioStream.startStreaming()
+            try await conversationService.connect(goalId: goalId, conversationId: conversationId)
+            conversationId = conversationService.conversationId
             isConnecting = false
             voiceState = .liveListening
 
@@ -270,6 +225,7 @@ struct VoiceChatOverlay: View {
 
     private func toggleMute() {
         isMuted.toggle()
+        conversationService.setMuted(isMuted)
     }
 
     private func dismissOverlay() {
@@ -277,17 +233,11 @@ struct VoiceChatOverlay: View {
         onClose()
     }
 
-    private func stopAudio() {
-        audioStream.stopStreaming()
-        pcmPlayer.stop()
-    }
-
     private func cleanup() {
         timer?.invalidate()
         timer = nil
-        stopAudio()
-        voiceChatService.disconnect()
-        conversationId = voiceChatService.conversationId
+        conversationService.disconnect()
+        conversationId = conversationService.conversationId
     }
 
     private func startTimer() {
