@@ -128,7 +128,7 @@ export class WeeklyPlanStorageService {
   ): Promise<{ roadmap: Roadmap; milestone: Milestone }> {
     const supabase = this.supabaseService.getAdminClient();
     const roadmap = await this.loadRoadmap(supabase, goalId, userId);
-    const milestone = await this.loadFirstMilestone(supabase, roadmap.id);
+    const milestone = await this.loadActiveMilestone(supabase, roadmap, goalId);
     return { roadmap, milestone };
   }
 
@@ -162,10 +162,36 @@ export class WeeklyPlanStorageService {
     return roadmap as Roadmap;
   }
 
-  private async loadFirstMilestone(
+  private async loadActiveMilestone(
+    supabase: ReturnType<SupabaseService['getAdminClient']>,
+    roadmap: Roadmap,
+    goalId: string,
+  ): Promise<Milestone> {
+    const milestones = await this.loadAllMilestones(supabase, roadmap.id);
+    if (milestones.length === 1) {
+      return milestones[0]!;
+    }
+
+    const historyIndex = await this.getLastPlanMilestoneIndex(
+      supabase,
+      roadmap.id,
+      milestones,
+    );
+    const timeIndex = await this.getTimeBasedMilestoneIndex(
+      supabase,
+      roadmap,
+      goalId,
+      milestones.length,
+    );
+
+    const activeIndex = Math.max(historyIndex, timeIndex);
+    return milestones[activeIndex]!;
+  }
+
+  private async loadAllMilestones(
     supabase: ReturnType<SupabaseService['getAdminClient']>,
     roadmapId: string,
-  ): Promise<Milestone> {
+  ): Promise<Milestone[]> {
     const { data: milestones, error } = await supabase
       .from('milestones')
       .select('*')
@@ -175,6 +201,60 @@ export class WeeklyPlanStorageService {
     if (error || milestones === null || milestones.length === 0) {
       throw new NotFoundException('No milestones found for this roadmap');
     }
-    return milestones[0] as Milestone;
+    return milestones as Milestone[];
+  }
+
+  private async getLastPlanMilestoneIndex(
+    supabase: ReturnType<SupabaseService['getAdminClient']>,
+    roadmapId: string,
+    milestones: Milestone[],
+  ): Promise<number> {
+    const { data: lastPlan } = await supabase
+      .from('weekly_plans')
+      .select('milestone_id')
+      .eq('roadmap_id', roadmapId)
+      .order('week_number', { ascending: false })
+      .limit(1)
+      .single();
+
+    if (lastPlan === null || lastPlan === undefined) {
+      return 0;
+    }
+
+    const index = milestones.findIndex((m) => m.id === lastPlan.milestone_id);
+    return index >= 0 ? index : 0;
+  }
+
+  private async getTimeBasedMilestoneIndex(
+    supabase: ReturnType<SupabaseService['getAdminClient']>,
+    roadmap: Roadmap,
+    goalId: string,
+    milestoneCount: number,
+  ): Promise<number> {
+    const { data: goal } = await supabase
+      .from('goals')
+      .select('target_date')
+      .eq('id', goalId)
+      .single();
+
+    if (
+      goal?.target_date === null ||
+      goal?.target_date === undefined ||
+      roadmap.created_at === null ||
+      roadmap.created_at === undefined
+    ) {
+      return 0;
+    }
+
+    const start = new Date(roadmap.created_at).getTime();
+    const end = new Date(goal.target_date).getTime();
+
+    if (end <= start) {
+      return 0;
+    }
+
+    const now = Date.now();
+    const progress = Math.max(0, Math.min(1, (now - start) / (end - start)));
+    return Math.min(milestoneCount - 1, Math.floor(progress * milestoneCount));
   }
 }

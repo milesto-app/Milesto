@@ -19,10 +19,11 @@ Your task is to generate milestones working backward from the target deadline to
 Rules:
 - Produce a minimum of ${String(MIN_MILESTONES)} milestones
 - For goals with deadlines over ${String(MIN_MILESTONES)} months, produce 1 milestone per month
-- Each milestone should represent a meaningful monthly achievement toward the goal
+- For goals with shorter deadlines, milestones represent sequential phases within the available time
+- Each milestone should represent a meaningful phase of progress toward the goal
 - Consider the user's effort level, available time, and experience level
 - Milestones should be progressive, building on each other
-- Use backward planning: start from the final outcome and work backward to determine what must be achieved each month
+- Use backward planning: start from the final outcome and work backward to determine what must be achieved in each phase
 
 Return a JSON array of objects with these exact fields:
 - "title": A concise milestone title
@@ -64,6 +65,11 @@ export function buildMilestoneUserPrompt(
   }
 
   const constraintSection = buildConstraintSection(goal);
+  const isCompressed = monthsUntilDeadline < milestoneCount;
+
+  const requirementsSection = isCompressed
+    ? buildCompressedRequirements(milestoneCount, monthsUntilDeadline)
+    : `Generate exactly ${String(milestoneCount)} milestones using backward planning from month ${String(monthsUntilDeadline)} to month 1.`;
 
   return `## Goal
 Title: ${goal.title}
@@ -72,11 +78,21 @@ Deadline: ${goal.target_date ?? 'Not specified'}
 Months until deadline: ${String(monthsUntilDeadline)}
 
 ## Requirements
-Generate exactly ${String(milestoneCount)} milestones using backward planning from month ${String(monthsUntilDeadline)} to month 1.
+${requirementsSection}
 
 ${constraintSection}
 
 ${sections.join('\n\n')}`;
+}
+
+function buildCompressedRequirements(
+  milestoneCount: number,
+  monthsUntilDeadline: number,
+): string {
+  if (monthsUntilDeadline === 1) {
+    return `This is a short-term goal with only 1 month. Generate exactly ${String(milestoneCount)} milestones as sequential phases within that single month. Each milestone is a progressive phase, not a separate month. Set target_month to 1 for all milestones.`;
+  }
+  return `This goal has ${String(monthsUntilDeadline)} months but requires ${String(milestoneCount)} milestones. Generate exactly ${String(milestoneCount)} milestones as sequential phases, distributing them across the ${String(monthsUntilDeadline)} available months. Assign target_month values between 1 and ${String(monthsUntilDeadline)}, spreading milestones as evenly as possible across the months.`;
 }
 
 function buildConstraintSection(goal: GoalData): string {
