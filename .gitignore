@@ -61,6 +61,7 @@ ios/*.xcscmblueprint
 ios/*.xcscheme
 **/xcuserdata/
 **/*.xcuserstate
+ios/Momentum.xcodeproj/Momentum.xcodeproj/
 
 # Swift Package Manager
 ios/.build/
