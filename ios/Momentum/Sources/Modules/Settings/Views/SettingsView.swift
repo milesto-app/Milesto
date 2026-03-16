@@ -153,8 +153,11 @@ struct SettingsView: View {
 
                         VStack(spacing: 4) {
                             if !fullName.isEmpty {
-                                AppText(verbatim: fullName, style: .title)
-                                    .alignment(.center)
+                                HStack(spacing: 6) {
+                                    TablerIcons(.pencil, size: 16, color: .clear)
+                                    AppText(verbatim: fullName, style: .title)
+                                    TablerIcons(.pencil, size: 16, color: Color("TextSecondary"))
+                                }
                             }
 
                             if let email = localProfile?.email, !email.isEmpty {
