@@ -9,46 +9,51 @@ struct StatsView: View {
     @State private var loadError: Error?
 
     var body: some View {
-        Group {
-            if isLoading && stats == nil {
-                ProgressView()
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-            } else if let stats {
-                ScrollView(showsIndicators: false) {
-                    VStack(spacing: 12) {
-                        statsContent(stats)
+        NavigationStack {
+            ZStack {
+                if isLoading && stats == nil {
+                    ProgressView()
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                } else if let stats {
+                    GeometryReader { proxy in
+                        ScrollView(.vertical, showsIndicators: false) {
+                            VStack(spacing: 12) {
+                                statsContent(stats)
+                            }
+                            .frame(width: proxy.size.width - 40)
+                            .padding(.horizontal, 20)
+                            .padding(.top, 16)
+                            .padding(.bottom, 100)
+                        }
+                        .hapticRefreshable {
+                            await loadStats()
+                        }
                     }
-                    .safeAreaPadding(.horizontal, 20)
-                    .safeAreaPadding(.top, 16)
-                    .safeAreaPadding(.bottom, 100)
-                }
-                .hapticRefreshable {
-                    await loadStats()
-                }
-            } else if loadError != nil {
-                VStack(spacing: 24) {
-                    TablerIcons(.wifiOff, size: 48, color: Color("TextSecondary"))
+                } else if loadError != nil {
+                    VStack(spacing: 24) {
+                        TablerIcons(.wifiOff, size: 48, color: Color("TextSecondary"))
 
-                    AppText("stats.error.title", table: "Stats", style: .title)
-                        .alignment(.center)
+                        AppText("stats.error.title", table: "Stats", style: .title)
+                            .alignment(.center)
 
-                    AppText(verbatim: loadError?.localizedDescription ?? "", style: .caption)
-                        .color(Color("TextSecondary"))
-                        .alignment(.center)
+                        AppText(verbatim: loadError?.localizedDescription ?? "", style: .caption)
+                            .color(Color("TextSecondary"))
+                            .alignment(.center)
 
-                    AppButton("stats.error.retry", table: "Stats") {
-                        Task { await loadStats() }
+                        AppButton("stats.error.retry", table: "Stats") {
+                            Task { await loadStats() }
+                        }
                     }
-                }
-                .padding(32)
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-            } else {
-                StatsEmptyState()
+                    .padding(32)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
+                } else {
+                    StatsEmptyState()
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                }
             }
-        }
-        .task {
-            await loadStats()
+            .task {
+                await loadStats()
+            }
         }
     }
 

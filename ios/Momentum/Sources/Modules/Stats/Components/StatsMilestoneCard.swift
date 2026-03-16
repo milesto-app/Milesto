@@ -32,7 +32,7 @@ struct StatsMilestoneCard: View {
             }
             .frame(height: 10)
 
-            HStack(spacing: 6) {
+            LazyVGrid(columns: [GridItem(.adaptive(minimum: 10), spacing: 6)], alignment: .leading, spacing: 6) {
                 ForEach(0 ..< total, id: \.self) { index in
                     Circle()
                         .fill(index < completed ? Color("TintPrimary") : Color("TextSecondary").opacity(0.2))
@@ -43,7 +43,6 @@ struct StatsMilestoneCard: View {
                             value: isAnimated
                         )
                 }
-                Spacer()
             }
         }
         .padding(20)
