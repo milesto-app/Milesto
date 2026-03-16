@@ -54,13 +54,13 @@ final class ElevenLabsConversationService {
             ),
             ttsOverrides: TTSOverrides(voiceId: overrides.voiceId),
             onAgentReady: { [weak self] in
-                Task { @MainActor in
+                Task { @MainActor [weak self] in
                     self?.isConnected = true
                     self?.isSessionActive = true
                 }
             },
             onDisconnect: { [weak self] _ in
-                Task { @MainActor in
+                Task { @MainActor [weak self] in
                     self?.isConnected = false
                     self?.isSessionActive = false
                     if self?.connectionError == nil {
@@ -69,14 +69,14 @@ final class ElevenLabsConversationService {
                 }
             },
             onError: { [weak self] _ in
-                Task { @MainActor in
+                Task { @MainActor [weak self] in
                     self?.isConnected = false
                     self?.isSessionActive = false
                     self?.connectionError = .sdkError
                 }
             },
             onAgentResponse: { [weak self] text, eventId in
-                Task { @MainActor in
+                Task { @MainActor [weak self] in
                     guard let self else { return }
                     if let index = self.agentEventIdToIndex[eventId] {
                         self.messages[index].content = text
@@ -93,14 +93,14 @@ final class ElevenLabsConversationService {
                 }
             },
             onAgentResponseCorrection: { [weak self] _, corrected, eventId in
-                Task { @MainActor in
+                Task { @MainActor [weak self] in
                     guard let self,
                           let index = self.agentEventIdToIndex[eventId] else { return }
                     self.messages[index].content = corrected
                 }
             },
             onUserTranscript: { [weak self] text, _ in
-                Task { @MainActor in
+                Task { @MainActor [weak self] in
                     guard let self else { return }
                     self.currentUserTranscript = nil
                     let message = TranscriptMessage(
@@ -113,7 +113,7 @@ final class ElevenLabsConversationService {
                 }
             },
             onConversationMetadata: { [weak self] metadata in
-                Task { @MainActor in
+                Task { @MainActor [weak self] in
                     guard let self, let sessionId = self.sessionId else { return }
                     let elConvId = metadata.conversationId
                     try? await BackendClient.shared.requestVoid(
@@ -124,17 +124,17 @@ final class ElevenLabsConversationService {
                 }
             },
             onAgentToolResponse: { [weak self] _ in
-                Task { @MainActor in
+                Task { @MainActor [weak self] in
                     self?.isToolRunning = false
                 }
             },
             onAgentToolRequest: { [weak self] _ in
-                Task { @MainActor in
+                Task { @MainActor [weak self] in
                     self?.isToolRunning = true
                 }
             },
             onAgentStateChange: { [weak self] state in
-                Task { @MainActor in
+                Task { @MainActor [weak self] in
                     self?.agentState = state
                 }
             }
