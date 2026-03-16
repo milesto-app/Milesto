@@ -18,145 +18,6 @@
         }
       }
     },
-    "home.checkin.energy.good" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Good"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Bien"
-          }
-        }
-      }
-    },
-    "home.checkin.energy.high" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Excellent"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Excellent"
-          }
-        }
-      }
-    },
-    "home.checkin.energy.low" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Low"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Bas"
-          }
-        }
-      }
-    },
-    "home.checkin.energy.veryLow" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Very low"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Très bas"
-          }
-        }
-      }
-    },
-    "home.checkin.error.roadmapNotActive" : {
-
-    },
-    "home.checkin.greeting" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Hello, %@"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Bonjour, %@"
-          }
-        }
-      }
-    },
-    "home.checkin.note.placeholder" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "A note? (optional)"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Une note ? (optionnel)"
-          }
-        }
-      }
-    },
-    "home.checkin.question" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "How are you feeling this morning?"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Comment te sens-tu ce matin ?"
-          }
-        }
-      }
-    },
-    "home.checkin.submit" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Let's go"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "C'est parti"
-          }
-        }
-      }
-    },
     "home.daysRemaining" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -214,13 +75,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Take a moment to reflect on your day"
+            "value" : "Take a moment to reflect on your week"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Prends un moment pour réfléchir à ta journée"
+            "value" : "Prends un moment pour réfléchir à ta semaine"
           }
         }
       }
@@ -231,13 +92,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "End of day"
+            "value" : "End of week"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Fin de journée"
+            "value" : "Fin de semaine"
           }
         }
       }
@@ -333,13 +194,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "How was your day?"
+            "value" : "How was your week?"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Comment s'est passée ta journée ?"
+            "value" : "Comment s'est passée ta semaine ?"
           }
         }
       }
@@ -367,13 +228,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Today's debrief"
+            "value" : "Weekly debrief"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Debrief du jour"
+            "value" : "Debrief de la semaine"
           }
         }
       }
@@ -514,24 +375,41 @@
         }
       }
     },
-    "home.objectives.allDone" : {
+    "home.tasks" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Well done! Everything's done for today"
+            "value" : "This week"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Bravo ! Tout est fait pour aujourd'hui"
+            "value" : "Cette semaine"
           }
         }
       }
     },
-    "home.objectives.difficulty.easy" : {
+    "home.tasks.allDone" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Well done! All tasks completed this week"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bravo ! Toutes les tâches de la semaine sont terminées"
+          }
+        }
+      }
+    },
+    "home.tasks.difficulty.easy" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
@@ -548,7 +426,7 @@
         }
       }
     },
-    "home.objectives.difficulty.hard" : {
+    "home.tasks.difficulty.hard" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
@@ -565,7 +443,7 @@
         }
       }
     },
-    "home.objectives.difficulty.moderate" : {
+    "home.tasks.difficulty.moderate" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
@@ -582,36 +460,19 @@
         }
       }
     },
-    "home.objectives.locked" : {
+    "home.tasks.empty" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Complete your check-in to unlock today's objectives"
+            "value" : "No tasks for this week yet"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Complète ton check-in pour débloquer tes objectifs"
-          }
-        }
-      }
-    },
-    "home.objectives.title" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Today"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Aujourd'hui"
+            "value" : "Pas encore de tâches pour cette semaine"
           }
         }
       }
@@ -735,36 +596,19 @@
         }
       }
     },
-    "home.today" : {
+    "home.weeklyFocus.tasks" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Today"
+            "value" : "%d/%d tasks"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Aujourd'hui"
-          }
-        }
-      }
-    },
-    "home.weeklyFocus.objectives" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%d/%d objectives"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%d/%d objectifs"
+            "value" : "%d/%d tâches"
           }
         }
       }

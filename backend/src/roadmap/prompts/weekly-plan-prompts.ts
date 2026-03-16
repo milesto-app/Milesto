@@ -16,7 +16,7 @@ interface WeeklyPlanPromptParams {
 interface MonthlySummaryPromptParams {
   avgCompletionRate: number;
   totalCompleted: number;
-  totalObjectives: number;
+  totalTasks: number;
   weeklyNarratives: string[];
 }
 
@@ -70,7 +70,7 @@ function appendSummaryContextSections(
     const ws = genCtx.last_weekly_summary;
     sections.push(`## Last Week Summary
 Completion Rate: ${String(ws.completion_rate)}%
-Objectives Completed: ${String(ws.objectives_completed)}/${String(ws.objectives_total)}
+Tasks Completed: ${String(ws.tasks_completed)}/${String(ws.tasks_total)}
 ${ws.narrative !== undefined ? `Narrative: ${ws.narrative}` : ''}`);
   }
 
@@ -83,10 +83,10 @@ ${ws.narrative !== undefined ? `Narrative: ${ws.narrative}` : ''}`);
     );
   }
 
-  if (genCtx.daily_completion_rate !== undefined) {
-    sections.push(`## Recent Daily Performance
-Completion Rate: ${String(genCtx.daily_completion_rate)}%
-Completed: ${String(genCtx.daily_objectives_completed ?? 0)}/${String(genCtx.daily_objectives_total ?? 0)}`);
+  if (genCtx.task_completion_rate !== undefined) {
+    sections.push(`## Recent Task Performance
+Completion Rate: ${String(genCtx.task_completion_rate)}%
+Completed: ${String(genCtx.tasks_completed ?? 0)}/${String(genCtx.tasks_total ?? 0)}`);
   }
 }
 
@@ -123,8 +123,7 @@ export function buildWeeklySummaryNarrativeUserPrompt(
 ): string {
   return `Weekly Progress Data:
 Completion Rate: ${String(completionRate)}%
-Objectives Completed: ${String(weekData.objectivesCompleted)}/${String(weekData.objectivesTotal)}
-Energy Distribution: ${JSON.stringify(weekData.energyDistribution)}
+Tasks Completed: ${String(weekData.tasksCompleted)}/${String(weekData.tasksTotal)}
 Debrief Notes:
 ${weekData.debriefNotes.map((note, i) => `${String(i + 1)}. ${note}`).join('\n')}`;
 }
@@ -143,7 +142,7 @@ export function buildMonthlySummaryNarrativeUserPrompt(
 ): string {
   return `Monthly Progress Data:
 Average Completion Rate: ${String(params.avgCompletionRate)}%
-Total Objectives: ${String(params.totalCompleted)}/${String(params.totalObjectives)}
+Total Tasks: ${String(params.totalCompleted)}/${String(params.totalTasks)}
 Weekly Narratives:
 ${params.weeklyNarratives.map((n, i) => `Week ${String(i + 1)}: ${n}`).join('\n')}`;
 }

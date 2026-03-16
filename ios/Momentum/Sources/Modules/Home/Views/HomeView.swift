@@ -7,9 +7,8 @@ struct HomeView: View {
 
     @Environment(\.modelContext) private var modelContext
     @Query private var localGoals: [LocalGoal]
-    @Query private var localCheckIns: [LocalCheckIn]
     @State private var weeklyPlan: WeeklyPlanDTO?
-    @State private var objectives: [DailyObjectiveDTO] = []
+    @State private var tasks: [WeeklyTaskDTO] = []
     @State private var todayDebrief: DebriefDTO?
     @State private var isLoading = true
     @State private var hasSyncError = false
@@ -20,12 +19,8 @@ struct HomeView: View {
         localGoals.first { $0.id == goalId }
     }
 
-    private var hasCheckedIn: Bool {
-        localCheckIns.contains { $0.goalId == goalId && $0.date == todayDateString }
-    }
-
     private var completedCount: Int {
-        objectives.filter(\.isCompleted).count
+        tasks.filter(\.isCompleted).count
     }
 
     private var formattedDate: String {
@@ -35,12 +30,6 @@ struct HomeView: View {
         return formatter.string(from: Date()).capitalized
     }
 
-    private var todayDateString: String {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "yyyy-MM-dd"
-        return formatter.string(from: Date())
-    }
-
     var body: some View {
         NavigationStack {
             ZStack(alignment: .top) {
@@ -48,10 +37,10 @@ struct HomeView: View {
                     VStack(spacing: 0) {
                         heroSection
 
-                        if isLoading && objectives.isEmpty && weeklyPlan == nil {
+                        if isLoading && tasks.isEmpty && weeklyPlan == nil {
                             ProgressView()
                                 .padding(.top, 40)
-                        } else if hasSyncError && objectives.isEmpty && weeklyPlan == nil {
+                        } else if hasSyncError && tasks.isEmpty && weeklyPlan == nil {
                             syncErrorSection
                         } else {
                             contentSection
@@ -67,7 +56,7 @@ struct HomeView: View {
             await loadAllData()
         }
         .onChange(of: goalId) {
-            objectives = []
+            tasks = []
             weeklyPlan = nil
             todayDebrief = nil
             isLoading = true
@@ -76,19 +65,22 @@ struct HomeView: View {
             }
         }
         .sheet(isPresented: $showDebriefSheet) {
-            DebriefSheetView(
-                goalId: goalId,
-                completedObjectives: objectives.filter(\.isCompleted),
-                onDebriefComplete: {
-                    Task {
-                        if let debriefs = try? await RoadmapAPIService.shared.getDebriefHistory(goalId: goalId) {
-                            let dto = debriefs.first { $0.date == todayDateString }
-                            todayDebrief = dto
-                            syncDebriefToCache(dto)
+            if let weeklyPlan {
+                DebriefSheetView(
+                    goalId: goalId,
+                    weeklyPlanId: weeklyPlan.id,
+                    completedTasks: tasks.filter(\.isCompleted),
+                    onDebriefComplete: {
+                        Task {
+                            if let debriefs = try? await RoadmapAPIService.shared.getDebriefHistory(goalId: goalId) {
+                                let dto = debriefs.first
+                                todayDebrief = dto
+                                syncDebriefToCache(dto)
+                            }
                         }
                     }
-                }
-            )
+                )
+            }
         }
     }
 
@@ -132,34 +124,20 @@ struct HomeView: View {
     }
 
     private var goalProgress: Double {
-        guard hasCheckedIn, !objectives.isEmpty else { return 0 }
-        let total = objectives.count
-        let completed = objectives.filter(\.isCompleted).count
+        guard !tasks.isEmpty else { return 0 }
+        let total = tasks.count
+        let completed = tasks.filter(\.isCompleted).count
         return total > 0 ? Double(completed) / Double(total) : 0
     }
 
     private var contentSection: some View {
         VStack(spacing: 16) {
-            if !hasCheckedIn {
-                CheckInPromptCard(
-                    firstName: firstName,
-                    goalId: goalId,
-                    onCheckInComplete: {
-                        Task {
-                            await syncCheckInsFromAPI()
-                            await loadPostCheckInData()
-                        }
-                    }
-                )
-                .padding(.horizontal, 16)
-            }
-
             if let weeklyPlan {
                 let focusData = WeeklyFocusData(
                     focus: weeklyPlan.focus,
                     weekNumber: weeklyPlan.weekNumber,
-                    objectivesCount: weeklyPlan.objectives.count,
-                    completedCount: weeklyPlan.summary?.objectivesCompleted ?? completedCount
+                    tasksCount: weeklyPlan.objectives.count,
+                    completedCount: weeklyPlan.summary?.tasksCompleted ?? completedCount
                 )
                 WeeklyFocusCard(weeklyPlan: focusData) {
                     showWeeklyPlanDetail = true
@@ -167,23 +145,21 @@ struct HomeView: View {
                 .padding(.horizontal, 16)
             }
 
-            if hasCheckedIn {
-                HStack {
-                    AppText("home.today", table: "Home", style: .headline)
-                    Spacer()
-                    AppText(
-                        verbatim: "\(completedCount)/\(objectives.count)",
-                        style: .subheadline
-                    )
-                    .color(Color("TintPrimary"))
-                }
-                .padding(.horizontal, 24)
-                .padding(.top, 12)
-
-                objectivesSection
+            HStack {
+                AppText("home.tasks", table: "Home", style: .headline)
+                Spacer()
+                AppText(
+                    verbatim: "\(completedCount)/\(tasks.count)",
+                    style: .subheadline
+                )
+                .color(Color("TintPrimary"))
             }
+            .padding(.horizontal, 24)
+            .padding(.top, 12)
 
-            if hasCheckedIn && objectives.contains(where: \.isCompleted) && todayDebrief == nil {
+            tasksSection
+
+            if tasks.contains(where: \.isCompleted) && todayDebrief == nil {
                 DebriefPromptCard {
                     showDebriefSheet = true
                 }
@@ -222,17 +198,17 @@ struct HomeView: View {
     }
 
     @ViewBuilder
-    private var objectivesSection: some View {
-        if objectives.isEmpty {
-            AppText("home.objectives.locked", table: "Home", style: .subheadline)
+    private var tasksSection: some View {
+        if tasks.isEmpty {
+            AppText("home.tasks.empty", table: "Home", style: .subheadline)
                 .color(Color("TextSecondary"))
                 .padding(.horizontal, 24)
                 .padding(.vertical, 16)
         } else {
             VStack(spacing: 4) {
-                ForEach(objectives.sorted(by: { $0.orderIndex < $1.orderIndex })) { objective in
-                    ObjectiveRowView(objective: objective) {
-                        toggleObjective(objective)
+                ForEach(tasks.sorted(by: { $0.orderIndex < $1.orderIndex })) { task in
+                    ObjectiveRowView(task: task) {
+                        toggleTask(task)
                     }
                     .padding(.horizontal, 24)
                     .padding(.vertical, 12)
@@ -241,17 +217,16 @@ struct HomeView: View {
         }
     }
 
-    private func toggleObjective(_ objective: DailyObjectiveDTO) {
-        guard let index = objectives.firstIndex(where: { $0.id == objective.id }) else { return }
-        let newCompleted = !objective.isCompleted
-        let original = objectives[index]
+    private func toggleTask(_ task: WeeklyTaskDTO) {
+        guard let index = tasks.firstIndex(where: { $0.id == task.id }) else { return }
+        let newCompleted = !task.isCompleted
+        let original = tasks[index]
 
-        objectives[index] = DailyObjectiveDTO(
+        tasks[index] = WeeklyTaskDTO(
             id: original.id,
             weeklyPlanId: original.weeklyPlanId,
             goalId: original.goalId,
             userId: original.userId,
-            date: original.date,
             title: original.title,
             description: original.description,
             difficultyRating: original.difficultyRating,
@@ -261,30 +236,29 @@ struct HomeView: View {
             createdAt: original.createdAt
         )
 
-        updateCachedObjective(id: objective.id, isCompleted: newCompleted)
+        updateCachedTask(id: task.id, isCompleted: newCompleted)
 
         Task {
             do {
-                let updated = try await RoadmapAPIService.shared.toggleObjective(
-                    goalId: goalId,
-                    objectiveId: objective.id,
+                let updated = try await RoadmapAPIService.shared.toggleTask(
+                    taskId: task.id,
                     isCompleted: newCompleted
                 )
-                if let idx = objectives.firstIndex(where: { $0.id == updated.id }) {
-                    objectives[idx] = updated
+                if let idx = tasks.firstIndex(where: { $0.id == updated.id }) {
+                    tasks[idx] = updated
                 }
-                updateCachedObjective(id: updated.id, isCompleted: updated.isCompleted)
+                updateCachedTask(id: updated.id, isCompleted: updated.isCompleted)
             } catch {
-                if let idx = objectives.firstIndex(where: { $0.id == original.id }) {
-                    objectives[idx] = original
+                if let idx = tasks.firstIndex(where: { $0.id == original.id }) {
+                    tasks[idx] = original
                 }
-                updateCachedObjective(id: original.id, isCompleted: original.isCompleted)
+                updateCachedTask(id: original.id, isCompleted: original.isCompleted)
             }
         }
     }
 
-    private func updateCachedObjective(id: String, isCompleted: Bool) {
-        let descriptor = FetchDescriptor<LocalDailyObjective>(
+    private func updateCachedTask(id: String, isCompleted: Bool) {
+        let descriptor = FetchDescriptor<LocalWeeklyTask>(
             predicate: #Predicate { $0.id == id }
         )
         if let local = try? modelContext.fetch(descriptor).first {
@@ -295,9 +269,9 @@ struct HomeView: View {
     private func loadAllData() async {
         hasSyncError = false
 
-        let cachedObjectives = fetchCachedObjectives()
-        if !cachedObjectives.isEmpty {
-            objectives = cachedObjectives
+        let cachedTasks = fetchCachedTasks()
+        if !cachedTasks.isEmpty {
+            tasks = cachedTasks
             isLoading = false
         }
 
@@ -309,29 +283,24 @@ struct HomeView: View {
             todayDebrief = cached
         }
 
-        let didSyncCheckIns = await syncCheckInsFromAPI()
+        var didSync = false
 
-        if hasCheckedIn {
-            await loadPostCheckInData()
-        }
+        async let fetchPlan: () = loadWeeklyPlan()
+        async let fetchTasks: () = loadTasks()
+        _ = await(fetchPlan, fetchTasks)
+        didSync = !tasks.isEmpty || weeklyPlan != nil
 
         if let debriefs = try? await RoadmapAPIService.shared.getDebriefHistory(goalId: goalId) {
-            let todayDebriefDTO = debriefs.first { $0.date == todayDateString }
-            todayDebrief = todayDebriefDTO
-            syncDebriefToCache(todayDebriefDTO)
+            let latestDebrief = debriefs.first
+            todayDebrief = latestDebrief
+            syncDebriefToCache(latestDebrief)
         }
 
-        if !didSyncCheckIns, objectives.isEmpty, weeklyPlan == nil {
+        if !didSync, tasks.isEmpty, weeklyPlan == nil {
             hasSyncError = true
         }
 
         isLoading = false
-    }
-
-    private func loadPostCheckInData() async {
-        async let fetchPlan: () = loadWeeklyPlan()
-        async let fetchObjectives: () = loadObjectives()
-        _ = await(fetchPlan, fetchObjectives)
     }
 
     private func loadWeeklyPlan() async {
@@ -390,8 +359,8 @@ struct HomeView: View {
             existing.status = dto.status.rawValue
             existing.isFallback = dto.isFallback
             existing.summaryCompletionRate = dto.summary?.completionRate
-            existing.summaryObjectivesCompleted = dto.summary?.objectivesCompleted
-            existing.summaryObjectivesTotal = dto.summary?.objectivesTotal
+            existing.summaryTasksCompleted = dto.summary?.tasksCompleted
+            existing.summaryTasksTotal = dto.summary?.tasksTotal
             existing.summaryDebriefCount = dto.summary?.debriefCount
             existing.summaryNarrative = dto.summary?.narrative
         } else {
@@ -414,36 +383,33 @@ struct HomeView: View {
         }
     }
 
-    private func loadObjectives() async {
-        let cachedObjectives = fetchCachedObjectives()
-        if !cachedObjectives.isEmpty {
-            objectives = cachedObjectives
+    private func loadTasks() async {
+        let cachedTasks = fetchCachedTasks()
+        if !cachedTasks.isEmpty {
+            tasks = cachedTasks
         }
 
-        if let fetched = try? await RoadmapAPIService.shared.getDailyObjectives(goalId: goalId) {
-            let todayObjectives = fetched.filter { $0.date == todayDateString }
-            objectives = todayObjectives
-            syncObjectivesToCache(todayObjectives)
+        if let fetched = try? await RoadmapAPIService.shared.getWeeklyTasks(goalId: goalId) {
+            tasks = fetched
+            syncTasksToCache(fetched)
         }
     }
 
-    private func fetchCachedObjectives() -> [DailyObjectiveDTO] {
+    private func fetchCachedTasks() -> [WeeklyTaskDTO] {
         let goalId = goalId
-        let today = todayDateString
-        let descriptor = FetchDescriptor<LocalDailyObjective>(
-            predicate: #Predicate { $0.goalId == goalId && $0.date == today },
+        let descriptor = FetchDescriptor<LocalWeeklyTask>(
+            predicate: #Predicate { $0.goalId == goalId },
             sortBy: [SortDescriptor(\.orderIndex)]
         )
         guard let cached = try? modelContext.fetch(descriptor), !cached.isEmpty else { return [] }
         return cached.map { local in
-            DailyObjectiveDTO(
+            WeeklyTaskDTO(
                 id: local.id,
                 weeklyPlanId: local.weeklyPlanId,
                 goalId: local.goalId,
                 userId: local.userId,
-                date: local.date,
                 title: local.title,
-                description: local.objectiveDescription,
+                description: local.taskDescription,
                 difficultyRating: local.difficultyRating.flatMap { DifficultyRating(rawValue: $0) },
                 orderIndex: local.orderIndex,
                 isCompleted: local.isCompleted,
@@ -453,51 +419,11 @@ struct HomeView: View {
         }
     }
 
-    @discardableResult
-    private func syncCheckInsFromAPI() async -> Bool {
-        guard let checkIns = try? await RoadmapAPIService.shared.getCheckInHistory(goalId: goalId) else { return false }
-        syncCheckInsToCache(checkIns)
-        return true
-    }
-
-    private func syncCheckInsToCache(_ dtos: [CheckInDTO]) {
-        let goalId = goalId
-        let descriptor = FetchDescriptor<LocalCheckIn>(
-            predicate: #Predicate { $0.goalId == goalId }
-        )
-        let existing = (try? modelContext.fetch(descriptor)) ?? []
-        let existingById = Dictionary(uniqueKeysWithValues: existing.map { ($0.id, $0) })
-        let remoteIds = Set(dtos.map(\.id))
-
-        for dto in dtos {
-            if let local = existingById[dto.id] {
-                local.date = dto.date
-                local.energyLevel = dto.energyLevel.rawValue
-                local.note = dto.note
-            } else {
-                let local = LocalCheckIn(
-                    id: dto.id,
-                    goalId: dto.goalId,
-                    userId: dto.userId,
-                    date: dto.date,
-                    energyLevel: dto.energyLevel.rawValue,
-                    note: dto.note,
-                    createdAt: dto.createdAt
-                )
-                modelContext.insert(local)
-            }
-        }
-
-        for local in existing where !remoteIds.contains(local.id) {
-            modelContext.delete(local)
-        }
-    }
-
     private func fetchCachedDebrief() -> DebriefDTO? {
         let goalId = goalId
-        let today = todayDateString
         let descriptor = FetchDescriptor<LocalDebrief>(
-            predicate: #Predicate { $0.goalId == goalId && $0.date == today }
+            predicate: #Predicate { $0.goalId == goalId },
+            sortBy: [SortDescriptor(\.date, order: .reverse)]
         )
         guard let local = try? modelContext.fetch(descriptor).first else { return nil }
         let taskRatings: [TaskRatingDTO] = local.taskRatingsJSON
@@ -506,6 +432,7 @@ struct HomeView: View {
             id: local.id,
             goalId: local.goalId,
             userId: local.userId,
+            weeklyPlanId: local.weeklyPlanId,
             date: local.date,
             note: local.note,
             taskRatings: taskRatings,
@@ -514,30 +441,26 @@ struct HomeView: View {
     }
 
     private func syncDebriefToCache(_ dto: DebriefDTO?) {
-        let goalId = goalId
-        let today = todayDateString
+        guard let dto else { return }
+
+        let debriefId = dto.id
         let descriptor = FetchDescriptor<LocalDebrief>(
-            predicate: #Predicate { $0.goalId == goalId && $0.date == today }
+            predicate: #Predicate { $0.id == debriefId }
         )
         let existing = try? modelContext.fetch(descriptor).first
-
-        guard let dto else {
-            if let existing {
-                modelContext.delete(existing)
-            }
-            return
-        }
 
         let ratingsData = try? JSONEncoder().encode(dto.taskRatings)
 
         if let existing {
             existing.note = dto.note
+            existing.weeklyPlanId = dto.weeklyPlanId
             existing.taskRatingsJSON = ratingsData
         } else {
             let local = LocalDebrief(
                 id: dto.id,
                 goalId: dto.goalId,
                 userId: dto.userId,
+                weeklyPlanId: dto.weeklyPlanId,
                 date: dto.date,
                 note: dto.note,
                 taskRatingsJSON: ratingsData,
@@ -547,11 +470,10 @@ struct HomeView: View {
         }
     }
 
-    private func syncObjectivesToCache(_ dtos: [DailyObjectiveDTO]) {
+    private func syncTasksToCache(_ dtos: [WeeklyTaskDTO]) {
         let goalId = goalId
-        let today = todayDateString
-        let descriptor = FetchDescriptor<LocalDailyObjective>(
-            predicate: #Predicate { $0.goalId == goalId && $0.date == today }
+        let descriptor = FetchDescriptor<LocalWeeklyTask>(
+            predicate: #Predicate { $0.goalId == goalId }
         )
         let existing = (try? modelContext.fetch(descriptor)) ?? []
         let existingById = Dictionary(uniqueKeysWithValues: existing.map { ($0.id, $0) })
@@ -561,20 +483,19 @@ struct HomeView: View {
             if let local = existingById[dto.id] {
                 local.weeklyPlanId = dto.weeklyPlanId
                 local.title = dto.title
-                local.objectiveDescription = dto.description
+                local.taskDescription = dto.description
                 local.difficultyRating = dto.difficultyRating?.rawValue
                 local.orderIndex = dto.orderIndex
                 local.isCompleted = dto.isCompleted
                 local.isFallback = dto.isFallback
             } else {
-                let local = LocalDailyObjective(
+                let local = LocalWeeklyTask(
                     id: dto.id,
                     weeklyPlanId: dto.weeklyPlanId,
                     goalId: dto.goalId,
                     userId: dto.userId,
-                    date: dto.date,
                     title: dto.title,
-                    objectiveDescription: dto.description,
+                    taskDescription: dto.description,
                     difficultyRating: dto.difficultyRating?.rawValue,
                     orderIndex: dto.orderIndex,
                     isCompleted: dto.isCompleted,
@@ -593,5 +514,5 @@ struct HomeView: View {
 
 #Preview {
     HomeView(goalId: "preview-goal", firstName: "Maty")
-        .modelContainer(for: [LocalGoal.self, LocalDailyObjective.self, LocalCheckIn.self, LocalWeeklyPlan.self, LocalDebrief.self], inMemory: true)
+        .modelContainer(for: [LocalGoal.self, LocalWeeklyTask.self, LocalWeeklyPlan.self, LocalDebrief.self], inMemory: true)
 }

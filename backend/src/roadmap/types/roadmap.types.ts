@@ -24,6 +24,8 @@ export interface Milestone {
   description: string;
   expected_outcome: string;
   target_month: number;
+  target_week: number;
+  is_monthly_checkpoint: boolean;
   created_at: string;
 }
 
@@ -34,6 +36,8 @@ export type MilestoneSummary = Pick<
   | 'description'
   | 'expected_outcome'
   | 'target_month'
+  | 'target_week'
+  | 'is_monthly_checkpoint'
   | 'order_index'
 >;
 

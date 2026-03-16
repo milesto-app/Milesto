@@ -3,7 +3,7 @@ import SwiftUI
 struct WeeklyFocusData {
     let focus: String
     let weekNumber: Int
-    let objectivesCount: Int
+    let tasksCount: Int
     let completedCount: Int
 }
 
@@ -37,9 +37,9 @@ struct WeeklyFocusCard: View {
 
                     AppText(
                         verbatim: String(
-                            format: String(localized: "home.weeklyFocus.objectives", table: "Home"),
+                            format: String(localized: "home.weeklyFocus.tasks", table: "Home"),
                             weeklyPlan.completedCount,
-                            weeklyPlan.objectivesCount
+                            weeklyPlan.tasksCount
                         ),
                         style: .caption
                     )

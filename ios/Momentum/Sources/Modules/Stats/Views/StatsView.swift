@@ -99,10 +99,6 @@ struct StatsView: View {
         .opacity(hasAppeared ? 1 : 0)
         .offset(y: hasAppeared ? 0 : 12)
 
-        StatsEnergyCard(distribution: stats.energy.distribution)
-            .opacity(hasAppeared ? 1 : 0)
-            .offset(y: hasAppeared ? 0 : 12)
-
         StatsMilestoneCard(
             completed: stats.milestones.completed,
             total: stats.milestones.total

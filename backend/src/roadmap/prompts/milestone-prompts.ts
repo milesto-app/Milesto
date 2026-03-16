@@ -9,28 +9,31 @@ const MINUTES_PER_HOUR = 60;
 const HOURS_PER_DAY = 24;
 const MS_PER_DAY =
   MS_PER_SECOND * SECONDS_PER_MINUTE * MINUTES_PER_HOUR * HOURS_PER_DAY;
-const DAYS_PER_MONTH = 30;
+const DAYS_PER_WEEK = 7;
+const WEEKS_PER_MONTH_GROUP = 3;
 
 export function buildMilestoneSystemPrompt(language: string): string {
-  return `You are a coaching AI that creates personalized milestone roadmaps using backward planning.
+  return `You are a coaching AI that creates personalized weekly milestone roadmaps using backward planning.
 
-Your task is to generate milestones working backward from the target deadline to the present.
+Your task is to generate weekly milestones grouped by month, working backward from the target deadline to the present.
 
 Rules:
-- Produce a minimum of ${String(MIN_MILESTONES)} milestones
-- For goals with deadlines over ${String(MIN_MILESTONES)} months, produce 1 milestone per month
-- For goals with shorter deadlines, milestones represent sequential phases within the available time
-- Each milestone should represent a meaningful phase of progress toward the goal
+- Produce a minimum of ${String(MIN_MILESTONES)} milestones (one per week)
+- Group milestones into months of ~${String(WEEKS_PER_MONTH_GROUP)} weeks each
+- The last milestone in each month group must have is_monthly_checkpoint set to true
+- Each milestone represents one week of focused work toward the goal
 - Consider the user's effort level, available time, and experience level
 - Milestones should be progressive, building on each other
-- Use backward planning: start from the final outcome and work backward to determine what must be achieved in each phase
+- Use backward planning: start from the final outcome and work backward to determine what must be achieved each week
 
 Return a JSON array of objects with these exact fields:
 - "title": A concise milestone title
 - "description": Detailed description of what this milestone involves
 - "expected_outcome": What the user should have achieved by this milestone
-- "target_month": The month number (1 = first month, 2 = second month, etc.)
-- "order_index": Sequential index starting from 1
+- "target_month": The month number this week belongs to (1 = first month, 2 = second month, etc.)
+- "target_week": The overall week number (1, 2, 3, ...)
+- "is_monthly_checkpoint": true if this is the last milestone in its month group, false otherwise
+- "order_index": Sequential index starting from 1 (same as target_week)
 
 Return ONLY the JSON array, no other text.${buildLanguageBlock(language)}`;
 }
@@ -39,18 +42,22 @@ export function buildMilestoneUserPrompt(
   context: AssembledContext,
   goal: GoalData,
 ): string {
-  const monthsUntilDeadline =
+  const weeksUntilDeadline =
     goal.target_date !== undefined
       ? Math.max(
           1,
           Math.ceil(
             (new Date(goal.target_date).getTime() - Date.now()) /
-              (MS_PER_DAY * DAYS_PER_MONTH),
+              (MS_PER_DAY * DAYS_PER_WEEK),
           ),
         )
       : MIN_MILESTONES;
 
-  const milestoneCount = Math.max(MIN_MILESTONES, monthsUntilDeadline);
+  const milestoneCount = Math.max(MIN_MILESTONES, weeksUntilDeadline);
+  const monthCount = Math.max(
+    1,
+    Math.ceil(milestoneCount / WEEKS_PER_MONTH_GROUP),
+  );
 
   const sections: string[] = [];
 
@@ -65,17 +72,15 @@ export function buildMilestoneUserPrompt(
   }
 
   const constraintSection = buildConstraintSection(goal);
-  const isCompressed = monthsUntilDeadline < milestoneCount;
 
-  const requirementsSection = isCompressed
-    ? buildCompressedRequirements(milestoneCount, monthsUntilDeadline)
-    : `Generate exactly ${String(milestoneCount)} milestones using backward planning from month ${String(monthsUntilDeadline)} to month 1.`;
+  const requirementsSection = `Generate exactly ${String(milestoneCount)} weekly milestones grouped into ${String(monthCount)} months (~${String(WEEKS_PER_MONTH_GROUP)} weeks per month). Use backward planning from week ${String(milestoneCount)} to week 1. The last milestone in each month group must have is_monthly_checkpoint: true.`;
 
   return `## Goal
 Title: ${goal.title}
 Description: ${goal.description}
 Deadline: ${goal.target_date ?? 'Not specified'}
-Months until deadline: ${String(monthsUntilDeadline)}
+Weeks until deadline: ${String(weeksUntilDeadline)}
+Total months: ${String(monthCount)}
 
 ## Requirements
 ${requirementsSection}
@@ -83,16 +88,6 @@ ${requirementsSection}
 ${constraintSection}
 
 ${sections.join('\n\n')}`;
-}
-
-function buildCompressedRequirements(
-  milestoneCount: number,
-  monthsUntilDeadline: number,
-): string {
-  if (monthsUntilDeadline === 1) {
-    return `This is a short-term goal with only 1 month. Generate exactly ${String(milestoneCount)} milestones as sequential phases within that single month. Each milestone is a progressive phase, not a separate month. Set target_month to 1 for all milestones.`;
-  }
-  return `This goal has ${String(monthsUntilDeadline)} months but requires ${String(milestoneCount)} milestones. Generate exactly ${String(milestoneCount)} milestones as sequential phases, distributing them across the ${String(monthsUntilDeadline)} available months. Assign target_month values between 1 and ${String(monthsUntilDeadline)}, spreading milestones as evenly as possible across the months.`;
 }
 
 function buildConstraintSection(goal: GoalData): string {

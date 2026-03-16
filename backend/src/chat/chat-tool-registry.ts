@@ -1,15 +1,15 @@
 import {
-  buildCheckInTools,
+  buildDebriefTools,
   buildRoadmapTools,
-} from './chat-checkin-registry.js';
-import type { ChatCheckInToolsService } from './chat-checkin-tools.service.js';
+} from './chat-debrief-registry.js';
+import type { ChatDebriefToolsService } from './chat-debrief-tools.service.js';
 import type { ChatRoadmapToolsService } from './chat-roadmap-tools.service.js';
 import type { ChatToolsService } from './chat-tools.service.js';
 import type { ChatToolEntry, ChatToolExecutor } from './types/chat.types.js';
 
 export interface ToolRegistryDeps {
   toolsService: ChatToolsService;
-  checkInToolsService: ChatCheckInToolsService;
+  debriefToolsService: ChatDebriefToolsService;
   roadmapToolsService: ChatRoadmapToolsService;
 }
 
@@ -44,11 +44,11 @@ export function buildToolRegistry(
   const registry = new Map<string, ChatToolEntry>();
 
   const entries: ToolConfig[] = [
-    ...buildObjectiveTools(deps.toolsService),
+    ...buildTaskTools(deps.toolsService),
     ...buildMemoryTools(deps.toolsService),
     ...buildStatsTools(deps.toolsService),
     ...buildSearchTools(deps.toolsService),
-    ...buildCheckInTools(deps.checkInToolsService),
+    ...buildDebriefTools(deps.debriefToolsService),
     ...buildRoadmapTools(deps.roadmapToolsService),
   ];
   for (const entry of entries) {
@@ -58,35 +58,35 @@ export function buildToolRegistry(
   return registry;
 }
 
-function buildObjectiveTools(toolsService: ChatToolsService): ToolConfig[] {
+function buildTaskTools(toolsService: ChatToolsService): ToolConfig[] {
   return [
     {
-      name: 'getDailyObjectives',
+      name: 'getWeeklyTasks',
       description:
-        "Fetch today's daily objectives. Returns array of {id, title, description, is_completed, difficulty_rating}.",
+        "Fetch this week's tasks. Returns array of {id, title, description, is_completed, difficulty_rating}.",
       executor: (async (_args, ctx) =>
-        toolsService.getDailyObjectives(ctx)) satisfies ChatToolExecutor,
+        toolsService.getWeeklyTasks(ctx)) satisfies ChatToolExecutor,
     },
     {
-      name: 'toggleObjectiveCompletion',
-      description: "Toggle a daily objective's completion status.",
+      name: 'toggleTaskCompletion',
+      description: "Toggle a weekly task's completion status.",
       executor: (async (args, ctx) =>
-        toolsService.toggleObjectiveCompletion(
+        toolsService.toggleTaskCompletion(
           args,
           ctx,
         )) satisfies ChatToolExecutor,
       parameters: {
         properties: {
-          objectiveId: {
+          taskId: {
             type: 'string',
-            description: 'UUID of the daily objective',
+            description: 'UUID of the weekly task',
           },
           isCompleted: {
             type: 'boolean',
             description: 'New completion status',
           },
         },
-        required: ['objectiveId', 'isCompleted'],
+        required: ['taskId', 'isCompleted'],
       },
     },
   ];

@@ -664,6 +664,40 @@
         }
       }
     },
+    "roadmap.milestone.week" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Week %d"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Semaine %d"
+          }
+        }
+      }
+    },
+    "roadmap.milestone.monthlyCheckpoint" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Monthly checkpoint"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bilan mensuel"
+          }
+        }
+      }
+    },
     "roadmap.milestone.description" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -834,19 +868,19 @@
         }
       }
     },
-    "roadmap.weeklyPlan.objectives" : {
+    "roadmap.weeklyPlan.tasks" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Weekly objectives"
+            "value" : "Weekly tasks"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Objectifs de la semaine"
+            "value" : "Tâches de la semaine"
           }
         }
       }
@@ -874,13 +908,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%d/%d objectives completed"
+            "value" : "%d/%d tasks completed"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%d/%d objectifs complétés"
+            "value" : "%d/%d tâches complétées"
           }
         }
       }

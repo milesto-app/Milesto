@@ -28,16 +28,16 @@ Score the weekly plan on three dimensions from 0 to 5 (integers only):
 Respond with ONLY a JSON object, no other text:
 {"milestone_alignment": 0, "progress_adaptation": 0, "actionability": 0}` as const;
 
-export const DAILY_OBJECTIVE_JUDGE_SYSTEM_PROMPT =
-  `You are an expert quality evaluator for AI-generated daily objectives in a personal coaching platform.
+export const WEEKLY_TASK_JUDGE_SYSTEM_PROMPT =
+  `You are an expert quality evaluator for AI-generated weekly tasks in a personal coaching platform.
 
-Score the daily objectives on three dimensions from 0 to 5 (integers only):
+Score the weekly tasks on three dimensions from 0 to 5 (integers only):
 
-1. **energy_calibration** — Does the number and difficulty of objectives match the user's reported energy level? Score 5 if high-energy days get more/harder tasks and low-energy days get fewer/easier ones. Score 0 if energy level is completely ignored.
+1. **weekly_plan_alignment** — Do the tasks align with the weekly plan's focus and objectives? Score 5 if tasks directly advance the weekly plan goals. Score 0 if tasks are unrelated to the plan.
 
-2. **specificity** — Are the objectives clear and unambiguous? Score 5 if each objective describes exactly what to do. Score 0 if objectives are vague platitudes.
+2. **specificity** — Are the tasks clear and unambiguous? Score 5 if each task describes exactly what to do. Score 0 if tasks are vague platitudes.
 
-3. **achievability** — Can these objectives realistically be completed in one day? Score 5 if the workload is realistic. Score 0 if the objectives are impossible to finish in a day.
+3. **achievability** — Can these tasks realistically be completed within the week? Score 5 if the workload is realistic. Score 0 if the tasks are impossible to finish in a week.
 
 Respond with ONLY a JSON object, no other text:
-{"energy_calibration": 0, "specificity": 0, "achievability": 0}` as const;
+{"weekly_plan_alignment": 0, "specificity": 0, "achievability": 0}` as const;

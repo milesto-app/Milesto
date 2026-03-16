@@ -6,10 +6,10 @@ import { AiService } from '../ai/ai.service.js';
 import { config } from '../config/app.config.js';
 import { GenerationService } from './generation.service.js';
 import type { AssembledContext } from './types/context.types.js';
-import type { EnergyLevel } from './types/daily.types.js';
 import type { GoalData, Milestone } from './types/roadmap.types.js';
 import type {
   GenerationContext,
+  WeekData,
   WeeklyPlan,
 } from './types/weekly-plan.types.js';
 
@@ -43,22 +43,25 @@ describe('GenerationService', () => {
       expected_outcome: 'Able to run 10km comfortably',
       target_month: 1,
       target_week: 1,
+      is_monthly_checkpoint: false,
       order_index: 1,
     },
     {
       title: 'Increase mileage',
       description: 'Gradually increase weekly mileage to 40km',
       expected_outcome: 'Completing 15km long runs',
-      target_month: 2,
-      target_week: 5,
+      target_month: 1,
+      target_week: 2,
+      is_monthly_checkpoint: false,
       order_index: 2,
     },
     {
       title: 'Half marathon preparation',
       description: 'Train for and complete a half marathon distance',
       expected_outcome: 'Run 21km under 2 hours',
-      target_month: 3,
-      target_week: 9,
+      target_month: 1,
+      target_week: 3,
+      is_monthly_checkpoint: true,
       order_index: 3,
     },
   ];
@@ -311,6 +314,8 @@ describe('GenerationService', () => {
       description: 'Establish a running foundation',
       expected_outcome: 'Able to run 10km comfortably',
       target_month: 1,
+      target_week: 1,
+      is_monthly_checkpoint: false,
       created_at: '2026-02-01T00:00:00.000Z',
     };
 
@@ -472,7 +477,7 @@ describe('GenerationService', () => {
     });
   });
 
-  describe('generateDailyObjectives', () => {
+  describe('generateWeeklyTasks', () => {
     const mockWeeklyPlan = {
       id: 'plan-1',
       roadmap_id: 'roadmap-1',
@@ -493,17 +498,17 @@ describe('GenerationService', () => {
       created_at: '2026-02-17T00:00:00.000Z',
     } satisfies WeeklyPlan;
 
-    const mockWeekData = {
-      completedObjectives: 2,
-      totalObjectives: 5,
-      debriefNotes: ['Good progress yesterday'],
+    const mockWeekData: WeekData = {
+      tasksCompleted: 2,
+      tasksTotal: 5,
+      debriefNotes: ['Good progress last week'],
     };
 
-    const validDailyObjectivesResponse = [
+    const validWeeklyTasksResponse = [
       {
         title: 'Morning run - 5km easy pace',
         description:
-          'Start the day with a light 5km run to maintain consistency',
+          'Start the week with a light 5km run to maintain consistency',
         order_index: 1,
         difficulty_rating: 'easy',
       },
@@ -521,62 +526,55 @@ describe('GenerationService', () => {
       },
     ];
 
-    it('should generate daily objectives with energy calibration', async () => {
-      mockAiService.generateJson.mockResolvedValue(
-        validDailyObjectivesResponse,
-      );
+    it('should generate weekly tasks aligned with weekly plan', async () => {
+      mockAiService.generateJson.mockResolvedValue(validWeeklyTasksResponse);
 
-      const result = await service.generateDailyObjectives({
+      const result = await service.generateWeeklyTasks({
         weeklyPlan: mockWeeklyPlan,
-        energyLevel: 'good' as EnergyLevel,
         context: mockContext,
         weekData: mockWeekData,
         language: 'en',
       });
 
-      expect(result.objectives).toHaveLength(3);
-      expect(result.objectives[0]!.title).toBe('Morning run - 5km easy pace');
+      expect(result.tasks).toHaveLength(3);
+      expect(result.tasks[0]!.title).toBe('Morning run - 5km easy pace');
       expect(result.metadata.model_used).toBe(config.ai.defaultModel);
       expect(result.metadata.attempts).toBe(1);
     });
 
-    it('should validate well-formed daily objective JSON', async () => {
-      mockAiService.generateJson.mockResolvedValue(
-        validDailyObjectivesResponse,
-      );
+    it('should validate well-formed weekly task JSON', async () => {
+      mockAiService.generateJson.mockResolvedValue(validWeeklyTasksResponse);
 
-      const result = await service.generateDailyObjectives({
+      const result = await service.generateWeeklyTasks({
         weeklyPlan: mockWeeklyPlan,
-        energyLevel: 'high' as EnergyLevel,
         context: mockContext,
         weekData: mockWeekData,
         language: 'en',
       });
 
-      result.objectives.forEach((obj) => {
-        expect(typeof obj.title).toBe('string');
-        expect(typeof obj.description).toBe('string');
-        expect(typeof obj.order_index).toBe('number');
+      result.tasks.forEach((task) => {
+        expect(typeof task.title).toBe('string');
+        expect(typeof task.description).toBe('string');
+        expect(typeof task.order_index).toBe('number');
       });
     });
 
-    it('should repair daily objectives with stringified order_index', async () => {
-      const badResponse = validDailyObjectivesResponse.map((obj) => ({
-        ...obj,
-        order_index: String(obj.order_index),
+    it('should repair weekly tasks with stringified order_index', async () => {
+      const badResponse = validWeeklyTasksResponse.map((task) => ({
+        ...task,
+        order_index: String(task.order_index),
       }));
       mockAiService.generateJson.mockResolvedValue(badResponse);
 
-      const result = await service.generateDailyObjectives({
+      const result = await service.generateWeeklyTasks({
         weeklyPlan: mockWeeklyPlan,
-        energyLevel: 'good' as EnergyLevel,
         context: mockContext,
         weekData: mockWeekData,
         language: 'en',
       });
 
-      expect(result.objectives).toHaveLength(3);
-      expect(result.objectives[0]!.order_index).toBe(1);
+      expect(result.tasks).toHaveLength(3);
+      expect(result.tasks[0]!.order_index).toBe(1);
     });
 
     it('should throw after repair failure for invalid data', async () => {
@@ -584,23 +582,20 @@ describe('GenerationService', () => {
       mockAiService.generateJson.mockResolvedValue(invalidResponse);
 
       await expect(
-        service.generateDailyObjectives({
+        service.generateWeeklyTasks({
           weeklyPlan: mockWeeklyPlan,
-          energyLevel: 'good' as EnergyLevel,
           context: mockContext,
           weekData: mockWeekData,
+          language: 'en',
         }),
-      ).rejects.toThrow('Daily objectives validation failed after repair');
+      ).rejects.toThrow('Weekly tasks validation failed after repair');
     });
 
     it('should include standard metadata fields', async () => {
-      mockAiService.generateJson.mockResolvedValue(
-        validDailyObjectivesResponse,
-      );
+      mockAiService.generateJson.mockResolvedValue(validWeeklyTasksResponse);
 
-      const result = await service.generateDailyObjectives({
+      const result = await service.generateWeeklyTasks({
         weeklyPlan: mockWeeklyPlan,
-        energyLevel: 'good' as EnergyLevel,
         context: mockContext,
         weekData: mockWeekData,
         language: 'en',
@@ -612,13 +607,10 @@ describe('GenerationService', () => {
     });
 
     it('should use default model from config', async () => {
-      mockAiService.generateJson.mockResolvedValue(
-        validDailyObjectivesResponse,
-      );
+      mockAiService.generateJson.mockResolvedValue(validWeeklyTasksResponse);
 
-      await service.generateDailyObjectives({
+      await service.generateWeeklyTasks({
         weeklyPlan: mockWeeklyPlan,
-        energyLevel: 'good' as EnergyLevel,
         context: mockContext,
         weekData: mockWeekData,
         language: 'en',
@@ -634,17 +626,16 @@ describe('GenerationService', () => {
     it('should retry on first attempt failure and succeed on second', async () => {
       mockAiService.generateJson
         .mockRejectedValueOnce(new Error('AI error'))
-        .mockResolvedValueOnce(validDailyObjectivesResponse);
+        .mockResolvedValueOnce(validWeeklyTasksResponse);
 
-      const result = await service.generateDailyObjectives({
+      const result = await service.generateWeeklyTasks({
         weeklyPlan: mockWeeklyPlan,
-        energyLevel: 'low' as EnergyLevel,
         context: mockContext,
         weekData: mockWeekData,
         language: 'en',
       });
 
-      expect(result.objectives).toHaveLength(3);
+      expect(result.tasks).toHaveLength(3);
       expect(result.metadata.attempts).toBe(2);
       expect(mockAiService.generateJson).toHaveBeenCalledTimes(2);
     });
@@ -655,41 +646,21 @@ describe('GenerationService', () => {
         .mockRejectedValueOnce(new Error('Second failure'));
 
       await expect(
-        service.generateDailyObjectives({
+        service.generateWeeklyTasks({
           weeklyPlan: mockWeeklyPlan,
-          energyLevel: 'good' as EnergyLevel,
           context: mockContext,
           weekData: mockWeekData,
+          language: 'en',
         }),
       ).rejects.toThrow('Second failure');
       expect(mockAiService.generateJson).toHaveBeenCalledTimes(2);
     });
 
-    it('should include energy level in prompt', async () => {
-      mockAiService.generateJson.mockResolvedValue(
-        validDailyObjectivesResponse,
-      );
-
-      await service.generateDailyObjectives({
-        weeklyPlan: mockWeeklyPlan,
-        energyLevel: 'low' as EnergyLevel,
-        context: mockContext,
-        weekData: mockWeekData,
-        language: 'en',
-      });
-
-      const userPrompt = mockAiService.generateJson.mock.calls[0][1] as string;
-      expect(userPrompt).toContain('Energy: low');
-    });
-
     it('should include weekly plan focus in prompt', async () => {
-      mockAiService.generateJson.mockResolvedValue(
-        validDailyObjectivesResponse,
-      );
+      mockAiService.generateJson.mockResolvedValue(validWeeklyTasksResponse);
 
-      await service.generateDailyObjectives({
+      await service.generateWeeklyTasks({
         weeklyPlan: mockWeeklyPlan,
-        energyLevel: 'good' as EnergyLevel,
         context: mockContext,
         weekData: mockWeekData,
         language: 'en',
@@ -699,43 +670,23 @@ describe('GenerationService', () => {
       expect(userPrompt).toContain('Build foundation habits');
     });
 
-    it('should include energy calibration rules in system prompt', async () => {
-      mockAiService.generateJson.mockResolvedValue(
-        validDailyObjectivesResponse,
-      );
-
-      await service.generateDailyObjectives({
-        weeklyPlan: mockWeeklyPlan,
-        energyLevel: 'high' as EnergyLevel,
-        context: mockContext,
-        weekData: mockWeekData,
-        language: 'en',
-      });
-
-      const systemPrompt = mockAiService.generateJson.mock
-        .calls[0][0] as string;
-      expect(systemPrompt).toContain('4-6 objectives');
-      expect(systemPrompt).toContain('2-3 objectives');
-    });
-
     it('should log warning on generation attempt failure', async () => {
       const warnSpy = jest
         .spyOn(service['logger'], 'warn')
         .mockImplementation();
       mockAiService.generateJson
         .mockRejectedValueOnce(new Error('AI timeout'))
-        .mockResolvedValueOnce(validDailyObjectivesResponse);
+        .mockResolvedValueOnce(validWeeklyTasksResponse);
 
-      await service.generateDailyObjectives({
+      await service.generateWeeklyTasks({
         weeklyPlan: mockWeeklyPlan,
-        energyLevel: 'good' as EnergyLevel,
         context: mockContext,
         weekData: mockWeekData,
         language: 'en',
       });
 
       expect(warnSpy).toHaveBeenCalledWith(
-        expect.stringContaining('Daily objectives generation attempt 1 failed'),
+        expect.stringContaining('Weekly tasks generation attempt 1 failed'),
       );
     });
   });

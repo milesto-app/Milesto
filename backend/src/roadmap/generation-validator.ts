@@ -1,9 +1,9 @@
 import { plainToInstance } from 'class-transformer';
 import { validateSync } from 'class-validator';
 
-import { GeneratedDailyObjective } from './types/generated-daily-objective.js';
 import { GeneratedMilestone } from './types/generated-milestone.js';
 import { GeneratedWeeklyPlan } from './types/generated-weekly-plan.js';
+import { GeneratedWeeklyTask } from './types/generated-weekly-task.js';
 
 const FIRST_ORDER_INDEX = 1;
 
@@ -29,6 +29,7 @@ function repairMilestones(items: unknown[]): GeneratedMilestone[] {
         typeof rec.expected_outcome === 'string' ? rec.expected_outcome : '',
       target_month: Number(rec.target_month),
       target_week: Number(rec.target_week),
+      is_monthly_checkpoint: Boolean(rec.is_monthly_checkpoint),
       order_index: Number(rec.order_index),
     };
   });
@@ -79,21 +80,19 @@ function repairWeeklyPlan(data: unknown): GeneratedWeeklyPlan {
   );
 }
 
-export function validateDailyObjectives(
-  raw: unknown,
-): GeneratedDailyObjective[] {
+export function validateWeeklyTasks(raw: unknown): GeneratedWeeklyTask[] {
   const items = Array.isArray(raw) ? raw : [raw];
-  const instances = plainToInstance(GeneratedDailyObjective, items);
+  const instances = plainToInstance(GeneratedWeeklyTask, items);
   const errors = instances.flatMap((i) => validateSync(i as object));
 
   if (errors.length === 0) {
     return instances;
   }
 
-  return repairDailyObjectives(items);
+  return repairWeeklyTasks(items);
 }
 
-function repairDailyObjectives(items: unknown[]): GeneratedDailyObjective[] {
+function repairWeeklyTasks(items: unknown[]): GeneratedWeeklyTask[] {
   const cleaned = items.map((item, idx) => {
     const rec = item as Record<string, unknown>;
     return {
@@ -103,7 +102,7 @@ function repairDailyObjectives(items: unknown[]): GeneratedDailyObjective[] {
       difficulty_rating: rec.difficulty_rating,
     };
   });
-  const repairedInstances = plainToInstance(GeneratedDailyObjective, cleaned);
+  const repairedInstances = plainToInstance(GeneratedWeeklyTask, cleaned);
   const repairErrors = repairedInstances.flatMap((i) =>
     validateSync(i as object),
   );
@@ -113,6 +112,6 @@ function repairDailyObjectives(items: unknown[]): GeneratedDailyObjective[] {
   }
 
   throw new Error(
-    `Daily objectives validation failed after repair: ${repairErrors.map((e) => e.toString()).join(', ')}`,
+    `Weekly tasks validation failed after repair: ${repairErrors.map((e) => e.toString()).join(', ')}`,
   );
 }

@@ -3,14 +3,10 @@ import { Injectable, Logger } from '@nestjs/common';
 import { AiService } from '../ai/ai.service.js';
 import { config } from '../config/app.config.js';
 import {
-  validateDailyObjectives,
   validateMilestones,
   validateWeeklyPlan,
+  validateWeeklyTasks,
 } from './generation-validator.js';
-import {
-  buildDailyObjectivesSystemPrompt,
-  buildDailyObjectivesUserPrompt,
-} from './prompts/daily-objective-prompts.js';
 import {
   buildMilestoneSystemPrompt,
   buildMilestoneUserPrompt,
@@ -19,13 +15,17 @@ import {
   buildWeeklyPlanSystemPrompt,
   buildWeeklyPlanUserPrompt,
 } from './prompts/weekly-plan-prompts.js';
+import {
+  buildWeeklyTasksSystemPrompt,
+  buildWeeklyTasksUserPrompt,
+} from './prompts/weekly-task-prompts.js';
 import type { AssembledContext } from './types/context.types.js';
-import type { GeneratedDailyObjective } from './types/generated-daily-objective.js';
 import type { GeneratedMilestone } from './types/generated-milestone.js';
 import type { GeneratedWeeklyPlan } from './types/generated-weekly-plan.js';
+import type { GeneratedWeeklyTask } from './types/generated-weekly-task.js';
 import type {
-  GenerateDailyParams,
   GenerateWeeklyPlanParams,
+  GenerateWeeklyTasksParams,
   MetadataParams,
   RetryParams,
 } from './types/generation.types.js';
@@ -85,26 +85,25 @@ export class GenerationService {
     };
   }
 
-  public async generateDailyObjectives(params: GenerateDailyParams): Promise<{
-    objectives: GeneratedDailyObjective[];
+  public async generateWeeklyTasks(params: GenerateWeeklyTasksParams): Promise<{
+    tasks: GeneratedWeeklyTask[];
     metadata: GenerationMetadata;
   }> {
-    const model = this.resolveModel(config.roadmap.dailyModel);
+    const model = this.resolveModel(config.roadmap.weeklyTaskModel);
     const result = await this.generateWithRetry({
-      systemPrompt: buildDailyObjectivesSystemPrompt(params.language),
-      userPrompt: buildDailyObjectivesUserPrompt({
+      systemPrompt: buildWeeklyTasksSystemPrompt(params.language),
+      userPrompt: buildWeeklyTasksUserPrompt({
         weeklyPlan: params.weeklyPlan,
-        energyLevel: params.energyLevel,
         context: params.context,
         weekData: params.weekData,
       }),
       model,
       totalChunks: params.context.totalChunks,
-      label: 'Daily objectives',
-      validate: validateDailyObjectives,
+      label: 'Weekly tasks',
+      validate: validateWeeklyTasks,
     });
     return {
-      objectives: result.milestones as GeneratedDailyObjective[],
+      tasks: result.milestones as GeneratedWeeklyTask[],
       metadata: result.metadata,
     };
   }

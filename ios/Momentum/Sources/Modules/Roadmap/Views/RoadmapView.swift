@@ -6,6 +6,8 @@ struct DisplayMilestone: Identifiable {
     let title: String
     let description: String
     let targetMonth: Int
+    let targetWeek: Int
+    let isMonthlyCheckpoint: Bool
     let orderIndex: Int
     let expectedOutcome: String
     let status: MilestoneStatus
@@ -103,7 +105,8 @@ struct RoadmapView: View {
                     title: milestone.title,
                     description: milestone.description,
                     expectedOutcome: milestone.expectedOutcome,
-                    targetMonth: milestone.targetMonth,
+                    targetWeek: milestone.targetWeek,
+                    isMonthlyCheckpoint: milestone.isMonthlyCheckpoint,
                     status: milestone.status
                 )
             }
@@ -233,7 +236,7 @@ struct RoadmapView: View {
     }
 
     private func nodeSize(_ milestone: DisplayMilestone) -> CGFloat {
-        if milestone.isKeyMilestone || milestone.status == .current { return 44 }
+        if milestone.isMonthlyCheckpoint || milestone.isKeyMilestone || milestone.status == .current { return 44 }
         return 34
     }
 
@@ -241,7 +244,7 @@ struct RoadmapView: View {
         let size = nodeSize(milestone)
 
         return ZStack {
-            if milestone.isKeyMilestone && milestone.status != .current {
+            if (milestone.isKeyMilestone || milestone.isMonthlyCheckpoint) && milestone.status != .current {
                 Circle()
                     .fill(nodeColor(milestone.status).opacity(0.12))
                     .frame(width: size + 12, height: size + 12)
@@ -251,19 +254,19 @@ struct RoadmapView: View {
                 .fill(nodeColor(milestone.status))
                 .frame(width: size, height: size)
 
-            if milestone.isKeyMilestone && milestone.status != .upcoming {
+            if (milestone.isKeyMilestone || milestone.isMonthlyCheckpoint) && milestone.status != .upcoming {
                 Circle()
                     .strokeBorder(Color("TextOnAccent").opacity(0.2), lineWidth: 2)
                     .frame(width: size - 6, height: size - 6)
             }
 
-            if milestone.status == .upcoming && !milestone.isKeyMilestone {
+            if milestone.status == .upcoming && !milestone.isKeyMilestone && !milestone.isMonthlyCheckpoint {
                 Circle()
                     .strokeBorder(Color("TextSecondary").opacity(0.2), lineWidth: 2)
                     .frame(width: size, height: size)
             }
 
-            if milestone.status == .upcoming && milestone.isKeyMilestone {
+            if milestone.status == .upcoming && (milestone.isKeyMilestone || milestone.isMonthlyCheckpoint) {
                 Circle()
                     .strokeBorder(Color("TextSecondary").opacity(0.25), lineWidth: 2.5)
                     .frame(width: size, height: size)
@@ -275,10 +278,10 @@ struct RoadmapView: View {
 
     private func nodeIcon(milestone: DisplayMilestone, index: Int, size _: CGFloat) -> some View {
         let isGoal = index == milestones.count - 1
-        let icon: TablerIconOutline = isGoal ? .trophy : .star
+        let icon: TablerIconOutline = isGoal ? .trophy : (milestone.isMonthlyCheckpoint ? .star : .circle)
 
         return Group {
-            if milestone.isKeyMilestone || isGoal {
+            if milestone.isKeyMilestone || milestone.isMonthlyCheckpoint || isGoal {
                 switch milestone.status {
                 case .completed:
                     TablerIcons(icon, size: 22, color: Color("TextOnAccent"))
@@ -302,19 +305,27 @@ struct RoadmapView: View {
 
     private func milestoneLabel(milestone: DisplayMilestone, alignTrailing: Bool) -> some View {
         VStack(alignment: alignTrailing ? .trailing : .leading, spacing: 2) {
-            AppText(verbatim: milestone.title, style: milestone.isKeyMilestone ? .headline : .subheadline)
-                .weight(milestone.isKeyMilestone ? .bold : .semibold)
+            AppText(verbatim: milestone.title, style: (milestone.isKeyMilestone || milestone.isMonthlyCheckpoint) ? .headline : .subheadline)
+                .weight((milestone.isKeyMilestone || milestone.isMonthlyCheckpoint) ? .bold : .semibold)
                 .color(milestone.status == .upcoming ? Color("TextSecondary") : Color("TextPrimary"))
 
             HStack(spacing: 4) {
                 AppText(
                     verbatim: String(
-                        format: String(localized: "roadmap.milestone.targetMonth", table: "Roadmap"),
-                        milestone.targetMonth
+                        format: String(localized: "roadmap.milestone.week", table: "Roadmap"),
+                        milestone.targetWeek
                     ),
                     style: .caption
                 )
                 .color(Color("TextSecondary"))
+
+                if milestone.isMonthlyCheckpoint {
+                    AppText(verbatim: "·", style: .caption)
+                        .color(Color("TextSecondary"))
+                    AppText("roadmap.milestone.monthlyCheckpoint", table: "Roadmap", style: .caption)
+                        .weight(.semibold)
+                        .color(Color("TintPrimary"))
+                }
 
                 if milestone.status == .current {
                     AppText(verbatim: "·", style: .caption)
@@ -376,6 +387,8 @@ struct RoadmapView: View {
                     title: dto.title,
                     description: dto.description,
                     targetMonth: dto.targetMonth,
+                    targetWeek: dto.targetWeek,
+                    isMonthlyCheckpoint: dto.isMonthlyCheckpoint,
                     orderIndex: dto.orderIndex,
                     expectedOutcome: dto.expectedOutcome,
                     status: status,
@@ -419,6 +432,8 @@ struct RoadmapView: View {
                 title: local.title,
                 description: local.milestoneDescription,
                 targetMonth: local.targetMonth,
+                targetWeek: local.targetWeek,
+                isMonthlyCheckpoint: local.isMonthlyCheckpoint,
                 orderIndex: local.orderIndex,
                 expectedOutcome: local.expectedOutcome,
                 status: status,
@@ -449,6 +464,8 @@ struct RoadmapView: View {
                         local.milestoneDescription = milestoneDTO.description
                         local.expectedOutcome = milestoneDTO.expectedOutcome
                         local.targetMonth = milestoneDTO.targetMonth
+                        local.targetWeek = milestoneDTO.targetWeek
+                        local.isMonthlyCheckpoint = milestoneDTO.isMonthlyCheckpoint
                         local.orderIndex = milestoneDTO.orderIndex
                     } else {
                         let local = LocalMilestone(
@@ -460,6 +477,8 @@ struct RoadmapView: View {
                             milestoneDescription: milestoneDTO.description,
                             expectedOutcome: milestoneDTO.expectedOutcome,
                             targetMonth: milestoneDTO.targetMonth,
+                            targetWeek: milestoneDTO.targetWeek,
+                            isMonthlyCheckpoint: milestoneDTO.isMonthlyCheckpoint,
                             createdAt: milestoneDTO.createdAt
                         )
                         local.roadmap = existing
@@ -482,6 +501,8 @@ struct RoadmapView: View {
                     milestoneDescription: milestoneDTO.description,
                     expectedOutcome: milestoneDTO.expectedOutcome,
                     targetMonth: milestoneDTO.targetMonth,
+                    targetWeek: milestoneDTO.targetWeek,
+                    isMonthlyCheckpoint: milestoneDTO.isMonthlyCheckpoint,
                     createdAt: milestoneDTO.createdAt
                 )
             }

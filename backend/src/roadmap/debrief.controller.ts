@@ -20,7 +20,7 @@ import { AuthGuard } from '../common/guards/auth.guard.js';
 import { config } from '../config/app.config.js';
 import { DebriefService } from './debrief.service.js';
 import { SubmitDebriefDto } from './dto/submit-debrief.dto.js';
-import type { Debrief } from './types/daily.types.js';
+import type { Debrief } from './types/weekly-task.types.js';
 
 const HTTP_CREATED = 201;
 const API_STATUS_BAD_REQUEST = 400;
@@ -44,7 +44,7 @@ export class DebriefController {
       ttl: config.throttle.aiEndpointTtlMs,
     },
   })
-  @ApiOperation({ summary: 'Submit end-of-day debrief' })
+  @ApiOperation({ summary: 'Submit end-of-week debrief' })
   @ApiParam({ name: 'goalId', description: 'Goal ID' })
   @ApiResponse({
     status: HTTP_CREATED,
@@ -54,7 +54,7 @@ export class DebriefController {
   @ApiResponse({ status: API_STATUS_UNAUTHORIZED, description: 'Unauthorized' })
   @ApiResponse({
     status: API_STATUS_CONFLICT,
-    description: 'Debrief already submitted for this goal today',
+    description: 'Debrief already submitted for this weekly plan',
   })
   @ApiResponse({
     status: API_STATUS_RATE_LIMIT,

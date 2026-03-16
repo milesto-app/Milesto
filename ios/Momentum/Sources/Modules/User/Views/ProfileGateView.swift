@@ -274,5 +274,5 @@ struct ProfileGateView: View {
 #Preview {
     ProfileGateView(userId: "preview-user")
         .environmentObject(AuthService.shared)
-        .modelContainer(for: [LocalProfile.self, LocalGoal.self, LocalRoadmap.self, LocalMilestone.self, LocalWeeklyPlan.self, LocalDailyObjective.self, LocalCheckIn.self], inMemory: true)
+        .modelContainer(for: [LocalProfile.self, LocalGoal.self, LocalRoadmap.self, LocalMilestone.self, LocalWeeklyPlan.self, LocalWeeklyTask.self], inMemory: true)
 }

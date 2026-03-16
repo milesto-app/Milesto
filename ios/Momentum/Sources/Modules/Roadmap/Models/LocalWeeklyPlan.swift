@@ -16,8 +16,8 @@ final class LocalWeeklyPlan {
     var isFallback: Bool
     var createdAt: String
     var summaryCompletionRate: Double?
-    var summaryObjectivesCompleted: Int?
-    var summaryObjectivesTotal: Int?
+    var summaryTasksCompleted: Int?
+    var summaryTasksTotal: Int?
     var summaryDebriefCount: Int?
     var summaryNarrative: String?
 
@@ -27,14 +27,13 @@ final class LocalWeeklyPlan {
 
     var summary: WeeklySummaryDTO? {
         guard let completionRate = summaryCompletionRate,
-              let objectivesCompleted = summaryObjectivesCompleted,
-              let objectivesTotal = summaryObjectivesTotal else { return nil }
+              let tasksCompleted = summaryTasksCompleted,
+              let tasksTotal = summaryTasksTotal else { return nil }
         return WeeklySummaryDTO(
             completionRate: completionRate,
-            objectivesCompleted: objectivesCompleted,
-            objectivesTotal: objectivesTotal,
+            tasksCompleted: tasksCompleted,
+            tasksTotal: tasksTotal,
             debriefCount: summaryDebriefCount,
-            energyDistribution: nil,
             narrative: summaryNarrative
         )
     }
@@ -53,8 +52,8 @@ final class LocalWeeklyPlan {
         self.isFallback = isFallback
         self.createdAt = createdAt
         summaryCompletionRate = summary?.completionRate
-        summaryObjectivesCompleted = summary?.objectivesCompleted
-        summaryObjectivesTotal = summary?.objectivesTotal
+        summaryTasksCompleted = summary?.tasksCompleted
+        summaryTasksTotal = summary?.tasksTotal
         summaryDebriefCount = summary?.debriefCount
         summaryNarrative = summary?.narrative
     }

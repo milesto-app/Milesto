@@ -29,9 +29,9 @@ export class GenerationNarrativeService {
     language: string,
   ): Promise<WeeklySummary> {
     const completionRate =
-      weekData.objectivesTotal > 0
+      weekData.tasksTotal > 0
         ? Math.round(
-            (weekData.objectivesCompleted / weekData.objectivesTotal) *
+            (weekData.tasksCompleted / weekData.tasksTotal) *
               PERCENTAGE_MULTIPLIER,
           )
         : 0;
@@ -48,11 +48,9 @@ export class GenerationNarrativeService {
 
     return {
       completion_rate: completionRate,
-      objectives_completed: weekData.objectivesCompleted,
-      objectives_total:
-        weekData.objectivesTotal || completedPlan.objectives.length,
+      tasks_completed: weekData.tasksCompleted,
+      tasks_total: weekData.tasksTotal || completedPlan.objectives.length,
       debrief_count: weekData.debriefNotes.length,
-      energy_distribution: weekData.energyDistribution,
       ...(narrative !== undefined ? { narrative } : {}),
     };
   }
@@ -64,10 +62,9 @@ export class GenerationNarrativeService {
     if (weeklySummaries.length === 0) {
       return {
         completion_rate: 0,
-        objectives_completed: 0,
-        objectives_total: 0,
+        tasks_completed: 0,
+        tasks_total: 0,
         debrief_count: 0,
-        energy_distribution: {},
       };
     }
 
@@ -82,7 +79,7 @@ export class GenerationNarrativeService {
       userPrompt: buildMonthlySummaryNarrativeUserPrompt({
         avgCompletionRate: totals.avgCompletionRate,
         totalCompleted: totals.totalCompleted,
-        totalObjectives: totals.totalObjectives,
+        totalTasks: totals.totalTasks,
         weeklyNarratives,
       }),
       label: 'Monthly summary',
@@ -121,16 +118,16 @@ export class GenerationNarrativeService {
 
   private aggregateWeeklyTotals(weeklySummaries: WeeklySummary[]): {
     totalCompleted: number;
-    totalObjectives: number;
+    totalTasks: number;
     avgCompletionRate: number;
     summary: Omit<MonthlySummary, 'narrative'>;
   } {
     const totalCompleted = weeklySummaries.reduce(
-      (sum, ws) => sum + ws.objectives_completed,
+      (sum, ws) => sum + ws.tasks_completed,
       0,
     );
-    const totalObjectives = weeklySummaries.reduce(
-      (sum, ws) => sum + ws.objectives_total,
+    const totalTasks = weeklySummaries.reduce(
+      (sum, ws) => sum + ws.tasks_total,
       0,
     );
     const avgCompletionRate = Math.round(
@@ -142,25 +139,15 @@ export class GenerationNarrativeService {
       0,
     );
 
-    const aggregatedEnergy: Record<string, number> = {};
-    for (const ws of weeklySummaries) {
-      if (ws.energy_distribution !== undefined) {
-        for (const [level, count] of Object.entries(ws.energy_distribution)) {
-          aggregatedEnergy[level] = (aggregatedEnergy[level] ?? 0) + count;
-        }
-      }
-    }
-
     return {
       totalCompleted,
-      totalObjectives,
+      totalTasks,
       avgCompletionRate,
       summary: {
         completion_rate: avgCompletionRate,
-        objectives_completed: totalCompleted,
-        objectives_total: totalObjectives,
+        tasks_completed: totalCompleted,
+        tasks_total: totalTasks,
         debrief_count: totalDebriefs,
-        energy_distribution: aggregatedEnergy,
       },
     };
   }

@@ -79,8 +79,8 @@ describe('SummaryEmbeddingService', () => {
         userId: 'user-uuid',
         summary: {
           completion_rate: 80,
-          objectives_completed: 4,
-          objectives_total: 5,
+          tasks_completed: 4,
+          tasks_total: 5,
         },
         contentText: 'Weekly summary text',
       });

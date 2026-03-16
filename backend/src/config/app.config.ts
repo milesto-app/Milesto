@@ -32,7 +32,7 @@ export const config = {
     rerankTopN: 10,
     milestoneModel: 'default',
     weeklyModel: 'default',
-    dailyModel: 'default',
+    weeklyTaskModel: 'default',
     maxGenerationAttempts: 3,
   },
   cohere: {

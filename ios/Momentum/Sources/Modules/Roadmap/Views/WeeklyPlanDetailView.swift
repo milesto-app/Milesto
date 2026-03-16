@@ -28,7 +28,7 @@ struct WeeklyPlanDetailView: View {
 
                     focusCard
 
-                    objectivesCard
+                    tasksCard
 
                     if status == .completed, let summary {
                         summaryCard(summary)
@@ -56,9 +56,9 @@ struct WeeklyPlanDetailView: View {
         .glassEffect(.regular, in: RoundedRectangle(cornerRadius: 16))
     }
 
-    private var objectivesCard: some View {
+    private var tasksCard: some View {
         VStack(alignment: .leading, spacing: 12) {
-            AppText("roadmap.weeklyPlan.objectives", table: "Roadmap", style: .headline)
+            AppText("roadmap.weeklyPlan.tasks", table: "Roadmap", style: .headline)
 
             ForEach(objectives, id: \.self) { objective in
                 HStack(alignment: .top, spacing: 8) {
@@ -85,8 +85,8 @@ struct WeeklyPlanDetailView: View {
             AppText(
                 verbatim: String(
                     format: String(localized: "roadmap.weeklyPlan.completion", table: "Roadmap"),
-                    summary.objectivesCompleted,
-                    summary.objectivesTotal
+                    summary.tasksCompleted,
+                    summary.tasksTotal
                 ),
                 style: .body
             )
@@ -114,10 +114,9 @@ struct WeeklyPlanDetailView: View {
         ],
         summary: WeeklySummaryDTO(
             completionRate: 0.66,
-            objectivesCompleted: 2,
-            objectivesTotal: 3,
+            tasksCompleted: 2,
+            tasksTotal: 3,
             debriefCount: nil,
-            energyDistribution: nil,
             narrative: "Bonne progression cette semaine, l'endurance s'ameliore."
         ),
         status: .completed

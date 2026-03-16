@@ -6,12 +6,11 @@ enum DifficultyRating: String, Codable {
     case hard
 }
 
-struct DailyObjectiveDTO: Codable, Identifiable {
+struct WeeklyTaskDTO: Codable, Identifiable {
     let id: String
     let weeklyPlanId: String
     let goalId: String
     let userId: String
-    let date: String
     let title: String
     let description: String
     let difficultyRating: DifficultyRating?
@@ -21,7 +20,7 @@ struct DailyObjectiveDTO: Codable, Identifiable {
     let createdAt: String
 
     enum CodingKeys: String, CodingKey {
-        case id, date, title, description
+        case id, title, description
         case weeklyPlanId = "weekly_plan_id"
         case goalId = "goal_id"
         case userId = "user_id"
@@ -33,7 +32,7 @@ struct DailyObjectiveDTO: Codable, Identifiable {
     }
 }
 
-struct UpdateObjectiveRequest: Encodable {
+struct UpdateTaskRequest: Encodable {
     let isCompleted: Bool
 
     enum CodingKeys: String, CodingKey {

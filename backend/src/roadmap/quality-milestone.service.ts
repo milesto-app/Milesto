@@ -129,7 +129,9 @@ export class QualityMilestoneService {
   ): Promise<unknown[] | null> {
     const { data, error } = await supabase
       .from('milestones')
-      .select('title, description, expected_outcome, target_month, order_index')
+      .select(
+        'title, description, expected_outcome, target_month, target_week, is_monthly_checkpoint, order_index',
+      )
       .eq('roadmap_id', roadmapId)
       .order('order_index');
     // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition

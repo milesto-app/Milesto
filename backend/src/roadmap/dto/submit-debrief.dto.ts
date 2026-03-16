@@ -14,9 +14,9 @@ import {
 const DEBRIEF_NOTE_MAX_LENGTH = 5000;
 
 export class TaskRatingDto {
-  @ApiProperty({ description: 'Daily objective ID', example: 'uuid-here' })
+  @ApiProperty({ description: 'Weekly task ID', example: 'uuid-here' })
   @IsUUID()
-  public objective_id!: string;
+  public task_id!: string;
 
   @ApiProperty({
     description: 'Difficulty rating',
@@ -30,9 +30,16 @@ export class TaskRatingDto {
 
 export class SubmitDebriefDto {
   @ApiProperty({
-    description: 'Free-text reflection on the day',
+    description: 'Weekly plan ID for this debrief',
+    example: 'uuid-here',
+  })
+  @IsUUID()
+  public weekly_plan_id!: string;
+
+  @ApiProperty({
+    description: 'Free-text reflection on the week',
     example:
-      'Today was productive. The writing task took longer than expected.',
+      'This week was productive. The writing tasks took longer than expected.',
   })
   @IsString()
   @IsNotEmpty()

@@ -35,19 +35,19 @@
         }
       }
     },
-    "chat.tool.dailyObjectives" : {
+    "chat.tool.weeklyTasks" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Looking up your daily objectives..."
+            "value" : "Looking up your weekly tasks..."
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Recherche de tes objectifs du jour..."
+            "value" : "Recherche de tes tâches de la semaine..."
           }
         }
       }
