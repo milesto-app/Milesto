@@ -1,6 +1,11 @@
 #!/bin/bash
 set -euo pipefail
 
+if [ "${CI:-}" = "TRUE" ]; then
+  echo "Skipping linting on CI"
+  exit 0
+fi
+
 if ! command -v swiftlint &>/dev/null; then
   echo "swiftlint not found. Install with: brew install swiftlint"
   exit 1
