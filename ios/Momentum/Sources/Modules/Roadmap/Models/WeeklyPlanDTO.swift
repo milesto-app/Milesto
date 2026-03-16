@@ -13,7 +13,6 @@ struct WeeklyPlanDTO: Codable {
     let userId: String
     let weekNumber: Int
     let weekStartDate: String
-    let focus: String
     let objectives: [String]
     let summary: WeeklySummaryDTO?
     let status: WeeklyPlanStatus
@@ -21,7 +20,7 @@ struct WeeklyPlanDTO: Codable {
     let createdAt: String
 
     enum CodingKeys: String, CodingKey {
-        case id, focus, objectives, summary, status
+        case id, objectives, summary, status
         case roadmapId = "roadmap_id"
         case milestoneId = "milestone_id"
         case goalId = "goal_id"

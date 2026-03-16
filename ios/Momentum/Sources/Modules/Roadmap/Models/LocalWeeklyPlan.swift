@@ -10,7 +10,6 @@ final class LocalWeeklyPlan {
     var userId: String
     var weekNumber: Int
     var weekStartDate: String
-    var focus: String
     var objectives: [String]
     var status: String
     var isFallback: Bool
@@ -38,7 +37,7 @@ final class LocalWeeklyPlan {
         )
     }
 
-    init(id: String, roadmapId: String, milestoneId: String, goalId: String, userId: String, weekNumber: Int, weekStartDate: String, focus: String, objectives: [String], status: String, isFallback: Bool, createdAt: String, summary: WeeklySummaryDTO? = nil) {
+    init(id: String, roadmapId: String, milestoneId: String, goalId: String, userId: String, weekNumber: Int, weekStartDate: String, objectives: [String], status: String, isFallback: Bool, createdAt: String, summary: WeeklySummaryDTO? = nil) {
         self.id = id
         self.roadmapId = roadmapId
         self.milestoneId = milestoneId
@@ -46,7 +45,6 @@ final class LocalWeeklyPlan {
         self.userId = userId
         self.weekNumber = weekNumber
         self.weekStartDate = weekStartDate
-        self.focus = focus
         self.objectives = objectives
         self.status = status
         self.isFallback = isFallback

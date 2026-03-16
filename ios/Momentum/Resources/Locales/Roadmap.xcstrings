@@ -851,23 +851,6 @@
         }
       }
     },
-    "roadmap.weeklyPlan.focus" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Weekly focus"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Focus de la semaine"
-          }
-        }
-      }
-    },
     "roadmap.weeklyPlan.tasks" : {
       "extractionState" : "manual",
       "localizations" : {

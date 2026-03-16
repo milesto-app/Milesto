@@ -116,7 +116,7 @@ export class QualityWeeklyTaskService {
       null,
       JSON_INDENT,
     );
-    const planContext = `Weekly Plan Focus: ${plan.focus}\nObjectives: ${JSON.stringify(plan.objectives)}\nTask Count: ${String(tasks.length)}`;
+    const planContext = `Weekly Plan Objectives: ${JSON.stringify(plan.objectives)}\nTask Count: ${String(tasks.length)}`;
     const taskIds = tasks.map((t) => t.id);
     return { content, planContext, taskIds };
   }
@@ -155,10 +155,10 @@ export class QualityWeeklyTaskService {
   private async loadWeeklyPlan(
     supabase: ReturnType<SupabaseService['getAdminClient']>,
     weeklyPlanId: string,
-  ): Promise<{ focus: string; objectives: string[] } | null> {
+  ): Promise<{ objectives: string[] } | null> {
     const { data, error } = await supabase
       .from('weekly_plans')
-      .select('focus, objectives')
+      .select('objectives')
       .eq('id', weeklyPlanId)
       .single();
     // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
@@ -169,7 +169,7 @@ export class QualityWeeklyTaskService {
       );
       return null;
     }
-    return data as { focus: string; objectives: string[] };
+    return data as { objectives: string[] };
   }
 
   private buildScores(

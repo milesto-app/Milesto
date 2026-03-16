@@ -8,6 +8,8 @@ export type Json =
   | Json[];
 
 export type Database = {
+  // Allows to automatically instantiate createClient with right options
+  // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
     PostgrestVersion: '14.1';
   };
@@ -724,7 +726,6 @@ export type Database = {
       weekly_plans: {
         Row: {
           created_at: string | null;
-          focus: string;
           generation_context: Json | null;
           generation_metadata: Json | null;
           goal_id: string;
@@ -743,7 +744,6 @@ export type Database = {
         };
         Insert: {
           created_at?: string | null;
-          focus: string;
           generation_context?: Json | null;
           generation_metadata?: Json | null;
           goal_id: string;
@@ -762,7 +762,6 @@ export type Database = {
         };
         Update: {
           created_at?: string | null;
-          focus?: string;
           generation_context?: Json | null;
           generation_metadata?: Json | null;
           goal_id?: string;

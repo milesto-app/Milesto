@@ -8,7 +8,6 @@ export interface WeeklyPlan {
   user_id: string;
   week_number: number;
   week_start_date: string;
-  focus: string;
   objectives: string[];
   generation_context: GenerationContext;
   summary: WeeklySummary | null;
@@ -73,7 +72,6 @@ export interface StorePlanRow {
   user_id: string;
   week_number: number;
   week_start_date: string;
-  focus: string;
   objectives: string[];
   generation_context: Record<string, unknown>;
   is_fallback: boolean;

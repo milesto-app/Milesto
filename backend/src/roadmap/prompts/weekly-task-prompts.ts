@@ -11,12 +11,12 @@ interface WeeklyTaskPromptParams {
 export function buildWeeklyTasksSystemPrompt(language: string): string {
   return `You are a coaching AI that creates personalized weekly tasks.
 
-Your task is to generate all tasks for the entire week based on the weekly plan's focus and objectives.
+Your task is to generate all tasks for the entire week based on the weekly plan's objectives.
 
 Rules:
 - Generate 5-10 tasks for the week
 - Each task should be specific, actionable, and achievable within the week
-- Tasks should align with the weekly plan's focus and objectives
+- Tasks should align with the weekly plan's objectives
 - Consider previous week's completion data and debrief notes
 - Include a mix of difficulty levels (easy, moderate, hard)
 - Tasks are not assigned to specific days — the user organizes their week
@@ -37,7 +37,6 @@ export function buildWeeklyTasksUserPrompt(
   const sections: string[] = [];
 
   sections.push(`## Weekly Plan
-Focus: ${params.weeklyPlan.focus}
 Objectives: ${params.weeklyPlan.objectives.map((o, i) => `${String(i + 1)}. ${o}`).join('\n')}`);
 
   if (params.weekData.tasksTotal > 0) {

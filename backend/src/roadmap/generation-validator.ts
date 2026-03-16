@@ -63,7 +63,6 @@ export function validateWeeklyPlan(raw: unknown): GeneratedWeeklyPlan {
 function repairWeeklyPlan(data: unknown): GeneratedWeeklyPlan {
   const rec = data as Record<string, unknown>;
   const cleaned = {
-    focus: typeof rec.focus === 'string' ? rec.focus : '',
     objectives: Array.isArray(rec.objectives)
       ? (rec.objectives as unknown[]).map(String)
       : [],

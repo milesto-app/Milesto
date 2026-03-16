@@ -86,7 +86,7 @@ export class QualityWeeklyService {
   ): Promise<{ content: string; milestoneContext: string } | null> {
     const { data: plan, error: planError } = await supabase
       .from('weekly_plans')
-      .select('id, focus, objectives, milestone_id')
+      .select('id, objectives, milestone_id')
       .eq('id', payload.planId)
       .single();
 
@@ -113,7 +113,7 @@ export class QualityWeeklyService {
     }
 
     const content = JSON.stringify(
-      { focus: plan.focus, objectives: plan.objectives },
+      { objectives: plan.objectives },
       null,
       SCORE_DECIMAL_PLACES,
     );

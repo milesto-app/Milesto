@@ -19,7 +19,7 @@ export const WEEKLY_PLAN_JUDGE_SYSTEM_PROMPT =
 
 Score the weekly plan on three dimensions from 0 to 5 (integers only):
 
-1. **milestone_alignment** — Does the weekly focus and its objectives advance the current milestone? Score 5 if the plan directly contributes to milestone completion. Score 0 if the plan is unrelated to the milestone.
+1. **milestone_alignment** — Do the weekly plan's objectives advance the current milestone? Score 5 if the plan directly contributes to milestone completion. Score 0 if the plan is unrelated to the milestone.
 
 2. **progress_adaptation** — Does the plan account for actual progress (prior completions, debriefs, energy patterns)? Score 5 if the plan clearly adapts to the user's real situation. Score 0 if it ignores prior context entirely.
 
@@ -33,7 +33,7 @@ export const WEEKLY_TASK_JUDGE_SYSTEM_PROMPT =
 
 Score the weekly tasks on three dimensions from 0 to 5 (integers only):
 
-1. **weekly_plan_alignment** — Do the tasks align with the weekly plan's focus and objectives? Score 5 if tasks directly advance the weekly plan goals. Score 0 if tasks are unrelated to the plan.
+1. **weekly_plan_alignment** — Do the tasks align with the weekly plan's objectives? Score 5 if tasks directly advance the weekly plan goals. Score 0 if tasks are unrelated to the plan.
 
 2. **specificity** — Are the tasks clear and unambiguous? Score 5 if each task describes exactly what to do. Score 0 if tasks are vague platitudes.
 

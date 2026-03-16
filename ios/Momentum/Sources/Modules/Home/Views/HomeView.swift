@@ -132,19 +132,6 @@ struct HomeView: View {
 
     private var contentSection: some View {
         VStack(spacing: 16) {
-            if let weeklyPlan {
-                let focusData = WeeklyFocusData(
-                    focus: weeklyPlan.focus,
-                    weekNumber: weeklyPlan.weekNumber,
-                    tasksCount: weeklyPlan.objectives.count,
-                    completedCount: weeklyPlan.summary?.tasksCompleted ?? completedCount
-                )
-                WeeklyFocusCard(weeklyPlan: focusData) {
-                    showWeeklyPlanDetail = true
-                }
-                .padding(.horizontal, 16)
-            }
-
             HStack {
                 AppText("home.tasks", table: "Home", style: .headline)
                 Spacer()
@@ -172,7 +159,6 @@ struct HomeView: View {
                 WeeklyPlanDetailView(
                     weekNumber: weeklyPlan.weekNumber,
                     weekStartDate: weeklyPlan.weekStartDate,
-                    focus: weeklyPlan.focus,
                     objectives: weeklyPlan.objectives,
                     summary: weeklyPlan.summary,
                     status: weeklyPlan.status
@@ -334,7 +320,6 @@ struct HomeView: View {
             userId: local.userId,
             weekNumber: local.weekNumber,
             weekStartDate: local.weekStartDate,
-            focus: local.focus,
             objectives: local.objectives,
             summary: local.summary,
             status: local.weeklyPlanStatus,
@@ -354,7 +339,6 @@ struct HomeView: View {
             existing.milestoneId = dto.milestoneId
             existing.weekNumber = dto.weekNumber
             existing.weekStartDate = dto.weekStartDate
-            existing.focus = dto.focus
             existing.objectives = dto.objectives
             existing.status = dto.status.rawValue
             existing.isFallback = dto.isFallback
@@ -372,7 +356,6 @@ struct HomeView: View {
                 userId: dto.userId,
                 weekNumber: dto.weekNumber,
                 weekStartDate: dto.weekStartDate,
-                focus: dto.focus,
                 objectives: dto.objectives,
                 status: dto.status.rawValue,
                 isFallback: dto.isFallback,

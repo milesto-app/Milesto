@@ -189,7 +189,6 @@ export class WeeklyPlanService {
       user_id: params.userId,
       week_number: params.weekNumber,
       week_start_date: this.deps.storage.getCurrentWeekStart(),
-      focus: generated.focus,
       objectives: generated.objectives,
       generation_context: params.generationContext as unknown as Record<
         string,
@@ -222,7 +221,6 @@ export class WeeklyPlanService {
         user_id: userId,
         week_number: weekNumber,
         week_start_date: this.deps.storage.getCurrentWeekStart(),
-        focus: milestone.description,
         objectives: [milestone.expected_outcome],
         generation_context: {},
         is_fallback: true,

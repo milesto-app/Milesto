@@ -26,15 +26,13 @@ export function buildWeeklyPlanSystemPrompt(language: string): string {
 Your task is to generate a focused weekly plan based on the user's current milestone, progress, and context.
 
 Rules:
-- Create a clear, actionable focus statement for the week
 - Generate 3-7 specific, achievable objectives
 - Objectives should be concrete daily or multi-day actions
 - Consider the user's recent progress, energy levels, and capacity
 - Build on previous week's momentum if summary data is available
 - Adapt difficulty based on completion rates from previous weeks
 
-Return a JSON object with these exact fields:
-- "focus": A concise statement of the week's primary focus area
+Return a JSON object with this exact field:
 - "objectives": An array of specific, actionable objective strings
 
 Return ONLY the JSON object, no other text.${buildLanguageBlock(language)}`;

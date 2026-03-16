@@ -35,7 +35,6 @@ describe('GenerationNarrativeService', () => {
       user_id: 'user-1',
       week_number: 1,
       week_start_date: '2026-02-17',
-      focus: 'Build habits',
       objectives: ['Obj 1', 'Obj 2', 'Obj 3'],
       generation_context: {},
       summary: null,

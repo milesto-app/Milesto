@@ -86,7 +86,6 @@ describe('WeeklyPlanService', () => {
       const mockPlan = {
         id: 'plan-uuid',
         status: 'active',
-        focus: 'Focus area',
       };
       mockStorage.getCurrentWeeklyPlan.mockResolvedValue(mockPlan);
 

@@ -595,57 +595,6 @@
           }
         }
       }
-    },
-    "home.weeklyFocus.tasks" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%d/%d tasks"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%d/%d tâches"
-          }
-        }
-      }
-    },
-    "home.weeklyFocus.title" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Weekly focus"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Focus hebdo"
-          }
-        }
-      }
-    },
-    "home.weeklyFocus.week" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Week %d"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Semaine %d"
-          }
-        }
-      }
     }
   },
   "version" : "1.0"

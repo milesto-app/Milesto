@@ -3,7 +3,6 @@ import SwiftUI
 struct WeeklyPlanDetailView: View {
     let weekNumber: Int
     let weekStartDate: String
-    let focus: String
     let objectives: [String]
     let summary: WeeklySummaryDTO?
     let status: WeeklyPlanStatus
@@ -26,8 +25,6 @@ struct WeeklyPlanDetailView: View {
                     }
                     .frame(maxWidth: .infinity, alignment: .leading)
 
-                    focusCard
-
                     tasksCard
 
                     if status == .completed, let summary {
@@ -39,21 +36,6 @@ struct WeeklyPlanDetailView: View {
                 .padding(.bottom, 40)
             }
         }
-    }
-
-    private var focusCard: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            HStack(spacing: 8) {
-                TablerIcons(.target, size: 20, color: Color("TintPrimary"))
-                AppText("roadmap.weeklyPlan.focus", table: "Roadmap", style: .headline)
-            }
-
-            AppText(verbatim: focus, style: .body)
-                .color(Color("TextSecondary"))
-        }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(16)
-        .glassEffect(.regular, in: RoundedRectangle(cornerRadius: 16))
     }
 
     private var tasksCard: some View {
@@ -106,7 +88,6 @@ struct WeeklyPlanDetailView: View {
     WeeklyPlanDetailView(
         weekNumber: 3,
         weekStartDate: "24 fev 2026",
-        focus: "Augmenter progressivement la distance de course",
         objectives: [
             "Courir 8 km sans pause",
             "Faire 2 seances de renforcement musculaire",

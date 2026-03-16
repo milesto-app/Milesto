@@ -327,7 +327,6 @@ describe('GenerationService', () => {
     };
 
     const validWeeklyPlanResponse = {
-      focus: 'Build foundation habits',
       objectives: [
         'Run 3 times this week',
         'Research proper gear',
@@ -346,7 +345,6 @@ describe('GenerationService', () => {
         language: 'en',
       });
 
-      expect(result.plan.focus).toBe('Build foundation habits');
       expect(result.plan.objectives).toHaveLength(3);
       expect(result.metadata.model_used).toBe(config.ai.defaultModel);
       expect(result.metadata.attempts).toBe(1);
@@ -372,7 +370,6 @@ describe('GenerationService', () => {
 
     it('should repair weekly plan with non-string objectives', async () => {
       const badResponse = {
-        focus: 'Focus text',
         objectives: [123, true, 'valid objective'],
       };
       mockAiService.generateJson.mockResolvedValue(badResponse);
@@ -393,7 +390,7 @@ describe('GenerationService', () => {
     });
 
     it('should throw on double validation failure', async () => {
-      const invalidResponse = { focus: '', objectives: [] };
+      const invalidResponse = { objectives: [] };
       mockAiService.generateJson.mockResolvedValue(invalidResponse);
 
       await expect(
@@ -419,7 +416,7 @@ describe('GenerationService', () => {
         language: 'en',
       });
 
-      expect(result.plan.focus).toBe('Build foundation habits');
+      expect(result.plan.objectives).toHaveLength(3);
       expect(result.metadata.attempts).toBe(2);
     });
 
@@ -486,7 +483,6 @@ describe('GenerationService', () => {
       user_id: 'user-1',
       week_number: 1,
       week_start_date: '2026-02-17',
-      focus: 'Build foundation habits',
       objectives: ['Run 3 times', 'Research gear', 'Set daily alarm'],
       generation_context: {},
       summary: null,
@@ -654,20 +650,6 @@ describe('GenerationService', () => {
         }),
       ).rejects.toThrow('Second failure');
       expect(mockAiService.generateJson).toHaveBeenCalledTimes(2);
-    });
-
-    it('should include weekly plan focus in prompt', async () => {
-      mockAiService.generateJson.mockResolvedValue(validWeeklyTasksResponse);
-
-      await service.generateWeeklyTasks({
-        weeklyPlan: mockWeeklyPlan,
-        context: mockContext,
-        weekData: mockWeekData,
-        language: 'en',
-      });
-
-      const userPrompt = mockAiService.generateJson.mock.calls[0][1] as string;
-      expect(userPrompt).toContain('Build foundation habits');
     });
 
     it('should log warning on generation attempt failure', async () => {

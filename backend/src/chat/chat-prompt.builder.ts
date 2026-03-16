@@ -14,7 +14,6 @@ interface GoalContext {
   } | null;
   weeklyPlan: {
     week_number: number;
-    focus: string;
     objectives: string[];
   } | null;
 }
@@ -115,7 +114,7 @@ function buildGoalContextSection(ctx: PromptInput['goalContext']): string {
 
   if (ctx.weeklyPlan !== null) {
     parts.push(
-      `This Week (Week ${String(ctx.weeklyPlan.week_number)}):\nFocus: ${ctx.weeklyPlan.focus}\nObjectives:\n${ctx.weeklyPlan.objectives.map((o) => `- ${o}`).join('\n')}`,
+      `This Week (Week ${String(ctx.weeklyPlan.week_number)}):\nObjectives:\n${ctx.weeklyPlan.objectives.map((o) => `- ${o}`).join('\n')}`,
     );
   }
 
