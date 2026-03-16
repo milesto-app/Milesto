@@ -67,6 +67,9 @@
     "serialize-javascript": "7.0.3",
     "multer": "2.1.0"
   },
+  "engines": {
+    "node": ">=22"
+  },
   "jest": {
     "moduleFileExtensions": [
       "js",
