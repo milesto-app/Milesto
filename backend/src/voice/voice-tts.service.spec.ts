@@ -11,6 +11,7 @@ const MOCK_AUDIO_DATA = Buffer.from('fake-audio-data');
 const mockConvert = jest.fn();
 
 jest.mock('elevenlabs', () => ({
+  // eslint-disable-next-line @typescript-eslint/naming-convention
   ElevenLabsClient: jest.fn().mockImplementation(() => ({
     textToSpeech: { convert: mockConvert },
   })),

@@ -14,7 +14,6 @@ const MOCK_USER_ID = 'user-123';
 const MOCK_GOAL_ID = 'goal-456';
 const MOCK_CONVERSATION_ID = 'conv-789';
 const MOCK_SESSION_ID = 'session-001';
-const MOCK_SESSION_SECRET = 'secret-abc';
 const MOCK_SIGNED_URL = 'wss://elevenlabs.io/signed';
 
 let service: VoiceChatTokenService;
@@ -61,7 +60,7 @@ beforeEach(async () => {
 
   global.fetch = jest.fn().mockResolvedValue({
     ok: true,
-    json: async () => ({ signed_url: MOCK_SIGNED_URL }),
+    json: async () => Promise.resolve({ signed_url: MOCK_SIGNED_URL }),
   });
 
   const module: TestingModule = await Test.createTestingModule({
@@ -162,7 +161,7 @@ describe('VoiceChatTokenService', () => {
       (global.fetch as jest.Mock).mockResolvedValue({
         ok: false,
         status: 500,
-        text: async () => 'Internal Server Error',
+        text: async () => Promise.resolve('Internal Server Error'),
       });
 
       await expect(

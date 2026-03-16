@@ -9,6 +9,7 @@ const MOCK_TRANSCRIPT = 'Hello, how are you?';
 const mockConvert = jest.fn();
 
 jest.mock('elevenlabs', () => ({
+  // eslint-disable-next-line @typescript-eslint/naming-convention
   ElevenLabsClient: jest.fn().mockImplementation(() => ({
     speechToText: { convert: mockConvert },
   })),

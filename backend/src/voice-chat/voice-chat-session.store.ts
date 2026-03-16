@@ -37,7 +37,7 @@ export class VoiceChatSessionStore {
 
   constructor(private readonly supabaseService: SupabaseService) {}
 
-  async create(
+  public async create(
     userId: string,
     goalId: string,
     conversationId: string,
@@ -70,7 +70,7 @@ export class VoiceChatSessionStore {
     return id;
   }
 
-  async get(sessionId: string): Promise<VoiceSession | null> {
+  public async get(sessionId: string): Promise<VoiceSession | null> {
     const supabase = this.supabaseService.getAdminClient();
 
     const { data, error } = await supabase
@@ -80,6 +80,7 @@ export class VoiceChatSessionStore {
       .gt('expires_at', new Date().toISOString())
       .single();
 
+    // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions, @typescript-eslint/no-unnecessary-condition
     if (error || !data) {
       return null;
     }
@@ -87,7 +88,7 @@ export class VoiceChatSessionStore {
     return this.mapRow(data as unknown as VoiceSessionRow);
   }
 
-  async validateSecret(
+  public async validateSecret(
     sessionId: string,
     secret: string,
   ): Promise<VoiceSession | null> {
@@ -101,6 +102,7 @@ export class VoiceChatSessionStore {
       .gt('expires_at', new Date().toISOString())
       .single();
 
+    // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions, @typescript-eslint/no-unnecessary-condition
     if (error || !data) {
       return null;
     }
@@ -108,7 +110,7 @@ export class VoiceChatSessionStore {
     return this.mapRow(data as unknown as VoiceSessionRow);
   }
 
-  async setElevenLabsConversationId(
+  public async setElevenLabsConversationId(
     sessionId: string,
     elevenlabsConversationId: string,
   ): Promise<void> {
@@ -127,7 +129,7 @@ export class VoiceChatSessionStore {
     }
   }
 
-  async endSession(sessionId: string): Promise<void> {
+  public async endSession(sessionId: string): Promise<void> {
     const supabase = this.supabaseService.getAdminClient();
 
     const { error } = await supabase
@@ -143,7 +145,7 @@ export class VoiceChatSessionStore {
     }
   }
 
-  async findByElevenLabsConversationId(
+  public async findByElevenLabsConversationId(
     elevenlabsConversationId: string,
   ): Promise<VoiceSession | null> {
     const supabase = this.supabaseService.getAdminClient();
@@ -154,6 +156,7 @@ export class VoiceChatSessionStore {
       .eq('elevenlabs_conversation_id', elevenlabsConversationId)
       .single();
 
+    // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions, @typescript-eslint/no-unnecessary-condition
     if (error || !data) {
       return null;
     }
@@ -161,7 +164,7 @@ export class VoiceChatSessionStore {
     return this.mapRow(data as unknown as VoiceSessionRow);
   }
 
-  async markTranscriptStored(sessionId: string): Promise<boolean> {
+  public async markTranscriptStored(sessionId: string): Promise<boolean> {
     const supabase = this.supabaseService.getAdminClient();
 
     const { data, error } = await supabase
@@ -182,7 +185,7 @@ export class VoiceChatSessionStore {
     return data.length > 0;
   }
 
-  async purgeStale(): Promise<void> {
+  public async purgeStale(): Promise<void> {
     const supabase = this.supabaseService.getAdminClient();
     const cutoff = new Date(Date.now() - STALE_RETENTION_MS).toISOString();
 

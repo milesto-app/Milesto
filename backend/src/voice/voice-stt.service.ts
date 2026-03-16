@@ -27,9 +27,17 @@ export class VoiceSttService {
         `Received audio: ${String(audioBuffer.length)} bytes, mimetype=${mimetype}, language=${language}`,
       );
 
+      /* eslint-disable @typescript-eslint/naming-convention */
+      const extensionMap: Record<string, string> = {
+        'audio/wav': 'wav',
+        'audio/mpeg': 'mp3',
+        'audio/mp4': 'mp4',
+      };
+      /* eslint-enable @typescript-eslint/naming-convention */
+      const extension = extensionMap[mimetype] ?? 'webm';
       const file = new File(
         [new Uint8Array(audioBuffer)],
-        `recording.${mimetype === 'audio/wav' ? 'wav' : mimetype === 'audio/mpeg' ? 'mp3' : mimetype === 'audio/mp4' ? 'mp4' : 'webm'}`,
+        `recording.${extension}`,
         { type: mimetype },
       );
 
@@ -43,7 +51,7 @@ export class VoiceSttService {
       const duration = this.estimateDuration(response.words);
 
       this.logger.log(
-        `Transcription complete: ~${String(duration.toFixed(1))}s audio, text="${response.text}"`,
+        `Transcription complete: ~${duration.toFixed(1)}s audio, text="${response.text}"`,
       );
 
       return {

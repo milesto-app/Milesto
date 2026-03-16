@@ -164,6 +164,7 @@ export class QualityWeeklyTaskService {
     // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
     if (error !== null || data === null) {
       this.logger.error(
+        // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
         `Failed to load weekly plan for quality evaluation (plan ${weeklyPlanId}): ${error?.message}`,
       );
       return null;

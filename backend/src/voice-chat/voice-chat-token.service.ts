@@ -38,7 +38,7 @@ export class VoiceChatTokenService {
     private readonly usageService: UsageService,
   ) {}
 
-  async createSession(
+  public async createSession(
     userId: string,
     goalId: string,
     conversationId?: string,
@@ -101,7 +101,7 @@ export class VoiceChatTokenService {
     goalId: string,
     conversationId?: string,
   ): Promise<string> {
-    if (conversationId) {
+    if (conversationId !== undefined) {
       const conversation = await this.chatHistoryService.getConversation(
         conversationId,
         userId,
@@ -130,6 +130,7 @@ export class VoiceChatTokenService {
     const response = await fetch(
       `https://api.elevenlabs.io/v1/convai/conversation/get-signed-url?agent_id=${agentId}`,
       {
+        // eslint-disable-next-line @typescript-eslint/naming-convention
         headers: { 'xi-api-key': apiKey },
       },
     );

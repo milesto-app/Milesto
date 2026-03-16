@@ -169,8 +169,8 @@ struct ChatView: View {
         .alert(isLimitReached
             ? String(localized: "usage.limit.reached.title", table: "Paywall")
             : String(localized: "chat.error.generic", table: "Chat"),
-            isPresented: $showError
-        ) {
+            isPresented: $showError)
+        {
             if isLimitReached {
                 Button(String(localized: "usage.limit.reached.cta", table: "Paywall")) {
                     isLimitReached = false

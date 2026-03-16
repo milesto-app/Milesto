@@ -14,7 +14,7 @@ export class ChatToolRegistryService {
     private readonly roadmapToolsService: ChatRoadmapToolsService,
   ) {}
 
-  getRegistry(): Map<string, ChatToolEntry> {
+  public getRegistry(): Map<string, ChatToolEntry> {
     return buildToolRegistry({
       toolsService: this.toolsService,
       debriefToolsService: this.debriefToolsService,

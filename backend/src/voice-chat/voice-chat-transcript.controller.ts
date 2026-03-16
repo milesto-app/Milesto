@@ -32,7 +32,7 @@ export class VoiceChatTranscriptController {
   @ApiOperation({ summary: 'Receive transcript webhook from ElevenLabs' })
   @ApiResponse({ status: 200, description: 'Transcript processed' })
   @ApiResponse({ status: 401, description: 'Invalid webhook signature' })
-  async receiveTranscript(
+  public async receiveTranscript(
     @Body() body: TranscriptWebhookBody,
   ): Promise<{ status: string }> {
     const session = await this.sessionStore.findByElevenLabsConversationId(
@@ -46,7 +46,7 @@ export class VoiceChatTranscriptController {
       return { status: 'ok' };
     }
 
-    const turns = body.transcript ?? [];
+    const turns = body.transcript;
 
     for (const [index, turn] of turns.entries()) {
       const role = turn.role === 'agent' ? 'assistant' : 'user';

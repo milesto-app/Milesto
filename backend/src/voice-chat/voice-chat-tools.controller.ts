@@ -36,7 +36,7 @@ export class VoiceChatToolsController {
   @ApiResponse({ status: 401, description: 'Invalid session credentials' })
   @ApiResponse({ status: 403, description: 'Session not active' })
   @ApiResponse({ status: 404, description: 'Tool not found' })
-  async executeTool(
+  public async executeTool(
     @Param('toolName') toolName: string,
     @Body() body: Record<string, unknown>,
     @Req() request: Request,

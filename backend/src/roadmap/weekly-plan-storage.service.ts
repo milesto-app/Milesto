@@ -169,6 +169,7 @@ export class WeeklyPlanStorageService {
   ): Promise<Milestone> {
     const milestones = await this.loadAllMilestones(supabase, roadmap.id);
     if (milestones.length === 1) {
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       return milestones[0]!;
     }
 
@@ -185,6 +186,7 @@ export class WeeklyPlanStorageService {
     );
 
     const activeIndex = Math.max(historyIndex, timeIndex);
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     return milestones[activeIndex]!;
   }
 
@@ -217,6 +219,7 @@ export class WeeklyPlanStorageService {
       .limit(1)
       .single();
 
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
     if (lastPlan === null || lastPlan === undefined) {
       return 0;
     }
@@ -240,7 +243,9 @@ export class WeeklyPlanStorageService {
     if (
       goal?.target_date === null ||
       goal?.target_date === undefined ||
+      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
       roadmap.created_at === null ||
+      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
       roadmap.created_at === undefined
     ) {
       return 0;

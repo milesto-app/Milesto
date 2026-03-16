@@ -10,7 +10,10 @@ const GOAL_ID = 'goal-uuid';
 const USER_ID = 'user-uuid';
 const ROADMAP_ID = 'roadmap-uuid';
 
-function makeMilestone(id: string, orderIndex: number) {
+function makeMilestone(
+  id: string,
+  orderIndex: number,
+): Record<string, unknown> {
   return {
     id,
     roadmap_id: ROADMAP_ID,
@@ -39,7 +42,7 @@ interface MockResult {
   error: unknown;
 }
 
-function createQueryBuilder(resolveValue: MockResult) {
+function createQueryBuilder(resolveValue: MockResult): Record<string, unknown> {
   const builder: Record<string, unknown> = {};
   const chainMethods = [
     'select',
@@ -91,7 +94,7 @@ describe('WeeklyPlanStorageService', () => {
     targetDate?: string | null;
     roadmapCreatedAt?: string;
     milestoneList?: typeof milestones;
-  }) {
+  }): void {
     const createdAt = options.roadmapCreatedAt ?? roadmap.created_at;
     const currentRoadmap = { ...roadmap, created_at: createdAt };
     const currentMilestones = options.milestoneList ?? milestones;
