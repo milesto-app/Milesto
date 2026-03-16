@@ -36,9 +36,9 @@ beforeEach(async () => {
   mockExecutor.mockReset().mockResolvedValue({ result: 'ok' });
 
   toolRegistryService = {
-    getRegistry: jest.fn().mockReturnValue(
-      new Map([['test_tool', { executor: mockExecutor }]]),
-    ),
+    getRegistry: jest
+      .fn()
+      .mockReturnValue(new Map([['test_tool', { executor: mockExecutor }]])),
   };
   chatHistoryService = {
     storeMessage: jest.fn().mockResolvedValue({ id: 'msg-1' }),
@@ -76,11 +76,7 @@ describe('VoiceChatToolsController', () => {
     });
 
     it('should store the tool result as a message', async () => {
-      await controller.executeTool(
-        'test_tool',
-        {},
-        buildRequest(MOCK_SESSION),
-      );
+      await controller.executeTool('test_tool', {}, buildRequest(MOCK_SESSION));
 
       expect(chatHistoryService.storeMessage).toHaveBeenCalledWith(
         'conv-789',
@@ -95,11 +91,7 @@ describe('VoiceChatToolsController', () => {
       const endedSession = { ...MOCK_SESSION, status: 'ended' as const };
 
       await expect(
-        controller.executeTool(
-          'test_tool',
-          {},
-          buildRequest(endedSession),
-        ),
+        controller.executeTool('test_tool', {}, buildRequest(endedSession)),
       ).rejects.toThrow(ForbiddenException);
     });
 

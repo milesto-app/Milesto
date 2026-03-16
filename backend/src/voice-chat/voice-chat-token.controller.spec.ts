@@ -98,7 +98,16 @@ describe('VoiceChatTokenController', () => {
       await expect(
         controller.submitClientTranscript(
           MOCK_SESSION_ID,
-          { turns: [{ role: 'user', content: 'Hi', timestamp: '2026-03-15T10:00:00Z', turnIndex: 0 }] },
+          {
+            turns: [
+              {
+                role: 'user',
+                content: 'Hi',
+                timestamp: '2026-03-15T10:00:00Z',
+                turnIndex: 0,
+              },
+            ],
+          },
           MOCK_USER_ID,
         ),
       ).rejects.toThrow(ForbiddenException);
@@ -110,7 +119,16 @@ describe('VoiceChatTokenController', () => {
       await expect(
         controller.submitClientTranscript(
           MOCK_SESSION_ID,
-          { turns: [{ role: 'user', content: 'Hi', timestamp: '2026-03-15T10:00:00Z', turnIndex: 0 }] },
+          {
+            turns: [
+              {
+                role: 'user',
+                content: 'Hi',
+                timestamp: '2026-03-15T10:00:00Z',
+                turnIndex: 0,
+              },
+            ],
+          },
           'different-user',
         ),
       ).rejects.toThrow(ForbiddenException);

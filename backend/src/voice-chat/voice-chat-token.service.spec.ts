@@ -6,6 +6,7 @@ import { Test } from '@nestjs/testing';
 import { ChatHistoryService } from '../chat/chat-history.service.js';
 import { ChatPromptService } from '../chat/chat-prompt.service.js';
 import { CoachService } from '../coach/coach.service.js';
+import { UsageService } from '../usage/usage.service.js';
 import { VoiceChatSessionStore } from './voice-chat-session.store.js';
 import { VoiceChatTokenService } from './voice-chat-token.service.js';
 
@@ -61,7 +62,7 @@ beforeEach(async () => {
   global.fetch = jest.fn().mockResolvedValue({
     ok: true,
     json: async () => ({ signed_url: MOCK_SIGNED_URL }),
-  }) as jest.Mock;
+  });
 
   const module: TestingModule = await Test.createTestingModule({
     providers: [
@@ -71,6 +72,17 @@ beforeEach(async () => {
       { provide: CoachService, useValue: coachService },
       { provide: VoiceChatSessionStore, useValue: sessionStore },
       { provide: ConfigService, useValue: configService },
+      {
+        provide: UsageService,
+        useValue: {
+          reserveGeneration: jest.fn().mockResolvedValue({
+            granted: true,
+            used: 1,
+            limit: 20,
+            is_pro: false,
+          }),
+        },
+      },
     ],
   }).compile();
 
@@ -119,11 +131,7 @@ describe('VoiceChatTokenService', () => {
       });
 
       await expect(
-        service.createSession(
-          MOCK_USER_ID,
-          MOCK_GOAL_ID,
-          MOCK_CONVERSATION_ID,
-        ),
+        service.createSession(MOCK_USER_ID, MOCK_GOAL_ID, MOCK_CONVERSATION_ID),
       ).rejects.toThrow(BadRequestException);
     });
 

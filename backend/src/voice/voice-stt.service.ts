@@ -61,9 +61,7 @@ export class VoiceSttService {
     }
   }
 
-  private estimateDuration(
-    words: { start?: number; end?: number }[],
-  ): number {
+  private estimateDuration(words: { start?: number; end?: number }[]): number {
     const lastWord = words[words.length - 1];
     return lastWord?.end ?? 0;
   }

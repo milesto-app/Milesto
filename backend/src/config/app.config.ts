@@ -56,6 +56,10 @@ export const config = {
   coach: {
     defaultCoachId: 1,
   },
+  usage: {
+    freeGenerationsPerDay: 20,
+    proGenerationsPerDay: 200,
+  },
   chat: {
     model: 'google/gemini-3-flash-preview',
     reasoningEffort: 'low',

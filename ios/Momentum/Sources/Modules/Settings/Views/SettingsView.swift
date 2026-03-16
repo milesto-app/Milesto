@@ -7,6 +7,7 @@ struct SettingsView: View {
 
     @EnvironmentObject private var authService: AuthService
     @EnvironmentObject private var storeService: StoreService
+    @StateObject private var usageService = UsageService.shared
     @Environment(\.modelContext) private var modelContext
 
     @Query private var localProfiles: [LocalProfile]
@@ -36,6 +37,7 @@ struct SettingsView: View {
                 profileHeaderSection
                 profileDetailsSection
                 proSection
+                usageSection
                 newGoalSection
                 deleteGoalSection
                 signOutSection
@@ -270,6 +272,29 @@ struct SettingsView: View {
                 }
                 .buttonStyle(.plain)
             }
+        }
+    }
+
+    private var usageSection: some View {
+        Section {
+            VStack(alignment: .leading, spacing: 8) {
+                HStack {
+                    TablerIcons(.bolt, size: 20, color: Color("TintPrimary"))
+                    AppText("usage.daily.title", table: "Paywall", style: .body)
+                    Spacer()
+                    if let usage = usageService.usage {
+                        AppText(verbatim: "\(usage.used) / \(usage.limit)", style: .caption)
+                            .color(Color("TextSecondary"))
+                    }
+                }
+                if let usage = usageService.usage {
+                    ProgressView(value: Double(usage.used), total: Double(usage.limit))
+                        .tint(usage.used >= usage.limit ? Color("StatusError") : Color("TintPrimary"))
+                }
+            }
+        }
+        .task {
+            await usageService.fetchUsage()
         }
     }
 

@@ -1,11 +1,14 @@
+import { randomUUID } from 'node:crypto';
+
 import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { randomUUID } from 'node:crypto';
 
 import { ChatHistoryService } from '../chat/chat-history.service.js';
 import { wrapPromptForVoice } from '../chat/chat-prompt.builder.js';
 import { ChatPromptService } from '../chat/chat-prompt.service.js';
 import { CoachService } from '../coach/coach.service.js';
+import { UsageService } from '../usage/usage.service.js';
+import { GenerationType } from '../usage/usage.types.js';
 import { VoiceChatSessionStore } from './voice-chat-session.store.js';
 
 interface CreateSessionResult {
@@ -32,6 +35,7 @@ export class VoiceChatTokenService {
     private readonly coachService: CoachService,
     private readonly sessionStore: VoiceChatSessionStore,
     private readonly configService: ConfigService,
+    private readonly usageService: UsageService,
   ) {}
 
   async createSession(
@@ -59,6 +63,10 @@ export class VoiceChatTokenService {
       memory,
     });
 
+    await this.usageService.reserveGeneration(
+      userId,
+      GenerationType.VOICE_CHAT_SESSION,
+    );
     const signedUrl = await this.fetchSignedUrl();
 
     const sessionSecret = randomUUID();
@@ -114,10 +122,10 @@ export class VoiceChatTokenService {
   }
 
   private async fetchSignedUrl(): Promise<string> {
-    const apiKey =
-      this.configService.getOrThrow<string>('ELEVENLABS_API_KEY');
-    const agentId =
-      this.configService.getOrThrow<string>('ELEVENLABS_AGENT_ID');
+    const apiKey = this.configService.getOrThrow<string>('ELEVENLABS_API_KEY');
+    const agentId = this.configService.getOrThrow<string>(
+      'ELEVENLABS_AGENT_ID',
+    );
 
     const response = await fetch(
       `https://api.elevenlabs.io/v1/convai/conversation/get-signed-url?agent_id=${agentId}`,

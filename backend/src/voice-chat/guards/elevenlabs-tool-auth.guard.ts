@@ -16,9 +16,7 @@ export class ElevenLabsToolAuthGuard implements CanActivate {
     const request = context.switchToHttp().getRequest<Request>();
     const sessionId = request.params['sessionId'] as string | undefined;
     const secretHeader = request.headers['x-session-secret'];
-    const secret = Array.isArray(secretHeader)
-      ? secretHeader[0]
-      : secretHeader;
+    const secret = Array.isArray(secretHeader) ? secretHeader[0] : secretHeader;
 
     if (!sessionId || !secret) {
       throw new UnauthorizedException('Missing session credentials');

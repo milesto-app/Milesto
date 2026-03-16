@@ -1,7 +1,7 @@
 import { NotFoundException } from '@nestjs/common';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import type { TestingModule } from '@nestjs/testing';
 import { Test } from '@nestjs/testing';
-import { EventEmitter2 } from '@nestjs/event-emitter';
 
 import { SupabaseService } from '../supabase/supabase.service.js';
 import { WeeklyPlanStorageService } from './weekly-plan-storage.service.js';
@@ -56,7 +56,7 @@ function createQueryBuilder(resolveValue: MockResult) {
     builder[method] = jest.fn().mockReturnValue(builder);
   }
   builder.single = jest.fn().mockReturnValue(Promise.resolve(resolveValue));
-  builder.then = (
+  builder.then = async (
     resolve: (value: MockResult) => void,
     reject?: (error: unknown) => void,
   ) => Promise.resolve(resolveValue).then(resolve, reject);

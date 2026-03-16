@@ -7,6 +7,7 @@ import { Test } from '@nestjs/testing';
 
 import { AiService } from '../ai/ai.service.js';
 import { SupabaseService } from '../supabase/supabase.service.js';
+import { UsageService } from '../usage/usage.service.js';
 import { GoalService } from './goal.service.js';
 import { GOAL_STATUS } from './goal-status.constants.js';
 
@@ -50,6 +51,17 @@ beforeEach(async () => {
         useValue: { getAdminClient: () => mockSupabase },
       },
       { provide: AiService, useValue: mockAiService },
+      {
+        provide: UsageService,
+        useValue: {
+          reserveGeneration: jest.fn().mockResolvedValue({
+            granted: true,
+            used: 1,
+            limit: 20,
+            is_pro: false,
+          }),
+        },
+      },
     ],
   }).compile();
 

@@ -13,6 +13,7 @@ import { GoalModule } from './goal/goal.module.js';
 import { IntakeModule } from './intake/intake.module.js';
 import { RoadmapModule } from './roadmap/roadmap.module.js';
 import { SupabaseModule } from './supabase/supabase.module.js';
+import { UsageModule } from './usage/usage.module.js';
 import { VoiceModule } from './voice/voice.module.js';
 import { VoiceChatModule } from './voice-chat/voice-chat.module.js';
 
@@ -28,6 +29,7 @@ import { VoiceChatModule } from './voice-chat/voice-chat.module.js';
       },
     ]),
     SupabaseModule,
+    UsageModule,
     AiModule,
     GoalModule,
     IntakeModule,

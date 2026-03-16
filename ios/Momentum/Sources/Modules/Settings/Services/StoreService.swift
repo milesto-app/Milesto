@@ -48,6 +48,7 @@ final class StoreService: ObservableObject {
             let transaction = try checkVerified(verification)
             await transaction.finish()
             purchasedProductIDs.insert(transaction.productID)
+            await syncSubscriptionToBackend()
         case .userCancelled:
             return
         case .pending:
@@ -65,6 +66,7 @@ final class StoreService: ObservableObject {
             }
         }
         purchasedProductIDs = entitledIDs
+        await syncSubscriptionToBackend()
     }
 
     func checkEntitlements() async {
@@ -75,6 +77,7 @@ final class StoreService: ObservableObject {
             }
         }
         purchasedProductIDs = entitledIDs
+        await syncSubscriptionToBackend()
     }
 
     private func handleTransaction(_ result: VerificationResult<Transaction>) async {
@@ -87,6 +90,23 @@ final class StoreService: ObservableObject {
         }
 
         await transaction.finish()
+        await syncSubscriptionToBackend()
+    }
+
+    private func syncSubscriptionToBackend() async {
+        var latestTransaction: Transaction?
+        for await result in Transaction.currentEntitlements {
+            if let transaction = try? checkVerified(result) {
+                latestTransaction = transaction
+            }
+        }
+        guard let transaction = latestTransaction else { return }
+        let jws = transaction.jwsRepresentation
+        try? await BackendClient.shared.requestVoid(
+            method: "POST",
+            path: "subscription/verify",
+            body: ["jwsTransaction": jws]
+        )
     }
 
     private func checkVerified<T>(_ result: VerificationResult<T>) throws -> T {

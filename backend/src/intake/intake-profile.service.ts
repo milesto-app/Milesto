@@ -11,6 +11,8 @@ import { config } from '../config/app.config.js';
 import { GoalService } from '../goal/goal.service.js';
 import type { Json } from '../supabase/database.types.js';
 import { SupabaseService } from '../supabase/supabase.service.js';
+import { UsageService } from '../usage/usage.service.js';
+import { GenerationType } from '../usage/usage.types.js';
 import { IntakeContextService } from './intake-context.service.js';
 import { buildProfileData } from './intake-profile-data.js';
 import { IntakeProfileStoreService } from './intake-profile-store.service.js';
@@ -50,6 +52,9 @@ export class IntakeProfileService {
 
   @Inject()
   private readonly profileStore!: IntakeProfileStoreService;
+
+  @Inject()
+  private readonly usageService!: UsageService;
 
   public async retryProfile(
     userId: string,
@@ -94,6 +99,10 @@ export class IntakeProfileService {
         params.goalId,
       );
       const genParams: ProfileGenParams = { ...params, priorBatches };
+      await this.usageService.reserveGeneration(
+        params.userId,
+        GenerationType.GOAL_PROFILE,
+      );
       const profile = await this.tryGenerateProfile(genParams);
       if (profile === null) {
         return { profile_id: null, profile_status: FAILED_STATUS };

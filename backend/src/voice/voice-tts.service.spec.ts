@@ -76,8 +76,8 @@ describe('VoiceTtsService error handling', () => {
   it('should throw when ElevenLabs returns an error', async () => {
     mockConvert.mockRejectedValue(new Error('TTS synthesis failed'));
 
-    await expect(
-      service.synthesize('Hello', MOCK_VOICE_ID),
-    ).rejects.toThrow('TTS synthesis failed');
+    await expect(service.synthesize('Hello', MOCK_VOICE_ID)).rejects.toThrow(
+      'TTS synthesis failed',
+    );
   });
 });

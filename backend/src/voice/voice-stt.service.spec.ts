@@ -67,7 +67,9 @@ describe('VoiceSttService', () => {
       text: MOCK_TRANSCRIPT,
       language_code: 'fr',
       language_probability: 0.95,
-      words: [{ text: 'Bonjour', start: 0, end: 0.5, type: 'word', logprob: -0.1 }],
+      words: [
+        { text: 'Bonjour', start: 0, end: 0.5, type: 'word', logprob: -0.1 },
+      ],
     });
 
     await service.transcribe(Buffer.from('audio'), 'audio/wav', 'fr');

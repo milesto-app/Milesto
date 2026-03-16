@@ -42,6 +42,7 @@ describe('GenerationService', () => {
       description: 'Establish a running foundation with 3-4 runs per week',
       expected_outcome: 'Able to run 10km comfortably',
       target_month: 1,
+      target_week: 1,
       order_index: 1,
     },
     {
@@ -49,6 +50,7 @@ describe('GenerationService', () => {
       description: 'Gradually increase weekly mileage to 40km',
       expected_outcome: 'Completing 15km long runs',
       target_month: 2,
+      target_week: 5,
       order_index: 2,
     },
     {
@@ -56,6 +58,7 @@ describe('GenerationService', () => {
       description: 'Train for and complete a half marathon distance',
       expected_outcome: 'Run 21km under 2 hours',
       target_month: 3,
+      target_week: 9,
       order_index: 3,
     },
   ];
@@ -119,6 +122,7 @@ describe('GenerationService', () => {
       const badResponse = validMilestoneResponse.map((m) => ({
         ...m,
         target_month: String(m.target_month),
+        target_week: String(m.target_week),
         order_index: String(m.order_index),
       }));
       mockAiService.generateJson.mockResolvedValue(badResponse);

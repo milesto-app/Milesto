@@ -41,9 +41,9 @@ export class VoiceChatToolsController {
     @Body() body: Record<string, unknown>,
     @Req() request: Request,
   ): Promise<unknown> {
-    const session = (
-      request as unknown as Record<string, unknown>
-    )['voiceSession'] as VoiceSession;
+    const session = (request as unknown as Record<string, unknown>)[
+      'voiceSession'
+    ] as VoiceSession;
 
     if (session.status !== 'active') {
       throw new ForbiddenException('Session is not active');

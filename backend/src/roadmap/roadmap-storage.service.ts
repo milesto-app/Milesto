@@ -105,6 +105,7 @@ export class RoadmapStorageService {
       description: string;
       expected_outcome: string;
       target_month: number;
+      target_week: number;
       order_index: number;
     }>,
   ): Promise<void> {
@@ -116,6 +117,7 @@ export class RoadmapStorageService {
       description: m.description,
       expected_outcome: m.expected_outcome,
       target_month: m.target_month,
+      target_week: m.target_week,
       order_index: m.order_index,
     }));
     const { error } = await supabase.from('milestones').insert(rows);

@@ -1,5 +1,6 @@
-import { Injectable, Logger } from '@nestjs/common';
 import { createHash, randomUUID } from 'node:crypto';
+
+import { Injectable, Logger } from '@nestjs/common';
 
 import { config } from '../config/app.config.js';
 import { SupabaseService } from '../supabase/supabase.service.js';

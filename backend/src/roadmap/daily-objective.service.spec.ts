@@ -4,6 +4,7 @@ import type { TestingModule } from '@nestjs/testing';
 import { Test } from '@nestjs/testing';
 
 import { UserLanguageService } from '../common/user-language.service.js';
+import { UsageService } from '../usage/usage.service.js';
 import { ContextPipelineService } from './context-pipeline.service.js';
 import { DailyObjectiveService } from './daily-objective.service.js';
 import { DailyObjectiveStorageService } from './daily-objective-storage.service.js';
@@ -60,6 +61,17 @@ describe('DailyObjectiveService', () => {
         {
           provide: UserLanguageService,
           useValue: { getLanguage: jest.fn().mockResolvedValue('en') },
+        },
+        {
+          provide: UsageService,
+          useValue: {
+            reserveGeneration: jest.fn().mockResolvedValue({
+              granted: true,
+              used: 1,
+              limit: 20,
+              is_pro: false,
+            }),
+          },
         },
       ],
     }).compile();

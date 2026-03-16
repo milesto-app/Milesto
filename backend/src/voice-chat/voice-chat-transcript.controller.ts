@@ -54,7 +54,7 @@ export class VoiceChatTranscriptController {
         await this.chatHistoryService.storeVoiceMessage(
           session.conversationId,
           {
-            role: role as 'user' | 'assistant',
+            role: role,
             content: turn.message,
             source_type: 'voice',
             voice_session_id: session.id,

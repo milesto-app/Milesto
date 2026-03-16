@@ -16,5 +16,9 @@ export class GeneratedMilestone {
 
   @IsInt()
   @Min(1)
+  public target_week!: number;
+
+  @IsInt()
+  @Min(1)
   public order_index!: number;
 }

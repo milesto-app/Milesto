@@ -60,7 +60,12 @@ describe('VoiceChatSessionStore', () => {
     it('should insert a voice session and return its id', async () => {
       mockChain.insert = jest.fn().mockResolvedValue({ error: null });
 
-      const id = await store.create('user-123', 'goal-456', 'conv-789', 'secret');
+      const id = await store.create(
+        'user-123',
+        'goal-456',
+        'conv-789',
+        'secret',
+      );
 
       expect(mockFrom).toHaveBeenCalledWith('voice_sessions');
       expect(typeof id).toBe('string');
@@ -145,9 +150,7 @@ describe('VoiceChatSessionStore', () => {
     });
 
     it('should return false when transcript was already stored', async () => {
-      mockChain.select = jest
-        .fn()
-        .mockResolvedValue({ data: [], error: null });
+      mockChain.select = jest.fn().mockResolvedValue({ data: [], error: null });
 
       const result = await store.markTranscriptStored('session-001');
 

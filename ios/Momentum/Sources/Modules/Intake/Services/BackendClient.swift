@@ -1,10 +1,23 @@
 import Foundation
 import Supabase
 
+struct GenerationLimitUsage: Decodable {
+    let used: Int
+    let limit: Int
+    let isPro: Bool
+    let resetsAt: String
+}
+
+private struct LimitErrorBody: Decodable {
+    let error: String?
+    let usage: GenerationLimitUsage?
+}
+
 enum BackendError: LocalizedError {
     case invalidResponse
     case httpError(statusCode: Int, data: Data)
     case unauthorized
+    case generationLimitReached(usage: GenerationLimitUsage)
 
     var errorDescription: String? {
         switch self {
@@ -14,7 +27,21 @@ enum BackendError: LocalizedError {
             return String(localized: "intake.error.server", table: "Intake") + " (\(code))"
         case .unauthorized:
             return String(localized: "intake.error.network", table: "Intake")
+        case .generationLimitReached:
+            return String(localized: "usage.limit.reached.message", table: "Paywall")
         }
+    }
+
+    static func from(statusCode: Int, data: Data) -> BackendError {
+        if statusCode == 429 {
+            if let body = try? JSONDecoder().decode(LimitErrorBody.self, from: data),
+               body.error == "GENERATION_LIMIT_REACHED",
+               let usage = body.usage
+            {
+                return .generationLimitReached(usage: usage)
+            }
+        }
+        return .httpError(statusCode: statusCode, data: data)
     }
 }
 
@@ -61,13 +88,13 @@ final class BackendClient {
                 throw BackendError.unauthorized
             }
             guard (200 ... 299).contains(retryResponse.statusCode) else {
-                throw BackendError.httpError(statusCode: retryResponse.statusCode, data: retryData)
+                throw BackendError.from(statusCode: retryResponse.statusCode, data: retryData)
             }
             return try decoder.decode(T.self, from: retryData)
         }
 
         guard (200 ... 299).contains(httpResponse.statusCode) else {
-            throw BackendError.httpError(statusCode: httpResponse.statusCode, data: data)
+            throw BackendError.from(statusCode: httpResponse.statusCode, data: data)
         }
 
         return try decoder.decode(T.self, from: data)
@@ -146,13 +173,13 @@ final class BackendClient {
                 throw BackendError.unauthorized
             }
             guard (200 ... 299).contains(retryResponse.statusCode) else {
-                throw BackendError.httpError(statusCode: retryResponse.statusCode, data: retryData)
+                throw BackendError.from(statusCode: retryResponse.statusCode, data: retryData)
             }
             return try decoder.decode(T.self, from: retryData)
         }
 
         guard (200 ... 299).contains(httpResponse.statusCode) else {
-            throw BackendError.httpError(statusCode: httpResponse.statusCode, data: data)
+            throw BackendError.from(statusCode: httpResponse.statusCode, data: data)
         }
 
         return try decoder.decode(T.self, from: data)
@@ -187,13 +214,13 @@ final class BackendClient {
                 throw BackendError.unauthorized
             }
             guard (200 ... 299).contains(retryResponse.statusCode) else {
-                throw BackendError.httpError(statusCode: retryResponse.statusCode, data: retryData)
+                throw BackendError.from(statusCode: retryResponse.statusCode, data: retryData)
             }
             return retryData
         }
 
         guard (200 ... 299).contains(httpResponse.statusCode) else {
-            throw BackendError.httpError(statusCode: httpResponse.statusCode, data: data)
+            throw BackendError.from(statusCode: httpResponse.statusCode, data: data)
         }
 
         return data

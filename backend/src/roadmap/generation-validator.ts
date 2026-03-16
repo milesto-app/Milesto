@@ -28,6 +28,7 @@ function repairMilestones(items: unknown[]): GeneratedMilestone[] {
       expected_outcome:
         typeof rec.expected_outcome === 'string' ? rec.expected_outcome : '',
       target_month: Number(rec.target_month),
+      target_week: Number(rec.target_week),
       order_index: Number(rec.order_index),
     };
   });

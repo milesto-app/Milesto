@@ -3,6 +3,7 @@ import type { TestingModule } from '@nestjs/testing';
 import { Test } from '@nestjs/testing';
 
 import { UserLanguageService } from '../common/user-language.service.js';
+import { UsageService } from '../usage/usage.service.js';
 import { ContextPipelineService } from './context-pipeline.service.js';
 import { GenerationService } from './generation.service.js';
 import { WeeklyPlanService } from './weekly-plan.service.js';
@@ -62,6 +63,17 @@ describe('WeeklyPlanService', () => {
         {
           provide: UserLanguageService,
           useValue: { getLanguage: jest.fn().mockResolvedValue('en') },
+        },
+        {
+          provide: UsageService,
+          useValue: {
+            reserveGeneration: jest.fn().mockResolvedValue({
+              granted: true,
+              used: 1,
+              limit: 20,
+              is_pro: false,
+            }),
+          },
         },
       ],
     }).compile();

@@ -7,6 +7,8 @@ import {
 import { EventEmitter2 } from '@nestjs/event-emitter';
 
 import { UserLanguageService } from '../common/user-language.service.js';
+import { UsageService } from '../usage/usage.service.js';
+import { GenerationType } from '../usage/usage.types.js';
 import { ContextPipelineService } from './context-pipeline.service.js';
 import type { UpdateParams } from './daily-objective-storage.service.js';
 import { DailyObjectiveStorageService } from './daily-objective-storage.service.js';
@@ -42,6 +44,7 @@ export class DailyObjectiveService {
     private readonly events: EventEmitter2,
     private readonly weeklyPlan: WeeklyPlanService,
     private readonly languageService: UserLanguageService,
+    private readonly usageService: UsageService,
   ) {}
 
   public async getDailyObjectives(
@@ -141,6 +144,10 @@ export class DailyObjectiveService {
       params.userId,
     );
 
+    await this.usageService.reserveGeneration(
+      params.userId,
+      GenerationType.DAILY_OBJECTIVES,
+    );
     const { objectives } = await this.generation.generateDailyObjectives({
       weeklyPlan: params.weeklyPlan,
       energyLevel: params.energyLevel,

@@ -142,7 +142,7 @@ export class VoiceChatTokenController {
         await this.chatHistoryService.storeVoiceMessage(
           session.conversationId,
           {
-            role: role as 'user' | 'assistant',
+            role: role,
             content: turn.content,
             source_type: 'voice',
             voice_session_id: sessionId,
