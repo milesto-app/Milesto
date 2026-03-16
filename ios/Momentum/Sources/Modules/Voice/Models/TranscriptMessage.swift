@@ -1,11 +1,11 @@
 import Foundation
 
-enum TranscriptRole: Sendable {
+enum TranscriptRole {
     case user
     case agent
 }
 
-struct TranscriptMessage: Identifiable, Sendable {
+struct TranscriptMessage: Identifiable {
     let id: String
     let role: TranscriptRole
     var content: String

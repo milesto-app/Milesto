@@ -75,17 +75,6 @@ final class ElevenLabsConversationService {
                     self?.connectionError = .sdkError
                 }
             },
-            onConversationMetadata: { [weak self] metadata in
-                Task { @MainActor in
-                    guard let self, let sessionId = self.sessionId else { return }
-                    let elConvId = metadata.conversationId
-                    try? await BackendClient.shared.requestVoid(
-                        method: "PATCH",
-                        path: "voice-chat/session/\(sessionId)/elevenlabs-conversation",
-                        body: ElevenLabsConversationBody(elevenLabsConversationId: elConvId)
-                    )
-                }
-            },
             onAgentResponse: { [weak self] text, eventId in
                 Task { @MainActor in
                     guard let self else { return }
@@ -121,6 +110,17 @@ final class ElevenLabsConversationService {
                         timestamp: Date()
                     )
                     self.messages.append(message)
+                }
+            },
+            onConversationMetadata: { [weak self] metadata in
+                Task { @MainActor in
+                    guard let self, let sessionId = self.sessionId else { return }
+                    let elConvId = metadata.conversationId
+                    try? await BackendClient.shared.requestVoid(
+                        method: "PATCH",
+                        path: "voice-chat/session/\(sessionId)/elevenlabs-conversation",
+                        body: ElevenLabsConversationBody(elevenLabsConversationId: elConvId)
+                    )
                 }
             },
             onAgentToolResponse: { [weak self] _ in
@@ -328,7 +328,7 @@ final class ElevenLabsConversationService {
     }
 }
 
-enum ConnectionError: Sendable {
+enum ConnectionError {
     case networkLost
     case audioInterruption
     case sdkError
