@@ -94,18 +94,22 @@ final class StoreService: ObservableObject {
     }
 
     private func syncSubscriptionToBackend() async {
-        var latestTransaction: Transaction?
+        var latestResult: VerificationResult<Transaction>?
         for await result in Transaction.currentEntitlements {
-            if let transaction = try? checkVerified(result) {
-                latestTransaction = transaction
+            if case .verified = result {
+                latestResult = result
             }
         }
-        guard let transaction = latestTransaction else { return }
-        let jws = transaction.jwsRepresentation
+        guard let result = latestResult else { return }
+
+        struct VerifyRequest: Encodable {
+            let jwsTransaction: String
+        }
+
         try? await BackendClient.shared.requestVoid(
             method: "POST",
             path: "subscription/verify",
-            body: ["jwsTransaction": jws]
+            body: VerifyRequest(jwsTransaction: result.jwsRepresentation)
         )
     }
 

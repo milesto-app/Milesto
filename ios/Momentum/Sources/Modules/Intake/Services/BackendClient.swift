@@ -1,14 +1,14 @@
 import Foundation
 import Supabase
 
-struct GenerationLimitUsage: Decodable {
+nonisolated struct GenerationLimitUsage: Decodable {
     let used: Int
     let limit: Int
     let isPro: Bool
     let resetsAt: String
 }
 
-private struct LimitErrorBody: Decodable {
+private nonisolated struct LimitErrorBody: Decodable {
     let error: String?
     let usage: GenerationLimitUsage?
 }

@@ -13,44 +13,6 @@ export type Database = {
   };
   public: {
     Tables: {
-      check_ins: {
-        Row: {
-          created_at: string | null;
-          date: string;
-          energy_level: string;
-          goal_id: string;
-          id: string;
-          note: string | null;
-          user_id: string;
-        };
-        Insert: {
-          created_at?: string | null;
-          date: string;
-          energy_level: string;
-          goal_id: string;
-          id?: string;
-          note?: string | null;
-          user_id: string;
-        };
-        Update: {
-          created_at?: string | null;
-          date?: string;
-          energy_level?: string;
-          goal_id?: string;
-          id?: string;
-          note?: string | null;
-          user_id?: string;
-        };
-        Relationships: [
-          {
-            foreignKeyName: 'check_ins_goal_id_fkey';
-            columns: ['goal_id'];
-            isOneToOne: false;
-            referencedRelation: 'goals';
-            referencedColumns: ['id'];
-          },
-        ];
-      };
       coach_memories: {
         Row: {
           content: string;
@@ -717,47 +679,6 @@ export type Database = {
           },
         ];
       };
-      user_goals: {
-        Row: {
-          account_id: string;
-          created_at: string | null;
-          deadline: string;
-          goal_id: string | null;
-          id: string;
-          initial_goal: string;
-          status: Database['public']['Enums']['goal_status'];
-          updated_at: string | null;
-        };
-        Insert: {
-          account_id: string;
-          created_at?: string | null;
-          deadline: string;
-          goal_id?: string | null;
-          id?: string;
-          initial_goal: string;
-          status?: Database['public']['Enums']['goal_status'];
-          updated_at?: string | null;
-        };
-        Update: {
-          account_id?: string;
-          created_at?: string | null;
-          deadline?: string;
-          goal_id?: string | null;
-          id?: string;
-          initial_goal?: string;
-          status?: Database['public']['Enums']['goal_status'];
-          updated_at?: string | null;
-        };
-        Relationships: [
-          {
-            foreignKeyName: 'user_goals_account_id_fkey';
-            columns: ['account_id'];
-            isOneToOne: false;
-            referencedRelation: 'profiles';
-            referencedColumns: ['id'];
-          },
-        ];
-      };
       voice_sessions: {
         Row: {
           conversation_id: string;
@@ -975,13 +896,7 @@ export type Database = {
       };
     };
     Enums: {
-      goal_status:
-        | 'initial'
-        | 'generated'
-        | 'ongoing'
-        | 'paused'
-        | 'deleted'
-        | 'completed';
+      [_ in never]: never;
     };
     CompositeTypes: {
       [_ in never]: never;
@@ -1111,15 +1026,6 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {
-      goal_status: [
-        'initial',
-        'generated',
-        'ongoing',
-        'paused',
-        'deleted',
-        'completed',
-      ],
-    },
+    Enums: {},
   },
 } as const;
