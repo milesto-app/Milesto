@@ -12,6 +12,7 @@ struct HomeView: View {
     @State private var objectives: [DailyObjectiveDTO] = []
     @State private var todayDebrief: DebriefDTO?
     @State private var isLoading = true
+    @State private var hasSyncError = false
     @State private var showDebriefSheet = false
     @State private var showWeeklyPlanDetail = false
 
@@ -50,6 +51,8 @@ struct HomeView: View {
                         if isLoading {
                             ProgressView()
                                 .padding(.top, 40)
+                        } else if hasSyncError {
+                            syncErrorSection
                         } else {
                             contentSection
                         }
@@ -205,6 +208,22 @@ struct HomeView: View {
         }
     }
 
+    private var syncErrorSection: some View {
+        VStack(spacing: 16) {
+            TablerIcons(.cloudOff, size: 40, color: Color("TextSecondary"))
+            AppText("home.sync.error", table: "Home", style: .subheadline)
+                .color(Color("TextSecondary"))
+                .alignment(.center)
+            AppButton("home.sync.retry", table: "Home", style: .secondary) {
+                isLoading = true
+                Task { await loadAllData() }
+            }
+            .icon(.refresh)
+        }
+        .padding(.top, 40)
+        .padding(.horizontal, 32)
+    }
+
     @ViewBuilder
     private var objectivesSection: some View {
         if objectives.isEmpty {
@@ -277,6 +296,8 @@ struct HomeView: View {
     }
 
     private func loadAllData() async {
+        hasSyncError = false
+
         let cachedObjectives = fetchCachedObjectives()
         if !cachedObjectives.isEmpty {
             objectives = cachedObjectives
@@ -291,7 +312,7 @@ struct HomeView: View {
             todayDebrief = cached
         }
 
-        await syncCheckInsFromAPI()
+        let didSyncCheckIns = await syncCheckInsFromAPI()
 
         if hasCheckedIn {
             await loadPostCheckInData()
@@ -301,6 +322,10 @@ struct HomeView: View {
             let todayDebriefDTO = debriefs.first { $0.date == todayDateString }
             todayDebrief = todayDebriefDTO
             syncDebriefToCache(todayDebriefDTO)
+        }
+
+        if !didSyncCheckIns, objectives.isEmpty, weeklyPlan == nil {
+            hasSyncError = true
         }
 
         isLoading = false
@@ -431,9 +456,11 @@ struct HomeView: View {
         }
     }
 
-    private func syncCheckInsFromAPI() async {
-        guard let checkIns = try? await RoadmapAPIService.shared.getCheckInHistory(goalId: goalId) else { return }
+    @discardableResult
+    private func syncCheckInsFromAPI() async -> Bool {
+        guard let checkIns = try? await RoadmapAPIService.shared.getCheckInHistory(goalId: goalId) else { return false }
         syncCheckInsToCache(checkIns)
+        return true
     }
 
     private func syncCheckInsToCache(_ dtos: [CheckInDTO]) {
