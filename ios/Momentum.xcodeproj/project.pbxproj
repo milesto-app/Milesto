@@ -327,6 +327,7 @@
 				INFOPLIST_FILE = Momentum/Config/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = Momentum;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
+				INFOPLIST_KEY_NSCameraUsageDescription = "Momentum needs camera access for video during voice coaching sessions.";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Momentum needs microphone access so you can answer questions by speaking.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -369,6 +370,7 @@
 				INFOPLIST_FILE = Momentum/Config/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = Momentum;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
+				INFOPLIST_KEY_NSCameraUsageDescription = "Momentum needs camera access for video during voice coaching sessions.";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Momentum needs microphone access so you can answer questions by speaking.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
