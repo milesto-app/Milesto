@@ -1,4 +1,5 @@
 import ElevenLabs
+import LiveKit
 import SwiftUI
 import UIKit
 

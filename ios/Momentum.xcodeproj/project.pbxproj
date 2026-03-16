@@ -7,11 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		4C824F2D2F33E27800056D79 /* Auth in Frameworks */ = {isa = PBXBuildFile; productRef = 4C824F2C2F33E27800056D79 /* Auth */; };
-		4C824F2F2F33E27800056D79 /* Functions in Frameworks */ = {isa = PBXBuildFile; productRef = 4C824F2E2F33E27800056D79 /* Functions */; };
-		4C824F312F33E27800056D79 /* PostgREST in Frameworks */ = {isa = PBXBuildFile; productRef = 4C824F302F33E27800056D79 /* PostgREST */; };
-		4C824F332F33E27800056D79 /* Realtime in Frameworks */ = {isa = PBXBuildFile; productRef = 4C824F322F33E27800056D79 /* Realtime */; };
-		4C824F352F33E27800056D79 /* Storage in Frameworks */ = {isa = PBXBuildFile; productRef = 4C824F342F33E27800056D79 /* Storage */; };
 		4C824F382F33E35000056D79 /* Supabase in Frameworks */ = {isa = PBXBuildFile; productRef = 4C824F372F33E35000056D79 /* Supabase */; };
 		AE6E66102F67496700549D5A /* ElevenLabs in Frameworks */ = {isa = PBXBuildFile; productRef = AE6E660F2F67496700549D5A /* ElevenLabs */; };
 /* End PBXBuildFile section */
@@ -46,13 +41,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4C824F312F33E27800056D79 /* PostgREST in Frameworks */,
-				4C824F2F2F33E27800056D79 /* Functions in Frameworks */,
 				AE6E66102F67496700549D5A /* ElevenLabs in Frameworks */,
 				4C824F382F33E35000056D79 /* Supabase in Frameworks */,
-				4C824F2D2F33E27800056D79 /* Auth in Frameworks */,
-				4C824F352F33E27800056D79 /* Storage in Frameworks */,
-				4C824F332F33E27800056D79 /* Realtime in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -96,11 +86,6 @@
 			);
 			name = Momentum;
 			packageProductDependencies = (
-				4C824F2C2F33E27800056D79 /* Auth */,
-				4C824F2E2F33E27800056D79 /* Functions */,
-				4C824F302F33E27800056D79 /* PostgREST */,
-				4C824F322F33E27800056D79 /* Realtime */,
-				4C824F342F33E27800056D79 /* Storage */,
 				4C824F372F33E35000056D79 /* Supabase */,
 				AE6E660F2F67496700549D5A /* ElevenLabs */,
 			);
@@ -434,38 +419,13 @@
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/elevenlabs/elevenlabs-swift-sdk.git";
 			requirement = {
-				branch = main;
-				kind = branch;
+				kind = upToNextMajorVersion;
+				minimumVersion = 3.0.0;
 			};
 		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		4C824F2C2F33E27800056D79 /* Auth */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 4C824F2B2F33E27800056D79 /* XCRemoteSwiftPackageReference "supabase-swift" */;
-			productName = Auth;
-		};
-		4C824F2E2F33E27800056D79 /* Functions */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 4C824F2B2F33E27800056D79 /* XCRemoteSwiftPackageReference "supabase-swift" */;
-			productName = Functions;
-		};
-		4C824F302F33E27800056D79 /* PostgREST */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 4C824F2B2F33E27800056D79 /* XCRemoteSwiftPackageReference "supabase-swift" */;
-			productName = PostgREST;
-		};
-		4C824F322F33E27800056D79 /* Realtime */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 4C824F2B2F33E27800056D79 /* XCRemoteSwiftPackageReference "supabase-swift" */;
-			productName = Realtime;
-		};
-		4C824F342F33E27800056D79 /* Storage */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 4C824F2B2F33E27800056D79 /* XCRemoteSwiftPackageReference "supabase-swift" */;
-			productName = Storage;
-		};
 		4C824F372F33E35000056D79 /* Supabase */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 4C824F2B2F33E27800056D79 /* XCRemoteSwiftPackageReference "supabase-swift" */;

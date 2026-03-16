@@ -1,6 +1,7 @@
 import AVFAudio
 import ElevenLabs
 import Foundation
+import LiveKit
 import Network
 import Observation
 import Supabase
