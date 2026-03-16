@@ -381,13 +381,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "This week"
+            "value" : "This week's tasks"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Cette semaine"
+            "value" : "Tâches de la semaine"
           }
         }
       }

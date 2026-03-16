@@ -26,10 +26,6 @@ struct RoadmapView: View {
     @State private var appeared = false
     @State private var selectedMilestone: DisplayMilestone?
 
-    private let nodeSpacing: CGFloat = 110
-    private let sidePadding: CGFloat = 16
-    private let labelWidth: CGFloat = 180
-
     private var currentGoal: LocalGoal? {
         localGoals.first { $0.id == goalId }
     }
@@ -49,51 +45,24 @@ struct RoadmapView: View {
                         VStack(spacing: 0) {
                             headerSection
 
-                            GeometryReader { geo in
-                                let centerX = geo.size.width / 2
-
-                                ZStack(alignment: .topLeading) {
-                                    pathLine(centerX: centerX)
-                                        .opacity(appeared ? 1 : 0)
-                                        .animation(.easeOut(duration: 0.4), value: appeared)
-
-                                    ForEach(Array(milestones.enumerated()), id: \.element.id) { index, milestone in
-                                        let pos = nodePosition(index: index, centerX: centerX)
-                                        let labelOnRight = pos.x <= centerX
-
-                                        Button {
-                                            selectedMilestone = milestone
-                                        } label: {
-                                            nodeCircle(milestone: milestone, index: index)
-                                        }
-                                        .buttonStyle(.plain)
-                                        .position(x: pos.x, y: pos.y)
-                                        .opacity(appeared ? 1 : 0)
-                                        .animation(.easeOut(duration: 0.3).delay(Double(index) * 0.05 + 0.1), value: appeared)
-
-                                        let labelGap = nodeSize(milestone) / 2 + 12
-
-                                        Button {
-                                            selectedMilestone = milestone
-                                        } label: {
-                                            milestoneLabel(milestone: milestone, alignTrailing: !labelOnRight)
-                                        }
-                                        .buttonStyle(.plain)
-                                        .position(
-                                            x: labelOnRight
-                                                ? pos.x + labelGap + labelWidth / 2
-                                                : pos.x - labelGap - labelWidth / 2,
-                                            y: pos.y
-                                        )
-                                        .opacity(appeared ? 1 : 0)
-                                        .animation(.easeOut(duration: 0.3).delay(Double(index) * 0.05 + 0.15), value: appeared)
+                            VStack(spacing: 0) {
+                                ForEach(Array(milestones.enumerated()), id: \.element.id) { index, milestone in
+                                    Button {
+                                        selectedMilestone = milestone
+                                    } label: {
+                                        milestoneRow(milestone: milestone, index: index)
                                     }
+                                    .buttonStyle(.plain)
+                                    .opacity(appeared ? 1 : 0)
+                                    .animation(
+                                        .easeOut(duration: 0.35).delay(Double(index) * 0.06 + 0.1),
+                                        value: appeared
+                                    )
                                 }
-                                .frame(height: CGFloat(milestones.count) * nodeSpacing + nodeSpacing / 2)
                             }
-                            .frame(height: CGFloat(milestones.count) * nodeSpacing + nodeSpacing / 2)
+                            .padding(.horizontal, 20)
                         }
-                        .padding(.bottom, 40 * 2)
+                        .padding(.bottom, 80)
                     }
                     .hapticRefreshable {
                         await loadMilestones()
@@ -131,17 +100,6 @@ struct RoadmapView: View {
         }
     }
 
-    private func waveAmplitude(for screenWidth: CGFloat) -> CGFloat {
-        (screenWidth / 2) - sidePadding - 26
-    }
-
-    private func nodePosition(index: Int, centerX: CGFloat) -> CGPoint {
-        let y = CGFloat(index) * nodeSpacing + nodeSpacing / 2
-        let side: CGFloat = index % 2 == 0 ? -1 : 1
-        let x = centerX + side * waveAmplitude(for: centerX * 2)
-        return CGPoint(x: x, y: y)
-    }
-
     private var headerSection: some View {
         VStack(alignment: .leading, spacing: 8) {
             AppText("roadmap.journey.subtitle", table: "Roadmap", style: .caption)
@@ -177,125 +135,133 @@ struct RoadmapView: View {
         }
         .padding(.horizontal, 24)
         .padding(.top, 32)
-        .padding(.bottom, 12)
+        .padding(.bottom, 20)
         .frame(maxWidth: .infinity, alignment: .leading)
         .opacity(appeared ? 1 : 0)
         .animation(.easeOut(duration: 0.5), value: appeared)
     }
 
-    private func pathLine(centerX: CGFloat) -> some View {
-        Canvas { context, _ in
-            guard milestones.count > 1 else { return }
+    private func milestoneRow(milestone: DisplayMilestone, index: Int) -> some View {
+        let isFirst = index == 0
+        let isLast = index == milestones.count - 1
+        let isCurrent = milestone.status == .current
+        let verticalPad: CGFloat = isCurrent ? 16 : 12
 
-            let cornerRadius: CGFloat = 16
-            let gap: CGFloat = 10
-
-            for i in 0 ..< milestones.count - 1 {
-                let start = nodePosition(index: i, centerX: centerX)
-                let end = nodePosition(index: i + 1, centerX: centerX)
-                let startInset = nodeSize(milestones[i]) / 2 + gap
-                let endInset = nodeSize(milestones[i + 1]) / 2 + gap
-                let midY = (start.y + end.y) / 2
-
-                var segment = Path()
-                segment.move(to: CGPoint(x: start.x, y: start.y + startInset))
-                segment.addLine(to: CGPoint(x: start.x, y: midY - cornerRadius))
-                segment.addQuadCurve(
-                    to: CGPoint(x: start.x + (end.x > start.x ? cornerRadius : -cornerRadius), y: midY),
-                    control: CGPoint(x: start.x, y: midY)
-                )
-                segment.addLine(to: CGPoint(x: end.x - (end.x > start.x ? cornerRadius : -cornerRadius), y: midY))
-                segment.addQuadCurve(
-                    to: CGPoint(x: end.x, y: midY + cornerRadius),
-                    control: CGPoint(x: end.x, y: midY)
-                )
-                segment.addLine(to: CGPoint(x: end.x, y: end.y - endInset))
-
-                let nextIsUpcoming = milestones[i + 1].status == .upcoming
-                let bothCompleted = milestones[i].status == .completed && milestones[i + 1].status == .completed
-
-                if nextIsUpcoming {
-                    context.stroke(
-                        segment,
-                        with: .color(Color("TextSecondary").opacity(0.15)),
-                        style: StrokeStyle(lineWidth: 4, lineCap: .round, lineJoin: .round, dash: [8, 6])
+        return HStack(alignment: .top, spacing: 14) {
+            VStack(spacing: 0) {
+                Rectangle()
+                    .fill(
+                        isFirst
+                            ? Color.clear
+                            : connectorColor(from: milestones[index - 1].status, to: milestone.status)
                     )
+                    .frame(width: 2, height: 14)
+
+                timelineDot(milestone: milestone)
+
+                if isLast {
+                    Spacer().frame(minHeight: 0)
                 } else {
-                    context.stroke(
-                        segment,
-                        with: .color(
-                            bothCompleted
-                                ? Color("TintPrimary").opacity(0.4)
-                                : Color("TintPrimary").opacity(0.25)
-                        ),
-                        style: StrokeStyle(lineWidth: 4, lineCap: .round, lineJoin: .round)
-                    )
+                    Rectangle()
+                        .fill(connectorColor(from: milestone.status, to: milestones[index + 1].status))
+                        .frame(width: 2)
+                        .frame(maxHeight: .infinity)
                 }
             }
+            .frame(width: 32)
+
+            VStack(alignment: .leading, spacing: 4) {
+                AppText(
+                    verbatim: milestone.title,
+                    style: milestone.isKeyMilestone ? .headline : .body
+                )
+                .weight(milestone.isKeyMilestone ? .bold : .semibold)
+                .color(milestone.status == .upcoming ? Color("TextSecondary") : Color("TextPrimary"))
+
+                HStack(spacing: 6) {
+                    AppText(
+                        verbatim: String(
+                            format: String(localized: "roadmap.milestone.week", table: "Roadmap"),
+                            milestone.targetWeek
+                        ),
+                        style: .caption
+                    )
+                    .color(Color("TextSecondary"))
+
+                    if milestone.isMonthlyCheckpoint {
+                        AppText(verbatim: "·", style: .caption)
+                            .color(Color("TextSecondary"))
+                        AppText("roadmap.milestone.monthlyCheckpoint", table: "Roadmap", style: .caption)
+                            .weight(.semibold)
+                            .color(Color("TintPrimary"))
+                    }
+
+                    if milestone.status == .current {
+                        AppText(verbatim: "·", style: .caption)
+                            .color(Color("TextSecondary"))
+                        AppText(verbatim: "\(Int(milestone.progress * 100))%", style: .caption)
+                            .weight(.semibold)
+                            .color(Color("TintPrimary"))
+                    }
+                }
+            }
+            .padding(.vertical, verticalPad)
+            .frame(maxWidth: .infinity, alignment: .leading)
         }
     }
 
-    private func nodeSize(_ milestone: DisplayMilestone) -> CGFloat {
-        if milestone.isMonthlyCheckpoint || milestone.isKeyMilestone || milestone.status == .current { return 44 }
-        return 34
-    }
-
-    private func nodeCircle(milestone: DisplayMilestone, index: Int) -> some View {
-        let size = nodeSize(milestone)
+    private func timelineDot(milestone: DisplayMilestone) -> some View {
+        let isCurrent = milestone.status == .current
+        let isSpecial = milestone.isKeyMilestone || milestone.isMonthlyCheckpoint
+        let size: CGFloat = (isCurrent || isSpecial) ? 28 : 16
 
         return ZStack {
-            if (milestone.isKeyMilestone || milestone.isMonthlyCheckpoint) && milestone.status != .current {
+            if isCurrent {
                 Circle()
-                    .fill(nodeColor(milestone.status).opacity(0.12))
-                    .frame(width: size + 12, height: size + 12)
+                    .fill(Color("TintPrimary").opacity(0.12))
+                    .frame(width: size + 8, height: size + 8)
             }
 
-            Circle()
-                .fill(nodeColor(milestone.status))
-                .frame(width: size, height: size)
-
-            if (milestone.isKeyMilestone || milestone.isMonthlyCheckpoint) && milestone.status != .upcoming {
+            switch milestone.status {
+            case .completed:
                 Circle()
-                    .strokeBorder(Color("TextOnAccent").opacity(0.2), lineWidth: 2)
-                    .frame(width: size - 6, height: size - 6)
-            }
-
-            if milestone.status == .upcoming && !milestone.isKeyMilestone && !milestone.isMonthlyCheckpoint {
+                    .fill(Color("StatusSuccess"))
+                    .frame(width: size, height: size)
+            case .current:
                 Circle()
-                    .strokeBorder(Color("TextSecondary").opacity(0.2), lineWidth: 2)
+                    .fill(Color("TintPrimary"))
+                    .frame(width: size, height: size)
+            case .upcoming:
+                Circle()
+                    .fill(Color("BgSurface"))
+                    .frame(width: size, height: size)
+                Circle()
+                    .strokeBorder(
+                        Color("TextSecondary").opacity(isSpecial ? 0.3 : 0.2),
+                        lineWidth: 1.5
+                    )
                     .frame(width: size, height: size)
             }
 
-            if milestone.status == .upcoming && (milestone.isKeyMilestone || milestone.isMonthlyCheckpoint) {
-                Circle()
-                    .strokeBorder(Color("TextSecondary").opacity(0.25), lineWidth: 2.5)
-                    .frame(width: size, height: size)
-            }
-
-            nodeIcon(milestone: milestone, index: index, size: size)
+            dotIcon(milestone)
         }
     }
 
-    private func nodeIcon(milestone: DisplayMilestone, index: Int, size _: CGFloat) -> some View {
-        let isGoal = index == milestones.count - 1
-        let icon: TablerIconOutline = isGoal ? .trophy : (milestone.isMonthlyCheckpoint ? .star : .circle)
+    private func dotIcon(_ milestone: DisplayMilestone) -> some View {
+        let accentColor = Color("TextOnAccent")
+        let mutedColor = Color("TextSecondary")
 
         return Group {
-            if milestone.isKeyMilestone || milestone.isMonthlyCheckpoint || isGoal {
-                switch milestone.status {
-                case .completed:
-                    TablerIcons(icon, size: 22, color: Color("TextOnAccent"))
-                case .current:
-                    TablerIcons(icon, size: 24, color: Color("TextOnAccent"))
-                case .upcoming:
-                    TablerIcons(icon, size: 22, color: Color("TextSecondary"))
-                }
+            if milestone.isKeyMilestone {
+                TablerIcons(.trophy, size: 14, color: milestone.status == .upcoming ? mutedColor : accentColor)
+            } else if milestone.isMonthlyCheckpoint {
+                TablerIcons(.star, size: 14, color: milestone.status == .upcoming ? mutedColor : accentColor)
             } else {
                 switch milestone.status {
                 case .completed:
-                    TablerIcons(.check, size: 20, color: Color("TextOnAccent"))
+                    TablerIcons(.check, size: 10, color: accentColor)
                 case .current:
-                    TablerIcons(.mapPin, size: 20, color: Color("TextOnAccent"))
+                    TablerIcons(.mapPin, size: 14, color: accentColor)
                 case .upcoming:
                     EmptyView()
                 }
@@ -303,47 +269,14 @@ struct RoadmapView: View {
         }
     }
 
-    private func milestoneLabel(milestone: DisplayMilestone, alignTrailing: Bool) -> some View {
-        VStack(alignment: alignTrailing ? .trailing : .leading, spacing: 2) {
-            AppText(verbatim: milestone.title, style: (milestone.isKeyMilestone || milestone.isMonthlyCheckpoint) ? .headline : .subheadline)
-                .weight((milestone.isKeyMilestone || milestone.isMonthlyCheckpoint) ? .bold : .semibold)
-                .color(milestone.status == .upcoming ? Color("TextSecondary") : Color("TextPrimary"))
-
-            HStack(spacing: 4) {
-                AppText(
-                    verbatim: String(
-                        format: String(localized: "roadmap.milestone.week", table: "Roadmap"),
-                        milestone.targetWeek
-                    ),
-                    style: .caption
-                )
-                .color(Color("TextSecondary"))
-
-                if milestone.isMonthlyCheckpoint {
-                    AppText(verbatim: "·", style: .caption)
-                        .color(Color("TextSecondary"))
-                    AppText("roadmap.milestone.monthlyCheckpoint", table: "Roadmap", style: .caption)
-                        .weight(.semibold)
-                        .color(Color("TintPrimary"))
-                }
-
-                if milestone.status == .current {
-                    AppText(verbatim: "·", style: .caption)
-                        .color(Color("TextSecondary"))
-                    AppText(verbatim: "\(Int(milestone.progress * 100))%", style: .caption)
-                        .weight(.semibold)
-                        .color(Color("TintPrimary"))
-                }
-            }
-        }
-        .frame(width: labelWidth, alignment: alignTrailing ? .trailing : .leading)
-    }
-
-    private func nodeColor(_ status: MilestoneStatus) -> Color {
-        switch status {
-        case .completed: return Color("TintPrimary")
-        case .current: return Color("TintPrimary")
-        case .upcoming: return Color("BgSurface")
+    private func connectorColor(from: MilestoneStatus, to: MilestoneStatus) -> Color {
+        switch (from, to) {
+        case (.completed, .completed):
+            Color("StatusSuccess").opacity(0.6)
+        case (.completed, .current), (.current, .completed):
+            Color("StatusSuccess").opacity(0.4)
+        default:
+            Color("TextSecondary").opacity(0.25)
         }
     }
 

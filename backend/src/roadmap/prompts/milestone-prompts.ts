@@ -27,7 +27,7 @@ Rules:
 - Use backward planning: start from the final outcome and work backward to determine what must be achieved each week
 
 Return a JSON array of objects with these exact fields:
-- "title": A concise milestone title
+- "title": A concise milestone title (no prefixes like "Month X Milestone:" — just the topic)
 - "description": Detailed description of what this milestone involves
 - "expected_outcome": What the user should have achieved by this milestone
 - "target_month": The month number this week belongs to (1 = first month, 2 = second month, etc.)

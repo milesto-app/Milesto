@@ -8,9 +8,9 @@ Never run xcodebuild or other build/run commands. The user handles all builds th
 
 ## Components
 
-**Before making any frontend/UI changes, always check `Core/Components/` and feature-specific `Components/` folders for existing reusable components.** Use existing components instead of creating new ones or using raw SwiftUI views.
+**Before making any frontend/UI changes, always check `Shared/Components/` and feature-specific `Components/` folders for existing reusable components.** Use existing components instead of creating new ones or using raw SwiftUI views.
 
-**AppText** (`Core/Components/AppText.swift`) - Always use `AppText` instead of `Text` for displaying text. This ensures consistent typography across the app.
+**AppText** (`Shared/Components/AppText.swift`) - Always use `AppText` instead of `Text` for displaying text. This ensures consistent typography across the app.
 
 ```swift
 // Use this:
@@ -26,22 +26,22 @@ Text("Hello")
 
 Available styles: `.largeTitle`, `.title`, `.headline`, `.body`, `.subheadline`, `.caption`
 
-**AppTextField** (`Core/Components/AppTextField.swift`) - Use for all text input fields. Accepts `icon: TablerIconOutline` parameter.
+**AppTextField** (`Shared/Components/AppTextField.swift`) - Use for all text input fields. Accepts `icon: TablerIconOutline` parameter.
 
-**TablerIcon** (`Core/Components/TablerIcon.swift`) - **Always use `TablerIcon` instead of SF Symbols.** Never use `Image(systemName:)` or `systemImage:` anywhere in the project.
+**TablerIcon** (`Shared/Components/TablerIcons.swift`) - **Always use `TablerIcon` instead of SF Symbols.** Never use `Image(systemName:)` or `systemImage:` anywhere in the project.
 
 ```swift
 // Use this:
 TablerIcon(.home, size: 24)
-TablerIcon(.check, size: 20, color: Colors.accent)
-TablerIcon.filled(.heart, size: 24, color: Colors.error)
+TablerIcon(.check, size: 20, color: Color("AccentColor"))
+TablerIcon.filled(.heart, size: 24, color: Color("StatusError"))
 
 // NOT this:
 Image(systemName: "house.fill")
 Image(systemName: "checkmark")
 ```
 
-Icon names come from the `TablerIconOutline` and `TablerIconFilled` enums in `Shared/Components/TablerIcon.swift`. Use outline icons by default, filled via `TablerIcon.filled(...)`.
+Icon names come from the `TablerIconOutline` and `TablerIconFilled` enums in `Shared/Components/TablerIcons.swift`. Use outline icons by default, filled via `TablerIcon.filled(...)`.
 
 **For tab bars**, use `TablerTabLabel` which converts the icon to an `Image` for tab bar compatibility:
 
@@ -60,36 +60,39 @@ AppButton("Label", table: "Common", action: doSomething)
     .icon(.arrowRight, position: .trailing)
 ```
 
-**Colors** (`Core/Components/Colors.swift`) - Use for all design tokens (colors). Never use hardcoded color values. Corner radii use raw CGFloat values directly.
+**Colors** — Use color assets from `Assets.xcassets` via `Color("TokenName")`. Never use hardcoded color values. Corner radii use raw CGFloat values directly.
 
 ```swift
 // Use this:
-.foregroundStyle(Colors.accent)
+.foregroundStyle(Color("AccentColor"))
 .cornerRadius(12)
 
 // NOT this:
 .foregroundStyle(.orange)
 ```
 
-Available tokens:
-
-- `Colors`: `.accent`, `.success`, `.error`, `.disabled`, `.textPrimary`, `.textSecondary`, `.textPlaceholder`, `.textOnAccent`, `.iconDefault`, `.fieldBackground`, `.fieldBorderFocused`, `.fieldBorderError`, `.fieldBorderDefault`
+Available color assets: `AccentColor`, `AccentAmber`, `BgPrimary`, `BgSurface`, `StatusDisabled`, `StatusError`, `StatusSuccess`, `TextOnAccent`, `TextPrimary`, `TextSecondary`, `TintPrimary`
 
 ## Localization
 
-**Never hardcode user-facing text.** The app supports French (source language) and English using String Catalogs.
+**Never hardcode user-facing text.** The app supports English (source language) and French using String Catalogs.
 
 **String Catalogs are split by feature** in `Resources/Locales/`:
 
 | Table        | File                   | Content                                                |
 | ------------ | ---------------------- | ------------------------------------------------------ |
 | `Auth`       | `Auth.xcstrings`       | Authentication (welcome, sign-in, sign-up, errors)     |
-| `Onboarding` | `Onboarding.xcstrings` | Onboarding flow (name, goal, deadline, coach, etc.)    |
-| `Home`       | `Home.xcstrings`       | Home screen (greeting, tasks, mock data)               |
+| `Chat`       | `Chat.xcstrings`       | Chat/conversation UI                                   |
 | `Coach`      | `Coach.xcstrings`      | Coach personalities (titles, descriptions)             |
-| `Settings`   | `Settings.xcstrings`   | Settings screen (sign-out, version)                    |
 | `Common`     | `Common.xcstrings`     | Shared strings (continue, cancel, ok) + tab bar labels |
+| `Home`       | `Home.xcstrings`       | Home screen (greeting, tasks)                          |
+| `Intake`     | `Intake.xcstrings`     | Intake question flow                                   |
+| `Onboarding` | `Onboarding.xcstrings` | Onboarding flow (name, goal, deadline, coach, etc.)    |
+| `Paywall`    | `Paywall.xcstrings`    | Paywall / subscription UI                              |
+| `Roadmap`    | `Roadmap.xcstrings`    | Roadmap, milestones, weekly plans                      |
+| `Settings`   | `Settings.xcstrings`   | Settings screen (sign-out, version)                    |
 | `Stats`      | `Stats.xcstrings`      | Statistics screen                                      |
+| `Voice`      | `Voice.xcstrings`      | Voice chat UI                                          |
 
 **In SwiftUI views** — always pass `table:` to `AppText`/`AppButton`/`AppTextField`:
 
