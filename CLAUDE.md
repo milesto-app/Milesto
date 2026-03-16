@@ -21,7 +21,7 @@ Each sub-project has its own `CLAUDE.md` with detailed conventions, patterns, an
 - **Working on `backend/` only** → read `backend/CLAUDE.md`
 - **Working on both** → read **both** `ios/CLAUDE.md` and `backend/CLAUDE.md`
 
-These files are the source of truth for code style, architecture, components, and conventions in each codebase. ALWAYS read them before making changes.
+These files are the source of truth for code style, architecture, components, and conventions in each codebase. ALWAYS read them before making changes
 
 ## Core User Flow
 
