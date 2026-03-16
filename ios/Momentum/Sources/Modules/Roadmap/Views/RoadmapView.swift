@@ -17,6 +17,7 @@ struct RoadmapView: View {
     let goalId: String
     var onGoalChanged: ((String) -> Void)?
 
+    @Environment(\.modelContext) private var modelContext
     @Query private var localGoals: [LocalGoal]
     @State private var milestones: [DisplayMilestone] = []
     @State private var isLoading = true
@@ -120,7 +121,9 @@ struct RoadmapView: View {
             appeared = false
             Task {
                 await loadMilestones()
-                appeared = true
+                if !appeared {
+                    appeared = true
+                }
             }
         }
     }
@@ -334,12 +337,22 @@ struct RoadmapView: View {
     }
 
     private func loadMilestones() async {
+        let cached = fetchCachedMilestones()
+        if !cached.isEmpty {
+            milestones = cached
+            isLoading = false
+            if !appeared {
+                appeared = true
+            }
+        }
+
         do {
             let roadmap = try await RoadmapAPIService.shared.getRoadmap(goalId: goalId)
             guard let dtos = roadmap.milestones else { return }
 
-            let sorted = dtos.sorted { $0.orderIndex < $1.orderIndex }
+            syncRoadmapToCache(roadmap)
 
+            let sorted = dtos.sorted { $0.orderIndex < $1.orderIndex }
             let currentMilestoneId = roadmap.currentMilestoneId
             var foundCurrent = false
 
@@ -372,6 +385,119 @@ struct RoadmapView: View {
             }
         } catch {}
         isLoading = false
+    }
+
+    private func fetchCachedMilestones() -> [DisplayMilestone] {
+        let goalId = goalId
+        let descriptor = FetchDescriptor<LocalRoadmap>(
+            predicate: #Predicate { $0.goalId == goalId }
+        )
+        guard let localRoadmap = try? modelContext.fetch(descriptor).first,
+              !localRoadmap.milestones.isEmpty else { return [] }
+
+        let sorted = localRoadmap.milestones.sorted { $0.orderIndex < $1.orderIndex }
+        let currentMilestoneId = localRoadmap.currentMilestoneId
+        var foundCurrent = false
+
+        return sorted.enumerated().map { index, local in
+            let status: MilestoneStatus
+            if let currentId = currentMilestoneId {
+                if local.id == currentId {
+                    status = .current
+                    foundCurrent = true
+                } else if !foundCurrent {
+                    status = .completed
+                } else {
+                    status = .upcoming
+                }
+            } else {
+                status = index == 0 ? .current : .upcoming
+            }
+
+            return DisplayMilestone(
+                id: local.id,
+                title: local.title,
+                description: local.milestoneDescription,
+                targetMonth: local.targetMonth,
+                orderIndex: local.orderIndex,
+                expectedOutcome: local.expectedOutcome,
+                status: status,
+                progress: status == .current ? 0.5 : (status == .completed ? 1.0 : 0.0),
+                isKeyMilestone: index == sorted.count - 1
+            )
+        }
+    }
+
+    private func syncRoadmapToCache(_ dto: RoadmapDTO) {
+        let goalId = goalId
+        let descriptor = FetchDescriptor<LocalRoadmap>(
+            predicate: #Predicate { $0.goalId == goalId }
+        )
+
+        if let existing = try? modelContext.fetch(descriptor).first {
+            existing.status = dto.status.rawValue
+            existing.updatedAt = dto.updatedAt
+            existing.currentMilestoneId = dto.currentMilestoneId
+
+            if let dtos = dto.milestones {
+                let existingById = Dictionary(uniqueKeysWithValues: existing.milestones.map { ($0.id, $0) })
+                let remoteIds = Set(dtos.map(\.id))
+
+                for milestoneDTO in dtos {
+                    if let local = existingById[milestoneDTO.id] {
+                        local.title = milestoneDTO.title
+                        local.milestoneDescription = milestoneDTO.description
+                        local.expectedOutcome = milestoneDTO.expectedOutcome
+                        local.targetMonth = milestoneDTO.targetMonth
+                        local.orderIndex = milestoneDTO.orderIndex
+                    } else {
+                        let local = LocalMilestone(
+                            id: milestoneDTO.id,
+                            roadmapId: milestoneDTO.roadmapId,
+                            goalId: milestoneDTO.goalId,
+                            orderIndex: milestoneDTO.orderIndex,
+                            title: milestoneDTO.title,
+                            milestoneDescription: milestoneDTO.description,
+                            expectedOutcome: milestoneDTO.expectedOutcome,
+                            targetMonth: milestoneDTO.targetMonth,
+                            createdAt: milestoneDTO.createdAt
+                        )
+                        local.roadmap = existing
+                        existing.milestones.append(local)
+                    }
+                }
+
+                for local in existing.milestones where !remoteIds.contains(local.id) {
+                    modelContext.delete(local)
+                }
+            }
+        } else {
+            let localMilestones = (dto.milestones ?? []).map { milestoneDTO in
+                LocalMilestone(
+                    id: milestoneDTO.id,
+                    roadmapId: milestoneDTO.roadmapId,
+                    goalId: milestoneDTO.goalId,
+                    orderIndex: milestoneDTO.orderIndex,
+                    title: milestoneDTO.title,
+                    milestoneDescription: milestoneDTO.description,
+                    expectedOutcome: milestoneDTO.expectedOutcome,
+                    targetMonth: milestoneDTO.targetMonth,
+                    createdAt: milestoneDTO.createdAt
+                )
+            }
+
+            let local = LocalRoadmap(
+                id: dto.id,
+                goalId: dto.goalId,
+                userId: dto.userId,
+                status: dto.status.rawValue,
+                createdAt: dto.createdAt,
+                updatedAt: dto.updatedAt,
+                currentMilestoneId: dto.currentMilestoneId,
+                milestones: localMilestones
+            )
+            modelContext.insert(local)
+        }
     }
 }
 

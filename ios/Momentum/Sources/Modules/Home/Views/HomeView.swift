@@ -48,10 +48,10 @@ struct HomeView: View {
                     VStack(spacing: 0) {
                         heroSection
 
-                        if isLoading {
+                        if isLoading && objectives.isEmpty && weeklyPlan == nil {
                             ProgressView()
                                 .padding(.top, 40)
-                        } else if hasSyncError {
+                        } else if hasSyncError && objectives.isEmpty && weeklyPlan == nil {
                             syncErrorSection
                         } else {
                             contentSection
@@ -64,16 +64,13 @@ struct HomeView: View {
             }
         }
         .task {
-            if hasCheckedIn {
-                isLoading = false
-            }
             await loadAllData()
         }
         .onChange(of: goalId) {
             objectives = []
             weeklyPlan = nil
             todayDebrief = nil
-            isLoading = !hasCheckedIn
+            isLoading = true
             Task {
                 await loadAllData()
             }

@@ -18,6 +18,7 @@ struct MomentumApp: App {
             LocalDebrief.self,
             LocalConversation.self,
             LocalChatMessage.self,
+            LocalStats.self,
         ])
         let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
 

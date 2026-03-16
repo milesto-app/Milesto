@@ -1,8 +1,10 @@
+import SwiftData
 import SwiftUI
 
 struct StatsView: View {
     let goalId: String
 
+    @Environment(\.modelContext) private var modelContext
     @State private var stats: StatsDTO?
     @State private var isLoading = true
     @State private var hasAppeared = false
@@ -125,9 +127,21 @@ struct StatsView: View {
 
     private func loadStats() async {
         loadError = nil
+
+        if stats == nil, let cached = fetchCachedStats() {
+            stats = cached
+            isLoading = false
+            if !hasAppeared {
+                withAnimation(.easeOut(duration: 0.5)) {
+                    hasAppeared = true
+                }
+            }
+        }
+
         do {
             let result = try await StatsAPIService.shared.getStats(goalId: goalId)
             stats = result
+            syncStatsToCache(result)
             isLoading = false
             if !hasAppeared {
                 withAnimation(.easeOut(duration: 0.5)) {
@@ -135,8 +149,35 @@ struct StatsView: View {
                 }
             }
         } catch {
-            loadError = error
+            if stats == nil {
+                loadError = error
+            }
             isLoading = false
+        }
+    }
+
+    private func fetchCachedStats() -> StatsDTO? {
+        let goalId = goalId
+        let descriptor = FetchDescriptor<LocalStats>(
+            predicate: #Predicate { $0.goalId == goalId }
+        )
+        guard let local = try? modelContext.fetch(descriptor).first,
+              let data = local.statsJSON else { return nil }
+        return try? JSONDecoder().decode(StatsDTO.self, from: data)
+    }
+
+    private func syncStatsToCache(_ dto: StatsDTO) {
+        let goalId = goalId
+        let descriptor = FetchDescriptor<LocalStats>(
+            predicate: #Predicate { $0.goalId == goalId }
+        )
+        let data = try? JSONEncoder().encode(dto)
+
+        if let existing = try? modelContext.fetch(descriptor).first {
+            existing.statsJSON = data
+            existing.updatedAt = Date()
+        } else {
+            modelContext.insert(LocalStats(goalId: goalId, statsJSON: data))
         }
     }
 }
