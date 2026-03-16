@@ -86,26 +86,28 @@ struct HomeView: View {
 
     private var heroSection: some View {
         VStack(alignment: .leading, spacing: 16) {
-            AppText(verbatim: formattedDate, style: .caption)
-                .color(Color("TextSecondary"))
+            VStack(alignment: .leading, spacing: 4) {
+                AppText(verbatim: formattedDate, style: .caption)
+                    .color(Color("TextSecondary"))
 
-            AppText(verbatim: currentGoal?.title ?? "", style: .title)
+                AppText(verbatim: currentGoal?.title ?? "", style: .title)
+            }
 
             VStack(alignment: .leading, spacing: 8) {
                 GeometryReader { geometry in
                     ZStack(alignment: .leading) {
                         Capsule()
-                            .fill(Color("TextSecondary").opacity(0.1))
-                            .frame(height: 8)
+                            .fill(Color("TextSecondary").opacity(0.3))
+                            .frame(height: 10)
                         Capsule()
                             .fill(Color("TintPrimary"))
                             .frame(
-                                width: geometry.size.width * goalProgress,
-                                height: 8
+                                width: max(geometry.size.width * goalProgress, goalProgress > 0 ? 10 : 0),
+                                height: 10
                             )
                     }
                 }
-                .frame(height: 8)
+                .frame(height: 10)
 
                 HStack {
                     AppText(
