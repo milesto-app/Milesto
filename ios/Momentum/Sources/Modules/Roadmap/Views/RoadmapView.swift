@@ -100,43 +100,58 @@ struct RoadmapView: View {
         }
     }
 
-    private var headerSection: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            AppText("roadmap.journey.subtitle", table: "Roadmap", style: .caption)
-                .color(Color("TextSecondary"))
+    private var completionProgress: Double {
+        guard !milestones.isEmpty else { return 0 }
+        return Double(milestones.filter { $0.status == .completed }.count) / Double(milestones.count)
+    }
 
-            if switchableGoals.count > 1 {
-                Menu {
-                    ForEach(switchableGoals, id: \.id) { goal in
-                        Button(goal.title) {
-                            if goal.id != goalId {
-                                onGoalChanged?(goal.id)
+    private var headerSection: some View {
+        HStack(alignment: .top) {
+            VStack(alignment: .leading, spacing: 8) {
+                AppText("roadmap.journey.subtitle", table: "Roadmap", style: .caption)
+                    .color(Color("TextSecondary"))
+
+                if switchableGoals.count > 1 {
+                    Menu {
+                        ForEach(switchableGoals, id: \.id) { goal in
+                            Button(goal.title) {
+                                if goal.id != goalId {
+                                    onGoalChanged?(goal.id)
+                                }
                             }
                         }
+                    } label: {
+                        HStack(spacing: 8) {
+                            AppText(verbatim: currentGoal?.title ?? "", style: .largeTitle)
+                            TablerIcons(.chevronDown, size: 20, color: Color("TextSecondary"))
+                        }
                     }
-                } label: {
-                    HStack(spacing: 8) {
-                        AppText(verbatim: currentGoal?.title ?? "", style: .largeTitle)
-                        TablerIcons(.chevronDown, size: 20, color: Color("TextSecondary"))
-                    }
+                } else {
+                    AppText(verbatim: currentGoal?.title ?? "", style: .largeTitle)
                 }
-            } else {
-                AppText(verbatim: currentGoal?.title ?? "", style: .largeTitle)
             }
 
-            HStack(spacing: 8) {
+            Spacer()
+
+            ZStack {
+                Circle()
+                    .stroke(Color("TextSecondary").opacity(0.15), lineWidth: 4)
+                Circle()
+                    .trim(from: 0, to: completionProgress)
+                    .stroke(Color("TintPrimary"), style: StrokeStyle(lineWidth: 4, lineCap: .round))
+                    .rotationEffect(.degrees(-90))
                 AppText(
-                    verbatim: "\(milestones.filter { $0.status == .completed }.count)/\(milestones.count)",
-                    style: .subheadline
+                    verbatim: "\(Int(completionProgress * 100))%",
+                    style: .caption
                 )
                 .weight(.semibold)
                 .color(Color("TintPrimary"))
             }
+            .frame(width: 44, height: 44)
         }
         .padding(.horizontal, 24)
         .padding(.top, 32)
         .padding(.bottom, 20)
-        .frame(maxWidth: .infinity, alignment: .leading)
         .opacity(appeared ? 1 : 0)
         .animation(.easeOut(duration: 0.5), value: appeared)
     }
