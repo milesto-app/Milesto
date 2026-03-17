@@ -20,7 +20,6 @@ struct ChatView: View {
     @State private var isSidebarOpen = false
     @State private var conversations: [ConversationSummary] = []
     @State private var isLoadingHistory = false
-    @State private var showPaywall = false
     @State private var isLimitReached = false
 
     private var coach: CoachPersonality? {
@@ -171,24 +170,13 @@ struct ChatView: View {
             : String(localized: "chat.error.generic", table: "Chat"),
             isPresented: $showError)
         {
-            if isLimitReached {
-                Button(String(localized: "usage.limit.reached.cta", table: "Paywall")) {
-                    isLimitReached = false
-                    showPaywall = true
-                }
-                Button(String(localized: "common.ok", table: "Common"), role: .cancel) {
-                    isLimitReached = false
-                }
-            } else {
-                Button(String(localized: "common.ok", table: "Common"), role: .cancel) {}
+            Button(String(localized: "common.ok", table: "Common"), role: .cancel) {
+                isLimitReached = false
             }
         } message: {
             if isLimitReached {
                 Text(errorMessage)
             }
-        }
-        .sheet(isPresented: $showPaywall) {
-            PaywallView()
         }
         .fullScreenCover(isPresented: $isVoiceChatActive, onDismiss: {
             if let conversationId {

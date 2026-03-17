@@ -6,8 +6,6 @@ struct SettingsView: View {
     var onDeleteGoal: (() -> Void)?
 
     @EnvironmentObject private var authService: AuthService
-    @EnvironmentObject private var storeService: StoreService
-    @StateObject private var usageService = UsageService.shared
     @Environment(\.modelContext) private var modelContext
 
     @Query private var localProfiles: [LocalProfile]
@@ -21,8 +19,6 @@ struct SettingsView: View {
     @State private var isSaving = false
     @State private var showError = false
     @State private var errorMessage = ""
-    @State private var showPaywall = false
-
     private var localProfile: LocalProfile? {
         localProfiles.first { $0.userId == authService.currentUserId }
     }
@@ -36,8 +32,6 @@ struct SettingsView: View {
             List {
                 profileHeaderSection
                 profileDetailsSection
-                proSection
-                usageSection
                 deleteGoalSection
                 signOutSection
             }
@@ -76,9 +70,6 @@ struct SettingsView: View {
             .sheet(item: $activeSheet) { sheet in
                 sheetContent(for: sheet)
                     .presentationDetents(sheet == .coach ? [.large] : [.medium, .large])
-            }
-            .sheet(isPresented: $showPaywall) {
-                PaywallView()
             }
             .fullScreenCover(isPresented: $showNewGoal) {
                 if let userId = authService.currentUserId {
@@ -245,55 +236,6 @@ struct SettingsView: View {
         }
     }
 
-    private var proSection: some View {
-        Section {
-            if storeService.isPro {
-                HStack(spacing: 12) {
-                    TablerIcons(.crown, size: 24, color: Color("TintPrimary"))
-                    AppText("settings.pro", table: "Paywall", style: .body)
-                    Spacer()
-                    HStack(spacing: 4) {
-                        TablerIcons(.circleCheck, size: 16, color: Color("StatusSuccess"))
-                        AppText("settings.pro.active", table: "Paywall", style: .caption)
-                            .color(Color("StatusSuccess"))
-                    }
-                }
-            } else {
-                Button {
-                    showPaywall = true
-                } label: {
-                    HStack(spacing: 12) {
-                        TablerIcons(.crown, size: 24, color: Color("TintPrimary"))
-                        AppText("settings.pro", table: "Paywall", style: .body)
-                        Spacer()
-                        TablerIcons(.chevronRight, size: 16, color: Color("TextSecondary"))
-                    }
-                    .contentShape(Rectangle())
-                }
-                .buttonStyle(.plain)
-            }
-        }
-    }
-
-    private var usageSection: some View {
-        Section {
-            HStack {
-                TablerIcons(.bolt, size: 20, color: Color("TintPrimary"))
-                AppText("usage.daily.title", table: "Paywall", style: .body)
-                Spacer()
-                if let usage = usageService.usage {
-                    let remaining = max(usage.limit - usage.used, 0)
-                    let percent = usage.limit > 0 ? Int(round(Double(remaining) / Double(usage.limit) * 100)) : 0
-                    AppText(verbatim: "\(percent)% \(String(localized: "usage.daily.remaining", table: "Paywall"))", style: .caption)
-                        .color(remaining == 0 ? Color("StatusError") : Color("TextSecondary"))
-                }
-            }
-        }
-        .task {
-            await usageService.fetchUsage()
-        }
-    }
-
     private var deleteGoalSection: some View {
         Section {
             Button(role: .destructive) {
@@ -409,6 +351,5 @@ struct SettingsView: View {
 #Preview {
     SettingsView()
         .environmentObject(AuthService.shared)
-        .environmentObject(StoreService.shared)
         .modelContainer(for: LocalProfile.self, inMemory: true)
 }
