@@ -255,7 +255,7 @@ struct RoadmapView: View {
                     .frame(width: size, height: size)
             case .upcoming:
                 Circle()
-                    .fill(Color("BgSurface"))
+                    .stroke(Color("BgSurface"), lineWidth: 2)
                     .frame(width: size, height: size)
             }
 
