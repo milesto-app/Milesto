@@ -165,9 +165,9 @@ struct RoadmapView: View {
     private func milestoneRow(milestone: DisplayMilestone, index: Int) -> some View {
         let isFirst = index == 0
         let isLast = index == milestones.count - 1
-        let verticalPad: CGFloat = 12
+        let verticalPad: CGFloat = 20
 
-        return HStack(alignment: .top, spacing: 14) {
+        return HStack(alignment: .center, spacing: 14) {
             VStack(spacing: 0) {
                 if isFirst {
                     Spacer().frame(height: 14)
@@ -200,14 +200,7 @@ struct RoadmapView: View {
                 )
                 .weight((milestone.isKeyMilestone || milestone.isMonthlyCheckpoint) ? .medium : .regular)
                 .color(milestone.status == .upcoming ? Color("TextSecondary") : Color("TextPrimary"))
-
-                if milestone.status == .current {
-                    HStack(spacing: 6) {
-                        AppText(verbatim: "\(Int(milestone.progress * 100))%", style: .caption)
-                            .weight(.semibold)
-                            .color(Color("TintPrimary"))
-                    }
-                }
+                .lineLimit(1)
             }
             .padding(.vertical, verticalPad)
             .frame(maxWidth: .infinity, alignment: .leading)
@@ -221,19 +214,18 @@ struct RoadmapView: View {
     }
 
     private func timelineDot(milestone: DisplayMilestone) -> some View {
-        let isCurrent = milestone.status == .current
         let isSpecial = milestone.isKeyMilestone || milestone.isMonthlyCheckpoint
-        let size: CGFloat = (isCurrent || isSpecial) ? 28 : 16
+        let size: CGFloat = isSpecial ? 28 : 16
 
         return ZStack {
             switch milestone.status {
             case .completed:
                 Circle()
-                    .fill(Color("StatusSuccess"))
+                    .fill(Color("AccentColor"))
                     .frame(width: size, height: size)
             case .current:
                 Circle()
-                    .fill(Color("TintPrimary"))
+                    .stroke(Color("AccentColor"), lineWidth: 2)
                     .frame(width: size, height: size)
             case .upcoming:
                 Circle()
@@ -258,9 +250,7 @@ struct RoadmapView: View {
                 switch milestone.status {
                 case .completed:
                     TablerIcons(.check, size: 10, color: accentColor)
-                case .current:
-                    TablerIcons(.mapPin, size: 14, color: accentColor)
-                case .upcoming:
+                case .current, .upcoming:
                     EmptyView()
                 }
             }
@@ -279,10 +269,8 @@ struct RoadmapView: View {
 
     private func connectorColor(from: MilestoneStatus, to: MilestoneStatus) -> Color {
         switch (from, to) {
-        case (.completed, .completed):
-            Color("StatusSuccess").opacity(0.4)
-        case (.completed, .current), (.current, .completed):
-            Color("StatusSuccess").opacity(0.25)
+        case (.completed, .completed), (.completed, .current):
+            Color("AccentColor").opacity(0.4)
         default:
             Color("TextSecondary").opacity(0.15)
         }
