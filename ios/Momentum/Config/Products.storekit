@@ -48,7 +48,7 @@
           "codeOffers" : [
 
           ],
-          "displayPrice" : "14.99",
+          "displayPrice" : "19.99",
           "familyShareable" : false,
           "groupNumber" : 2,
           "internalID" : "6759965329",
@@ -80,7 +80,11 @@
           "familyShareable" : false,
           "groupNumber" : 1,
           "internalID" : "6759965333",
-          "introductoryOffer" : null,
+          "introductoryOffer" : {
+            "displayPrice" : "0.00",
+            "paymentMode" : "free",
+            "subscriptionPeriod" : "P14D"
+          },
           "localizations" : [
             {
               "description" : "AI coaching, personalized roadmaps, and daily check-ins",
