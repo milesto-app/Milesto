@@ -144,20 +144,22 @@ struct RoadmapView: View {
     private func milestoneRow(milestone: DisplayMilestone, index: Int) -> some View {
         let isFirst = index == 0
         let isLast = index == milestones.count - 1
-        let isCurrent = milestone.status == .current
-        let verticalPad: CGFloat = isCurrent ? 16 : 12
+        let verticalPad: CGFloat = 12
 
         return HStack(alignment: .top, spacing: 14) {
             VStack(spacing: 0) {
-                Rectangle()
-                    .fill(
-                        isFirst
-                            ? Color.clear
-                            : connectorColor(from: milestones[index - 1].status, to: milestone.status)
-                    )
-                    .frame(width: 2, height: 14)
+                if isFirst {
+                    Spacer().frame(height: 14)
+                } else {
+                    Rectangle()
+                        .fill(connectorColor(from: milestones[index - 1].status, to: milestone.status))
+                        .frame(width: 2)
+                        .frame(maxHeight: .infinity)
+                }
 
+                Spacer().frame(height: 4)
                 timelineDot(milestone: milestone)
+                Spacer().frame(height: 4)
 
                 if isLast {
                     Spacer().frame(minHeight: 0)
@@ -179,21 +181,24 @@ struct RoadmapView: View {
                 .color(milestone.status == .upcoming ? Color("TextSecondary") : Color("TextPrimary"))
 
                 HStack(spacing: 6) {
-                    AppText(
-                        verbatim: String(
-                            format: String(localized: "roadmap.milestone.week", table: "Roadmap"),
-                            milestone.targetWeek
-                        ),
-                        style: .caption
-                    )
-                    .color(Color("TextSecondary").opacity(0.5))
-
                     if milestone.isMonthlyCheckpoint {
-                        AppText(verbatim: "·", style: .caption)
-                            .color(Color("TextSecondary").opacity(0.5))
-                        AppText("roadmap.milestone.monthlyCheckpoint", table: "Roadmap", style: .caption)
-                            .weight(.semibold)
-                            .color(Color("TintPrimary"))
+                        AppText(
+                            verbatim: String(
+                                format: String(localized: "roadmap.milestone.month", table: "Roadmap"),
+                                milestone.targetMonth
+                            ),
+                            style: .caption
+                        )
+                        .color(Color("TextSecondary").opacity(0.5))
+                    } else {
+                        AppText(
+                            verbatim: String(
+                                format: String(localized: "roadmap.milestone.week", table: "Roadmap"),
+                                milestone.targetWeek
+                            ),
+                            style: .caption
+                        )
+                        .color(Color("TextSecondary").opacity(0.5))
                     }
 
                     if milestone.status == .current {
@@ -207,6 +212,12 @@ struct RoadmapView: View {
             }
             .padding(.vertical, verticalPad)
             .frame(maxWidth: .infinity, alignment: .leading)
+
+            VStack {
+                Spacer()
+                TablerIcons(.chevronRight, size: 16, color: Color("TextSecondary").opacity(0.3))
+                Spacer()
+            }
         }
     }
 
@@ -216,12 +227,6 @@ struct RoadmapView: View {
         let size: CGFloat = (isCurrent || isSpecial) ? 28 : 16
 
         return ZStack {
-            if isCurrent {
-                Circle()
-                    .fill(Color("TintPrimary").opacity(0.12))
-                    .frame(width: size + 8, height: size + 8)
-            }
-
             switch milestone.status {
             case .completed:
                 Circle()
@@ -234,12 +239,6 @@ struct RoadmapView: View {
             case .upcoming:
                 Circle()
                     .fill(Color("BgSurface"))
-                    .frame(width: size, height: size)
-                Circle()
-                    .strokeBorder(
-                        Color("TextSecondary").opacity(0.2),
-                        lineWidth: 1.5
-                    )
                     .frame(width: size, height: size)
             }
 
@@ -272,11 +271,11 @@ struct RoadmapView: View {
     private func connectorColor(from: MilestoneStatus, to: MilestoneStatus) -> Color {
         switch (from, to) {
         case (.completed, .completed):
-            Color("StatusSuccess").opacity(0.6)
-        case (.completed, .current), (.current, .completed):
             Color("StatusSuccess").opacity(0.4)
+        case (.completed, .current), (.current, .completed):
+            Color("StatusSuccess").opacity(0.25)
         default:
-            Color("TextSecondary").opacity(0.25)
+            Color("TextSecondary").opacity(0.15)
         }
     }
 

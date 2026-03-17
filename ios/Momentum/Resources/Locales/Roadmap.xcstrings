@@ -681,6 +681,23 @@
         }
       }
     },
+    "roadmap.milestone.month" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Month %d"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mois %d"
+          }
+        }
+      }
+    },
     "roadmap.milestone.monthlyCheckpoint" : {
       "extractionState" : "manual",
       "localizations" : {
