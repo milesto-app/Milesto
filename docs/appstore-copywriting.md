@@ -37,6 +37,7 @@ Life happens. Momentum adapts your roadmap when things change, so you never lose
 **Momentum Pro**
 
 Unlock your full potential with unlimited access:
+
 - Personalized AI coaching
 - Unlimited roadmap generation
 - Unlimited coach conversations

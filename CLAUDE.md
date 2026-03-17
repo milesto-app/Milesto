@@ -21,20 +21,11 @@ Each sub-project has its own `CLAUDE.md` with detailed conventions, patterns, an
 - **Working on `backend/` only** → read `backend/CLAUDE.md`
 - **Working on both** → read **both** `ios/CLAUDE.md` and `backend/CLAUDE.md`
 
-These files are the source of truth for code style, architecture, components, and conventions in each codebase. ALWAYS read them before making changes
-
-## Core User Flow
-
-1. **Auth** — sign up/in via email, Apple, or Google (Supabase Auth)
-2. **Onboarding** — user enters name, goal, deadline, selects AI coach personality
-3. **Intake** — adaptive question batches to build a user profile for the goal
-4. **Roadmap** — AI generates milestones → weekly plans → daily tasks
-5. **Daily use** — check off tasks, check-ins, debriefs with AI coach
-6. **Stats** — progress tracking and insights
+These files are the source of truth for code style, architecture, components, and conventions in each codebase. ALWAYS read them before making changes.
 
 ## Shared Conventions
 
-- **No hardcoded secrets** — environment variables for all keys
-- **Supabase MCP** — use MCP tools for migrations, SQL, edge functions, logs, and advisors
-- **RLS required** — always enable Row Level Security on new tables with appropriate policies
-- **After DDL changes** — run `get_advisors` (security + performance) to catch issues
+- **No hardcoded secrets** — environment variables for all keys.
+- **Supabase MCP** — use MCP tools for migrations, SQL, edge functions, logs, advisors, etc.
+- **RLS required** — always enable Row Level Security on new tables with appropriate policies.
+- **After DDL changes** — run `get_advisors` (security + performance) to catch issues.
