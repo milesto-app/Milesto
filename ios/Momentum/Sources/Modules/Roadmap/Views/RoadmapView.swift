@@ -175,7 +175,7 @@ struct RoadmapView: View {
                     verbatim: milestone.title,
                     style: milestone.isKeyMilestone ? .headline : .body
                 )
-                .weight(milestone.isKeyMilestone ? .bold : (milestone.isMonthlyCheckpoint ? .semibold : .regular))
+                .weight((milestone.isKeyMilestone || milestone.isMonthlyCheckpoint) ? .medium : .regular)
                 .color(milestone.status == .upcoming ? Color("TextSecondary") : Color("TextPrimary"))
 
                 HStack(spacing: 6) {
