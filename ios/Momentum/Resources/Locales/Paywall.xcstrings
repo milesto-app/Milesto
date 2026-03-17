@@ -330,13 +330,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Daily generations"
+            "value" : "Daily AI usage"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Générations quotidiennes"
+            "value" : "Utilisation IA quotidienne"
           }
         }
       }
@@ -371,6 +371,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Tu as utilisé toutes tes générations pour aujourd'hui. Passe à Pro pour en avoir plus."
+          }
+        }
+      }
+    },
+    "usage.daily.remaining" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "remaining"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "restant"
           }
         }
       }

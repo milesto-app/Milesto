@@ -38,10 +38,10 @@ struct SettingsView: View {
                 profileDetailsSection
                 proSection
                 usageSection
-                newGoalSection
                 deleteGoalSection
                 signOutSection
             }
+            .contentMargins(.bottom, 80, for: .scrollContent)
             .hapticRefreshable {
                 await syncProfileData()
             }
@@ -277,40 +277,20 @@ struct SettingsView: View {
 
     private var usageSection: some View {
         Section {
-            VStack(alignment: .leading, spacing: 8) {
-                HStack {
-                    TablerIcons(.bolt, size: 20, color: Color("TintPrimary"))
-                    AppText("usage.daily.title", table: "Paywall", style: .body)
-                    Spacer()
-                    if let usage = usageService.usage {
-                        AppText(verbatim: "\(usage.used) / \(usage.limit)", style: .caption)
-                            .color(Color("TextSecondary"))
-                    }
-                }
+            HStack {
+                TablerIcons(.bolt, size: 20, color: Color("TintPrimary"))
+                AppText("usage.daily.title", table: "Paywall", style: .body)
+                Spacer()
                 if let usage = usageService.usage {
-                    ProgressView(value: Double(usage.used), total: Double(usage.limit))
-                        .tint(usage.used >= usage.limit ? Color("StatusError") : Color("TintPrimary"))
+                    let remaining = max(usage.limit - usage.used, 0)
+                    let percent = usage.limit > 0 ? Int(round(Double(remaining) / Double(usage.limit) * 100)) : 0
+                    AppText(verbatim: "\(percent)% \(String(localized: "usage.daily.remaining", table: "Paywall"))", style: .caption)
+                        .color(remaining == 0 ? Color("StatusError") : Color("TextSecondary"))
                 }
             }
         }
         .task {
             await usageService.fetchUsage()
-        }
-    }
-
-    private var newGoalSection: some View {
-        Section {
-            Button {
-                showNewGoal = true
-            } label: {
-                HStack(spacing: 12) {
-                    TablerIcons(.target, size: 24, color: Color("TintPrimary"))
-                    AppText("settings.newGoal", table: "Settings", style: .body)
-                    Spacer()
-                }
-                .contentShape(Rectangle())
-            }
-            .buttonStyle(.plain)
         }
     }
 
