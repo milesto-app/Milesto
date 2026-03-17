@@ -175,7 +175,7 @@ struct RoadmapView: View {
                     verbatim: milestone.title,
                     style: milestone.isKeyMilestone ? .headline : .body
                 )
-                .weight(milestone.isKeyMilestone ? .bold : .semibold)
+                .weight(milestone.isKeyMilestone ? .bold : (milestone.isMonthlyCheckpoint ? .semibold : .regular))
                 .color(milestone.status == .upcoming ? Color("TextSecondary") : Color("TextPrimary"))
 
                 HStack(spacing: 6) {
@@ -186,11 +186,11 @@ struct RoadmapView: View {
                         ),
                         style: .caption
                     )
-                    .color(Color("TextSecondary"))
+                    .color(Color("TextSecondary").opacity(0.5))
 
                     if milestone.isMonthlyCheckpoint {
                         AppText(verbatim: "·", style: .caption)
-                            .color(Color("TextSecondary"))
+                            .color(Color("TextSecondary").opacity(0.5))
                         AppText("roadmap.milestone.monthlyCheckpoint", table: "Roadmap", style: .caption)
                             .weight(.semibold)
                             .color(Color("TintPrimary"))
@@ -237,7 +237,7 @@ struct RoadmapView: View {
                     .frame(width: size, height: size)
                 Circle()
                     .strokeBorder(
-                        Color("TextSecondary").opacity(isSpecial ? 0.3 : 0.2),
+                        Color("TextSecondary").opacity(0.2),
                         lineWidth: 1.5
                     )
                     .frame(width: size, height: size)
@@ -255,7 +255,7 @@ struct RoadmapView: View {
             if milestone.isKeyMilestone {
                 TablerIcons(.trophy, size: 14, color: milestone.status == .upcoming ? mutedColor : accentColor)
             } else if milestone.isMonthlyCheckpoint {
-                TablerIcons(.star, size: 14, color: milestone.status == .upcoming ? mutedColor : accentColor)
+                TablerIcons(.targetArrow, size: 14, color: milestone.status == .upcoming ? mutedColor : accentColor)
             } else {
                 switch milestone.status {
                 case .completed:
