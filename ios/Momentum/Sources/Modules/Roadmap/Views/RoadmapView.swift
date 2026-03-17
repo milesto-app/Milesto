@@ -102,7 +102,9 @@ struct RoadmapView: View {
 
     private var completionProgress: Double {
         guard !milestones.isEmpty else { return 0 }
-        return Double(milestones.filter { $0.status == .completed }.count) / Double(milestones.count)
+        let completed = Double(milestones.filter { $0.status == .completed }.count)
+        let currentProgress = milestones.contains(where: { $0.status == .current }) ? currentTaskProgress() : 0
+        return (completed + currentProgress) / Double(milestones.count)
     }
 
     private var headerSection: some View {
@@ -283,6 +285,16 @@ struct RoadmapView: View {
         }
     }
 
+    private func currentTaskProgress() -> Double {
+        let goalId = goalId
+        let descriptor = FetchDescriptor<LocalWeeklyTask>(
+            predicate: #Predicate { $0.goalId == goalId }
+        )
+        guard let tasks = try? modelContext.fetch(descriptor), !tasks.isEmpty else { return 0 }
+        let completed = tasks.filter(\.isCompleted).count
+        return Double(completed) / Double(tasks.count)
+    }
+
     private func connectorColor(from: MilestoneStatus, to: MilestoneStatus) -> Color {
         switch (from, to) {
         case (.completed, .completed):
@@ -339,7 +351,7 @@ struct RoadmapView: View {
                     orderIndex: dto.orderIndex,
                     expectedOutcome: dto.expectedOutcome,
                     status: status,
-                    progress: status == .current ? 0.5 : (status == .completed ? 1.0 : 0.0),
+                    progress: status == .current ? currentTaskProgress() : (status == .completed ? 1.0 : 0.0),
                     isKeyMilestone: index == sorted.count - 1
                 )
             }
@@ -384,7 +396,7 @@ struct RoadmapView: View {
                 orderIndex: local.orderIndex,
                 expectedOutcome: local.expectedOutcome,
                 status: status,
-                progress: status == .current ? 0.5 : (status == .completed ? 1.0 : 0.0),
+                progress: status == .current ? currentTaskProgress() : (status == .completed ? 1.0 : 0.0),
                 isKeyMilestone: index == sorted.count - 1
             )
         }

@@ -4,6 +4,20 @@ enum DifficultyRating: String, Codable {
     case easy
     case moderate
     case hard
+
+    var priority: Int {
+        switch self {
+        case .hard: return 0
+        case .moderate: return 1
+        case .easy: return 2
+        }
+    }
+}
+
+extension Optional where Wrapped == DifficultyRating {
+    var priority: Int {
+        self?.priority ?? 3
+    }
 }
 
 struct WeeklyTaskDTO: Codable, Identifiable {

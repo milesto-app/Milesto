@@ -19,6 +19,18 @@ struct HomeView: View {
         localGoals.first { $0.id == goalId }
     }
 
+    private var currentMilestoneTitle: String? {
+        let goalId = goalId
+        let descriptor = FetchDescriptor<LocalRoadmap>(
+            predicate: #Predicate { $0.goalId == goalId }
+        )
+        guard let roadmap = try? modelContext.fetch(descriptor).first,
+              let currentId = roadmap.currentMilestoneId,
+              let milestone = roadmap.milestones.first(where: { $0.id == currentId })
+        else { return nil }
+        return milestone.title
+    }
+
     private var completedCount: Int {
         tasks.filter(\.isCompleted).count
     }
@@ -86,11 +98,11 @@ struct HomeView: View {
 
     private var heroSection: some View {
         VStack(alignment: .leading, spacing: 16) {
-            VStack(alignment: .leading, spacing: 4) {
+            VStack(alignment: .leading, spacing: 6) {
                 AppText(verbatim: formattedDate, style: .caption)
                     .color(Color("TextSecondary"))
 
-                AppText(verbatim: currentGoal?.title ?? "", style: .title)
+                AppText(verbatim: currentMilestoneTitle ?? currentGoal?.title ?? "", style: .title)
             }
 
             VStack(alignment: .leading, spacing: 8) {
@@ -105,6 +117,7 @@ struct HomeView: View {
                                 width: max(geometry.size.width * goalProgress, goalProgress > 0 ? 10 : 0),
                                 height: 10
                             )
+                            .animation(.easeInOut(duration: 0.3), value: goalProgress)
                     }
                 }
                 .frame(height: 10)
@@ -116,6 +129,8 @@ struct HomeView: View {
                     )
                     .weight(.semibold)
                     .color(Color("TintPrimary"))
+                    .contentTransition(.numericText())
+                    .animation(.easeInOut(duration: 0.3), value: goalProgress)
                     Spacer()
                 }
             }
@@ -194,14 +209,24 @@ struct HomeView: View {
                 .padding(.vertical, 16)
         } else {
             VStack(spacing: 4) {
-                ForEach(tasks.sorted(by: { $0.orderIndex < $1.orderIndex })) { task in
+                ForEach(tasks.sorted(by: {
+                    if $0.isCompleted != $1.isCompleted { return !$0.isCompleted }
+                    let p0 = $0.difficultyRating.priority
+                    let p1 = $1.difficultyRating.priority
+                    if p0 != p1 { return p0 < p1 }
+                    return $0.orderIndex < $1.orderIndex
+                })) { task in
                     ObjectiveRowView(task: task) {
-                        toggleTask(task)
+                        withAnimation(.easeInOut(duration: 0.3)) {
+                            toggleTask(task)
+                        }
                     }
                     .padding(.horizontal, 24)
                     .padding(.vertical, 12)
+                    .transition(.move(edge: .bottom).combined(with: .opacity))
                 }
             }
+            .animation(.easeInOut(duration: 0.3), value: tasks.map(\.isCompleted))
         }
     }
 
