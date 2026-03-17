@@ -2,7 +2,8 @@ import SwiftUI
 
 struct DebriefSheetView: View {
     let goalId: String
-    let completedObjectives: [DailyObjectiveDTO]
+    let weeklyPlanId: String
+    let completedTasks: [WeeklyTaskDTO]
     let onDebriefComplete: () -> Void
 
     @Environment(\.dismiss) private var dismiss
@@ -22,7 +23,7 @@ struct DebriefSheetView: View {
                     AppText("home.debrief.title", table: "Home", style: .title)
                         .padding(.bottom, 8)
 
-                    if !completedObjectives.isEmpty {
+                    if !completedTasks.isEmpty {
                         ratingsSection
                     }
 
@@ -49,22 +50,22 @@ struct DebriefSheetView: View {
         VStack(alignment: .leading, spacing: 16) {
             AppText("home.debrief.ratings.title", table: "Home", style: .headline)
 
-            ForEach(completedObjectives) { objective in
+            ForEach(completedTasks) { task in
                 VStack(alignment: .leading, spacing: 8) {
-                    AppText(verbatim: objective.title, style: .body)
+                    AppText(verbatim: task.title, style: .body)
 
                     HStack(spacing: 8) {
-                        ratingPill(.easy, label: String(localized: "home.debrief.ratings.easy", table: "Home"), objectiveId: objective.id)
-                        ratingPill(.moderate, label: String(localized: "home.debrief.ratings.moderate", table: "Home"), objectiveId: objective.id)
-                        ratingPill(.hard, label: String(localized: "home.debrief.ratings.hard", table: "Home"), objectiveId: objective.id)
+                        ratingPill(.easy, label: String(localized: "home.debrief.ratings.easy", table: "Home"), taskId: task.id)
+                        ratingPill(.moderate, label: String(localized: "home.debrief.ratings.moderate", table: "Home"), taskId: task.id)
+                        ratingPill(.hard, label: String(localized: "home.debrief.ratings.hard", table: "Home"), taskId: task.id)
                     }
                 }
             }
         }
     }
 
-    private func ratingPill(_ rating: DifficultyRating, label: String, objectiveId: String) -> some View {
-        let isSelected = ratings[objectiveId] == rating
+    private func ratingPill(_ rating: DifficultyRating, label: String, taskId: String) -> some View {
+        let isSelected = ratings[taskId] == rating
         let pillColor = switch rating {
         case .easy: Color("TintPrimary")
         case .moderate: Color("AccentAmber")
@@ -73,7 +74,7 @@ struct DebriefSheetView: View {
 
         return Button {
             withAnimation(.easeOut(duration: 0.15)) {
-                ratings[objectiveId] = rating
+                ratings[taskId] = rating
             }
         } label: {
             AppText(verbatim: label, style: .caption)
@@ -115,13 +116,14 @@ struct DebriefSheetView: View {
         isSubmitting = true
         error = nil
 
-        let taskRatings: [TaskRatingDTO]? = ratings.isEmpty ? nil : ratings.map { objectiveId, rating in
-            TaskRatingDTO(objectiveId: objectiveId, rating: rating)
+        let taskRatings: [TaskRatingDTO]? = ratings.isEmpty ? nil : ratings.map { taskId, rating in
+            TaskRatingDTO(taskId: taskId, rating: rating)
         }
 
         do {
             _ = try await RoadmapAPIService.shared.submitDebrief(
                 goalId: goalId,
+                weeklyPlanId: weeklyPlanId,
                 note: reflectionNote,
                 taskRatings: taskRatings
             )

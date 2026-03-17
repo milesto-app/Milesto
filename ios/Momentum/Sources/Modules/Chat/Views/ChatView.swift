@@ -20,6 +20,7 @@ struct ChatView: View {
     @State private var isSidebarOpen = false
     @State private var conversations: [ConversationSummary] = []
     @State private var isLoadingHistory = false
+    @State private var isLimitReached = false
 
     private var coach: CoachPersonality? {
         guard let coachId = localProfiles.first?.coachId else { return nil }
@@ -164,8 +165,18 @@ struct ChatView: View {
         .onAppear {
             isInputFocused = true
         }
-        .alert(String(localized: "chat.error.generic", table: "Chat"), isPresented: $showError) {
-            Button(String(localized: "common.ok", table: "Common"), role: .cancel) {}
+        .alert(isLimitReached
+            ? String(localized: "usage.limit.reached.title", table: "Paywall")
+            : String(localized: "chat.error.generic", table: "Chat"),
+            isPresented: $showError)
+        {
+            Button(String(localized: "common.ok", table: "Common"), role: .cancel) {
+                isLimitReached = false
+            }
+        } message: {
+            if isLimitReached {
+                Text(errorMessage)
+            }
         }
         .fullScreenCover(isPresented: $isVoiceChatActive, onDismiss: {
             if let conversationId {
@@ -258,6 +269,14 @@ struct ChatView: View {
                         showError = true
                     }
                 }
+            } catch let error as BackendError {
+                if case .generationLimitReached = error {
+                    isLimitReached = true
+                    errorMessage = String(localized: "usage.limit.reached.message", table: "Paywall")
+                } else {
+                    errorMessage = String(localized: "chat.error.generic", table: "Chat")
+                }
+                showError = true
             } catch {
                 errorMessage = String(localized: "chat.error.generic", table: "Chat")
                 showError = true

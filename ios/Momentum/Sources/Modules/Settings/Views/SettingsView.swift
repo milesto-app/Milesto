@@ -6,7 +6,6 @@ struct SettingsView: View {
     var onDeleteGoal: (() -> Void)?
 
     @EnvironmentObject private var authService: AuthService
-    @EnvironmentObject private var storeService: StoreService
     @Environment(\.modelContext) private var modelContext
 
     @Query private var localProfiles: [LocalProfile]
@@ -20,8 +19,6 @@ struct SettingsView: View {
     @State private var isSaving = false
     @State private var showError = false
     @State private var errorMessage = ""
-    @State private var showPaywall = false
-
     private var localProfile: LocalProfile? {
         localProfiles.first { $0.userId == authService.currentUserId }
     }
@@ -35,11 +32,10 @@ struct SettingsView: View {
             List {
                 profileHeaderSection
                 profileDetailsSection
-                proSection
-                newGoalSection
                 deleteGoalSection
                 signOutSection
             }
+            .contentMargins(.bottom, 80, for: .scrollContent)
             .hapticRefreshable {
                 await syncProfileData()
             }
@@ -74,9 +70,6 @@ struct SettingsView: View {
             .sheet(item: $activeSheet) { sheet in
                 sheetContent(for: sheet)
                     .presentationDetents(sheet == .coach ? [.large] : [.medium, .large])
-            }
-            .sheet(isPresented: $showPaywall) {
-                PaywallView()
             }
             .fullScreenCover(isPresented: $showNewGoal) {
                 if let userId = authService.currentUserId {
@@ -153,8 +146,11 @@ struct SettingsView: View {
 
                         VStack(spacing: 4) {
                             if !fullName.isEmpty {
-                                AppText(verbatim: fullName, style: .title)
-                                    .alignment(.center)
+                                HStack(spacing: 6) {
+                                    TablerIcons(.pencil, size: 16, color: .clear)
+                                    AppText(verbatim: fullName, style: .title)
+                                    TablerIcons(.pencil, size: 16, color: Color("TextSecondary"))
+                                }
                             }
 
                             if let email = localProfile?.email, !email.isEmpty {
@@ -237,52 +233,6 @@ struct SettingsView: View {
             Spacer()
             AppText(verbatim: value, style: .body)
                 .color(Color("TextSecondary"))
-        }
-    }
-
-    private var proSection: some View {
-        Section {
-            if storeService.isPro {
-                HStack(spacing: 12) {
-                    TablerIcons(.crown, size: 24, color: Color("TintPrimary"))
-                    AppText("settings.pro", table: "Paywall", style: .body)
-                    Spacer()
-                    HStack(spacing: 4) {
-                        TablerIcons(.circleCheck, size: 16, color: Color("StatusSuccess"))
-                        AppText("settings.pro.active", table: "Paywall", style: .caption)
-                            .color(Color("StatusSuccess"))
-                    }
-                }
-            } else {
-                Button {
-                    showPaywall = true
-                } label: {
-                    HStack(spacing: 12) {
-                        TablerIcons(.crown, size: 24, color: Color("TintPrimary"))
-                        AppText("settings.pro", table: "Paywall", style: .body)
-                        Spacer()
-                        TablerIcons(.chevronRight, size: 16, color: Color("TextSecondary"))
-                    }
-                    .contentShape(Rectangle())
-                }
-                .buttonStyle(.plain)
-            }
-        }
-    }
-
-    private var newGoalSection: some View {
-        Section {
-            Button {
-                showNewGoal = true
-            } label: {
-                HStack(spacing: 12) {
-                    TablerIcons(.target, size: 24, color: Color("TintPrimary"))
-                    AppText("settings.newGoal", table: "Settings", style: .body)
-                    Spacer()
-                }
-                .contentShape(Rectangle())
-            }
-            .buttonStyle(.plain)
         }
     }
 
@@ -401,6 +351,5 @@ struct SettingsView: View {
 #Preview {
     SettingsView()
         .environmentObject(AuthService.shared)
-        .environmentObject(StoreService.shared)
         .modelContainer(for: LocalProfile.self, inMemory: true)
 }

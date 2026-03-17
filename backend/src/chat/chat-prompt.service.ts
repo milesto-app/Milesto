@@ -8,7 +8,6 @@ import { buildCoachPrompt } from './chat-prompt.builder.js';
 
 interface ActivePlan {
   week_number: number;
-  focus: string;
   objectives: string[];
   milestone_id: string;
 }
@@ -68,7 +67,6 @@ export class ChatPromptService {
         plan !== null
           ? {
               week_number: plan.week_number,
-              focus: plan.focus,
               objectives: plan.objectives,
             }
           : null,
@@ -118,7 +116,7 @@ export class ChatPromptService {
         .single(),
       supabase
         .from('weekly_plans')
-        .select('week_number, focus, objectives, milestone_id')
+        .select('week_number, objectives, milestone_id')
         .eq('goal_id', goalId)
         .eq('user_id', userId)
         .eq('status', 'active')

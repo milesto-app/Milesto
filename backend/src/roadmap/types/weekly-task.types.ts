@@ -1,24 +1,12 @@
-export const ENERGY_LEVELS = ['high', 'good', 'low', 'very_low'] as const;
-export type EnergyLevel = (typeof ENERGY_LEVELS)[number];
-
 export type DifficultyRating = 'easy' | 'moderate' | 'hard';
 
-export interface CheckIn {
-  id: string;
-  goal_id: string;
-  user_id: string;
-  date: string;
-  energy_level: EnergyLevel;
-  note: string | null;
-  created_at: string;
-}
+export const DIFFICULTY_RATINGS = ['easy', 'moderate', 'hard'] as const;
 
-export interface DailyObjective {
+export interface WeeklyTask {
   id: string;
   weekly_plan_id: string;
   goal_id: string;
   user_id: string;
-  date: string;
   title: string;
   description: string;
   difficulty_rating: DifficultyRating | null;
@@ -30,7 +18,7 @@ export interface DailyObjective {
 }
 
 export interface TaskRating {
-  objective_id: string;
+  task_id: string;
   rating: DifficultyRating;
 }
 
@@ -41,5 +29,6 @@ export interface Debrief {
   date: string;
   note: string;
   task_ratings: TaskRating[];
+  weekly_plan_id: string | null;
   created_at: string;
 }

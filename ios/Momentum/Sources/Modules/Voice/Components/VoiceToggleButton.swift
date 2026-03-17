@@ -38,8 +38,12 @@ struct VoiceToggleButton: View {
 
                 content
             }
+            .padding(6)
+            .contentShape(Circle())
         }
         .buttonStyle(.plain)
+        .padding(-6)
+        .offset(x: -1)
         .onChange(of: voiceState) { _, newState in
             withAnimation(pulseAnimation(for: newState)) {
                 pulseScale = newState.isRecording ? 1.12 : 1.0
@@ -106,7 +110,9 @@ struct VoiceToggleButton: View {
             }
             do {
                 try recorder.startRecording()
-                voiceState = .recording
+                withAnimation(.spring(duration: 0.35, bounce: 0.3)) {
+                    voiceState = .recording
+                }
             } catch {
                 showError()
             }

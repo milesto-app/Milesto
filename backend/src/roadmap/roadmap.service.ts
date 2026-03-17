@@ -4,6 +4,8 @@ import { EventEmitter2 } from '@nestjs/event-emitter';
 import { UserLanguageService } from '../common/user-language.service.js';
 import { GoalService } from '../goal/goal.service.js';
 import { SupabaseService } from '../supabase/supabase.service.js';
+import { UsageService } from '../usage/usage.service.js';
+import { GenerationType } from '../usage/usage.types.js';
 import { ContextPipelineService } from './context-pipeline.service.js';
 import { GenerationService } from './generation.service.js';
 import { RoadmapStorageService } from './roadmap-storage.service.js';
@@ -25,6 +27,7 @@ export class RoadmapService {
     private readonly events: EventEmitter2,
     private readonly roadmapStorage: RoadmapStorageService,
     private readonly languageService: UserLanguageService,
+    private readonly usageService: UsageService,
   ) {}
 
   public async generateMilestones(
@@ -44,6 +47,10 @@ export class RoadmapService {
       );
       const fullGoalData = await this.buildGoalData(goalData, goalId, userId);
       const language = await this.languageService.getLanguage(userId);
+      await this.usageService.reserveGeneration(
+        userId,
+        GenerationType.MILESTONE_ROADMAP,
+      );
       const { milestones, metadata } = await this.generation.generateMilestones(
         context,
         fullGoalData,

@@ -36,14 +36,14 @@ export class VoiceChatToolsController {
   @ApiResponse({ status: 401, description: 'Invalid session credentials' })
   @ApiResponse({ status: 403, description: 'Session not active' })
   @ApiResponse({ status: 404, description: 'Tool not found' })
-  async executeTool(
+  public async executeTool(
     @Param('toolName') toolName: string,
     @Body() body: Record<string, unknown>,
     @Req() request: Request,
   ): Promise<unknown> {
-    const session = (
-      request as unknown as Record<string, unknown>
-    )['voiceSession'] as VoiceSession;
+    const session = (request as unknown as Record<string, unknown>)[
+      'voiceSession'
+    ] as VoiceSession;
 
     if (session.status !== 'active') {
       throw new ForbiddenException('Session is not active');

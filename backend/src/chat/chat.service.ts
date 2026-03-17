@@ -6,6 +6,8 @@ import type {
 
 import { AiService } from '../ai/ai.service.js';
 import { config } from '../config/app.config.js';
+import { UsageService } from '../usage/usage.service.js';
+import { GenerationType } from '../usage/usage.types.js';
 import { ChatHistoryService } from './chat-history.service.js';
 import { ChatPromptService } from './chat-prompt.service.js';
 import type { ToolCallResult } from './chat-stream.utils.js';
@@ -36,6 +38,7 @@ export class ChatService {
     private readonly history: ChatHistoryService,
     private readonly prompt: ChatPromptService,
     private readonly toolRegistryService: ChatToolRegistryService,
+    private readonly usageService: UsageService,
   ) {
     this.toolRegistry = this.toolRegistryService.getRegistry();
   }
@@ -45,6 +48,10 @@ export class ChatService {
     dto: SendMessageDto,
     onEvent: (event: ChatStreamEvent) => void,
   ): Promise<void> {
+    await this.usageService.reserveGeneration(
+      userId,
+      GenerationType.CHAT_MESSAGE,
+    );
     const conversation =
       dto.conversationId !== undefined
         ? await this.history.getConversation(dto.conversationId, userId)

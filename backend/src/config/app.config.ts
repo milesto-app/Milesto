@@ -32,7 +32,7 @@ export const config = {
     rerankTopN: 10,
     milestoneModel: 'default',
     weeklyModel: 'default',
-    dailyModel: 'default',
+    weeklyTaskModel: 'default',
     maxGenerationAttempts: 3,
   },
   cohere: {
@@ -55,6 +55,10 @@ export const config = {
   },
   coach: {
     defaultCoachId: 1,
+  },
+  usage: {
+    freeGenerationsPerDay: 20,
+    proGenerationsPerDay: 200,
   },
   chat: {
     model: 'google/gemini-3-flash-preview',

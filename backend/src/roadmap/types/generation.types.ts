@@ -1,7 +1,10 @@
 import type { AssembledContext } from './context.types.js';
-import type { EnergyLevel } from './daily.types.js';
 import type { Milestone } from './roadmap.types.js';
-import type { GenerationContext, WeeklyPlan } from './weekly-plan.types.js';
+import type {
+  GenerationContext,
+  WeekData,
+  WeeklyPlan,
+} from './weekly-plan.types.js';
 
 export interface RetryParams {
   systemPrompt: string;
@@ -20,15 +23,10 @@ export interface GenerateWeeklyPlanParams {
   language: string;
 }
 
-export interface GenerateDailyParams {
+export interface GenerateWeeklyTasksParams {
   weeklyPlan: WeeklyPlan;
-  energyLevel: EnergyLevel;
   context: AssembledContext;
-  weekData: {
-    completedObjectives: number;
-    totalObjectives: number;
-    debriefNotes: string[];
-  };
+  weekData: WeekData;
   language: string;
 }
 

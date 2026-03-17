@@ -35,7 +35,6 @@ describe('GenerationNarrativeService', () => {
       user_id: 'user-1',
       week_number: 1,
       week_start_date: '2026-02-17',
-      focus: 'Build habits',
       objectives: ['Obj 1', 'Obj 2', 'Obj 3'],
       generation_context: {},
       summary: null,
@@ -48,10 +47,9 @@ describe('GenerationNarrativeService', () => {
     } satisfies WeeklyPlan;
 
     const emptyWeekData: WeekData = {
-      objectivesCompleted: 0,
-      objectivesTotal: 0,
+      tasksCompleted: 0,
+      tasksTotal: 0,
       debriefNotes: [],
-      energyDistribution: {},
     };
 
     it('should return computed data with zero completions', async () => {
@@ -62,19 +60,17 @@ describe('GenerationNarrativeService', () => {
       );
 
       expect(result.completion_rate).toBe(0);
-      expect(result.objectives_completed).toBe(0);
-      expect(result.objectives_total).toBe(3);
+      expect(result.tasks_completed).toBe(0);
+      expect(result.tasks_total).toBe(3);
       expect(result.debrief_count).toBe(0);
-      expect(result.energy_distribution).toEqual({});
       expect(result.narrative).toBeUndefined();
     });
 
     it('should compute correct completion rate', async () => {
       const weekData: WeekData = {
-        objectivesCompleted: 3,
-        objectivesTotal: 4,
+        tasksCompleted: 3,
+        tasksTotal: 4,
         debriefNotes: [],
-        energyDistribution: {},
       };
 
       const result = await service.generateWeeklySummary(
@@ -84,33 +80,15 @@ describe('GenerationNarrativeService', () => {
       );
 
       expect(result.completion_rate).toBe(75);
-      expect(result.objectives_completed).toBe(3);
-      expect(result.objectives_total).toBe(4);
-    });
-
-    it('should include energy distribution', async () => {
-      const weekData: WeekData = {
-        objectivesCompleted: 0,
-        objectivesTotal: 0,
-        debriefNotes: [],
-        energyDistribution: { high: 2, good: 3, low: 1 },
-      };
-
-      const result = await service.generateWeeklySummary(
-        completedPlan,
-        weekData,
-        'en',
-      );
-
-      expect(result.energy_distribution).toEqual({ high: 2, good: 3, low: 1 });
+      expect(result.tasks_completed).toBe(3);
+      expect(result.tasks_total).toBe(4);
     });
 
     it('should include debrief count', async () => {
       const weekData: WeekData = {
-        objectivesCompleted: 0,
-        objectivesTotal: 0,
-        debriefNotes: ['Day went well', 'Struggled with focus'],
-        energyDistribution: {},
+        tasksCompleted: 0,
+        tasksTotal: 0,
+        debriefNotes: ['Week went well', 'Struggled with focus'],
       };
       mockAiService.generateJson.mockResolvedValue({
         narrative: 'Good progress',
@@ -127,13 +105,12 @@ describe('GenerationNarrativeService', () => {
 
     it('should generate LLM narrative when debrief notes exist', async () => {
       const weekData: WeekData = {
-        objectivesCompleted: 3,
-        objectivesTotal: 4,
-        debriefNotes: ['Great day', 'Tough but productive'],
-        energyDistribution: { high: 1, good: 3, low: 1 },
+        tasksCompleted: 3,
+        tasksTotal: 4,
+        debriefNotes: ['Great week', 'Tough but productive'],
       };
       mockAiService.generateJson.mockResolvedValue({
-        narrative: 'Good progress this week with consistent energy levels.',
+        narrative: 'Good progress this week with consistent effort.',
       });
 
       const result = await service.generateWeeklySummary(
@@ -143,7 +120,7 @@ describe('GenerationNarrativeService', () => {
       );
 
       expect(result.narrative).toBe(
-        'Good progress this week with consistent energy levels.',
+        'Good progress this week with consistent effort.',
       );
       expect(mockAiService.generateJson).toHaveBeenCalledWith(
         expect.stringContaining('coaching progress analyst'),
@@ -165,10 +142,9 @@ describe('GenerationNarrativeService', () => {
 
     it('should handle LLM narrative generation failure gracefully', async () => {
       const weekData: WeekData = {
-        objectivesCompleted: 2,
-        objectivesTotal: 5,
+        tasksCompleted: 2,
+        tasksTotal: 5,
         debriefNotes: ['Some note'],
-        energyDistribution: {},
       };
       mockAiService.generateJson.mockRejectedValue(new Error('LLM timeout'));
       const warnSpy = jest
@@ -182,7 +158,7 @@ describe('GenerationNarrativeService', () => {
       );
 
       expect(result.completion_rate).toBe(40);
-      expect(result.objectives_completed).toBe(2);
+      expect(result.tasks_completed).toBe(2);
       expect(result.narrative).toBeUndefined();
       expect(warnSpy).toHaveBeenCalledWith(
         expect.stringContaining('Weekly summary narrative generation failed'),
@@ -195,17 +171,15 @@ describe('GenerationNarrativeService', () => {
       const weeklySummaries = [
         {
           completion_rate: 80,
-          objectives_completed: 4,
-          objectives_total: 5,
+          tasks_completed: 4,
+          tasks_total: 5,
           debrief_count: 2,
-          energy_distribution: { high: 1, good: 3 },
         },
         {
           completion_rate: 60,
-          objectives_completed: 3,
-          objectives_total: 5,
+          tasks_completed: 3,
+          tasks_total: 5,
           debrief_count: 1,
-          energy_distribution: { good: 2, low: 2 },
         },
       ];
 
@@ -214,16 +188,15 @@ describe('GenerationNarrativeService', () => {
         'en',
       );
 
-      expect(result.objectives_completed).toBe(7);
-      expect(result.objectives_total).toBe(10);
+      expect(result.tasks_completed).toBe(7);
+      expect(result.tasks_total).toBe(10);
       expect(result.debrief_count).toBe(3);
-      expect(result.energy_distribution).toEqual({ high: 1, good: 5, low: 2 });
     });
 
     it('should compute average completion rate across weeks', async () => {
       const weeklySummaries = [
-        { completion_rate: 80, objectives_completed: 4, objectives_total: 5 },
-        { completion_rate: 60, objectives_completed: 3, objectives_total: 5 },
+        { completion_rate: 80, tasks_completed: 4, tasks_total: 5 },
+        { completion_rate: 60, tasks_completed: 3, tasks_total: 5 },
       ];
 
       const result = await service.generateMonthlySummary(
@@ -238,14 +211,14 @@ describe('GenerationNarrativeService', () => {
       const weeklySummaries = [
         {
           completion_rate: 80,
-          objectives_completed: 4,
-          objectives_total: 5,
+          tasks_completed: 4,
+          tasks_total: 5,
           narrative: 'Great week',
         },
         {
           completion_rate: 60,
-          objectives_completed: 3,
-          objectives_total: 5,
+          tasks_completed: 3,
+          tasks_total: 5,
           narrative: 'Slower week',
         },
       ];
@@ -268,7 +241,7 @@ describe('GenerationNarrativeService', () => {
 
     it('should return computed-only summary when no weekly narratives', async () => {
       const weeklySummaries = [
-        { completion_rate: 80, objectives_completed: 4, objectives_total: 5 },
+        { completion_rate: 80, tasks_completed: 4, tasks_total: 5 },
       ];
 
       const result = await service.generateMonthlySummary(
@@ -284,18 +257,17 @@ describe('GenerationNarrativeService', () => {
       const result = await service.generateMonthlySummary([], 'en');
 
       expect(result.completion_rate).toBe(0);
-      expect(result.objectives_completed).toBe(0);
-      expect(result.objectives_total).toBe(0);
+      expect(result.tasks_completed).toBe(0);
+      expect(result.tasks_total).toBe(0);
       expect(result.debrief_count).toBe(0);
-      expect(result.energy_distribution).toEqual({});
     });
 
     it('should handle monthly narrative generation failure gracefully', async () => {
       const weeklySummaries = [
         {
           completion_rate: 80,
-          objectives_completed: 4,
-          objectives_total: 5,
+          tasks_completed: 4,
+          tasks_total: 5,
           narrative: 'Good week',
         },
       ];

@@ -1,7 +1,7 @@
 import { NotFoundException } from '@nestjs/common';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import type { TestingModule } from '@nestjs/testing';
 import { Test } from '@nestjs/testing';
-import { EventEmitter2 } from '@nestjs/event-emitter';
 
 import { SupabaseService } from '../supabase/supabase.service.js';
 import { WeeklyPlanStorageService } from './weekly-plan-storage.service.js';
@@ -10,7 +10,10 @@ const GOAL_ID = 'goal-uuid';
 const USER_ID = 'user-uuid';
 const ROADMAP_ID = 'roadmap-uuid';
 
-function makeMilestone(id: string, orderIndex: number) {
+function makeMilestone(
+  id: string,
+  orderIndex: number,
+): Record<string, unknown> {
   return {
     id,
     roadmap_id: ROADMAP_ID,
@@ -19,7 +22,6 @@ function makeMilestone(id: string, orderIndex: number) {
     title: `Milestone ${String(orderIndex)}`,
     description: `Description ${String(orderIndex)}`,
     expected_outcome: `Outcome ${String(orderIndex)}`,
-    target_month: orderIndex,
     created_at: '2026-01-01T00:00:00Z',
   };
 }
@@ -39,7 +41,7 @@ interface MockResult {
   error: unknown;
 }
 
-function createQueryBuilder(resolveValue: MockResult) {
+function createQueryBuilder(resolveValue: MockResult): Record<string, unknown> {
   const builder: Record<string, unknown> = {};
   const chainMethods = [
     'select',
@@ -56,7 +58,7 @@ function createQueryBuilder(resolveValue: MockResult) {
     builder[method] = jest.fn().mockReturnValue(builder);
   }
   builder.single = jest.fn().mockReturnValue(Promise.resolve(resolveValue));
-  builder.then = (
+  builder.then = async (
     resolve: (value: MockResult) => void,
     reject?: (error: unknown) => void,
   ) => Promise.resolve(resolveValue).then(resolve, reject);
@@ -91,7 +93,7 @@ describe('WeeklyPlanStorageService', () => {
     targetDate?: string | null;
     roadmapCreatedAt?: string;
     milestoneList?: typeof milestones;
-  }) {
+  }): void {
     const createdAt = options.roadmapCreatedAt ?? roadmap.created_at;
     const currentRoadmap = { ...roadmap, created_at: createdAt };
     const currentMilestones = options.milestoneList ?? milestones;

@@ -3,7 +3,6 @@ import SwiftUI
 struct WeeklyPlanDetailView: View {
     let weekNumber: Int
     let weekStartDate: String
-    let focus: String
     let objectives: [String]
     let summary: WeeklySummaryDTO?
     let status: WeeklyPlanStatus
@@ -26,9 +25,7 @@ struct WeeklyPlanDetailView: View {
                     }
                     .frame(maxWidth: .infinity, alignment: .leading)
 
-                    focusCard
-
-                    objectivesCard
+                    tasksCard
 
                     if status == .completed, let summary {
                         summaryCard(summary)
@@ -41,24 +38,9 @@ struct WeeklyPlanDetailView: View {
         }
     }
 
-    private var focusCard: some View {
+    private var tasksCard: some View {
         VStack(alignment: .leading, spacing: 12) {
-            HStack(spacing: 8) {
-                TablerIcons(.target, size: 20, color: Color("TintPrimary"))
-                AppText("roadmap.weeklyPlan.focus", table: "Roadmap", style: .headline)
-            }
-
-            AppText(verbatim: focus, style: .body)
-                .color(Color("TextSecondary"))
-        }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(16)
-        .glassEffect(.regular, in: RoundedRectangle(cornerRadius: 16))
-    }
-
-    private var objectivesCard: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            AppText("roadmap.weeklyPlan.objectives", table: "Roadmap", style: .headline)
+            AppText("roadmap.weeklyPlan.tasks", table: "Roadmap", style: .headline)
 
             ForEach(objectives, id: \.self) { objective in
                 HStack(alignment: .top, spacing: 8) {
@@ -85,8 +67,8 @@ struct WeeklyPlanDetailView: View {
             AppText(
                 verbatim: String(
                     format: String(localized: "roadmap.weeklyPlan.completion", table: "Roadmap"),
-                    summary.objectivesCompleted,
-                    summary.objectivesTotal
+                    summary.tasksCompleted,
+                    summary.tasksTotal
                 ),
                 style: .body
             )
@@ -106,7 +88,6 @@ struct WeeklyPlanDetailView: View {
     WeeklyPlanDetailView(
         weekNumber: 3,
         weekStartDate: "24 fev 2026",
-        focus: "Augmenter progressivement la distance de course",
         objectives: [
             "Courir 8 km sans pause",
             "Faire 2 seances de renforcement musculaire",
@@ -114,10 +95,9 @@ struct WeeklyPlanDetailView: View {
         ],
         summary: WeeklySummaryDTO(
             completionRate: 0.66,
-            objectivesCompleted: 2,
-            objectivesTotal: 3,
+            tasksCompleted: 2,
+            tasksTotal: 3,
             debriefCount: nil,
-            energyDistribution: nil,
             narrative: "Bonne progression cette semaine, l'endurance s'ameliore."
         ),
         status: .completed

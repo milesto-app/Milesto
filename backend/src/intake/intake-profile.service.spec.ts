@@ -4,6 +4,7 @@ import type { EventEmitter2 } from '@nestjs/event-emitter';
 import type { UserLanguageService } from '../common/user-language.service.js';
 import type { GoalService } from '../goal/goal.service.js';
 import type { SupabaseService } from '../supabase/supabase.service.js';
+import type { UsageService } from '../usage/usage.service.js';
 import type { IntakeContextService } from './intake-context.service.js';
 import { IntakeProfileService } from './intake-profile.service.js';
 import type { IntakeProfileStoreService } from './intake-profile-store.service.js';
@@ -65,6 +66,14 @@ describe('IntakeProfileService', () => {
       contextService: contextService as unknown as IntakeContextService,
       languageService: languageService as unknown as UserLanguageService,
       profileStore: profileStore as unknown as IntakeProfileStoreService,
+      usageService: {
+        reserveGeneration: jest.fn().mockResolvedValue({
+          granted: true,
+          used: 1,
+          limit: 20,
+          is_pro: false,
+        }),
+      } as unknown as UsageService,
     });
   });
 

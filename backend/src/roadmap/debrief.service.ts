@@ -11,7 +11,7 @@ import type { Json } from '../supabase/database.types.js';
 import { SUPABASE_UNIQUE_VIOLATION } from '../supabase/error-codes.js';
 import { SupabaseService } from '../supabase/supabase.service.js';
 import type { SubmitDebriefDto } from './dto/submit-debrief.dto.js';
-import type { Debrief } from './types/daily.types.js';
+import type { Debrief } from './types/weekly-task.types.js';
 
 @Injectable()
 export class DebriefService {
@@ -28,6 +28,7 @@ export class DebriefService {
     dto: SubmitDebriefDto,
   ): Promise<Debrief> {
     await this.validateGoalExists(goalId, userId);
+    await this.checkDuplicateDebrief(goalId, userId, dto.weekly_plan_id);
     const today = new Date().toISOString().split('T')[0] ?? '';
     return this.insertDebrief(goalId, userId, today, dto);
   }
@@ -50,6 +51,26 @@ export class DebriefService {
     }
   }
 
+  private async checkDuplicateDebrief(
+    goalId: string,
+    userId: string,
+    weeklyPlanId: string,
+  ): Promise<void> {
+    const supabase = this.supabaseService.getAdminClient();
+    const { data } = await supabase
+      .from('debriefs')
+      .select('id')
+      .eq('goal_id', goalId)
+      .eq('user_id', userId)
+      .eq('weekly_plan_id', weeklyPlanId)
+      .limit(1);
+    if (data !== null && data.length > 0) {
+      throw new ConflictException(
+        'Debrief already submitted for this weekly plan',
+      );
+    }
+  }
+
   private async insertDebrief(
     goalId: string,
     userId: string,
@@ -65,24 +86,41 @@ export class DebriefService {
         date: today,
         note: dto.note,
         task_ratings: (dto.task_ratings ?? []) as unknown as Json,
+        weekly_plan_id: dto.weekly_plan_id,
       })
       .select()
       .single();
     if (error) {
       if (error.code === SUPABASE_UNIQUE_VIOLATION) {
         throw new ConflictException(
-          'Debrief already submitted for this goal today',
+          'Debrief already submitted for this weekly plan',
         );
       }
       this.logger.error(`Failed to store debrief: ${error.message}`);
       throw new InternalServerErrorException('Failed to store debrief');
     }
+    await this.completeWeeklyPlan(dto.weekly_plan_id);
     this.eventEmitter.emit('debrief.submitted', {
       debriefId: (data as Record<string, unknown>).id,
       goalId,
       userId,
+      weeklyPlanId: dto.weekly_plan_id,
       note: dto.note,
     });
     return data as unknown as Debrief;
+  }
+
+  private async completeWeeklyPlan(weeklyPlanId: string): Promise<void> {
+    const supabase = this.supabaseService.getAdminClient();
+    const { error } = await supabase
+      .from('weekly_plans')
+      .update({ status: 'completed' })
+      .eq('id', weeklyPlanId)
+      .eq('status', 'active');
+    if (error) {
+      this.logger.error(
+        `Failed to complete weekly plan ${weeklyPlanId}: ${error.message}`,
+      );
+    }
   }
 }

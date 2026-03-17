@@ -24,7 +24,7 @@ export class ChatRoadmapToolsService {
           title: m.title,
           description: m.description,
           expected_outcome: m.expected_outcome,
-          target_month: m.target_month,
+          is_monthly_checkpoint: m.is_monthly_checkpoint,
           order_index: m.order_index,
         })),
       };

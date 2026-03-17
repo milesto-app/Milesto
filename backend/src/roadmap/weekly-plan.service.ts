@@ -1,6 +1,8 @@
 import { Injectable, Logger } from '@nestjs/common';
 
 import { UserLanguageService } from '../common/user-language.service.js';
+import { UsageService } from '../usage/usage.service.js';
+import { GenerationType } from '../usage/usage.types.js';
 import { ContextPipelineService } from './context-pipeline.service.js';
 import { GenerationService } from './generation.service.js';
 import type { Milestone, Roadmap } from './types/roadmap.types.js';
@@ -28,6 +30,7 @@ interface WeeklyPlanDeps {
   query: WeeklyPlanQueryService;
   storage: WeeklyPlanStorageService;
   languageService: UserLanguageService;
+  usageService: UsageService;
 }
 
 @Injectable()
@@ -42,6 +45,7 @@ export class WeeklyPlanService {
     query: WeeklyPlanQueryService,
     storage: WeeklyPlanStorageService,
     languageService: UserLanguageService,
+    usageService: UsageService,
   ) {
     this.deps = {
       contextPipeline,
@@ -50,6 +54,7 @@ export class WeeklyPlanService {
       query,
       storage,
       languageService,
+      usageService,
     };
   }
 
@@ -95,7 +100,6 @@ export class WeeklyPlanService {
       milestone_title: ms.title,
       milestone_description: ms.description,
       milestone_expected_outcome: ms.expected_outcome,
-      milestone_target_month: ms.target_month,
       last_weekly_summary: lastCompleted?.summary ?? null,
       last_monthly_summary:
         (ms.monthly_summary as Record<string, unknown> | null) ?? null,
@@ -164,6 +168,10 @@ export class WeeklyPlanService {
       params.goalId,
       params.userId,
     );
+    await this.deps.usageService.reserveGeneration(
+      params.userId,
+      GenerationType.WEEKLY_PLAN,
+    );
     const { plan: generated, metadata } =
       await this.deps.generation.generateWeeklyPlan({
         context,
@@ -180,7 +188,6 @@ export class WeeklyPlanService {
       user_id: params.userId,
       week_number: params.weekNumber,
       week_start_date: this.deps.storage.getCurrentWeekStart(),
-      focus: generated.focus,
       objectives: generated.objectives,
       generation_context: params.generationContext as unknown as Record<
         string,
@@ -213,7 +220,6 @@ export class WeeklyPlanService {
         user_id: userId,
         week_number: weekNumber,
         week_start_date: this.deps.storage.getCurrentWeekStart(),
-        focus: milestone.description,
         objectives: [milestone.expected_outcome],
         generation_context: {},
         is_fallback: true,

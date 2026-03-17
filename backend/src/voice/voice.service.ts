@@ -2,6 +2,8 @@ import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 
 import { UserLanguageService } from '../common/user-language.service.js';
 import { SupabaseService } from '../supabase/supabase.service.js';
+import { UsageService } from '../usage/usage.service.js';
+import { GenerationType } from '../usage/usage.types.js';
 import type { SynthesisResult, TranscriptionResult } from './voice.types.js';
 import { VoiceSttService } from './voice-stt.service.js';
 import { VoiceTtsService } from './voice-tts.service.js';
@@ -15,6 +17,7 @@ export class VoiceService {
     private readonly sttService: VoiceSttService,
     private readonly ttsService: VoiceTtsService,
     private readonly languageService: UserLanguageService,
+    private readonly usageService: UsageService,
   ) {}
 
   public async transcribe(
@@ -22,6 +25,10 @@ export class VoiceService {
     mimetype: string,
     userId: string,
   ): Promise<TranscriptionResult> {
+    await this.usageService.reserveGeneration(
+      userId,
+      GenerationType.VOICE_TRANSCRIPTION,
+    );
     const language = await this.languageService.getLanguage(userId);
     return this.sttService.transcribe(audioBuffer, mimetype, language);
   }

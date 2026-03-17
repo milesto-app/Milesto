@@ -6,6 +6,7 @@ import { Test } from '@nestjs/testing';
 import { ChatHistoryService } from '../chat/chat-history.service.js';
 import { ChatPromptService } from '../chat/chat-prompt.service.js';
 import { CoachService } from '../coach/coach.service.js';
+import { UsageService } from '../usage/usage.service.js';
 import { VoiceChatSessionStore } from './voice-chat-session.store.js';
 import { VoiceChatTokenService } from './voice-chat-token.service.js';
 
@@ -13,7 +14,6 @@ const MOCK_USER_ID = 'user-123';
 const MOCK_GOAL_ID = 'goal-456';
 const MOCK_CONVERSATION_ID = 'conv-789';
 const MOCK_SESSION_ID = 'session-001';
-const MOCK_SESSION_SECRET = 'secret-abc';
 const MOCK_SIGNED_URL = 'wss://elevenlabs.io/signed';
 
 let service: VoiceChatTokenService;
@@ -60,8 +60,8 @@ beforeEach(async () => {
 
   global.fetch = jest.fn().mockResolvedValue({
     ok: true,
-    json: async () => ({ signed_url: MOCK_SIGNED_URL }),
-  }) as jest.Mock;
+    json: async () => Promise.resolve({ signed_url: MOCK_SIGNED_URL }),
+  });
 
   const module: TestingModule = await Test.createTestingModule({
     providers: [
@@ -71,6 +71,17 @@ beforeEach(async () => {
       { provide: CoachService, useValue: coachService },
       { provide: VoiceChatSessionStore, useValue: sessionStore },
       { provide: ConfigService, useValue: configService },
+      {
+        provide: UsageService,
+        useValue: {
+          reserveGeneration: jest.fn().mockResolvedValue({
+            granted: true,
+            used: 1,
+            limit: 20,
+            is_pro: false,
+          }),
+        },
+      },
     ],
   }).compile();
 
@@ -119,11 +130,7 @@ describe('VoiceChatTokenService', () => {
       });
 
       await expect(
-        service.createSession(
-          MOCK_USER_ID,
-          MOCK_GOAL_ID,
-          MOCK_CONVERSATION_ID,
-        ),
+        service.createSession(MOCK_USER_ID, MOCK_GOAL_ID, MOCK_CONVERSATION_ID),
       ).rejects.toThrow(BadRequestException);
     });
 
@@ -154,7 +161,7 @@ describe('VoiceChatTokenService', () => {
       (global.fetch as jest.Mock).mockResolvedValue({
         ok: false,
         status: 500,
-        text: async () => 'Internal Server Error',
+        text: async () => Promise.resolve('Internal Server Error'),
       });
 
       await expect(

@@ -10,6 +10,7 @@ import { Test } from '@nestjs/testing';
 import { UserLanguageService } from '../common/user-language.service.js';
 import { GoalService } from '../goal/goal.service.js';
 import { SupabaseService } from '../supabase/supabase.service.js';
+import { UsageService } from '../usage/usage.service.js';
 import { ContextPipelineService } from './context-pipeline.service.js';
 import { GenerationService } from './generation.service.js';
 import { RoadmapService } from './roadmap.service.js';
@@ -58,21 +59,21 @@ describe('RoadmapService', () => {
       title: 'M1',
       description: 'D1',
       expected_outcome: 'O1',
-      target_month: 1,
+      is_monthly_checkpoint: false,
       order_index: 1,
     },
     {
       title: 'M2',
       description: 'D2',
       expected_outcome: 'O2',
-      target_month: 2,
+      is_monthly_checkpoint: false,
       order_index: 2,
     },
     {
       title: 'M3',
       description: 'D3',
       expected_outcome: 'O3',
-      target_month: 3,
+      is_monthly_checkpoint: true,
       order_index: 3,
     },
   ];
@@ -135,6 +136,17 @@ describe('RoadmapService', () => {
         {
           provide: UserLanguageService,
           useValue: { getLanguage: jest.fn().mockResolvedValue('en') },
+        },
+        {
+          provide: UsageService,
+          useValue: {
+            reserveGeneration: jest.fn().mockResolvedValue({
+              granted: true,
+              used: 1,
+              limit: 20,
+              is_pro: false,
+            }),
+          },
         },
       ],
     }).compile();

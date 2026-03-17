@@ -23,7 +23,8 @@ struct StatsWeeklyChart: View {
                     let ratio = day.objectivesTotal > 0
                         ? Double(day.objectivesCompleted) / Double(day.objectivesTotal)
                         : 0
-                    let barColor = colorForRatio(ratio, hasActivity: day.hasCheckIn)
+                    let hasActivity = day.objectivesCompleted > 0 || day.objectivesTotal > 0
+                    let barColor = colorForRatio(ratio, hasActivity: hasActivity)
                     let isToday = index == days.count - 1
 
                     VStack(spacing: 8) {

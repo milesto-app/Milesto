@@ -7,7 +7,7 @@ import {
   IsString,
 } from 'class-validator';
 
-export class GeneratedDailyObjective {
+export class GeneratedWeeklyTask {
   @IsString()
   @IsNotEmpty()
   public title!: string;

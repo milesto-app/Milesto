@@ -12,15 +12,13 @@ import { VoiceChatSessionStore } from '../voice-chat-session.store.js';
 export class ElevenLabsToolAuthGuard implements CanActivate {
   constructor(private readonly sessionStore: VoiceChatSessionStore) {}
 
-  async canActivate(context: ExecutionContext): Promise<boolean> {
+  public async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest<Request>();
     const sessionId = request.params['sessionId'] as string | undefined;
     const secretHeader = request.headers['x-session-secret'];
-    const secret = Array.isArray(secretHeader)
-      ? secretHeader[0]
-      : secretHeader;
+    const secret = Array.isArray(secretHeader) ? secretHeader[0] : secretHeader;
 
-    if (!sessionId || !secret) {
+    if (sessionId === undefined || secret === undefined) {
       throw new UnauthorizedException('Missing session credentials');
     }
 

@@ -1,3 +1,5 @@
+import { timingSafeEqual } from 'node:crypto';
+
 import {
   CanActivate,
   ExecutionContext,
@@ -5,20 +7,19 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { timingSafeEqual } from 'node:crypto';
 import type { Request } from 'express';
 
 @Injectable()
 export class ElevenLabsWebhookAuthGuard implements CanActivate {
   constructor(private readonly configService: ConfigService) {}
 
-  canActivate(context: ExecutionContext): boolean {
+  public canActivate(context: ExecutionContext): boolean {
     const request = context.switchToHttp().getRequest<Request>();
     const signature = request.headers['x-elevenlabs-signature'] as
       | string
       | undefined;
 
-    if (!signature) {
+    if (signature === undefined) {
       throw new UnauthorizedException('Missing webhook signature');
     }
 

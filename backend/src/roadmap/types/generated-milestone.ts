@@ -1,4 +1,4 @@
-import { IsInt, IsString, Min } from 'class-validator';
+import { IsBoolean, IsInt, IsString, Min } from 'class-validator';
 
 export class GeneratedMilestone {
   @IsString()
@@ -10,9 +10,8 @@ export class GeneratedMilestone {
   @IsString()
   public expected_outcome!: string;
 
-  @IsInt()
-  @Min(1)
-  public target_month!: number;
+  @IsBoolean()
+  public is_monthly_checkpoint!: boolean;
 
   @IsInt()
   @Min(1)

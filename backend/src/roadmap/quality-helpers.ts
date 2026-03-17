@@ -3,10 +3,10 @@ import type { Logger } from '@nestjs/common';
 import type { AiService } from '../ai/ai.service.js';
 import { config } from '../config/app.config.js';
 import type {
-  DailyObjectiveQualityScores,
   GenerationType,
   MilestoneQualityScores,
   WeeklyPlanQualityScores,
+  WeeklyTaskQualityScores,
 } from './types/quality.types.js';
 
 const MIN_SCORE = 0;
@@ -23,7 +23,7 @@ export interface WarningParams {
   scores:
     | MilestoneQualityScores
     | WeeklyPlanQualityScores
-    | DailyObjectiveQualityScores;
+    | WeeklyTaskQualityScores;
   goalId: string;
 }
 

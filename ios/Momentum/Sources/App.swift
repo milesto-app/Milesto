@@ -4,7 +4,6 @@ import SwiftUI
 @main
 struct MomentumApp: App {
     @StateObject private var authService = AuthService.shared
-    @StateObject private var storeService = StoreService.shared
 
     var sharedModelContainer: ModelContainer = {
         let schema = Schema([
@@ -13,11 +12,11 @@ struct MomentumApp: App {
             LocalRoadmap.self,
             LocalMilestone.self,
             LocalWeeklyPlan.self,
-            LocalDailyObjective.self,
-            LocalCheckIn.self,
+            LocalWeeklyTask.self,
             LocalDebrief.self,
             LocalConversation.self,
             LocalChatMessage.self,
+            LocalStats.self,
         ])
         let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
 
@@ -42,7 +41,6 @@ struct MomentumApp: App {
             }
             .tint(Color("TintPrimary"))
             .environmentObject(authService)
-            .environmentObject(storeService)
             .onOpenURL { url in
                 Task {
                     await authService.handleDeepLink(url)

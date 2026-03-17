@@ -10,11 +10,9 @@ interface GoalContext {
     title: string;
     description: string;
     expected_outcome: string;
-    target_month: number;
   } | null;
   weeklyPlan: {
     week_number: number;
-    focus: string;
     objectives: string[];
   } | null;
 }
@@ -109,13 +107,13 @@ function buildGoalContextSection(ctx: PromptInput['goalContext']): string {
 
   if (ctx.milestone !== null) {
     parts.push(
-      `Current Milestone: ${ctx.milestone.title}\n${ctx.milestone.description}\nExpected Outcome: ${ctx.milestone.expected_outcome}\nTarget Month: ${String(ctx.milestone.target_month)}`,
+      `Current Milestone: ${ctx.milestone.title}\n${ctx.milestone.description}\nExpected Outcome: ${ctx.milestone.expected_outcome}`,
     );
   }
 
   if (ctx.weeklyPlan !== null) {
     parts.push(
-      `This Week (Week ${String(ctx.weeklyPlan.week_number)}):\nFocus: ${ctx.weeklyPlan.focus}\nObjectives:\n${ctx.weeklyPlan.objectives.map((o) => `- ${o}`).join('\n')}`,
+      `This Week (Week ${String(ctx.weeklyPlan.week_number)}):\nObjectives:\n${ctx.weeklyPlan.objectives.map((o) => `- ${o}`).join('\n')}`,
     );
   }
 

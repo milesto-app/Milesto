@@ -10,14 +10,13 @@ final class LocalWeeklyPlan {
     var userId: String
     var weekNumber: Int
     var weekStartDate: String
-    var focus: String
     var objectives: [String]
     var status: String
     var isFallback: Bool
     var createdAt: String
     var summaryCompletionRate: Double?
-    var summaryObjectivesCompleted: Int?
-    var summaryObjectivesTotal: Int?
+    var summaryTasksCompleted: Int?
+    var summaryTasksTotal: Int?
     var summaryDebriefCount: Int?
     var summaryNarrative: String?
 
@@ -27,19 +26,18 @@ final class LocalWeeklyPlan {
 
     var summary: WeeklySummaryDTO? {
         guard let completionRate = summaryCompletionRate,
-              let objectivesCompleted = summaryObjectivesCompleted,
-              let objectivesTotal = summaryObjectivesTotal else { return nil }
+              let tasksCompleted = summaryTasksCompleted,
+              let tasksTotal = summaryTasksTotal else { return nil }
         return WeeklySummaryDTO(
             completionRate: completionRate,
-            objectivesCompleted: objectivesCompleted,
-            objectivesTotal: objectivesTotal,
+            tasksCompleted: tasksCompleted,
+            tasksTotal: tasksTotal,
             debriefCount: summaryDebriefCount,
-            energyDistribution: nil,
             narrative: summaryNarrative
         )
     }
 
-    init(id: String, roadmapId: String, milestoneId: String, goalId: String, userId: String, weekNumber: Int, weekStartDate: String, focus: String, objectives: [String], status: String, isFallback: Bool, createdAt: String, summary: WeeklySummaryDTO? = nil) {
+    init(id: String, roadmapId: String, milestoneId: String, goalId: String, userId: String, weekNumber: Int, weekStartDate: String, objectives: [String], status: String, isFallback: Bool, createdAt: String, summary: WeeklySummaryDTO? = nil) {
         self.id = id
         self.roadmapId = roadmapId
         self.milestoneId = milestoneId
@@ -47,14 +45,13 @@ final class LocalWeeklyPlan {
         self.userId = userId
         self.weekNumber = weekNumber
         self.weekStartDate = weekStartDate
-        self.focus = focus
         self.objectives = objectives
         self.status = status
         self.isFallback = isFallback
         self.createdAt = createdAt
         summaryCompletionRate = summary?.completionRate
-        summaryObjectivesCompleted = summary?.objectivesCompleted
-        summaryObjectivesTotal = summary?.objectivesTotal
+        summaryTasksCompleted = summary?.tasksCompleted
+        summaryTasksTotal = summary?.tasksTotal
         summaryDebriefCount = summary?.debriefCount
         summaryNarrative = summary?.narrative
     }

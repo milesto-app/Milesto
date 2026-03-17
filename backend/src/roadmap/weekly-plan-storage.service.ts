@@ -169,6 +169,7 @@ export class WeeklyPlanStorageService {
   ): Promise<Milestone> {
     const milestones = await this.loadAllMilestones(supabase, roadmap.id);
     if (milestones.length === 1) {
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       return milestones[0]!;
     }
 
@@ -185,6 +186,7 @@ export class WeeklyPlanStorageService {
     );
 
     const activeIndex = Math.max(historyIndex, timeIndex);
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     return milestones[activeIndex]!;
   }
 
@@ -211,18 +213,27 @@ export class WeeklyPlanStorageService {
   ): Promise<number> {
     const { data: lastPlan } = await supabase
       .from('weekly_plans')
-      .select('milestone_id')
+      .select('milestone_id, status')
       .eq('roadmap_id', roadmapId)
       .order('week_number', { ascending: false })
       .limit(1)
       .single();
 
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
     if (lastPlan === null || lastPlan === undefined) {
       return 0;
     }
 
     const index = milestones.findIndex((m) => m.id === lastPlan.milestone_id);
-    return index >= 0 ? index : 0;
+    if (index < 0) {
+      return 0;
+    }
+
+    if (lastPlan.status === 'completed') {
+      return Math.min(index + 1, milestones.length - 1);
+    }
+
+    return index;
   }
 
   private async getTimeBasedMilestoneIndex(
@@ -240,7 +251,9 @@ export class WeeklyPlanStorageService {
     if (
       goal?.target_date === null ||
       goal?.target_date === undefined ||
+      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
       roadmap.created_at === null ||
+      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
       roadmap.created_at === undefined
     ) {
       return 0;

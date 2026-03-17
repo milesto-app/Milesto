@@ -46,7 +46,7 @@ export class VoiceChatTokenController {
   @ApiResponse({ status: 400, description: 'Invalid input' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @ApiResponse({ status: 404, description: 'Goal or conversation not found' })
-  async createSession(
+  public async createSession(
     @Body() dto: CreateSessionDto,
     @UserId() userId: string,
   ): Promise<{
@@ -69,7 +69,7 @@ export class VoiceChatTokenController {
   @ApiResponse({ status: 204, description: 'Conversation ID set' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @ApiResponse({ status: 403, description: 'Not session owner or expired' })
-  async setElevenLabsConversationId(
+  public async setElevenLabsConversationId(
     @Param('sessionId') sessionId: string,
     @Body() dto: SetElevenLabsConversationIdDto,
     @UserId() userId: string,
@@ -97,7 +97,7 @@ export class VoiceChatTokenController {
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @ApiResponse({ status: 403, description: 'Not session owner' })
   @ApiResponse({ status: 404, description: 'Session not found' })
-  async endSession(
+  public async endSession(
     @Param('sessionId') sessionId: string,
     @UserId() userId: string,
   ): Promise<void> {
@@ -120,7 +120,7 @@ export class VoiceChatTokenController {
   @ApiResponse({ status: 200, description: 'Transcript stored' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @ApiResponse({ status: 403, description: 'Not session owner or expired' })
-  async submitClientTranscript(
+  public async submitClientTranscript(
     @Param('sessionId') sessionId: string,
     @Body() dto: ClientTranscriptDto,
     @UserId() userId: string,
@@ -142,7 +142,7 @@ export class VoiceChatTokenController {
         await this.chatHistoryService.storeVoiceMessage(
           session.conversationId,
           {
-            role: role as 'user' | 'assistant',
+            role: role,
             content: turn.content,
             source_type: 'voice',
             voice_session_id: sessionId,

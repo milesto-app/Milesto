@@ -60,6 +60,21 @@ describe('DebriefService', () => {
               }),
             };
           }
+          if (fromCallIndex === 2) {
+            return {
+              select: jest.fn().mockReturnValue({
+                eq: jest.fn().mockReturnValue({
+                  eq: jest.fn().mockReturnValue({
+                    eq: jest.fn().mockReturnValue({
+                      limit: jest
+                        .fn()
+                        .mockResolvedValue({ data: [], error: null }),
+                    }),
+                  }),
+                }),
+              }),
+            };
+          }
           return {
             insert: jest.fn().mockReturnValue({
               select: jest.fn().mockReturnValue({
@@ -102,11 +117,15 @@ describe('DebriefService', () => {
             };
           }
           return {
-            insert: jest.fn().mockReturnValue({
-              select: jest.fn().mockReturnValue({
-                single: jest.fn().mockResolvedValue({
-                  data: null,
-                  error: { code: '23505', message: 'duplicate' },
+            select: jest.fn().mockReturnValue({
+              eq: jest.fn().mockReturnValue({
+                eq: jest.fn().mockReturnValue({
+                  eq: jest.fn().mockReturnValue({
+                    limit: jest.fn().mockResolvedValue({
+                      data: [{ id: 'existing-debrief' }],
+                      error: null,
+                    }),
+                  }),
                 }),
               }),
             }),

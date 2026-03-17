@@ -5,5 +5,5 @@ export class SetElevenLabsConversationIdDto {
   @ApiProperty({ description: 'ElevenLabs conversation ID from the SDK' })
   @IsString()
   @IsNotEmpty()
-  elevenLabsConversationId!: string;
+  public elevenLabsConversationId!: string;
 }

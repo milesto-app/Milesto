@@ -8,6 +8,8 @@ import {
 import { AiService } from '../ai/ai.service.js';
 import type { Database } from '../supabase/database.types.js';
 import { SupabaseService } from '../supabase/supabase.service.js';
+import { UsageService } from '../usage/usage.service.js';
+import { GenerationType } from '../usage/usage.types.js';
 import {
   GOAL_STATUS,
   PROFILE_VIEWABLE_STATUSES,
@@ -26,6 +28,7 @@ export class GoalService {
   constructor(
     private readonly supabaseService: SupabaseService,
     private readonly aiService: AiService,
+    private readonly usageService: UsageService,
   ) {}
 
   public async create(
@@ -33,7 +36,8 @@ export class GoalService {
     description: string,
     title?: string,
   ): Promise<GoalRow> {
-    const resolvedTitle = title ?? (await this.generateTitle(description));
+    const resolvedTitle =
+      title ?? (await this.generateTitle(userId, description));
     const supabase = this.supabaseService.getAdminClient();
 
     const { data, error } = await supabase
@@ -59,9 +63,16 @@ export class GoalService {
     return data;
   }
 
-  private async generateTitle(description: string): Promise<string> {
+  private async generateTitle(
+    userId: string,
+    description: string,
+  ): Promise<string> {
     const FALLBACK_MAX_LENGTH = 200;
 
+    await this.usageService.reserveGeneration(
+      userId,
+      GenerationType.GOAL_TITLE,
+    );
     try {
       const result = await this.aiService.generateJson<{ title: string }>(
         buildGoalTitleSystemPrompt(),

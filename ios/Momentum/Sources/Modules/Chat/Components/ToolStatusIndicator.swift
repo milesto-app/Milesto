@@ -7,8 +7,8 @@ struct ToolStatusIndicator: View {
 
     private var description: LocalizedStringKey {
         switch toolName {
-        case "getDailyObjectives":
-            return LocalizedStringKey("chat.tool.dailyObjectives")
+        case "getWeeklyTasks":
+            return LocalizedStringKey("chat.tool.weeklyTasks")
         case "getWeeklyPlan":
             return LocalizedStringKey("chat.tool.weeklyPlan")
         case "getMilestones":
@@ -18,7 +18,7 @@ struct ToolStatusIndicator: View {
         case "saveInsight":
             return LocalizedStringKey("chat.tool.saveInsight")
         default:
-            return LocalizedStringKey("chat.tool.dailyObjectives")
+            return LocalizedStringKey("chat.tool.weeklyTasks")
         }
     }
 

@@ -29,7 +29,6 @@ describe('RoadmapController', () => {
 
   const mockWeeklyPlan = {
     id: 'plan-uuid',
-    focus: 'Build foundation habits',
     objectives: ['Run 3 times', 'Research gear'],
     status: 'active',
   };

@@ -20,7 +20,9 @@ let store: VoiceChatSessionStore;
 let mockFrom: jest.Mock;
 let mockChain: Record<string, jest.Mock>;
 
-function buildChain(overrides: Partial<typeof mockChain> = {}) {
+function buildChain(
+  overrides: Partial<typeof mockChain> = {},
+): Record<string, jest.Mock> {
   const chain: Record<string, jest.Mock> = {
     insert: jest.fn().mockReturnThis(),
     select: jest.fn().mockReturnThis(),
@@ -60,7 +62,12 @@ describe('VoiceChatSessionStore', () => {
     it('should insert a voice session and return its id', async () => {
       mockChain.insert = jest.fn().mockResolvedValue({ error: null });
 
-      const id = await store.create('user-123', 'goal-456', 'conv-789', 'secret');
+      const id = await store.create(
+        'user-123',
+        'goal-456',
+        'conv-789',
+        'secret',
+      );
 
       expect(mockFrom).toHaveBeenCalledWith('voice_sessions');
       expect(typeof id).toBe('string');
@@ -83,7 +90,9 @@ describe('VoiceChatSessionStore', () => {
       const session = await store.get('session-001');
 
       expect(session).not.toBeNull();
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       expect(session!.id).toBe('session-001');
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       expect(session!.userId).toBe('user-123');
     });
 
@@ -139,19 +148,17 @@ describe('VoiceChatSessionStore', () => {
         .fn()
         .mockResolvedValue({ data: [{ id: 'session-001' }], error: null });
 
-      const result = await store.markTranscriptStored('session-001');
+      const isStored = await store.markTranscriptStored('session-001');
 
-      expect(result).toBe(true);
+      expect(isStored).toBe(true);
     });
 
     it('should return false when transcript was already stored', async () => {
-      mockChain.select = jest
-        .fn()
-        .mockResolvedValue({ data: [], error: null });
+      mockChain.select = jest.fn().mockResolvedValue({ data: [], error: null });
 
-      const result = await store.markTranscriptStored('session-001');
+      const isStored = await store.markTranscriptStored('session-001');
 
-      expect(result).toBe(false);
+      expect(isStored).toBe(false);
     });
   });
 

@@ -4,6 +4,8 @@ import {
   Logger,
 } from '@nestjs/common';
 
+import { UsageService } from '../usage/usage.service.js';
+import { GenerationType } from '../usage/usage.types.js';
 import { MAX_GENERATION_ATTEMPTS } from './constants/intake.constants.js';
 import { IntakeProfileService } from './intake-profile.service.js';
 import type {
@@ -35,11 +37,16 @@ export class IntakeGenerationService {
     private readonly promptService: IntakePromptService,
     private readonly qualityService: IntakeQualityService,
     private readonly profileService: IntakeProfileService,
+    private readonly usageService: UsageService,
   ) {}
 
   public async generateBatch(
     params: GenerateParams,
   ): Promise<BatchGenerationResult> {
+    await this.usageService.reserveGeneration(
+      params.userId,
+      GenerationType.INTAKE_BATCH,
+    );
     return this.attemptGeneration(params);
   }
 

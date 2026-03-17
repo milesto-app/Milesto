@@ -14,20 +14,20 @@ import {
 export class ClientTranscriptTurnDto {
   @ApiProperty({ enum: ['user', 'agent'] })
   @IsIn(['user', 'agent'])
-  role!: 'user' | 'agent';
+  public role!: 'user' | 'agent';
 
   @ApiProperty({ description: 'Transcript text for this turn' })
   @IsString()
-  content!: string;
+  public content!: string;
 
   @ApiProperty({ description: 'ISO 8601 timestamp of when the turn occurred' })
   @IsDateString()
-  timestamp!: string;
+  public timestamp!: string;
 
   @ApiProperty({ description: 'Zero-based turn index within the session' })
   @IsInt()
   @Min(0)
-  turnIndex!: number;
+  public turnIndex!: number;
 }
 
 export class ClientTranscriptDto {
@@ -36,5 +36,5 @@ export class ClientTranscriptDto {
   @ArrayMinSize(1)
   @ValidateNested({ each: true })
   @Type(() => ClientTranscriptTurnDto)
-  turns!: ClientTranscriptTurnDto[];
+  public turns!: ClientTranscriptTurnDto[];
 }

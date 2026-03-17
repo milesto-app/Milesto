@@ -1,10 +1,6 @@
-import { ArrayMinSize, IsArray, IsNotEmpty, IsString } from 'class-validator';
+import { ArrayMinSize, IsArray, IsString } from 'class-validator';
 
 export class GeneratedWeeklyPlan {
-  @IsString()
-  @IsNotEmpty()
-  public focus!: string;
-
   @IsArray()
   @ArrayMinSize(1)
   @IsString({ each: true })

@@ -37,6 +37,8 @@ struct MilestoneDTO: Codable, Identifiable {
     let description: String
     let expectedOutcome: String
     let targetMonth: Int
+    let targetWeek: Int
+    let isMonthlyCheckpoint: Bool
     let createdAt: String
 
     enum CodingKeys: String, CodingKey {
@@ -46,6 +48,8 @@ struct MilestoneDTO: Codable, Identifiable {
         case orderIndex = "order_index"
         case expectedOutcome = "expected_outcome"
         case targetMonth = "target_month"
+        case targetWeek = "target_week"
+        case isMonthlyCheckpoint = "is_monthly_checkpoint"
         case createdAt = "created_at"
     }
 }
@@ -56,12 +60,16 @@ struct MilestoneSummaryDTO: Codable, Identifiable {
     let description: String
     let expectedOutcome: String
     let targetMonth: Int
+    let targetWeek: Int
+    let isMonthlyCheckpoint: Bool
     let orderIndex: Int
 
     enum CodingKeys: String, CodingKey {
         case id, title, description
         case expectedOutcome = "expected_outcome"
         case targetMonth = "target_month"
+        case targetWeek = "target_week"
+        case isMonthlyCheckpoint = "is_monthly_checkpoint"
         case orderIndex = "order_index"
     }
 }

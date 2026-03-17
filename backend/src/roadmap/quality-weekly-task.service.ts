@@ -4,15 +4,15 @@ import { OnEvent } from '@nestjs/event-emitter';
 import { AiService } from '../ai/ai.service.js';
 import type { Json } from '../supabase/database.types.js';
 import { SupabaseService } from '../supabase/supabase.service.js';
-import { DAILY_OBJECTIVE_JUDGE_SYSTEM_PROMPT } from './prompts/quality-prompts.js';
+import { WEEKLY_TASK_JUDGE_SYSTEM_PROMPT } from './prompts/quality-prompts.js';
 import {
   checkWarnings,
   clampScore,
   evaluateQuality,
 } from './quality-helpers.js';
 import type {
-  DailyObjectiveQualityScores,
-  DailyObjectivesGeneratedEvent,
+  WeeklyTaskQualityScores,
+  WeeklyTasksGeneratedEvent,
 } from './types/quality.types.js';
 
 const PLAN_SCORE_DIMENSIONS = 3;
@@ -20,110 +20,110 @@ const JSON_INDENT = 2;
 const SCORE_DECIMAL_PLACES = 2;
 
 @Injectable()
-export class QualityDailyService {
-  private readonly logger = new Logger(QualityDailyService.name);
+export class QualityWeeklyTaskService {
+  private readonly logger = new Logger(QualityWeeklyTaskService.name);
 
   constructor(
     private readonly aiService: AiService,
     private readonly supabaseService: SupabaseService,
   ) {}
 
-  @OnEvent('daily-objectives.generated')
-  public async handleDailyObjectivesGenerated(
-    payload: DailyObjectivesGeneratedEvent,
+  @OnEvent('weekly-tasks.generated')
+  public async handleWeeklyTasksGenerated(
+    payload: WeeklyTasksGeneratedEvent,
   ): Promise<void> {
     try {
       await this.evaluateAndStore(payload);
     } catch (error) {
       this.logger.error(
-        `Daily objective quality evaluation failed (goal ${payload.goalId}, date ${payload.date}): ${error instanceof Error ? error.message : String(error)}`,
+        `Weekly task quality evaluation failed (goal ${payload.goalId}, plan ${payload.weeklyPlanId}): ${error instanceof Error ? error.message : String(error)}`,
       );
     }
   }
 
   private async evaluateAndStore(
-    payload: DailyObjectivesGeneratedEvent,
+    payload: WeeklyTasksGeneratedEvent,
   ): Promise<void> {
     const supabase = this.supabaseService.getAdminClient();
-    const context = await this.loadDailyContext(supabase, payload);
+    const context = await this.loadTaskContext(supabase, payload);
     if (context === null) {
       return;
     }
 
-    const rawScores = await evaluateQuality<DailyObjectiveQualityScores>({
+    const rawScores = await evaluateQuality<WeeklyTaskQualityScores>({
       aiService: this.aiService,
       content: context.content,
-      context: context.checkInContext,
-      systemPrompt: DAILY_OBJECTIVE_JUDGE_SYSTEM_PROMPT,
+      context: context.planContext,
+      systemPrompt: WEEKLY_TASK_JUDGE_SYSTEM_PROMPT,
     });
 
     const scores = this.buildScores(rawScores);
     const { error: updateError } = await supabase
-      .from('daily_objectives')
+      .from('weekly_tasks')
       .update({ quality_scores: scores as unknown as Json })
-      .in('id', context.objectiveIds);
+      .in('id', context.taskIds);
 
     if (updateError !== null) {
       this.logger.error(
-        `Failed to store daily objective quality scores (goal ${payload.goalId}, date ${payload.date}): ${updateError.message}`,
+        `Failed to store weekly task quality scores (goal ${payload.goalId}, plan ${payload.weeklyPlanId}): ${updateError.message}`,
       );
       return;
     }
 
     checkWarnings({
       logger: this.logger,
-      generationType: 'daily_objective',
+      generationType: 'weekly_task',
       scores,
       goalId: payload.goalId,
     });
     this.logger.log(
-      `Daily objective quality scores for goal ${payload.goalId}: composite=${scores.composite.toFixed(SCORE_DECIMAL_PLACES)}`,
+      `Weekly task quality scores for goal ${payload.goalId}: composite=${scores.composite.toFixed(SCORE_DECIMAL_PLACES)}`,
     );
   }
 
-  private async loadDailyContext(
+  private async loadTaskContext(
     supabase: ReturnType<SupabaseService['getAdminClient']>,
-    payload: DailyObjectivesGeneratedEvent,
+    payload: WeeklyTasksGeneratedEvent,
   ): Promise<{
     content: string;
-    checkInContext: string;
-    objectiveIds: string[];
+    planContext: string;
+    taskIds: string[];
   } | null> {
-    const objectives = await this.loadObjectives(supabase, payload);
-    if (objectives === null) {
+    const tasks = await this.loadTasks(supabase, payload);
+    if (tasks === null) {
       return null;
     }
 
-    if (objectives.every((obj) => obj.is_fallback)) {
+    if (tasks.every((task) => task.is_fallback)) {
       this.logger.log(
-        `Skipping quality evaluation for fallback objectives (goal ${payload.goalId}, date ${payload.date})`,
+        `Skipping quality evaluation for fallback tasks (goal ${payload.goalId}, plan ${payload.weeklyPlanId})`,
       );
       return null;
     }
 
-    const checkIn = await this.loadCheckIn(supabase, payload);
-    if (checkIn === null) {
+    const plan = await this.loadWeeklyPlan(supabase, payload.weeklyPlanId);
+    if (plan === null) {
       return null;
     }
 
     const content = JSON.stringify(
-      objectives.map((o) => ({
-        title: o.title,
-        description: o.description,
-        difficulty_rating: o.difficulty_rating,
-        is_fallback: o.is_fallback,
+      tasks.map((t) => ({
+        title: t.title,
+        description: t.description,
+        difficulty_rating: t.difficulty_rating,
+        is_fallback: t.is_fallback,
       })),
       null,
       JSON_INDENT,
     );
-    const checkInContext = `Energy Level: ${checkIn.energy_level}\nObjective Count: ${String(objectives.length)}`;
-    const objectiveIds = objectives.map((o) => o.id);
-    return { content, checkInContext, objectiveIds };
+    const planContext = `Weekly Plan Objectives: ${JSON.stringify(plan.objectives)}\nTask Count: ${String(tasks.length)}`;
+    const taskIds = tasks.map((t) => t.id);
+    return { content, planContext, taskIds };
   }
 
-  private async loadObjectives(
+  private async loadTasks(
     supabase: ReturnType<SupabaseService['getAdminClient']>,
-    payload: DailyObjectivesGeneratedEvent,
+    payload: WeeklyTasksGeneratedEvent,
   ): Promise<Array<{
     id: string;
     title: string;
@@ -132,14 +132,14 @@ export class QualityDailyService {
     is_fallback: boolean;
   }> | null> {
     const { data, error } = await supabase
-      .from('daily_objectives')
+      .from('weekly_tasks')
       .select('id, title, description, difficulty_rating, is_fallback')
       .eq('goal_id', payload.goalId)
-      .eq('date', payload.date);
+      .eq('weekly_plan_id', payload.weeklyPlanId);
     // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
     if (error !== null || data === null || data.length === 0) {
       this.logger.error(
-        `Failed to load daily objectives for quality evaluation (goal ${payload.goalId}, date ${payload.date}): ${error?.message}`,
+        `Failed to load weekly tasks for quality evaluation (goal ${payload.goalId}, plan ${payload.weeklyPlanId}): ${error?.message}`,
       );
       return null;
     }
@@ -152,36 +152,36 @@ export class QualityDailyService {
     }>;
   }
 
-  private async loadCheckIn(
+  private async loadWeeklyPlan(
     supabase: ReturnType<SupabaseService['getAdminClient']>,
-    payload: DailyObjectivesGeneratedEvent,
-  ): Promise<{ energy_level: string } | null> {
+    weeklyPlanId: string,
+  ): Promise<{ objectives: string[] } | null> {
     const { data, error } = await supabase
-      .from('check_ins')
-      .select('energy_level')
-      .eq('goal_id', payload.goalId)
-      .eq('date', payload.date)
+      .from('weekly_plans')
+      .select('objectives')
+      .eq('id', weeklyPlanId)
       .single();
     // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
     if (error !== null || data === null) {
       this.logger.error(
-        `Failed to load check-in for quality evaluation (goal ${payload.goalId}, date ${payload.date}): ${error.message}`,
+        // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+        `Failed to load weekly plan for quality evaluation (plan ${weeklyPlanId}): ${error?.message}`,
       );
       return null;
     }
-    return data as { energy_level: string };
+    return data as { objectives: string[] };
   }
 
   private buildScores(
-    rawScores: DailyObjectiveQualityScores,
-  ): DailyObjectiveQualityScores {
+    rawScores: WeeklyTaskQualityScores,
+  ): WeeklyTaskQualityScores {
     const clamped = {
-      energy_calibration: clampScore(rawScores.energy_calibration),
+      weekly_plan_alignment: clampScore(rawScores.weekly_plan_alignment),
       specificity: clampScore(rawScores.specificity),
       achievability: clampScore(rawScores.achievability),
     };
     const composite =
-      (clamped.energy_calibration +
+      (clamped.weekly_plan_alignment +
         clamped.specificity +
         clamped.achievability) /
       PLAN_SCORE_DIMENSIONS;

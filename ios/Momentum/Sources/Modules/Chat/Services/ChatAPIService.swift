@@ -144,7 +144,15 @@ final class ChatAPIService {
                     }
 
                     guard (200 ... 299).contains(httpResponse.statusCode) else {
-                        continuation.finish(throwing: BackendError.httpError(statusCode: httpResponse.statusCode, data: Data()))
+                        var errorData = Data()
+                        if httpResponse.statusCode == 429 {
+                            for try await line in bytes.lines {
+                                if let lineData = line.data(using: .utf8) {
+                                    errorData.append(lineData)
+                                }
+                            }
+                        }
+                        continuation.finish(throwing: BackendError.from(statusCode: httpResponse.statusCode, data: errorData))
                         return
                     }
 

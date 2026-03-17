@@ -13,14 +13,14 @@ export interface WeeklyPlanQualityScores {
   composite: number;
 }
 
-export interface DailyObjectiveQualityScores {
-  energy_calibration: number;
+export interface WeeklyTaskQualityScores {
+  weekly_plan_alignment: number;
   specificity: number;
   achievability: number;
   composite: number;
 }
 
-export type GenerationType = 'milestone' | 'weekly_plan' | 'daily_objective';
+export type GenerationType = 'milestone' | 'weekly_plan' | 'weekly_task';
 
 export interface RoadmapGeneratedEvent {
   roadmapId: string;
@@ -32,7 +32,7 @@ export interface WeeklyPlanGeneratedEvent {
   goalId: string;
 }
 
-export interface DailyObjectivesGeneratedEvent {
+export interface WeeklyTasksGeneratedEvent {
   goalId: string;
-  date: string;
+  weeklyPlanId: string;
 }

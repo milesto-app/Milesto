@@ -16,7 +16,7 @@ interface WeeklyPlanPromptParams {
 interface MonthlySummaryPromptParams {
   avgCompletionRate: number;
   totalCompleted: number;
-  totalObjectives: number;
+  totalTasks: number;
   weeklyNarratives: string[];
 }
 
@@ -26,15 +26,13 @@ export function buildWeeklyPlanSystemPrompt(language: string): string {
 Your task is to generate a focused weekly plan based on the user's current milestone, progress, and context.
 
 Rules:
-- Create a clear, actionable focus statement for the week
 - Generate 3-7 specific, achievable objectives
 - Objectives should be concrete daily or multi-day actions
 - Consider the user's recent progress, energy levels, and capacity
 - Build on previous week's momentum if summary data is available
 - Adapt difficulty based on completion rates from previous weeks
 
-Return a JSON object with these exact fields:
-- "focus": A concise statement of the week's primary focus area
+Return a JSON object with this exact field:
 - "objectives": An array of specific, actionable objective strings
 
 Return ONLY the JSON object, no other text.${buildLanguageBlock(language)}`;
@@ -55,8 +53,7 @@ function buildMilestoneSection(params: WeeklyPlanPromptParams): string {
   return `## Current Milestone
 Title: ${params.milestone.title}
 Description: ${params.milestone.description}
-Expected Outcome: ${params.milestone.expected_outcome}
-Target Month: ${String(params.milestone.target_month)}`;
+Expected Outcome: ${params.milestone.expected_outcome}`;
 }
 
 function appendSummaryContextSections(
@@ -70,7 +67,7 @@ function appendSummaryContextSections(
     const ws = genCtx.last_weekly_summary;
     sections.push(`## Last Week Summary
 Completion Rate: ${String(ws.completion_rate)}%
-Objectives Completed: ${String(ws.objectives_completed)}/${String(ws.objectives_total)}
+Tasks Completed: ${String(ws.tasks_completed)}/${String(ws.tasks_total)}
 ${ws.narrative !== undefined ? `Narrative: ${ws.narrative}` : ''}`);
   }
 
@@ -83,10 +80,10 @@ ${ws.narrative !== undefined ? `Narrative: ${ws.narrative}` : ''}`);
     );
   }
 
-  if (genCtx.daily_completion_rate !== undefined) {
-    sections.push(`## Recent Daily Performance
-Completion Rate: ${String(genCtx.daily_completion_rate)}%
-Completed: ${String(genCtx.daily_objectives_completed ?? 0)}/${String(genCtx.daily_objectives_total ?? 0)}`);
+  if (genCtx.task_completion_rate !== undefined) {
+    sections.push(`## Recent Task Performance
+Completion Rate: ${String(genCtx.task_completion_rate)}%
+Completed: ${String(genCtx.tasks_completed ?? 0)}/${String(genCtx.tasks_total ?? 0)}`);
   }
 }
 
@@ -123,8 +120,7 @@ export function buildWeeklySummaryNarrativeUserPrompt(
 ): string {
   return `Weekly Progress Data:
 Completion Rate: ${String(completionRate)}%
-Objectives Completed: ${String(weekData.objectivesCompleted)}/${String(weekData.objectivesTotal)}
-Energy Distribution: ${JSON.stringify(weekData.energyDistribution)}
+Tasks Completed: ${String(weekData.tasksCompleted)}/${String(weekData.tasksTotal)}
 Debrief Notes:
 ${weekData.debriefNotes.map((note, i) => `${String(i + 1)}. ${note}`).join('\n')}`;
 }
@@ -143,7 +139,7 @@ export function buildMonthlySummaryNarrativeUserPrompt(
 ): string {
   return `Monthly Progress Data:
 Average Completion Rate: ${String(params.avgCompletionRate)}%
-Total Objectives: ${String(params.totalCompleted)}/${String(params.totalObjectives)}
+Total Tasks: ${String(params.totalCompleted)}/${String(params.totalTasks)}
 Weekly Narratives:
 ${params.weeklyNarratives.map((n, i) => `Week ${String(i + 1)}: ${n}`).join('\n')}`;
 }

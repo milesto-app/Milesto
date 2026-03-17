@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 
-import { DailyObjectiveService } from '../roadmap/daily-objective.service.js';
 import { WeeklyPlanService } from '../roadmap/weekly-plan.service.js';
+import { WeeklyTaskService } from '../roadmap/weekly-task.service.js';
 import { SupabaseService } from '../supabase/supabase.service.js';
 import { ChatSearchService } from './chat-search.service.js';
 import type { ToolExecutionContext } from './types/chat.types.js';
@@ -11,57 +11,57 @@ export class ChatToolsService {
   private readonly logger = new Logger(ChatToolsService.name);
 
   constructor(
-    private readonly dailyObjectiveService: DailyObjectiveService,
+    private readonly weeklyTaskService: WeeklyTaskService,
     private readonly weeklyPlanService: WeeklyPlanService,
     private readonly supabaseService: SupabaseService,
     private readonly chatSearchService: ChatSearchService,
   ) {}
 
-  public async getDailyObjectives(ctx: ToolExecutionContext): Promise<unknown> {
+  public async getWeeklyTasks(ctx: ToolExecutionContext): Promise<unknown> {
     try {
-      const objectives = await this.dailyObjectiveService.getDailyObjectives(
+      const tasks = await this.weeklyTaskService.getWeeklyTasks(
         ctx.goalId,
         ctx.userId,
       );
 
-      return objectives.map((obj) => ({
-        id: obj.id,
-        title: obj.title,
-        description: obj.description,
-        is_completed: obj.is_completed,
-        difficulty_rating: obj.difficulty_rating,
+      return tasks.map((task) => ({
+        id: task.id,
+        title: task.title,
+        description: task.description,
+        is_completed: task.is_completed,
+        difficulty_rating: task.difficulty_rating,
       }));
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
-      this.logger.warn(`getDailyObjectives failed: ${message}`);
+      this.logger.warn(`getWeeklyTasks failed: ${message}`);
       return {
         error:
-          'No daily objectives available. Complete your morning check-in first.',
+          'No weekly tasks available. A weekly plan needs to be generated first.',
       };
     }
   }
 
-  public async toggleObjectiveCompletion(
+  public async toggleTaskCompletion(
     args: Record<string, unknown>,
     ctx: ToolExecutionContext,
   ): Promise<unknown> {
     try {
-      const objectiveId = args.objectiveId as string;
+      const taskId = args.taskId as string;
 
-      await this.dailyObjectiveService.updateDailyObjective({
-        objectiveId,
+      await this.weeklyTaskService.toggleTaskCompletion({
+        taskId,
         goalId: ctx.goalId,
         userId: ctx.userId,
         isCompleted: args.isCompleted as boolean,
       });
 
-      return { success: true, objectiveId, isCompleted: args.isCompleted };
+      return { success: true, taskId, isCompleted: args.isCompleted };
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
-      this.logger.warn(`toggleObjectiveCompletion failed: ${message}`);
+      this.logger.warn(`toggleTaskCompletion failed: ${message}`);
       return {
         error:
-          'Unable to update the objective. It may not exist or belong to this goal.',
+          'Unable to update the task. It may not exist or belong to this goal.',
       };
     }
   }
@@ -79,7 +79,7 @@ export class ChatToolsService {
         };
       }
 
-      const stats = await this.dailyObjectiveService.getWeeklyCompletionRate(
+      const stats = await this.weeklyTaskService.getWeeklyCompletionRate(
         ctx.goalId,
         ctx.userId,
         plan.id,

@@ -11,6 +11,7 @@ const MOCK_AUDIO_DATA = Buffer.from('fake-audio-data');
 const mockConvert = jest.fn();
 
 jest.mock('elevenlabs', () => ({
+  // eslint-disable-next-line @typescript-eslint/naming-convention
   ElevenLabsClient: jest.fn().mockImplementation(() => ({
     textToSpeech: { convert: mockConvert },
   })),
@@ -76,8 +77,8 @@ describe('VoiceTtsService error handling', () => {
   it('should throw when ElevenLabs returns an error', async () => {
     mockConvert.mockRejectedValue(new Error('TTS synthesis failed'));
 
-    await expect(
-      service.synthesize('Hello', MOCK_VOICE_ID),
-    ).rejects.toThrow('TTS synthesis failed');
+    await expect(service.synthesize('Hello', MOCK_VOICE_ID)).rejects.toThrow(
+      'TTS synthesis failed',
+    );
   });
 });
