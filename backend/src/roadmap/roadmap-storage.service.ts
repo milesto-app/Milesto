@@ -9,6 +9,8 @@ import {
 
 import { config } from '../config/app.config.js';
 import { SupabaseService } from '../supabase/supabase.service.js';
+
+const WEEKS_PER_MONTH_GROUP = 3;
 import type {
   GenerationMetadata,
   MilestoneSummary,
@@ -68,7 +70,7 @@ export class RoadmapStorageService {
     const { data, error } = await supabase
       .from('milestones')
       .select(
-        'id, title, description, expected_outcome, target_month, target_week, is_monthly_checkpoint, order_index',
+        'id, title, description, expected_outcome, is_monthly_checkpoint, order_index',
       )
       .eq('roadmap_id', roadmap.id)
       .order('order_index', { ascending: true });
@@ -104,8 +106,6 @@ export class RoadmapStorageService {
       title: string;
       description: string;
       expected_outcome: string;
-      target_month: number;
-      target_week: number;
       is_monthly_checkpoint: boolean;
       order_index: number;
     }>,
@@ -117,8 +117,8 @@ export class RoadmapStorageService {
       title: m.title,
       description: m.description,
       expected_outcome: m.expected_outcome,
-      target_month: m.target_month,
-      target_week: m.target_week,
+      target_month: Math.ceil(m.order_index / WEEKS_PER_MONTH_GROUP),
+      target_week: m.order_index,
       is_monthly_checkpoint: m.is_monthly_checkpoint,
       order_index: m.order_index,
     }));

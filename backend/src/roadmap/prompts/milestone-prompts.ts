@@ -30,10 +30,8 @@ Return a JSON array of objects with these exact fields:
 - "title": A concise milestone title (no prefixes like "Month X Milestone:" — just the topic)
 - "description": Detailed description of what this milestone involves
 - "expected_outcome": What the user should have achieved by this milestone
-- "target_month": The month number this week belongs to (1 = first month, 2 = second month, etc.)
-- "target_week": The overall week number (1, 2, 3, ...)
 - "is_monthly_checkpoint": true if this is the last milestone in its month group, false otherwise
-- "order_index": Sequential index starting from 1 (same as target_week)
+- "order_index": Sequential index starting from 1
 
 Return ONLY the JSON array, no other text.${buildLanguageBlock(language)}`;
 }

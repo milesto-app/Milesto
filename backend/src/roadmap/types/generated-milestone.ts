@@ -10,14 +10,6 @@ export class GeneratedMilestone {
   @IsString()
   public expected_outcome!: string;
 
-  @IsInt()
-  @Min(1)
-  public target_month!: number;
-
-  @IsInt()
-  @Min(1)
-  public target_week!: number;
-
   @IsBoolean()
   public is_monthly_checkpoint!: boolean;
 

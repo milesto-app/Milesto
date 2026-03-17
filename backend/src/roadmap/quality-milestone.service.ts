@@ -130,7 +130,7 @@ export class QualityMilestoneService {
     const { data, error } = await supabase
       .from('milestones')
       .select(
-        'title, description, expected_outcome, target_month, target_week, is_monthly_checkpoint, order_index',
+        'title, description, expected_outcome, is_monthly_checkpoint, order_index',
       )
       .eq('roadmap_id', roadmapId)
       .order('order_index');

@@ -27,8 +27,6 @@ function repairMilestones(items: unknown[]): GeneratedMilestone[] {
       description: typeof rec.description === 'string' ? rec.description : '',
       expected_outcome:
         typeof rec.expected_outcome === 'string' ? rec.expected_outcome : '',
-      target_month: Number(rec.target_month),
-      target_week: Number(rec.target_week),
       is_monthly_checkpoint: Boolean(rec.is_monthly_checkpoint),
       order_index: Number(rec.order_index),
     };

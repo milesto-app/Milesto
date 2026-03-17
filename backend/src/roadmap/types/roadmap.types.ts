@@ -35,8 +35,6 @@ export type MilestoneSummary = Pick<
   | 'title'
   | 'description'
   | 'expected_outcome'
-  | 'target_month'
-  | 'target_week'
   | 'is_monthly_checkpoint'
   | 'order_index'
 >;

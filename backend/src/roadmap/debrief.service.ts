@@ -99,6 +99,7 @@ export class DebriefService {
       this.logger.error(`Failed to store debrief: ${error.message}`);
       throw new InternalServerErrorException('Failed to store debrief');
     }
+    await this.completeWeeklyPlan(dto.weekly_plan_id);
     this.eventEmitter.emit('debrief.submitted', {
       debriefId: (data as Record<string, unknown>).id,
       goalId,
@@ -107,5 +108,19 @@ export class DebriefService {
       note: dto.note,
     });
     return data as unknown as Debrief;
+  }
+
+  private async completeWeeklyPlan(weeklyPlanId: string): Promise<void> {
+    const supabase = this.supabaseService.getAdminClient();
+    const { error } = await supabase
+      .from('weekly_plans')
+      .update({ status: 'completed' })
+      .eq('id', weeklyPlanId)
+      .eq('status', 'active');
+    if (error) {
+      this.logger.error(
+        `Failed to complete weekly plan ${weeklyPlanId}: ${error.message}`,
+      );
+    }
   }
 }

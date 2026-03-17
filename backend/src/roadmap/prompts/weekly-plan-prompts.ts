@@ -53,8 +53,7 @@ function buildMilestoneSection(params: WeeklyPlanPromptParams): string {
   return `## Current Milestone
 Title: ${params.milestone.title}
 Description: ${params.milestone.description}
-Expected Outcome: ${params.milestone.expected_outcome}
-Target Month: ${String(params.milestone.target_month)}`;
+Expected Outcome: ${params.milestone.expected_outcome}`;
 }
 
 function appendSummaryContextSections(

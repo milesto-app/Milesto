@@ -100,7 +100,6 @@ export class WeeklyPlanService {
       milestone_title: ms.title,
       milestone_description: ms.description,
       milestone_expected_outcome: ms.expected_outcome,
-      milestone_target_month: ms.target_month,
       last_weekly_summary: lastCompleted?.summary ?? null,
       last_monthly_summary:
         (ms.monthly_summary as Record<string, unknown> | null) ?? null,

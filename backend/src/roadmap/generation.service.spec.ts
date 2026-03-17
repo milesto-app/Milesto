@@ -41,8 +41,6 @@ describe('GenerationService', () => {
       title: 'Build base endurance',
       description: 'Establish a running foundation with 3-4 runs per week',
       expected_outcome: 'Able to run 10km comfortably',
-      target_month: 1,
-      target_week: 1,
       is_monthly_checkpoint: false,
       order_index: 1,
     },
@@ -50,8 +48,6 @@ describe('GenerationService', () => {
       title: 'Increase mileage',
       description: 'Gradually increase weekly mileage to 40km',
       expected_outcome: 'Completing 15km long runs',
-      target_month: 1,
-      target_week: 2,
       is_monthly_checkpoint: false,
       order_index: 2,
     },
@@ -59,8 +55,6 @@ describe('GenerationService', () => {
       title: 'Half marathon preparation',
       description: 'Train for and complete a half marathon distance',
       expected_outcome: 'Run 21km under 2 hours',
-      target_month: 1,
-      target_week: 3,
       is_monthly_checkpoint: true,
       order_index: 3,
     },
@@ -116,7 +110,6 @@ describe('GenerationService', () => {
         expect(typeof m.title).toBe('string');
         expect(typeof m.description).toBe('string');
         expect(typeof m.expected_outcome).toBe('string');
-        expect(typeof m.target_month).toBe('number');
         expect(typeof m.order_index).toBe('number');
       });
     });
@@ -124,8 +117,6 @@ describe('GenerationService', () => {
     it('should repair milestones with stringified numbers', async () => {
       const badResponse = validMilestoneResponse.map((m) => ({
         ...m,
-        target_month: String(m.target_month),
-        target_week: String(m.target_week),
         order_index: String(m.order_index),
       }));
       mockAiService.generateJson.mockResolvedValue(badResponse);
@@ -137,7 +128,6 @@ describe('GenerationService', () => {
       );
 
       expect(result.milestones).toHaveLength(3);
-      expect(result.milestones[0]!.target_month).toBe(1);
       expect(result.milestones[0]!.order_index).toBe(1);
     });
 
@@ -147,7 +137,6 @@ describe('GenerationService', () => {
           title: '',
           description: '',
           expected_outcome: '',
-          target_month: 'not-a-number',
           order_index: -1,
         },
       ];
@@ -323,7 +312,6 @@ describe('GenerationService', () => {
       milestone_title: 'Build base endurance',
       milestone_description: 'Establish a running foundation',
       milestone_expected_outcome: 'Able to run 10km comfortably',
-      milestone_target_month: 1,
     };
 
     const validWeeklyPlanResponse = {

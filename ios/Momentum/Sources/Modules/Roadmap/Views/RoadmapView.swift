@@ -71,21 +71,25 @@ struct RoadmapView: View {
             }
             .navigationDestination(item: $selectedMilestone) { milestone in
                 MilestoneDetailView(
+                    milestoneId: milestone.id,
                     title: milestone.title,
                     description: milestone.description,
                     expectedOutcome: milestone.expectedOutcome,
-                    targetWeek: milestone.targetWeek,
                     isMonthlyCheckpoint: milestone.isMonthlyCheckpoint,
                     status: milestone.status
                 )
             }
         }
         .task {
-            guard milestones.isEmpty else { return }
             await loadMilestones()
         }
         .onAppear {
             appeared = true
+            if !milestones.isEmpty {
+                Task {
+                    await loadMilestones()
+                }
+            }
         }
         .onChange(of: goalId) {
             milestones = []
@@ -197,30 +201,8 @@ struct RoadmapView: View {
                 .weight((milestone.isKeyMilestone || milestone.isMonthlyCheckpoint) ? .medium : .regular)
                 .color(milestone.status == .upcoming ? Color("TextSecondary") : Color("TextPrimary"))
 
-                HStack(spacing: 6) {
-                    if milestone.isMonthlyCheckpoint {
-                        AppText(
-                            verbatim: String(
-                                format: String(localized: "roadmap.milestone.month", table: "Roadmap"),
-                                milestone.targetMonth
-                            ),
-                            style: .caption
-                        )
-                        .color(Color("TextSecondary").opacity(0.5))
-                    } else {
-                        AppText(
-                            verbatim: String(
-                                format: String(localized: "roadmap.milestone.week", table: "Roadmap"),
-                                milestone.targetWeek
-                            ),
-                            style: .caption
-                        )
-                        .color(Color("TextSecondary").opacity(0.5))
-                    }
-
-                    if milestone.status == .current {
-                        AppText(verbatim: "·", style: .caption)
-                            .color(Color("TextSecondary"))
+                if milestone.status == .current {
+                    HStack(spacing: 6) {
                         AppText(verbatim: "\(Int(milestone.progress * 100))%", style: .caption)
                             .weight(.semibold)
                             .color(Color("TintPrimary"))

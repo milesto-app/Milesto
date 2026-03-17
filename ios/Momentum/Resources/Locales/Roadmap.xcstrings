@@ -851,6 +851,40 @@
         }
       }
     },
+    "roadmap.milestone.tasks" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tasks"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tâches"
+          }
+        }
+      }
+    },
+    "roadmap.milestone.tasks.empty" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No tasks yet"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pas encore de tâches"
+          }
+        }
+      }
+    },
     "roadmap.weeklyPlan.title" : {
       "extractionState" : "manual",
       "localizations" : {

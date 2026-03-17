@@ -14,6 +14,7 @@ struct HomeView: View {
     @State private var hasSyncError = false
     @State private var showDebriefSheet = false
     @State private var showWeeklyPlanDetail = false
+    @State private var showWeeklyPlanGeneration = false
 
     private var currentGoal: LocalGoal? {
         localGoals.first { $0.id == goalId }
@@ -83,15 +84,22 @@ struct HomeView: View {
                     weeklyPlanId: weeklyPlan.id,
                     completedTasks: tasks.filter(\.isCompleted),
                     onDebriefComplete: {
-                        Task {
-                            if let debriefs = try? await RoadmapAPIService.shared.getDebriefHistory(goalId: goalId) {
-                                let dto = debriefs.first
-                                todayDebrief = dto
-                                syncDebriefToCache(dto)
-                            }
-                        }
+                        showWeeklyPlanGeneration = true
                     }
                 )
+            }
+        }
+        .fullScreenCover(isPresented: $showWeeklyPlanGeneration, onDismiss: {
+            weeklyPlan = nil
+            tasks = []
+            todayDebrief = nil
+            isLoading = true
+            Task {
+                await loadAllData()
+            }
+        }) {
+            WeeklyPlanGenerationView(goalId: goalId) {
+                showWeeklyPlanGeneration = false
             }
         }
     }
@@ -149,6 +157,13 @@ struct HomeView: View {
 
     private var contentSection: some View {
         VStack(spacing: 16) {
+            if !tasks.isEmpty && tasks.allSatisfy(\.isCompleted) && todayDebrief?.weeklyPlanId != weeklyPlan?.id {
+                DebriefPromptCard {
+                    showDebriefSheet = true
+                }
+                .padding(.horizontal, 16)
+            }
+
             HStack {
                 AppText("home.tasks", table: "Home", style: .headline)
                 Spacer()
@@ -162,13 +177,6 @@ struct HomeView: View {
             .padding(.top, 12)
 
             tasksSection
-
-            if tasks.contains(where: \.isCompleted) && todayDebrief == nil {
-                DebriefPromptCard {
-                    showDebriefSheet = true
-                }
-                .padding(.horizontal, 16)
-            }
         }
         .padding(.bottom, 40)
         .navigationDestination(isPresented: $showWeeklyPlanDetail) {

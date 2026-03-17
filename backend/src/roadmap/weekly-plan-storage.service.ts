@@ -213,7 +213,7 @@ export class WeeklyPlanStorageService {
   ): Promise<number> {
     const { data: lastPlan } = await supabase
       .from('weekly_plans')
-      .select('milestone_id')
+      .select('milestone_id, status')
       .eq('roadmap_id', roadmapId)
       .order('week_number', { ascending: false })
       .limit(1)
@@ -225,7 +225,15 @@ export class WeeklyPlanStorageService {
     }
 
     const index = milestones.findIndex((m) => m.id === lastPlan.milestone_id);
-    return index >= 0 ? index : 0;
+    if (index < 0) {
+      return 0;
+    }
+
+    if (lastPlan.status === 'completed') {
+      return Math.min(index + 1, milestones.length - 1);
+    }
+
+    return index;
   }
 
   private async getTimeBasedMilestoneIndex(

@@ -23,7 +23,6 @@ export interface GenerationContext {
   milestone_title?: string;
   milestone_description?: string;
   milestone_expected_outcome?: string;
-  milestone_target_month?: number;
   last_weekly_summary?: WeeklySummary | null;
   last_monthly_summary?: Record<string, unknown> | null;
   task_completion_rate?: number;

@@ -134,6 +134,26 @@ final class RoadmapAPIService {
         )
     }
 
+    func getTasksForMilestone(milestoneId: String) async throws -> [WeeklyTaskDTO] {
+        struct PlanRef: Decodable { let id: String }
+        let plans: [PlanRef] = try await Supabase.client
+            .from("weekly_plans")
+            .select("id")
+            .eq("milestone_id", value: milestoneId)
+            .execute()
+            .value
+
+        guard !plans.isEmpty else { return [] }
+
+        return try await Supabase.client
+            .from("weekly_tasks")
+            .select()
+            .in("weekly_plan_id", values: plans.map(\.id))
+            .order("order_index")
+            .execute()
+            .value
+    }
+
     func getDebriefHistory(goalId: String) async throws -> [DebriefDTO] {
         try await Supabase.client
             .from("debriefs")
