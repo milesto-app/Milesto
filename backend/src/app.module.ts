@@ -10,6 +10,7 @@ import { CommonModule } from './common/common.module.js';
 import { config } from './config/app.config.js';
 import { ConfigModule } from './config/config.module.js';
 import { GoalModule } from './goal/goal.module.js';
+import { HealthModule } from './health/health.module.js';
 import { IntakeModule } from './intake/intake.module.js';
 import { RoadmapModule } from './roadmap/roadmap.module.js';
 import { SupabaseModule } from './supabase/supabase.module.js';
@@ -32,6 +33,7 @@ import { VoiceChatModule } from './voice-chat/voice-chat.module.js';
     UsageModule,
     AiModule,
     GoalModule,
+    HealthModule,
     IntakeModule,
     RoadmapModule,
     CoachModule,
