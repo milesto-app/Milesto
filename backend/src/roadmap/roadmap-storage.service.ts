@@ -11,6 +11,9 @@ import { config } from '../config/app.config.js';
 import { SupabaseService } from '../supabase/supabase.service.js';
 
 const WEEKS_PER_MONTH_GROUP = 3;
+const STALE_GENERATION_MINUTES = 5;
+const MS_PER_MINUTE = 60_000;
+const STALE_GENERATION_MS = STALE_GENERATION_MINUTES * MS_PER_MINUTE;
 import type {
   GenerationMetadata,
   MilestoneSummary,
@@ -184,7 +187,14 @@ export class RoadmapStorageService {
       throw new BadRequestException('Roadmap already generated');
     }
     if (existing.status === 'generating') {
-      throw new ConflictException('Roadmap generation already in progress');
+      const updatedAt = new Date(existing.updated_at as string).getTime();
+      const isStale = Date.now() - updatedAt > STALE_GENERATION_MS;
+      if (!isStale) {
+        throw new ConflictException('Roadmap generation already in progress');
+      }
+      this.logger.warn(
+        `Recovering stale generating lock for roadmap ${existing.id as string}`,
+      );
     }
     if (
       (existing.generation_attempts as number) >=

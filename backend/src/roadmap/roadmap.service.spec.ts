@@ -88,24 +88,22 @@ describe('RoadmapService', () => {
     },
   };
 
-  const mockRoadmapRow = {
+  const mockLockedRoadmap = {
     id: roadmapId,
     goal_id: goalId,
     user_id: userId,
-    status: 'complete',
-    milestones: mockMilestones.map((m, i) => ({
-      id: `ms-${i}`,
-      roadmap_id: roadmapId,
-      goal_id: goalId,
-      ...m,
-      created_at: '2026-02-22T00:00:00Z',
-    })),
-    current_milestone_id: 'ms-0',
+    status: 'generating',
+    generation_attempts: 1,
     generation_metadata: {},
     quality_scores: null,
     created_at: '2026-02-22T00:00:00Z',
     updated_at: '2026-02-22T00:00:00Z',
   };
+
+  const flushPromises = async (): Promise<void> =>
+    new Promise((resolve) => {
+      setImmediate(resolve);
+    });
 
   beforeEach(async () => {
     mockSupabase = { from: jest.fn() };
@@ -163,14 +161,12 @@ describe('RoadmapService', () => {
       mockGoalService.findOne.mockResolvedValue(mockGoal);
       mockContextPipeline.assembleContext.mockResolvedValue(mockContext);
       mockGeneration.generateMilestones.mockResolvedValue(mockGenerationResult);
-      mockRoadmapStorage.acquireGenerationLock.mockResolvedValue({
-        id: roadmapId,
-      });
+      mockRoadmapStorage.acquireGenerationLock.mockResolvedValue(
+        mockLockedRoadmap,
+      );
       mockRoadmapStorage.storeMilestones.mockResolvedValue(undefined);
       mockRoadmapStorage.updateRoadmapStatus.mockResolvedValue(undefined);
-      mockRoadmapStorage.getRoadmap.mockResolvedValue(mockRoadmapRow);
 
-      // goal_profiles fetch for user constraints
       const profileSingleMock = jest.fn().mockResolvedValue({
         data: {
           profile_data: {
@@ -190,16 +186,20 @@ describe('RoadmapService', () => {
       mockSupabase.from.mockReturnValue({ select: profileSelectMock });
     };
 
-    it('should complete happy path: lock, context, generate, store, complete, goal active, event', async () => {
+    it('should return locked roadmap immediately and run generation in background', async () => {
       setupHappyPath();
 
       const result = await service.generateMilestones(goalId, userId);
 
+      expect(result).toEqual(mockLockedRoadmap);
       expect(mockGoalService.findOne).toHaveBeenCalledWith(userId, goalId);
       expect(mockRoadmapStorage.acquireGenerationLock).toHaveBeenCalledWith(
         goalId,
         userId,
       );
+
+      await flushPromises();
+
       expect(mockContextPipeline.assembleContext).toHaveBeenCalledWith(
         goalId,
         userId,
@@ -223,7 +223,6 @@ describe('RoadmapService', () => {
         roadmapId,
         goalId,
       });
-      expect(result).toBeDefined();
     });
 
     it('should throw 400 when goal status is not intake_completed or active', async () => {
@@ -259,11 +258,11 @@ describe('RoadmapService', () => {
       );
     });
 
-    it('should update roadmap to failed on generation error', async () => {
+    it('should update roadmap to failed in background on generation error', async () => {
       mockGoalService.findOne.mockResolvedValue(mockGoal);
-      mockRoadmapStorage.acquireGenerationLock.mockResolvedValue({
-        id: roadmapId,
-      });
+      mockRoadmapStorage.acquireGenerationLock.mockResolvedValue(
+        mockLockedRoadmap,
+      );
       mockContextPipeline.assembleContext.mockResolvedValue(mockContext);
       mockGeneration.generateMilestones.mockRejectedValue(
         new Error('Generation failed'),
@@ -283,9 +282,12 @@ describe('RoadmapService', () => {
         .mockReturnValue({ eq: profileEq1Mock });
       mockSupabase.from.mockReturnValue({ select: profileSelectMock });
 
-      await expect(service.generateMilestones(goalId, userId)).rejects.toThrow(
-        'Generation failed',
-      );
+      const result = await service.generateMilestones(goalId, userId);
+
+      expect(result).toEqual(mockLockedRoadmap);
+
+      await flushPromises();
+
       expect(mockRoadmapStorage.updateRoadmapStatus).toHaveBeenCalledWith(
         roadmapId,
         'failed',
@@ -298,6 +300,7 @@ describe('RoadmapService', () => {
       setupHappyPath();
 
       await service.generateMilestones(goalId, userId);
+      await flushPromises();
 
       expect(mockEventEmitter.emit).toHaveBeenCalledWith('roadmap.generated', {
         roadmapId,
@@ -309,6 +312,7 @@ describe('RoadmapService', () => {
       setupHappyPath();
 
       await service.generateMilestones(goalId, userId);
+      await flushPromises();
 
       expect(mockGeneration.generateMilestones).toHaveBeenCalledWith(
         mockContext,
@@ -328,7 +332,8 @@ describe('RoadmapService', () => {
 
   describe('getRoadmap', () => {
     it('should delegate to roadmapStorage.getRoadmap', async () => {
-      mockRoadmapStorage.getRoadmap.mockResolvedValue(mockRoadmapRow);
+      const completeRoadmap = { ...mockLockedRoadmap, status: 'complete' };
+      mockRoadmapStorage.getRoadmap.mockResolvedValue(completeRoadmap);
 
       const result = await service.getRoadmap(goalId, userId);
 
@@ -336,7 +341,7 @@ describe('RoadmapService', () => {
         goalId,
         userId,
       );
-      expect(result).toEqual(mockRoadmapRow);
+      expect(result).toEqual(completeRoadmap);
     });
 
     it('should throw NotFoundException when roadmap not found', async () => {

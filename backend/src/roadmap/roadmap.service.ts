@@ -41,36 +41,10 @@ export class RoadmapService {
     );
 
     try {
-      const context = await this.contextPipeline.assembleContext(
-        goalId,
-        userId,
-      );
-      const fullGoalData = await this.buildGoalData(goalData, goalId, userId);
-      const language = await this.languageService.getLanguage(userId);
       await this.usageService.reserveGeneration(
         userId,
         GenerationType.MILESTONE_ROADMAP,
       );
-      const { milestones, metadata } = await this.generation.generateMilestones(
-        context,
-        fullGoalData,
-        language,
-      );
-
-      await this.roadmapStorage.storeMilestones(roadmap.id, goalId, milestones);
-      await this.roadmapStorage.updateRoadmapStatus(
-        roadmap.id,
-        'complete',
-        metadata,
-      );
-      await this.goal.updateStatus(goalId, 'active');
-
-      this.events.emit('roadmap.generated', { roadmapId: roadmap.id, goalId });
-      this.logger.log(
-        `Roadmap generated for goal ${goalId}: ${String(milestones.length)} milestones`,
-      );
-
-      return await this.roadmapStorage.getRoadmap(goalId, userId);
     } catch (error) {
       await this.roadmapStorage.updateRoadmapStatus(
         roadmap.id,
@@ -78,6 +52,54 @@ export class RoadmapService {
         undefined,
       );
       throw error;
+    }
+
+    void this.runGeneration(roadmap.id, goalId, userId, goalData);
+
+    return roadmap;
+  }
+
+  private async runGeneration(
+    roadmapId: string,
+    goalId: string,
+    userId: string,
+    goalData: GoalData,
+  ): Promise<void> {
+    try {
+      const context = await this.contextPipeline.assembleContext(
+        goalId,
+        userId,
+      );
+      const fullGoalData = await this.buildGoalData(goalData, goalId, userId);
+      const language = await this.languageService.getLanguage(userId);
+      const { milestones, metadata } = await this.generation.generateMilestones(
+        context,
+        fullGoalData,
+        language,
+      );
+
+      await this.roadmapStorage.storeMilestones(roadmapId, goalId, milestones);
+      await this.roadmapStorage.updateRoadmapStatus(
+        roadmapId,
+        'complete',
+        metadata,
+      );
+      await this.goal.updateStatus(goalId, 'active');
+
+      this.events.emit('roadmap.generated', { roadmapId, goalId });
+      this.logger.log(
+        `Roadmap generated for goal ${goalId}: ${String(milestones.length)} milestones`,
+      );
+    } catch (error) {
+      this.logger.error(
+        `Roadmap generation failed for goal ${goalId}`,
+        error instanceof Error ? error.stack : undefined,
+      );
+      await this.roadmapStorage.updateRoadmapStatus(
+        roadmapId,
+        'failed',
+        undefined,
+      );
     }
   }
 

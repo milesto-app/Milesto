@@ -1,4 +1,7 @@
+import OSLog
 import SwiftUI
+
+private let logger = Logger(subsystem: "app.momentum", category: "RoadmapGeneration")
 
 struct RoadmapGenerationView: View {
     let goalId: String
@@ -104,6 +107,7 @@ struct RoadmapGenerationView: View {
                case .httpError(statusCode: 409, _) = backendError
             {
             } else {
+                logger.error("Generate roadmap call failed: \(error)")
                 hasFailed = true
                 isGenerating = false
                 return
@@ -126,7 +130,9 @@ struct RoadmapGenerationView: View {
                     isGenerating = false
                     return
                 }
-            } catch {}
+            } catch {
+                logger.error("Roadmap poll failed: \(error)")
+            }
         }
 
         hasFailed = true
