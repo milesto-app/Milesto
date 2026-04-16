@@ -154,6 +154,7 @@ final class AuthService: NSObject, ObservableObject {
     }
 
     func signOut() async throws {
+        await NotificationService.shared.unregisterCurrentToken()
         try await client.auth.signOut()
         authState = .unauthenticated
         currentUserId = nil

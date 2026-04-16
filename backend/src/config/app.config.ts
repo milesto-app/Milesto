@@ -60,6 +60,14 @@ export const config = {
     freeGenerationsPerDay: 20,
     proGenerationsPerDay: 200,
   },
+  apns: {
+    host: {
+      production: 'api.push.apple.com',
+      sandbox: 'api.sandbox.push.apple.com',
+    },
+    jwtCacheTtlMs: 3_300_000,
+    broadcastBatchSize: 100,
+  },
   chat: {
     model: 'google/gemini-3-flash-preview',
     reasoningEffort: 'low',

@@ -3,7 +3,14 @@ import SwiftUI
 
 @main
 struct MomentumApp: App {
+    @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
     @StateObject private var authService = AuthService.shared
+    @Environment(\.scenePhase) private var scenePhase
+
+    private var isAuthenticated: Bool {
+        if case .authenticated = authService.authState { return true }
+        return false
+    }
 
     var sharedModelContainer: ModelContainer = {
         let schema = Schema([
@@ -44,6 +51,15 @@ struct MomentumApp: App {
             .onOpenURL { url in
                 Task {
                     await authService.handleDeepLink(url)
+                }
+            }
+            .task(id: isAuthenticated) {
+                guard isAuthenticated else { return }
+                await NotificationService.shared.requestPermissionAndRegister()
+            }
+            .onChange(of: scenePhase) { _, newPhase in
+                if newPhase == .active, isAuthenticated {
+                    Task { await NotificationService.shared.requestPermissionAndRegister() }
                 }
             }
         }

@@ -12,6 +12,7 @@ import { ConfigModule } from './config/config.module.js';
 import { GoalModule } from './goal/goal.module.js';
 import { HealthModule } from './health/health.module.js';
 import { IntakeModule } from './intake/intake.module.js';
+import { NotificationsModule } from './notifications/notifications.module.js';
 import { RoadmapModule } from './roadmap/roadmap.module.js';
 import { SupabaseModule } from './supabase/supabase.module.js';
 import { UsageModule } from './usage/usage.module.js';
@@ -40,6 +41,7 @@ import { VoiceChatModule } from './voice-chat/voice-chat.module.js';
     VoiceModule,
     VoiceChatModule,
     ChatModule,
+    NotificationsModule,
   ],
   providers: [
     {
