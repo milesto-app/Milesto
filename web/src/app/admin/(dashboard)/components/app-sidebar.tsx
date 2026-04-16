@@ -1,7 +1,7 @@
 "use client";
 
 import { usePathname, useRouter } from "next/navigation";
-import { Activity, BarChart3, LayoutDashboard, LogOut, Users } from "lucide-react";
+import { Activity, BarChart3, Bell, LayoutDashboard, LogOut, Users } from "lucide-react";
 
 import { createClient } from "@/lib/supabase/client";
 import {
@@ -20,6 +20,7 @@ const navItems = [
   { title: "Overview", href: "/admin", icon: LayoutDashboard },
   { title: "Users", href: "/admin/users", icon: Users },
   { title: "Usage", href: "/admin/usage", icon: BarChart3 },
+  { title: "Notifications", href: "/admin/notifications", icon: Bell },
   { title: "Health", href: "/admin/health", icon: Activity },
 ];
 
