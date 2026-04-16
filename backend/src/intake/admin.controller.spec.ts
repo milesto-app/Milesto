@@ -2,6 +2,7 @@ import type { TestingModule } from '@nestjs/testing';
 import { Test } from '@nestjs/testing';
 
 import { AuthGuard } from '../common/guards/auth.guard.js';
+import { AdminGuard } from '../notifications/guards/admin.guard.js';
 import { SupabaseService } from '../supabase/supabase.service.js';
 import { AdminController } from './admin.controller.js';
 import { IntakeReembedService } from './intake-reembed.service.js';
@@ -38,12 +39,13 @@ describe('AdminController', () => {
     });
   });
 
-  describe('AuthGuard', () => {
-    it('should have AuthGuard applied at the controller level', () => {
+  describe('Guards', () => {
+    it('should have AuthGuard and AdminGuard applied at the controller level', () => {
       const guards = Reflect.getMetadata('__guards__', AdminController);
       expect(guards).toBeDefined();
 
       expect(guards).toContain(AuthGuard);
+      expect(guards).toContain(AdminGuard);
     });
   });
 });

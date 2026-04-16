@@ -7,13 +7,14 @@ import {
 } from '@nestjs/swagger';
 
 import { AuthGuard } from '../common/guards/auth.guard.js';
+import { AdminGuard } from '../notifications/guards/admin.guard.js';
 import { IntakeReembedService } from './intake-reembed.service.js';
 import type { ReembedResult } from './types/intake.types.js';
 
 @ApiTags('Admin')
 @ApiBearerAuth()
 @Controller('admin')
-@UseGuards(AuthGuard)
+@UseGuards(AuthGuard, AdminGuard)
 export class AdminController {
   constructor(private readonly reembedService: IntakeReembedService) {}
 
