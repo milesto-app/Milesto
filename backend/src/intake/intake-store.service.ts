@@ -116,13 +116,16 @@ export class IntakeStoreService {
   ): Promise<void> {
     const answeredAt = new Date().toISOString();
     await Promise.all(
-      answers.map(async (answer) => this.updateAnswer(answer, answeredAt)),
+      answers.map(async (answer) =>
+        this.updateAnswer(answer, batchId, answeredAt),
+      ),
     );
     await this.markBatchAnswered(batchId);
   }
 
   private async updateAnswer(
     answer: AnswerInput,
+    batchId: string,
     answeredAt: string,
   ): Promise<void> {
     const supabase = this.supabaseService.getAdminClient();
@@ -135,7 +138,8 @@ export class IntakeStoreService {
     const { error } = await supabase
       .from('intake_questions')
       .update(update)
-      .eq('id', answer.question_id);
+      .eq('id', answer.question_id)
+      .eq('batch_id', batchId);
     if (error !== null) {
       this.logger.error(
         `Failed to update answer for question ${answer.question_id}: ${error.message}`,
