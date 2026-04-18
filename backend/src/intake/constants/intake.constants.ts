@@ -5,6 +5,7 @@ export const DEFAULT_SCALE_MAX = 100;
 export const MIN_DISTINCT_OPTIONS = 2;
 export const MIN_ANSWER_LENGTH_SHORT = 20;
 export const MAX_ANSWER_LENGTH_LONG = 200;
+export const MAX_QUESTION_TEXT_LENGTH = 140;
 export const SINGLE_CHOICE_OPTION_COUNT = 1;
 export const QUALITY_SCORE_DIMENSIONS = 4;
 

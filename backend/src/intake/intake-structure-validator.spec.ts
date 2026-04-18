@@ -74,6 +74,33 @@ describe('validateStructural', () => {
     );
   });
 
+  it('should fail when question_text exceeds 140 characters', () => {
+    const longText = `${'a'.repeat(140)}?`;
+    const batch = [
+      { ...validBatch[0], question_text: longText },
+      validBatch[1],
+      validBatch[2],
+    ];
+    const result = validateStructural(batch);
+    expect(result.valid).toBe(false);
+    expect(result.errors).toEqual(
+      expect.arrayContaining([
+        expect.stringContaining('question_text exceeds 140 characters'),
+      ]),
+    );
+  });
+
+  it('should pass when question_text is exactly 140 characters', () => {
+    const text = `${'a'.repeat(139)}?`;
+    const batch = [
+      { ...validBatch[0], question_text: text },
+      validBatch[1],
+      validBatch[2],
+    ];
+    const result = validateStructural(batch);
+    expect(result.valid).toBe(true);
+  });
+
   it('should fail when question_type is invalid', () => {
     const batch = [
       { ...validBatch[0], question_type: 'invalid_type' },
