@@ -11,14 +11,10 @@ import { UserId } from '../common/decorators/user.decorator.js';
 import { AuthGuard } from '../common/guards/auth.guard.js';
 import type { Database } from '../supabase/database.types.js';
 import { CreateGoalDto } from './dto/create-goal.dto.js';
+import type { GoalProfileResult } from './goal.service.js';
 import { GoalService } from './goal.service.js';
 
 type GoalRow = Database['public']['Tables']['goals']['Row'];
-
-type GoalProfileResult = Pick<
-  Database['public']['Tables']['goal_profiles']['Row'],
-  'id' | 'goal_id' | 'profile_data' | 'narrative_summary' | 'created_at'
->;
 
 @ApiTags('Goals')
 @ApiBearerAuth()

@@ -349,7 +349,6 @@ struct HomeView: View {
         guard let local = try? modelContext.fetch(descriptor).first else { return nil }
         return WeeklyPlanDTO(
             id: local.id,
-            roadmapId: local.roadmapId,
             milestoneId: local.milestoneId,
             goalId: local.goalId,
             userId: local.userId,
@@ -370,7 +369,6 @@ struct HomeView: View {
         )
 
         if let existing = try? modelContext.fetch(descriptor).first {
-            existing.roadmapId = dto.roadmapId
             existing.milestoneId = dto.milestoneId
             existing.weekNumber = dto.weekNumber
             existing.weekStartDate = dto.weekStartDate
@@ -385,7 +383,6 @@ struct HomeView: View {
         } else {
             let local = LocalWeeklyPlan(
                 id: dto.id,
-                roadmapId: dto.roadmapId,
                 milestoneId: dto.milestoneId,
                 goalId: dto.goalId,
                 userId: dto.userId,

@@ -19,7 +19,6 @@ describe('RoadmapController', () => {
   const goalId = 'goal-456';
 
   const mockRoadmap = {
-    id: 'roadmap-789',
     goal_id: goalId,
     user_id: userId,
     status: 'complete',

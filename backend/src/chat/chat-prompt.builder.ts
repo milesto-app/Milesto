@@ -1,4 +1,4 @@
-import type { Coach } from '../coach/coach.types.js';
+import type { CoachConfig } from '../coach/coaches.config.js';
 import {
   buildBoundariesPrompt,
   buildToolUsagePrompt,
@@ -18,7 +18,7 @@ interface GoalContext {
 }
 
 export interface PromptInput {
-  coach: Coach;
+  coach: CoachConfig;
   goalContext: GoalContext;
   language: string;
   memory: string;
@@ -28,9 +28,9 @@ export function buildCoachPrompt(input: PromptInput): string {
   const { coach, language, memory } = input;
   const goalContextSection = buildGoalContextSection(input.goalContext);
   const displayName =
-    language === 'fr' ? coach.display_name_fr : coach.display_name_en;
+    language === 'fr' ? coach.displayName.fr : coach.displayName.en;
   const description =
-    language === 'fr' ? coach.description_fr : coach.description_en;
+    language === 'fr' ? coach.description.fr : coach.description.en;
   const defaultLanguage = language === 'fr' ? 'French' : 'English';
   const memoryContent = memory.length > 0 ? memory : 'No memory yet.';
 

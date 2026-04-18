@@ -4,7 +4,6 @@ import SwiftData
 @Model
 final class LocalWeeklyPlan {
     @Attribute(.unique) var id: String
-    var roadmapId: String
     var milestoneId: String
     var goalId: String
     var userId: String
@@ -37,9 +36,8 @@ final class LocalWeeklyPlan {
         )
     }
 
-    init(id: String, roadmapId: String, milestoneId: String, goalId: String, userId: String, weekNumber: Int, weekStartDate: String, objectives: [String], status: String, isFallback: Bool, createdAt: String, summary: WeeklySummaryDTO? = nil) {
+    init(id: String, milestoneId: String, goalId: String, userId: String, weekNumber: Int, weekStartDate: String, objectives: [String], status: String, isFallback: Bool, createdAt: String, summary: WeeklySummaryDTO? = nil) {
         self.id = id
-        self.roadmapId = roadmapId
         self.milestoneId = milestoneId
         self.goalId = goalId
         self.userId = userId

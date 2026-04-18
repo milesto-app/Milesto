@@ -176,19 +176,17 @@ export class IntakeProfileService {
     profile: GoalProfile,
   ): Promise<ProfileResult> {
     const client = this.supabaseService.getAdminClient();
-    const { data: inserted, error } = await client
-      .from('goal_profiles')
-      .insert({
-        goal_id: goalId,
-        user_id: userId,
+    const { error } = await client
+      .from('goals')
+      .update({
         profile_data: buildProfileData(profile) as Json,
         narrative_summary: profile.narrative_summary,
+        profile_created_at: new Date().toISOString(),
       })
-      .select()
-      .single();
+      .eq('id', goalId);
     if (error !== null) {
       this.logger.error(
-        `Failed to insert profile for goal ${goalId}: ${error.message}`,
+        `Failed to store profile for goal ${goalId}: ${error.message}`,
       );
       return this.profileStore.markFailure(goalId);
     }
@@ -196,9 +194,9 @@ export class IntakeProfileService {
     this.logger.log(`Profile generated and stored for goal ${goalId}`);
     this.eventEmitter.emit('profile.generated', {
       goal_id: goalId,
-      profile_id: inserted.id,
+      profile_id: goalId,
       user_id: userId,
     } satisfies ProfileGeneratedEvent);
-    return { profile_id: inserted.id, profile_status: 'intake_completed' };
+    return { profile_id: goalId, profile_status: 'intake_completed' };
   }
 }

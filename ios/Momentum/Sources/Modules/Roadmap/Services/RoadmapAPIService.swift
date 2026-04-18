@@ -14,23 +14,22 @@ final class RoadmapAPIService {
     }
 
     func getRoadmap(goalId: String) async throws -> RoadmapDTO {
-        struct RoadmapResponse: Decodable {
+        struct GoalRoadmapRow: Decodable {
             let id: String
-            let goalId: String
             let userId: String
-            let status: RoadmapStatus
-            let generationAttempts: Int
-            let createdAt: String
-            let updatedAt: String
+            let roadmapStatus: RoadmapStatus?
+            let roadmapGenerationAttempts: Int
+            let roadmapCreatedAt: String?
+            let roadmapUpdatedAt: String?
             let milestones: [MilestoneDTO]?
 
             enum CodingKeys: String, CodingKey {
-                case id, status, milestones
-                case goalId = "goal_id"
+                case id, milestones
                 case userId = "user_id"
-                case generationAttempts = "generation_attempts"
-                case createdAt = "created_at"
-                case updatedAt = "updated_at"
+                case roadmapStatus = "roadmap_status"
+                case roadmapGenerationAttempts = "roadmap_generation_attempts"
+                case roadmapCreatedAt = "roadmap_created_at"
+                case roadmapUpdatedAt = "roadmap_updated_at"
             }
         }
 
@@ -42,10 +41,10 @@ final class RoadmapAPIService {
             }
         }
 
-        let roadmap: RoadmapResponse = try await Supabase.client
-            .from("roadmaps")
-            .select("*, milestones(*)")
-            .eq("goal_id", value: goalId)
+        let row: GoalRoadmapRow = try await Supabase.client
+            .from("goals")
+            .select("id, user_id, roadmap_status, roadmap_generation_attempts, roadmap_created_at, roadmap_updated_at, milestones (*)")
+            .eq("id", value: goalId)
             .single()
             .execute()
             .value
@@ -64,14 +63,13 @@ final class RoadmapAPIService {
         }
 
         return RoadmapDTO(
-            id: roadmap.id,
-            goalId: roadmap.goalId,
-            userId: roadmap.userId,
-            status: roadmap.status,
-            generationAttempts: roadmap.generationAttempts,
-            createdAt: roadmap.createdAt,
-            updatedAt: roadmap.updatedAt,
-            milestones: roadmap.milestones,
+            goalId: row.id,
+            userId: row.userId,
+            status: row.roadmapStatus ?? .generating,
+            generationAttempts: row.roadmapGenerationAttempts,
+            createdAt: row.roadmapCreatedAt ?? "",
+            updatedAt: row.roadmapUpdatedAt ?? "",
+            milestones: row.milestones,
             currentMilestoneId: currentMilestoneId
         )
     }

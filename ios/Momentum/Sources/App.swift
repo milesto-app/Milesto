@@ -30,7 +30,17 @@ struct MomentumApp: App {
         do {
             return try ModelContainer(for: schema, configurations: [modelConfiguration])
         } catch {
-            fatalError("Could not create ModelContainer: \(error)")
+            let storeURL = modelConfiguration.url
+            try? FileManager.default.removeItem(at: storeURL)
+            let walURL = storeURL.appendingPathExtension("wal")
+            try? FileManager.default.removeItem(at: walURL)
+            let shmURL = storeURL.appendingPathExtension("shm")
+            try? FileManager.default.removeItem(at: shmURL)
+            do {
+                return try ModelContainer(for: schema, configurations: [modelConfiguration])
+            } catch {
+                fatalError("Could not create ModelContainer after reset: \(error)")
+            }
         }
     }()
 

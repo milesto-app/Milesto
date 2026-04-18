@@ -2,7 +2,6 @@ export type WeeklyPlanStatus = 'active' | 'completed';
 
 export interface WeeklyPlan {
   id: string;
-  roadmap_id: string;
   milestone_id: string;
   goal_id: string;
   user_id: string;
@@ -57,7 +56,7 @@ import type { Milestone } from './roadmap.types.js';
 export interface GenerateAndStoreParams {
   goalId: string;
   userId: string;
-  roadmap: { id: string };
+  roadmap: Pick<import('./roadmap.types.js').Roadmap, 'goal_id' | 'created_at'>;
   milestone: Milestone;
   weekNumber: number;
   generationContext: GenerationContext;
@@ -65,7 +64,6 @@ export interface GenerateAndStoreParams {
 }
 
 export interface StorePlanRow {
-  roadmap_id: string;
   milestone_id: string;
   goal_id: string;
   user_id: string;

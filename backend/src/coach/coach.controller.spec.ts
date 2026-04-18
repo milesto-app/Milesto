@@ -5,20 +5,20 @@ import { Test } from '@nestjs/testing';
 import { SupabaseService } from '../supabase/supabase.service.js';
 import { CoachController } from './coach.controller.js';
 import { CoachService } from './coach.service.js';
-import type { Coach } from './coach.types.js';
+import type { CoachConfig } from './coaches.config.js';
 
 const NONEXISTENT_COACH_ID = 999;
 
-const MOCK_COACH: Coach = {
+const MOCK_COACH: CoachConfig = {
   id: 1,
   personality: 'motivateur',
-  display_name_fr: 'Le Motivateur',
-  display_name_en: 'The Motivator',
-  description_fr: 'Un coach energique',
-  description_en: 'An energetic coach',
-  icon: 'fire',
-  elevenlabs_voice_id: 'Kore',
-  is_active: true,
+  displayName: { en: 'The Motivator', fr: 'Le Motivateur' },
+  description: {
+    en: 'Energetic and enthusiastic',
+    fr: 'Energique et enthousiaste',
+  },
+  icon: 'flame',
+  elevenlabsVoiceId: 'Kore',
 };
 
 let controller: CoachController;
@@ -49,10 +49,10 @@ it('CoachController should be defined', () => {
 });
 
 describe('CoachController.listCoaches', () => {
-  it('should return an array of coaches', async () => {
-    coachService.listCoaches.mockResolvedValue([MOCK_COACH]);
+  it('should return an array of coaches', () => {
+    coachService.listCoaches.mockReturnValue([MOCK_COACH]);
 
-    const result = await controller.listCoaches();
+    const result = controller.listCoaches();
 
     expect(coachService.listCoaches).toHaveBeenCalled();
     expect(result).toEqual([MOCK_COACH]);
@@ -60,21 +60,23 @@ describe('CoachController.listCoaches', () => {
 });
 
 describe('CoachController.getCoach', () => {
-  it('should return a single coach by id', async () => {
-    coachService.getCoach.mockResolvedValue(MOCK_COACH);
+  it('should return a single coach by id', () => {
+    coachService.getCoach.mockReturnValue(MOCK_COACH);
 
-    const result = await controller.getCoach(1);
+    const result = controller.getCoach(1);
 
     expect(coachService.getCoach).toHaveBeenCalledWith(1);
     expect(result).toEqual(MOCK_COACH);
   });
 
-  it('should throw NotFoundException for invalid coach id', async () => {
-    coachService.getCoach.mockRejectedValue(
-      new NotFoundException(`Coach with id ${NONEXISTENT_COACH_ID} not found`),
-    );
+  it('should throw NotFoundException for invalid coach id', () => {
+    coachService.getCoach.mockImplementation(() => {
+      throw new NotFoundException(
+        `Coach with id ${NONEXISTENT_COACH_ID} not found`,
+      );
+    });
 
-    await expect(controller.getCoach(NONEXISTENT_COACH_ID)).rejects.toThrow(
+    expect(() => controller.getCoach(NONEXISTENT_COACH_ID)).toThrow(
       NotFoundException,
     );
   });

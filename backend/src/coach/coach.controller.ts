@@ -15,7 +15,7 @@ import {
 
 import { AuthGuard } from '../common/guards/auth.guard.js';
 import { CoachService } from './coach.service.js';
-import type { Coach } from './coach.types.js';
+import type { CoachConfig } from './coaches.config.js';
 
 @ApiTags('coaches')
 @ApiBearerAuth()
@@ -28,7 +28,7 @@ export class CoachController {
   @ApiOperation({ summary: 'List all active coaches' })
   @ApiResponse({ status: 200, description: 'List of active coaches' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  public async listCoaches(): Promise<Coach[]> {
+  public listCoaches(): CoachConfig[] {
     return this.coachService.listCoaches();
   }
 
@@ -38,9 +38,9 @@ export class CoachController {
   @ApiResponse({ status: 200, description: 'Coach returned' })
   @ApiResponse({ status: 404, description: 'Coach not found' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  public async getCoach(
+  public getCoach(
     @Param('coachId', ParseIntPipe) coachId: number,
-  ): Promise<Coach> {
+  ): CoachConfig {
     return this.coachService.getCoach(coachId);
   }
 }

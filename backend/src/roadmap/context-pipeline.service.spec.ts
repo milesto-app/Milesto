@@ -71,7 +71,7 @@ describe('ContextPipelineService', () => {
     rerankApplied: true,
   };
 
-  // Helper to set up the from() chain for goal_profiles query
+  // Helper to set up the from() chain for goal profile narrative query
   function setupGoalProfileQuery(
     profileData: { narrative_summary: string } | null,
   ): {
@@ -150,7 +150,7 @@ describe('ContextPipelineService', () => {
   });
 
   it('should assemble context via full happy path (embed -> HNSW -> rerank -> assemble)', async () => {
-    // Setup goal_profiles query for buildQueryText
+    // Setup goal profile narrative query for buildQueryText
     const profileChain = setupGoalProfileQuery({
       narrative_summary: 'Run a marathon in 6 months',
     });

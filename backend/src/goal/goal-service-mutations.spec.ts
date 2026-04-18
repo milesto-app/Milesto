@@ -49,8 +49,14 @@ beforeEach(async () => {
 });
 
 describe('GoalService.getGoalProfile', () => {
-  const mockProfile = {
-    id: 'profile-id-1',
+  const mockGoalRow = {
+    id: 'goal-456',
+    profile_data: { current_state: 'Beginner' },
+    narrative_summary: 'Summary',
+    profile_created_at: '2026-02-08T00:00:00.000Z',
+  };
+  const expectedProfile = {
+    id: 'goal-456',
     goal_id: 'goal-456',
     profile_data: { current_state: 'Beginner' },
     narrative_summary: 'Summary',
@@ -68,14 +74,14 @@ describe('GoalService.getGoalProfile', () => {
           eq: jest.fn().mockReturnValue({
             single: jest
               .fn()
-              .mockResolvedValue({ data: mockProfile, error: null }),
+              .mockResolvedValue({ data: mockGoalRow, error: null }),
           }),
         }),
       }),
     });
 
     const result = await service.getGoalProfile('user-123', 'goal-456');
-    expect(result).toEqual(mockProfile);
+    expect(result).toEqual(expectedProfile);
   });
 
   it('should throw NotFoundException when status is intake_in_progress', async () => {

@@ -22,9 +22,10 @@ export class IntakeReembedService {
       .eq('embedded', false);
 
     const { data: profiles } = await supabase
-      .from('goal_profiles')
-      .select('id, goal_id, user_id, narrative_summary')
-      .eq('embedded', false);
+      .from('goals')
+      .select('id, user_id, narrative_summary')
+      .eq('profile_embedded', false)
+      .not('narrative_summary', 'is', null);
 
     const batchResults = await this.reembedBatches(batches ?? []);
     const profileResults = await this.reembedProfiles(profiles ?? []);
@@ -112,9 +113,9 @@ export class IntakeReembedService {
 
     const questionIds = questions.map((q: { id: string }) => q.id);
     const { data: answers, error: aError } = await supabase
-      .from('intake_answers')
-      .select('question_id, answer_text, answer_numeric, selected_options')
-      .in('question_id', questionIds);
+      .from('intake_questions')
+      .select('id, answer_text, answer_numeric, selected_options')
+      .in('id', questionIds);
 
     if (aError !== null) {
       this.logger.error(
@@ -146,14 +147,14 @@ export class IntakeReembedService {
       ) {
         throw new Error('Missing narrative_summary');
       }
+      const goalId = profile.id as string;
       const embedding = await this.aiService.generateEmbedding(
         profile.narrative_summary,
       );
       const { error } = await supabase.from('context_embeddings').insert({
-        goal_id: profile.goal_id as string,
+        goal_id: goalId,
         user_id: profile.user_id as string,
         content_type: 'goal_profile',
-        profile_id: profile.id as string,
         content_text: profile.narrative_summary,
         embedding: JSON.stringify(embedding),
       });
@@ -161,13 +162,13 @@ export class IntakeReembedService {
         throw new Error(`Failed to store embedding: ${error.message}`);
       }
       await supabase
-        .from('goal_profiles')
-        .update({ embedded: true })
-        .eq('id', profile.id as string);
+        .from('goals')
+        .update({ profile_embedded: true })
+        .eq('id', goalId);
       return true;
     } catch (error) {
       this.logger.error(
-        `Re-embed failed for profile ${String(profile.id)}: ${error instanceof Error ? error.message : String(error)}`,
+        `Re-embed failed for profile on goal ${String(profile.id)}: ${error instanceof Error ? error.message : String(error)}`,
       );
       return false;
     }
@@ -178,7 +179,7 @@ function formatQAPairs(
   questions: Array<{ id: string; question_text: string }>,
   answers: Array<Record<string, unknown>>,
 ): string {
-  const answerMap = new Map(answers.map((a) => [a.question_id as string, a]));
+  const answerMap = new Map(answers.map((a) => [a.id as string, a]));
   return questions
     .map((q) => {
       const answer = answerMap.get(q.id);

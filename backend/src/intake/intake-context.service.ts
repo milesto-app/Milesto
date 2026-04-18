@@ -20,7 +20,7 @@ export class IntakeContextService {
         `id, batch_number,
         intake_questions (
           id, question_text, question_type, config, order_in_batch,
-          intake_answers ( answer_text, answer_numeric, selected_options )
+          answer_text, answer_numeric, selected_options
         )`,
       )
       .eq('goal_id', goalId)
@@ -45,16 +45,12 @@ export class IntakeContextService {
       | null;
     return {
       batch_number: batch.batch_number as number,
-      questions: (questions ?? []).map((q) => {
-        const answers = q.intake_answers as Record<string, unknown>[] | null;
-        const answer = (answers ?? [])[0];
-        return {
-          question_text: q.question_text as string,
-          question_type: q.question_type as string,
-          answer: formatAnswer(q, answer),
-          config: (q.config as Record<string, unknown> | null) ?? null,
-        };
-      }),
+      questions: (questions ?? []).map((q) => ({
+        question_text: q.question_text as string,
+        question_type: q.question_type as string,
+        answer: formatAnswer(q),
+        config: (q.config as Record<string, unknown> | null) ?? null,
+      })),
     };
   }
 }
@@ -63,25 +59,18 @@ function formatNumericAnswer(value: unknown): string {
   return typeof value === 'number' ? String(value) : '[no answer]';
 }
 
-function formatAnswer(
-  question: Record<string, unknown>,
-  answer: Record<string, unknown> | undefined,
-): string {
-  if (answer === undefined) {
-    return '[no answer]';
-  }
-
+function formatAnswer(question: Record<string, unknown>): string {
   switch (question.question_type) {
     case 'text': {
-      const text = answer.answer_text as string | undefined;
-      return text !== undefined && text !== '' ? text : '[no answer]';
+      const text = question.answer_text as string | null | undefined;
+      return typeof text === 'string' && text !== '' ? text : '[no answer]';
     }
     case 'scale':
-      return formatNumericAnswer(answer.answer_numeric);
+      return formatNumericAnswer(question.answer_numeric);
     case 'single_choice':
     case 'multiple_choice': {
-      const options = answer.selected_options as string[] | undefined;
-      return options !== undefined ? options.join(', ') : '';
+      const options = question.selected_options as string[] | null | undefined;
+      return Array.isArray(options) ? options.join(', ') : '';
     }
     default:
       return '[unknown type]';

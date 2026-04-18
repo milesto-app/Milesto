@@ -50,13 +50,13 @@ export class VoiceChatTokenService {
     );
 
     const profile = await this.chatPromptService.getUserProfile(userId);
-    const [goalContext, memory, coach] = await Promise.all([
+    const [goalContext, memory] = await Promise.all([
       this.chatPromptService.fetchGoalContext(goalId, userId),
       this.chatPromptService.fetchMemory(userId, goalId),
-      this.coachService.getCoach(profile.coachId),
     ]);
+    const coach = this.coachService.getCoach(profile.coachId);
 
-    const systemPrompt = await this.chatPromptService.buildSystemPrompt({
+    const systemPrompt = this.chatPromptService.buildSystemPrompt({
       coachId: profile.coachId,
       goalContext,
       language: profile.language,
@@ -84,7 +84,7 @@ export class VoiceChatTokenService {
     const overrides: SessionOverrides = {
       prompt: voicePrompt,
       language: profile.language,
-      voiceId: coach.elevenlabs_voice_id,
+      voiceId: coach.elevenlabsVoiceId,
     };
 
     return {

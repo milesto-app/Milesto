@@ -3,8 +3,7 @@ import SwiftData
 
 @Model
 final class LocalRoadmap {
-    @Attribute(.unique) var id: String
-    var goalId: String
+    @Attribute(.unique) var goalId: String
     var userId: String
     var status: String
     var createdAt: String
@@ -12,8 +11,7 @@ final class LocalRoadmap {
     var currentMilestoneId: String?
     @Relationship(deleteRule: .cascade) var milestones: [LocalMilestone]
 
-    init(id: String, goalId: String, userId: String, status: String, createdAt: String, updatedAt: String, currentMilestoneId: String? = nil, milestones: [LocalMilestone] = []) {
-        self.id = id
+    init(goalId: String, userId: String, status: String, createdAt: String, updatedAt: String, currentMilestoneId: String? = nil, milestones: [LocalMilestone] = []) {
         self.goalId = goalId
         self.userId = userId
         self.status = status

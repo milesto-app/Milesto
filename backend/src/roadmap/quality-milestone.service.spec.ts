@@ -33,7 +33,7 @@ describe('QualityMilestoneService', () => {
           select: jest.fn().mockReturnValue({
             eq: jest.fn().mockReturnValue({
               single: jest.fn().mockResolvedValue({
-                data: { id: 'roadmap-uuid', generation_metadata: {} },
+                data: { id: 'goal-uuid', roadmap_generation_metadata: {} },
                 error: null,
               }),
             }),
@@ -76,7 +76,6 @@ describe('QualityMilestoneService', () => {
       });
 
       await service.handleRoadmapGenerated({
-        roadmapId: 'roadmap-uuid',
         goalId: 'goal-uuid',
       });
 
@@ -99,7 +98,6 @@ describe('QualityMilestoneService', () => {
 
       await expect(
         service.handleRoadmapGenerated({
-          roadmapId: 'roadmap-uuid',
           goalId: 'goal-uuid',
         }),
       ).resolves.not.toThrow();

@@ -43,11 +43,11 @@ beforeEach(async () => {
     }),
     fetchGoalContext: jest.fn().mockResolvedValue({}),
     fetchMemory: jest.fn().mockResolvedValue(''),
-    buildSystemPrompt: jest.fn().mockResolvedValue('base prompt'),
+    buildSystemPrompt: jest.fn().mockReturnValue('base prompt'),
   };
   coachService = {
-    getCoach: jest.fn().mockResolvedValue({
-      elevenlabs_voice_id: 'voice-123',
+    getCoach: jest.fn().mockReturnValue({
+      elevenlabsVoiceId: 'voice-123',
     }),
   };
   sessionStore = {

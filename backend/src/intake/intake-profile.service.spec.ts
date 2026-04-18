@@ -112,15 +112,10 @@ describe('IntakeProfileService', () => {
         errors: [],
       });
 
-      // Mock storeProfile insert (direct Supabase call for goal_profiles insert)
+      // Mock storeProfile update on the goals table (goal_profiles folded into goals)
       mockSupabase.from.mockReturnValue({
-        insert: jest.fn().mockReturnValue({
-          select: jest.fn().mockReturnValue({
-            single: jest.fn().mockResolvedValue({
-              data: { id: 'profile-1' },
-              error: null,
-            }),
-          }),
+        update: jest.fn().mockReturnValue({
+          eq: jest.fn().mockResolvedValue({ error: null }),
         }),
       });
 
@@ -131,7 +126,7 @@ describe('IntakeProfileService', () => {
         language: 'en',
       });
 
-      expect(result.profile_id).toBe('profile-1');
+      expect(result.profile_id).toBe(goalId);
       expect(result.profile_status).toBe('intake_completed');
       expect(profileStore.updateGoalStatus).toHaveBeenCalledWith(
         goalId,
@@ -139,7 +134,7 @@ describe('IntakeProfileService', () => {
       );
       expect(eventEmitter.emit).toHaveBeenCalledWith(
         'profile.generated',
-        expect.objectContaining({ profile_id: 'profile-1' }),
+        expect.objectContaining({ profile_id: goalId }),
       );
     });
 

@@ -399,7 +399,6 @@ struct RoadmapView: View {
                     } else {
                         let local = LocalMilestone(
                             id: milestoneDTO.id,
-                            roadmapId: milestoneDTO.roadmapId,
                             goalId: milestoneDTO.goalId,
                             orderIndex: milestoneDTO.orderIndex,
                             title: milestoneDTO.title,
@@ -423,7 +422,6 @@ struct RoadmapView: View {
             let localMilestones = (dto.milestones ?? []).map { milestoneDTO in
                 LocalMilestone(
                     id: milestoneDTO.id,
-                    roadmapId: milestoneDTO.roadmapId,
                     goalId: milestoneDTO.goalId,
                     orderIndex: milestoneDTO.orderIndex,
                     title: milestoneDTO.title,
@@ -437,7 +435,6 @@ struct RoadmapView: View {
             }
 
             let local = LocalRoadmap(
-                id: dto.id,
                 goalId: dto.goalId,
                 userId: dto.userId,
                 status: dto.status.rawValue,

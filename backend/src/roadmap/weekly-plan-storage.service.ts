@@ -7,12 +7,15 @@ import {
 } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 
-import type { Json } from '../supabase/database.types.js';
+import type { Database, Json } from '../supabase/database.types.js';
 import { SupabaseService } from '../supabase/supabase.service.js';
+import { ROADMAP_STATUS } from './constants/roadmap.constants.js';
 import type { Milestone, Roadmap } from './types/roadmap.types.js';
 import type { StorePlanRow, WeeklyPlan } from './types/weekly-plan.types.js';
 
 export type { StorePlanRow } from './types/weekly-plan.types.js';
+
+type GoalRow = Database['public']['Tables']['goals']['Row'];
 
 const SUNDAY_DAY = 0;
 const SUNDAY_OFFSET = -6;
@@ -36,7 +39,7 @@ export class WeeklyPlanStorageService {
     };
     const { data, error } = await supabase
       .from('weekly_plans')
-      .upsert(dbRow, { onConflict: 'roadmap_id,week_number' })
+      .upsert(dbRow, { onConflict: 'goal_id,week_number' })
       .select()
       .single();
 
@@ -94,12 +97,12 @@ export class WeeklyPlanStorageService {
     return (data as WeeklyPlan | null) ?? null;
   }
 
-  public async calculateWeekNumber(roadmapId: string): Promise<number> {
+  public async calculateWeekNumber(goalId: string): Promise<number> {
     const supabase = this.supabaseService.getAdminClient();
     const { count } = await supabase
       .from('weekly_plans')
       .select('*', { count: 'exact', head: true })
-      .eq('roadmap_id', roadmapId);
+      .eq('goal_id', goalId);
     return (count ?? 0) + 1;
   }
 
@@ -146,20 +149,53 @@ export class WeeklyPlanStorageService {
     goalId: string,
     userId: string,
   ): Promise<Roadmap> {
-    const { data: roadmap, error } = await supabase
-      .from('roadmaps')
-      .select('*')
-      .eq('goal_id', goalId)
+    const { data: goal, error } = await supabase
+      .from('goals')
+      .select(
+        'id, user_id, roadmap_status, roadmap_generation_attempts, roadmap_model_used, roadmap_generation_metadata, roadmap_quality_scores, roadmap_created_at, roadmap_updated_at',
+      )
+      .eq('id', goalId)
       .eq('user_id', userId)
       .single();
     // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-    if (error || roadmap === null) {
+    if (error || goal === null || goal.roadmap_status === null) {
       throw new NotFoundException('No roadmap found for this goal');
     }
-    if (roadmap.status !== 'complete') {
+    if (goal.roadmap_status !== ROADMAP_STATUS.COMPLETE) {
       throw new BadRequestException('Goal has no completed roadmap');
     }
-    return roadmap as Roadmap;
+    return this.buildRoadmap(goal);
+  }
+
+  private buildRoadmap(
+    goal: Pick<
+      GoalRow,
+      | 'id'
+      | 'user_id'
+      | 'roadmap_status'
+      | 'roadmap_generation_attempts'
+      | 'roadmap_model_used'
+      | 'roadmap_generation_metadata'
+      | 'roadmap_quality_scores'
+      | 'roadmap_created_at'
+      | 'roadmap_updated_at'
+    >,
+  ): Roadmap {
+    const now = new Date().toISOString();
+    return {
+      goal_id: goal.id,
+      user_id: goal.user_id,
+      status: (goal.roadmap_status ?? ROADMAP_STATUS.GENERATING) as Roadmap['status'],
+      generation_attempts: goal.roadmap_generation_attempts,
+      model_used: goal.roadmap_model_used,
+      generation_metadata:
+        (goal.roadmap_generation_metadata as Record<string, unknown> | null) ??
+        {},
+      quality_scores:
+        (goal.roadmap_quality_scores as Record<string, unknown> | null) ?? null,
+      created_at: goal.roadmap_created_at ?? now,
+      updated_at: goal.roadmap_updated_at ?? now,
+    };
   }
 
   private async loadActiveMilestone(
@@ -167,7 +203,7 @@ export class WeeklyPlanStorageService {
     roadmap: Roadmap,
     goalId: string,
   ): Promise<Milestone> {
-    const milestones = await this.loadAllMilestones(supabase, roadmap.id);
+    const milestones = await this.loadAllMilestones(supabase, goalId);
     if (milestones.length === 1) {
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       return milestones[0]!;
@@ -175,7 +211,7 @@ export class WeeklyPlanStorageService {
 
     const historyIndex = await this.getLastPlanMilestoneIndex(
       supabase,
-      roadmap.id,
+      goalId,
       milestones,
     );
     const timeIndex = await this.getTimeBasedMilestoneIndex(
@@ -192,12 +228,12 @@ export class WeeklyPlanStorageService {
 
   private async loadAllMilestones(
     supabase: ReturnType<SupabaseService['getAdminClient']>,
-    roadmapId: string,
+    goalId: string,
   ): Promise<Milestone[]> {
     const { data: milestones, error } = await supabase
       .from('milestones')
       .select('*')
-      .eq('roadmap_id', roadmapId)
+      .eq('goal_id', goalId)
       .order('order_index', { ascending: true });
     // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
     if (error || milestones === null || milestones.length === 0) {
@@ -208,13 +244,13 @@ export class WeeklyPlanStorageService {
 
   private async getLastPlanMilestoneIndex(
     supabase: ReturnType<SupabaseService['getAdminClient']>,
-    roadmapId: string,
+    goalId: string,
     milestones: Milestone[],
   ): Promise<number> {
     const { data: lastPlan } = await supabase
       .from('weekly_plans')
       .select('milestone_id, status')
-      .eq('roadmap_id', roadmapId)
+      .eq('goal_id', goalId)
       .order('week_number', { ascending: false })
       .limit(1)
       .single();

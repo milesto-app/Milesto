@@ -7,7 +7,6 @@ enum WeeklyPlanStatus: String, Codable {
 
 struct WeeklyPlanDTO: Codable {
     let id: String
-    let roadmapId: String
     let milestoneId: String
     let goalId: String
     let userId: String
@@ -21,7 +20,6 @@ struct WeeklyPlanDTO: Codable {
 
     enum CodingKeys: String, CodingKey {
         case id, objectives, summary, status
-        case roadmapId = "roadmap_id"
         case milestoneId = "milestone_id"
         case goalId = "goal_id"
         case userId = "user_id"

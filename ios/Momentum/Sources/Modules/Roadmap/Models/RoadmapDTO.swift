@@ -7,7 +7,6 @@ enum RoadmapStatus: String, Codable {
 }
 
 struct RoadmapDTO: Codable {
-    let id: String
     let goalId: String
     let userId: String
     let status: RoadmapStatus
@@ -18,7 +17,7 @@ struct RoadmapDTO: Codable {
     let currentMilestoneId: String?
 
     enum CodingKeys: String, CodingKey {
-        case id, status, milestones
+        case status, milestones
         case goalId = "goal_id"
         case userId = "user_id"
         case generationAttempts = "generation_attempts"
@@ -30,7 +29,6 @@ struct RoadmapDTO: Codable {
 
 struct MilestoneDTO: Codable, Identifiable {
     let id: String
-    let roadmapId: String
     let goalId: String
     let orderIndex: Int
     let title: String
@@ -43,7 +41,6 @@ struct MilestoneDTO: Codable, Identifiable {
 
     enum CodingKeys: String, CodingKey {
         case id, title, description
-        case roadmapId = "roadmap_id"
         case goalId = "goal_id"
         case orderIndex = "order_index"
         case expectedOutcome = "expected_outcome"

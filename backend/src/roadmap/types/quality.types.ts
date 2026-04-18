@@ -23,7 +23,6 @@ export interface WeeklyTaskQualityScores {
 export type GenerationType = 'milestone' | 'weekly_plan' | 'weekly_task';
 
 export interface RoadmapGeneratedEvent {
-  roadmapId: string;
   goalId: string;
 }
 

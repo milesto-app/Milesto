@@ -296,7 +296,6 @@ describe('GenerationService', () => {
   describe('generateWeeklyPlan', () => {
     const mockMilestone: Milestone = {
       id: 'ms-1',
-      roadmap_id: 'roadmap-1',
       goal_id: 'goal-1',
       order_index: 1,
       title: 'Build base endurance',
@@ -465,7 +464,6 @@ describe('GenerationService', () => {
   describe('generateWeeklyTasks', () => {
     const mockWeeklyPlan = {
       id: 'plan-1',
-      roadmap_id: 'roadmap-1',
       milestone_id: 'ms-1',
       goal_id: 'goal-1',
       user_id: 'user-1',
