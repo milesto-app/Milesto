@@ -2,12 +2,11 @@
 
 ## Project Overview
 
-Next.js 15 admin dashboard and public pages for Momentum (momentum-ai.app). Uses App Router, TypeScript, Tailwind CSS v4, and shadcn/ui.
+Next.js admin dashboard and public pages for Momentum (momentum-ai.app). Uses App Router, TypeScript, Tailwind CSS v4, and shadcn/ui.
 
 ## Commands
 
 ```bash
-bun dev                    # Dev server (port 3000)
 bun run build              # Production build
 bun run lint               # Lint
 ```
@@ -20,6 +19,7 @@ bun run lint               # Lint
 ## Supabase Clients
 
 Three clients, each for a specific context:
+
 - `lib/supabase/client.ts` -- Browser client (anon key). Used in Client Components for login/logout.
 - `lib/supabase/server.ts` -- Server auth client (anon key + cookies). Used in middleware and Server Components for session checks.
 - `lib/supabase/admin.ts` -- Admin client (service role key). **Server-only.** Used in query functions for dashboard data.
