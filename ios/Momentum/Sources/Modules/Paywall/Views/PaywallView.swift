@@ -119,7 +119,7 @@ struct PaywallView: View {
         HStack(spacing: 12) {
             PlanCard(
                 titleKey: "paywall.plan.quarterly.title",
-                price: subscription.quarterlyProduct?.displayPrice ?? "$44.99",
+                price: subscription.quarterlyProduct?.displayPrice ?? "—",
                 periodKey: "paywall.plan.quarterly.period",
                 footnoteKey: "paywall.plan.quarterly.trial",
                 badgeKey: "paywall.plan.save",
@@ -129,7 +129,7 @@ struct PaywallView: View {
 
             PlanCard(
                 titleKey: "paywall.plan.monthly.title",
-                price: subscription.monthlyProduct?.displayPrice ?? "$19.99",
+                price: subscription.monthlyProduct?.displayPrice ?? "—",
                 periodKey: "paywall.plan.monthly.period",
                 footnoteKey: nil,
                 badgeKey: nil,
@@ -146,6 +146,7 @@ struct PaywallView: View {
             PaywallCTAButton(
                 titleKey: isQuarterlySelected ? "paywall.cta.trial" : "paywall.cta.subscribe",
                 isLoading: subscription.isPurchasing,
+                isDisabled: selectedProduct == nil,
                 action: {
                     Task {
                         guard let product = selectedProduct else { return }
@@ -180,10 +181,10 @@ struct PaywallView: View {
 
     private var termsLine: String {
         if isQuarterlySelected {
-            let price = subscription.quarterlyProduct?.displayPrice ?? "$44.99"
+            guard let price = subscription.quarterlyProduct?.displayPrice else { return "" }
             return String(format: String(localized: "paywall.terms.trial.quarterly", table: "Paywall"), price)
         } else {
-            let price = subscription.monthlyProduct?.displayPrice ?? "$19.99"
+            guard let price = subscription.monthlyProduct?.displayPrice else { return "" }
             return String(format: String(localized: "paywall.terms.monthly", table: "Paywall"), price)
         }
     }
@@ -378,6 +379,7 @@ private struct PlanCard: View {
 private struct PaywallCTAButton: View {
     let titleKey: LocalizedStringKey
     let isLoading: Bool
+    let isDisabled: Bool
     let action: () -> Void
 
     var body: some View {
@@ -400,10 +402,11 @@ private struct PaywallCTAButton: View {
                 RoundedRectangle(cornerRadius: 14)
                     .fill(Color("TintPrimary"))
             )
+            .opacity(isDisabled ? 0.5 : 1)
             .shadow(color: Color("TintPrimary").opacity(0.28), radius: 18, x: 0, y: 8)
         }
         .buttonStyle(PaywallPressStyle())
-        .disabled(isLoading)
+        .disabled(isLoading || isDisabled)
     }
 }
 
