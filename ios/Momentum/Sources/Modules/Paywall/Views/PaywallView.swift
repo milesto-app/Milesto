@@ -110,6 +110,7 @@ struct PaywallView: View {
             PaywallFeatureRow(icon: .compass, labelKey: "paywall.feature.roadmap")
             PaywallFeatureRow(icon: .brain, labelKey: "paywall.feature.chat")
             PaywallFeatureRow(icon: .trophy, labelKey: "paywall.feature.stats")
+            PaywallFeatureRow(icon: .sparkles, labelKey: "paywall.feature.adaptive")
         }
     }
 
