@@ -6,11 +6,11 @@ import Supabase
 
 private let subscriptionLogger = Logger(subsystem: Bundle.main.bundleIdentifier ?? "app.momentum-ai", category: "Subscription")
 
-struct VerifySubscriptionBody: Encodable {
+nonisolated struct VerifySubscriptionBody: Encodable, Sendable {
     let jwsTransaction: String
 }
 
-struct SubscriptionStatusResponse: Decodable {
+nonisolated struct SubscriptionStatusResponse: Decodable, Sendable {
     let status: String
     let expiresAt: String?
     let productId: String?
