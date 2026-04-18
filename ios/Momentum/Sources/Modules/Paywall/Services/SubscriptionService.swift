@@ -117,7 +117,7 @@ final class SubscriptionService: ObservableObject {
             switch result {
             case let .success(verification):
                 if case let .verified(tx) = verification {
-                    await syncTransactionWithRetry(tx)
+                    await syncTransactionWithRetry(jws: verification.jwsRepresentation)
                     await tx.finish()
                     entitlementState = .subscribed
                 }
@@ -140,9 +140,9 @@ final class SubscriptionService: ObservableObject {
         await reconcileWithBackend()
     }
 
-    private func syncTransactionWithRetry(_ tx: Transaction) async {
+    private func syncTransactionWithRetry(jws: String) async {
         let delaysNanos: [UInt64] = [1_000_000_000, 2_000_000_000, 3_000_000_000]
-        let body = VerifySubscriptionBody(jwsTransaction: tx.jwsRepresentation)
+        let body = VerifySubscriptionBody(jwsTransaction: jws)
 
         for (index, delay) in delaysNanos.enumerated() {
             if Task.isCancelled { return }
@@ -158,7 +158,7 @@ final class SubscriptionService: ObservableObject {
         }
 
         subscriptionLogger.debug("verify failed after retries, enqueueing")
-        await SubscriptionSyncOutbox.shared.enqueue(jws: tx.jwsRepresentation, userId: await currentUserId())
+        await SubscriptionSyncOutbox.shared.enqueue(jws: jws, userId: await currentUserId())
     }
 
     private func currentUserId() async -> String? {
@@ -177,7 +177,7 @@ final class SubscriptionService: ObservableObject {
                 await tx.finish()
                 continue
             }
-            await syncTransactionWithRetry(tx)
+            await syncTransactionWithRetry(jws: result.jwsRepresentation)
             await tx.finish()
         }
     }
@@ -192,16 +192,14 @@ final class SubscriptionService: ObservableObject {
         }
 
         let backendActive = response.status == "active" || response.status == "grace_period"
-        let localEntitlement = await currentVerifiedEntitlement()
-        let localEntitled = localEntitlement != nil
 
         if backendActive {
             entitlementState = .subscribed
             return
         }
 
-        if localEntitled, let tx = localEntitlement {
-            await syncTransactionWithRetry(tx)
+        if let entitlement = await currentVerifiedEntitlement() {
+            await syncTransactionWithRetry(jws: entitlement.jws)
             let refetched: SubscriptionStatusResponse
             do {
                 refetched = try await BackendClient.shared.request(method: "GET", path: "subscription/status")
@@ -217,12 +215,12 @@ final class SubscriptionService: ObservableObject {
         entitlementState = .notSubscribed
     }
 
-    private func currentVerifiedEntitlement() async -> Transaction? {
+    private func currentVerifiedEntitlement() async -> (transaction: Transaction, jws: String)? {
         for await result in Transaction.currentEntitlements {
             guard case let .verified(tx) = result else { continue }
             guard [Self.monthlyProductId, Self.quarterlyProductId].contains(tx.productID) else { continue }
             guard tx.revocationDate == nil, !tx.isUpgraded else { continue }
-            return tx
+            return (tx, result.jwsRepresentation)
         }
         return nil
     }
@@ -231,13 +229,13 @@ final class SubscriptionService: ObservableObject {
         Task { [weak self] in
             for await result in Transaction.updates {
                 guard case let .verified(tx) = result else { continue }
-                await self?.handleTransactionUpdate(tx)
+                await self?.handleTransactionUpdate(tx, jws: result.jwsRepresentation)
             }
         }
     }
 
-    private func handleTransactionUpdate(_ tx: Transaction) async {
-        await syncTransactionWithRetry(tx)
+    private func handleTransactionUpdate(_ tx: Transaction, jws: String) async {
+        await syncTransactionWithRetry(jws: jws)
         await tx.finish()
         await refreshEntitlement()
     }
