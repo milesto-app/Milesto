@@ -72,9 +72,22 @@ struct WeeklyTaskDetailView: View {
         .animation(.easeOut(duration: 0.45), value: appeared)
         .onAppear { appeared = true }
         .onChange(of: tasks.map(\.id)) { _, liveIds in
-            if orderedIds.indices.contains(currentIndex),
-               !liveIds.contains(orderedIds[currentIndex]) {
+            let liveSet = Set(liveIds)
+            let visibleId = orderedIds.indices.contains(currentIndex) ? orderedIds[currentIndex] : nil
+
+            guard let visibleId else {
                 dismiss()
+                return
+            }
+            guard liveSet.contains(visibleId) else {
+                dismiss()
+                return
+            }
+
+            let reconciled = orderedIds.filter { liveSet.contains($0) }
+            if reconciled != orderedIds {
+                orderedIds = reconciled
+                currentIndex = reconciled.firstIndex(of: visibleId) ?? 0
             }
         }
     }
