@@ -163,7 +163,7 @@ Return ONLY a raw JSON object — no markdown fences, no surrounding text, no ex
   "analysis": "First, list every topic/dimension already covered by prior questions (e.g., 'schedule: covered in batch 2 Q3', 'motivation: covered in batch 1 Q4'). Then identify 1-2 threads worth following into NEW territory, and what signals you detected.",
   "questions": [
     {
-      "question_text": "Your question here?",
+      "question_text": "Your question here? (MAX 140 characters including spaces and punctuation — longer questions get rejected)",
       "question_type": "text|scale|single_choice|multiple_choice",
       "config": null | { "min": number, "max": number, "min_label": string, "max_label": string } | { "options": ["opt1", "opt2", ...] },
       "order_in_batch": 1
@@ -191,6 +191,7 @@ function buildTypesAndRules(params: {
 <rules>
 - Generate between ${min} and ${max} questions per batch.
 - Every question_text MUST end with a question mark (?).
+- Every question_text MUST be 140 characters or fewer (including spaces and punctuation). Long questions do not fit on the user's screen and will be rejected. Write tight, specific questions — if a question feels too long, cut preamble and context-setting, keep only the actual question. Translations into other languages must also stay under 140 characters.
 - Use at least 2 different question_types per batch. Target this mix: ~40% text, ~40% choice (single or multiple), ~20% scale. Text questions are valuable — don't shy away from them.
 - ZERO REDUNDANCY (see <zero_redundancy> section above): Every question must target information that does NOT exist in prior responses. If a prior question already touched a topic — even partially — do not ask about it again. When in doubt, skip it.
 - order_in_batch starts at 1 and increments sequentially.

@@ -43,3 +43,29 @@ describe('CoachService.getCoach', () => {
     );
   });
 });
+
+describe('CoachService.listPublicCoaches', () => {
+  it('should strip elevenlabsVoiceId from every coach', () => {
+    const result = service.listPublicCoaches();
+
+    expect(result.length).toBe(COACHES.length);
+    for (const coach of result) {
+      expect(coach).not.toHaveProperty('elevenlabsVoiceId');
+    }
+  });
+});
+
+describe('CoachService.getPublicCoach', () => {
+  it('should strip elevenlabsVoiceId when coach found', () => {
+    const result = service.getPublicCoach(EXISTING_COACH_ID);
+
+    expect(result.id).toBe(EXISTING_COACH_ID);
+    expect(result).not.toHaveProperty('elevenlabsVoiceId');
+  });
+
+  it('should throw NotFoundException when coach not found', () => {
+    expect(() => service.getPublicCoach(NONEXISTENT_COACH_ID)).toThrow(
+      NotFoundException,
+    );
+  });
+});
