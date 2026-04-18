@@ -5,870 +5,873 @@ export type Json =
   | boolean
   | null
   | { [key: string]: Json | undefined }
-  | Json[]
+  | Json[];
 
 export type Database = {
   // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
-    PostgrestVersion: "14.1"
-  }
+    PostgrestVersion: '14.1';
+  };
   public: {
     Tables: {
       coach_memories: {
         Row: {
-          content: string
-          goal_id: string
-          id: string
-          updated_at: string
-          user_id: string
-        }
+          content: string;
+          goal_id: string;
+          id: string;
+          updated_at: string;
+          user_id: string;
+        };
         Insert: {
-          content?: string
-          goal_id: string
-          id?: string
-          updated_at?: string
-          user_id: string
-        }
+          content?: string;
+          goal_id: string;
+          id?: string;
+          updated_at?: string;
+          user_id: string;
+        };
         Update: {
-          content?: string
-          goal_id?: string
-          id?: string
-          updated_at?: string
-          user_id?: string
-        }
+          content?: string;
+          goal_id?: string;
+          id?: string;
+          updated_at?: string;
+          user_id?: string;
+        };
         Relationships: [
           {
-            foreignKeyName: "coach_memories_goal_id_fkey"
-            columns: ["goal_id"]
-            isOneToOne: false
-            referencedRelation: "goals"
-            referencedColumns: ["id"]
+            foreignKeyName: 'coach_memories_goal_id_fkey';
+            columns: ['goal_id'];
+            isOneToOne: false;
+            referencedRelation: 'goals';
+            referencedColumns: ['id'];
           },
-        ]
-      }
+        ];
+      };
       context_embeddings: {
         Row: {
-          batch_id: string | null
-          content_text: string
-          content_type: string
-          created_at: string
-          embedding: string
-          goal_id: string
-          id: string
-          metadata: Json | null
-          user_id: string
-        }
+          batch_id: string | null;
+          content_text: string;
+          content_type: string;
+          created_at: string;
+          embedding: string;
+          goal_id: string;
+          id: string;
+          metadata: Json | null;
+          user_id: string;
+        };
         Insert: {
-          batch_id?: string | null
-          content_text: string
-          content_type?: string
-          created_at?: string
-          embedding: string
-          goal_id: string
-          id?: string
-          metadata?: Json | null
-          user_id: string
-        }
+          batch_id?: string | null;
+          content_text: string;
+          content_type?: string;
+          created_at?: string;
+          embedding: string;
+          goal_id: string;
+          id?: string;
+          metadata?: Json | null;
+          user_id: string;
+        };
         Update: {
-          batch_id?: string | null
-          content_text?: string
-          content_type?: string
-          created_at?: string
-          embedding?: string
-          goal_id?: string
-          id?: string
-          metadata?: Json | null
-          user_id?: string
-        }
+          batch_id?: string | null;
+          content_text?: string;
+          content_type?: string;
+          created_at?: string;
+          embedding?: string;
+          goal_id?: string;
+          id?: string;
+          metadata?: Json | null;
+          user_id?: string;
+        };
         Relationships: [
           {
-            foreignKeyName: "context_embeddings_batch_id_fkey"
-            columns: ["batch_id"]
-            isOneToOne: false
-            referencedRelation: "intake_batches"
-            referencedColumns: ["id"]
+            foreignKeyName: 'context_embeddings_batch_id_fkey';
+            columns: ['batch_id'];
+            isOneToOne: false;
+            referencedRelation: 'intake_batches';
+            referencedColumns: ['id'];
           },
           {
-            foreignKeyName: "context_embeddings_goal_id_fkey"
-            columns: ["goal_id"]
-            isOneToOne: false
-            referencedRelation: "goals"
-            referencedColumns: ["id"]
+            foreignKeyName: 'context_embeddings_goal_id_fkey';
+            columns: ['goal_id'];
+            isOneToOne: false;
+            referencedRelation: 'goals';
+            referencedColumns: ['id'];
           },
-        ]
-      }
+        ];
+      };
       conversations: {
         Row: {
-          created_at: string
-          goal_id: string
-          id: string
-          updated_at: string
-          user_id: string
-        }
+          created_at: string;
+          goal_id: string;
+          id: string;
+          updated_at: string;
+          user_id: string;
+        };
         Insert: {
-          created_at?: string
-          goal_id: string
-          id?: string
-          updated_at?: string
-          user_id: string
-        }
+          created_at?: string;
+          goal_id: string;
+          id?: string;
+          updated_at?: string;
+          user_id: string;
+        };
         Update: {
-          created_at?: string
-          goal_id?: string
-          id?: string
-          updated_at?: string
-          user_id?: string
-        }
+          created_at?: string;
+          goal_id?: string;
+          id?: string;
+          updated_at?: string;
+          user_id?: string;
+        };
         Relationships: [
           {
-            foreignKeyName: "conversations_goal_id_fkey"
-            columns: ["goal_id"]
-            isOneToOne: false
-            referencedRelation: "goals"
-            referencedColumns: ["id"]
+            foreignKeyName: 'conversations_goal_id_fkey';
+            columns: ['goal_id'];
+            isOneToOne: false;
+            referencedRelation: 'goals';
+            referencedColumns: ['id'];
           },
-        ]
-      }
+        ];
+      };
       debriefs: {
         Row: {
-          created_at: string | null
-          date: string
-          goal_id: string
-          id: string
-          note: string
-          task_ratings: Json | null
-          user_id: string
-          weekly_plan_id: string | null
-        }
+          created_at: string | null;
+          date: string;
+          goal_id: string;
+          id: string;
+          note: string;
+          task_ratings: Json | null;
+          user_id: string;
+          weekly_plan_id: string | null;
+        };
         Insert: {
-          created_at?: string | null
-          date: string
-          goal_id: string
-          id?: string
-          note: string
-          task_ratings?: Json | null
-          user_id: string
-          weekly_plan_id?: string | null
-        }
+          created_at?: string | null;
+          date: string;
+          goal_id: string;
+          id?: string;
+          note: string;
+          task_ratings?: Json | null;
+          user_id: string;
+          weekly_plan_id?: string | null;
+        };
         Update: {
-          created_at?: string | null
-          date?: string
-          goal_id?: string
-          id?: string
-          note?: string
-          task_ratings?: Json | null
-          user_id?: string
-          weekly_plan_id?: string | null
-        }
+          created_at?: string | null;
+          date?: string;
+          goal_id?: string;
+          id?: string;
+          note?: string;
+          task_ratings?: Json | null;
+          user_id?: string;
+          weekly_plan_id?: string | null;
+        };
         Relationships: [
           {
-            foreignKeyName: "debriefs_goal_id_fkey"
-            columns: ["goal_id"]
-            isOneToOne: false
-            referencedRelation: "goals"
-            referencedColumns: ["id"]
+            foreignKeyName: 'debriefs_goal_id_fkey';
+            columns: ['goal_id'];
+            isOneToOne: false;
+            referencedRelation: 'goals';
+            referencedColumns: ['id'];
           },
           {
-            foreignKeyName: "debriefs_weekly_plan_id_fkey"
-            columns: ["weekly_plan_id"]
-            isOneToOne: false
-            referencedRelation: "weekly_plans"
-            referencedColumns: ["id"]
+            foreignKeyName: 'debriefs_weekly_plan_id_fkey';
+            columns: ['weekly_plan_id'];
+            isOneToOne: false;
+            referencedRelation: 'weekly_plans';
+            referencedColumns: ['id'];
           },
-        ]
-      }
+        ];
+      };
       device_tokens: {
         Row: {
-          created_at: string
-          environment: string
-          id: string
-          platform: string
-          token: string
-          updated_at: string
-          user_id: string
-        }
+          created_at: string;
+          environment: string;
+          id: string;
+          platform: string;
+          token: string;
+          updated_at: string;
+          user_id: string;
+        };
         Insert: {
-          created_at?: string
-          environment?: string
-          id?: string
-          platform?: string
-          token: string
-          updated_at?: string
-          user_id: string
-        }
+          created_at?: string;
+          environment?: string;
+          id?: string;
+          platform?: string;
+          token: string;
+          updated_at?: string;
+          user_id: string;
+        };
         Update: {
-          created_at?: string
-          environment?: string
-          id?: string
-          platform?: string
-          token?: string
-          updated_at?: string
-          user_id?: string
-        }
-        Relationships: []
-      }
+          created_at?: string;
+          environment?: string;
+          id?: string;
+          platform?: string;
+          token?: string;
+          updated_at?: string;
+          user_id?: string;
+        };
+        Relationships: [];
+      };
       generation_usage: {
         Row: {
-          created_at: string
-          generation_type: string
-          id: string
-          usage_date: string
-          user_id: string
-        }
+          created_at: string;
+          generation_type: string;
+          id: string;
+          usage_date: string;
+          user_id: string;
+        };
         Insert: {
-          created_at?: string
-          generation_type: string
-          id?: string
-          usage_date?: string
-          user_id: string
-        }
+          created_at?: string;
+          generation_type: string;
+          id?: string;
+          usage_date?: string;
+          user_id: string;
+        };
         Update: {
-          created_at?: string
-          generation_type?: string
-          id?: string
-          usage_date?: string
-          user_id?: string
-        }
-        Relationships: []
-      }
+          created_at?: string;
+          generation_type?: string;
+          id?: string;
+          usage_date?: string;
+          user_id?: string;
+        };
+        Relationships: [];
+      };
       goals: {
         Row: {
-          created_at: string
-          deleted_at: string | null
-          description: string
-          id: string
-          narrative_summary: string | null
-          profile_created_at: string | null
-          profile_data: Json | null
-          profile_embedded: boolean
-          profile_generation_attempts: number
-          roadmap_created_at: string | null
-          roadmap_generation_attempts: number
-          roadmap_generation_metadata: Json | null
-          roadmap_model_used: string | null
-          roadmap_quality_scores: Json | null
-          roadmap_status: string | null
-          roadmap_updated_at: string | null
-          status: string
-          target_date: string | null
-          title: string
-          updated_at: string
-          user_id: string
-        }
+          created_at: string;
+          deleted_at: string | null;
+          description: string;
+          id: string;
+          narrative_summary: string | null;
+          profile_created_at: string | null;
+          profile_data: Json | null;
+          profile_embedded: boolean;
+          profile_generation_attempts: number;
+          roadmap_created_at: string | null;
+          roadmap_generation_attempts: number;
+          roadmap_generation_metadata: Json | null;
+          roadmap_model_used: string | null;
+          roadmap_quality_scores: Json | null;
+          roadmap_status: string | null;
+          roadmap_updated_at: string | null;
+          status: string;
+          target_date: string | null;
+          title: string;
+          updated_at: string;
+          user_id: string;
+        };
         Insert: {
-          created_at?: string
-          deleted_at?: string | null
-          description: string
-          id?: string
-          narrative_summary?: string | null
-          profile_created_at?: string | null
-          profile_data?: Json | null
-          profile_embedded?: boolean
-          profile_generation_attempts?: number
-          roadmap_created_at?: string | null
-          roadmap_generation_attempts?: number
-          roadmap_generation_metadata?: Json | null
-          roadmap_model_used?: string | null
-          roadmap_quality_scores?: Json | null
-          roadmap_status?: string | null
-          roadmap_updated_at?: string | null
-          status?: string
-          target_date?: string | null
-          title: string
-          updated_at?: string
-          user_id: string
-        }
+          created_at?: string;
+          deleted_at?: string | null;
+          description: string;
+          id?: string;
+          narrative_summary?: string | null;
+          profile_created_at?: string | null;
+          profile_data?: Json | null;
+          profile_embedded?: boolean;
+          profile_generation_attempts?: number;
+          roadmap_created_at?: string | null;
+          roadmap_generation_attempts?: number;
+          roadmap_generation_metadata?: Json | null;
+          roadmap_model_used?: string | null;
+          roadmap_quality_scores?: Json | null;
+          roadmap_status?: string | null;
+          roadmap_updated_at?: string | null;
+          status?: string;
+          target_date?: string | null;
+          title: string;
+          updated_at?: string;
+          user_id: string;
+        };
         Update: {
-          created_at?: string
-          deleted_at?: string | null
-          description?: string
-          id?: string
-          narrative_summary?: string | null
-          profile_created_at?: string | null
-          profile_data?: Json | null
-          profile_embedded?: boolean
-          profile_generation_attempts?: number
-          roadmap_created_at?: string | null
-          roadmap_generation_attempts?: number
-          roadmap_generation_metadata?: Json | null
-          roadmap_model_used?: string | null
-          roadmap_quality_scores?: Json | null
-          roadmap_status?: string | null
-          roadmap_updated_at?: string | null
-          status?: string
-          target_date?: string | null
-          title?: string
-          updated_at?: string
-          user_id?: string
-        }
-        Relationships: []
-      }
+          created_at?: string;
+          deleted_at?: string | null;
+          description?: string;
+          id?: string;
+          narrative_summary?: string | null;
+          profile_created_at?: string | null;
+          profile_data?: Json | null;
+          profile_embedded?: boolean;
+          profile_generation_attempts?: number;
+          roadmap_created_at?: string | null;
+          roadmap_generation_attempts?: number;
+          roadmap_generation_metadata?: Json | null;
+          roadmap_model_used?: string | null;
+          roadmap_quality_scores?: Json | null;
+          roadmap_status?: string | null;
+          roadmap_updated_at?: string | null;
+          status?: string;
+          target_date?: string | null;
+          title?: string;
+          updated_at?: string;
+          user_id?: string;
+        };
+        Relationships: [];
+      };
       intake_batches: {
         Row: {
-          batch_number: number
-          created_at: string
-          embedded: boolean
-          goal_id: string
-          id: string
-          is_answered: boolean
-          is_fallback: boolean
-          quality_score: number | null
-        }
+          batch_number: number;
+          created_at: string;
+          embedded: boolean;
+          goal_id: string;
+          id: string;
+          is_answered: boolean;
+          is_fallback: boolean;
+          quality_score: number | null;
+        };
         Insert: {
-          batch_number: number
-          created_at?: string
-          embedded?: boolean
-          goal_id: string
-          id?: string
-          is_answered?: boolean
-          is_fallback?: boolean
-          quality_score?: number | null
-        }
+          batch_number: number;
+          created_at?: string;
+          embedded?: boolean;
+          goal_id: string;
+          id?: string;
+          is_answered?: boolean;
+          is_fallback?: boolean;
+          quality_score?: number | null;
+        };
         Update: {
-          batch_number?: number
-          created_at?: string
-          embedded?: boolean
-          goal_id?: string
-          id?: string
-          is_answered?: boolean
-          is_fallback?: boolean
-          quality_score?: number | null
-        }
+          batch_number?: number;
+          created_at?: string;
+          embedded?: boolean;
+          goal_id?: string;
+          id?: string;
+          is_answered?: boolean;
+          is_fallback?: boolean;
+          quality_score?: number | null;
+        };
         Relationships: [
           {
-            foreignKeyName: "intake_batches_goal_id_fkey"
-            columns: ["goal_id"]
-            isOneToOne: false
-            referencedRelation: "goals"
-            referencedColumns: ["id"]
+            foreignKeyName: 'intake_batches_goal_id_fkey';
+            columns: ['goal_id'];
+            isOneToOne: false;
+            referencedRelation: 'goals';
+            referencedColumns: ['id'];
           },
-        ]
-      }
+        ];
+      };
       intake_questions: {
         Row: {
-          answer_numeric: number | null
-          answer_text: string | null
-          answered_at: string | null
-          batch_id: string | null
-          batch_number: number
-          config: Json | null
-          created_at: string
-          goal_id: string
-          id: string
-          order_in_batch: number
-          question_text: string
-          question_type: string
-          selected_options: Json | null
-        }
+          answer_numeric: number | null;
+          answer_text: string | null;
+          answered_at: string | null;
+          batch_id: string | null;
+          batch_number: number;
+          config: Json | null;
+          created_at: string;
+          goal_id: string;
+          id: string;
+          order_in_batch: number;
+          question_text: string;
+          question_type: string;
+          selected_options: Json | null;
+        };
         Insert: {
-          answer_numeric?: number | null
-          answer_text?: string | null
-          answered_at?: string | null
-          batch_id?: string | null
-          batch_number: number
-          config?: Json | null
-          created_at?: string
-          goal_id: string
-          id?: string
-          order_in_batch: number
-          question_text: string
-          question_type: string
-          selected_options?: Json | null
-        }
+          answer_numeric?: number | null;
+          answer_text?: string | null;
+          answered_at?: string | null;
+          batch_id?: string | null;
+          batch_number: number;
+          config?: Json | null;
+          created_at?: string;
+          goal_id: string;
+          id?: string;
+          order_in_batch: number;
+          question_text: string;
+          question_type: string;
+          selected_options?: Json | null;
+        };
         Update: {
-          answer_numeric?: number | null
-          answer_text?: string | null
-          answered_at?: string | null
-          batch_id?: string | null
-          batch_number?: number
-          config?: Json | null
-          created_at?: string
-          goal_id?: string
-          id?: string
-          order_in_batch?: number
-          question_text?: string
-          question_type?: string
-          selected_options?: Json | null
-        }
+          answer_numeric?: number | null;
+          answer_text?: string | null;
+          answered_at?: string | null;
+          batch_id?: string | null;
+          batch_number?: number;
+          config?: Json | null;
+          created_at?: string;
+          goal_id?: string;
+          id?: string;
+          order_in_batch?: number;
+          question_text?: string;
+          question_type?: string;
+          selected_options?: Json | null;
+        };
         Relationships: [
           {
-            foreignKeyName: "intake_questions_batch_id_fkey"
-            columns: ["batch_id"]
-            isOneToOne: false
-            referencedRelation: "intake_batches"
-            referencedColumns: ["id"]
+            foreignKeyName: 'intake_questions_batch_id_fkey';
+            columns: ['batch_id'];
+            isOneToOne: false;
+            referencedRelation: 'intake_batches';
+            referencedColumns: ['id'];
           },
           {
-            foreignKeyName: "intake_questions_goal_id_fkey"
-            columns: ["goal_id"]
-            isOneToOne: false
-            referencedRelation: "goals"
-            referencedColumns: ["id"]
+            foreignKeyName: 'intake_questions_goal_id_fkey';
+            columns: ['goal_id'];
+            isOneToOne: false;
+            referencedRelation: 'goals';
+            referencedColumns: ['id'];
           },
-        ]
-      }
+        ];
+      };
       messages: {
         Row: {
-          content: string | null
-          conversation_id: string
-          created_at: string
-          id: string
-          role: string
-          tool_call_id: string | null
-          tool_calls: Json | null
-          tool_name: string | null
-        }
+          content: string | null;
+          conversation_id: string;
+          created_at: string;
+          id: string;
+          role: string;
+          tool_call_id: string | null;
+          tool_calls: Json | null;
+          tool_name: string | null;
+        };
         Insert: {
-          content?: string | null
-          conversation_id: string
-          created_at?: string
-          id?: string
-          role: string
-          tool_call_id?: string | null
-          tool_calls?: Json | null
-          tool_name?: string | null
-        }
+          content?: string | null;
+          conversation_id: string;
+          created_at?: string;
+          id?: string;
+          role: string;
+          tool_call_id?: string | null;
+          tool_calls?: Json | null;
+          tool_name?: string | null;
+        };
         Update: {
-          content?: string | null
-          conversation_id?: string
-          created_at?: string
-          id?: string
-          role?: string
-          tool_call_id?: string | null
-          tool_calls?: Json | null
-          tool_name?: string | null
-        }
+          content?: string | null;
+          conversation_id?: string;
+          created_at?: string;
+          id?: string;
+          role?: string;
+          tool_call_id?: string | null;
+          tool_calls?: Json | null;
+          tool_name?: string | null;
+        };
         Relationships: [
           {
-            foreignKeyName: "messages_conversation_id_fkey"
-            columns: ["conversation_id"]
-            isOneToOne: false
-            referencedRelation: "conversations"
-            referencedColumns: ["id"]
+            foreignKeyName: 'messages_conversation_id_fkey';
+            columns: ['conversation_id'];
+            isOneToOne: false;
+            referencedRelation: 'conversations';
+            referencedColumns: ['id'];
           },
-        ]
-      }
+        ];
+      };
       milestones: {
         Row: {
-          created_at: string | null
-          description: string
-          expected_outcome: string
-          goal_id: string
-          id: string
-          is_monthly_checkpoint: boolean
-          monthly_summary: Json | null
-          order_index: number
-          target_month: number
-          target_week: number
-          title: string
-        }
+          created_at: string | null;
+          description: string;
+          expected_outcome: string;
+          goal_id: string;
+          id: string;
+          is_monthly_checkpoint: boolean;
+          monthly_summary: Json | null;
+          order_index: number;
+          target_month: number;
+          target_week: number;
+          title: string;
+        };
         Insert: {
-          created_at?: string | null
-          description: string
-          expected_outcome: string
-          goal_id: string
-          id?: string
-          is_monthly_checkpoint?: boolean
-          monthly_summary?: Json | null
-          order_index: number
-          target_month: number
-          target_week: number
-          title: string
-        }
+          created_at?: string | null;
+          description: string;
+          expected_outcome: string;
+          goal_id: string;
+          id?: string;
+          is_monthly_checkpoint?: boolean;
+          monthly_summary?: Json | null;
+          order_index: number;
+          target_month: number;
+          target_week: number;
+          title: string;
+        };
         Update: {
-          created_at?: string | null
-          description?: string
-          expected_outcome?: string
-          goal_id?: string
-          id?: string
-          is_monthly_checkpoint?: boolean
-          monthly_summary?: Json | null
-          order_index?: number
-          target_month?: number
-          target_week?: number
-          title?: string
-        }
+          created_at?: string | null;
+          description?: string;
+          expected_outcome?: string;
+          goal_id?: string;
+          id?: string;
+          is_monthly_checkpoint?: boolean;
+          monthly_summary?: Json | null;
+          order_index?: number;
+          target_month?: number;
+          target_week?: number;
+          title?: string;
+        };
         Relationships: [
           {
-            foreignKeyName: "milestones_goal_id_fkey"
-            columns: ["goal_id"]
-            isOneToOne: false
-            referencedRelation: "goals"
-            referencedColumns: ["id"]
+            foreignKeyName: 'milestones_goal_id_fkey';
+            columns: ['goal_id'];
+            isOneToOne: false;
+            referencedRelation: 'goals';
+            referencedColumns: ['id'];
           },
-        ]
-      }
+        ];
+      };
       processed_notifications: {
         Row: {
-          notification_type: string
-          notification_uuid: string
-          received_at: string
-          subtype: string | null
-        }
+          notification_type: string;
+          notification_uuid: string;
+          received_at: string;
+          subtype: string | null;
+        };
         Insert: {
-          notification_type: string
-          notification_uuid: string
-          received_at?: string
-          subtype?: string | null
-        }
+          notification_type: string;
+          notification_uuid: string;
+          received_at?: string;
+          subtype?: string | null;
+        };
         Update: {
-          notification_type?: string
-          notification_uuid?: string
-          received_at?: string
-          subtype?: string | null
-        }
-        Relationships: []
-      }
+          notification_type?: string;
+          notification_uuid?: string;
+          received_at?: string;
+          subtype?: string | null;
+        };
+        Relationships: [];
+      };
       profiles: {
         Row: {
-          coach_id: number | null
-          created_at: string | null
-          date_of_birth: string | null
-          first_name: string | null
-          id: string
-          language: string | null
-          last_name: string | null
-          subscription_apple_signed_at: string | null
-          subscription_auto_renew_status: boolean | null
-          subscription_environment: string | null
-          subscription_expires_at: string | null
-          subscription_original_transaction_id: string | null
-          subscription_product_id: string | null
-          subscription_status: string
-          subscription_verified_at: string | null
-          timezone: string | null
-          updated_at: string | null
-        }
+          coach_id: number | null;
+          created_at: string | null;
+          date_of_birth: string | null;
+          first_name: string | null;
+          id: string;
+          language: string | null;
+          last_name: string | null;
+          subscription_apple_signed_at: string | null;
+          subscription_auto_renew_status: boolean | null;
+          subscription_environment: string | null;
+          subscription_expires_at: string | null;
+          subscription_original_transaction_id: string | null;
+          subscription_product_id: string | null;
+          subscription_status: string;
+          subscription_verified_at: string | null;
+          timezone: string | null;
+          updated_at: string | null;
+        };
         Insert: {
-          coach_id?: number | null
-          created_at?: string | null
-          date_of_birth?: string | null
-          first_name?: string | null
-          id: string
-          language?: string | null
-          last_name?: string | null
-          subscription_apple_signed_at?: string | null
-          subscription_auto_renew_status?: boolean | null
-          subscription_environment?: string | null
-          subscription_expires_at?: string | null
-          subscription_original_transaction_id?: string | null
-          subscription_product_id?: string | null
-          subscription_status?: string
-          subscription_verified_at?: string | null
-          timezone?: string | null
-          updated_at?: string | null
-        }
+          coach_id?: number | null;
+          created_at?: string | null;
+          date_of_birth?: string | null;
+          first_name?: string | null;
+          id: string;
+          language?: string | null;
+          last_name?: string | null;
+          subscription_apple_signed_at?: string | null;
+          subscription_auto_renew_status?: boolean | null;
+          subscription_environment?: string | null;
+          subscription_expires_at?: string | null;
+          subscription_original_transaction_id?: string | null;
+          subscription_product_id?: string | null;
+          subscription_status?: string;
+          subscription_verified_at?: string | null;
+          timezone?: string | null;
+          updated_at?: string | null;
+        };
         Update: {
-          coach_id?: number | null
-          created_at?: string | null
-          date_of_birth?: string | null
-          first_name?: string | null
-          id?: string
-          language?: string | null
-          last_name?: string | null
-          subscription_apple_signed_at?: string | null
-          subscription_auto_renew_status?: boolean | null
-          subscription_environment?: string | null
-          subscription_expires_at?: string | null
-          subscription_original_transaction_id?: string | null
-          subscription_product_id?: string | null
-          subscription_status?: string
-          subscription_verified_at?: string | null
-          timezone?: string | null
-          updated_at?: string | null
-        }
-        Relationships: []
-      }
+          coach_id?: number | null;
+          created_at?: string | null;
+          date_of_birth?: string | null;
+          first_name?: string | null;
+          id?: string;
+          language?: string | null;
+          last_name?: string | null;
+          subscription_apple_signed_at?: string | null;
+          subscription_auto_renew_status?: boolean | null;
+          subscription_environment?: string | null;
+          subscription_expires_at?: string | null;
+          subscription_original_transaction_id?: string | null;
+          subscription_product_id?: string | null;
+          subscription_status?: string;
+          subscription_verified_at?: string | null;
+          timezone?: string | null;
+          updated_at?: string | null;
+        };
+        Relationships: [];
+      };
       weekly_plans: {
         Row: {
-          created_at: string | null
-          generation_context: Json | null
-          generation_metadata: Json | null
-          goal_id: string
-          id: string
-          is_fallback: boolean
-          milestone_id: string
-          model_used: string | null
-          objectives: Json
-          quality_scores: Json | null
-          status: string
-          summary: Json | null
-          user_id: string
-          week_number: number
-          week_start_date: string
-        }
+          created_at: string | null;
+          generation_context: Json | null;
+          generation_metadata: Json | null;
+          goal_id: string;
+          id: string;
+          is_fallback: boolean;
+          milestone_id: string;
+          model_used: string | null;
+          objectives: Json;
+          quality_scores: Json | null;
+          status: string;
+          summary: Json | null;
+          user_id: string;
+          week_number: number;
+          week_start_date: string;
+        };
         Insert: {
-          created_at?: string | null
-          generation_context?: Json | null
-          generation_metadata?: Json | null
-          goal_id: string
-          id?: string
-          is_fallback?: boolean
-          milestone_id: string
-          model_used?: string | null
-          objectives?: Json
-          quality_scores?: Json | null
-          status?: string
-          summary?: Json | null
-          user_id: string
-          week_number: number
-          week_start_date: string
-        }
+          created_at?: string | null;
+          generation_context?: Json | null;
+          generation_metadata?: Json | null;
+          goal_id: string;
+          id?: string;
+          is_fallback?: boolean;
+          milestone_id: string;
+          model_used?: string | null;
+          objectives?: Json;
+          quality_scores?: Json | null;
+          status?: string;
+          summary?: Json | null;
+          user_id: string;
+          week_number: number;
+          week_start_date: string;
+        };
         Update: {
-          created_at?: string | null
-          generation_context?: Json | null
-          generation_metadata?: Json | null
-          goal_id?: string
-          id?: string
-          is_fallback?: boolean
-          milestone_id?: string
-          model_used?: string | null
-          objectives?: Json
-          quality_scores?: Json | null
-          status?: string
-          summary?: Json | null
-          user_id?: string
-          week_number?: number
-          week_start_date?: string
-        }
+          created_at?: string | null;
+          generation_context?: Json | null;
+          generation_metadata?: Json | null;
+          goal_id?: string;
+          id?: string;
+          is_fallback?: boolean;
+          milestone_id?: string;
+          model_used?: string | null;
+          objectives?: Json;
+          quality_scores?: Json | null;
+          status?: string;
+          summary?: Json | null;
+          user_id?: string;
+          week_number?: number;
+          week_start_date?: string;
+        };
         Relationships: [
           {
-            foreignKeyName: "weekly_plans_goal_id_fkey"
-            columns: ["goal_id"]
-            isOneToOne: false
-            referencedRelation: "goals"
-            referencedColumns: ["id"]
+            foreignKeyName: 'weekly_plans_goal_id_fkey';
+            columns: ['goal_id'];
+            isOneToOne: false;
+            referencedRelation: 'goals';
+            referencedColumns: ['id'];
           },
           {
-            foreignKeyName: "weekly_plans_milestone_id_fkey"
-            columns: ["milestone_id"]
-            isOneToOne: false
-            referencedRelation: "milestones"
-            referencedColumns: ["id"]
+            foreignKeyName: 'weekly_plans_milestone_id_fkey';
+            columns: ['milestone_id'];
+            isOneToOne: false;
+            referencedRelation: 'milestones';
+            referencedColumns: ['id'];
           },
-        ]
-      }
+        ];
+      };
       weekly_tasks: {
         Row: {
-          created_at: string | null
-          description: string
-          difficulty_rating: string | null
-          goal_id: string
-          id: string
-          is_completed: boolean
-          is_fallback: boolean
-          order_index: number
-          quality_scores: Json | null
-          title: string
-          user_id: string
-          weekly_plan_id: string
-        }
+          created_at: string | null;
+          description: string;
+          difficulty_rating: string | null;
+          goal_id: string;
+          id: string;
+          is_completed: boolean;
+          is_fallback: boolean;
+          order_index: number;
+          quality_scores: Json | null;
+          title: string;
+          user_id: string;
+          weekly_plan_id: string;
+        };
         Insert: {
-          created_at?: string | null
-          description: string
-          difficulty_rating?: string | null
-          goal_id: string
-          id?: string
-          is_completed?: boolean
-          is_fallback?: boolean
-          order_index: number
-          quality_scores?: Json | null
-          title: string
-          user_id: string
-          weekly_plan_id: string
-        }
+          created_at?: string | null;
+          description: string;
+          difficulty_rating?: string | null;
+          goal_id: string;
+          id?: string;
+          is_completed?: boolean;
+          is_fallback?: boolean;
+          order_index: number;
+          quality_scores?: Json | null;
+          title: string;
+          user_id: string;
+          weekly_plan_id: string;
+        };
         Update: {
-          created_at?: string | null
-          description?: string
-          difficulty_rating?: string | null
-          goal_id?: string
-          id?: string
-          is_completed?: boolean
-          is_fallback?: boolean
-          order_index?: number
-          quality_scores?: Json | null
-          title?: string
-          user_id?: string
-          weekly_plan_id?: string
-        }
+          created_at?: string | null;
+          description?: string;
+          difficulty_rating?: string | null;
+          goal_id?: string;
+          id?: string;
+          is_completed?: boolean;
+          is_fallback?: boolean;
+          order_index?: number;
+          quality_scores?: Json | null;
+          title?: string;
+          user_id?: string;
+          weekly_plan_id?: string;
+        };
         Relationships: [
           {
-            foreignKeyName: "weekly_tasks_goal_id_fkey"
-            columns: ["goal_id"]
-            isOneToOne: false
-            referencedRelation: "goals"
-            referencedColumns: ["id"]
+            foreignKeyName: 'weekly_tasks_goal_id_fkey';
+            columns: ['goal_id'];
+            isOneToOne: false;
+            referencedRelation: 'goals';
+            referencedColumns: ['id'];
           },
           {
-            foreignKeyName: "weekly_tasks_weekly_plan_id_fkey"
-            columns: ["weekly_plan_id"]
-            isOneToOne: false
-            referencedRelation: "weekly_plans"
-            referencedColumns: ["id"]
+            foreignKeyName: 'weekly_tasks_weekly_plan_id_fkey';
+            columns: ['weekly_plan_id'];
+            isOneToOne: false;
+            referencedRelation: 'weekly_plans';
+            referencedColumns: ['id'];
           },
-        ]
-      }
-    }
+        ];
+      };
+    };
     Views: {
-      [_ in never]: never
-    }
+      [_ in never]: never;
+    };
     Functions: {
       match_goal_context: {
         Args: {
-          match_count?: number
-          match_threshold?: number
-          p_content_types?: string[]
-          p_goal_id: string
-          p_user_id: string
-          query_embedding: string
-        }
+          match_count?: number;
+          match_threshold?: number;
+          p_content_types?: string[];
+          p_goal_id: string;
+          p_user_id: string;
+          query_embedding: string;
+        };
         Returns: {
-          content_text: string
-          content_type: string
-          id: string
-          metadata: Json
-          similarity: number
-        }[]
-      }
+          content_text: string;
+          content_type: string;
+          id: string;
+          metadata: Json;
+          similarity: number;
+        }[];
+      };
       reserve_generation: {
         Args: {
-          p_free_limit: number
-          p_pro_limit: number
-          p_type: string
-          p_user_id: string
-        }
-        Returns: Json
-      }
-    }
+          p_free_limit: number;
+          p_pro_limit: number;
+          p_type: string;
+          p_user_id: string;
+        };
+        Returns: Json;
+      };
+    };
     Enums: {
-      [_ in never]: never
-    }
+      [_ in never]: never;
+    };
     CompositeTypes: {
-      [_ in never]: never
-    }
-  }
-}
+      [_ in never]: never;
+    };
+  };
+};
 
-type DatabaseWithoutInternals = Omit<Database, "__InternalSupabase">
+type DatabaseWithoutInternals = Omit<Database, '__InternalSupabase'>;
 
-type DefaultSchema = DatabaseWithoutInternals[Extract<keyof Database, "public">]
+type DefaultSchema = DatabaseWithoutInternals[Extract<
+  keyof Database,
+  'public'
+>];
 
 export type Tables<
   DefaultSchemaTableNameOrOptions extends
-    | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
+    | keyof (DefaultSchema['Tables'] & DefaultSchema['Views'])
     | { schema: keyof DatabaseWithoutInternals },
   TableName extends DefaultSchemaTableNameOrOptions extends {
-    schema: keyof DatabaseWithoutInternals
+    schema: keyof DatabaseWithoutInternals;
   }
-    ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
-        DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
+    ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions['schema']]['Tables'] &
+        DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions['schema']]['Views'])
     : never = never,
 > = DefaultSchemaTableNameOrOptions extends {
-  schema: keyof DatabaseWithoutInternals
+  schema: keyof DatabaseWithoutInternals;
 }
-  ? (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
-      DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])[TableName] extends {
-      Row: infer R
+  ? (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions['schema']]['Tables'] &
+      DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions['schema']]['Views'])[TableName] extends {
+      Row: infer R;
     }
     ? R
     : never
-  : DefaultSchemaTableNameOrOptions extends keyof (DefaultSchema["Tables"] &
-        DefaultSchema["Views"])
-    ? (DefaultSchema["Tables"] &
-        DefaultSchema["Views"])[DefaultSchemaTableNameOrOptions] extends {
-        Row: infer R
+  : DefaultSchemaTableNameOrOptions extends keyof (DefaultSchema['Tables'] &
+        DefaultSchema['Views'])
+    ? (DefaultSchema['Tables'] &
+        DefaultSchema['Views'])[DefaultSchemaTableNameOrOptions] extends {
+        Row: infer R;
       }
       ? R
       : never
-    : never
+    : never;
 
 export type TablesInsert<
   DefaultSchemaTableNameOrOptions extends
-    | keyof DefaultSchema["Tables"]
+    | keyof DefaultSchema['Tables']
     | { schema: keyof DatabaseWithoutInternals },
   TableName extends DefaultSchemaTableNameOrOptions extends {
-    schema: keyof DatabaseWithoutInternals
+    schema: keyof DatabaseWithoutInternals;
   }
-    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
+    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions['schema']]['Tables']
     : never = never,
 > = DefaultSchemaTableNameOrOptions extends {
-  schema: keyof DatabaseWithoutInternals
+  schema: keyof DatabaseWithoutInternals;
 }
-  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
-      Insert: infer I
+  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions['schema']]['Tables'][TableName] extends {
+      Insert: infer I;
     }
     ? I
     : never
-  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
-    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
-        Insert: infer I
+  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema['Tables']
+    ? DefaultSchema['Tables'][DefaultSchemaTableNameOrOptions] extends {
+        Insert: infer I;
       }
       ? I
       : never
-    : never
+    : never;
 
 export type TablesUpdate<
   DefaultSchemaTableNameOrOptions extends
-    | keyof DefaultSchema["Tables"]
+    | keyof DefaultSchema['Tables']
     | { schema: keyof DatabaseWithoutInternals },
   TableName extends DefaultSchemaTableNameOrOptions extends {
-    schema: keyof DatabaseWithoutInternals
+    schema: keyof DatabaseWithoutInternals;
   }
-    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
+    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions['schema']]['Tables']
     : never = never,
 > = DefaultSchemaTableNameOrOptions extends {
-  schema: keyof DatabaseWithoutInternals
+  schema: keyof DatabaseWithoutInternals;
 }
-  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
-      Update: infer U
+  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions['schema']]['Tables'][TableName] extends {
+      Update: infer U;
     }
     ? U
     : never
-  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
-    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
-        Update: infer U
+  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema['Tables']
+    ? DefaultSchema['Tables'][DefaultSchemaTableNameOrOptions] extends {
+        Update: infer U;
       }
       ? U
       : never
-    : never
+    : never;
 
 export type Enums<
   DefaultSchemaEnumNameOrOptions extends
-    | keyof DefaultSchema["Enums"]
+    | keyof DefaultSchema['Enums']
     | { schema: keyof DatabaseWithoutInternals },
   EnumName extends DefaultSchemaEnumNameOrOptions extends {
-    schema: keyof DatabaseWithoutInternals
+    schema: keyof DatabaseWithoutInternals;
   }
-    ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
+    ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions['schema']]['Enums']
     : never = never,
 > = DefaultSchemaEnumNameOrOptions extends {
-  schema: keyof DatabaseWithoutInternals
+  schema: keyof DatabaseWithoutInternals;
 }
-  ? DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"][EnumName]
-  : DefaultSchemaEnumNameOrOptions extends keyof DefaultSchema["Enums"]
-    ? DefaultSchema["Enums"][DefaultSchemaEnumNameOrOptions]
-    : never
+  ? DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions['schema']]['Enums'][EnumName]
+  : DefaultSchemaEnumNameOrOptions extends keyof DefaultSchema['Enums']
+    ? DefaultSchema['Enums'][DefaultSchemaEnumNameOrOptions]
+    : never;
 
 export type CompositeTypes<
   PublicCompositeTypeNameOrOptions extends
-    | keyof DefaultSchema["CompositeTypes"]
+    | keyof DefaultSchema['CompositeTypes']
     | { schema: keyof DatabaseWithoutInternals },
   CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
-    schema: keyof DatabaseWithoutInternals
+    schema: keyof DatabaseWithoutInternals;
   }
-    ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
+    ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions['schema']]['CompositeTypes']
     : never = never,
 > = PublicCompositeTypeNameOrOptions extends {
-  schema: keyof DatabaseWithoutInternals
+  schema: keyof DatabaseWithoutInternals;
 }
-  ? DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
-  : PublicCompositeTypeNameOrOptions extends keyof DefaultSchema["CompositeTypes"]
-    ? DefaultSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
-    : never
+  ? DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions['schema']]['CompositeTypes'][CompositeTypeName]
+  : PublicCompositeTypeNameOrOptions extends keyof DefaultSchema['CompositeTypes']
+    ? DefaultSchema['CompositeTypes'][PublicCompositeTypeNameOrOptions]
+    : never;
 
 export const Constants = {
   public: {
     Enums: {},
   },
-} as const
+} as const;
