@@ -1,6 +1,6 @@
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 
-import type { CoachConfig } from './coaches.config.js';
+import type { CoachConfig, PublicCoach } from './coaches.config.js';
 import { COACH_BY_ID, COACHES } from './coaches.config.js';
 
 @Injectable()
@@ -20,5 +20,23 @@ export class CoachService {
     }
 
     return coach;
+  }
+
+  public listPublicCoaches(): PublicCoach[] {
+    return this.listCoaches().map((coach) => this.toPublic(coach));
+  }
+
+  public getPublicCoach(coachId: number): PublicCoach {
+    return this.toPublic(this.getCoach(coachId));
+  }
+
+  private toPublic(coach: CoachConfig): PublicCoach {
+    return {
+      id: coach.id,
+      personality: coach.personality,
+      displayName: coach.displayName,
+      description: coach.description,
+      icon: coach.icon,
+    };
   }
 }
