@@ -82,8 +82,9 @@ export class UsageService {
       throw new InternalServerErrorException('Failed to fetch usage');
     }
 
+    const status = profileResult.data.subscription_status;
     const isPro =
-      profileResult.data.subscription_status === 'active' &&
+      (status === 'active' || status === 'grace_period') &&
       profileResult.data.subscription_expires_at !== null &&
       new Date(profileResult.data.subscription_expires_at) > new Date();
 
