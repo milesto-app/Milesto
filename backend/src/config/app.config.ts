@@ -70,7 +70,7 @@ export const config = {
   },
   chat: {
     model: 'google/gemini-3-flash-preview',
-    reasoningEffort: 'low',
+    reasoningEffort: 'high',
     maxToolRounds: 5,
     maxHistoryMessages: 50,
     streamTimeoutMs: 60_000,
