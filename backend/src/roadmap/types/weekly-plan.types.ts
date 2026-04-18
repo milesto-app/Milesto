@@ -51,12 +51,12 @@ export interface WeekData {
   debriefNotes: string[];
 }
 
-import type { Milestone } from './roadmap.types.js';
+import type { Milestone, Roadmap } from './roadmap.types.js';
 
 export interface GenerateAndStoreParams {
   goalId: string;
   userId: string;
-  roadmap: Pick<import('./roadmap.types.js').Roadmap, 'goal_id' | 'created_at'>;
+  roadmap: Pick<Roadmap, 'goal_id' | 'created_at'>;
   milestone: Milestone;
   weekNumber: number;
   generationContext: GenerationContext;

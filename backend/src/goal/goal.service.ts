@@ -6,6 +6,7 @@ import {
 } from '@nestjs/common';
 
 import { AiService } from '../ai/ai.service.js';
+import { UserLanguageService } from '../common/user-language.service.js';
 import type { Database, Json } from '../supabase/database.types.js';
 import { SupabaseService } from '../supabase/supabase.service.js';
 import { UsageService } from '../usage/usage.service.js';
@@ -37,6 +38,7 @@ export class GoalService {
     private readonly supabaseService: SupabaseService,
     private readonly aiService: AiService,
     private readonly usageService: UsageService,
+    private readonly languageService: UserLanguageService,
   ) {}
 
   public async create(
@@ -82,8 +84,9 @@ export class GoalService {
       GenerationType.GOAL_TITLE,
     );
     try {
+      const language = await this.languageService.getLanguage(userId);
       const result = await this.aiService.generateJson<{ title: string }>(
-        buildGoalTitleSystemPrompt(),
+        buildGoalTitleSystemPrompt(language),
         buildGoalTitleUserPrompt(description),
       );
       return result.title;
