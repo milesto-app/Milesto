@@ -149,6 +149,7 @@ export function validateAnswerSet(
     );
   }
   const questionMap = new Map(questions.map((q) => [q.id, q]));
+  const seen = new Set<string>();
   for (const answer of answers) {
     const question = questionMap.get(answer.question_id);
     if (question === undefined) {
@@ -156,7 +157,18 @@ export function validateAnswerSet(
         `Question ${answer.question_id} does not belong to this batch`,
       );
     }
+    if (seen.has(answer.question_id)) {
+      throw new BadRequestException(
+        `Question ${answer.question_id} answered more than once`,
+      );
+    }
+    seen.add(answer.question_id);
     validateAnswer(answer, question);
+  }
+  if (seen.size !== questionMap.size) {
+    throw new BadRequestException(
+      'Every batch question must be answered exactly once',
+    );
   }
 }
 

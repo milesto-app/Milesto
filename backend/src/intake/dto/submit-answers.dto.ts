@@ -2,6 +2,7 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import {
   ArrayMinSize,
+  ArrayUnique,
   IsArray,
   IsNumber,
   IsOptional,
@@ -52,6 +53,9 @@ export class SubmitAnswersDto {
   })
   @IsArray()
   @ArrayMinSize(1)
+  @ArrayUnique<AnswerDto>((answer) => answer.question_id, {
+    message: 'answers must contain a unique entry per question_id',
+  })
   @ValidateNested({ each: true })
   @Type(() => AnswerDto)
   public answers!: AnswerDto[];
