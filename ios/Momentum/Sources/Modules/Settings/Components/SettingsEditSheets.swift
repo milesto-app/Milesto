@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 enum SettingsSheet: Identifiable {
     case name
@@ -135,59 +136,69 @@ struct EditCoachSheet: View {
     }
 }
 
-struct EditLanguageSheet: View {
-    @State var selectedLanguage: String
-    let onSave: (ProfileUpdateFields) -> Void
-
+struct LanguageInfoSheet: View {
     @Environment(\.dismiss) private var dismiss
 
-    private let languages = [
-        ("en", "settings.edit.language.en"),
-        ("fr", "settings.edit.language.fr"),
-    ]
+    private var currentLanguageName: String {
+        let code = Bundle.main.preferredLocalizations.first ?? "en"
+        let locale = Locale(identifier: code)
+        return locale.localizedString(forLanguageCode: code)?.capitalized ?? code
+    }
 
     var body: some View {
         NavigationStack {
-            VStack(spacing: 24) {
-                VStack(spacing: 12) {
-                    ForEach(languages, id: \.0) { code, labelKey in
-                        Button {
-                            selectedLanguage = code
-                        } label: {
-                            HStack(spacing: 16) {
-                                AppText(LocalizedStringKey(labelKey), table: "Settings", style: .body)
-
-                                Spacer()
-
-                                TablerIcons(.circleCheck, size: 24, color: Color("TintPrimary"))
-                                    .opacity(selectedLanguage == code ? 1 : 0)
-                                    .scaleEffect(selectedLanguage == code ? 1 : 0.5)
-                                    .animation(.spring(response: 0.3, dampingFraction: 0.7), value: selectedLanguage)
-                            }
-                            .padding(16)
-                            .contentShape(Rectangle())
-                            .background(Color("BgSurface"), in: RoundedRectangle(cornerRadius: 12))
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 12)
-                                    .stroke(selectedLanguage == code ? Color("TintPrimary") : Color("TextSecondary").opacity(0.2), lineWidth: selectedLanguage == code ? 2 : 1)
-                                    .animation(.spring(response: 0.3, dampingFraction: 0.7), value: selectedLanguage)
-                            )
-                        }
-                        .buttonStyle(.plain)
+            VStack(alignment: .leading, spacing: 24) {
+                VStack(alignment: .leading, spacing: 8) {
+                    AppText("settings.language.info.currentLabel", table: "Settings", style: .caption)
+                    HStack(spacing: 12) {
+                        TablerIcons(.world, size: 24, color: Color("TintPrimary"))
+                        AppText(verbatim: currentLanguageName, style: .headline)
                     }
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(16)
+                .background(Color("BgSurface"), in: RoundedRectangle(cornerRadius: 12))
+
+                AppText("settings.language.info.description", table: "Settings", style: .body)
+                    .color(Color("TextSecondary"))
+
+                VStack(alignment: .leading, spacing: 16) {
+                    AppText("settings.language.info.stepsTitle", table: "Settings", style: .headline)
+
+                    stepRow(number: 1, textKey: "settings.language.info.step1")
+                    stepRow(number: 2, textKey: "settings.language.info.step2")
+                    stepRow(number: 3, textKey: "settings.language.info.step3")
                 }
 
                 Spacer()
 
-                AppButton("settings.edit.save", table: "Settings") {
-                    onSave(ProfileUpdateFields(language: selectedLanguage))
+                AppButton("settings.language.info.openSettings", table: "Settings") {
+                    if let url = URL(string: UIApplication.openSettingsURLString) {
+                        UIApplication.shared.open(url)
+                    }
                     dismiss()
                 }
+                .icon(.arrowUpRight, position: .trailing)
                 .fullWidth()
             }
             .padding(24)
-            .navigationTitle(String(localized: "settings.edit.language.title", table: "Settings"))
+            .navigationTitle(String(localized: "settings.language.info.title", table: "Settings"))
             .navigationBarTitleDisplayMode(.inline)
+        }
+    }
+
+    private func stepRow(number: Int, textKey: String) -> some View {
+        HStack(alignment: .top, spacing: 12) {
+            ZStack {
+                Circle()
+                    .fill(Color("TintPrimary").opacity(0.15))
+                    .frame(width: 28, height: 28)
+                AppText(verbatim: "\(number)", style: .subheadline)
+                    .color(Color("TintPrimary"))
+                    .weight(.semibold)
+            }
+            AppText(LocalizedStringKey(textKey), table: "Settings", style: .body)
+            Spacer(minLength: 0)
         }
     }
 }

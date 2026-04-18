@@ -404,7 +404,6 @@ private struct PaywallCTAButton: View {
                     .fill(Color("TintPrimary"))
             )
             .opacity(isDisabled ? 0.5 : 1)
-            .shadow(color: Color("TintPrimary").opacity(0.28), radius: 18, x: 0, y: 8)
         }
         .buttonStyle(PaywallPressStyle())
         .disabled(isLoading || isDisabled)

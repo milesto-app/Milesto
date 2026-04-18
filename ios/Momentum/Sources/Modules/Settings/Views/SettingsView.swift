@@ -69,7 +69,7 @@ struct SettingsView: View {
             }
             .sheet(item: $activeSheet) { sheet in
                 sheetContent(for: sheet)
-                    .presentationDetents(sheet == .coach ? [.large] : [.medium, .large])
+                    .presentationDetents(sheet == .coach || sheet == .language ? [.large] : [.medium, .large])
             }
             .fullScreenCover(isPresented: $showNewGoal) {
                 if let userId = authService.currentUserId {
@@ -115,11 +115,7 @@ struct SettingsView: View {
                 saveFields(fields)
             }
         case .language:
-            EditLanguageSheet(
-                selectedLanguage: localProfile?.language ?? "en"
-            ) { fields in
-                saveFields(fields)
-            }
+            LanguageInfoSheet()
         }
     }
 
@@ -191,14 +187,12 @@ struct SettingsView: View {
                 }
             }
 
-            if let language = localProfile?.language, !language.isEmpty {
-                editableRow(
-                    icon: .world,
-                    label: "settings.profile.language",
-                    value: displayLanguage(language)
-                ) {
-                    activeSheet = .language
-                }
+            editableRow(
+                icon: .world,
+                label: "settings.profile.language",
+                value: currentAppLanguage
+            ) {
+                activeSheet = .language
             }
 
             if let createdAt = localProfile?.createdAt {
@@ -343,8 +337,10 @@ struct SettingsView: View {
         return formatter.string(from: date)
     }
 
-    private func displayLanguage(_ code: String) -> String {
-        Locale.current.localizedString(forLanguageCode: code)?.capitalized ?? code
+    private var currentAppLanguage: String {
+        let code = Bundle.main.preferredLocalizations.first ?? "en"
+        let locale = Locale(identifier: code)
+        return locale.localizedString(forLanguageCode: code)?.capitalized ?? code
     }
 }
 

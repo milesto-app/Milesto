@@ -137,57 +137,6 @@
         }
       }
     },
-    "settings.edit.language.en" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "English"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Anglais"
-          }
-        }
-      }
-    },
-    "settings.edit.language.fr" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "French"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Français"
-          }
-        }
-      }
-    },
-    "settings.edit.language.title" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Language"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Langue"
-          }
-        }
-      }
-    },
     "settings.edit.lastName" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -303,6 +252,142 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Membre depuis"
+          }
+        }
+      }
+    },
+    "settings.language.info.currentLabel" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Current app language"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Langue actuelle de l'app"
+          }
+        }
+      }
+    },
+    "settings.language.info.description" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Momentum follows your iPhone language. To use the app in another language, update your iPhone settings."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Momentum suit la langue de votre iPhone. Pour utiliser l'app dans une autre langue, modifiez les réglages de votre iPhone."
+          }
+        }
+      }
+    },
+    "settings.language.info.openSettings" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open iPhone Settings"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ouvrir les Réglages iPhone"
+          }
+        }
+      }
+    },
+    "settings.language.info.step1" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open the iPhone Settings app."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ouvrez l'app Réglages de l'iPhone."
+          }
+        }
+      }
+    },
+    "settings.language.info.step2" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Scroll down and tap Momentum."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Faites défiler et touchez Momentum."
+          }
+        }
+      }
+    },
+    "settings.language.info.step3" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tap Language and choose your preferred one."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Touchez Langue et choisissez celle de votre choix."
+          }
+        }
+      }
+    },
+    "settings.language.info.stepsTitle" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "How to change the language"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Comment changer la langue"
+          }
+        }
+      }
+    },
+    "settings.language.info.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Language"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Langue"
           }
         }
       }
