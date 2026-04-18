@@ -1,57 +1,6 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
-    "voice.error.microphonePermission" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Microphone access is required to record your voice."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "L'accès au microphone est nécessaire pour enregistrer votre voix."
-          }
-        }
-      }
-    },
-    "voice.error.recordingFailed" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Recording failed. Please try again."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "L'enregistrement a échoué. Veuillez réessayer."
-          }
-        }
-      }
-    },
-    "voice.error.transcriptionFailed" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Transcription failed. Please try again."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "La transcription a échoué. Veuillez réessayer."
-          }
-        }
-      }
-    },
     "voice.error.playbackFailed" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -65,23 +14,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "La lecture audio a échoué. Veuillez réessayer."
-          }
-        }
-      }
-    },
-    "voice.error.synthesisFailed" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Voice synthesis failed. Please try again."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "La synthèse vocale a échoué. Veuillez réessayer."
           }
         }
       }

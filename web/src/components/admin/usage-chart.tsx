@@ -1,12 +1,6 @@
 "use client";
 
-import {
-  Area,
-  AreaChart,
-  CartesianGrid,
-  XAxis,
-  YAxis,
-} from "recharts";
+import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from "recharts";
 
 import {
   ChartContainer,
@@ -33,7 +27,10 @@ function buildConfig(types: string[]): ChartConfig {
   for (const type of types) {
     if (!KNOWN_TYPES.has(type)) continue;
     config[type] = {
-      label: type.replace(/_/g, " ").toLowerCase().replace(/\b\w/g, (c) => c.toUpperCase()),
+      label: type
+        .replace(/_/g, " ")
+        .toLowerCase()
+        .replace(/\b\w/g, (c) => c.toUpperCase()),
       color: TYPE_COLORS[type]!,
     };
   }
@@ -47,7 +44,7 @@ export function UsageChart({
 }) {
   if (data.length === 0) {
     return (
-      <div className="flex h-[300px] items-center justify-center text-sm text-muted-foreground">
+      <div className="flex h-75 items-center justify-center text-sm text-muted-foreground">
         No usage data available
       </div>
     );
@@ -60,13 +57,31 @@ export function UsageChart({
   const config = buildConfig(types);
 
   return (
-    <ChartContainer config={config} className="h-[320px] w-full">
-      <AreaChart data={data} margin={{ top: 8, right: 8, left: -12, bottom: 0 }}>
+    <ChartContainer config={config} className="h-80 w-full">
+      <AreaChart
+        data={data}
+        margin={{ top: 8, right: 8, left: -12, bottom: 0 }}
+      >
         <defs>
           {types.map((type) => (
-            <linearGradient key={type} id={`fill-${type}`} x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor={`var(--color-${type})`} stopOpacity={0.3} />
-              <stop offset="100%" stopColor={`var(--color-${type})`} stopOpacity={0.02} />
+            <linearGradient
+              key={type}
+              id={`fill-${type}`}
+              x1="0"
+              y1="0"
+              x2="0"
+              y2="1"
+            >
+              <stop
+                offset="0%"
+                stopColor={`var(--color-${type})`}
+                stopOpacity={0.3}
+              />
+              <stop
+                offset="100%"
+                stopColor={`var(--color-${type})`}
+                stopOpacity={0.02}
+              />
             </linearGradient>
           ))}
         </defs>
