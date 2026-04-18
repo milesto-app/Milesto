@@ -136,17 +136,25 @@ export class SubscriptionService {
     const type = this.stringOrNull(notification.notificationType) ?? 'UNKNOWN';
     const subtype = this.stringOrNull(notification.subtype);
 
-    const hasClaim = await this.processedNotifications.tryClaim(
-      notificationUuid,
-      type,
-      subtype,
-    );
-    if (!hasClaim) {
+    const isAlreadyProcessed =
+      await this.processedNotifications.isProcessed(notificationUuid);
+    if (isAlreadyProcessed) {
       this.logger.debug(`Dedupe hit for notificationUUID=${notificationUuid}`);
       return;
     }
 
     await this.processWebhookAfterDedupe(notification, type, subtype);
+
+    // Mark processed only after the state update succeeds. If processing threw,
+    // this line is skipped and Apple will retry. Concurrent deliveries of the
+    // same UUID are safe: both process, but the profile UPDATE is idempotent
+    // under signedDate monotonicity, and the PK on notification_uuid ensures
+    // only the first INSERT wins.
+    await this.processedNotifications.markProcessed(
+      notificationUuid,
+      type,
+      subtype,
+    );
   }
 
   private async processWebhookAfterDedupe(

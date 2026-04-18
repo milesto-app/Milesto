@@ -1,6 +1,9 @@
 import { Injectable, Logger } from '@nestjs/common';
 
-import { SUPABASE_UNIQUE_VIOLATION } from '../supabase/error-codes.js';
+import {
+  SUPABASE_NOT_FOUND,
+  SUPABASE_UNIQUE_VIOLATION,
+} from '../supabase/error-codes.js';
 import { SupabaseService } from '../supabase/supabase.service.js';
 
 @Injectable()
@@ -9,7 +12,25 @@ export class ProcessedNotificationsService {
 
   constructor(private readonly supabaseService: SupabaseService) {}
 
-  public async tryClaim(
+  public async isProcessed(notificationUuid: string): Promise<boolean> {
+    const supabase = this.supabaseService.getAdminClient();
+    const { data, error } = await supabase
+      .from('processed_notifications')
+      .select('notification_uuid')
+      .eq('notification_uuid', notificationUuid)
+      .maybeSingle();
+
+    if (error && error.code !== SUPABASE_NOT_FOUND) {
+      this.logger.error(
+        `Failed to check notification uuid=${notificationUuid}: ${error.message}`,
+      );
+      throw error;
+    }
+
+    return data !== null;
+  }
+
+  public async markProcessed(
     notificationUuid: string,
     notificationType: string,
     subtype: string | null,
@@ -33,7 +54,7 @@ export class ProcessedNotificationsService {
     }
 
     this.logger.error(
-      `Failed to claim notification uuid=${notificationUuid}: ${error.message}`,
+      `Failed to mark notification processed uuid=${notificationUuid}: ${error.message}`,
     );
     throw error;
   }

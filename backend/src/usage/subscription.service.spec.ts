@@ -147,7 +147,8 @@ function buildFakeSupabase(state: FakeDbState): SupabaseService {
 function buildService(state: FakeDbState): SubscriptionService {
   const supabase = buildFakeSupabase(state);
   const processed = {
-    tryClaim: jest.fn().mockResolvedValue(true),
+    isProcessed: jest.fn().mockResolvedValue(false),
+    markProcessed: jest.fn().mockResolvedValue(true),
   } as unknown as ProcessedNotificationsService;
   return new SubscriptionService(supabase, processed);
 }
@@ -338,7 +339,7 @@ describe('SubscriptionService', () => {
       );
     });
 
-    it('should return early on dedupe (tryClaim returns false)', async () => {
+    it('should return early on dedupe (isProcessed returns true)', async () => {
       verifyAndDecodeNotificationMock.mockResolvedValue(buildNotification());
       const state: FakeDbState = {
         profileById: new Map(),
@@ -347,14 +348,87 @@ describe('SubscriptionService', () => {
         maybeSingleQueue: [],
       };
       const supabase = buildFakeSupabase(state);
+      const markProcessed = jest.fn().mockResolvedValue(true);
       const processed = {
-        tryClaim: jest.fn().mockResolvedValue(false),
+        isProcessed: jest.fn().mockResolvedValue(true),
+        markProcessed,
       } as unknown as ProcessedNotificationsService;
       const service = new SubscriptionService(supabase, processed);
 
       await service.handleWebhook('signed-payload');
       expect(state.updates).toHaveLength(0);
       expect(verifyAndDecodeTransactionMock).not.toHaveBeenCalled();
+      expect(markProcessed).not.toHaveBeenCalled();
+    });
+
+    it('should NOT mark processed when apply fails (so Apple retries work)', async () => {
+      verifyAndDecodeNotificationMock.mockResolvedValue(buildNotification());
+      verifyAndDecodeTransactionMock.mockResolvedValue(buildTransaction());
+      // Supabase stub where profile UPDATE fails with a transient error.
+      const supabase = {
+        getAdminClient: () => ({
+          from: () => ({
+            select: () => ({
+              eq: () => ({
+                eq: () => ({
+                  maybeSingle: async () =>
+                    Promise.resolve({
+                      data: { id: TEST_USER_ID },
+                      error: null,
+                    }),
+                }),
+                neq: () => ({
+                  maybeSingle: async () =>
+                    Promise.resolve({ data: null, error: null }),
+                }),
+                maybeSingle: async () =>
+                  Promise.resolve({
+                    data: { id: TEST_USER_ID },
+                    error: null,
+                  }),
+              }),
+            }),
+            update: () => ({
+              eq: async () =>
+                Promise.resolve({
+                  error: { code: '08006', message: 'conn fail' },
+                }),
+            }),
+          }),
+        }),
+      } as unknown as SupabaseService;
+      const markProcessed = jest.fn().mockResolvedValue(true);
+      const processed = {
+        isProcessed: jest.fn().mockResolvedValue(false),
+        markProcessed,
+      } as unknown as ProcessedNotificationsService;
+      const service = new SubscriptionService(supabase, processed);
+
+      await expect(
+        service.handleWebhook('signed-payload'),
+      ).rejects.toBeInstanceOf(InternalServerErrorException);
+      expect(markProcessed).not.toHaveBeenCalled();
+    });
+
+    it('should mark processed after successful apply', async () => {
+      verifyAndDecodeNotificationMock.mockResolvedValue(buildNotification());
+      verifyAndDecodeTransactionMock.mockResolvedValue(buildTransaction());
+      const state: FakeDbState = {
+        profileById: new Map([[TEST_USER_ID, { id: TEST_USER_ID }]]),
+        profileByOriginalTx: new Map(),
+        updates: [],
+        maybeSingleQueue: [],
+      };
+      const supabase = buildFakeSupabase(state);
+      const markProcessed = jest.fn().mockResolvedValue(true);
+      const processed = {
+        isProcessed: jest.fn().mockResolvedValue(false),
+        markProcessed,
+      } as unknown as ProcessedNotificationsService;
+      const service = new SubscriptionService(supabase, processed);
+
+      await service.handleWebhook('signed-payload');
+      expect(markProcessed).toHaveBeenCalledWith('uuid-1', 'DID_RENEW', null);
     });
   });
 
