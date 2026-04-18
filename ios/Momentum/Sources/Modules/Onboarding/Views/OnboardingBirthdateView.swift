@@ -42,6 +42,7 @@ struct OnboardingBirthdateView: View {
                 AppText("onboarding.editLater", table: "Onboarding", style: .caption)
                     .alignment(.center)
             }
+            .padding(.horizontal, 24)
             .padding(.bottom, 24)
         }
     }
