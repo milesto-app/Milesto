@@ -31,7 +31,7 @@ Most productivity apps skip this entirely — they assume the user already knows
 - **Values Compass:** Before any goal is set, the app surfaces the user's core values through simple forced-choice prompts ("Would you rather have more freedom or more security?"). Goals are later checked against these values to prevent pursuing things that don't actually matter to the user.
 
 - **Goal Suggestion Engine:** Based on the audit and values, the AI proposes 2-3 concrete goal candidates with a brief explanation of why each one fits. The user picks one — or writes their own. The AI never dictates; it illuminates.
-**Why this matters:** The debate revealed that the original framework assumed users already had clear goals. For creative, career, or life-direction goals, forcing premature specificity is counterproductive. This phase lets the goal emerge from structured self-reflection rather than an unpredictable AI conversation. The dynamic form guarantees a consistent, complete experience every time — no risk of the AI stalling, going off-track, or ending prematurely.
+  **Why this matters:** The debate revealed that the original framework assumed users already had clear goals. For creative, career, or life-direction goals, forcing premature specificity is counterproductive. This phase lets the goal emerge from structured self-reflection rather than an unpredictable AI conversation. The dynamic form guarantees a consistent, complete experience every time — no risk of the AI stalling, going off-track, or ending prematurely.
 
 ---
 
@@ -77,7 +77,6 @@ Most productivity apps skip this entirely — they assume the user already knows
 - **Trigger Setup:** The AI helps the user attach their new behavior to an existing daily trigger using the format: "After I [existing habit], I will [new behavior]." Examples:
   - "After I pour my morning coffee, I will open my business project for 15 minutes"
   - "After I park my car at work, I will walk one extra lap around the lot"
-
 
 - **Environment Design Suggestions:** Based on the goal category, the AI provides 3-5 specific, actionable environment changes. These are calibrated to be free or nearly free — no assumption of privilege or resources. The user checks off which ones they'll implement.
 
@@ -194,7 +193,7 @@ The single biggest problem in productivity apps is that users quit within 2-8 we
 
 | Stage                   | What Happens                                                 | Time Required        |
 | ----------------------- | ------------------------------------------------------------ | -------------------- |
-| **Download + DISCOVER** | Dynamic form to explore values and potential goals        | 5-10 minutes         |
+| **Download + DISCOVER** | Dynamic form to explore values and potential goals           | 5-10 minutes         |
 | **DEFINE**              | Sharpen the goal, pick a lead metric, set identity statement | 5-10 minutes         |
 | **DESIGN**              | Friction audit, trigger setup, accountability choice         | 5-10 minutes         |
 | **Daily DO**            | One swipe to log, one notification at the right time         | Under 10 seconds/day |
