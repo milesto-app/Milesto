@@ -192,12 +192,13 @@ struct HomeView: View {
             }
         }
         .navigationDestination(item: $selectedTaskId) { taskId in
-            if let task = tasks.first(where: { $0.id == taskId }) {
+            let ordered = sortedTasks.map(\.id)
+            if let start = ordered.firstIndex(of: taskId) {
                 WeeklyTaskDetailView(
-                    task: task,
+                    tasks: tasks,
+                    orderedIds: ordered,
+                    startIndex: start,
                     weekNumber: weeklyPlan?.weekNumber,
-                    indexInWeek: sortedTasks.firstIndex(where: { $0.id == taskId }) ?? 0,
-                    totalInWeek: tasks.count,
                     onToggle: { updated in
                         applyRemoteToggle(updated)
                     }
