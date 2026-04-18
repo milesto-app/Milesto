@@ -15,7 +15,7 @@ import {
 
 import { AuthGuard } from '../common/guards/auth.guard.js';
 import { CoachService } from './coach.service.js';
-import type { CoachConfig } from './coaches.config.js';
+import type { PublicCoach } from './coaches.config.js';
 
 @ApiTags('coaches')
 @ApiBearerAuth()
@@ -28,8 +28,8 @@ export class CoachController {
   @ApiOperation({ summary: 'List all active coaches' })
   @ApiResponse({ status: 200, description: 'List of active coaches' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  public listCoaches(): CoachConfig[] {
-    return this.coachService.listCoaches();
+  public listCoaches(): PublicCoach[] {
+    return this.coachService.listPublicCoaches();
   }
 
   @Get(':coachId')
@@ -40,7 +40,7 @@ export class CoachController {
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   public getCoach(
     @Param('coachId', ParseIntPipe) coachId: number,
-  ): CoachConfig {
-    return this.coachService.getCoach(coachId);
+  ): PublicCoach {
+    return this.coachService.getPublicCoach(coachId);
   }
 }
