@@ -21,15 +21,15 @@ openssl x509 -inform DER -in apple-root-certs/AppleIncRootCertificate.cer -noout
 
 ## Environment variables
 
-| Name | Required | Description |
-| --- | --- | --- |
-| `APPLE_BUNDLE_ID` | Always | Must match Xcode `PRODUCT_BUNDLE_IDENTIFIER`. Current value: `app.momentum-ai.auth.mobile`. |
-| `APPLE_ENVIRONMENT` | Always | `Sandbox` (default) or `Production`. |
-| `APPLE_APP_APPLE_ID` | Production only | Numeric App Apple ID from App Store Connect. Required when `APPLE_ENVIRONMENT=Production`; startup fails otherwise. |
-| `APPLE_ROOT_CA_DIR` | Optional | Path to Apple root cert directory. Default `apple-root-certs`. |
-| `APPLE_ISSUER_ID` | Follow-up | App Store Server API issuer (UUID). Needed for reconciliation; not required for webhook path. |
-| `APPLE_KEY_ID` | Follow-up | App Store Server API key ID (10-char). |
-| `APPLE_PRIVATE_KEY_P8` | Follow-up | `.p8` private key contents. |
+| Name                   | Required        | Description                                                                                                         |
+| ---------------------- | --------------- | ------------------------------------------------------------------------------------------------------------------- |
+| `APPLE_BUNDLE_ID`      | Always          | Must match Xcode `PRODUCT_BUNDLE_IDENTIFIER`. Current value: `app.momentum-ai.auth.mobile`.                         |
+| `APPLE_ENVIRONMENT`    | Always          | `Sandbox` (default) or `Production`.                                                                                |
+| `APPLE_APP_APPLE_ID`   | Production only | Numeric App Apple ID from App Store Connect. Required when `APPLE_ENVIRONMENT=Production`; startup fails otherwise. |
+| `APPLE_ROOT_CA_DIR`    | Optional        | Path to Apple root cert directory. Default `apple-root-certs`.                                                      |
+| `APPLE_ISSUER_ID`      | Follow-up       | App Store Server API issuer (UUID). Needed for reconciliation; not required for webhook path.                       |
+| `APPLE_KEY_ID`         | Follow-up       | App Store Server API key ID (10-char).                                                                              |
+| `APPLE_PRIVATE_KEY_P8` | Follow-up       | `.p8` private key contents.                                                                                         |
 
 If any of the three follow-up vars are missing, `AppStoreServerApiService` logs `App Store Server API not configured — reconciliation disabled` once at startup and the reconciliation methods throw `NotImplementedException` if called.
 
@@ -64,17 +64,17 @@ To check: App Store Connect → product → **Subscription Information** → **F
 
 ## Webhook response codes
 
-| Outcome | HTTP |
-| --- | --- |
-| Processed, state updated | 200 |
-| Duplicate notificationUUID (idempotent) | 200 |
-| Known ignored type (e.g. `CONSUMPTION_REQUEST`) | 200 |
-| Stale `signedDate` (older than stored) | 200 |
-| No user found for transaction | 200 |
-| Missing/empty `signedPayload` | 400 |
-| Signature verification failed | 401 |
-| Transaction not bound to authenticated user (verify path only) | 401 |
-| Real DB error (non-"no rows") | 500 (Apple retries) |
+| Outcome                                                        | HTTP                |
+| -------------------------------------------------------------- | ------------------- |
+| Processed, state updated                                       | 200                 |
+| Duplicate notificationUUID (idempotent)                        | 200                 |
+| Known ignored type (e.g. `CONSUMPTION_REQUEST`)                | 200                 |
+| Stale `signedDate` (older than stored)                         | 200                 |
+| No user found for transaction                                  | 200                 |
+| Missing/empty `signedPayload`                                  | 400                 |
+| Signature verification failed                                  | 401                 |
+| Transaction not bound to authenticated user (verify path only) | 401                 |
+| Real DB error (non-"no rows")                                  | 500 (Apple retries) |
 
 Apple retries on 4xx and 5xx, so returning 200 on known-ignored conditions prevents retry storms. 500 is reserved for transient backend errors where retry is desired.
 
