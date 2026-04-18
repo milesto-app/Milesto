@@ -6,6 +6,7 @@ import type { TestingModule } from '@nestjs/testing';
 import { Test } from '@nestjs/testing';
 
 import { AiService } from '../ai/ai.service.js';
+import { UserLanguageService } from '../common/user-language.service.js';
 import { SupabaseService } from '../supabase/supabase.service.js';
 import { UsageService } from '../usage/usage.service.js';
 import { GoalService } from './goal.service.js';
@@ -41,6 +42,10 @@ beforeEach(async () => {
             is_pro: false,
           }),
         },
+      },
+      {
+        provide: UserLanguageService,
+        useValue: { getLanguage: jest.fn().mockResolvedValue('en') },
       },
     ],
   }).compile();

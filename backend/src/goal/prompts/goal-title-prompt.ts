@@ -1,4 +1,6 @@
-export function buildGoalTitleSystemPrompt(): string {
+import { buildLanguageBlock } from '../../common/language-prompt.helper.js';
+
+export function buildGoalTitleSystemPrompt(language: string): string {
   return `You are a concise title generator for personal goals.
 
 Given a goal description, generate a short, action-oriented title.
@@ -13,7 +15,7 @@ Rules:
 Return ONLY a JSON object with this exact field:
 - "title": The generated title
 
-Return ONLY the JSON object, no other text.`;
+Return ONLY the JSON object, no other text.${buildLanguageBlock(language)}`;
 }
 
 export function buildGoalTitleUserPrompt(description: string): string {

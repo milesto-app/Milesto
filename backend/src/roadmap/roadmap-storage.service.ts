@@ -48,7 +48,7 @@ export class RoadmapStorageService {
       .eq('id', goalId)
       .eq('user_id', userId)
       .single();
-    if (error || goal === null || goal.roadmap_status === null) {
+    if (error || goal.roadmap_status === null) {
       throw new NotFoundException('Roadmap not found');
     }
     const { data: milestones } = await supabase
@@ -81,7 +81,7 @@ export class RoadmapStorageService {
       .eq('id', goalId)
       .eq('user_id', userId)
       .single();
-    if (goalError || goal === null || goal.roadmap_status === null) {
+    if (goalError || goal.roadmap_status === null) {
       throw new NotFoundException('Roadmap not found');
     }
     const { data, error } = await supabase
@@ -201,7 +201,7 @@ export class RoadmapStorageService {
         'id, user_id, roadmap_status, roadmap_generation_attempts, roadmap_model_used, roadmap_generation_metadata, roadmap_quality_scores, roadmap_created_at, roadmap_updated_at',
       )
       .single();
-    if (error || data === null) {
+    if (error) {
       throw new ConflictException('Failed to create roadmap');
     }
     return this.buildRoadmap({ goal: data });

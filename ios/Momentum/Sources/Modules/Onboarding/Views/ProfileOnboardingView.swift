@@ -104,7 +104,7 @@ struct ProfileOnboardingView: View {
                 ? (existingProfile?.lastName ?? "") : finalLastName
             let mergedDateOfBirth = existingProfile?.dateOfBirth ?? dateOfBirth
             let mergedCoachId = selectedCoach?.databaseId ?? existingProfile?.coachId
-            let mergedLanguage = existingProfile?.language ?? deviceLanguage
+            let mergedLanguage = deviceLanguage
 
             let dateFormatter = DateFormatter()
             dateFormatter.dateFormat = "yyyy-MM-dd"
