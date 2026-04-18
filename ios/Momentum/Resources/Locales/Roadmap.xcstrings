@@ -697,6 +697,227 @@
           }
         }
       }
+    },
+    "roadmap.task.eyebrow" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "TASK"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "TÂCHE"
+          }
+        }
+      }
+    },
+    "roadmap.task.weekShort" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "WEEK %d"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "SEMAINE %d"
+          }
+        }
+      }
+    },
+    "roadmap.task.description" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Description"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Description"
+          }
+        }
+      }
+    },
+    "roadmap.task.difficulty" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Difficulty"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Difficulté"
+          }
+        }
+      }
+    },
+    "roadmap.task.focusTitle" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Focus"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Focus"
+          }
+        }
+      }
+    },
+    "roadmap.task.focus.easy" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A quick win to fuel your momentum. Nail it early in the day and the rest falls into place."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Une victoire rapide pour entretenir ton élan. Boucle-la tôt et la journée s'enchaîne."
+          }
+        }
+      }
+    },
+    "roadmap.task.focus.moderate" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Give this steady focus — reserve a solid block of time and work through it without switching tabs."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Donne-lui une attention régulière — réserve un vrai créneau et avance sans te disperser."
+          }
+        }
+      }
+    },
+    "roadmap.task.focus.hard" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This is the one that moves the needle. Carve out deep focus, silence the noise, and go all in."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Celle qui fait vraiment bouger les choses. Dégage un vrai temps de concentration et engage-toi à fond."
+          }
+        }
+      }
+    },
+    "roadmap.task.focus.unrated" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stay intentional — take it one step at a time and keep the bigger picture in view."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reste intentionnel — un pas après l'autre, en gardant l'objectif en tête."
+          }
+        }
+      }
+    },
+    "roadmap.task.status.done" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Completed"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Terminée"
+          }
+        }
+      }
+    },
+    "roadmap.task.status.todo" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "To do"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "À faire"
+          }
+        }
+      }
+    },
+    "roadmap.task.markComplete" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mark complete"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Marquer terminée"
+          }
+        }
+      }
+    },
+    "roadmap.task.markIncomplete" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mark as to do"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Marquer à faire"
+          }
+        }
+      }
     }
   },
   "version" : "1.0"

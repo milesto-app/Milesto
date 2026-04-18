@@ -10,6 +10,7 @@ struct MilestoneDetailView: View {
 
     @State private var tasks: [WeeklyTaskDTO] = []
     @State private var isLoadingTasks = false
+    @State private var selectedTaskId: String?
 
     var body: some View {
         ZStack {
@@ -55,6 +56,31 @@ struct MilestoneDetailView: View {
             tasks = (try? await RoadmapAPIService.shared.getTasksForMilestone(milestoneId: milestoneId)) ?? []
             isLoadingTasks = false
         }
+        .navigationDestination(item: $selectedTaskId) { taskId in
+            if let task = tasks.first(where: { $0.id == taskId }) {
+                let toggleHandler: ((WeeklyTaskDTO) -> Void)? =
+                    status == .current ? { updated in applyToggle(updated) } : nil
+                WeeklyTaskDetailView(
+                    task: task,
+                    weekNumber: nil,
+                    indexInWeek: sortedTasks.firstIndex(where: { $0.id == taskId }) ?? 0,
+                    totalInWeek: sortedTasks.count,
+                    onToggle: toggleHandler
+                )
+            }
+        }
+    }
+
+    private func applyToggle(_ updated: WeeklyTaskDTO) {
+        if let idx = tasks.firstIndex(where: { $0.id == updated.id }) {
+            tasks[idx] = updated
+        }
+        Task {
+            _ = try? await RoadmapAPIService.shared.toggleTask(
+                taskId: updated.id,
+                isCompleted: updated.isCompleted
+            )
+        }
     }
 
     private var descriptionCard: some View {
@@ -89,10 +115,16 @@ struct MilestoneDetailView: View {
             } else {
                 VStack(spacing: 4) {
                     ForEach(sortedTasks) { task in
-                        ObjectiveRowView(task: task) {
-                            guard status == .current else { return }
-                            toggleTask(task)
-                        }
+                        ObjectiveRowView(
+                            task: task,
+                            onToggle: {
+                                guard status == .current else { return }
+                                toggleTask(task)
+                            },
+                            onOpen: {
+                                selectedTaskId = task.id
+                            }
+                        )
                         .padding(.vertical, 4)
                     }
                 }
