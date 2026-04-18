@@ -86,6 +86,23 @@
         }
       }
     },
+    "paywall.feature.adaptive" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Adapts to your pace and style"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "S'adapte à ton rythme et à ton style"
+          }
+        }
+      }
+    },
     "paywall.feature.roadmap" : {
       "extractionState" : "manual",
       "localizations" : {
