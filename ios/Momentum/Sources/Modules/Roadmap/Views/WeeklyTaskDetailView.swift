@@ -1,28 +1,92 @@
 import SwiftUI
 
 struct WeeklyTaskDetailView: View {
+    let tasks: [WeeklyTaskDTO]
     let weekNumber: Int?
-    let indexInWeek: Int
-    let totalInWeek: Int
     let onToggle: ((WeeklyTaskDTO) -> Void)?
 
     @Environment(\.dismiss) private var dismiss
-    @State private var task: WeeklyTaskDTO
+    @State private var orderedIds: [String]
+    @State private var currentIndex: Int
     @State private var appeared = false
 
     init(
-        task: WeeklyTaskDTO,
+        tasks: [WeeklyTaskDTO],
+        orderedIds: [String],
+        startIndex: Int = 0,
         weekNumber: Int? = nil,
-        indexInWeek: Int = 0,
-        totalInWeek: Int = 1,
         onToggle: ((WeeklyTaskDTO) -> Void)? = nil
     ) {
-        _task = State(initialValue: task)
+        self.tasks = tasks
         self.weekNumber = weekNumber
-        self.indexInWeek = indexInWeek
-        self.totalInWeek = totalInWeek
         self.onToggle = onToggle
+        _orderedIds = State(initialValue: orderedIds)
+        let count = orderedIds.count
+        _currentIndex = State(initialValue: count == 0 ? 0 : min(max(startIndex, 0), count - 1))
     }
+
+    var body: some View {
+        Group {
+            if orderedIds.isEmpty {
+                Color.clear
+            } else {
+                TabView(selection: $currentIndex) {
+                    ForEach(Array(orderedIds.enumerated()), id: \.element) { index, id in
+                        Group {
+                            if let task = tasks.first(where: { $0.id == id }) {
+                                WeeklyTaskDetailPage(
+                                    task: task,
+                                    weekNumber: weekNumber,
+                                    indexInWeek: index,
+                                    totalInWeek: orderedIds.count,
+                                    appeared: appeared,
+                                    onToggle: onToggle
+                                )
+                            } else {
+                                Color.clear
+                            }
+                        }
+                        .tag(index)
+                    }
+                }
+                .tabViewStyle(.page(indexDisplayMode: .never))
+            }
+        }
+        .overlay(alignment: .top) {
+            ProgressiveBlur()
+                .allowsHitTesting(false)
+        }
+        .overlay(alignment: .topLeading) {
+            Button {
+                dismiss()
+            } label: {
+                TablerIcons(.chevronLeft, size: 24, color: Color("TextPrimary"))
+                    .frame(width: 44, height: 44)
+                    .glassEffect(.regular.interactive(), in: .circle)
+            }
+            .padding(.horizontal, 16)
+            .padding(.top, 8)
+        }
+        .navigationBarBackButtonHidden(true)
+        .toolbar(.hidden, for: .navigationBar)
+        .animation(.easeOut(duration: 0.45), value: appeared)
+        .onAppear { appeared = true }
+        .onChange(of: tasks.map(\.id)) { _, liveIds in
+            if orderedIds.indices.contains(currentIndex),
+               !liveIds.contains(orderedIds[currentIndex]) {
+                dismiss()
+            }
+        }
+    }
+}
+
+private struct WeeklyTaskDetailPage: View {
+    let task: WeeklyTaskDTO
+    let weekNumber: Int?
+    let indexInWeek: Int
+    let totalInWeek: Int
+    let appeared: Bool
+    let onToggle: ((WeeklyTaskDTO) -> Void)?
 
     private var accent: Color {
         switch task.difficultyRating {
@@ -66,25 +130,6 @@ struct WeeklyTaskDetailView: View {
             .padding(.bottom, 40)
         }
         .contentMargins(.top, 96)
-        .overlay(alignment: .top) {
-            ProgressiveBlur()
-                .allowsHitTesting(false)
-        }
-        .overlay(alignment: .topLeading) {
-            Button {
-                dismiss()
-            } label: {
-                TablerIcons(.chevronLeft, size: 24, color: Color("TextPrimary"))
-                    .frame(width: 44, height: 44)
-                    .glassEffect(.regular.interactive(), in: .circle)
-            }
-            .padding(.horizontal, 16)
-            .padding(.top, 8)
-        }
-        .navigationBarBackButtonHidden(true)
-        .toolbar(.hidden, for: .navigationBar)
-        .animation(.easeOut(duration: 0.45), value: appeared)
-        .onAppear { appeared = true }
     }
 
     private var heroCard: some View {
@@ -252,7 +297,7 @@ struct WeeklyTaskDetailView: View {
 
     private func performToggle() {
         let newCompleted = !task.isCompleted
-        task = WeeklyTaskDTO(
+        let updated = WeeklyTaskDTO(
             id: task.id,
             weeklyPlanId: task.weeklyPlanId,
             goalId: task.goalId,
@@ -265,53 +310,83 @@ struct WeeklyTaskDetailView: View {
             isFallback: task.isFallback,
             createdAt: task.createdAt
         )
-        onToggle?(task)
+        onToggle?(updated)
     }
 }
 
 #Preview("Hard task") {
-    NavigationStack {
+    let tasks: [WeeklyTaskDTO] = [
+        WeeklyTaskDTO(
+            id: "1",
+            weeklyPlanId: "wp1",
+            goalId: "g1",
+            userId: "u1",
+            title: "Run 8 km without stopping",
+            description: "Keep a steady pace around 6:30/km. Finish the block on a tree-lined route so the last kilometre feels like a reward instead of a grind.",
+            difficultyRating: .hard,
+            orderIndex: 1,
+            isCompleted: false,
+            isFallback: false,
+            createdAt: ""
+        ),
+        WeeklyTaskDTO(
+            id: "2",
+            weeklyPlanId: "wp1",
+            goalId: "g1",
+            userId: "u1",
+            title: "Stretch for 10 minutes",
+            description: "Focus on hamstrings and calves right after breakfast.",
+            difficultyRating: .easy,
+            orderIndex: 0,
+            isCompleted: true,
+            isFallback: false,
+            createdAt: ""
+        ),
+        WeeklyTaskDTO(
+            id: "3",
+            weeklyPlanId: "wp1",
+            goalId: "g1",
+            userId: "u1",
+            title: "Hydrate and recover",
+            description: "Drink at least 2L of water today and foam-roll after your run.",
+            difficultyRating: .moderate,
+            orderIndex: 2,
+            isCompleted: false,
+            isFallback: false,
+            createdAt: ""
+        )
+    ]
+    return NavigationStack {
         WeeklyTaskDetailView(
-            task: WeeklyTaskDTO(
-                id: "1",
-                weeklyPlanId: "wp1",
-                goalId: "g1",
-                userId: "u1",
-                title: "Run 8 km without stopping",
-                description: "Keep a steady pace around 6:30/km. Finish the block on a tree-lined route so the last kilometre feels like a reward instead of a grind.",
-                difficultyRating: .hard,
-                orderIndex: 1,
-                isCompleted: false,
-                isFallback: false,
-                createdAt: ""
-            ),
+            tasks: tasks,
+            orderedIds: tasks.map(\.id),
+            startIndex: 0,
             weekNumber: 3,
-            indexInWeek: 1,
-            totalInWeek: 4,
             onToggle: { _ in }
         )
     }
 }
 
-#Preview("Easy done") {
-    NavigationStack {
+#Preview("Single task") {
+    let task = WeeklyTaskDTO(
+        id: "2",
+        weeklyPlanId: "wp1",
+        goalId: "g1",
+        userId: "u1",
+        title: "Stretch for 10 minutes",
+        description: "Focus on hamstrings and calves right after breakfast.",
+        difficultyRating: .easy,
+        orderIndex: 0,
+        isCompleted: true,
+        isFallback: false,
+        createdAt: ""
+    )
+    return NavigationStack {
         WeeklyTaskDetailView(
-            task: WeeklyTaskDTO(
-                id: "2",
-                weeklyPlanId: "wp1",
-                goalId: "g1",
-                userId: "u1",
-                title: "Stretch for 10 minutes",
-                description: "Focus on hamstrings and calves right after breakfast.",
-                difficultyRating: .easy,
-                orderIndex: 0,
-                isCompleted: true,
-                isFallback: false,
-                createdAt: ""
-            ),
+            tasks: [task],
+            orderedIds: [task.id],
+            startIndex: 0,
             weekNumber: 3,
-            indexInWeek: 0,
-            totalInWeek: 4,
             onToggle: { _ in }
         )
     }
