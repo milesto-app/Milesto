@@ -1,4 +1,4 @@
-# Momentum Branding Summary
+# Momentum Branding
 
 ## Brand essence
 
