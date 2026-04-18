@@ -2,7 +2,7 @@ import Foundation
 import OSLog
 import SwiftData
 
-nonisolated(unsafe) private let outboxLogger = Logger(subsystem: Bundle.main.bundleIdentifier ?? "app.momentum-ai", category: "SubscriptionOutbox")
+private nonisolated(unsafe) let outboxLogger = Logger(subsystem: Bundle.main.bundleIdentifier ?? "app.momentum-ai", category: "SubscriptionOutbox")
 
 private let maxDrainAttemptsPerEntry = 5
 
