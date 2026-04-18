@@ -75,12 +75,21 @@ describe('DebriefService', () => {
               }),
             };
           }
+          if (fromCallIndex === 3) {
+            return {
+              insert: jest.fn().mockReturnValue({
+                select: jest.fn().mockReturnValue({
+                  single: jest
+                    .fn()
+                    .mockResolvedValue({ data: mockDebrief, error: null }),
+                }),
+              }),
+            };
+          }
           return {
-            insert: jest.fn().mockReturnValue({
-              select: jest.fn().mockReturnValue({
-                single: jest
-                  .fn()
-                  .mockResolvedValue({ data: mockDebrief, error: null }),
+            update: jest.fn().mockReturnValue({
+              eq: jest.fn().mockReturnValue({
+                eq: jest.fn().mockResolvedValue({ error: null }),
               }),
             }),
           };

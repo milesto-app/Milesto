@@ -1,3 +1,5 @@
+/// <reference types="jest" />
+
 type Chain = Record<string, jest.Mock>;
 
 export function mockQuestionsChain(

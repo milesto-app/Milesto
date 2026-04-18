@@ -8,7 +8,10 @@ import {
 } from '@nestjs/common';
 
 import { config } from '../config/app.config.js';
+import type { Database } from '../supabase/database.types.js';
 import { SupabaseService } from '../supabase/supabase.service.js';
+
+type RoadmapUpdate = Database['public']['Tables']['roadmaps']['Update'];
 
 const WEEKS_PER_MONTH_GROUP = 3;
 const STALE_GENERATION_MINUTES = 5;
@@ -139,13 +142,13 @@ export class RoadmapStorageService {
     metadata: GenerationMetadata | undefined,
   ): Promise<void> {
     const supabase = this.supabaseService.getAdminClient();
-    const updateData: Record<string, unknown> = {
+    const updateData: RoadmapUpdate = {
       status,
       updated_at: new Date().toISOString(),
     };
     if (metadata !== undefined) {
       updateData.model_used = metadata.model_used;
-      updateData.generation_metadata = metadata;
+      updateData.generation_metadata = { ...metadata };
     }
     const { error } = await supabase
       .from('roadmaps')
