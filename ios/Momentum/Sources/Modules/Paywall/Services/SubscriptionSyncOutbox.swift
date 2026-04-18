@@ -2,7 +2,7 @@ import Foundation
 import OSLog
 import SwiftData
 
-private nonisolated(unsafe) let outboxLogger = Logger(subsystem: Bundle.main.bundleIdentifier ?? "app.momentum-ai", category: "SubscriptionOutbox")
+private nonisolated let outboxLogger = Logger(subsystem: Bundle.main.bundleIdentifier ?? "app.momentum-ai", category: "SubscriptionOutbox")
 
 private let maxDrainAttemptsPerEntry = 5
 
@@ -77,16 +77,16 @@ actor SubscriptionSyncOutbox {
         )
         guard let pending = try? context.fetch(descriptor), !pending.isEmpty else { return }
 
-        await outboxLogger.debug("draining \(pending.count, privacy: .public) pending sync(s)")
+        outboxLogger.debug("draining \(pending.count, privacy: .public) pending sync(s)")
 
         var succeeded = 0
         for entry in pending {
             if let tagged = entry.userId, let current = currentUserId, tagged != current {
-                await outboxLogger.debug("skip entry — userId mismatch")
+                outboxLogger.debug("skip entry — userId mismatch")
                 continue
             }
             if await entry.attemptCount >= maxDrainAttemptsPerEntry {
-                await outboxLogger.debug("skip entry — attempt cap reached")
+                outboxLogger.debug("skip entry — attempt cap reached")
                 continue
             }
             let body = VerifySubscriptionBody(jwsTransaction: entry.jwsRepresentation)
@@ -98,10 +98,10 @@ actor SubscriptionSyncOutbox {
             } catch {
                 entry.attemptCount += 1
                 try? context.save()
-                await outboxLogger.debug("drain entry failed, will retry later")
+                outboxLogger.debug("drain entry failed, will retry later")
             }
         }
-        await outboxLogger.debug("drained \(succeeded, privacy: .public)/\(pending.count, privacy: .public)")
+        outboxLogger.debug("drained \(succeeded, privacy: .public)/\(pending.count, privacy: .public)")
     }
 
     func purgeOlderThan(days: Int) async {
@@ -115,7 +115,7 @@ actor SubscriptionSyncOutbox {
             context.delete(entry)
         }
         try? context.save()
-        await outboxLogger.debug("purged \(stale.count, privacy: .public) stale entries")
+        outboxLogger.debug("purged \(stale.count, privacy: .public) stale entries")
     }
 
     func purgeForUser(userId: String) async {
@@ -128,6 +128,6 @@ actor SubscriptionSyncOutbox {
             context.delete(entry)
         }
         try? context.save()
-        await outboxLogger.debug("purged \(entries.count, privacy: .public) entries for user")
+        outboxLogger.debug("purged \(entries.count, privacy: .public) entries for user")
     }
 }
