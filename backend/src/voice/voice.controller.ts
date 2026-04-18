@@ -76,9 +76,14 @@ export class VoiceController {
   @Throttle({ default: { limit: AI_LIMIT, ttl: AI_TTL } })
   public async synthesize(
     @Body() dto: SynthesizeDto,
+    @UserId() userId: string,
     @Res() res: Response,
   ): Promise<void> {
-    const result = await this.voiceService.synthesize(dto.text, dto.coach_id);
+    const result = await this.voiceService.synthesize(
+      dto.text,
+      dto.coach_id,
+      userId,
+    );
 
     res.set('Content-Type', result.content_type);
     res.set('Content-Length', String(result.audio.length));

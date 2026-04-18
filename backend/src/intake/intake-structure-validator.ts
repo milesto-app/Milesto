@@ -1,5 +1,8 @@
 import { config } from '../config/app.config.js';
-import { VALID_QUESTION_TYPES } from './constants/intake.constants.js';
+import {
+  MAX_QUESTION_TEXT_LENGTH,
+  VALID_QUESTION_TYPES,
+} from './constants/intake.constants.js';
 
 interface ValidationResult {
   valid: boolean;
@@ -57,6 +60,12 @@ function validateTextField(
     q.question_text.trim() === ''
   ) {
     errors.push(`${prefix}: missing or empty question_text`);
+    return;
+  }
+  if (q.question_text.length > MAX_QUESTION_TEXT_LENGTH) {
+    errors.push(
+      `${prefix}: question_text exceeds ${String(MAX_QUESTION_TEXT_LENGTH)} characters (got ${String(q.question_text.length)})`,
+    );
   }
 }
 

@@ -8,6 +8,10 @@ import type { SynthesisResult, TranscriptionResult } from './voice.types.js';
 import { VoiceSttService } from './voice-stt.service.js';
 import { VoiceTtsService } from './voice-tts.service.js';
 
+type SupportedLanguage = 'en' | 'fr';
+
+const FRENCH_LANGUAGE_PREFIX = 'fr';
+
 @Injectable()
 export class VoiceService {
   private readonly logger = new Logger(VoiceService.name);
@@ -35,21 +39,27 @@ export class VoiceService {
   public async synthesize(
     text: string,
     coachId: number,
+    userId: string,
   ): Promise<SynthesisResult> {
-    const voiceId = this.resolveVoiceId(coachId);
-    this.logger.log(
-      `Synthesizing for coach ${String(coachId)} with voice ${voiceId}`,
-    );
+    const rawLanguage = await this.languageService.getLanguage(userId);
+    const language = this.normalizeLanguage(rawLanguage);
+    const voiceId = this.resolveVoiceId(coachId, language);
+    this.logger.log(`Synthesizing for coach ${String(coachId)} in ${language}`);
     return this.ttsService.synthesize(text, voiceId);
   }
 
-  private resolveVoiceId(coachId: number): string {
+  private resolveVoiceId(coachId: number, language: SupportedLanguage): string {
     const coach = COACH_BY_ID.get(coachId);
 
     if (coach === undefined) {
       throw new NotFoundException(`Coach with id ${String(coachId)} not found`);
     }
 
-    return coach.elevenlabsVoiceId;
+    return coach.elevenlabsVoiceId[language];
+  }
+
+  private normalizeLanguage(raw: string): SupportedLanguage {
+    const prefix = raw.toLowerCase().split(/[-_]/)[0];
+    return prefix === FRENCH_LANGUAGE_PREFIX ? 'fr' : 'en';
   }
 }

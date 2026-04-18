@@ -95,9 +95,17 @@ describe('VoiceController.synthesize', () => {
     const mockSend = jest.fn();
     const mockRes = { set: mockSet, send: mockSend } as unknown as Response;
 
-    await controller.synthesize({ text: 'Hello', coach_id: 1 }, mockRes);
+    await controller.synthesize(
+      { text: 'Hello', coach_id: 1 },
+      'user-123',
+      mockRes,
+    );
 
-    expect(voiceService.synthesize).toHaveBeenCalledWith('Hello', 1);
+    expect(voiceService.synthesize).toHaveBeenCalledWith(
+      'Hello',
+      1,
+      'user-123',
+    );
     expect(mockSet).toHaveBeenCalledWith('Content-Type', 'audio/mpeg');
     expect(mockSend).toHaveBeenCalledWith(MOCK_SYNTHESIS.audio);
   });
@@ -113,7 +121,11 @@ describe('VoiceController.synthesize', () => {
     } as unknown as Response;
 
     await expect(
-      controller.synthesize({ text: 'Hello', coach_id: 999 }, mockRes),
+      controller.synthesize(
+        { text: 'Hello', coach_id: 999 },
+        'user-123',
+        mockRes,
+      ),
     ).rejects.toThrow(NotFoundException);
   });
 });

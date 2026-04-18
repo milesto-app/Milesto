@@ -57,14 +57,15 @@ struct MilestoneDetailView: View {
             isLoadingTasks = false
         }
         .navigationDestination(item: $selectedTaskId) { taskId in
-            if let task = tasks.first(where: { $0.id == taskId }) {
+            let ordered = sortedTasks.map(\.id)
+            if let start = ordered.firstIndex(of: taskId) {
                 let toggleHandler: ((WeeklyTaskDTO) -> Void)? =
                     status == .current ? { updated in applyToggle(updated) } : nil
                 WeeklyTaskDetailView(
-                    task: task,
+                    tasks: tasks,
+                    orderedIds: ordered,
+                    startIndex: start,
                     weekNumber: nil,
-                    indexInWeek: sortedTasks.firstIndex(where: { $0.id == taskId }) ?? 0,
-                    totalInWeek: sortedTasks.count,
                     onToggle: toggleHandler
                 )
             }
