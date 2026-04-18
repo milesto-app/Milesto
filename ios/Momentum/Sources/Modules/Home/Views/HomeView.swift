@@ -15,6 +15,7 @@ struct HomeView: View {
     @State private var showDebriefSheet = false
     @State private var showWeeklyPlanDetail = false
     @State private var showWeeklyPlanGeneration = false
+    @State private var selectedTaskId: String?
 
     private var currentGoal: LocalGoal? {
         localGoals.first { $0.id == goalId }
@@ -190,6 +191,68 @@ struct HomeView: View {
                 )
             }
         }
+        .navigationDestination(item: $selectedTaskId) { taskId in
+            if let task = tasks.first(where: { $0.id == taskId }) {
+                WeeklyTaskDetailView(
+                    task: task,
+                    weekNumber: weeklyPlan?.weekNumber,
+                    indexInWeek: sortedTasks.firstIndex(where: { $0.id == taskId }) ?? 0,
+                    totalInWeek: tasks.count,
+                    onToggle: { updated in
+                        applyRemoteToggle(updated)
+                    }
+                )
+            }
+        }
+    }
+
+    private var sortedTasks: [WeeklyTaskDTO] {
+        tasks.sorted {
+            if $0.isCompleted != $1.isCompleted { return !$0.isCompleted }
+            let p0 = $0.difficultyRating.priority
+            let p1 = $1.difficultyRating.priority
+            if p0 != p1 { return p0 < p1 }
+            return $0.orderIndex < $1.orderIndex
+        }
+    }
+
+    private func applyRemoteToggle(_ updated: WeeklyTaskDTO) {
+        if let idx = tasks.firstIndex(where: { $0.id == updated.id }) {
+            tasks[idx] = updated
+        }
+        updateCachedTask(id: updated.id, isCompleted: updated.isCompleted)
+
+        Task {
+            do {
+                let remote = try await RoadmapAPIService.shared.toggleTask(
+                    taskId: updated.id,
+                    isCompleted: updated.isCompleted
+                )
+                if let idx = tasks.firstIndex(where: { $0.id == remote.id }) {
+                    tasks[idx] = remote
+                }
+                updateCachedTask(id: remote.id, isCompleted: remote.isCompleted)
+            } catch {
+                let reverted = !updated.isCompleted
+                if let idx = tasks.firstIndex(where: { $0.id == updated.id }) {
+                    let original = tasks[idx]
+                    tasks[idx] = WeeklyTaskDTO(
+                        id: original.id,
+                        weeklyPlanId: original.weeklyPlanId,
+                        goalId: original.goalId,
+                        userId: original.userId,
+                        title: original.title,
+                        description: original.description,
+                        difficultyRating: original.difficultyRating,
+                        orderIndex: original.orderIndex,
+                        isCompleted: reverted,
+                        isFallback: original.isFallback,
+                        createdAt: original.createdAt
+                    )
+                }
+                updateCachedTask(id: updated.id, isCompleted: reverted)
+            }
+        }
     }
 
     private var syncErrorSection: some View {
@@ -217,18 +280,18 @@ struct HomeView: View {
                 .padding(.vertical, 16)
         } else {
             VStack(spacing: 4) {
-                ForEach(tasks.sorted(by: {
-                    if $0.isCompleted != $1.isCompleted { return !$0.isCompleted }
-                    let p0 = $0.difficultyRating.priority
-                    let p1 = $1.difficultyRating.priority
-                    if p0 != p1 { return p0 < p1 }
-                    return $0.orderIndex < $1.orderIndex
-                })) { task in
-                    ObjectiveRowView(task: task) {
-                        withAnimation(.easeInOut(duration: 0.3)) {
-                            toggleTask(task)
+                ForEach(sortedTasks) { task in
+                    ObjectiveRowView(
+                        task: task,
+                        onToggle: {
+                            withAnimation(.easeInOut(duration: 0.3)) {
+                                toggleTask(task)
+                            }
+                        },
+                        onOpen: {
+                            selectedTaskId = task.id
                         }
-                    }
+                    )
                     .padding(.horizontal, 24)
                     .padding(.vertical, 12)
                     .transition(.move(edge: .bottom).combined(with: .opacity))
