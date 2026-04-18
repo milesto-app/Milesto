@@ -5,12 +5,14 @@ import {
   Logger,
 } from '@nestjs/common';
 
-import type { Json } from '../supabase/database.types.js';
-import { SUPABASE_UNIQUE_VIOLATION } from '../supabase/error-codes.js';
+import type { Database, Json } from '../supabase/database.types.js';
 import { SupabaseService } from '../supabase/supabase.service.js';
 import type { GeneratedQuestion } from './intake-prompt.service.js';
 import { IntakeStoreQueryService } from './intake-store-query.service.js';
 import type { AnswerInput } from './types/intake.types.js';
+
+type IntakeQuestionUpdate =
+  Database['public']['Tables']['intake_questions']['Update'];
 
 export interface StoreBatchOptions {
   goalId: string;
@@ -112,23 +114,34 @@ export class IntakeStoreService {
     answers: AnswerInput[],
     batchId: string,
   ): Promise<void> {
-    const supabase = this.supabaseService.getAdminClient();
-    const rows = answers.map((a) => ({
-      question_id: a.question_id,
-      answer_text: a.answer_text ?? null,
-      answer_numeric: a.answer_numeric ?? null,
-      selected_options: a.selected_options ?? null,
-    }));
+    const answeredAt = new Date().toISOString();
+    await Promise.all(
+      answers.map(async (answer) => this.updateAnswer(answer, answeredAt)),
+    );
+    await this.markBatchAnswered(batchId);
+  }
 
-    const { error } = await supabase.from('intake_answers').insert(rows);
+  private async updateAnswer(
+    answer: AnswerInput,
+    answeredAt: string,
+  ): Promise<void> {
+    const supabase = this.supabaseService.getAdminClient();
+    const update: IntakeQuestionUpdate = {
+      answer_text: answer.answer_text ?? null,
+      answer_numeric: answer.answer_numeric ?? null,
+      selected_options: (answer.selected_options ?? null) as Json | null,
+      answered_at: answeredAt,
+    };
+    const { error } = await supabase
+      .from('intake_questions')
+      .update(update)
+      .eq('id', answer.question_id);
     if (error !== null) {
-      if (error.code === SUPABASE_UNIQUE_VIOLATION) {
-        throw new ConflictException('Answers already submitted for this batch');
-      }
-      this.logger.error(`Failed to insert answers: ${error.message}`);
+      this.logger.error(
+        `Failed to update answer for question ${answer.question_id}: ${error.message}`,
+      );
       throw new InternalServerErrorException('Failed to save answers');
     }
-    await this.markBatchAnswered(batchId);
   }
 
   private async insertQuestions(params: {

@@ -8,7 +8,6 @@ import { WeeklyPlanStorageService } from './weekly-plan-storage.service.js';
 
 const GOAL_ID = 'goal-uuid';
 const USER_ID = 'user-uuid';
-const ROADMAP_ID = 'roadmap-uuid';
 
 function makeMilestone(
   id: string,
@@ -16,7 +15,6 @@ function makeMilestone(
 ): Record<string, unknown> {
   return {
     id,
-    roadmap_id: ROADMAP_ID,
     goal_id: GOAL_ID,
     order_index: orderIndex,
     title: `Milestone ${String(orderIndex)}`,
@@ -69,17 +67,17 @@ describe('WeeklyPlanStorageService', () => {
   let service: WeeklyPlanStorageService;
   let mockFrom: jest.Mock;
 
-  const roadmap = {
-    id: ROADMAP_ID,
-    goal_id: GOAL_ID,
+  const goalRow = {
+    id: GOAL_ID,
     user_id: USER_ID,
-    status: 'complete',
-    created_at: daysAgo(90),
-    updated_at: daysAgo(90),
-    generation_attempts: 1,
-    model_used: null,
-    generation_metadata: {},
-    quality_scores: null,
+    roadmap_status: 'complete',
+    roadmap_generation_attempts: 1,
+    roadmap_model_used: null,
+    roadmap_generation_metadata: {},
+    roadmap_quality_scores: null,
+    roadmap_created_at: daysAgo(90),
+    roadmap_updated_at: daysAgo(90),
+    target_date: null as string | null,
   };
 
   const milestones = [
@@ -94,14 +92,21 @@ describe('WeeklyPlanStorageService', () => {
     roadmapCreatedAt?: string;
     milestoneList?: typeof milestones;
   }): void {
-    const createdAt = options.roadmapCreatedAt ?? roadmap.created_at;
-    const currentRoadmap = { ...roadmap, created_at: createdAt };
+    const createdAt = options.roadmapCreatedAt ?? goalRow.roadmap_created_at;
     const currentMilestones = options.milestoneList ?? milestones;
+    let goalCallIndex = 0;
 
     mockFrom = jest.fn().mockImplementation((table: string) => {
-      if (table === 'roadmaps') {
+      if (table === 'goals') {
+        goalCallIndex += 1;
+        if (goalCallIndex === 1) {
+          return createQueryBuilder({
+            data: { ...goalRow, roadmap_created_at: createdAt },
+            error: null,
+          });
+        }
         return createQueryBuilder({
-          data: currentRoadmap,
+          data: { target_date: options.targetDate ?? null },
           error: null,
         });
       }
@@ -120,12 +125,6 @@ describe('WeeklyPlanStorageService', () => {
         }
         return createQueryBuilder({
           data: { milestone_id: options.lastPlanMilestoneId },
-          error: null,
-        });
-      }
-      if (table === 'goals') {
-        return createQueryBuilder({
-          data: { target_date: options.targetDate ?? null },
           error: null,
         });
       }

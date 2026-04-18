@@ -6,6 +6,7 @@ import { GoalService } from '../goal/goal.service.js';
 import { SupabaseService } from '../supabase/supabase.service.js';
 import { UsageService } from '../usage/usage.service.js';
 import { GenerationType } from '../usage/usage.types.js';
+import { ROADMAP_STATUS } from './constants/roadmap.constants.js';
 import { ContextPipelineService } from './context-pipeline.service.js';
 import { GenerationService } from './generation.service.js';
 import { RoadmapStorageService } from './roadmap-storage.service.js';
@@ -47,20 +48,19 @@ export class RoadmapService {
       );
     } catch (error) {
       await this.roadmapStorage.updateRoadmapStatus(
-        roadmap.id,
-        'failed',
+        goalId,
+        ROADMAP_STATUS.FAILED,
         undefined,
       );
       throw error;
     }
 
-    void this.runGeneration(roadmap.id, goalId, userId, goalData);
+    void this.runGeneration(goalId, userId, goalData);
 
     return roadmap;
   }
 
   private async runGeneration(
-    roadmapId: string,
     goalId: string,
     userId: string,
     goalData: GoalData,
@@ -78,15 +78,15 @@ export class RoadmapService {
         language,
       );
 
-      await this.roadmapStorage.storeMilestones(roadmapId, goalId, milestones);
+      await this.roadmapStorage.storeMilestones(goalId, milestones);
       await this.roadmapStorage.updateRoadmapStatus(
-        roadmapId,
-        'complete',
+        goalId,
+        ROADMAP_STATUS.COMPLETE,
         metadata,
       );
       await this.goal.updateStatus(goalId, 'active');
 
-      this.events.emit('roadmap.generated', { roadmapId, goalId });
+      this.events.emit('roadmap.generated', { goalId });
       this.logger.log(
         `Roadmap generated for goal ${goalId}: ${String(milestones.length)} milestones`,
       );
@@ -96,8 +96,8 @@ export class RoadmapService {
         error instanceof Error ? error.stack : undefined,
       );
       await this.roadmapStorage.updateRoadmapStatus(
-        roadmapId,
-        'failed',
+        goalId,
+        ROADMAP_STATUS.FAILED,
         undefined,
       );
     }
@@ -123,9 +123,9 @@ export class RoadmapService {
     try {
       const supabase = this.supabaseService.getAdminClient();
       const { data: profile } = await supabase
-        .from('goal_profiles')
+        .from('goals')
         .select('profile_data')
-        .eq('goal_id', goalId)
+        .eq('id', goalId)
         .eq('user_id', userId)
         .single();
       profileData =

@@ -34,7 +34,6 @@ describe('RoadmapService', () => {
 
   const userId = 'user-123';
   const goalId = 'goal-456';
-  const roadmapId = 'roadmap-789';
 
   const mockGoal = {
     id: goalId,
@@ -89,7 +88,6 @@ describe('RoadmapService', () => {
   };
 
   const mockLockedRoadmap = {
-    id: roadmapId,
     goal_id: goalId,
     user_id: userId,
     status: 'generating',
@@ -206,12 +204,11 @@ describe('RoadmapService', () => {
       );
       expect(mockGeneration.generateMilestones).toHaveBeenCalled();
       expect(mockRoadmapStorage.storeMilestones).toHaveBeenCalledWith(
-        roadmapId,
         goalId,
         mockMilestones,
       );
       expect(mockRoadmapStorage.updateRoadmapStatus).toHaveBeenCalledWith(
-        roadmapId,
+        goalId,
         'complete',
         mockGenerationResult.metadata,
       );
@@ -220,7 +217,6 @@ describe('RoadmapService', () => {
         'active',
       );
       expect(mockEventEmitter.emit).toHaveBeenCalledWith('roadmap.generated', {
-        roadmapId,
         goalId,
       });
     });
@@ -289,7 +285,7 @@ describe('RoadmapService', () => {
       await flushPromises();
 
       expect(mockRoadmapStorage.updateRoadmapStatus).toHaveBeenCalledWith(
-        roadmapId,
+        goalId,
         'failed',
         undefined,
       );
@@ -303,7 +299,6 @@ describe('RoadmapService', () => {
       await flushPromises();
 
       expect(mockEventEmitter.emit).toHaveBeenCalledWith('roadmap.generated', {
-        roadmapId,
         goalId,
       });
     });

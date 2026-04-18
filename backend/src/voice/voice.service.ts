@@ -1,7 +1,7 @@
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 
+import { COACH_BY_ID } from '../coach/coaches.config.js';
 import { UserLanguageService } from '../common/user-language.service.js';
-import { SupabaseService } from '../supabase/supabase.service.js';
 import { UsageService } from '../usage/usage.service.js';
 import { GenerationType } from '../usage/usage.types.js';
 import type { SynthesisResult, TranscriptionResult } from './voice.types.js';
@@ -13,7 +13,6 @@ export class VoiceService {
   private readonly logger = new Logger(VoiceService.name);
 
   constructor(
-    private readonly supabaseService: SupabaseService,
     private readonly sttService: VoiceSttService,
     private readonly ttsService: VoiceTtsService,
     private readonly languageService: UserLanguageService,
@@ -37,27 +36,20 @@ export class VoiceService {
     text: string,
     coachId: number,
   ): Promise<SynthesisResult> {
-    const voiceId = await this.resolveVoiceId(coachId);
+    const voiceId = this.resolveVoiceId(coachId);
     this.logger.log(
       `Synthesizing for coach ${String(coachId)} with voice ${voiceId}`,
     );
     return this.ttsService.synthesize(text, voiceId);
   }
 
-  private async resolveVoiceId(coachId: number): Promise<string> {
-    const supabase = this.supabaseService.getAdminClient();
+  private resolveVoiceId(coachId: number): string {
+    const coach = COACH_BY_ID.get(coachId);
 
-    const { data, error } = await supabase
-      .from('coaches')
-      .select('elevenlabs_voice_id')
-      .eq('id', coachId)
-      .eq('is_active', true)
-      .single();
-
-    if (error !== null) {
+    if (coach === undefined) {
       throw new NotFoundException(`Coach with id ${String(coachId)} not found`);
     }
 
-    return (data as { elevenlabs_voice_id: string }).elevenlabs_voice_id;
+    return coach.elevenlabsVoiceId;
   }
 }

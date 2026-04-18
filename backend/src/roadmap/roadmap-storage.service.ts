@@ -8,20 +8,32 @@ import {
 } from '@nestjs/common';
 
 import { config } from '../config/app.config.js';
-import type { Database } from '../supabase/database.types.js';
+import type { Database, Json } from '../supabase/database.types.js';
 import { SupabaseService } from '../supabase/supabase.service.js';
+import { ROADMAP_STATUS } from './constants/roadmap.constants.js';
+import type {
+  GenerationMetadata,
+  Milestone,
+  MilestoneSummary,
+  Roadmap,
+} from './types/roadmap.types.js';
 
-type RoadmapUpdate = Database['public']['Tables']['roadmaps']['Update'];
+type GoalUpdate = Database['public']['Tables']['goals']['Update'];
+type GoalRow = Database['public']['Tables']['goals']['Row'];
 
 const WEEKS_PER_MONTH_GROUP = 3;
 const STALE_GENERATION_MINUTES = 5;
 const MS_PER_MINUTE = 60_000;
 const STALE_GENERATION_MS = STALE_GENERATION_MINUTES * MS_PER_MINUTE;
-import type {
-  GenerationMetadata,
-  MilestoneSummary,
-  Roadmap,
-} from './types/roadmap.types.js';
+const INITIAL_GENERATION_ATTEMPT = 1;
+
+type RoadmapLockRow = Pick<
+  GoalRow,
+  | 'id'
+  | 'roadmap_status'
+  | 'roadmap_generation_attempts'
+  | 'roadmap_updated_at'
+>;
 
 @Injectable()
 export class RoadmapStorageService {
@@ -31,19 +43,21 @@ export class RoadmapStorageService {
 
   public async getRoadmap(goalId: string, userId: string): Promise<Roadmap> {
     const supabase = this.supabaseService.getAdminClient();
-    const { data: roadmap, error } = await supabase
-      .from('roadmaps')
-      .select('*')
-      .eq('goal_id', goalId)
+    const { data: goal, error } = await supabase
+      .from('goals')
+      .select(
+        'id, user_id, roadmap_status, roadmap_generation_attempts, roadmap_model_used, roadmap_generation_metadata, roadmap_quality_scores, roadmap_created_at, roadmap_updated_at',
+      )
+      .eq('id', goalId)
       .eq('user_id', userId)
       .single();
-    if (error) {
+    if (error || goal === null || goal.roadmap_status === null) {
       throw new NotFoundException('Roadmap not found');
     }
     const { data: milestones } = await supabase
       .from('milestones')
       .select('*')
-      .eq('roadmap_id', roadmap.id)
+      .eq('goal_id', goalId)
       .order('order_index', { ascending: true });
     const { data: activePlan } = await supabase
       .from('weekly_plans')
@@ -52,11 +66,11 @@ export class RoadmapStorageService {
       .eq('user_id', userId)
       .eq('status', 'active')
       .single();
-    return {
-      ...roadmap,
+    return this.buildRoadmap({
+      goal,
       milestones: milestones ?? [],
-      current_milestone_id: activePlan?.milestone_id ?? null,
-    } as Roadmap;
+      currentMilestoneId: activePlan?.milestone_id ?? null,
+    });
   }
 
   public async getMilestones(
@@ -64,13 +78,13 @@ export class RoadmapStorageService {
     userId: string,
   ): Promise<MilestoneSummary[]> {
     const supabase = this.supabaseService.getAdminClient();
-    const { data: roadmap, error: roadmapError } = await supabase
-      .from('roadmaps')
-      .select('id')
-      .eq('goal_id', goalId)
+    const { data: goal, error: goalError } = await supabase
+      .from('goals')
+      .select('id, roadmap_status')
+      .eq('id', goalId)
       .eq('user_id', userId)
       .single();
-    if (roadmapError) {
+    if (goalError || goal === null || goal.roadmap_status === null) {
       throw new NotFoundException('Roadmap not found');
     }
     const { data, error } = await supabase
@@ -78,7 +92,7 @@ export class RoadmapStorageService {
       .select(
         'id, title, description, expected_outcome, is_monthly_checkpoint, order_index',
       )
-      .eq('roadmap_id', roadmap.id)
+      .eq('goal_id', goalId)
       .order('order_index', { ascending: true });
     if (error) {
       throw new NotFoundException('Milestones not found');
@@ -92,21 +106,26 @@ export class RoadmapStorageService {
   ): Promise<Roadmap> {
     const supabase = this.supabaseService.getAdminClient();
     const { data: existing } = await supabase
-      .from('roadmaps')
-      .select('*')
-      .eq('goal_id', goalId)
+      .from('goals')
+      .select(
+        'id, roadmap_status, roadmap_generation_attempts, roadmap_updated_at',
+      )
+      .eq('id', goalId)
       .single();
 
     // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
     if (existing === null || existing === undefined) {
+      throw new NotFoundException('Goal not found');
+    }
+
+    if (existing.roadmap_status === null) {
       return this.createNewRoadmap(supabase, goalId, userId);
     }
 
-    return this.lockExistingRoadmap(supabase, existing);
+    return this.lockExistingRoadmap(supabase, existing, goalId, userId);
   }
 
   public async storeMilestones(
-    roadmapId: string,
     goalId: string,
     milestones: Array<{
       title: string;
@@ -118,7 +137,6 @@ export class RoadmapStorageService {
   ): Promise<void> {
     const supabase = this.supabaseService.getAdminClient();
     const rows = milestones.map((m) => ({
-      roadmap_id: roadmapId,
       goal_id: goalId,
       title: m.title,
       description: m.description,
@@ -137,28 +155,28 @@ export class RoadmapStorageService {
   }
 
   public async updateRoadmapStatus(
-    roadmapId: string,
+    goalId: string,
     status: string,
     metadata: GenerationMetadata | undefined,
   ): Promise<void> {
     const supabase = this.supabaseService.getAdminClient();
-    const updateData: RoadmapUpdate = {
-      status,
-      updated_at: new Date().toISOString(),
+    const updateData: GoalUpdate = {
+      roadmap_status: status,
+      roadmap_updated_at: new Date().toISOString(),
     };
     if (metadata !== undefined) {
-      updateData.model_used = metadata.model_used;
-      updateData.generation_metadata = { ...metadata };
+      updateData.roadmap_model_used = metadata.model_used;
+      updateData.roadmap_generation_metadata = { ...metadata };
     }
     const { error } = await supabase
-      .from('roadmaps')
+      .from('goals')
       .update(updateData)
-      .eq('id', roadmapId);
+      .eq('id', goalId);
     if (error) {
       this.logger.warn(
-        `Failed to update roadmap ${roadmapId} status to ${status}: ${error.message}`,
+        `Failed to update roadmap ${goalId} status to ${status}: ${error.message}`,
       );
-      if (status !== 'failed') {
+      if (status !== ROADMAP_STATUS.FAILED) {
         throw new InternalServerErrorException(
           `Failed to update roadmap status to ${status}: ${error.message}`,
         );
@@ -171,55 +189,110 @@ export class RoadmapStorageService {
     goalId: string,
     userId: string,
   ): Promise<Roadmap> {
+    const now = new Date().toISOString();
     const { data, error } = await supabase
-      .from('roadmaps')
-      .insert({ goal_id: goalId, user_id: userId, status: 'generating' })
-      .select()
+      .from('goals')
+      .update({
+        roadmap_status: ROADMAP_STATUS.GENERATING,
+        roadmap_generation_attempts: INITIAL_GENERATION_ATTEMPT,
+        roadmap_created_at: now,
+        roadmap_updated_at: now,
+      })
+      .eq('id', goalId)
+      .eq('user_id', userId)
+      .select(
+        'id, user_id, roadmap_status, roadmap_generation_attempts, roadmap_model_used, roadmap_generation_metadata, roadmap_quality_scores, roadmap_created_at, roadmap_updated_at',
+      )
       .single();
-    if (error) {
+    if (error || data === null) {
       throw new ConflictException('Failed to create roadmap');
     }
-    return data as Roadmap;
+    return this.buildRoadmap({ goal: data });
   }
 
   private async lockExistingRoadmap(
     supabase: ReturnType<SupabaseService['getAdminClient']>,
-    existing: Record<string, unknown>,
+    existing: RoadmapLockRow,
+    goalId: string,
+    userId: string,
   ): Promise<Roadmap> {
-    if (existing.status === 'complete') {
+    if (existing.roadmap_status === ROADMAP_STATUS.COMPLETE) {
       throw new BadRequestException('Roadmap already generated');
     }
-    if (existing.status === 'generating') {
-      const updatedAt = new Date(existing.updated_at as string).getTime();
+    if (existing.roadmap_status === ROADMAP_STATUS.GENERATING) {
+      const updatedAtIso = existing.roadmap_updated_at ?? new Date(0).toISOString();
+      const updatedAt = new Date(updatedAtIso).getTime();
       const isStale = Date.now() - updatedAt > STALE_GENERATION_MS;
       if (!isStale) {
         throw new ConflictException('Roadmap generation already in progress');
       }
       this.logger.warn(
-        `Recovering stale generating lock for roadmap ${existing.id as string}`,
+        `Recovering stale generating lock for roadmap ${goalId}`,
       );
     }
     if (
-      (existing.generation_attempts as number) >=
+      existing.roadmap_generation_attempts >=
       config.roadmap.maxGenerationAttempts
     ) {
       throw new BadRequestException('Maximum generation attempts exceeded');
     }
     const { data, error } = await supabase
-      .from('roadmaps')
+      .from('goals')
       .update({
-        status: 'generating',
-        generation_attempts: (existing.generation_attempts as number) + 1,
-        updated_at: new Date().toISOString(),
+        roadmap_status: ROADMAP_STATUS.GENERATING,
+        roadmap_generation_attempts: existing.roadmap_generation_attempts + 1,
+        roadmap_updated_at: new Date().toISOString(),
       })
-      .eq('id', existing.id as string)
-      .neq('status', 'generating')
-      .select()
+      .eq('id', goalId)
+      .eq('user_id', userId)
+      .neq('roadmap_status', ROADMAP_STATUS.GENERATING)
+      .select(
+        'id, user_id, roadmap_status, roadmap_generation_attempts, roadmap_model_used, roadmap_generation_metadata, roadmap_quality_scores, roadmap_created_at, roadmap_updated_at',
+      )
       .single();
     // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition, @typescript-eslint/strict-boolean-expressions
     if (data === null || error) {
       throw new ConflictException('Roadmap generation already in progress');
     }
-    return data as Roadmap;
+    return this.buildRoadmap({ goal: data });
+  }
+
+  private buildRoadmap(params: {
+    goal: {
+      id: string;
+      user_id: string;
+      roadmap_status: string | null;
+      roadmap_generation_attempts: number;
+      roadmap_model_used: string | null;
+      roadmap_generation_metadata: Json | null;
+      roadmap_quality_scores: Json | null;
+      roadmap_created_at: string | null;
+      roadmap_updated_at: string | null;
+    };
+    milestones?: unknown[];
+    currentMilestoneId?: string | null;
+  }): Roadmap {
+    const { goal, milestones, currentMilestoneId } = params;
+    const now = new Date().toISOString();
+    return {
+      goal_id: goal.id,
+      user_id: goal.user_id,
+      status: (goal.roadmap_status ?? ROADMAP_STATUS.GENERATING) as Roadmap['status'],
+      generation_attempts: goal.roadmap_generation_attempts,
+      model_used: goal.roadmap_model_used,
+      generation_metadata:
+        (goal.roadmap_generation_metadata as Record<string, unknown> | null) ??
+        {},
+      quality_scores:
+        (goal.roadmap_quality_scores as Record<string, unknown> | null) ?? null,
+      created_at: goal.roadmap_created_at ?? now,
+      updated_at: goal.roadmap_updated_at ?? now,
+      ...(milestones !== undefined
+        ? { milestones: milestones as Milestone[] }
+        : {}),
+      ...(currentMilestoneId !== undefined
+        ? { current_milestone_id: currentMilestoneId }
+        : {}),
+    };
   }
 }

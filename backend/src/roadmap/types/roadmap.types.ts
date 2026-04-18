@@ -1,7 +1,6 @@
 export type RoadmapStatus = 'generating' | 'complete' | 'failed';
 
 export interface Roadmap {
-  id: string;
   goal_id: string;
   user_id: string;
   status: RoadmapStatus;
@@ -17,7 +16,6 @@ export interface Roadmap {
 
 export interface Milestone {
   id: string;
-  roadmap_id: string;
   goal_id: string;
   order_index: number;
   title: string;

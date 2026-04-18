@@ -35,7 +35,7 @@ export class QualityMilestoneService {
       await this.evaluateAndStore(payload);
     } catch (error) {
       this.logger.error(
-        `Milestone quality evaluation failed (roadmap ${payload.roadmapId}, goal ${payload.goalId}): ${error instanceof Error ? error.message : String(error)}`,
+        `Milestone quality evaluation failed (goal ${payload.goalId}): ${error instanceof Error ? error.message : String(error)}`,
       );
     }
   }
@@ -58,13 +58,13 @@ export class QualityMilestoneService {
 
     const scores = this.buildScores(rawScores);
     const { error: updateError } = await supabase
-      .from('roadmaps')
-      .update({ quality_scores: scores as unknown as Json })
-      .eq('id', payload.roadmapId);
+      .from('goals')
+      .update({ roadmap_quality_scores: scores as unknown as Json })
+      .eq('id', payload.goalId);
 
     if (updateError !== null) {
       this.logger.error(
-        `Failed to store milestone quality scores (roadmap ${payload.roadmapId}): ${updateError.message}`,
+        `Failed to store milestone quality scores (goal ${payload.goalId}): ${updateError.message}`,
       );
       return;
     }
@@ -84,12 +84,12 @@ export class QualityMilestoneService {
     supabase: ReturnType<SupabaseService['getAdminClient']>,
     payload: RoadmapGeneratedEvent,
   ): Promise<{ content: string; goalContext: string } | null> {
-    const roadmapData = await this.loadRoadmap(supabase, payload.roadmapId);
+    const roadmapData = await this.loadRoadmapMetadata(supabase, payload.goalId);
     if (roadmapData === null) {
       return null;
     }
 
-    const milestones = await this.loadMilestones(supabase, payload.roadmapId);
+    const milestones = await this.loadMilestones(supabase, payload.goalId);
     if (milestones === null) {
       return null;
     }
@@ -104,40 +104,40 @@ export class QualityMilestoneService {
     return { content, goalContext };
   }
 
-  private async loadRoadmap(
+  private async loadRoadmapMetadata(
     supabase: ReturnType<SupabaseService['getAdminClient']>,
-    roadmapId: string,
+    goalId: string,
   ): Promise<{ id: string } | null> {
     const { data, error } = await supabase
-      .from('roadmaps')
-      .select('id, generation_metadata')
-      .eq('id', roadmapId)
+      .from('goals')
+      .select('id, roadmap_generation_metadata')
+      .eq('id', goalId)
       .single();
     // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
     if (error !== null || data === null) {
       this.logger.error(
-        `Failed to load roadmap for quality evaluation (${roadmapId}): ${error.message}`,
+        `Failed to load roadmap for quality evaluation (${goalId}): ${error.message}`,
       );
       return null;
     }
-    return data;
+    return { id: data.id };
   }
 
   private async loadMilestones(
     supabase: ReturnType<SupabaseService['getAdminClient']>,
-    roadmapId: string,
+    goalId: string,
   ): Promise<unknown[] | null> {
     const { data, error } = await supabase
       .from('milestones')
       .select(
         'title, description, expected_outcome, is_monthly_checkpoint, order_index',
       )
-      .eq('roadmap_id', roadmapId)
+      .eq('goal_id', goalId)
       .order('order_index');
     // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
     if (error !== null || data === null || data.length === 0) {
       this.logger.error(
-        `Failed to load milestones for quality evaluation (roadmap ${roadmapId}): ${error?.message}`,
+        `Failed to load milestones for quality evaluation (goal ${goalId}): ${error?.message}`,
       );
       return null;
     }

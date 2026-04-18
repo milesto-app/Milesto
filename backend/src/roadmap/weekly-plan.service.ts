@@ -90,7 +90,7 @@ export class WeeklyPlanService {
       goalId,
       userId,
     );
-    const weekNumber = await this.deps.storage.calculateWeekNumber(roadmap.id);
+    const weekNumber = await this.deps.storage.calculateWeekNumber(goalId);
     const lastCompleted =
       await this.deps.storage.getLastCompletedPlanWithoutSummary(goalId);
     const ms = milestone as Milestone & {
@@ -124,7 +124,6 @@ export class WeeklyPlanService {
         goalId,
         userId,
         weekNumber,
-        roadmap.id,
       );
     }
   }
@@ -182,7 +181,6 @@ export class WeeklyPlanService {
       });
 
     const weeklyPlan = await this.deps.storage.storeWeeklyPlan({
-      roadmap_id: params.roadmap.id,
       milestone_id: params.milestone.id,
       goal_id: params.goalId,
       user_id: params.userId,
@@ -207,14 +205,12 @@ export class WeeklyPlanService {
     goalId: string,
     userId: string,
     weekNumber: number,
-    roadmapId: string,
   ): Promise<WeeklyPlan> {
     try {
       this.logger.warn(
         `Creating fallback weekly plan for goal ${goalId}, week ${String(weekNumber)}`,
       );
       return await this.deps.storage.storeWeeklyPlan({
-        roadmap_id: roadmapId,
         milestone_id: milestone.id,
         goal_id: goalId,
         user_id: userId,

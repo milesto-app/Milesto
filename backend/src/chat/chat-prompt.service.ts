@@ -86,13 +86,13 @@ export class ChatPromptService {
     return data?.content ?? '';
   }
 
-  public async buildSystemPrompt(input: {
+  public buildSystemPrompt(input: {
     coachId: number;
     goalContext: GoalContext;
     language: string;
     memory: string;
-  }): Promise<string> {
-    const coach = await this.coachService.getCoach(input.coachId);
+  }): string {
+    const coach = this.coachService.getCoach(input.coachId);
     return buildCoachPrompt({
       coach,
       goalContext: input.goalContext,

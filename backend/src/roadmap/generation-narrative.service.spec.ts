@@ -29,7 +29,6 @@ describe('GenerationNarrativeService', () => {
   describe('generateWeeklySummary', () => {
     const completedPlan = {
       id: 'plan-1',
-      roadmap_id: 'roadmap-1',
       milestone_id: 'ms-1',
       goal_id: 'goal-1',
       user_id: 'user-1',

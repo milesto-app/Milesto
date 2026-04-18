@@ -67,7 +67,7 @@ export class ChatService {
       this.prompt.fetchGoalContext(dto.goalId, userId),
       this.prompt.fetchMemory(userId, dto.goalId),
     ]);
-    const systemPrompt = await this.prompt.buildSystemPrompt({
+    const systemPrompt = this.prompt.buildSystemPrompt({
       coachId,
       goalContext,
       language,

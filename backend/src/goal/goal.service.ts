@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 
 import { AiService } from '../ai/ai.service.js';
-import type { Database } from '../supabase/database.types.js';
+import type { Database, Json } from '../supabase/database.types.js';
 import { SupabaseService } from '../supabase/supabase.service.js';
 import { UsageService } from '../usage/usage.service.js';
 import { GenerationType } from '../usage/usage.types.js';
@@ -20,6 +20,14 @@ import {
 } from './prompts/goal-title-prompt.js';
 
 type GoalRow = Database['public']['Tables']['goals']['Row'];
+
+export interface GoalProfileResult {
+  id: string;
+  goal_id: string;
+  profile_data: Json | null;
+  narrative_summary: string | null;
+  created_at: string | null;
+}
 
 @Injectable()
 export class GoalService {
@@ -108,12 +116,7 @@ export class GoalService {
   public async getGoalProfile(
     userId: string,
     goalId: string,
-  ): Promise<
-    Pick<
-      Database['public']['Tables']['goal_profiles']['Row'],
-      'id' | 'goal_id' | 'profile_data' | 'narrative_summary' | 'created_at'
-    >
-  > {
+  ): Promise<GoalProfileResult> {
     const goal = await this.findOne(userId, goalId);
 
     if (!PROFILE_VIEWABLE_STATUSES.includes(goal.status)) {
@@ -123,9 +126,9 @@ export class GoalService {
     const supabase = this.supabaseService.getAdminClient();
 
     const { data: profile, error } = await supabase
-      .from('goal_profiles')
-      .select('id, goal_id, profile_data, narrative_summary, created_at')
-      .eq('goal_id', goalId)
+      .from('goals')
+      .select('id, profile_data, narrative_summary, profile_created_at')
+      .eq('id', goalId)
       .eq('user_id', userId)
       .single();
 
@@ -133,7 +136,13 @@ export class GoalService {
       throw new NotFoundException('Profile not found');
     }
 
-    return profile;
+    return {
+      id: profile.id,
+      goal_id: profile.id,
+      profile_data: profile.profile_data,
+      narrative_summary: profile.narrative_summary,
+      created_at: profile.profile_created_at,
+    };
   }
 
   public async setTargetDate(

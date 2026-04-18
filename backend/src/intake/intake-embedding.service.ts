@@ -37,14 +37,14 @@ export class IntakeEmbeddingService {
     payload: ProfileGeneratedEvent,
   ): Promise<void> {
     try {
-      const narrative = await this.loadProfileNarrative(payload.profile_id);
+      const narrative = await this.loadProfileNarrative(payload.goal_id);
       if (narrative === null) {
         return;
       }
       await this.storeProfileEmbedding(payload, narrative);
     } catch (error) {
       this.logger.error(
-        `Profile embedding failed for profile ${payload.profile_id}: ${error instanceof Error ? error.message : String(error)}`,
+        `Profile embedding failed for goal ${payload.goal_id}: ${error instanceof Error ? error.message : String(error)}`,
       );
     }
   }
@@ -81,9 +81,9 @@ export class IntakeEmbeddingService {
     const questionIds = questions.map((q) => q.id);
 
     const { data: answers, error } = await supabase
-      .from('intake_answers')
-      .select('question_id, answer_text, answer_numeric, selected_options')
-      .in('question_id', questionIds);
+      .from('intake_questions')
+      .select('id, answer_text, answer_numeric, selected_options')
+      .in('id', questionIds);
 
     if (error !== null) {
       this.logger.error(
@@ -93,7 +93,7 @@ export class IntakeEmbeddingService {
     }
 
     const answerMap = new Map(
-      answers.map((a: Record<string, unknown>) => [a.question_id as string, a]),
+      answers.map((a: Record<string, unknown>) => [a.id as string, a]),
     );
     return questions
       .map((q) => {
@@ -132,18 +132,16 @@ export class IntakeEmbeddingService {
     );
   }
 
-  private async loadProfileNarrative(
-    profileId: string,
-  ): Promise<string | null> {
+  private async loadProfileNarrative(goalId: string): Promise<string | null> {
     const supabase = this.supabaseService.getAdminClient();
     const { data, error } = await supabase
-      .from('goal_profiles')
+      .from('goals')
       .select('narrative_summary')
-      .eq('id', profileId)
+      .eq('id', goalId)
       .single();
     if (error !== null) {
       this.logger.error(
-        `Failed to load profile ${profileId}: ${error.message}`,
+        `Failed to load profile for goal ${goalId}: ${error.message}`,
       );
       return null;
     }
@@ -160,20 +158,19 @@ export class IntakeEmbeddingService {
       goal_id: payload.goal_id,
       user_id: payload.user_id,
       content_type: 'goal_profile',
-      profile_id: payload.profile_id,
       content_text: narrative,
       embedding: JSON.stringify(embedding),
     });
     if (error !== null) {
       this.logger.error(
-        `Failed to store profile embedding for profile ${payload.profile_id}: ${error.message}`,
+        `Failed to store profile embedding for goal ${payload.goal_id}: ${error.message}`,
       );
       return;
     }
     await supabase
-      .from('goal_profiles')
-      .update({ embedded: true })
-      .eq('id', payload.profile_id);
+      .from('goals')
+      .update({ profile_embedded: true })
+      .eq('id', payload.goal_id);
     this.logger.log(`Profile embedded for goal ${payload.goal_id}`);
   }
 }

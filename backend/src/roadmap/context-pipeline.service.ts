@@ -74,10 +74,10 @@ export class ContextPipelineService {
   private async buildQueryText(goalId: string): Promise<string> {
     const supabase = this.supabaseService.getAdminClient();
     const { data: profile } = (await supabase
-      .from('goal_profiles')
+      .from('goals')
       .select('narrative_summary')
-      .eq('goal_id', goalId)
-      .single()) as { data: { narrative_summary: string } | null };
+      .eq('id', goalId)
+      .single()) as { data: { narrative_summary: string | null } | null };
 
     if (
       typeof profile?.narrative_summary === 'string' &&
