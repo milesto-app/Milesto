@@ -26,63 +26,65 @@ struct ProfileGateView: View {
     var body: some View {
         Group {
             if goalComplete && roadmapReady {
-                TabView(selection: $selectedTab) {
-                    Tab(value: 0) {
-                        HomeView(goalId: activeGoalId ?? "", firstName: localProfile?.firstName ?? "")
-                    } label: {
-                        TablerTabLabel(.home, title: String(localized: "tabs.home", table: "Common"))
-                    }
+                PaywallGateView {
+                    TabView(selection: $selectedTab) {
+                        Tab(value: 0) {
+                            HomeView(goalId: activeGoalId ?? "", firstName: localProfile?.firstName ?? "")
+                        } label: {
+                            TablerTabLabel(.home, title: String(localized: "tabs.home", table: "Common"))
+                        }
 
-                    Tab(value: 1) {
-                        RoadmapView(goalId: activeGoalId ?? "", onGoalChanged: handleGoalChanged)
-                    } label: {
-                        TablerTabLabel(.map, title: String(localized: "tabs.roadmap", table: "Common"))
-                    }
+                        Tab(value: 1) {
+                            RoadmapView(goalId: activeGoalId ?? "", onGoalChanged: handleGoalChanged)
+                        } label: {
+                            TablerTabLabel(.map, title: String(localized: "tabs.roadmap", table: "Common"))
+                        }
 
-                    Tab(value: 2) {
-                        StatsView(goalId: activeGoalId ?? "")
-                    } label: {
-                        TablerTabLabel(.chartBar, title: String(localized: "tabs.stats", table: "Common"))
-                    }
+                        Tab(value: 2) {
+                            StatsView(goalId: activeGoalId ?? "")
+                        } label: {
+                            TablerTabLabel(.chartBar, title: String(localized: "tabs.stats", table: "Common"))
+                        }
 
-                    Tab(value: 3) {
-                        SettingsView(onNewGoal: { goalId in
-                            activeGoalId = goalId
-                            withAnimation(.easeInOut(duration: 0.4)) {
-                                goalComplete = true
-                                roadmapReady = false
-                            }
-                        }, onDeleteGoal: {
-                            activeGoalId = nil
-                            withAnimation(.easeInOut(duration: 0.4)) {
-                                goalComplete = false
-                                roadmapReady = false
-                            }
+                        Tab(value: 3) {
+                            SettingsView(onNewGoal: { goalId in
+                                activeGoalId = goalId
+                                withAnimation(.easeInOut(duration: 0.4)) {
+                                    goalComplete = true
+                                    roadmapReady = false
+                                }
+                            }, onDeleteGoal: {
+                                activeGoalId = nil
+                                withAnimation(.easeInOut(duration: 0.4)) {
+                                    goalComplete = false
+                                    roadmapReady = false
+                                }
+                            })
+                        } label: {
+                            TablerTabLabel(.settings, title: String(localized: "tabs.settings", table: "Common"))
+                        }
+
+                        Tab(value: 4, role: .search) {
+                            Color.clear
+                        } label: {
+                            TablerTabLabel(.brain, title: String(localized: "tabs.chat", table: "Common"))
+                        }
+                    }
+                    .labelStyle(.titleAndIcon)
+                    .overlay(alignment: .top) {
+                        ProgressiveBlur()
+                    }
+                    .onChange(of: selectedTab) { oldValue, newValue in
+                        if newValue == 4 {
+                            selectedTab = oldValue
+                            isChatPresented = true
+                        }
+                    }
+                    .fullScreenCover(isPresented: $isChatPresented) {
+                        ChatView(goalId: activeGoalId ?? "", onClose: {
+                            isChatPresented = false
                         })
-                    } label: {
-                        TablerTabLabel(.settings, title: String(localized: "tabs.settings", table: "Common"))
                     }
-
-                    Tab(value: 4, role: .search) {
-                        Color.clear
-                    } label: {
-                        TablerTabLabel(.brain, title: String(localized: "tabs.chat", table: "Common"))
-                    }
-                }
-                .labelStyle(.titleAndIcon)
-                .overlay(alignment: .top) {
-                    ProgressiveBlur()
-                }
-                .onChange(of: selectedTab) { oldValue, newValue in
-                    if newValue == 4 {
-                        selectedTab = oldValue
-                        isChatPresented = true
-                    }
-                }
-                .fullScreenCover(isPresented: $isChatPresented) {
-                    ChatView(goalId: activeGoalId ?? "", onClose: {
-                        isChatPresented = false
-                    })
                 }
                 .transition(.opacity)
             } else if goalComplete && !roadmapReady {
@@ -159,15 +161,21 @@ struct ProfileGateView: View {
             let remoteComplete = localProfile?.isProfileComplete == true
             if locallyComplete && !remoteComplete {
                 profileComplete = false
+                goalComplete = false
+                roadmapReady = false
+                activeGoalId = nil
             } else if remoteComplete {
                 profileComplete = true
                 resolveGoalState()
-                if goalComplete, roadmapReady,
+                if goalComplete,
                    let goal = localGoals.first(where: { $0.id == activeGoalId }),
                    goal.status == ProfileStatus.intakeCompleted.rawValue
                 {
-                    let hasRoadmap = await checkRoadmapStatus(goalId: goal.id)
-                    roadmapReady = hasRoadmap
+                    let checkedGoalId = goal.id
+                    let hasRoadmap = await checkRoadmapStatus(goalId: checkedGoalId)
+                    if activeGoalId == checkedGoalId {
+                        roadmapReady = hasRoadmap
+                    }
                 }
             }
             hasSynced = true
@@ -218,16 +226,25 @@ struct ProfileGateView: View {
             .first
         activeGoalId = matchingGoal?.id
 
-        guard let status = matchingGoal?.status else { return }
+        guard let status = matchingGoal?.status else {
+            goalComplete = false
+            roadmapReady = false
+            return
+        }
 
         switch status {
-        case "active", ProfileStatus.intakeCompleted.rawValue:
+        case "active":
             goalComplete = true
             roadmapReady = true
+        case ProfileStatus.intakeCompleted.rawValue:
+            goalComplete = true
+            roadmapReady = false
         case "intake_in_progress", "profile_generating", ProfileStatus.generationFailed.rawValue:
             goalComplete = false
+            roadmapReady = false
         default:
             goalComplete = false
+            roadmapReady = false
         }
     }
 
@@ -255,9 +272,13 @@ struct ProfileGateView: View {
                 roadmapReady = true
             }
         case ProfileStatus.intakeCompleted.rawValue:
-            goalComplete = true
+            withAnimation(.easeInOut(duration: 0.4)) {
+                goalComplete = true
+                roadmapReady = false
+            }
             Task {
                 let hasRoadmap = await checkRoadmapStatus(goalId: newGoalId)
+                guard activeGoalId == newGoalId else { return }
                 withAnimation(.easeInOut(duration: 0.4)) {
                     roadmapReady = hasRoadmap
                 }
