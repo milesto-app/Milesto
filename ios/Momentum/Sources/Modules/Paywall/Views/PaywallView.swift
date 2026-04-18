@@ -110,6 +110,7 @@ struct PaywallView: View {
             PaywallFeatureRow(icon: .compass, labelKey: "paywall.feature.roadmap")
             PaywallFeatureRow(icon: .brain, labelKey: "paywall.feature.chat")
             PaywallFeatureRow(icon: .trophy, labelKey: "paywall.feature.stats")
+            PaywallFeatureRow(icon: .sparkles, labelKey: "paywall.feature.adaptive")
         }
     }
 
@@ -400,7 +401,6 @@ private struct PaywallCTAButton: View {
                 RoundedRectangle(cornerRadius: 14)
                     .fill(Color("TintPrimary"))
             )
-            .shadow(color: Color("TintPrimary").opacity(0.28), radius: 18, x: 0, y: 8)
         }
         .buttonStyle(PaywallPressStyle())
         .disabled(isLoading)
