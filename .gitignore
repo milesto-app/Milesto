@@ -107,6 +107,7 @@ ios/buildServer.json
 backend/dist/
 backend/node_modules/
 backend/build/
+backend/*.tsbuildinfo
 
 # Logs
 backend/logs/

@@ -24,7 +24,6 @@ const TYPE_COLORS: Record<string, string> = {
   DAILY_OBJECTIVES: "oklch(0.52 0.13 220)",
   CHAT_MESSAGE: "oklch(0.45 0.14 145)",
   VOICE_TRANSCRIPTION: "oklch(0.65 0.12 80)",
-  VOICE_CHAT_SESSION: "oklch(0.55 0.18 25)",
 };
 
 const KNOWN_TYPES = new Set(Object.keys(TYPE_COLORS));

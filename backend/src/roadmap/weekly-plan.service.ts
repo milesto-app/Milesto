@@ -119,12 +119,7 @@ export class WeeklyPlanService {
       this.logger.warn(
         `Weekly plan generation failed, creating fallback: ${error instanceof Error ? error.message : String(error)}`,
       );
-      return this.createFallbackOrThrow(
-        milestone,
-        goalId,
-        userId,
-        weekNumber,
-      );
+      return this.createFallbackOrThrow(milestone, goalId, userId, weekNumber);
     }
   }
 

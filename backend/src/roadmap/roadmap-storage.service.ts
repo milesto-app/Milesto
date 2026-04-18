@@ -29,10 +29,7 @@ const INITIAL_GENERATION_ATTEMPT = 1;
 
 type RoadmapLockRow = Pick<
   GoalRow,
-  | 'id'
-  | 'roadmap_status'
-  | 'roadmap_generation_attempts'
-  | 'roadmap_updated_at'
+  'id' | 'roadmap_status' | 'roadmap_generation_attempts' | 'roadmap_updated_at'
 >;
 
 @Injectable()
@@ -220,7 +217,8 @@ export class RoadmapStorageService {
       throw new BadRequestException('Roadmap already generated');
     }
     if (existing.roadmap_status === ROADMAP_STATUS.GENERATING) {
-      const updatedAtIso = existing.roadmap_updated_at ?? new Date(0).toISOString();
+      const updatedAtIso =
+        existing.roadmap_updated_at ?? new Date(0).toISOString();
       const updatedAt = new Date(updatedAtIso).getTime();
       const isStale = Date.now() - updatedAt > STALE_GENERATION_MS;
       if (!isStale) {
@@ -277,7 +275,8 @@ export class RoadmapStorageService {
     return {
       goal_id: goal.id,
       user_id: goal.user_id,
-      status: (goal.roadmap_status ?? ROADMAP_STATUS.GENERATING) as Roadmap['status'],
+      status: (goal.roadmap_status ??
+        ROADMAP_STATUS.GENERATING) as Roadmap['status'],
       generation_attempts: goal.roadmap_generation_attempts,
       model_used: goal.roadmap_model_used,
       generation_metadata:

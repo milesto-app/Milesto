@@ -12,7 +12,10 @@ export const COACHES: readonly CoachConfig[] = [
     id: 1,
     personality: 'motivateur',
     displayName: { en: 'The Motivator', fr: 'Le Motivateur' },
-    description: { en: 'Energetic and enthusiastic', fr: 'Energique et enthousiaste' },
+    description: {
+      en: 'Energetic and enthusiastic',
+      fr: 'Energique et enthousiaste',
+    },
     icon: 'flame',
     elevenlabsVoiceId: 'Kore',
   },

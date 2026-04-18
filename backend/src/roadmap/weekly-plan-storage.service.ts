@@ -185,7 +185,8 @@ export class WeeklyPlanStorageService {
     return {
       goal_id: goal.id,
       user_id: goal.user_id,
-      status: (goal.roadmap_status ?? ROADMAP_STATUS.GENERATING) as Roadmap['status'],
+      status: (goal.roadmap_status ??
+        ROADMAP_STATUS.GENERATING) as Roadmap['status'],
       generation_attempts: goal.roadmap_generation_attempts,
       model_used: goal.roadmap_model_used,
       generation_metadata:

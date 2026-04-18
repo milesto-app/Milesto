@@ -103,23 +103,6 @@
         }
       }
     },
-    "paywall.feature.voice" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Voice sessions anytime"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sessions vocales à tout moment"
-          }
-        }
-      }
-    },
     "paywall.footer.privacy" : {
       "extractionState" : "manual",
       "localizations" : {

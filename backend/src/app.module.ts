@@ -17,7 +17,6 @@ import { RoadmapModule } from './roadmap/roadmap.module.js';
 import { SupabaseModule } from './supabase/supabase.module.js';
 import { UsageModule } from './usage/usage.module.js';
 import { VoiceModule } from './voice/voice.module.js';
-import { VoiceChatModule } from './voice-chat/voice-chat.module.js';
 
 @Module({
   imports: [
@@ -39,7 +38,6 @@ import { VoiceChatModule } from './voice-chat/voice-chat.module.js';
     RoadmapModule,
     CoachModule,
     VoiceModule,
-    VoiceChatModule,
     ChatModule,
     NotificationsModule,
   ],

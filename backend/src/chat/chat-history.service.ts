@@ -11,10 +11,6 @@ export interface StoreMessageInput {
   tool_calls?: unknown[] | null;
   tool_call_id?: string | null;
   tool_name?: string | null;
-  source_type?: 'text' | 'voice';
-  voice_session_id?: string;
-  turn_index?: number;
-  source_timestamp?: string;
 }
 
 @Injectable()
@@ -81,10 +77,6 @@ export class ChatHistoryService {
         tool_calls: message.tool_calls ?? null,
         tool_call_id: message.tool_call_id ?? null,
         tool_name: message.tool_name ?? null,
-        source_type: message.source_type ?? 'text',
-        voice_session_id: message.voice_session_id ?? null,
-        turn_index: message.turn_index ?? null,
-        source_timestamp: message.source_timestamp ?? null,
       })
       .select('*')
       .single()) as {
@@ -100,49 +92,13 @@ export class ChatHistoryService {
     return data as StoredMessage;
   }
 
-  public async storeVoiceMessage(
-    conversationId: string,
-    message: StoreMessageInput,
-  ): Promise<StoredMessage> {
-    const supabase = this.getClient();
-    const { data, error } = (await supabase
-      .from('messages')
-      .upsert(
-        {
-          conversation_id: conversationId,
-          role: message.role,
-          content: message.content ?? null,
-          tool_calls: message.tool_calls ?? null,
-          tool_call_id: message.tool_call_id ?? null,
-          tool_name: message.tool_name ?? null,
-          source_type: 'voice',
-          voice_session_id: message.voice_session_id ?? null,
-          turn_index: message.turn_index ?? null,
-          source_timestamp: message.source_timestamp ?? null,
-        },
-        { onConflict: 'voice_session_id,turn_index', ignoreDuplicates: true },
-      )
-      .select('*')
-      .single()) as {
-      data: StoredMessage | null;
-      error: { message: string } | null;
-    };
-
-    if (error) {
-      this.logger.error(`Failed to upsert voice message: ${error.message}`);
-      throw new Error(error.message);
-    }
-
-    return data as StoredMessage;
-  }
-
   public async getMessages(conversationId: string): Promise<StoredMessage[]> {
     const supabase = this.getClient();
     const { data, error } = await supabase
       .from('messages')
       .select('*')
       .eq('conversation_id', conversationId)
-      .order('effective_timestamp', { ascending: true })
+      .order('created_at', { ascending: true })
       .limit(config.chat.maxHistoryMessages);
 
     if (error) {

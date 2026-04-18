@@ -50,8 +50,6 @@ export const config = {
       'audio/mp4',
       'audio/webm',
     ],
-    sessionDurationMs: 840_000,
-    sessionWarningMs: 780_000,
   },
   coach: {
     defaultCoachId: 1,

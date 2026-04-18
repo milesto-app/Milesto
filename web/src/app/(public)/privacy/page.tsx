@@ -17,7 +17,7 @@ export function generateMetadata(): Metadata {
 export default function PrivacyPage() {
   return (
     <div className="prose-momentum">
-      <h1 className="font-[family-name:var(--font-fraunces)] text-4xl font-semibold text-[#2D5016]">
+      <h1 className="font-(family-name:--font-fraunces) text-4xl font-semibold text-[#2D5016]">
         Privacy Policy
       </h1>
       <p className="mt-2 text-sm text-[#6b6b6b]">Last updated: April 2026</p>
@@ -27,8 +27,8 @@ export default function PrivacyPage() {
         <p>
           Momentum is an AI-powered personal coaching app that helps you set a
           meaningful goal and build a clear path to achieve it. This policy
-          explains how we collect, use, and protect your information when you use
-          Momentum.
+          explains how we collect, use, and protect your information when you
+          use Momentum.
         </p>
       </section>
 
@@ -63,12 +63,8 @@ export default function PrivacyPage() {
         <h2>How We Use Your Information</h2>
         <ul>
           <li>Provide personalized AI coaching tailored to your goal.</li>
-          <li>
-            Generate roadmaps, milestones, weekly plans, and daily tasks.
-          </li>
-          <li>
-            Improve service quality and develop new features.
-          </li>
+          <li>Generate roadmaps, milestones, weekly plans, and daily tasks.</li>
+          <li>Improve service quality and develop new features.</li>
           <li>Manage your subscription and account.</li>
         </ul>
       </section>

@@ -413,46 +413,31 @@ export type Database = {
           content: string | null
           conversation_id: string
           created_at: string
-          effective_timestamp: string | null
           id: string
           role: string
-          source_timestamp: string | null
-          source_type: string
           tool_call_id: string | null
           tool_calls: Json | null
           tool_name: string | null
-          turn_index: number | null
-          voice_session_id: string | null
         }
         Insert: {
           content?: string | null
           conversation_id: string
           created_at?: string
-          effective_timestamp?: string | null
           id?: string
           role: string
-          source_timestamp?: string | null
-          source_type?: string
           tool_call_id?: string | null
           tool_calls?: Json | null
           tool_name?: string | null
-          turn_index?: number | null
-          voice_session_id?: string | null
         }
         Update: {
           content?: string | null
           conversation_id?: string
           created_at?: string
-          effective_timestamp?: string | null
           id?: string
           role?: string
-          source_timestamp?: string | null
-          source_type?: string
           tool_call_id?: string | null
           tool_calls?: Json | null
           tool_name?: string | null
-          turn_index?: number | null
-          voice_session_id?: string | null
         }
         Relationships: [
           {
@@ -460,13 +445,6 @@ export type Database = {
             columns: ["conversation_id"]
             isOneToOne: false
             referencedRelation: "conversations"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "messages_voice_session_id_fkey"
-            columns: ["voice_session_id"]
-            isOneToOne: false
-            referencedRelation: "voice_sessions"
             referencedColumns: ["id"]
           },
         ]
@@ -569,48 +547,6 @@ export type Database = {
           subscription_verified_at?: string | null
           timezone?: string | null
           updated_at?: string | null
-        }
-        Relationships: []
-      }
-      voice_sessions: {
-        Row: {
-          conversation_id: string
-          created_at: string
-          elevenlabs_conversation_id: string | null
-          ended_at: string | null
-          expires_at: string
-          goal_id: string
-          id: string
-          session_secret_hash: string
-          status: string
-          transcript_stored: boolean
-          user_id: string
-        }
-        Insert: {
-          conversation_id: string
-          created_at?: string
-          elevenlabs_conversation_id?: string | null
-          ended_at?: string | null
-          expires_at: string
-          goal_id: string
-          id?: string
-          session_secret_hash: string
-          status?: string
-          transcript_stored?: boolean
-          user_id: string
-        }
-        Update: {
-          conversation_id?: string
-          created_at?: string
-          elevenlabs_conversation_id?: string | null
-          ended_at?: string | null
-          expires_at?: string
-          goal_id?: string
-          id?: string
-          session_secret_hash?: string
-          status?: string
-          transcript_stored?: boolean
-          user_id?: string
         }
         Relationships: []
       }

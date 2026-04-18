@@ -16,10 +16,6 @@ export interface StoredMessage {
   tool_calls: OpenAI.Chat.Completions.ChatCompletionMessageToolCall[] | null;
   tool_call_id: string | null;
   tool_name: string | null;
-  source_type: string;
-  voice_session_id: string | null;
-  turn_index: number | null;
-  source_timestamp: string | null;
   created_at: string;
 }
 

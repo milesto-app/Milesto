@@ -6,7 +6,6 @@ struct ChatView: View {
     var onClose: (() -> Void)?
 
     @Environment(\.modelContext) private var modelContext
-    @Query private var localProfiles: [LocalProfile]
     @State private var messages: [ChatMessage] = []
     @State private var inputText = ""
     @State private var isStreaming = false
@@ -16,16 +15,10 @@ struct ChatView: View {
     @State private var errorMessage = ""
     @State private var showThinking = false
     @FocusState private var isInputFocused: Bool
-    @State private var isVoiceChatActive = false
     @State private var isSidebarOpen = false
     @State private var conversations: [ConversationSummary] = []
     @State private var isLoadingHistory = false
     @State private var isLimitReached = false
-
-    private var coach: CoachPersonality? {
-        guard let coachId = localProfiles.first?.coachId else { return nil }
-        return CoachPersonality.from(databaseId: coachId)
-    }
 
     var body: some View {
         ScrollViewReader { proxy in
@@ -114,17 +107,6 @@ struct ChatView: View {
 
                 Spacer()
 
-                Button {
-                    isVoiceChatActive = true
-                } label: {
-                    TablerIcons(.microphone, size: 24, color: Color("TextPrimary"))
-                        .frame(width: 44, height: 44)
-                        .glassEffect(.regular.interactive(), in: .circle)
-                }
-                .disabled(isStreaming)
-                .opacity(isStreaming ? 0.5 : 1)
-                .accessibilityLabel(String(localized: "chat.voice.start", table: "Chat"))
-
                 if let onClose {
                     Button(action: onClose) {
                         TablerIcons(.x, size: 24, color: Color("TextPrimary"))
@@ -177,21 +159,6 @@ struct ChatView: View {
             if isLimitReached {
                 Text(errorMessage)
             }
-        }
-        .fullScreenCover(isPresented: $isVoiceChatActive, onDismiss: {
-            if let conversationId {
-                refreshConversation(conversationId)
-            }
-        }) {
-            VoiceChatOverlay(
-                goalId: goalId,
-                conversationId: $conversationId,
-                coachName: coach?.title ?? "",
-                coachIcon: coach?.icon ?? .flame,
-                onClose: {
-                    isVoiceChatActive = false
-                }
-            )
         }
     }
 
@@ -420,19 +387,6 @@ struct ChatView: View {
                     showError = true
                 }
             }
-        }
-    }
-
-    private func refreshConversation(_ id: String) {
-        Task {
-            do {
-                let loadedMessages = try await ChatAPIService.shared.getConversationMessages(conversationId: id)
-                withAnimation {
-                    conversationId = id
-                    messages = loadedMessages
-                }
-                syncMessagesToCache(loadedMessages, conversationId: id)
-            } catch {}
         }
     }
 

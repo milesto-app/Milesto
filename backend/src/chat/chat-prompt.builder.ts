@@ -86,18 +86,6 @@ ${buildToolUsagePrompt()}
 ${buildBoundariesPrompt()}`;
 }
 
-export function wrapPromptForVoice(basePrompt: string): string {
-  return `${basePrompt}
-
-<voice_mode>
-You are in a live voice conversation. Follow these rules strictly:
-- Respond in 1-2 short sentences maximum.
-- Use natural spoken language — no markdown, no bullet lists, no URLs.
-- Never mention tool names or internal system details.
-- Speak as if talking face-to-face: warm, direct, conversational.
-</voice_mode>`;
-}
-
 function buildGoalContextSection(ctx: PromptInput['goalContext']): string {
   const parts: string[] = [];
 

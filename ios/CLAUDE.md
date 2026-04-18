@@ -92,7 +92,7 @@ Available color assets: `AccentColor`, `AccentAmber`, `BgPrimary`, `BgSurface`, 
 | `Roadmap`    | `Roadmap.xcstrings`    | Roadmap, milestones, weekly plans                      |
 | `Settings`   | `Settings.xcstrings`   | Settings screen (sign-out, version)                    |
 | `Stats`      | `Stats.xcstrings`      | Statistics screen                                      |
-| `Voice`      | `Voice.xcstrings`      | Voice chat UI                                          |
+| `Voice`      | `Voice.xcstrings`      | Voice dictation / TTS error messages                   |
 
 **In SwiftUI views** — always pass `table:` to `AppText`/`AppButton`/`AppTextField`:
 

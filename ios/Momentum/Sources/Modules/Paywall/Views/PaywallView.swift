@@ -109,7 +109,6 @@ struct PaywallView: View {
         VStack(spacing: 14) {
             PaywallFeatureRow(icon: .compass, labelKey: "paywall.feature.roadmap")
             PaywallFeatureRow(icon: .brain, labelKey: "paywall.feature.chat")
-            PaywallFeatureRow(icon: .microphone, labelKey: "paywall.feature.voice")
             PaywallFeatureRow(icon: .trophy, labelKey: "paywall.feature.stats")
         }
     }

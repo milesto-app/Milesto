@@ -84,7 +84,10 @@ export class QualityMilestoneService {
     supabase: ReturnType<SupabaseService['getAdminClient']>,
     payload: RoadmapGeneratedEvent,
   ): Promise<{ content: string; goalContext: string } | null> {
-    const roadmapData = await this.loadRoadmapMetadata(supabase, payload.goalId);
+    const roadmapData = await this.loadRoadmapMetadata(
+      supabase,
+      payload.goalId,
+    );
     if (roadmapData === null) {
       return null;
     }

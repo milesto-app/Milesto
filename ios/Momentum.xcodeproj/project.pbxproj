@@ -8,7 +8,6 @@
 
 /* Begin PBXBuildFile section */
 		4C824F382F33E35000056D79 /* Supabase in Frameworks */ = {isa = PBXBuildFile; productRef = 4C824F372F33E35000056D79 /* Supabase */; };
-		AE6E66102F67496700549D5A /* ElevenLabs in Frameworks */ = {isa = PBXBuildFile; productRef = AE6E660F2F67496700549D5A /* ElevenLabs */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -42,7 +41,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				AE6E66102F67496700549D5A /* ElevenLabs in Frameworks */,
 				4C824F382F33E35000056D79 /* Supabase in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -88,7 +86,6 @@
 			name = Momentum;
 			packageProductDependencies = (
 				4C824F372F33E35000056D79 /* Supabase */,
-				AE6E660F2F67496700549D5A /* ElevenLabs */,
 			);
 			productName = Momentum;
 			productReference = 4C824E7D2F30B07D00056D79 /* Momentum.app */;
@@ -120,7 +117,6 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				4C824F2B2F33E27800056D79 /* XCRemoteSwiftPackageReference "supabase-swift" */,
-				AE6E660E2F67496700549D5A /* XCRemoteSwiftPackageReference "elevenlabs-swift-sdk" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 4C824E7E2F30B07D00056D79 /* Products */;
@@ -418,14 +414,6 @@
 				minimumVersion = 2.5.1;
 			};
 		};
-		AE6E660E2F67496700549D5A /* XCRemoteSwiftPackageReference "elevenlabs-swift-sdk" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/elevenlabs/elevenlabs-swift-sdk.git";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 3.0.0;
-			};
-		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -433,11 +421,6 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 4C824F2B2F33E27800056D79 /* XCRemoteSwiftPackageReference "supabase-swift" */;
 			productName = Supabase;
-		};
-		AE6E660F2F67496700549D5A /* ElevenLabs */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = AE6E660E2F67496700549D5A /* XCRemoteSwiftPackageReference "elevenlabs-swift-sdk" */;
-			productName = ElevenLabs;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
