@@ -32,6 +32,16 @@ Three clients, each for a specific context:
 - Dashboard is read-only -- no database mutations from the web app.
 - Data minimization: never expose message content, debrief notes, or raw profile_data.
 
+## Versioning
+
+Version format in `package.json` is `proud.default.shame` (mapped to semver `major.minor.patch`):
+
+- **proud** — big release. **Never bump this.**
+- **default** — normal change (new feature, meaningful refactor).
+- **shame** — small edit (bug fix, tweak, copy change).
+
+**Always bump either `default` or `shame` when making an edit.** Default to `shame`; use `default` only when the change is substantial enough to warrant it.
+
 ## Conventions
 
 - Use bun, not npm.

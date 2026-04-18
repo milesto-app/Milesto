@@ -68,6 +68,16 @@ bun run eval               # Build + run evaluation suite
 - Guards/interceptors live in `common/`.
 - All endpoints documented with `@ApiOperation` and `@ApiResponse`.
 
+## Versioning
+
+Version format in `package.json` is `proud.default.shame` (mapped to semver `major.minor.patch`):
+
+- **proud** — big release. **Never bump this.**
+- **default** — normal change (new feature, meaningful refactor).
+- **shame** — small edit (bug fix, tweak, doc change).
+
+**Always bump either `default` or `shame` when making an edit.** Default to `shame`; use `default` only when the change is substantial enough to warrant it.
+
 ## Testing
 
 - Colocated `*.spec.ts` files next to the source.
