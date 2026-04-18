@@ -5,6 +5,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 
+import { SUPABASE_UNIQUE_VIOLATION } from '../supabase/error-codes.js';
 import { SupabaseService } from '../supabase/supabase.service.js';
 import type { WeeklyTask } from './types/weekly-task.types.js';
 
@@ -112,12 +113,23 @@ export class WeeklyTaskStorageService {
       .select()
       .order('order_index', { ascending: true });
 
-    if (error !== null) {
-      this.logger.error(`Failed to store weekly tasks: ${error.message}`);
-      throw new InternalServerErrorException('Failed to store weekly tasks');
+    if (error === null) {
+      return data as WeeklyTask[];
     }
 
-    return data as WeeklyTask[];
+    if (error.code === SUPABASE_UNIQUE_VIOLATION) {
+      this.logger.warn(
+        `Concurrent weekly tasks insert for plan ${params.weeklyPlanId}; returning existing`,
+      );
+      return this.getExistingTasks(
+        params.goalId,
+        params.userId,
+        params.weeklyPlanId,
+      );
+    }
+
+    this.logger.error(`Failed to store weekly tasks: ${error.message}`);
+    throw new InternalServerErrorException('Failed to store weekly tasks');
   }
 
   public async getWeeklyCompletionRate(
