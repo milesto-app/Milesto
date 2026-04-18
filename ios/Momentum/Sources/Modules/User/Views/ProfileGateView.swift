@@ -98,18 +98,20 @@ struct ProfileGateView: View {
                 }
                 .transition(.opacity)
             } else if profileComplete {
-                GoalIntakeFlowView(
-                    userId: userId,
-                    existingGoalId: activeGoalId,
-                    onClose: nil,
-                    onComplete: { goalId in
-                        activeGoalId = goalId
+                PaywallGateView {
+                    GoalIntakeFlowView(
+                        userId: userId,
+                        existingGoalId: activeGoalId,
+                        onClose: nil,
+                        onComplete: { goalId in
+                            activeGoalId = goalId
 
-                        withAnimation(.easeInOut(duration: 0.4)) {
-                            goalComplete = true
+                            withAnimation(.easeInOut(duration: 0.4)) {
+                                goalComplete = true
+                            }
                         }
-                    }
-                )
+                    )
+                }
                 .transition(.opacity)
             } else if hasSynced {
                 ProfileOnboardingView(
