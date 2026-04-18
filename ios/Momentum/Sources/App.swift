@@ -41,7 +41,9 @@ struct MomentumApp: App {
                 case .authenticating:
                     ProgressView()
                 case let .authenticated(userId):
-                    ProfileGateView(userId: userId)
+                    PaywallGateView {
+                        ProfileGateView(userId: userId)
+                    }
                 case .unauthenticated, .error:
                     AuthContainerView()
                 }

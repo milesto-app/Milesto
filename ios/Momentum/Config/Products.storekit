@@ -76,14 +76,14 @@
           "codeOffers" : [
 
           ],
-          "displayPrice" : "99.99",
+          "displayPrice" : "44.99",
           "familyShareable" : false,
           "groupNumber" : 1,
           "internalID" : "6759965333",
           "introductoryOffer" : {
             "displayPrice" : "0.00",
             "paymentMode" : "free",
-            "subscriptionPeriod" : "P14D"
+            "subscriptionPeriod" : "P7D"
           },
           "localizations" : [
             {
@@ -92,9 +92,9 @@
               "locale" : "fr"
             }
           ],
-          "productID" : "momentum_yearly",
-          "recurringSubscriptionPeriod" : "P1Y",
-          "referenceName" : "Momentum Yearly",
+          "productID" : "momentum_quarterly",
+          "recurringSubscriptionPeriod" : "P3M",
+          "referenceName" : "Momentum Quarterly",
           "subscriptionGroupID" : "21958916",
           "type" : "RecurringSubscription",
           "winbackOffers" : [
