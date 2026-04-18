@@ -35,6 +35,23 @@
         }
       }
     },
+    "paywall.error.generic" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "We couldn't complete your purchase. Please try again."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nous n'avons pas pu finaliser ton achat. Réessaie."
+          }
+        }
+      }
+    },
     "paywall.error.title" : {
       "extractionState" : "manual",
       "localizations" : {

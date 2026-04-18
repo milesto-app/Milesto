@@ -28,8 +28,13 @@ struct MomentumApp: App {
             LocalConversation.self,
             LocalChatMessage.self,
             LocalStats.self,
+            PendingSubscriptionSync.self,
         ])
-        let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
+        let modelConfiguration = ModelConfiguration(
+            schema: schema,
+            isStoredInMemoryOnly: false,
+            cloudKitDatabase: .none
+        )
 
         do {
             return try ModelContainer(for: schema, configurations: [modelConfiguration])
@@ -60,8 +65,10 @@ struct MomentumApp: App {
                 }
             }
             .task(id: isAuthenticated) {
+                await SubscriptionSyncOutbox.shared.configure(container: sharedModelContainer)
                 guard isAuthenticated else { return }
                 await NotificationService.shared.requestPermissionAndRegister()
+                await SubscriptionService.shared.onAppStart()
             }
             .onChange(of: scenePhase) { _, newPhase in
                 if newPhase == .active, isAuthenticated {
