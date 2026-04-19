@@ -1,7 +1,14 @@
 "use client";
 
 import { usePathname, useRouter } from "next/navigation";
-import { Activity, BarChart3, Bell, LayoutDashboard, LogOut, Users } from "lucide-react";
+import {
+  Activity,
+  BarChart3,
+  Bell,
+  LayoutDashboard,
+  LogOut,
+  Users,
+} from "lucide-react";
 
 import { createClient } from "@/lib/supabase/client";
 import {
@@ -39,8 +46,20 @@ export function AppSidebar({ userEmail }: { userEmail: string }) {
       <SidebarHeader className="px-5 py-5">
         <div className="flex items-center gap-2.5">
           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-white/10">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" className="text-sidebar-foreground">
-              <path d="M13 3L4 14h7l-1 7 9-11h-7l1-7z" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              className="text-sidebar-foreground"
+            >
+              <path
+                d="M13 3L4 14h7l-1 7 9-11h-7l1-7z"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
             </svg>
           </div>
           <span className="text-[15px] font-semibold tracking-tight text-sidebar-foreground">

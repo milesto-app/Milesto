@@ -1,20 +1,20 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger } from "@nestjs/common";
 
-import { config } from '../config/app.config.js';
-import type { PriorBatchContext } from '../intake/intake-prompt.service.js';
-import { IntakePromptService } from '../intake/intake-prompt.service.js';
+import { config } from "../config/app.config.js";
+import type { PriorBatchContext } from "../intake/intake-prompt.service.js";
+import { IntakePromptService } from "../intake/intake-prompt.service.js";
 import type {
   BatchEvalResult,
   EvalPriorBatch,
   EvalReport,
   GoalEvalResult,
-} from './eval.types.js';
-import type { RawQuestion } from './eval.utils.js';
-import { computeDeltas, mapToEvalQuestions } from './eval.utils.js';
-import { EvalJudgeService } from './eval-judge.service.js';
-import { EvalReportService } from './eval-report.service.js';
-import type { GoldStandard } from './gold-standards.js';
-import { GOLD_STANDARDS } from './gold-standards.js';
+} from "./eval.types.js";
+import type { RawQuestion } from "./eval.utils.js";
+import { computeDeltas, mapToEvalQuestions } from "./eval.utils.js";
+import { EvalJudgeService } from "./eval-judge.service.js";
+import { EvalReportService } from "./eval-report.service.js";
+import type { GoldStandard } from "./gold-standards.js";
+import { GOLD_STANDARDS } from "./gold-standards.js";
 
 @Injectable()
 export class EvalService {
@@ -53,7 +53,7 @@ export class EvalService {
       this.judgeService.evaluateBatch({
         goalDescription: gs.goalDescription,
         questions: mapToEvalQuestions(
-          this.intakePromptService.getUniversalBatch('en'),
+          this.intakePromptService.getUniversalBatch("en"),
         ),
         goldStandard: gs,
         label: `${tag} Universal Batch (Batch 1)`,
@@ -127,7 +127,7 @@ export class EvalService {
         goalDescription: gs.goalDescription,
         priorBatches,
         batchNumber: batchNum,
-        language: 'en',
+        language: "en",
       });
 
       if (generated.is_complete || generated.questions.length === 0) {

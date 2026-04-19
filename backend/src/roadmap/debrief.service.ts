@@ -4,14 +4,14 @@ import {
   InternalServerErrorException,
   Logger,
   NotFoundException,
-} from '@nestjs/common';
-import { EventEmitter2 } from '@nestjs/event-emitter';
+} from "@nestjs/common";
+import { EventEmitter2 } from "@nestjs/event-emitter";
 
-import type { Json } from '../supabase/database.types.js';
-import { SUPABASE_UNIQUE_VIOLATION } from '../supabase/error-codes.js';
-import { SupabaseService } from '../supabase/supabase.service.js';
-import type { SubmitDebriefDto } from './dto/submit-debrief.dto.js';
-import type { Debrief } from './types/weekly-task.types.js';
+import type { Json } from "../supabase/database.types.js";
+import { SUPABASE_UNIQUE_VIOLATION } from "../supabase/error-codes.js";
+import { SupabaseService } from "../supabase/supabase.service.js";
+import type { SubmitDebriefDto } from "./dto/submit-debrief.dto.js";
+import type { Debrief } from "./types/weekly-task.types.js";
 
 @Injectable()
 export class DebriefService {
@@ -29,7 +29,7 @@ export class DebriefService {
   ): Promise<Debrief> {
     await this.validateGoalExists(goalId, userId);
     await this.checkDuplicateDebrief(goalId, userId, dto.weekly_plan_id);
-    const today = new Date().toISOString().split('T')[0] ?? '';
+    const today = new Date().toISOString().split("T")[0] ?? "";
     return this.insertDebrief(goalId, userId, today, dto);
   }
 
@@ -39,15 +39,15 @@ export class DebriefService {
   ): Promise<void> {
     const supabase = this.supabaseService.getAdminClient();
     const { data, error } = await supabase
-      .from('goals')
-      .select('id')
-      .eq('id', goalId)
-      .eq('user_id', userId)
-      .is('deleted_at', null)
+      .from("goals")
+      .select("id")
+      .eq("id", goalId)
+      .eq("user_id", userId)
+      .is("deleted_at", null)
       .single();
     // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
     if (error || data === null) {
-      throw new NotFoundException('Goal not found');
+      throw new NotFoundException("Goal not found");
     }
   }
 
@@ -58,15 +58,15 @@ export class DebriefService {
   ): Promise<void> {
     const supabase = this.supabaseService.getAdminClient();
     const { data } = await supabase
-      .from('debriefs')
-      .select('id')
-      .eq('goal_id', goalId)
-      .eq('user_id', userId)
-      .eq('weekly_plan_id', weeklyPlanId)
+      .from("debriefs")
+      .select("id")
+      .eq("goal_id", goalId)
+      .eq("user_id", userId)
+      .eq("weekly_plan_id", weeklyPlanId)
       .limit(1);
     if (data !== null && data.length > 0) {
       throw new ConflictException(
-        'Debrief already submitted for this weekly plan',
+        "Debrief already submitted for this weekly plan",
       );
     }
   }
@@ -79,7 +79,7 @@ export class DebriefService {
   ): Promise<Debrief> {
     const supabase = this.supabaseService.getAdminClient();
     const { data, error } = await supabase
-      .from('debriefs')
+      .from("debriefs")
       .insert({
         goal_id: goalId,
         user_id: userId,
@@ -93,14 +93,14 @@ export class DebriefService {
     if (error) {
       if (error.code === SUPABASE_UNIQUE_VIOLATION) {
         throw new ConflictException(
-          'Debrief already submitted for this weekly plan',
+          "Debrief already submitted for this weekly plan",
         );
       }
       this.logger.error(`Failed to store debrief: ${error.message}`);
-      throw new InternalServerErrorException('Failed to store debrief');
+      throw new InternalServerErrorException("Failed to store debrief");
     }
     await this.completeWeeklyPlan(dto.weekly_plan_id);
-    this.eventEmitter.emit('debrief.submitted', {
+    this.eventEmitter.emit("debrief.submitted", {
       debriefId: (data as Record<string, unknown>).id,
       goalId,
       userId,
@@ -113,10 +113,10 @@ export class DebriefService {
   private async completeWeeklyPlan(weeklyPlanId: string): Promise<void> {
     const supabase = this.supabaseService.getAdminClient();
     const { error } = await supabase
-      .from('weekly_plans')
-      .update({ status: 'completed' })
-      .eq('id', weeklyPlanId)
-      .eq('status', 'active');
+      .from("weekly_plans")
+      .update({ status: "completed" })
+      .eq("id", weeklyPlanId)
+      .eq("status", "active");
     if (error) {
       this.logger.error(
         `Failed to complete weekly plan ${weeklyPlanId}: ${error.message}`,

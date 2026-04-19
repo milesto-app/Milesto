@@ -136,3 +136,8 @@ web/node_modules/
 web/.next/
 web/.env.local
 web/.env
+
+# --- Root task runner ---
+/node_modules/
+/bun.lock
+/bun.lockb

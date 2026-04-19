@@ -5,22 +5,22 @@ import {
   Param,
   Post,
   UseGuards,
-} from '@nestjs/common';
+} from "@nestjs/common";
 import {
   ApiBearerAuth,
   ApiOperation,
   ApiParam,
   ApiResponse,
   ApiTags,
-} from '@nestjs/swagger';
-import { Throttle } from '@nestjs/throttler';
+} from "@nestjs/swagger";
+import { Throttle } from "@nestjs/throttler";
 
-import { UserId } from '../common/decorators/user.decorator.js';
-import { AuthGuard } from '../common/guards/auth.guard.js';
-import { config } from '../config/app.config.js';
-import { DebriefService } from './debrief.service.js';
-import { SubmitDebriefDto } from './dto/submit-debrief.dto.js';
-import type { Debrief } from './types/weekly-task.types.js';
+import { UserId } from "../common/decorators/user.decorator.js";
+import { AuthGuard } from "../common/guards/auth.guard.js";
+import { config } from "../config/app.config.js";
+import { DebriefService } from "./debrief.service.js";
+import { SubmitDebriefDto } from "./dto/submit-debrief.dto.js";
+import type { Debrief } from "./types/weekly-task.types.js";
 
 const HTTP_CREATED = 201;
 const API_STATUS_BAD_REQUEST = 400;
@@ -29,9 +29,9 @@ const API_STATUS_CONFLICT = 409;
 const API_STATUS_RATE_LIMIT = 429;
 const AI_ENDPOINT_LIMIT = 10;
 
-@ApiTags('debrief')
+@ApiTags("debrief")
 @ApiBearerAuth()
-@Controller('goals/:goalId/debrief')
+@Controller("goals/:goalId/debrief")
 @UseGuards(AuthGuard)
 export class DebriefController {
   constructor(private readonly debriefService: DebriefService) {}
@@ -44,24 +44,24 @@ export class DebriefController {
       ttl: config.throttle.aiEndpointTtlMs,
     },
   })
-  @ApiOperation({ summary: 'Submit end-of-week debrief' })
-  @ApiParam({ name: 'goalId', description: 'Goal ID' })
+  @ApiOperation({ summary: "Submit end-of-week debrief" })
+  @ApiParam({ name: "goalId", description: "Goal ID" })
   @ApiResponse({
     status: HTTP_CREATED,
-    description: 'Debrief submitted successfully',
+    description: "Debrief submitted successfully",
   })
-  @ApiResponse({ status: API_STATUS_BAD_REQUEST, description: 'Invalid input' })
-  @ApiResponse({ status: API_STATUS_UNAUTHORIZED, description: 'Unauthorized' })
+  @ApiResponse({ status: API_STATUS_BAD_REQUEST, description: "Invalid input" })
+  @ApiResponse({ status: API_STATUS_UNAUTHORIZED, description: "Unauthorized" })
   @ApiResponse({
     status: API_STATUS_CONFLICT,
-    description: 'Debrief already submitted for this weekly plan',
+    description: "Debrief already submitted for this weekly plan",
   })
   @ApiResponse({
     status: API_STATUS_RATE_LIMIT,
-    description: 'Rate limit exceeded',
+    description: "Rate limit exceeded",
   })
   public async submitDebrief(
-    @Param('goalId') goalId: string,
+    @Param("goalId") goalId: string,
     @UserId() userId: string,
     @Body() dto: SubmitDebriefDto,
   ): Promise<Debrief> {

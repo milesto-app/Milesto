@@ -1,18 +1,18 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger } from "@nestjs/common";
 
-import { AiService } from '../ai/ai.service.js';
-import { config } from '../config/app.config.js';
-import { SupabaseService } from '../supabase/supabase.service.js';
+import { AiService } from "../ai/ai.service.js";
+import { config } from "../config/app.config.js";
+import { SupabaseService } from "../supabase/supabase.service.js";
 import {
   assemblePromptSections,
   logRetrievalObservability,
-} from './context-assembler.js';
-import { RerankService } from './rerank.service.js';
+} from "./context-assembler.js";
+import { RerankService } from "./rerank.service.js";
 import type {
   AssembledContext,
   ContextChunk,
   RetrievalTier,
-} from './types/context.types.js';
+} from "./types/context.types.js";
 
 @Injectable()
 export class ContextPipelineService {
@@ -63,37 +63,37 @@ export class ContextPipelineService {
     rerankResult: { rerankApplied: boolean; failureReason?: string },
   ): { tier: RetrievalTier; fallbackReason: string | undefined } {
     if (retrieval.usedSqlFallback) {
-      return { tier: 'sql_fallback', fallbackReason: retrieval.fallbackReason };
+      return { tier: "sql_fallback", fallbackReason: retrieval.fallbackReason };
     }
     if (rerankResult.rerankApplied) {
-      return { tier: 'hnsw_reranked', fallbackReason: undefined };
+      return { tier: "hnsw_reranked", fallbackReason: undefined };
     }
-    return { tier: 'hnsw_only', fallbackReason: rerankResult.failureReason };
+    return { tier: "hnsw_only", fallbackReason: rerankResult.failureReason };
   }
 
   private async buildQueryText(goalId: string): Promise<string> {
     const supabase = this.supabaseService.getAdminClient();
     const { data: profile } = (await supabase
-      .from('goals')
-      .select('narrative_summary')
-      .eq('id', goalId)
+      .from("goals")
+      .select("narrative_summary")
+      .eq("id", goalId)
       .single()) as { data: { narrative_summary: string | null } | null };
 
     if (
-      typeof profile?.narrative_summary === 'string' &&
+      typeof profile?.narrative_summary === "string" &&
       profile.narrative_summary.length > 0
     ) {
       return profile.narrative_summary;
     }
 
     const { data: goal } = (await supabase
-      .from('goals')
-      .select('title, description')
-      .eq('id', goalId)
-      .is('deleted_at', null)
+      .from("goals")
+      .select("title, description")
+      .eq("id", goalId)
+      .is("deleted_at", null)
       .single()) as { data: { title: string; description: string } | null };
 
-    return `${goal?.title ?? ''} ${goal?.description ?? ''}`.trim();
+    return `${goal?.title ?? ""} ${goal?.description ?? ""}`.trim();
   }
 
   private async retrieveChunks(
@@ -123,7 +123,7 @@ export class ContextPipelineService {
     userId: string,
   ): Promise<{ chunks: ContextChunk[]; usedSqlFallback: boolean }> {
     const supabase = this.supabaseService.getAdminClient();
-    const { data, error } = await supabase.rpc('match_goal_context', {
+    const { data, error } = await supabase.rpc("match_goal_context", {
       query_embedding: JSON.stringify(queryEmbedding),
       p_goal_id: goalId,
       p_user_id: userId,
@@ -161,11 +161,11 @@ export class ContextPipelineService {
   ): Promise<ContextChunk[]> {
     const supabase = this.supabaseService.getAdminClient();
     const { data, error } = await supabase
-      .from('context_embeddings')
-      .select('id, content_text, content_type, metadata')
-      .eq('user_id', userId)
+      .from("context_embeddings")
+      .select("id, content_text, content_type, metadata")
+      .eq("user_id", userId)
       .or(`goal_id.eq.${goalId},goal_id.is.null`)
-      .order('created_at', { ascending: false });
+      .order("created_at", { ascending: false });
     if (error) {
       throw error;
     }

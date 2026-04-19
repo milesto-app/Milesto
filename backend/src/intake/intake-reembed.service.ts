@@ -1,8 +1,8 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger } from "@nestjs/common";
 
-import { AiService } from '../ai/ai.service.js';
-import { SupabaseService } from '../supabase/supabase.service.js';
-import type { ReembedResult } from './types/intake.types.js';
+import { AiService } from "../ai/ai.service.js";
+import { SupabaseService } from "../supabase/supabase.service.js";
+import type { ReembedResult } from "./types/intake.types.js";
 
 @Injectable()
 export class IntakeReembedService {
@@ -17,15 +17,15 @@ export class IntakeReembedService {
     const supabase = this.supabaseService.getAdminClient();
 
     const { data: batches } = await supabase
-      .from('intake_batches')
-      .select('id, goal_id, batch_number, goals!inner(user_id)')
-      .eq('embedded', false);
+      .from("intake_batches")
+      .select("id, goal_id, batch_number, goals!inner(user_id)")
+      .eq("embedded", false);
 
     const { data: profiles } = await supabase
-      .from('goals')
-      .select('id, user_id, narrative_summary')
-      .eq('profile_embedded', false)
-      .not('narrative_summary', 'is', null);
+      .from("goals")
+      .select("id, user_id, narrative_summary")
+      .eq("profile_embedded", false)
+      .not("narrative_summary", "is", null);
 
     const batchResults = await this.reembedBatches(batches ?? []);
     const profileResults = await this.reembedProfiles(profiles ?? []);
@@ -61,14 +61,14 @@ export class IntakeReembedService {
       const supabase = this.supabaseService.getAdminClient();
       const embedding = await this.aiService.generateEmbedding(contentText);
       const goalsData = batch.goals as { user_id: string } | undefined;
-      if (goalsData?.user_id === undefined || goalsData.user_id === '') {
-        throw new Error('Missing user_id from goals join');
+      if (goalsData?.user_id === undefined || goalsData.user_id === "") {
+        throw new Error("Missing user_id from goals join");
       }
 
-      const { error } = await supabase.from('context_embeddings').insert({
+      const { error } = await supabase.from("context_embeddings").insert({
         goal_id: batch.goal_id as string,
         user_id: goalsData.user_id,
-        content_type: 'intake_answer',
+        content_type: "intake_answer",
         batch_id: batchId,
         content_text: contentText,
         embedding: JSON.stringify(embedding),
@@ -78,9 +78,9 @@ export class IntakeReembedService {
         throw new Error(`Failed to store embedding: ${error.message}`);
       }
       await supabase
-        .from('intake_batches')
+        .from("intake_batches")
         .update({ embedded: true })
-        .eq('id', batchId);
+        .eq("id", batchId);
       return true;
     } catch (error) {
       this.logger.error(
@@ -93,10 +93,10 @@ export class IntakeReembedService {
   private async buildBatchContent(batchId: string): Promise<string | null> {
     const supabase = this.supabaseService.getAdminClient();
     const { data: questions, error: qError } = await supabase
-      .from('intake_questions')
-      .select('id, question_text, question_type, order_in_batch')
-      .eq('batch_id', batchId)
-      .order('order_in_batch');
+      .from("intake_questions")
+      .select("id, question_text, question_type, order_in_batch")
+      .eq("batch_id", batchId)
+      .order("order_in_batch");
 
     if (qError !== null) {
       this.logger.error(
@@ -113,9 +113,9 @@ export class IntakeReembedService {
 
     const questionIds = questions.map((q: { id: string }) => q.id);
     const { data: answers, error: aError } = await supabase
-      .from('intake_questions')
-      .select('id, answer_text, answer_numeric, selected_options')
-      .in('id', questionIds);
+      .from("intake_questions")
+      .select("id, answer_text, answer_numeric, selected_options")
+      .in("id", questionIds);
 
     if (aError !== null) {
       this.logger.error(
@@ -142,19 +142,19 @@ export class IntakeReembedService {
     try {
       const supabase = this.supabaseService.getAdminClient();
       if (
-        typeof profile.narrative_summary !== 'string' ||
-        profile.narrative_summary === ''
+        typeof profile.narrative_summary !== "string" ||
+        profile.narrative_summary === ""
       ) {
-        throw new Error('Missing narrative_summary');
+        throw new Error("Missing narrative_summary");
       }
       const goalId = profile.id as string;
       const embedding = await this.aiService.generateEmbedding(
         profile.narrative_summary,
       );
-      const { error } = await supabase.from('context_embeddings').insert({
+      const { error } = await supabase.from("context_embeddings").insert({
         goal_id: goalId,
         user_id: profile.user_id as string,
-        content_type: 'goal_profile',
+        content_type: "goal_profile",
         content_text: profile.narrative_summary,
         embedding: JSON.stringify(embedding),
       });
@@ -162,9 +162,9 @@ export class IntakeReembedService {
         throw new Error(`Failed to store embedding: ${error.message}`);
       }
       await supabase
-        .from('goals')
+        .from("goals")
         .update({ profile_embedded: true })
-        .eq('id', goalId);
+        .eq("id", goalId);
       return true;
     } catch (error) {
       this.logger.error(
@@ -186,29 +186,29 @@ function formatQAPairs(
       const text = formatSingleAnswer(answer);
       return `Q: ${q.question_text}\nA: ${text}`;
     })
-    .join('\n\n');
+    .join("\n\n");
 }
 
 function formatSingleAnswer(
   answer: Record<string, unknown> | undefined,
 ): string {
   if (answer === undefined) {
-    return '(no answer)';
+    return "(no answer)";
   }
   return extractAnswerText(answer);
 }
 
 function extractAnswerText(answer: Record<string, unknown>): string {
-  if (typeof answer.answer_text === 'string') {
+  if (typeof answer.answer_text === "string") {
     return answer.answer_text;
   }
-  if (typeof answer.answer_numeric === 'number') {
+  if (typeof answer.answer_numeric === "number") {
     return String(answer.answer_numeric);
   }
   if (Array.isArray(answer.selected_options)) {
-    return (answer.selected_options as string[]).join(', ');
+    return (answer.selected_options as string[]).join(", ");
   }
-  return '(no answer)';
+  return "(no answer)";
 }
 
 function countResults(results: boolean[]): {

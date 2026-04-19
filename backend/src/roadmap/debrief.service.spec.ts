@@ -1,18 +1,18 @@
-import { ConflictException } from '@nestjs/common';
-import { EventEmitter2 } from '@nestjs/event-emitter';
-import type { TestingModule } from '@nestjs/testing';
-import { Test } from '@nestjs/testing';
+import { ConflictException } from "@nestjs/common";
+import { EventEmitter2 } from "@nestjs/event-emitter";
+import type { TestingModule } from "@nestjs/testing";
+import { Test } from "@nestjs/testing";
 
-import { SupabaseService } from '../supabase/supabase.service.js';
-import { DebriefService } from './debrief.service.js';
+import { SupabaseService } from "../supabase/supabase.service.js";
+import { DebriefService } from "./debrief.service.js";
 
-describe('DebriefService', () => {
+describe("DebriefService", () => {
   let service: DebriefService;
   let mockSupabaseService: { getAdminClient: jest.Mock };
   let mockEventEmitter: { emit: jest.Mock };
 
-  const userId = 'user-uuid';
-  const goalId = 'goal-uuid';
+  const userId = "user-uuid";
+  const goalId = "goal-uuid";
 
   beforeEach(async () => {
     mockSupabaseService = { getAdminClient: jest.fn() };
@@ -29,15 +29,15 @@ describe('DebriefService', () => {
     service = module.get<DebriefService>(DebriefService);
   });
 
-  describe('submitDebrief', () => {
-    const dto = { note: 'Good day', task_ratings: [] };
+  describe("submitDebrief", () => {
+    const dto = { note: "Good day", task_ratings: [] };
 
-    it('should submit debrief and emit event', async () => {
+    it("should submit debrief and emit event", async () => {
       const mockDebrief = {
-        id: 'debrief-uuid',
+        id: "debrief-uuid",
         goal_id: goalId,
         user_id: userId,
-        note: 'Good day',
+        note: "Good day",
       };
 
       let fromCallIndex = 0;
@@ -99,12 +99,12 @@ describe('DebriefService', () => {
       const result = await service.submitDebrief(goalId, userId, dto);
       expect(result).toEqual(mockDebrief);
       expect(mockEventEmitter.emit).toHaveBeenCalledWith(
-        'debrief.submitted',
+        "debrief.submitted",
         expect.any(Object),
       );
     });
 
-    it('should throw ConflictException on duplicate debrief', async () => {
+    it("should throw ConflictException on duplicate debrief", async () => {
       let fromCallIndex = 0;
       mockSupabaseService.getAdminClient.mockReturnValue({
         from: jest.fn().mockImplementation(() => {
@@ -131,7 +131,7 @@ describe('DebriefService', () => {
                 eq: jest.fn().mockReturnValue({
                   eq: jest.fn().mockReturnValue({
                     limit: jest.fn().mockResolvedValue({
-                      data: [{ id: 'existing-debrief' }],
+                      data: [{ id: "existing-debrief" }],
                       error: null,
                     }),
                   }),

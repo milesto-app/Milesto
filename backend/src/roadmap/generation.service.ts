@@ -1,35 +1,35 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger } from "@nestjs/common";
 
-import { AiService } from '../ai/ai.service.js';
-import { config } from '../config/app.config.js';
+import { AiService } from "../ai/ai.service.js";
+import { config } from "../config/app.config.js";
 import {
   validateMilestones,
   validateWeeklyPlan,
   validateWeeklyTasks,
-} from './generation-validator.js';
+} from "./generation-validator.js";
 import {
   buildMilestoneSystemPrompt,
   buildMilestoneUserPrompt,
-} from './prompts/milestone-prompts.js';
+} from "./prompts/milestone-prompts.js";
 import {
   buildWeeklyPlanSystemPrompt,
   buildWeeklyPlanUserPrompt,
-} from './prompts/weekly-plan-prompts.js';
+} from "./prompts/weekly-plan-prompts.js";
 import {
   buildWeeklyTasksSystemPrompt,
   buildWeeklyTasksUserPrompt,
-} from './prompts/weekly-task-prompts.js';
-import type { AssembledContext } from './types/context.types.js';
-import type { GeneratedMilestone } from './types/generated-milestone.js';
-import type { GeneratedWeeklyPlan } from './types/generated-weekly-plan.js';
-import type { GeneratedWeeklyTask } from './types/generated-weekly-task.js';
+} from "./prompts/weekly-task-prompts.js";
+import type { AssembledContext } from "./types/context.types.js";
+import type { GeneratedMilestone } from "./types/generated-milestone.types.js";
+import type { GeneratedWeeklyPlan } from "./types/generated-weekly-plan.types.js";
+import type { GeneratedWeeklyTask } from "./types/generated-weekly-task.types.js";
 import type {
   GenerateWeeklyPlanParams,
   GenerateWeeklyTasksParams,
   MetadataParams,
   RetryParams,
-} from './types/generation.types.js';
-import type { GenerationMetadata, GoalData } from './types/roadmap.types.js';
+} from "./types/generation.types.js";
+import type { GenerationMetadata, GoalData } from "./types/roadmap.types.js";
 
 const MAX_GENERATION_ATTEMPTS = 2;
 
@@ -53,7 +53,7 @@ export class GenerationService {
       userPrompt: buildMilestoneUserPrompt(context, goal),
       model,
       totalChunks: context.totalChunks,
-      label: 'Milestone',
+      label: "Milestone",
       validate: validateMilestones,
     });
     return {
@@ -76,7 +76,7 @@ export class GenerationService {
       }),
       model,
       totalChunks: params.context.totalChunks,
-      label: 'Weekly plan',
+      label: "Weekly plan",
       validate: validateWeeklyPlan,
     });
     return {
@@ -99,7 +99,7 @@ export class GenerationService {
       }),
       model,
       totalChunks: params.context.totalChunks,
-      label: 'Weekly tasks',
+      label: "Weekly tasks",
       validate: validateWeeklyTasks,
     });
     return {
@@ -109,7 +109,7 @@ export class GenerationService {
   }
 
   private resolveModel(configModel: string): string {
-    return configModel === 'default' ? config.ai.defaultModel : configModel;
+    return configModel === "default" ? config.ai.defaultModel : configModel;
   }
 
   private async generateWithRetry(

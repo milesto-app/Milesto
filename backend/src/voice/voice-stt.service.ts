@@ -1,10 +1,10 @@
-import { Injectable, Logger } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
-import { ElevenLabsClient } from 'elevenlabs';
+import { Injectable, Logger } from "@nestjs/common";
+import { ConfigService } from "@nestjs/config";
+import { ElevenLabsClient } from "elevenlabs";
 
-import type { TranscriptionResult } from './voice.types.js';
+import type { TranscriptionResult } from "./voice.types.js";
 
-const STT_MODEL_ID = 'scribe_v2';
+const STT_MODEL_ID = "scribe_v2";
 
 @Injectable()
 export class VoiceSttService {
@@ -13,7 +13,7 @@ export class VoiceSttService {
 
   constructor(private readonly configService: ConfigService) {
     this.client = new ElevenLabsClient({
-      apiKey: this.configService.getOrThrow<string>('ELEVENLABS_API_KEY'),
+      apiKey: this.configService.getOrThrow<string>("ELEVENLABS_API_KEY"),
     });
   }
 
@@ -29,12 +29,12 @@ export class VoiceSttService {
 
       /* eslint-disable @typescript-eslint/naming-convention */
       const extensionMap: Record<string, string> = {
-        'audio/wav': 'wav',
-        'audio/mpeg': 'mp3',
-        'audio/mp4': 'mp4',
+        "audio/wav": "wav",
+        "audio/mpeg": "mp3",
+        "audio/mp4": "mp4",
       };
       /* eslint-enable @typescript-eslint/naming-convention */
-      const extension = extensionMap[mimetype] ?? 'webm';
+      const extension = extensionMap[mimetype] ?? "webm";
       const file = new File(
         [new Uint8Array(audioBuffer)],
         `recording.${extension}`,
@@ -45,7 +45,7 @@ export class VoiceSttService {
         file,
         model_id: STT_MODEL_ID,
         language_code: language,
-        timestamps_granularity: 'word',
+        timestamps_granularity: "word",
       });
 
       const duration = this.estimateDuration(response.words);

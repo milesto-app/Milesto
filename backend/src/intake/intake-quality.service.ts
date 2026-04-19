@@ -1,21 +1,21 @@
-import { Injectable, Logger } from '@nestjs/common';
-import { OnEvent } from '@nestjs/event-emitter';
+import { Injectable, Logger } from "@nestjs/common";
+import { OnEvent } from "@nestjs/event-emitter";
 
-import { AiService } from '../ai/ai.service.js';
-import { config } from '../config/app.config.js';
-import { QUALITY_JUDGE_SYSTEM_PROMPT } from '../config/prompts/quality-prompts.config.js';
-import { SupabaseService } from '../supabase/supabase.service.js';
+import { AiService } from "../ai/ai.service.js";
+import { config } from "../config/app.config.js";
+import { SupabaseService } from "../supabase/supabase.service.js";
 import {
   validateGoalProfile,
   validateSemantic,
   validateStructural,
-} from './intake-batch-validator.js';
-import type { QualityScores } from './intake-quality-scoring.js';
+} from "./intake-batch-validator.js";
+import type { QualityScores } from "./intake-quality-scoring.js";
 import {
   buildQualityUserPrompt,
   computeComposite,
-} from './intake-quality-scoring.js';
-import type { BatchServedEvent } from './types/intake.types.js';
+} from "./intake-quality-scoring.js";
+import { QUALITY_JUDGE_SYSTEM_PROMPT } from "./prompts/intake-quality-prompts.js";
+import type { BatchServedEvent } from "./types/intake.types.js";
 
 const SCORE_DECIMAL_PLACES = 2;
 
@@ -38,11 +38,11 @@ export class IntakeQualityService {
   public validateBatch(questions: unknown[]): {
     valid: boolean;
     errors: string[];
-    layer: 'structural' | 'semantic';
+    layer: "structural" | "semantic";
   } {
     const structural = validateStructural(questions);
     if (!structural.valid) {
-      return { valid: false, errors: structural.errors, layer: 'structural' };
+      return { valid: false, errors: structural.errors, layer: "structural" };
     }
     const semantic = validateSemantic(
       questions as Array<{
@@ -52,12 +52,12 @@ export class IntakeQualityService {
       }>,
     );
     if (!semantic.valid) {
-      return { valid: false, errors: semantic.errors, layer: 'semantic' };
+      return { valid: false, errors: semantic.errors, layer: "semantic" };
     }
-    return { valid: true, errors: [], layer: 'semantic' };
+    return { valid: true, errors: [], layer: "semantic" };
   }
 
-  @OnEvent('batch.served')
+  @OnEvent("batch.served")
   public async handleBatchServed(payload: BatchServedEvent): Promise<void> {
     try {
       await this.scoreBatch(payload);
@@ -71,10 +71,10 @@ export class IntakeQualityService {
   private async scoreBatch(payload: BatchServedEvent): Promise<void> {
     const supabase = this.supabaseService.getAdminClient();
     const { data: questions, error: qError } = await supabase
-      .from('intake_questions')
-      .select('question_text, question_type')
-      .eq('batch_id', payload.batch_id)
-      .order('order_in_batch');
+      .from("intake_questions")
+      .select("question_text, question_type")
+      .eq("batch_id", payload.batch_id)
+      .order("order_in_batch");
 
     if (qError !== null) {
       this.logger.error(
@@ -108,10 +108,10 @@ export class IntakeQualityService {
   private async loadGoalDescription(goalId: string): Promise<string | null> {
     const supabase = this.supabaseService.getAdminClient();
     const { data: goal, error } = await supabase
-      .from('goals')
-      .select('description')
-      .eq('id', goalId)
-      .is('deleted_at', null)
+      .from("goals")
+      .select("description")
+      .eq("id", goalId)
+      .is("deleted_at", null)
       .single();
     if (error !== null) {
       this.logger.error(
@@ -127,12 +127,12 @@ export class IntakeQualityService {
   ): Promise<Array<{ question_text: string; batch_number: number }>> {
     const supabase = this.supabaseService.getAdminClient();
     const { data } = await supabase
-      .from('intake_questions')
-      .select('question_text, batch_number')
-      .eq('goal_id', payload.goal_id)
-      .lt('batch_number', payload.batch_number)
-      .order('batch_number')
-      .order('order_in_batch');
+      .from("intake_questions")
+      .select("question_text, batch_number")
+      .eq("goal_id", payload.goal_id)
+      .lt("batch_number", payload.batch_number)
+      .order("batch_number")
+      .order("order_in_batch");
     return data ?? [];
   }
 
@@ -153,9 +153,9 @@ export class IntakeQualityService {
   private async storeScore(batchId: string, composite: number): Promise<void> {
     const supabase = this.supabaseService.getAdminClient();
     const { error } = await supabase
-      .from('intake_batches')
+      .from("intake_batches")
       .update({ quality_score: composite })
-      .eq('id', batchId);
+      .eq("id", batchId);
     if (error !== null) {
       this.logger.error(
         `Failed to store quality score for batch ${batchId}: ${error.message}`,

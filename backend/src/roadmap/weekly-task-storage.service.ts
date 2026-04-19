@@ -3,10 +3,11 @@ import {
   InternalServerErrorException,
   Logger,
   NotFoundException,
-} from '@nestjs/common';
+} from "@nestjs/common";
 
-import { SupabaseService } from '../supabase/supabase.service.js';
-import type { WeeklyTask } from './types/weekly-task.types.js';
+import { SUPABASE_UNIQUE_VIOLATION } from "../supabase/error-codes.js";
+import { SupabaseService } from "../supabase/supabase.service.js";
+import type { WeeklyTask } from "./types/weekly-task.types.js";
 
 interface StoreWeeklyTaskRow {
   title: string;
@@ -43,18 +44,18 @@ export class WeeklyTaskStorageService {
   ): Promise<WeeklyTask[]> {
     const supabase = this.supabaseService.getAdminClient();
     const { data, error } = await supabase
-      .from('weekly_tasks')
-      .select('*')
-      .eq('goal_id', goalId)
-      .eq('user_id', userId)
-      .eq('weekly_plan_id', weeklyPlanId)
-      .order('order_index', { ascending: true });
+      .from("weekly_tasks")
+      .select("*")
+      .eq("goal_id", goalId)
+      .eq("user_id", userId)
+      .eq("weekly_plan_id", weeklyPlanId)
+      .order("order_index", { ascending: true });
 
     if (error) {
       this.logger.error(
         `Failed to query existing weekly tasks: ${error.message}`,
       );
-      throw new InternalServerErrorException('Failed to retrieve weekly tasks');
+      throw new InternalServerErrorException("Failed to retrieve weekly tasks");
     }
 
     return data as WeeklyTask[];
@@ -64,29 +65,29 @@ export class WeeklyTaskStorageService {
     const supabase = this.supabaseService.getAdminClient();
 
     const { error: findError } = await supabase
-      .from('weekly_tasks')
-      .select('id')
-      .eq('id', params.taskId)
-      .eq('goal_id', params.goalId)
-      .eq('user_id', params.userId)
+      .from("weekly_tasks")
+      .select("id")
+      .eq("id", params.taskId)
+      .eq("goal_id", params.goalId)
+      .eq("user_id", params.userId)
       .single();
 
     if (findError !== null) {
-      throw new NotFoundException('Weekly task not found');
+      throw new NotFoundException("Weekly task not found");
     }
 
     const { data, error } = await supabase
-      .from('weekly_tasks')
+      .from("weekly_tasks")
       .update({ is_completed: params.isCompleted })
-      .eq('id', params.taskId)
-      .eq('goal_id', params.goalId)
-      .eq('user_id', params.userId)
+      .eq("id", params.taskId)
+      .eq("goal_id", params.goalId)
+      .eq("user_id", params.userId)
       .select()
       .single();
 
     if (error !== null) {
       this.logger.error(`Failed to update weekly task: ${error.message}`);
-      throw new InternalServerErrorException('Failed to update weekly task');
+      throw new InternalServerErrorException("Failed to update weekly task");
     }
 
     return data as WeeklyTask;
@@ -107,17 +108,28 @@ export class WeeklyTaskStorageService {
     }));
 
     const { data, error } = await supabase
-      .from('weekly_tasks')
+      .from("weekly_tasks")
       .insert(rows)
       .select()
-      .order('order_index', { ascending: true });
+      .order("order_index", { ascending: true });
 
-    if (error !== null) {
-      this.logger.error(`Failed to store weekly tasks: ${error.message}`);
-      throw new InternalServerErrorException('Failed to store weekly tasks');
+    if (error === null) {
+      return data as WeeklyTask[];
     }
 
-    return data as WeeklyTask[];
+    if (error.code === SUPABASE_UNIQUE_VIOLATION) {
+      this.logger.warn(
+        `Concurrent weekly tasks insert for plan ${params.weeklyPlanId}; returning existing`,
+      );
+      return this.getExistingTasks(
+        params.goalId,
+        params.userId,
+        params.weeklyPlanId,
+      );
+    }
+
+    this.logger.error(`Failed to store weekly tasks: ${error.message}`);
+    throw new InternalServerErrorException("Failed to store weekly tasks");
   }
 
   public async getWeeklyCompletionRate(
@@ -127,18 +139,18 @@ export class WeeklyTaskStorageService {
   ): Promise<{ completed: number; total: number; rate: number }> {
     const supabase = this.supabaseService.getAdminClient();
     const { data, error } = await supabase
-      .from('weekly_tasks')
-      .select('is_completed')
-      .eq('weekly_plan_id', weeklyPlanId)
-      .eq('goal_id', goalId)
-      .eq('user_id', userId);
+      .from("weekly_tasks")
+      .select("is_completed")
+      .eq("weekly_plan_id", weeklyPlanId)
+      .eq("goal_id", goalId)
+      .eq("user_id", userId);
 
     if (error) {
       this.logger.error(
         `Failed to query weekly completion rate: ${error.message}`,
       );
       throw new InternalServerErrorException(
-        'Failed to query weekly completion rate',
+        "Failed to query weekly completion rate",
       );
     }
 

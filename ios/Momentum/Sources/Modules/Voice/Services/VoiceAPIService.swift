@@ -13,10 +13,10 @@ final class VoiceAPIService {
         )
     }
 
-    func synthesize(text: String, coachId: Int) async throws -> Data {
+    func synthesize(text: String, coachId: Int, language: TTSLanguage) async throws -> Data {
         try await BackendClient.shared.requestAudioData(
             path: "voice/synthesize",
-            body: SynthesizeRequest(text: text, coachId: coachId)
+            body: SynthesizeRequest(text: text, coachId: coachId, language: language.rawValue)
         )
     }
 }
@@ -24,9 +24,11 @@ final class VoiceAPIService {
 private struct SynthesizeRequest: Encodable {
     let text: String
     let coachId: Int
+    let language: String
 
     enum CodingKeys: String, CodingKey {
         case text
         case coachId = "coach_id"
+        case language
     }
 }

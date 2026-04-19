@@ -1,14 +1,14 @@
-import { Injectable, Logger } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
-import OpenAI from 'openai';
+import { Injectable, Logger } from "@nestjs/common";
+import { ConfigService } from "@nestjs/config";
+import OpenAI from "openai";
 import type {
   ChatCompletionChunk,
   ChatCompletionMessageParam,
   ChatCompletionTool,
-} from 'openai/resources/chat/completions';
-import type { Stream } from 'openai/streaming';
+} from "openai/resources/chat/completions";
+import type { Stream } from "openai/streaming";
 
-import { config } from '../config/app.config.js';
+import { config } from "../config/app.config.js";
 
 @Injectable()
 export class AiService {
@@ -18,7 +18,7 @@ export class AiService {
   constructor(private readonly configService: ConfigService) {
     this.openai = new OpenAI({
       baseURL: config.ai.baseUrl,
-      apiKey: this.configService.getOrThrow<string>('OPENROUTER_API_KEY'),
+      apiKey: this.configService.getOrThrow<string>("OPENROUTER_API_KEY"),
     });
   }
 
@@ -52,7 +52,7 @@ export class AiService {
 
         const embedding = response.data[0]?.embedding;
         if (embedding === undefined) {
-          throw new Error('No embedding data returned from AI');
+          throw new Error("No embedding data returned from AI");
         }
 
         this.logger.log(`Embedding generated: ${embedding.length} dimensions`);
@@ -81,8 +81,8 @@ export class AiService {
             {
               model: model ?? config.ai.defaultModel,
               messages: [
-                { role: 'system', content: system },
-                { role: 'user', content: user },
+                { role: "system", content: system },
+                { role: "user", content: user },
               ],
               ...(reasoning !== undefined && {
                 reasoning: { effort: reasoning },
@@ -100,16 +100,16 @@ export class AiService {
         this.logRetryWarning(attempt, error);
       }
     }
-    throw new Error('All retry attempts exhausted');
+    throw new Error("All retry attempts exhausted");
   }
 
   private extractJson(
     response: OpenAI.Chat.Completions.ChatCompletion,
   ): unknown {
-    const content = response.choices[0]?.message.content ?? '';
+    const content = response.choices[0]?.message.content ?? "";
     const match = content.match(/[[{][\s\S]*[}\]]/);
     if (match === null) {
-      throw new Error('No JSON found in AI response');
+      throw new Error("No JSON found in AI response");
     }
     return JSON.parse(match[0]) as unknown;
   }
@@ -118,7 +118,7 @@ export class AiService {
     return (
       error instanceof SyntaxError ||
       (error instanceof Error &&
-        error.message === 'No JSON found in AI response')
+        error.message === "No JSON found in AI response")
     );
   }
 

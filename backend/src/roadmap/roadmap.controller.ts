@@ -1,20 +1,20 @@
-import { Controller, Param, Post, UseGuards } from '@nestjs/common';
+import { Controller, Param, Post, UseGuards } from "@nestjs/common";
 import {
   ApiBearerAuth,
   ApiOperation,
   ApiParam,
   ApiResponse,
   ApiTags,
-} from '@nestjs/swagger';
-import { Throttle } from '@nestjs/throttler';
+} from "@nestjs/swagger";
+import { Throttle } from "@nestjs/throttler";
 
-import { UserId } from '../common/decorators/user.decorator.js';
-import { AuthGuard } from '../common/guards/auth.guard.js';
-import { config } from '../config/app.config.js';
-import { RoadmapService } from './roadmap.service.js';
-import type { Roadmap } from './types/roadmap.types.js';
-import type { WeeklyPlan } from './types/weekly-plan.types.js';
-import { WeeklyPlanService } from './weekly-plan.service.js';
+import { UserId } from "../common/decorators/user.decorator.js";
+import { AuthGuard } from "../common/guards/auth.guard.js";
+import { config } from "../config/app.config.js";
+import { RoadmapService } from "./roadmap.service.js";
+import type { Roadmap } from "./types/roadmap.types.js";
+import type { WeeklyPlan } from "./types/weekly-plan.types.js";
+import { WeeklyPlanService } from "./weekly-plan.service.js";
 
 const API_STATUS_OK = 200;
 const API_STATUS_BAD_REQUEST = 400;
@@ -25,9 +25,9 @@ const API_STATUS_RATE_LIMIT = 429;
 const GENERATE_ROADMAP_LIMIT = 3;
 const GENERATE_WEEKLY_LIMIT = 5;
 
-@ApiTags('roadmap')
+@ApiTags("roadmap")
 @ApiBearerAuth()
-@Controller('goals/:goalId/roadmap')
+@Controller("goals/:goalId/roadmap")
 @UseGuards(AuthGuard)
 export class RoadmapController {
   constructor(
@@ -35,25 +35,25 @@ export class RoadmapController {
     private readonly weeklyPlanService: WeeklyPlanService,
   ) {}
 
-  @Post('generate')
-  @ApiOperation({ summary: 'Generate milestone roadmap for a goal' })
-  @ApiParam({ name: 'goalId', description: 'Goal ID' })
+  @Post("generate")
+  @ApiOperation({ summary: "Generate milestone roadmap for a goal" })
+  @ApiParam({ name: "goalId", description: "Goal ID" })
   @ApiResponse({
     status: API_STATUS_OK,
-    description: 'Roadmap with milestones generated successfully',
+    description: "Roadmap with milestones generated successfully",
   })
   @ApiResponse({
     status: API_STATUS_BAD_REQUEST,
-    description: 'Goal not in valid status or max retries exceeded',
+    description: "Goal not in valid status or max retries exceeded",
   })
-  @ApiResponse({ status: API_STATUS_UNAUTHORIZED, description: 'Unauthorized' })
+  @ApiResponse({ status: API_STATUS_UNAUTHORIZED, description: "Unauthorized" })
   @ApiResponse({
     status: API_STATUS_CONFLICT,
-    description: 'Generation already in progress',
+    description: "Generation already in progress",
   })
   @ApiResponse({
     status: API_STATUS_RATE_LIMIT,
-    description: 'Rate limit exceeded',
+    description: "Rate limit exceeded",
   })
   @Throttle({
     default: {
@@ -62,31 +62,31 @@ export class RoadmapController {
     },
   })
   public async generateRoadmap(
-    @Param('goalId') goalId: string,
+    @Param("goalId") goalId: string,
     @UserId() userId: string,
   ): Promise<Roadmap> {
     return this.roadmapService.generateMilestones(goalId, userId);
   }
 
-  @Post('weekly-plan/generate')
-  @ApiOperation({ summary: 'Explicitly generate a new weekly plan' })
-  @ApiParam({ name: 'goalId', description: 'Goal ID' })
+  @Post("weekly-plan/generate")
+  @ApiOperation({ summary: "Explicitly generate a new weekly plan" })
+  @ApiParam({ name: "goalId", description: "Goal ID" })
   @ApiResponse({
     status: API_STATUS_OK,
-    description: 'Newly generated weekly plan',
+    description: "Newly generated weekly plan",
   })
   @ApiResponse({
     status: API_STATUS_BAD_REQUEST,
-    description: 'Goal has no active roadmap',
+    description: "Goal has no active roadmap",
   })
-  @ApiResponse({ status: API_STATUS_UNAUTHORIZED, description: 'Unauthorized' })
+  @ApiResponse({ status: API_STATUS_UNAUTHORIZED, description: "Unauthorized" })
   @ApiResponse({
     status: API_STATUS_NOT_FOUND,
-    description: 'No roadmap found for this goal',
+    description: "No roadmap found for this goal",
   })
   @ApiResponse({
     status: API_STATUS_RATE_LIMIT,
-    description: 'Rate limit exceeded',
+    description: "Rate limit exceeded",
   })
   @Throttle({
     default: {
@@ -95,7 +95,7 @@ export class RoadmapController {
     },
   })
   public async generateWeeklyPlan(
-    @Param('goalId') goalId: string,
+    @Param("goalId") goalId: string,
     @UserId() userId: string,
   ): Promise<WeeklyPlan> {
     return this.weeklyPlanService.generateWeeklyPlan(goalId, userId);

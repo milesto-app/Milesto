@@ -1,21 +1,21 @@
-import { NotFoundException } from '@nestjs/common';
-import type { TestingModule } from '@nestjs/testing';
-import { Test } from '@nestjs/testing';
+import { NotFoundException } from "@nestjs/common";
+import type { TestingModule } from "@nestjs/testing";
+import { Test } from "@nestjs/testing";
 
-import { UserLanguageService } from '../common/user-language.service.js';
-import { UsageService } from '../usage/usage.service.js';
-import { VoiceService } from './voice.service.js';
-import { VoiceSttService } from './voice-stt.service.js';
-import { VoiceTtsService } from './voice-tts.service.js';
+import { UserLanguageService } from "../common/user-language.service.js";
+import { UsageService } from "../usage/usage.service.js";
+import { VoiceService } from "./voice.service.js";
+import { VoiceSttService } from "./voice-stt.service.js";
+import { VoiceTtsService } from "./voice-tts.service.js";
 
 const MOTIVATOR_COACH_ID = 1;
 const UNKNOWN_COACH_ID = 999;
-const TEST_USER_ID = 'user-123';
-const TEST_TEXT = 'Hello';
+const TEST_USER_ID = "user-123";
+const TEST_TEXT = "Hello";
 
 const MOCK_AUDIO_RESULT = {
-  audio: Buffer.from('audio'),
-  content_type: 'audio/mpeg',
+  audio: Buffer.from("audio"),
+  content_type: "audio/mpeg",
   duration_seconds: 1.0,
 };
 
@@ -43,68 +43,78 @@ beforeEach(async () => {
   service = module.get<VoiceService>(VoiceService);
 });
 
-describe('VoiceService.synthesize language selection', () => {
-  it('should use English voice id for en user', async () => {
-    getLanguage.mockResolvedValue('en');
+describe("VoiceService.synthesize language selection", () => {
+  it("should use English voice id for en user", async () => {
+    getLanguage.mockResolvedValue("en");
 
     await service.synthesize(TEST_TEXT, MOTIVATOR_COACH_ID, TEST_USER_ID);
 
     expect(ttsSynthesize).toHaveBeenCalledWith(
       TEST_TEXT,
-      'e79RFuEzhsq38bytJLIt',
+      "e79RFuEzhsq38bytJLIt",
     );
   });
 
-  it('should use French voice id for fr user', async () => {
-    getLanguage.mockResolvedValue('fr');
+  it("should use French voice id for fr user", async () => {
+    getLanguage.mockResolvedValue("fr");
 
     await service.synthesize(TEST_TEXT, MOTIVATOR_COACH_ID, TEST_USER_ID);
 
     expect(ttsSynthesize).toHaveBeenCalledWith(
       TEST_TEXT,
-      '5jCmrHdxbpU36l1wb3Ke',
+      "5jCmrHdxbpU36l1wb3Ke",
     );
   });
 
-  it('should normalize fr-FR to French voice', async () => {
-    getLanguage.mockResolvedValue('fr-FR');
+  it("should normalize fr-FR to French voice", async () => {
+    getLanguage.mockResolvedValue("fr-FR");
 
     await service.synthesize(TEST_TEXT, MOTIVATOR_COACH_ID, TEST_USER_ID);
 
     expect(ttsSynthesize).toHaveBeenCalledWith(
       TEST_TEXT,
-      '5jCmrHdxbpU36l1wb3Ke',
+      "5jCmrHdxbpU36l1wb3Ke",
     );
   });
 
-  it('should normalize EN to English voice', async () => {
-    getLanguage.mockResolvedValue('EN');
+  it("should normalize EN to English voice", async () => {
+    getLanguage.mockResolvedValue("EN");
 
     await service.synthesize(TEST_TEXT, MOTIVATOR_COACH_ID, TEST_USER_ID);
 
     expect(ttsSynthesize).toHaveBeenCalledWith(
       TEST_TEXT,
-      'e79RFuEzhsq38bytJLIt',
+      "e79RFuEzhsq38bytJLIt",
     );
   });
 
-  it('should fall back to English voice for unsupported language', async () => {
-    getLanguage.mockResolvedValue('de');
+  it("should fall back to English voice for unsupported language", async () => {
+    getLanguage.mockResolvedValue("de");
 
     await service.synthesize(TEST_TEXT, MOTIVATOR_COACH_ID, TEST_USER_ID);
 
     expect(ttsSynthesize).toHaveBeenCalledWith(
       TEST_TEXT,
-      'e79RFuEzhsq38bytJLIt',
+      "e79RFuEzhsq38bytJLIt",
     );
   });
 
-  it('should throw NotFoundException for unknown coach id', async () => {
-    getLanguage.mockResolvedValue('en');
+  it("should throw NotFoundException for unknown coach id", async () => {
+    getLanguage.mockResolvedValue("en");
 
     await expect(
       service.synthesize(TEST_TEXT, UNKNOWN_COACH_ID, TEST_USER_ID),
     ).rejects.toThrow(NotFoundException);
     expect(ttsSynthesize).not.toHaveBeenCalled();
+  });
+
+  it("should honor explicit language and skip user lookup", async () => {
+    await service.synthesize(TEST_TEXT, MOTIVATOR_COACH_ID, TEST_USER_ID, "fr");
+
+    expect(getLanguage).not.toHaveBeenCalled();
+    expect(ttsSynthesize).toHaveBeenCalledWith(
+      TEST_TEXT,
+      "5jCmrHdxbpU36l1wb3Ke",
+    );
   });
 });

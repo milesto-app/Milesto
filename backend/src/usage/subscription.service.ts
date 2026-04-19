@@ -2,34 +2,36 @@ import {
   SignedDataVerifier,
   VerificationException,
   VerificationStatus,
-} from '@apple/app-store-server-library/dist/jws_verification.js';
-import { Environment } from '@apple/app-store-server-library/dist/models/Environment.js';
-import type { JWSRenewalInfoDecodedPayload } from '@apple/app-store-server-library/dist/models/JWSRenewalInfoDecodedPayload.js';
-import type { JWSTransactionDecodedPayload } from '@apple/app-store-server-library/dist/models/JWSTransactionDecodedPayload.js';
-import type { ResponseBodyV2DecodedPayload } from '@apple/app-store-server-library/dist/models/ResponseBodyV2DecodedPayload.js';
+} from "@apple/app-store-server-library/dist/jws_verification.js";
+import { Environment } from "@apple/app-store-server-library/dist/models/Environment.js";
+import type { JWSRenewalInfoDecodedPayload } from "@apple/app-store-server-library/dist/models/JWSRenewalInfoDecodedPayload.js";
+import type { JWSTransactionDecodedPayload } from "@apple/app-store-server-library/dist/models/JWSTransactionDecodedPayload.js";
+import type { ResponseBodyV2DecodedPayload } from "@apple/app-store-server-library/dist/models/ResponseBodyV2DecodedPayload.js";
 import {
   BadRequestException,
   Injectable,
   InternalServerErrorException,
   Logger,
   UnauthorizedException,
-} from '@nestjs/common';
+} from "@nestjs/common";
 
-import { config } from '../config/app.config.js';
-import type { TablesUpdate } from '../supabase/database.types.js';
-import { SUPABASE_NOT_FOUND } from '../supabase/error-codes.js';
-import { SupabaseService } from '../supabase/supabase.service.js';
-import { loadAppleRootCertificates } from './apple-root-certs.js';
-import { ProcessedNotificationsService } from './processed-notifications.service.js';
+import { config } from "../config/app.config.js";
+import type { TablesUpdate } from "../supabase/database.types.js";
+import { SUPABASE_NOT_FOUND } from "../supabase/error-codes.js";
+import { SupabaseService } from "../supabase/supabase.service.js";
+import { loadAppleRootCertificates } from "./apple-root-certs.js";
+import { ProcessedNotificationsService } from "./processed-notifications.service.js";
 import {
   deriveSubscriptionUpdate,
   SUBSCRIPTION_STATUS,
   type SubscriptionStatus,
   type SubscriptionUpdate,
-} from './subscription-state.js';
+} from "./subscription-state.js";
 
-const TYPE_AUTO_RENEWABLE = 'Auto-Renewable Subscription';
-const OWNERSHIP_FAMILY_SHARED = 'FAMILY_SHARED';
+const TYPE_AUTO_RENEWABLE = "Auto-Renewable Subscription";
+const OWNERSHIP_FAMILY_SHARED = "FAMILY_SHARED";
+const UUID_REGEX =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 interface SubscriptionStatusResponse {
   status: string;
@@ -86,7 +88,7 @@ export class SubscriptionService {
     const isStale = await this.isStaleSignedDate(userId, signedDateIso);
     if (isStale) {
       this.logger.debug(
-        `Stale verify for user=${userId} tx=${transaction.transactionId ?? 'unknown'} — no-op`,
+        `Stale verify for user=${userId} tx=${transaction.transactionId ?? "unknown"} — no-op`,
       );
       return;
     }
@@ -96,7 +98,7 @@ export class SubscriptionService {
 
     const supabase = this.supabaseService.getAdminClient();
     const { error } = await supabase
-      .from('profiles')
+      .from("profiles")
       .update({
         subscription_status: status,
         subscription_expires_at: expiresAt,
@@ -107,33 +109,33 @@ export class SubscriptionService {
         subscription_apple_signed_at: signedDateIso,
         subscription_environment: this.stringOrNull(transaction.environment),
       })
-      .eq('id', userId);
+      .eq("id", userId);
 
     if (error) {
       this.logger.error(
         `Failed to sync subscription for user ${userId}: ${error.message}`,
       );
-      throw new InternalServerErrorException('Failed to sync subscription');
+      throw new InternalServerErrorException("Failed to sync subscription");
     }
 
     this.logger.log(
-      `Subscription synced user=${userId} status=${status} product=${transaction.productId ?? 'unknown'}`,
+      `Subscription synced user=${userId} status=${status} product=${transaction.productId ?? "unknown"}`,
     );
   }
 
   public async handleWebhook(signedPayload: string): Promise<void> {
-    if (typeof signedPayload !== 'string' || signedPayload === '') {
-      throw new BadRequestException('Missing signedPayload');
+    if (typeof signedPayload !== "string" || signedPayload === "") {
+      throw new BadRequestException("Missing signedPayload");
     }
 
     const notification =
       await this.verifyNotificationWithFallback(signedPayload);
     const notificationUuid = notification.notificationUUID;
-    if (notificationUuid === undefined || notificationUuid === '') {
-      throw new BadRequestException('Missing notificationUUID');
+    if (notificationUuid === undefined || notificationUuid === "") {
+      throw new BadRequestException("Missing notificationUUID");
     }
 
-    const type = this.stringOrNull(notification.notificationType) ?? 'UNKNOWN';
+    const type = this.stringOrNull(notification.notificationType) ?? "UNKNOWN";
     const subtype = this.stringOrNull(notification.subtype);
 
     const isAlreadyProcessed =
@@ -163,9 +165,9 @@ export class SubscriptionService {
     subtype: string | null,
   ): Promise<void> {
     const signedTx = notification.data?.signedTransactionInfo;
-    if (signedTx === undefined || signedTx === '') {
+    if (signedTx === undefined || signedTx === "") {
       this.logger.warn(
-        `Notification ${notification.notificationUUID ?? 'unknown'} (${type}) has no signedTransactionInfo — ignoring`,
+        `Notification ${notification.notificationUUID ?? "unknown"} (${type}) has no signedTransactionInfo — ignoring`,
       );
       return;
     }
@@ -181,7 +183,7 @@ export class SubscriptionService {
       renewalInfo,
     );
     if (update === null) {
-      const subtypeSuffix = subtype === null ? '' : `:${subtype}`;
+      const subtypeSuffix = subtype === null ? "" : `:${subtype}`;
       this.logger.log(`Ignoring notification type=${type}${subtypeSuffix}`);
       return;
     }
@@ -192,7 +194,7 @@ export class SubscriptionService {
   private async maybeVerifyRenewalInfo(
     signedRenewalInfo: string | undefined,
   ): Promise<JWSRenewalInfoDecodedPayload | null> {
-    if (signedRenewalInfo === undefined || signedRenewalInfo === '') {
+    if (signedRenewalInfo === undefined || signedRenewalInfo === "") {
       return null;
     }
     return this.verifyRenewalInfoWithFallback(signedRenewalInfo);
@@ -207,7 +209,7 @@ export class SubscriptionService {
     const userId = await this.findUserIdForWebhook(transaction);
     if (userId === null) {
       this.logger.warn(
-        `No user for transaction originalTx=${transaction.originalTransactionId ?? 'unknown'} appAccountToken=${transaction.appAccountToken ?? 'unknown'} — foreign/late notification`,
+        `No user for transaction originalTx=${transaction.originalTransactionId ?? "unknown"} appAccountToken=${transaction.appAccountToken ?? "unknown"} — foreign/late notification`,
       );
       return;
     }
@@ -218,7 +220,7 @@ export class SubscriptionService {
     const isStale = await this.isStaleSignedDate(userId, signedDateIso);
     if (isStale) {
       this.logger.debug(
-        `Stale webhook for user=${userId} tx=${transaction.transactionId ?? 'unknown'} type=${type} — no-op`,
+        `Stale webhook for user=${userId} tx=${transaction.transactionId ?? "unknown"} type=${type} — no-op`,
       );
       return;
     }
@@ -229,11 +231,11 @@ export class SubscriptionService {
   public async getStatus(userId: string): Promise<SubscriptionStatusResponse> {
     const supabase = this.supabaseService.getAdminClient();
     const { data, error } = await supabase
-      .from('profiles')
+      .from("profiles")
       .select(
-        'subscription_status, subscription_expires_at, subscription_product_id, subscription_auto_renew_status',
+        "subscription_status, subscription_expires_at, subscription_product_id, subscription_auto_renew_status",
       )
-      .eq('id', userId)
+      .eq("id", userId)
       .maybeSingle();
 
     if (error && error.code !== SUPABASE_NOT_FOUND) {
@@ -241,7 +243,7 @@ export class SubscriptionService {
         `Failed to fetch subscription status user=${userId}: ${error.message}`,
       );
       throw new InternalServerErrorException(
-        'Failed to fetch subscription status',
+        "Failed to fetch subscription status",
       );
     }
 
@@ -269,7 +271,7 @@ export class SubscriptionService {
     signedDateIso: string | null,
   ): Promise<void> {
     const supabase = this.supabaseService.getAdminClient();
-    const patch: TablesUpdate<'profiles'> = {
+    const patch: TablesUpdate<"profiles"> = {
       subscription_verified_at: new Date().toISOString(),
     };
 
@@ -298,21 +300,21 @@ export class SubscriptionService {
     }
 
     const { error } = await supabase
-      .from('profiles')
+      .from("profiles")
       .update(patch)
-      .eq('id', userId);
+      .eq("id", userId);
 
     if (error) {
       this.logger.error(
         `Failed to apply webhook update user=${userId} reason=${update.reason}: ${error.message}`,
       );
       throw new InternalServerErrorException(
-        'Failed to persist subscription update',
+        "Failed to persist subscription update",
       );
     }
 
     this.logger.log(
-      `Webhook applied user=${userId} reason=${update.reason} status=${update.status ?? 'unchanged'}`,
+      `Webhook applied user=${userId} reason=${update.reason} status=${update.status ?? "unchanged"}`,
     );
   }
 
@@ -333,17 +335,17 @@ export class SubscriptionService {
   private async findUserByAppAccountToken(
     appAccountToken: string | undefined,
   ): Promise<string | null> {
-    if (appAccountToken === undefined || appAccountToken === '') {
+    if (appAccountToken === undefined || appAccountToken === "") {
       return null;
     }
     const supabase = this.supabaseService.getAdminClient();
     const { data, error } = await supabase
-      .from('profiles')
-      .select('id')
-      .eq('id', appAccountToken)
+      .from("profiles")
+      .select("id")
+      .eq("id", appAccountToken)
       .maybeSingle();
     if (error && error.code !== SUPABASE_NOT_FOUND) {
-      throw new InternalServerErrorException('Failed to lookup user by token');
+      throw new InternalServerErrorException("Failed to lookup user by token");
     }
     return data?.id ?? null;
   }
@@ -351,18 +353,18 @@ export class SubscriptionService {
   private async findUserByOriginalTransaction(
     originalTransactionId: string | undefined,
   ): Promise<string | null> {
-    if (originalTransactionId === undefined || originalTransactionId === '') {
+    if (originalTransactionId === undefined || originalTransactionId === "") {
       return null;
     }
     const supabase = this.supabaseService.getAdminClient();
     const { data, error } = await supabase
-      .from('profiles')
-      .select('id')
-      .eq('subscription_original_transaction_id', originalTransactionId)
+      .from("profiles")
+      .select("id")
+      .eq("subscription_original_transaction_id", originalTransactionId)
       .maybeSingle();
     if (error && error.code !== SUPABASE_NOT_FOUND) {
       throw new InternalServerErrorException(
-        'Failed to lookup user by original transaction',
+        "Failed to lookup user by original transaction",
       );
     }
     return data?.id ?? null;
@@ -378,14 +380,14 @@ export class SubscriptionService {
 
     const supabase = this.supabaseService.getAdminClient();
     const { data, error } = await supabase
-      .from('profiles')
-      .select('subscription_apple_signed_at')
-      .eq('id', userId)
+      .from("profiles")
+      .select("subscription_apple_signed_at")
+      .eq("id", userId)
       .maybeSingle();
 
     if (error && error.code !== SUPABASE_NOT_FOUND) {
       throw new InternalServerErrorException(
-        'Failed to read subscription timestamp',
+        "Failed to read subscription timestamp",
       );
     }
 
@@ -400,16 +402,16 @@ export class SubscriptionService {
     originalTransactionId: string | undefined,
     userId: string,
   ): Promise<void> {
-    if (originalTransactionId === undefined || originalTransactionId === '') {
+    if (originalTransactionId === undefined || originalTransactionId === "") {
       return;
     }
 
     const supabase = this.supabaseService.getAdminClient();
     const { data, error } = await supabase
-      .from('profiles')
-      .select('id')
-      .eq('subscription_original_transaction_id', originalTransactionId)
-      .neq('id', userId)
+      .from("profiles")
+      .select("id")
+      .eq("subscription_original_transaction_id", originalTransactionId)
+      .neq("id", userId)
       .maybeSingle();
 
     if (error && error.code !== SUPABASE_NOT_FOUND) {
@@ -417,7 +419,7 @@ export class SubscriptionService {
         `Collision check failed originalTx=${originalTransactionId}: ${error.message}`,
       );
       throw new InternalServerErrorException(
-        'Failed to check transaction ownership',
+        "Failed to check transaction ownership",
       );
     }
 
@@ -426,29 +428,29 @@ export class SubscriptionService {
         `Rejecting replay originalTx=${originalTransactionId} claimed by user=${userId} but owned by user=${data.id}`,
       );
       throw new UnauthorizedException(
-        'Transaction already bound to another user',
+        "Transaction already bound to another user",
       );
     }
   }
 
   private assertTransactionClaims(tx: JWSTransactionDecodedPayload): void {
     if (this.stringOrNull(tx.type) !== TYPE_AUTO_RENEWABLE) {
-      throw new UnauthorizedException('Invalid product type');
+      throw new UnauthorizedException("Invalid product type");
     }
     if (tx.bundleId !== config.apple.bundleId) {
-      throw new UnauthorizedException('Invalid bundle');
+      throw new UnauthorizedException("Invalid bundle");
     }
     const productId = tx.productId;
     if (
       productId === undefined ||
-      productId === '' ||
+      productId === "" ||
       !this.isAllowedProductId(productId)
     ) {
-      throw new UnauthorizedException('Unknown product');
+      throw new UnauthorizedException("Unknown product");
     }
     if (this.stringOrNull(tx.inAppOwnershipType) === OWNERSHIP_FAMILY_SHARED) {
       throw new UnauthorizedException(
-        'Family-shared subscriptions not supported',
+        "Family-shared subscriptions not supported",
       );
     }
   }
@@ -457,11 +459,14 @@ export class SubscriptionService {
     appAccountToken: string | undefined,
     userId: string,
   ): void {
-    if (appAccountToken === undefined || appAccountToken === '') {
-      throw new UnauthorizedException('Transaction not bound to this user');
+    if (appAccountToken === undefined || appAccountToken === "") {
+      throw new UnauthorizedException("Transaction not bound to this user");
+    }
+    if (!UUID_REGEX.test(appAccountToken) || !UUID_REGEX.test(userId)) {
+      throw new UnauthorizedException("Transaction not bound to this user");
     }
     if (appAccountToken.toLowerCase() !== userId.toLowerCase()) {
-      throw new UnauthorizedException('Transaction not bound to this user');
+      throw new UnauthorizedException("Transaction not bound to this user");
     }
   }
 
@@ -516,30 +521,30 @@ export class SubscriptionService {
         error.status === VerificationStatus.INVALID_ENVIRONMENT &&
         this.sandboxFallbackVerifier
       ) {
-        this.logger.log('Retrying verification with sandbox fallback');
+        this.logger.log("Retrying verification with sandbox fallback");
         return fn(this.sandboxFallbackVerifier);
       }
       if (error instanceof VerificationException) {
         this.logger.warn(
           `Verification failed status=${VerificationStatus[error.status]}`,
         );
-        throw new UnauthorizedException('Invalid signed payload');
+        throw new UnauthorizedException("Invalid signed payload");
       }
       throw error;
     }
   }
 
   private parseEnvironment(env: string): Environment {
-    if (env === 'Production') {
+    if (env === "Production") {
       return Environment.PRODUCTION;
     }
-    if (env === 'Sandbox') {
+    if (env === "Sandbox") {
       return Environment.SANDBOX;
     }
-    if (env === 'Xcode') {
+    if (env === "Xcode") {
       return Environment.XCODE;
     }
-    if (env === 'LocalTesting') {
+    if (env === "LocalTesting") {
       return Environment.LOCAL_TESTING;
     }
     throw new Error(
@@ -558,6 +563,6 @@ export class SubscriptionService {
     if (value === undefined) {
       return null;
     }
-    return typeof value === 'string' ? value : String(value);
+    return typeof value === "string" ? value : String(value);
   }
 }

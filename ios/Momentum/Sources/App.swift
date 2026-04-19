@@ -1,6 +1,7 @@
 import OSLog
 import SwiftData
 import SwiftUI
+import UIKit
 
 private let storeLogger = Logger(subsystem: "app.momentum", category: "swiftdata")
 private let storeResetGuardKey = "com.momentum.modelContainer.resetAttemptedAtBuild"
@@ -76,6 +77,20 @@ struct MomentumApp: App {
         }
         .modelContainer(sharedModelContainer)
     }
+}
+
+final class AppDelegate: NSObject, UIApplicationDelegate {
+    func application(
+        _: UIApplication,
+        didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data
+    ) {
+        Task { await NotificationService.shared.registerToken(deviceToken) }
+    }
+
+    func application(
+        _: UIApplication,
+        didFailToRegisterForRemoteNotificationsWithError _: Error
+    ) {}
 }
 
 private func recoverModelContainer(

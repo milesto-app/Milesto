@@ -1,11 +1,11 @@
-import type { TestingModule } from '@nestjs/testing';
-import { Test } from '@nestjs/testing';
+import type { TestingModule } from "@nestjs/testing";
+import { Test } from "@nestjs/testing";
 
-import { AiService } from '../ai/ai.service.js';
-import { GenerationNarrativeService } from './generation-narrative.service.js';
-import type { WeekData, WeeklyPlan } from './types/weekly-plan.types.js';
+import { AiService } from "../ai/ai.service.js";
+import { GenerationNarrativeService } from "./generation-narrative.service.js";
+import type { WeekData, WeeklyPlan } from "./types/weekly-plan.types.js";
 
-describe('GenerationNarrativeService', () => {
+describe("GenerationNarrativeService", () => {
   let service: GenerationNarrativeService;
   let mockAiService: { generateJson: jest.Mock };
 
@@ -26,23 +26,23 @@ describe('GenerationNarrativeService', () => {
     );
   });
 
-  describe('generateWeeklySummary', () => {
+  describe("generateWeeklySummary", () => {
     const completedPlan = {
-      id: 'plan-1',
-      milestone_id: 'ms-1',
-      goal_id: 'goal-1',
-      user_id: 'user-1',
+      id: "plan-1",
+      milestone_id: "ms-1",
+      goal_id: "goal-1",
+      user_id: "user-1",
       week_number: 1,
-      week_start_date: '2026-02-17',
-      objectives: ['Obj 1', 'Obj 2', 'Obj 3'],
+      week_start_date: "2026-02-17",
+      objectives: ["Obj 1", "Obj 2", "Obj 3"],
       generation_context: {},
       summary: null,
-      status: 'completed' as const,
+      status: "completed" as const,
       is_fallback: false,
       model_used: null,
       generation_metadata: {},
       quality_scores: null,
-      created_at: '2026-02-17T00:00:00.000Z',
+      created_at: "2026-02-17T00:00:00.000Z",
     } satisfies WeeklyPlan;
 
     const emptyWeekData: WeekData = {
@@ -51,11 +51,11 @@ describe('GenerationNarrativeService', () => {
       debriefNotes: [],
     };
 
-    it('should return computed data with zero completions', async () => {
+    it("should return computed data with zero completions", async () => {
       const result = await service.generateWeeklySummary(
         completedPlan,
         emptyWeekData,
-        'en',
+        "en",
       );
 
       expect(result.completion_rate).toBe(0);
@@ -65,7 +65,7 @@ describe('GenerationNarrativeService', () => {
       expect(result.narrative).toBeUndefined();
     });
 
-    it('should compute correct completion rate', async () => {
+    it("should compute correct completion rate", async () => {
       const weekData: WeekData = {
         tasksCompleted: 3,
         tasksTotal: 4,
@@ -75,7 +75,7 @@ describe('GenerationNarrativeService', () => {
       const result = await service.generateWeeklySummary(
         completedPlan,
         weekData,
-        'en',
+        "en",
       );
 
       expect(result.completion_rate).toBe(75);
@@ -83,90 +83,90 @@ describe('GenerationNarrativeService', () => {
       expect(result.tasks_total).toBe(4);
     });
 
-    it('should include debrief count', async () => {
+    it("should include debrief count", async () => {
       const weekData: WeekData = {
         tasksCompleted: 0,
         tasksTotal: 0,
-        debriefNotes: ['Week went well', 'Struggled with focus'],
+        debriefNotes: ["Week went well", "Struggled with focus"],
       };
       mockAiService.generateJson.mockResolvedValue({
-        narrative: 'Good progress',
+        narrative: "Good progress",
       });
 
       const result = await service.generateWeeklySummary(
         completedPlan,
         weekData,
-        'en',
+        "en",
       );
 
       expect(result.debrief_count).toBe(2);
     });
 
-    it('should generate LLM narrative when debrief notes exist', async () => {
+    it("should generate LLM narrative when debrief notes exist", async () => {
       const weekData: WeekData = {
         tasksCompleted: 3,
         tasksTotal: 4,
-        debriefNotes: ['Great week', 'Tough but productive'],
+        debriefNotes: ["Great week", "Tough but productive"],
       };
       mockAiService.generateJson.mockResolvedValue({
-        narrative: 'Good progress this week with consistent effort.',
+        narrative: "Good progress this week with consistent effort.",
       });
 
       const result = await service.generateWeeklySummary(
         completedPlan,
         weekData,
-        'en',
+        "en",
       );
 
       expect(result.narrative).toBe(
-        'Good progress this week with consistent effort.',
+        "Good progress this week with consistent effort.",
       );
       expect(mockAiService.generateJson).toHaveBeenCalledWith(
-        expect.stringContaining('coaching progress analyst'),
-        expect.stringContaining('Debrief Notes'),
+        expect.stringContaining("coaching progress analyst"),
+        expect.stringContaining("Debrief Notes"),
         expect.any(String),
       );
     });
 
-    it('should return summary without narrative when no debriefs exist', async () => {
+    it("should return summary without narrative when no debriefs exist", async () => {
       const result = await service.generateWeeklySummary(
         completedPlan,
         emptyWeekData,
-        'en',
+        "en",
       );
 
       expect(result.narrative).toBeUndefined();
       expect(mockAiService.generateJson).not.toHaveBeenCalled();
     });
 
-    it('should handle LLM narrative generation failure gracefully', async () => {
+    it("should handle LLM narrative generation failure gracefully", async () => {
       const weekData: WeekData = {
         tasksCompleted: 2,
         tasksTotal: 5,
-        debriefNotes: ['Some note'],
+        debriefNotes: ["Some note"],
       };
-      mockAiService.generateJson.mockRejectedValue(new Error('LLM timeout'));
+      mockAiService.generateJson.mockRejectedValue(new Error("LLM timeout"));
       const warnSpy = jest
-        .spyOn(service['logger'], 'warn')
+        .spyOn(service["logger"], "warn")
         .mockImplementation();
 
       const result = await service.generateWeeklySummary(
         completedPlan,
         weekData,
-        'en',
+        "en",
       );
 
       expect(result.completion_rate).toBe(40);
       expect(result.tasks_completed).toBe(2);
       expect(result.narrative).toBeUndefined();
       expect(warnSpy).toHaveBeenCalledWith(
-        expect.stringContaining('Weekly summary narrative generation failed'),
+        expect.stringContaining("Weekly summary narrative generation failed"),
       );
     });
   });
 
-  describe('generateMonthlySummary', () => {
-    it('should aggregate multiple weekly summaries into monthly totals', async () => {
+  describe("generateMonthlySummary", () => {
+    it("should aggregate multiple weekly summaries into monthly totals", async () => {
       const weeklySummaries = [
         {
           completion_rate: 80,
@@ -184,7 +184,7 @@ describe('GenerationNarrativeService', () => {
 
       const result = await service.generateMonthlySummary(
         weeklySummaries,
-        'en',
+        "en",
       );
 
       expect(result.tasks_completed).toBe(7);
@@ -192,7 +192,7 @@ describe('GenerationNarrativeService', () => {
       expect(result.debrief_count).toBe(3);
     });
 
-    it('should compute average completion rate across weeks', async () => {
+    it("should compute average completion rate across weeks", async () => {
       const weeklySummaries = [
         { completion_rate: 80, tasks_completed: 4, tasks_total: 5 },
         { completion_rate: 60, tasks_completed: 3, tasks_total: 5 },
@@ -200,60 +200,60 @@ describe('GenerationNarrativeService', () => {
 
       const result = await service.generateMonthlySummary(
         weeklySummaries,
-        'en',
+        "en",
       );
 
       expect(result.completion_rate).toBe(70);
     });
 
-    it('should generate LLM narrative when weekly narratives exist', async () => {
+    it("should generate LLM narrative when weekly narratives exist", async () => {
       const weeklySummaries = [
         {
           completion_rate: 80,
           tasks_completed: 4,
           tasks_total: 5,
-          narrative: 'Great week',
+          narrative: "Great week",
         },
         {
           completion_rate: 60,
           tasks_completed: 3,
           tasks_total: 5,
-          narrative: 'Slower week',
+          narrative: "Slower week",
         },
       ];
       mockAiService.generateJson.mockResolvedValue({
-        narrative: 'Consistent month overall',
+        narrative: "Consistent month overall",
       });
 
       const result = await service.generateMonthlySummary(
         weeklySummaries,
-        'en',
+        "en",
       );
 
-      expect(result.narrative).toBe('Consistent month overall');
+      expect(result.narrative).toBe("Consistent month overall");
       expect(mockAiService.generateJson).toHaveBeenCalledWith(
-        expect.stringContaining('coaching progress analyst'),
-        expect.stringContaining('Weekly Narratives'),
+        expect.stringContaining("coaching progress analyst"),
+        expect.stringContaining("Weekly Narratives"),
         expect.any(String),
       );
     });
 
-    it('should return computed-only summary when no weekly narratives', async () => {
+    it("should return computed-only summary when no weekly narratives", async () => {
       const weeklySummaries = [
         { completion_rate: 80, tasks_completed: 4, tasks_total: 5 },
       ];
 
       const result = await service.generateMonthlySummary(
         weeklySummaries,
-        'en',
+        "en",
       );
 
       expect(result.narrative).toBeUndefined();
       expect(mockAiService.generateJson).not.toHaveBeenCalled();
     });
 
-    it('should handle empty weekly summary array', async () => {
-      const result = await service.generateMonthlySummary([], 'en');
+    it("should handle empty weekly summary array", async () => {
+      const result = await service.generateMonthlySummary([], "en");
 
       expect(result.completion_rate).toBe(0);
       expect(result.tasks_completed).toBe(0);
@@ -261,29 +261,29 @@ describe('GenerationNarrativeService', () => {
       expect(result.debrief_count).toBe(0);
     });
 
-    it('should handle monthly narrative generation failure gracefully', async () => {
+    it("should handle monthly narrative generation failure gracefully", async () => {
       const weeklySummaries = [
         {
           completion_rate: 80,
           tasks_completed: 4,
           tasks_total: 5,
-          narrative: 'Good week',
+          narrative: "Good week",
         },
       ];
-      mockAiService.generateJson.mockRejectedValue(new Error('LLM error'));
+      mockAiService.generateJson.mockRejectedValue(new Error("LLM error"));
       const warnSpy = jest
-        .spyOn(service['logger'], 'warn')
+        .spyOn(service["logger"], "warn")
         .mockImplementation();
 
       const result = await service.generateMonthlySummary(
         weeklySummaries,
-        'en',
+        "en",
       );
 
       expect(result.completion_rate).toBe(80);
       expect(result.narrative).toBeUndefined();
       expect(warnSpy).toHaveBeenCalledWith(
-        expect.stringContaining('Monthly summary narrative generation failed'),
+        expect.stringContaining("Monthly summary narrative generation failed"),
       );
     });
   });

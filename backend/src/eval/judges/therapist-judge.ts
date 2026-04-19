@@ -1,13 +1,13 @@
-import type { PersonaJudge } from '../personas.js';
+import type { PersonaJudge } from "../personas.js";
 
 export const THERAPIST_JUDGE: PersonaJudge = {
-  name: 'The Therapist',
-  axis: 'Psychological Safety',
+  name: "The Therapist",
+  axis: "Psychological Safety",
   scoreFields: [
-    'shame_risk',
-    'honesty_likelihood',
-    'normalization',
-    'defensiveness_trigger',
+    "shame_risk",
+    "honesty_likelihood",
+    "normalization",
+    "defensiveness_trigger",
   ],
   systemPrompt: `You are a clinical therapist specializing in motivational interviewing. You evaluate whether intake questions make people defensive, ashamed, or aspirational (answering as who they wish they were instead of who they are). You know that: direct questions about failure trigger ego protection; people lie about habits when they feel judged; normalizing language ("most people struggle with...") dramatically increases honesty; and the best questions make it safe to admit the ugly truth.
 

@@ -1,8 +1,8 @@
-import type { CoachConfig } from '../coach/coaches.config.js';
+import type { CoachConfig } from "../coach/coaches.config.js";
 import {
   buildBoundariesPrompt,
   buildToolUsagePrompt,
-} from './prompts/chat-tool-prompts.js';
+} from "./prompts/chat-tool-prompts.js";
 
 interface GoalContext {
   goal: { title: string; description: string } | null;
@@ -28,11 +28,11 @@ export function buildCoachPrompt(input: PromptInput): string {
   const { coach, language, memory } = input;
   const goalContextSection = buildGoalContextSection(input.goalContext);
   const displayName =
-    language === 'fr' ? coach.displayName.fr : coach.displayName.en;
+    language === "fr" ? coach.displayName.fr : coach.displayName.en;
   const description =
-    language === 'fr' ? coach.description.fr : coach.description.en;
-  const defaultLanguage = language === 'fr' ? 'French' : 'English';
-  const memoryContent = memory.length > 0 ? memory : 'No memory yet.';
+    language === "fr" ? coach.description.fr : coach.description.en;
+  const defaultLanguage = language === "fr" ? "French" : "English";
+  const memoryContent = memory.length > 0 ? memory : "No memory yet.";
 
   return buildPromptTemplate({
     displayName,
@@ -86,7 +86,7 @@ ${buildToolUsagePrompt()}
 ${buildBoundariesPrompt()}`;
 }
 
-function buildGoalContextSection(ctx: PromptInput['goalContext']): string {
+function buildGoalContextSection(ctx: PromptInput["goalContext"]): string {
   const parts: string[] = [];
 
   if (ctx.goal !== null) {
@@ -101,13 +101,13 @@ function buildGoalContextSection(ctx: PromptInput['goalContext']): string {
 
   if (ctx.weeklyPlan !== null) {
     parts.push(
-      `This Week (Week ${String(ctx.weeklyPlan.week_number)}):\nObjectives:\n${ctx.weeklyPlan.objectives.map((o) => `- ${o}`).join('\n')}`,
+      `This Week (Week ${String(ctx.weeklyPlan.week_number)}):\nObjectives:\n${ctx.weeklyPlan.objectives.map((o) => `- ${o}`).join("\n")}`,
     );
   }
 
   if (parts.length === 0) {
-    return '';
+    return "";
   }
 
-  return `\n<goal_context>\n${parts.join('\n\n')}\n</goal_context>`;
+  return `\n<goal_context>\n${parts.join("\n\n")}\n</goal_context>`;
 }

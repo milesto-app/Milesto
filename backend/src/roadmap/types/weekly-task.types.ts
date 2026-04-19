@@ -1,6 +1,6 @@
-export type DifficultyRating = 'easy' | 'moderate' | 'hard';
+export type DifficultyRating = "easy" | "moderate" | "hard";
 
-export const DIFFICULTY_RATINGS = ['easy', 'moderate', 'hard'] as const;
+export const DIFFICULTY_RATINGS = ["easy", "moderate", "hard"] as const;
 
 export interface WeeklyTask {
   id: string;

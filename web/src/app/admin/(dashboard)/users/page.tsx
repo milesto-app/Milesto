@@ -11,7 +11,10 @@ export default async function UsersPage({
 }) {
   const { page, search } = await searchParams;
 
-  const pageNum = Math.max(1, typeof page === "string" ? parseInt(page, 10) || 1 : 1);
+  const pageNum = Math.max(
+    1,
+    typeof page === "string" ? parseInt(page, 10) || 1 : 1,
+  );
   const searchQuery = typeof search === "string" ? search : "";
 
   if (searchQuery) {
@@ -19,7 +22,9 @@ export default async function UsersPage({
     return (
       <div className="space-y-6">
         <div>
-          <h1 className="text-xl font-semibold tracking-tight text-foreground">Users</h1>
+          <h1 className="text-xl font-semibold tracking-tight text-foreground">
+            Users
+          </h1>
           <p className="mt-1 text-sm text-muted-foreground">
             Manage and view user accounts
           </p>
@@ -46,7 +51,9 @@ export default async function UsersPage({
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-xl font-semibold tracking-tight text-foreground">Users</h1>
+        <h1 className="text-xl font-semibold tracking-tight text-foreground">
+          Users
+        </h1>
         <p className="mt-1 text-sm text-muted-foreground">
           Manage and view user accounts
         </p>

@@ -1,10 +1,10 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger } from "@nestjs/common";
 
-import { WeeklyPlanService } from '../roadmap/weekly-plan.service.js';
-import { WeeklyTaskService } from '../roadmap/weekly-task.service.js';
-import { SupabaseService } from '../supabase/supabase.service.js';
-import { ChatSearchService } from './chat-search.service.js';
-import type { ToolExecutionContext } from './types/chat.types.js';
+import { WeeklyPlanService } from "../roadmap/weekly-plan.service.js";
+import { WeeklyTaskService } from "../roadmap/weekly-task.service.js";
+import { SupabaseService } from "../supabase/supabase.service.js";
+import { ChatSearchService } from "./chat-search.service.js";
+import type { ToolExecutionContext } from "./types/chat.types.js";
 
 @Injectable()
 export class ChatToolsService {
@@ -36,7 +36,7 @@ export class ChatToolsService {
       this.logger.warn(`getWeeklyTasks failed: ${message}`);
       return {
         error:
-          'No weekly tasks available. A weekly plan needs to be generated first.',
+          "No weekly tasks available. A weekly plan needs to be generated first.",
       };
     }
   }
@@ -61,7 +61,7 @@ export class ChatToolsService {
       this.logger.warn(`toggleTaskCompletion failed: ${message}`);
       return {
         error:
-          'Unable to update the task. It may not exist or belong to this goal.',
+          "Unable to update the task. It may not exist or belong to this goal.",
       };
     }
   }
@@ -75,7 +75,7 @@ export class ChatToolsService {
 
       if (plan === null) {
         return {
-          error: 'No active weekly plan found. Generate a weekly plan first.',
+          error: "No active weekly plan found. Generate a weekly plan first.",
         };
       }
 
@@ -94,7 +94,7 @@ export class ChatToolsService {
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       this.logger.warn(`getProgressStats failed: ${message}`);
-      return { error: 'Unable to fetch progress stats.' };
+      return { error: "Unable to fetch progress stats." };
     }
   }
 
@@ -106,26 +106,26 @@ export class ChatToolsService {
       const content = args.content as string;
       const supabase = this.supabaseService.getAdminClient();
 
-      const { error } = await supabase.from('coach_memories').upsert(
+      const { error } = await supabase.from("coach_memories").upsert(
         {
           user_id: ctx.userId,
           goal_id: ctx.goalId,
           content,
           updated_at: new Date().toISOString(),
         },
-        { onConflict: 'user_id,goal_id' },
+        { onConflict: "user_id,goal_id" },
       );
 
       if (error !== null) {
         this.logger.warn(`editMemory upsert failed: ${error.message}`);
-        return { error: 'Unable to save memory.' };
+        return { error: "Unable to save memory." };
       }
 
       return { success: true };
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       this.logger.warn(`editMemory failed: ${message}`);
-      return { error: 'Unable to save memory.' };
+      return { error: "Unable to save memory." };
     }
   }
 
@@ -144,7 +144,7 @@ export class ChatToolsService {
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       this.logger.warn(`saveInsight failed: ${message}`);
-      return { error: 'Unable to save insight.' };
+      return { error: "Unable to save insight." };
     }
   }
 
@@ -166,7 +166,7 @@ export class ChatToolsService {
       const message = error instanceof Error ? error.message : String(error);
       this.logger.warn(`searchContext failed: ${message}`);
       return {
-        error: 'Unable to search context. Please try rephrasing your question.',
+        error: "Unable to search context. Please try rephrasing your question.",
       };
     }
   }

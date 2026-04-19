@@ -3,25 +3,25 @@ import {
   Inject,
   Injectable,
   Logger,
-} from '@nestjs/common';
-import { EventEmitter2 } from '@nestjs/event-emitter';
+} from "@nestjs/common";
+import { EventEmitter2 } from "@nestjs/event-emitter";
 
-import { UserLanguageService } from '../common/user-language.service.js';
-import { GoalService } from '../goal/goal.service.js';
-import { FIRST_BATCH_NUMBER } from './constants/intake.constants.js';
-import { validateAnswerSet } from './intake-answer-validator.js';
-import { IntakeContextService } from './intake-context.service.js';
-import { IntakeGenerationService } from './intake-generation.service.js';
-import { IntakePromptService } from './intake-prompt.service.js';
-import type { StoreBatchOptions, StoredBatch } from './intake-store.service.js';
-import { IntakeStoreService } from './intake-store.service.js';
-import { IntakeTargetDateService } from './intake-target-date.service.js';
+import { UserLanguageService } from "../common/user-language.service.js";
+import { GoalService } from "../goal/goal.service.js";
+import { FIRST_BATCH_NUMBER } from "./constants/intake.constants.js";
+import { validateAnswerSet } from "./intake-answer-validator.js";
+import { IntakeContextService } from "./intake-context.service.js";
+import { IntakeGenerationService } from "./intake-generation.service.js";
+import { IntakePromptService } from "./intake-prompt.service.js";
+import type { StoreBatchOptions, StoredBatch } from "./intake-store.service.js";
+import { IntakeStoreService } from "./intake-store.service.js";
+import { IntakeTargetDateService } from "./intake-target-date.service.js";
 import type {
   AnswerInput,
   BatchAnsweredEvent,
   BatchParams,
   BatchServedEvent,
-} from './types/intake.types.js';
+} from "./types/intake.types.js";
 
 @Injectable()
 export class IntakeBatchService {
@@ -51,8 +51,8 @@ export class IntakeBatchService {
 
   public async getNextBatch(userId: string, goalId: string): Promise<unknown> {
     const goal = await this.goalService.findOne(userId, goalId);
-    if (goal.status !== 'intake_in_progress') {
-      throw new BadRequestException('Intake is not active for this goal');
+    if (goal.status !== "intake_in_progress") {
+      throw new BadRequestException("Intake is not active for this goal");
     }
     const language = await this.languageService.getLanguage(userId);
     const latestBatch = await this.storeService.queryLatestBatch(goalId);
@@ -63,7 +63,7 @@ export class IntakeBatchService {
         batchNumber: FIRST_BATCH_NUMBER,
         questions,
       });
-      this.emitBatchEvent('batch.served', {
+      this.emitBatchEvent("batch.served", {
         goal_id: goalId,
         batch_id: result.batch_id,
         batch_number: result.batch_number,
@@ -91,8 +91,8 @@ export class IntakeBatchService {
     answers: AnswerInput[],
   ): Promise<unknown> {
     const goal = await this.goalService.findOne(userId, goalId);
-    if (goal.status !== 'intake_in_progress') {
-      throw new BadRequestException('Intake is not active for this goal');
+    if (goal.status !== "intake_in_progress") {
+      throw new BadRequestException("Intake is not active for this goal");
     }
     const language = await this.languageService.getLanguage(userId);
     const batch = await this.storeService.queryUnansweredBatch(goalId);
@@ -104,7 +104,7 @@ export class IntakeBatchService {
       questions,
       answers,
     );
-    this.emitBatchEvent('batch.answered', {
+    this.emitBatchEvent("batch.answered", {
       goal_id: goalId,
       batch_id: batch.id,
       batch_number: batch.batch_number,
@@ -128,7 +128,7 @@ export class IntakeBatchService {
       );
       if (latestBatch === null) {
         throw new BadRequestException(
-          'No batch found after concurrent generation',
+          "No batch found after concurrent generation",
         );
       }
       return this.storeService.reServeBatch(
@@ -152,7 +152,7 @@ export class IntakeBatchService {
       ...params,
       priorBatches,
     });
-    if (result.kind === 'complete') {
+    if (result.kind === "complete") {
       return {
         batch_id: null,
         batch_number: null,
@@ -166,14 +166,14 @@ export class IntakeBatchService {
 
   private async storeBatchAndEmit(
     params: BatchParams,
-    questions: StoreBatchOptions['questions'],
+    questions: StoreBatchOptions["questions"],
   ): Promise<StoredBatch> {
     const stored = await this.storeService.storeGeneratedBatch({
       goalId: params.goalId,
       batchNumber: params.nextBatchNumber,
       questions,
     });
-    this.emitBatchEvent('batch.served', {
+    this.emitBatchEvent("batch.served", {
       goal_id: params.goalId,
       batch_id: stored.batch_id,
       batch_number: stored.batch_number,
@@ -203,7 +203,7 @@ export class IntakeBatchService {
       );
       return {
         submitted_batch: batchRef,
-        message: 'Answers submitted successfully',
+        message: "Answers submitted successfully",
       };
     }
   }

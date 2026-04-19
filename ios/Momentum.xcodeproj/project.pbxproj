@@ -71,7 +71,6 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 4C824E8A2F30B07F00056D79 /* Build configuration list for PBXNativeTarget "Momentum" */;
 			buildPhases = (
-				4CB2C9822F59EC8400E9DDE3 /* Swiftlint + Swiftformat */,
 				4C824E792F30B07D00056D79 /* Sources */,
 				4C824E7A2F30B07D00056D79 /* Frameworks */,
 				4C824E7B2F30B07D00056D79 /* Resources */,
@@ -137,28 +136,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
-
-/* Begin PBXShellScriptBuildPhase section */
-		4CB2C9822F59EC8400E9DDE3 /* Swiftlint + Swiftformat */ = {
-			isa = PBXShellScriptBuildPhase;
-			alwaysOutOfDate = 1;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-			);
-			name = "Swiftlint + Swiftformat";
-			outputFileListPaths = (
-			);
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "export PATH=\"/opt/homebrew/bin:$PATH\"\n\"${SRCROOT}/format.sh\"\n";
-		};
-/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		4C824E792F30B07D00056D79 /* Sources */ = {
@@ -321,7 +298,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.2.5;
+				MARKETING_VERSION = 1.3.1;
 				PRODUCT_BUNDLE_IDENTIFIER = "app.momentum-ai.auth.mobile";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
@@ -365,7 +342,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.2.5;
+				MARKETING_VERSION = 1.3.1;
 				PRODUCT_BUNDLE_IDENTIFIER = "app.momentum-ai.auth.mobile";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;

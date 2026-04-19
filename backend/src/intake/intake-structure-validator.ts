@@ -1,8 +1,8 @@
-import { config } from '../config/app.config.js';
+import { config } from "../config/app.config.js";
 import {
   MAX_QUESTION_TEXT_LENGTH,
   VALID_QUESTION_TYPES,
-} from './constants/intake.constants.js';
+} from "./constants/intake.constants.js";
 
 interface ValidationResult {
   valid: boolean;
@@ -14,7 +14,7 @@ export function validateStructural(questions: unknown[]): ValidationResult {
   const { min, max } = config.intake.questionsPerBatch;
 
   if (!Array.isArray(questions)) {
-    return { valid: false, errors: ['Input is not an array'] };
+    return { valid: false, errors: ["Input is not an array"] };
   }
 
   if (questions.length < min || questions.length > max) {
@@ -56,8 +56,8 @@ function validateTextField(
 ): void {
   if (
     q.question_text === undefined ||
-    typeof q.question_text !== 'string' ||
-    q.question_text.trim() === ''
+    typeof q.question_text !== "string" ||
+    q.question_text.trim() === ""
   ) {
     errors.push(`${prefix}: missing or empty question_text`);
     return;
@@ -91,19 +91,19 @@ function validateQuestionConfig(
   prefix: string,
   errors: string[],
 ): void {
-  if (q.question_type === 'text') {
+  if (q.question_type === "text") {
     if (q.config !== null && q.config !== undefined) {
       errors.push(`${prefix}: text question config must be null`);
     }
-  } else if (q.question_type === 'scale') {
+  } else if (q.question_type === "scale") {
     validateScaleConfig(
       q.config as Record<string, unknown> | null | undefined,
       prefix,
       errors,
     );
   } else if (
-    q.question_type === 'single_choice' ||
-    q.question_type === 'multiple_choice'
+    q.question_type === "single_choice" ||
+    q.question_type === "multiple_choice"
   ) {
     validateChoiceConfig(
       q.config as Record<string, unknown> | null | undefined,
@@ -121,9 +121,9 @@ function validateScaleConfig(
   if (
     questionConfig === null ||
     questionConfig === undefined ||
-    typeof questionConfig !== 'object' ||
-    typeof questionConfig.min !== 'number' ||
-    typeof questionConfig.max !== 'number'
+    typeof questionConfig !== "object" ||
+    typeof questionConfig.min !== "number" ||
+    typeof questionConfig.max !== "number"
   ) {
     errors.push(
       `${prefix}: scale question config must have min and max numbers`,
@@ -139,7 +139,7 @@ function validateChoiceConfig(
   if (
     questionConfig === null ||
     questionConfig === undefined ||
-    typeof questionConfig !== 'object' ||
+    typeof questionConfig !== "object" ||
     !Array.isArray(questionConfig.options)
   ) {
     errors.push(`${prefix}: choice question config must have options array`);

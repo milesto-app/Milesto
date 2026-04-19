@@ -1,7 +1,7 @@
-import { ConflictException, Injectable, Logger } from '@nestjs/common';
+import { ConflictException, Injectable, Logger } from "@nestjs/common";
 
-import { DebriefService } from '../roadmap/debrief.service.js';
-import type { ToolExecutionContext } from './types/chat.types.js';
+import { DebriefService } from "../roadmap/debrief.service.js";
+import type { ToolExecutionContext } from "./types/chat.types.js";
 
 @Injectable()
 export class ChatDebriefToolsService {
@@ -30,12 +30,12 @@ export class ChatDebriefToolsService {
     } catch (error) {
       if (error instanceof ConflictException) {
         return {
-          error: 'You have already submitted a debrief for this weekly plan.',
+          error: "You have already submitted a debrief for this weekly plan.",
         };
       }
       const message = error instanceof Error ? error.message : String(error);
       this.logger.warn(`submitDebrief failed: ${message}`);
-      return { error: 'Unable to submit debrief. Please try again later.' };
+      return { error: "Unable to submit debrief. Please try again later." };
     }
   }
 }

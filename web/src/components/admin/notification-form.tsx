@@ -3,6 +3,10 @@
 import { useState, type FormEvent } from "react";
 import { Send } from "lucide-react";
 
+import {
+  sendNotification,
+  type SendNotificationPayload,
+} from "@/app/admin/(dashboard)/notifications/actions";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -27,7 +31,7 @@ export function NotificationForm() {
     setSending(true);
     setResult(null);
 
-    const payload: Record<string, unknown> = {
+    const payload: SendNotificationPayload = {
       title: title.trim(),
       body: body.trim(),
     };
@@ -38,20 +42,10 @@ export function NotificationForm() {
     }
 
     try {
-      const res = await fetch("/api/notifications/send", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify(payload),
-      });
+      const data = await sendNotification(payload);
 
-      const data = await res.json();
-
-      if (!res.ok) {
-        setResult({
-          success: false,
-          message: data.message ?? data.error ?? `Request failed (${res.status})`,
-        });
+      if (!data.ok) {
+        setResult({ success: false, message: data.message });
         return;
       }
 
@@ -77,7 +71,10 @@ export function NotificationForm() {
       <CardContent className="p-6">
         <form onSubmit={handleSubmit} className="space-y-5">
           <div className="space-y-1.5">
-            <label htmlFor="notif-title" className="text-sm font-medium text-foreground">
+            <label
+              htmlFor="notif-title"
+              className="text-sm font-medium text-foreground"
+            >
               Title
             </label>
             <Input
@@ -90,7 +87,10 @@ export function NotificationForm() {
           </div>
 
           <div className="space-y-1.5">
-            <label htmlFor="notif-body" className="text-sm font-medium text-foreground">
+            <label
+              htmlFor="notif-body"
+              className="text-sm font-medium text-foreground"
+            >
               Body
             </label>
             <Textarea
@@ -104,9 +104,14 @@ export function NotificationForm() {
           </div>
 
           <div className="space-y-1.5">
-            <label htmlFor="notif-user" className="text-sm font-medium text-foreground">
+            <label
+              htmlFor="notif-user"
+              className="text-sm font-medium text-foreground"
+            >
               User ID{" "}
-              <span className="font-normal text-muted-foreground">(optional)</span>
+              <span className="font-normal text-muted-foreground">
+                (optional)
+              </span>
             </label>
             <Input
               id="notif-user"
@@ -115,7 +120,8 @@ export function NotificationForm() {
               onChange={(e) => setUserId(e.target.value)}
             />
             <p className="text-xs text-muted-foreground">
-              Target a specific user by UUID, or leave empty to send to everyone.
+              Target a specific user by UUID, or leave empty to send to
+              everyone.
             </p>
           </div>
 

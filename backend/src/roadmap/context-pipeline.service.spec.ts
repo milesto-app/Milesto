@@ -1,60 +1,60 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion, @typescript-eslint/no-unsafe-member-access */
-import type { TestingModule } from '@nestjs/testing';
-import { Test } from '@nestjs/testing';
+import type { TestingModule } from "@nestjs/testing";
+import { Test } from "@nestjs/testing";
 
-import { AiService } from '../ai/ai.service.js';
-import { SupabaseService } from '../supabase/supabase.service.js';
-import { ContextPipelineService } from './context-pipeline.service.js';
-import { RerankService } from './rerank.service.js';
+import { AiService } from "../ai/ai.service.js";
+import { SupabaseService } from "../supabase/supabase.service.js";
+import { ContextPipelineService } from "./context-pipeline.service.js";
+import { RerankService } from "./rerank.service.js";
 import type {
   ContextChunk,
   RankedChunk,
   RerankResult,
-} from './types/context.types.js';
+} from "./types/context.types.js";
 
-describe('ContextPipelineService', () => {
+describe("ContextPipelineService", () => {
   let service: ContextPipelineService;
   let mockAiService: { generateEmbedding: jest.Mock };
   let mockRerankService: { rerank: jest.Mock };
   let mockSupabase: { rpc: jest.Mock; from: jest.Mock };
 
-  const userId = 'user-123';
-  const goalId = 'goal-456';
+  const userId = "user-123";
+  const goalId = "goal-456";
   const fakeEmbedding = [0.1, 0.2, 0.3];
 
   const mockChunks: ContextChunk[] = [
     {
-      id: 'c1',
-      content_text: 'My goal profile narrative',
-      content_type: 'goal_profile',
+      id: "c1",
+      content_text: "My goal profile narrative",
+      content_type: "goal_profile",
       similarity: 0.95,
       metadata: {},
     },
     {
-      id: 'c2',
-      content_text: 'My intake answer about motivation',
-      content_type: 'intake_answer',
+      id: "c2",
+      content_text: "My intake answer about motivation",
+      content_type: "intake_answer",
       similarity: 0.9,
       metadata: {},
     },
     {
-      id: 'c3',
-      content_text: 'Cross-goal user profile data',
-      content_type: 'user_profile',
+      id: "c3",
+      content_text: "Cross-goal user profile data",
+      content_type: "user_profile",
       similarity: 0.85,
       metadata: {},
     },
     {
-      id: 'c4',
-      content_text: 'Weekly progress summary',
-      content_type: 'weekly_summary',
+      id: "c4",
+      content_text: "Weekly progress summary",
+      content_type: "weekly_summary",
       similarity: 0.8,
       metadata: {},
     },
     {
-      id: 'c5',
-      content_text: 'Debrief notes from session',
-      content_type: 'debrief_note',
+      id: "c5",
+      content_text: "Debrief notes from session",
+      content_type: "debrief_note",
       similarity: 0.75,
       metadata: {},
     },
@@ -149,10 +149,10 @@ describe('ContextPipelineService', () => {
     service = module.get<ContextPipelineService>(ContextPipelineService);
   });
 
-  it('should assemble context via full happy path (embed -> HNSW -> rerank -> assemble)', async () => {
+  it("should assemble context via full happy path (embed -> HNSW -> rerank -> assemble)", async () => {
     // Setup goal profile narrative query for buildQueryText
     const profileChain = setupGoalProfileQuery({
-      narrative_summary: 'Run a marathon in 6 months',
+      narrative_summary: "Run a marathon in 6 months",
     });
     mockSupabase.from.mockReturnValueOnce(profileChain);
 
@@ -166,11 +166,11 @@ describe('ContextPipelineService', () => {
 
     // Verify embedding was generated from goal profile narrative
     expect(mockAiService.generateEmbedding).toHaveBeenCalledWith(
-      'Run a marathon in 6 months',
+      "Run a marathon in 6 months",
     );
 
     // Verify HNSW RPC was called
-    expect(mockSupabase.rpc).toHaveBeenCalledWith('match_goal_context', {
+    expect(mockSupabase.rpc).toHaveBeenCalledWith("match_goal_context", {
       query_embedding: JSON.stringify(fakeEmbedding),
       p_goal_id: goalId,
       p_user_id: userId,
@@ -181,38 +181,38 @@ describe('ContextPipelineService', () => {
 
     // Verify rerank was called
     expect(mockRerankService.rerank).toHaveBeenCalledWith(
-      'Run a marathon in 6 months',
+      "Run a marathon in 6 months",
       mockChunks,
     );
 
     // Verify assembled context has all sections
-    expect(result.goalProfileSection).toBe('My goal profile narrative');
-    expect(result.intakeSection).toBe('My intake answer about motivation');
-    expect(result.userProfileSection).toBe('Cross-goal user profile data');
-    expect(result.progressSection).toBe('Weekly progress summary');
-    expect(result.debriefSection).toBe('Debrief notes from session');
+    expect(result.goalProfileSection).toBe("My goal profile narrative");
+    expect(result.intakeSection).toBe("My intake answer about motivation");
+    expect(result.userProfileSection).toBe("Cross-goal user profile data");
+    expect(result.progressSection).toBe("Weekly progress summary");
+    expect(result.debriefSection).toBe("Debrief notes from session");
     expect(result.totalChunks).toBe(5);
   });
 
-  it('should group chunks correctly by content_type and sort by rerank score', async () => {
+  it("should group chunks correctly by content_type and sort by rerank score", async () => {
     const profileChain = setupGoalProfileQuery({
-      narrative_summary: 'Test goal',
+      narrative_summary: "Test goal",
     });
     mockSupabase.from.mockReturnValueOnce(profileChain);
 
     // Return chunks of same type with different rerank scores to test sorting
     const duplicateChunks: ContextChunk[] = [
       {
-        id: 'c1',
-        content_text: 'Answer 1',
-        content_type: 'intake_answer',
+        id: "c1",
+        content_text: "Answer 1",
+        content_type: "intake_answer",
         similarity: 0.9,
         metadata: {},
       },
       {
-        id: 'c2',
-        content_text: 'Answer 2',
-        content_type: 'intake_answer',
+        id: "c2",
+        content_text: "Answer 2",
+        content_type: "intake_answer",
         similarity: 0.85,
         metadata: {},
       },
@@ -236,31 +236,31 @@ describe('ContextPipelineService', () => {
 
     const result = await service.assembleContext(goalId, userId);
 
-    expect(result.intakeSection).toBe('Answer 2\n\nAnswer 1');
-    expect(result.goalProfileSection).toBe('');
+    expect(result.intakeSection).toBe("Answer 2\n\nAnswer 1");
+    expect(result.goalProfileSection).toBe("");
     expect(result.totalChunks).toBe(2);
   });
 
-  it('should fall back to SQL context stuffing when HNSW fails and log warn (Tier 2)', async () => {
-    const warnSpy = jest.spyOn(service['logger'], 'warn').mockImplementation();
+  it("should fall back to SQL context stuffing when HNSW fails and log warn (Tier 2)", async () => {
+    const warnSpy = jest.spyOn(service["logger"], "warn").mockImplementation();
 
     const profileChain = setupGoalProfileQuery({
-      narrative_summary: 'Test goal',
+      narrative_summary: "Test goal",
     });
     mockSupabase.from.mockReturnValueOnce(profileChain);
 
     // HNSW RPC fails
     mockSupabase.rpc.mockResolvedValueOnce({
       data: null,
-      error: new Error('RPC function timeout'),
+      error: new Error("RPC function timeout"),
     });
 
     // SQL fallback succeeds
     const sqlChain = setupSqlContextStuffingQuery([
       {
-        id: 'sql-1',
-        content_text: 'Fallback content',
-        content_type: 'goal_profile',
+        id: "sql-1",
+        content_text: "Fallback content",
+        content_type: "goal_profile",
         metadata: {},
       },
     ]);
@@ -268,9 +268,9 @@ describe('ContextPipelineService', () => {
 
     const sqlRanked: RankedChunk[] = [
       {
-        id: 'sql-1',
-        content_text: 'Fallback content',
-        content_type: 'goal_profile',
+        id: "sql-1",
+        content_text: "Fallback content",
+        content_type: "goal_profile",
         similarity: 0,
         metadata: {},
         rerank_score: 0.8,
@@ -284,75 +284,75 @@ describe('ContextPipelineService', () => {
 
     const result = await service.assembleContext(goalId, userId);
 
-    expect(result.goalProfileSection).toBe('Fallback content');
+    expect(result.goalProfileSection).toBe("Fallback content");
     expect(result.totalChunks).toBe(1);
 
     // Verify warn logging for HNSW fallback
     expect(warnSpy).toHaveBeenCalledWith(
-      expect.stringContaining('HNSW retrieval failed'),
+      expect.stringContaining("HNSW retrieval failed"),
     );
     expect(warnSpy).toHaveBeenCalledWith(
-      expect.stringContaining('RPC function timeout'),
+      expect.stringContaining("RPC function timeout"),
     );
 
     // Verify SQL fallback query used correct filters
     expect(sqlChain.select).toHaveBeenCalledWith(
-      'id, content_text, content_type, metadata',
+      "id, content_text, content_type, metadata",
     );
-    expect(sqlChain.eq).toHaveBeenCalledWith('user_id', userId);
+    expect(sqlChain.eq).toHaveBeenCalledWith("user_id", userId);
     expect(sqlChain.or).toHaveBeenCalledWith(
       `goal_id.eq.${goalId},goal_id.is.null`,
     );
-    expect(sqlChain.order).toHaveBeenCalledWith('created_at', {
+    expect(sqlChain.order).toHaveBeenCalledWith("created_at", {
       ascending: false,
     });
 
     warnSpy.mockRestore();
   });
 
-  it('should throw error when both HNSW and SQL fallback fail (Tier 3)', async () => {
+  it("should throw error when both HNSW and SQL fallback fail (Tier 3)", async () => {
     const profileChain = setupGoalProfileQuery({
-      narrative_summary: 'Test goal',
+      narrative_summary: "Test goal",
     });
     mockSupabase.from.mockReturnValueOnce(profileChain);
 
     // HNSW fails
     mockSupabase.rpc.mockResolvedValueOnce({
       data: null,
-      error: new Error('RPC failed'),
+      error: new Error("RPC failed"),
     });
 
     // SQL fallback also fails
     const sqlChain = setupSqlContextStuffingQuery(
       null,
-      new Error('SQL query failed'),
+      new Error("SQL query failed"),
     );
     mockSupabase.from.mockReturnValueOnce(sqlChain);
 
     await expect(service.assembleContext(goalId, userId)).rejects.toThrow(
-      'SQL query failed',
+      "SQL query failed",
     );
   });
 
-  it('should include cross-goal chunks (goal_id IS NULL) via user_profile content type', async () => {
+  it("should include cross-goal chunks (goal_id IS NULL) via user_profile content type", async () => {
     const profileChain = setupGoalProfileQuery({
-      narrative_summary: 'Test goal',
+      narrative_summary: "Test goal",
     });
     mockSupabase.from.mockReturnValueOnce(profileChain);
 
     // Chunks include a user_profile with no goal_id (cross-goal)
     const chunksWithCrossGoal: ContextChunk[] = [
       {
-        id: 'c1',
-        content_text: 'Goal specific data',
-        content_type: 'goal_profile',
+        id: "c1",
+        content_text: "Goal specific data",
+        content_type: "goal_profile",
         similarity: 0.9,
         metadata: {},
       },
       {
-        id: 'c2',
-        content_text: 'Cross-goal user preferences',
-        content_type: 'user_profile',
+        id: "c2",
+        content_text: "Cross-goal user preferences",
+        content_type: "user_profile",
         similarity: 0.8,
         metadata: {},
       },
@@ -375,13 +375,13 @@ describe('ContextPipelineService', () => {
 
     const result = await service.assembleContext(goalId, userId);
 
-    expect(result.userProfileSection).toBe('Cross-goal user preferences');
-    expect(result.goalProfileSection).toBe('Goal specific data');
+    expect(result.userProfileSection).toBe("Cross-goal user preferences");
+    expect(result.goalProfileSection).toBe("Goal specific data");
   });
 
-  it('should return empty sections when no embeddings are found', async () => {
+  it("should return empty sections when no embeddings are found", async () => {
     const profileChain = setupGoalProfileQuery({
-      narrative_summary: 'Test goal',
+      narrative_summary: "Test goal",
     });
     mockSupabase.from.mockReturnValueOnce(profileChain);
 
@@ -395,23 +395,23 @@ describe('ContextPipelineService', () => {
 
     const result = await service.assembleContext(goalId, userId);
 
-    expect(result.goalProfileSection).toBe('');
-    expect(result.intakeSection).toBe('');
-    expect(result.userProfileSection).toBe('');
-    expect(result.progressSection).toBe('');
-    expect(result.debriefSection).toBe('');
+    expect(result.goalProfileSection).toBe("");
+    expect(result.intakeSection).toBe("");
+    expect(result.userProfileSection).toBe("");
+    expect(result.progressSection).toBe("");
+    expect(result.debriefSection).toBe("");
     expect(result.totalChunks).toBe(0);
   });
 
-  it('should fall back to goal title+description when no goal profile exists', async () => {
+  it("should fall back to goal title+description when no goal profile exists", async () => {
     // No goal profile
     const profileChain = setupGoalProfileQuery(null);
     mockSupabase.from.mockReturnValueOnce(profileChain);
 
     // Goal fallback
     const goalChain = setupGoalQuery({
-      title: 'Marathon Goal',
-      description: 'Run a full marathon',
+      title: "Marathon Goal",
+      description: "Run a full marathon",
     });
     mockSupabase.from.mockReturnValueOnce(goalChain);
 
@@ -425,11 +425,11 @@ describe('ContextPipelineService', () => {
     await service.assembleContext(goalId, userId);
 
     expect(mockAiService.generateEmbedding).toHaveBeenCalledWith(
-      'Marathon Goal Run a full marathon',
+      "Marathon Goal Run a full marathon",
     );
   });
 
-  it('should throw when no query text is available (no profile and no goal)', async () => {
+  it("should throw when no query text is available (no profile and no goal)", async () => {
     // No goal profile
     const profileChain = setupGoalProfileQuery(null);
     mockSupabase.from.mockReturnValueOnce(profileChain);
@@ -443,15 +443,15 @@ describe('ContextPipelineService', () => {
     );
   });
 
-  describe('retrieval observability logging', () => {
-    it('should log per-chunk details at debug level with both scores and selection decisions on normal path (hnsw_reranked)', async () => {
+  describe("retrieval observability logging", () => {
+    it("should log per-chunk details at debug level with both scores and selection decisions on normal path (hnsw_reranked)", async () => {
       const debugSpy = jest
-        .spyOn(service['logger'], 'debug')
+        .spyOn(service["logger"], "debug")
         .mockImplementation();
-      const logSpy = jest.spyOn(service['logger'], 'log').mockImplementation();
+      const logSpy = jest.spyOn(service["logger"], "log").mockImplementation();
 
       const profileChain = setupGoalProfileQuery({
-        narrative_summary: 'Test goal',
+        narrative_summary: "Test goal",
       });
       mockSupabase.from.mockReturnValueOnce(profileChain);
 
@@ -482,8 +482,8 @@ describe('ContextPipelineService', () => {
       // Selected chunk
       expect(debugSpy).toHaveBeenCalledWith(
         JSON.stringify({
-          chunk_id: 'c1',
-          content_type: 'goal_profile',
+          chunk_id: "c1",
+          content_type: "goal_profile",
           similarity_score: 0.95,
           rerank_score: 0.95,
           selected: true,
@@ -493,24 +493,24 @@ describe('ContextPipelineService', () => {
       // Excluded chunk
       expect(debugSpy).toHaveBeenCalledWith(
         JSON.stringify({
-          chunk_id: 'c2',
-          content_type: 'intake_answer',
+          chunk_id: "c2",
+          content_type: "intake_answer",
           similarity_score: 0.9,
           rerank_score: 0.31,
           selected: false,
-          exclusion_reason: 'below_rerank_cutoff',
+          exclusion_reason: "below_rerank_cutoff",
         }),
       );
 
       // Verify summary log
       expect(logSpy).toHaveBeenCalledTimes(1);
       const summaryCall = logSpy.mock.calls[0]![0] as string;
-      expect(summaryCall).toContain('Retrieval complete:');
+      expect(summaryCall).toContain("Retrieval complete:");
       const summaryJson = JSON.parse(
-        summaryCall.replace('Retrieval complete: ', ''),
+        summaryCall.replace("Retrieval complete: ", ""),
       );
       expect(summaryJson.goal_id).toBe(goalId);
-      expect(summaryJson.tier).toBe('hnsw_reranked');
+      expect(summaryJson.tier).toBe("hnsw_reranked");
       expect(summaryJson.total_candidates).toBe(2);
       expect(summaryJson.selected_count).toBe(1);
       expect(summaryJson.excluded_count).toBe(1);
@@ -521,14 +521,14 @@ describe('ContextPipelineService', () => {
       logSpy.mockRestore();
     });
 
-    it('should log per-chunk with HNSW scores only (no rerank) and summary with tier hnsw_only on rerank fallback', async () => {
+    it("should log per-chunk with HNSW scores only (no rerank) and summary with tier hnsw_only on rerank fallback", async () => {
       const debugSpy = jest
-        .spyOn(service['logger'], 'debug')
+        .spyOn(service["logger"], "debug")
         .mockImplementation();
-      const logSpy = jest.spyOn(service['logger'], 'log').mockImplementation();
+      const logSpy = jest.spyOn(service["logger"], "log").mockImplementation();
 
       const profileChain = setupGoalProfileQuery({
-        narrative_summary: 'Test goal',
+        narrative_summary: "Test goal",
       });
       mockSupabase.from.mockReturnValueOnce(profileChain);
 
@@ -543,7 +543,7 @@ describe('ContextPipelineService', () => {
         selected: chunksNoRerank,
         allCandidates: chunksNoRerank,
         rerankApplied: false,
-        failureReason: 'Cohere API error: 503',
+        failureReason: "Cohere API error: 503",
       } as RerankResult);
 
       await service.assembleContext(goalId, userId);
@@ -551,8 +551,8 @@ describe('ContextPipelineService', () => {
       // Verify debug logs have null rerank_score
       expect(debugSpy).toHaveBeenCalledWith(
         JSON.stringify({
-          chunk_id: 'c1',
-          content_type: 'goal_profile',
+          chunk_id: "c1",
+          content_type: "goal_profile",
           similarity_score: 0.95,
           rerank_score: null,
           selected: true,
@@ -562,41 +562,41 @@ describe('ContextPipelineService', () => {
       // Verify summary with hnsw_only tier and fallback_reason
       const summaryCall = logSpy.mock.calls[0]![0] as string;
       const summaryJson = JSON.parse(
-        summaryCall.replace('Retrieval complete: ', ''),
+        summaryCall.replace("Retrieval complete: ", ""),
       );
-      expect(summaryJson.tier).toBe('hnsw_only');
-      expect(summaryJson.fallback_reason).toBe('Cohere API error: 503');
+      expect(summaryJson.tier).toBe("hnsw_only");
+      expect(summaryJson.fallback_reason).toBe("Cohere API error: 503");
 
       debugSpy.mockRestore();
       logSpy.mockRestore();
     });
 
-    it('should log chunks without scores and summary with tier sql_fallback and fallback_reason on SQL fallback', async () => {
+    it("should log chunks without scores and summary with tier sql_fallback and fallback_reason on SQL fallback", async () => {
       const debugSpy = jest
-        .spyOn(service['logger'], 'debug')
+        .spyOn(service["logger"], "debug")
         .mockImplementation();
-      const logSpy = jest.spyOn(service['logger'], 'log').mockImplementation();
+      const logSpy = jest.spyOn(service["logger"], "log").mockImplementation();
       const warnSpy = jest
-        .spyOn(service['logger'], 'warn')
+        .spyOn(service["logger"], "warn")
         .mockImplementation();
 
       const profileChain = setupGoalProfileQuery({
-        narrative_summary: 'Test goal',
+        narrative_summary: "Test goal",
       });
       mockSupabase.from.mockReturnValueOnce(profileChain);
 
       // HNSW fails
       mockSupabase.rpc.mockResolvedValueOnce({
         data: null,
-        error: new Error('HNSW search error: connection timeout'),
+        error: new Error("HNSW search error: connection timeout"),
       });
 
       // SQL fallback succeeds
       const sqlChain = setupSqlContextStuffingQuery([
         {
-          id: 'sql-1',
-          content_text: 'Fallback content',
-          content_type: 'goal_profile',
+          id: "sql-1",
+          content_text: "Fallback content",
+          content_type: "goal_profile",
           metadata: {},
         },
       ]);
@@ -604,9 +604,9 @@ describe('ContextPipelineService', () => {
 
       const sqlChunks: RankedChunk[] = [
         {
-          id: 'sql-1',
-          content_text: 'Fallback content',
-          content_type: 'goal_profile',
+          id: "sql-1",
+          content_text: "Fallback content",
+          content_type: "goal_profile",
           similarity: 0,
           metadata: {},
         },
@@ -622,8 +622,8 @@ describe('ContextPipelineService', () => {
       // Verify debug logs have null similarity_score and null rerank_score
       expect(debugSpy).toHaveBeenCalledWith(
         JSON.stringify({
-          chunk_id: 'sql-1',
-          content_type: 'goal_profile',
+          chunk_id: "sql-1",
+          content_type: "goal_profile",
           similarity_score: null,
           rerank_score: null,
           selected: true,
@@ -633,11 +633,11 @@ describe('ContextPipelineService', () => {
       // Verify summary with sql_fallback tier and fallback_reason
       const summaryCall = logSpy.mock.calls[0]![0] as string;
       const summaryJson = JSON.parse(
-        summaryCall.replace('Retrieval complete: ', ''),
+        summaryCall.replace("Retrieval complete: ", ""),
       );
-      expect(summaryJson.tier).toBe('sql_fallback');
+      expect(summaryJson.tier).toBe("sql_fallback");
       expect(summaryJson.fallback_reason).toBe(
-        'HNSW search error: connection timeout',
+        "HNSW search error: connection timeout",
       );
       expect(summaryJson.total_candidates).toBe(1);
       expect(summaryJson.selected_count).toBe(1);
@@ -648,32 +648,32 @@ describe('ContextPipelineService', () => {
       warnSpy.mockRestore();
     });
 
-    it('should force rerank_score to null when tier is sql_fallback even if Cohere succeeded', async () => {
+    it("should force rerank_score to null when tier is sql_fallback even if Cohere succeeded", async () => {
       const debugSpy = jest
-        .spyOn(service['logger'], 'debug')
+        .spyOn(service["logger"], "debug")
         .mockImplementation();
-      const logSpy = jest.spyOn(service['logger'], 'log').mockImplementation();
+      const logSpy = jest.spyOn(service["logger"], "log").mockImplementation();
       const warnSpy = jest
-        .spyOn(service['logger'], 'warn')
+        .spyOn(service["logger"], "warn")
         .mockImplementation();
 
       const profileChain = setupGoalProfileQuery({
-        narrative_summary: 'Test goal',
+        narrative_summary: "Test goal",
       });
       mockSupabase.from.mockReturnValueOnce(profileChain);
 
       // HNSW fails
       mockSupabase.rpc.mockResolvedValueOnce({
         data: null,
-        error: new Error('HNSW connection timeout'),
+        error: new Error("HNSW connection timeout"),
       });
 
       // SQL fallback succeeds
       const sqlChain = setupSqlContextStuffingQuery([
         {
-          id: 'sql-1',
-          content_text: 'Fallback content',
-          content_type: 'goal_profile',
+          id: "sql-1",
+          content_text: "Fallback content",
+          content_type: "goal_profile",
           metadata: {},
         },
       ]);
@@ -682,9 +682,9 @@ describe('ContextPipelineService', () => {
       // Cohere rerank SUCCEEDS despite HNSW failure
       const sqlChunksWithRerank: RankedChunk[] = [
         {
-          id: 'sql-1',
-          content_text: 'Fallback content',
-          content_type: 'goal_profile',
+          id: "sql-1",
+          content_text: "Fallback content",
+          content_type: "goal_profile",
           similarity: 0,
           metadata: {},
           rerank_score: 0.85,
@@ -701,8 +701,8 @@ describe('ContextPipelineService', () => {
       // Verify rerank_score forced to null despite Cohere returning 0.85
       expect(debugSpy).toHaveBeenCalledWith(
         JSON.stringify({
-          chunk_id: 'sql-1',
-          content_type: 'goal_profile',
+          chunk_id: "sql-1",
+          content_type: "goal_profile",
           similarity_score: null,
           rerank_score: null,
           selected: true,
@@ -712,24 +712,24 @@ describe('ContextPipelineService', () => {
       // Verify tier is sql_fallback with fallback_reason
       const summaryCall = logSpy.mock.calls[0]![0] as string;
       const summaryJson = JSON.parse(
-        summaryCall.replace('Retrieval complete: ', ''),
+        summaryCall.replace("Retrieval complete: ", ""),
       );
-      expect(summaryJson.tier).toBe('sql_fallback');
-      expect(summaryJson.fallback_reason).toBe('HNSW connection timeout');
+      expect(summaryJson.tier).toBe("sql_fallback");
+      expect(summaryJson.fallback_reason).toBe("HNSW connection timeout");
 
       debugSpy.mockRestore();
       logSpy.mockRestore();
       warnSpy.mockRestore();
     });
 
-    it('should verify logger.debug called for each chunk and logger.log called once for summary', async () => {
+    it("should verify logger.debug called for each chunk and logger.log called once for summary", async () => {
       const debugSpy = jest
-        .spyOn(service['logger'], 'debug')
+        .spyOn(service["logger"], "debug")
         .mockImplementation();
-      const logSpy = jest.spyOn(service['logger'], 'log').mockImplementation();
+      const logSpy = jest.spyOn(service["logger"], "log").mockImplementation();
 
       const profileChain = setupGoalProfileQuery({
-        narrative_summary: 'Test goal',
+        narrative_summary: "Test goal",
       });
       mockSupabase.from.mockReturnValueOnce(profileChain);
 
@@ -754,12 +754,12 @@ describe('ContextPipelineService', () => {
       logSpy.mockRestore();
     });
 
-    it('should verify latency_ms is a positive number', async () => {
-      const logSpy = jest.spyOn(service['logger'], 'log').mockImplementation();
-      jest.spyOn(service['logger'], 'debug').mockImplementation();
+    it("should verify latency_ms is a positive number", async () => {
+      const logSpy = jest.spyOn(service["logger"], "log").mockImplementation();
+      jest.spyOn(service["logger"], "debug").mockImplementation();
 
       const profileChain = setupGoalProfileQuery({
-        narrative_summary: 'Test goal',
+        narrative_summary: "Test goal",
       });
       mockSupabase.from.mockReturnValueOnce(profileChain);
 
@@ -781,9 +781,9 @@ describe('ContextPipelineService', () => {
 
       const summaryCall = logSpy.mock.calls[0]![0] as string;
       const summaryJson = JSON.parse(
-        summaryCall.replace('Retrieval complete: ', ''),
+        summaryCall.replace("Retrieval complete: ", ""),
       );
-      expect(typeof summaryJson.latency_ms).toBe('number');
+      expect(typeof summaryJson.latency_ms).toBe("number");
       expect(summaryJson.latency_ms).toBeGreaterThanOrEqual(0);
 
       logSpy.mockRestore();

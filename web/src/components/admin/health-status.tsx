@@ -3,26 +3,20 @@
 import { useEffect, useState } from "react";
 
 import type { HealthResult } from "@/lib/supabase/queries/health";
+import { refreshHealth } from "@/app/admin/(dashboard)/health/actions";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 
-export function HealthStatus({
-  initialData,
-}: {
-  initialData: HealthResult;
-}) {
+export function HealthStatus({ initialData }: { initialData: HealthResult }) {
   const [data, setData] = useState(initialData);
   const [lastChecked, setLastChecked] = useState<Date | null>(null);
 
   useEffect(() => {
     const interval = setInterval(async () => {
       try {
-        const res = await fetch("/api/health", { credentials: "include" });
-        if (res.ok) {
-          const result = await res.json();
-          setData(result);
-          setLastChecked(new Date());
-        }
+        const result = await refreshHealth();
+        setData(result);
+        setLastChecked(new Date());
       } catch {
         // keep showing last known data
       }
@@ -68,18 +62,22 @@ function ServiceCard({
   const isHealthy = status === "healthy";
 
   return (
-    <Card className={`border-border/50 shadow-none transition-colors ${isHealthy ? "" : "border-destructive/30 bg-destructive/[0.03]"}`}>
+    <Card
+      className={`border-border/50 shadow-none transition-colors ${isHealthy ? "" : "border-destructive/30 bg-destructive/3"}`}
+    >
       <CardContent className="p-5">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div
               className={`h-2.5 w-2.5 rounded-full ${
                 isHealthy
-                  ? "bg-primary shadow-[0_0_8px_oklch(0.45_0.14_145_/_0.4)]"
-                  : "bg-destructive shadow-[0_0_8px_oklch(0.55_0.22_25_/_0.4)]"
+                  ? "bg-primary shadow-[0_0_8px_oklch(0.45_0.14_145/0.4)]"
+                  : "bg-destructive shadow-[0_0_8px_oklch(0.55_0.22_25/0.4)]"
               }`}
             />
-            <span className="text-sm font-semibold text-foreground">{name}</span>
+            <span className="text-sm font-semibold text-foreground">
+              {name}
+            </span>
           </div>
           <Badge
             className={`border-0 font-medium ${

@@ -1,10 +1,10 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger } from "@nestjs/common";
 
-import { CoachService } from '../coach/coach.service.js';
-import { config } from '../config/app.config.js';
-import { SupabaseService } from '../supabase/supabase.service.js';
-import type { PromptInput } from './chat-prompt.builder.js';
-import { buildCoachPrompt } from './chat-prompt.builder.js';
+import { CoachService } from "../coach/coach.service.js";
+import { config } from "../config/app.config.js";
+import { SupabaseService } from "../supabase/supabase.service.js";
+import type { PromptInput } from "./chat-prompt.builder.js";
+import { buildCoachPrompt } from "./chat-prompt.builder.js";
 
 interface ActivePlan {
   week_number: number;
@@ -12,7 +12,7 @@ interface ActivePlan {
   milestone_id: string;
 }
 
-type GoalContext = PromptInput['goalContext'];
+type GoalContext = PromptInput["goalContext"];
 
 @Injectable()
 export class ChatPromptService {
@@ -29,19 +29,19 @@ export class ChatPromptService {
     const supabase = this.supabaseService.getAdminClient();
 
     const { data, error } = await supabase
-      .from('profiles')
-      .select('coach_id, language')
-      .eq('id', userId)
+      .from("profiles")
+      .select("coach_id, language")
+      .eq("id", userId)
       .single();
 
     if (error !== null) {
       this.logger.warn(`No profile for user ${userId}, using defaults`);
-      return { coachId: config.coach.defaultCoachId, language: 'en' };
+      return { coachId: config.coach.defaultCoachId, language: "en" };
     }
 
     return {
       coachId: data.coach_id ?? config.coach.defaultCoachId,
-      language: data.language ?? 'en',
+      language: data.language ?? "en",
     };
   }
 
@@ -77,13 +77,13 @@ export class ChatPromptService {
     const supabase = this.supabaseService.getAdminClient();
 
     const { data } = await supabase
-      .from('coach_memories')
-      .select('content')
-      .eq('user_id', userId)
-      .eq('goal_id', goalId)
+      .from("coach_memories")
+      .select("content")
+      .eq("user_id", userId)
+      .eq("goal_id", goalId)
       .single();
 
-    return data?.content ?? '';
+    return data?.content ?? "";
   }
 
   public buildSystemPrompt(input: {
@@ -102,43 +102,43 @@ export class ChatPromptService {
   }
 
   private async fetchGoalAndPlan(
-    supabase: ReturnType<SupabaseService['getAdminClient']>,
+    supabase: ReturnType<SupabaseService["getAdminClient"]>,
     goalId: string,
     userId: string,
-  ): Promise<{ goal: GoalContext['goal']; plan: ActivePlan | null }> {
+  ): Promise<{ goal: GoalContext["goal"]; plan: ActivePlan | null }> {
     const [goalResult, planResult] = await Promise.all([
       supabase
-        .from('goals')
-        .select('title, description')
-        .eq('id', goalId)
-        .eq('user_id', userId)
-        .is('deleted_at', null)
+        .from("goals")
+        .select("title, description")
+        .eq("id", goalId)
+        .eq("user_id", userId)
+        .is("deleted_at", null)
         .single(),
       supabase
-        .from('weekly_plans')
-        .select('week_number, objectives, milestone_id')
-        .eq('goal_id', goalId)
-        .eq('user_id', userId)
-        .eq('status', 'active')
+        .from("weekly_plans")
+        .select("week_number, objectives, milestone_id")
+        .eq("goal_id", goalId)
+        .eq("user_id", userId)
+        .eq("status", "active")
         .single(),
     ]);
 
     return {
-      goal: goalResult.data as GoalContext['goal'],
+      goal: goalResult.data as GoalContext["goal"],
       plan: planResult.data as ActivePlan | null,
     };
   }
 
   private async fetchMilestone(
-    supabase: ReturnType<SupabaseService['getAdminClient']>,
+    supabase: ReturnType<SupabaseService["getAdminClient"]>,
     milestoneId: string,
-  ): Promise<GoalContext['milestone']> {
+  ): Promise<GoalContext["milestone"]> {
     const { data } = await supabase
-      .from('milestones')
-      .select('title, description, expected_outcome, target_month')
-      .eq('id', milestoneId)
+      .from("milestones")
+      .select("title, description, expected_outcome, target_month")
+      .eq("id", milestoneId)
       .single();
 
-    return data as GoalContext['milestone'];
+    return data as GoalContext["milestone"];
   }
 }

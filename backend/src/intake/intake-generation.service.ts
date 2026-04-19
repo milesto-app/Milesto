@@ -2,23 +2,23 @@ import {
   Injectable,
   InternalServerErrorException,
   Logger,
-} from '@nestjs/common';
+} from "@nestjs/common";
 
-import { UsageService } from '../usage/usage.service.js';
-import { GenerationType } from '../usage/usage.types.js';
-import { MAX_GENERATION_ATTEMPTS } from './constants/intake.constants.js';
-import { IntakeProfileService } from './intake-profile.service.js';
+import { UsageService } from "../usage/usage.service.js";
+import { GenerationType } from "../usage/usage.types.js";
+import { MAX_GENERATION_ATTEMPTS } from "./constants/intake.constants.js";
+import { IntakeProfileService } from "./intake-profile.service.js";
 import type {
   GeneratedQuestion,
   PriorBatchContext,
-} from './intake-prompt.service.js';
-import { IntakePromptService } from './intake-prompt.service.js';
-import { IntakeQualityService } from './intake-quality.service.js';
-import type { ProfileResult } from './types/intake.types.js';
+} from "./intake-prompt.service.js";
+import { IntakePromptService } from "./intake-prompt.service.js";
+import { IntakeQualityService } from "./intake-quality.service.js";
+import type { ProfileResult } from "./types/intake.types.js";
 
 export type BatchGenerationResult =
-  | { kind: 'questions'; questions: GeneratedQuestion[] }
-  | { kind: 'complete'; profileResult: ProfileResult };
+  | { kind: "questions"; questions: GeneratedQuestion[] }
+  | { kind: "complete"; profileResult: ProfileResult };
 
 interface GenerateParams {
   goalDescription: string;
@@ -59,7 +59,7 @@ export class IntakeGenerationService {
         `All ${String(MAX_GENERATION_ATTEMPTS)} generation attempts failed for goal ${params.goalId}`,
       );
       throw new InternalServerErrorException(
-        'Question generation failed after all retry attempts',
+        "Question generation failed after all retry attempts",
       );
     }
     return results;
@@ -112,12 +112,12 @@ export class IntakeGenerationService {
         goalDescription: params.goalDescription,
         language: params.language,
       });
-      return { kind: 'complete', profileResult };
+      return { kind: "complete", profileResult };
     }
 
     const validation = this.qualityService.validateBatch(generated.questions);
     if (validation.valid) {
-      return { kind: 'questions', questions: generated.questions };
+      return { kind: "questions", questions: generated.questions };
     }
 
     this.logValidationFailure(attempt, validation);
@@ -130,18 +130,18 @@ export class IntakeGenerationService {
   ): void {
     const suffix =
       attempt === MAX_GENERATION_ATTEMPTS
-        ? ' No attempts remaining.'
-        : ' Retrying...';
+        ? " No attempts remaining."
+        : " Retrying...";
     this.logger.warn(
-      `Batch attempt ${String(attempt)}/${String(MAX_GENERATION_ATTEMPTS)} validation failed (${validation.layer}): ${validation.errors.join(', ')}.${suffix}`,
+      `Batch attempt ${String(attempt)}/${String(MAX_GENERATION_ATTEMPTS)} validation failed (${validation.layer}): ${validation.errors.join(", ")}.${suffix}`,
     );
   }
 
   private logAttemptError(attempt: number, error: unknown): void {
     const suffix =
       attempt === MAX_GENERATION_ATTEMPTS
-        ? ' No attempts remaining.'
-        : ' Retrying...';
+        ? " No attempts remaining."
+        : " Retrying...";
     this.logger.warn(
       `Batch attempt ${String(attempt)}/${String(MAX_GENERATION_ATTEMPTS)} failed: ${error instanceof Error ? error.message : String(error)}.${suffix}`,
     );

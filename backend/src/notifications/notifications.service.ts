@@ -1,12 +1,12 @@
-import type { ClientHttp2Session } from 'node:http2';
-import { connect, constants as h2 } from 'node:http2';
+import type { ClientHttp2Session } from "node:http2";
+import { connect, constants as h2 } from "node:http2";
 
-import { Injectable, Logger, OnModuleDestroy } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
-import { importPKCS8, SignJWT } from 'jose';
+import { Injectable, Logger, OnModuleDestroy } from "@nestjs/common";
+import { ConfigService } from "@nestjs/config";
+import { importPKCS8, SignJWT } from "jose";
 
-import { config } from '../config/app.config.js';
-import { DeviceTokensService } from './device-tokens.service.js';
+import { config } from "../config/app.config.js";
+import { DeviceTokensService } from "./device-tokens.service.js";
 
 const APNS_STATUS_OK = 200;
 const APNS_STATUS_UNREGISTERED = 410;
@@ -39,12 +39,12 @@ export class NotificationsService implements OnModuleDestroy {
     configService: ConfigService,
     private readonly deviceTokensService: DeviceTokensService,
   ) {
-    this.keyId = configService.getOrThrow<string>('APNS_KEY_ID');
-    this.teamId = configService.getOrThrow<string>('APNS_TEAM_ID');
+    this.keyId = configService.getOrThrow<string>("APNS_KEY_ID");
+    this.teamId = configService.getOrThrow<string>("APNS_TEAM_ID");
     this.privateKeyPem = configService
-      .getOrThrow<string>('APNS_PRIVATE_KEY')
-      .replace(/\\n/g, '\n');
-    this.bundleId = configService.getOrThrow<string>('APNS_BUNDLE_ID');
+      .getOrThrow<string>("APNS_PRIVATE_KEY")
+      .replace(/\\n/g, "\n");
+    this.bundleId = configService.getOrThrow<string>("APPLE_BUNDLE_ID");
   }
 
   public onModuleDestroy(): void {
@@ -96,7 +96,7 @@ export class NotificationsService implements OnModuleDestroy {
     data?: Record<string, string>,
   ): Promise<void> {
     const host =
-      environment === 'sandbox'
+      environment === "sandbox"
         ? config.apns.host.sandbox
         : config.apns.host.production;
 
@@ -125,7 +125,7 @@ export class NotificationsService implements OnModuleDestroy {
       }
     } catch (error) {
       this.logger.error(
-        'APNs send error',
+        "APNs send error",
         error instanceof Error ? error.stack : undefined,
       );
     }
@@ -158,9 +158,9 @@ export class NotificationsService implements OnModuleDestroy {
   }
 
   private async signNewJwt(): Promise<string> {
-    const privateKey = await importPKCS8(this.privateKeyPem, 'ES256');
+    const privateKey = await importPKCS8(this.privateKeyPem, "ES256");
     return new SignJWT({})
-      .setProtectedHeader({ alg: 'ES256', kid: this.keyId })
+      .setProtectedHeader({ alg: "ES256", kid: this.keyId })
       .setIssuedAt()
       .setIssuer(this.teamId)
       .sign(privateKey);
@@ -174,7 +174,7 @@ export class NotificationsService implements OnModuleDestroy {
 
     const session = connect(`https://${host}`);
 
-    session.on('error', (error) => {
+    session.on("error", (error) => {
       this.logger.error(
         `APNs HTTP/2 session error (${environment})`,
         error.stack,
@@ -182,7 +182,7 @@ export class NotificationsService implements OnModuleDestroy {
       this.sessions.delete(environment);
     });
 
-    session.on('close', () => {
+    session.on("close", () => {
       this.sessions.delete(environment);
     });
 
@@ -203,42 +203,42 @@ export class NotificationsService implements OnModuleDestroy {
       const payload = JSON.stringify({
         aps: {
           alert: { title, body },
-          sound: 'default',
+          sound: "default",
         },
         ...data,
       });
 
       /* eslint-disable @typescript-eslint/naming-convention */
       const apnsHeaders: Record<string, string> = {
-        'apns-topic': this.bundleId,
-        'apns-push-type': 'alert',
-        'apns-priority': '10',
+        "apns-topic": this.bundleId,
+        "apns-push-type": "alert",
+        "apns-priority": "10",
       };
       /* eslint-enable @typescript-eslint/naming-convention */
 
       const req = session.request({
-        [h2.HTTP2_HEADER_METHOD]: 'POST',
+        [h2.HTTP2_HEADER_METHOD]: "POST",
         [h2.HTTP2_HEADER_PATH]: `/3/device/${token}`,
-        [h2.HTTP2_HEADER_SCHEME]: 'https',
+        [h2.HTTP2_HEADER_SCHEME]: "https",
         [h2.HTTP2_HEADER_AUTHORITY]: host,
         [h2.HTTP2_HEADER_AUTHORIZATION]: `bearer ${jwt}`,
-        [h2.HTTP2_HEADER_CONTENT_TYPE]: 'application/json',
+        [h2.HTTP2_HEADER_CONTENT_TYPE]: "application/json",
         [h2.HTTP2_HEADER_CONTENT_LENGTH]: String(Buffer.byteLength(payload)),
         ...apnsHeaders,
       });
 
-      req.on('response', (headers) => {
+      req.on("response", (headers) => {
         const statusCode = Number(headers[h2.HTTP2_HEADER_STATUS]);
-        let responseBody = '';
-        req.on('data', (chunk: Buffer) => {
+        let responseBody = "";
+        req.on("data", (chunk: Buffer) => {
           responseBody += chunk.toString();
         });
-        req.on('end', () => {
+        req.on("end", () => {
           resolve({ statusCode, body: responseBody });
         });
       });
 
-      req.on('error', reject);
+      req.on("error", reject);
       req.write(payload);
       req.end();
     });

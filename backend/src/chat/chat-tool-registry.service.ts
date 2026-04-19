@@ -1,10 +1,10 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable } from "@nestjs/common";
 
-import { ChatDebriefToolsService } from './chat-debrief-tools.service.js';
-import { ChatRoadmapToolsService } from './chat-roadmap-tools.service.js';
-import { buildToolRegistry } from './chat-tool-registry.js';
-import { ChatToolsService } from './chat-tools.service.js';
-import type { ChatToolEntry } from './types/chat.types.js';
+import { ChatDebriefToolsService } from "./chat-debrief-tools.service.js";
+import { ChatRoadmapToolsService } from "./chat-roadmap-tools.service.js";
+import { buildToolRegistry } from "./chat-tool-registry.js";
+import { ChatToolsService } from "./chat-tools.service.js";
+import type { ChatToolEntry } from "./types/chat.types.js";
 
 @Injectable()
 export class ChatToolRegistryService {

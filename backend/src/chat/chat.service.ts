@@ -1,24 +1,24 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger } from "@nestjs/common";
 import type {
   ChatCompletionMessageParam,
   ChatCompletionTool,
-} from 'openai/resources/chat/completions';
+} from "openai/resources/chat/completions";
 
-import { AiService } from '../ai/ai.service.js';
-import { config } from '../config/app.config.js';
-import { UsageService } from '../usage/usage.service.js';
-import { GenerationType } from '../usage/usage.types.js';
-import { ChatHistoryService } from './chat-history.service.js';
-import { ChatPromptService } from './chat-prompt.service.js';
-import type { ToolCallResult } from './chat-stream.utils.js';
-import { consumeStream, toOpenAiMessages } from './chat-stream.utils.js';
-import { ChatToolRegistryService } from './chat-tool-registry.service.js';
-import type { SendMessageDto } from './dto/send-message.dto.js';
+import { AiService } from "../ai/ai.service.js";
+import { config } from "../config/app.config.js";
+import { UsageService } from "../usage/usage.service.js";
+import { GenerationType } from "../usage/usage.types.js";
+import { ChatHistoryService } from "./chat-history.service.js";
+import { ChatPromptService } from "./chat-prompt.service.js";
+import type { ToolCallResult } from "./chat-stream.utils.js";
+import { consumeStream, toOpenAiMessages } from "./chat-stream.utils.js";
+import { ChatToolRegistryService } from "./chat-tool-registry.service.js";
+import type { SendMessageDto } from "./dto/send-message.dto.js";
 import type {
   ChatStreamEvent,
   ChatToolEntry,
   ToolExecutionContext,
-} from './types/chat.types.js';
+} from "./types/chat.types.js";
 
 interface AgentLoopOptions {
   messages: ChatCompletionMessageParam[];
@@ -58,7 +58,7 @@ export class ChatService {
         : await this.history.createConversation(userId, dto.goalId);
 
     await this.history.storeMessage(conversation.id, {
-      role: 'user',
+      role: "user",
       content: dto.content,
     });
     const storedMessages = await this.history.getMessages(conversation.id);
@@ -78,7 +78,7 @@ export class ChatService {
       (entry) => entry.definition,
     );
 
-    onEvent({ type: 'message_start', conversationId: conversation.id });
+    onEvent({ type: "message_start", conversationId: conversation.id });
     await this.runAgentLoop({
       messages,
       tools,
@@ -86,7 +86,7 @@ export class ChatService {
       conversationId: conversation.id,
       onEvent,
     });
-    onEvent({ type: 'message_end' });
+    onEvent({ type: "message_end" });
   }
 
   private async runAgentLoop(opts: AgentLoopOptions): Promise<void> {
@@ -100,7 +100,7 @@ export class ChatService {
 
       if (toolCalls.length === 0) {
         await this.history.storeMessage(opts.conversationId, {
-          role: 'assistant',
+          role: "assistant",
           content,
         });
         return;
@@ -118,17 +118,17 @@ export class ChatService {
   ): Promise<void> {
     const formatted = toolCalls.map((tc) => ({
       id: tc.id,
-      type: 'function' as const,
+      type: "function" as const,
       function: { name: tc.name, arguments: tc.arguments },
     }));
 
     opts.messages.push({
-      role: 'assistant',
+      role: "assistant",
       content: content || null,
       tool_calls: formatted,
     });
     await this.history.storeMessage(opts.conversationId, {
-      role: 'assistant',
+      role: "assistant",
       content: content || null,
       tool_calls: formatted,
     });
@@ -139,21 +139,21 @@ export class ChatService {
     toolCalls: ToolCallResult[],
   ): Promise<void> {
     for (const tc of toolCalls) {
-      opts.onEvent({ type: 'tool_start', toolName: tc.name });
+      opts.onEvent({ type: "tool_start", toolName: tc.name });
       const result = await this.executeTool(tc.name, tc.arguments, opts.ctx);
       const resultStr = JSON.stringify(result);
       opts.messages.push({
-        role: 'tool',
+        role: "tool",
         tool_call_id: tc.id,
         content: resultStr,
       });
       await this.history.storeMessage(opts.conversationId, {
-        role: 'tool',
+        role: "tool",
         content: resultStr,
         tool_call_id: tc.id,
         tool_name: tc.name,
       });
-      opts.onEvent({ type: 'tool_end', toolName: tc.name });
+      opts.onEvent({ type: "tool_end", toolName: tc.name });
     }
   }
 

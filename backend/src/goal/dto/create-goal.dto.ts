@@ -1,13 +1,13 @@
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsNotEmpty, IsOptional, IsString, MaxLength } from 'class-validator';
+import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
+import { IsNotEmpty, IsOptional, IsString, MaxLength } from "class-validator";
 
 const MAX_TITLE_LENGTH = 200;
 
 export class CreateGoalDto {
   @ApiPropertyOptional({
-    example: 'Run a marathon',
+    example: "Run a marathon",
     description:
-      'The goal title (max 200 chars). Auto-generated from description if omitted.',
+      "The goal title (max 200 chars). Auto-generated from description if omitted.",
   })
   @IsOptional()
   @IsString()
@@ -15,8 +15,8 @@ export class CreateGoalDto {
   public title?: string;
 
   @ApiProperty({
-    example: 'I want to complete my first marathon within 6 months',
-    description: 'Detailed goal description',
+    example: "I want to complete my first marathon within 6 months",
+    description: "Detailed goal description",
   })
   @IsString()
   @IsNotEmpty()

@@ -1,6 +1,6 @@
-import { buildLanguageBlock } from '../../common/language-prompt.helper.js';
-import type { AssembledContext } from '../types/context.types.js';
-import type { WeekData, WeeklyPlan } from '../types/weekly-plan.types.js';
+import { buildLanguageBlock } from "../../common/language-prompt.helper.js";
+import type { AssembledContext } from "../types/context.types.js";
+import type { WeekData, WeeklyPlan } from "../types/weekly-plan.types.js";
 
 interface WeeklyTaskPromptParams {
   weeklyPlan: WeeklyPlan;
@@ -37,7 +37,7 @@ export function buildWeeklyTasksUserPrompt(
   const sections: string[] = [];
 
   sections.push(`## Weekly Plan
-Objectives: ${params.weeklyPlan.objectives.map((o, i) => `${String(i + 1)}. ${o}`).join('\n')}`);
+Objectives: ${params.weeklyPlan.objectives.map((o, i) => `${String(i + 1)}. ${o}`).join("\n")}`);
 
   if (params.weekData.tasksTotal > 0) {
     sections.push(`## Previous Week's Progress
@@ -46,7 +46,7 @@ Completed: ${String(params.weekData.tasksCompleted)}/${String(params.weekData.ta
 
   if (params.weekData.debriefNotes.length > 0) {
     sections.push(`## Recent Debrief Notes
-${params.weekData.debriefNotes.map((note, i) => `${String(i + 1)}. ${note}`).join('\n')}`);
+${params.weekData.debriefNotes.map((note, i) => `${String(i + 1)}. ${note}`).join("\n")}`);
   }
 
   if (params.context.goalProfileSection.length > 0) {
@@ -56,5 +56,5 @@ ${params.weekData.debriefNotes.map((note, i) => `${String(i + 1)}. ${note}`).joi
     sections.push(`## Progress History\n${params.context.progressSection}`);
   }
 
-  return sections.join('\n\n');
+  return sections.join("\n\n");
 }

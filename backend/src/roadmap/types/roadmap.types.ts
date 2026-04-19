@@ -1,4 +1,4 @@
-export type RoadmapStatus = 'generating' | 'complete' | 'failed';
+export type RoadmapStatus = "generating" | "complete" | "failed";
 
 export interface Roadmap {
   goal_id: string;
@@ -29,12 +29,12 @@ export interface Milestone {
 
 export type MilestoneSummary = Pick<
   Milestone,
-  | 'id'
-  | 'title'
-  | 'description'
-  | 'expected_outcome'
-  | 'is_monthly_checkpoint'
-  | 'order_index'
+  | "id"
+  | "title"
+  | "description"
+  | "expected_outcome"
+  | "is_monthly_checkpoint"
+  | "order_index"
 >;
 
 export interface GenerationMetadata {
