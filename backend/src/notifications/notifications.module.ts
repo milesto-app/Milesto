@@ -6,6 +6,7 @@ import { CopyGenClient } from "./copy/copy-gen.client.js";
 import { CopyGenConsumerService } from "./copy/copy-gen.consumer.js";
 import { CopyGenService } from "./copy/copy-gen.service.js";
 import { CopyGenOrphanRecoveryService } from "./copy/copy-gen-orphan-recovery.service.js";
+import { CopyGenSloAlertService } from "./copy/copy-gen-slo-alert.service.js";
 import { PostCommitCopyGenRunner } from "./copy/post-commit-copy-gen.runner.js";
 import { DeliveryTelemetryController } from "./deliveries/delivery-telemetry.controller.js";
 import { DeliveryTelemetryService } from "./deliveries/delivery-telemetry.service.js";
@@ -48,6 +49,7 @@ import { StreaksNightlyService } from "./streaks/streaks-nightly.service.js";
     CopyGenConsumerService,
     CopyGenOrphanRecoveryService,
     CopyGenService,
+    CopyGenSloAlertService,
     DeliveryTelemetryService,
     DeviceTokensService,
     DispatcherService,

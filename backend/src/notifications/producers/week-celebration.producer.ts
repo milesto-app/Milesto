@@ -4,6 +4,7 @@ import { OnEvent } from "@nestjs/event-emitter";
 import { COACH_BY_ID } from "../../coach/coaches.config.js";
 import { SupabaseService } from "../../supabase/supabase.service.js";
 import { PostCommitCopyGenRunner } from "../copy/post-commit-copy-gen.runner.js";
+import { isWithinTenureGuardrail } from "../copy/tenure-guardrail.js";
 import { GateService } from "../gate/gate.service.js";
 import { OutboxService } from "../outbox/outbox.service.js";
 import {
@@ -34,6 +35,7 @@ const TEASER_COPY: Readonly<Record<SupportedLanguage, string>> = {
 interface ProfileContext {
   coachId: number | null;
   language: SupportedLanguage;
+  tenureStartDate: string | null;
 }
 
 function resolveLanguage(raw: string | null): SupportedLanguage {
@@ -83,6 +85,9 @@ export class WeekCelebrationProducer {
     const persona = resolvePersonaBucket(profile.coachId);
     const title = TITLE_COPY[profile.language];
     const teaser = TEASER_COPY[profile.language];
+    const shouldSuppressStreakCopy = isWithinTenureGuardrail(
+      profile.tenureStartDate,
+    );
 
     const kindSpecific = {
       weekly_plan_id: event.planId,
@@ -107,7 +112,7 @@ export class WeekCelebrationProducer {
         coachId: profile.coachId,
         memoryHooks: {},
         kindSpecific,
-        suppressStreakCopy: false,
+        suppressStreakCopy: shouldSuppressStreakCopy,
         producerName: "week-celebration",
       },
     });
@@ -123,7 +128,7 @@ export class WeekCelebrationProducer {
         stub: { title, teaser },
         memoryHooks: {},
         kindSpecific,
-        suppressStreakCopy: false,
+        suppressStreakCopy: shouldSuppressStreakCopy,
       });
     }
   }
@@ -132,18 +137,19 @@ export class WeekCelebrationProducer {
     const supabase = this.supabaseService.getAdminClient();
     const { data, error } = await supabase
       .from("profiles")
-      .select("coach_id, language")
+      .select("coach_id, language, tenure_start_date")
       .eq("id", userId)
       .single();
     if (error !== null) {
       this.logger.warn(
         `Failed to load profile ${userId} for week_completed: ${error.message} — using defaults`,
       );
-      return { coachId: null, language: "en" };
+      return { coachId: null, language: "en", tenureStartDate: null };
     }
     return {
       coachId: data.coach_id,
       language: resolveLanguage(data.language),
+      tenureStartDate: data.tenure_start_date,
     };
   }
 }

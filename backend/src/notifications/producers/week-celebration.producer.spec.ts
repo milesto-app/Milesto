@@ -16,7 +16,11 @@ const USER_ID = "user-uuid";
 const GOAL_ID = "goal-uuid";
 const PLAN_ID = "plan-uuid";
 
-type ProfileRow = { coach_id: number | null; language: string | null };
+type ProfileRow = {
+  coach_id: number | null;
+  language: string | null;
+  tenure_start_date: string | null;
+};
 
 function buildEvent(): WeeklyPlanCompletedEvent {
   return { userId: USER_ID, goalId: GOAL_ID, planId: PLAN_ID };
@@ -48,7 +52,7 @@ describe("WeekCelebrationProducer", () => {
   let profile: ProfileRow;
 
   beforeEach(async () => {
-    profile = { coach_id: 1, language: "en" };
+    profile = { coach_id: 1, language: "en", tenure_start_date: null };
     outboxInsert = jest
       .fn()
       .mockResolvedValue({ status: "inserted", jobId: "job-3" });
@@ -149,5 +153,17 @@ describe("WeekCelebrationProducer", () => {
     outboxInsert.mockRejectedValueOnce(new Error("db down"));
 
     await expect(producer.handle(buildEvent())).resolves.toBeUndefined();
+  });
+
+  it("sets copyGen.suppressStreakCopy when tenure started within the last 60 days", async () => {
+    const recent = new Date(Date.now() - 10 * 86_400_000);
+    profile.tenure_start_date = recent.toISOString().slice(0, 10);
+
+    await producer.handle(buildEvent());
+
+    const call = outboxInsert.mock.calls[0] as [
+      { copyGen: { suppressStreakCopy: boolean } },
+    ];
+    expect(call[0].copyGen.suppressStreakCopy).toBe(true);
   });
 });

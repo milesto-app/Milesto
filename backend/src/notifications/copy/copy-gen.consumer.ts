@@ -30,7 +30,11 @@ import type { Database, Json } from "../../supabase/database.types.js";
 import { SupabaseService } from "../../supabase/supabase.service.js";
 import type { CopyGenJobContext } from "./copy-gen.service.js";
 import { CopyGenService } from "./copy-gen.service.js";
-import { persistCopyGenResult } from "./copy-gen-persist.js";
+import {
+  COPY_GEN_LOG_EVENT,
+  logCopyGenAttempt,
+  persistCopyGenResult,
+} from "./copy-gen-persist.js";
 import { resolveLanguage, type SupportedLanguage } from "./fallbacks.js";
 
 type NotificationJobRow =
@@ -220,6 +224,21 @@ export class CopyGenConsumerService {
         `Failed to mark job ${job.id} copy_status='failed': ${updateError.message}`,
       );
     }
+    logCopyGenAttempt(this.logger, {
+      event: COPY_GEN_LOG_EVENT,
+      job_id: job.id,
+      kind: job.kind,
+      coach_id: null,
+      language: "en",
+      status: "failed",
+      error_code: errorCode,
+      attempt_no: job.copy_attempts,
+      latency_ms: 0,
+      prompt_version: "n/a",
+      provider_status: null,
+      input_hash: job.copy_input_hash ?? "n/a",
+      model: "n/a",
+    });
   }
 
   private async checkBacklog(): Promise<void> {

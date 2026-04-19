@@ -2,6 +2,7 @@ import { Injectable, Logger } from "@nestjs/common";
 
 import { SupabaseService } from "../../supabase/supabase.service.js";
 import { resolveLanguage, streakBrokenStub } from "../copy/fallbacks.js";
+import { isWithinTenureGuardrail } from "../copy/tenure-guardrail.js";
 import { GateService } from "../gate/gate.service.js";
 import { OutboxService } from "../outbox/outbox.service.js";
 import {
@@ -23,7 +24,6 @@ const FREEZE_TOKEN_CAP = 2;
 const FREEZE_GRANT_INTERVAL_DAYS = 28;
 const MS_PER_DAY = 86_400_000;
 const MONDAY_PUSH_HOUR = 8;
-const TENURE_GUARDRAIL_DAYS = 60;
 const DAYS_PER_WEEK = 7;
 const DATE_PAD_WIDTH = 2;
 
@@ -280,7 +280,7 @@ export class StreaksNightlyService {
       );
       return;
     }
-    const shouldSuppressCopy = this.shouldSuppressStreakCopy(
+    const shouldSuppressCopy = isWithinTenureGuardrail(
       candidate.tenure_start_date,
     );
     const language = resolveLanguage(candidate.language);
@@ -359,17 +359,5 @@ export class StreaksNightlyService {
       month: Number.parseInt(parts[1] ?? "1", 10),
       day: Number.parseInt(parts[2] ?? "1", 10),
     };
-  }
-
-  private shouldSuppressStreakCopy(tenureStartDate: string | null): boolean {
-    if (tenureStartDate === null) {
-      return false;
-    }
-    const tenureStart = Date.parse(`${tenureStartDate}T00:00:00.000Z`);
-    if (Number.isNaN(tenureStart)) {
-      return false;
-    }
-    const daysSince = Math.floor((Date.now() - tenureStart) / MS_PER_DAY);
-    return daysSince < TENURE_GUARDRAIL_DAYS;
   }
 }
