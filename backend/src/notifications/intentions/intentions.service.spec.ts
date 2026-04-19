@@ -108,24 +108,12 @@ function createFromMock(mocks: ServiceMocks): {
     };
   };
 
-  const notificationJobsQuery = {
-    update: jest.fn().mockImplementation(() => ({
-      eq: jest.fn().mockReturnThis(),
-      filter: jest
-        .fn()
-        .mockImplementation(async () => Promise.resolve({ error: null })),
-    })),
-  };
-
   const from = jest.fn((table: string) => {
     if (table === "weekly_tasks") {
       return weeklyTaskQuery;
     }
     if (table === "weekly_task_intentions") {
       return buildIntentionQuery();
-    }
-    if (table === "notification_jobs") {
-      return notificationJobsQuery;
     }
     throw new Error(`unexpected table ${table}`);
   });
@@ -137,18 +125,26 @@ describe("IntentionsService", () => {
   let service: IntentionsService;
   let mocks: ServiceMocks;
   let fromMock: jest.Mock;
+  let rpcMock: jest.Mock;
   let insertedPayload: { current: Record<string, unknown> | null };
 
   async function boot(): Promise<void> {
     const built = createFromMock(mocks);
     fromMock = built.from;
     insertedPayload = built.insertedPayload;
+    rpcMock = jest
+      .fn()
+      .mockImplementation(async () =>
+        Promise.resolve({ data: 0, error: null }),
+      );
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         IntentionsService,
         {
           provide: SupabaseService,
-          useValue: { getAdminClient: () => ({ from: fromMock }) },
+          useValue: {
+            getAdminClient: () => ({ from: fromMock, rpc: rpcMock }),
+          },
         },
       ],
     }).compile();
@@ -246,13 +242,56 @@ describe("IntentionsService", () => {
     );
   });
 
-  it("cancels pending implementation_intention jobs for the task after a successful upsert", async () => {
+  it("cancels pending implementation_intention jobs via the RPC after a successful upsert", async () => {
     await service.upsert(USER_ID, {
       task_id: TASK_ID,
       day_of_week: 2,
       local_hour: 20,
     });
 
-    expect(fromMock).toHaveBeenCalledWith("notification_jobs");
+    expect(rpcMock).toHaveBeenCalledWith("cancel_pending_intention_jobs", {
+      p_task_id: TASK_ID,
+      p_captured_at: "2026-04-19T10:00:00Z",
+    });
+  });
+
+  it("cancels pending intention jobs with the updated captured_at after update", async () => {
+    await service.update(USER_ID, TASK_ID, { local_hour: 21 });
+
+    expect(rpcMock).toHaveBeenCalledWith("cancel_pending_intention_jobs", {
+      p_task_id: TASK_ID,
+      p_captured_at: "2026-04-19T10:00:00Z",
+    });
+  });
+
+  it("calls the cancellation RPC with a fresh captured_at on delete", async () => {
+    const before = Date.now();
+    await service.delete(USER_ID, TASK_ID);
+    const after = Date.now();
+
+    expect(rpcMock).toHaveBeenCalledTimes(1);
+    const [, args] = rpcMock.mock.calls[0] as [
+      string,
+      { p_task_id: string; p_captured_at: string },
+    ];
+    expect(args.p_task_id).toBe(TASK_ID);
+    const ts = Date.parse(args.p_captured_at);
+    expect(ts).toBeGreaterThanOrEqual(before);
+    expect(ts).toBeLessThanOrEqual(after);
+  });
+
+  it("logs a warning and does not throw when the cancellation RPC errors", async () => {
+    rpcMock.mockResolvedValueOnce({
+      data: null,
+      error: { message: "rpc blew up" },
+    });
+
+    await expect(
+      service.upsert(USER_ID, {
+        task_id: TASK_ID,
+        day_of_week: 2,
+        local_hour: 20,
+      }),
+    ).resolves.toBeDefined();
   });
 });

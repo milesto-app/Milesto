@@ -1155,7 +1155,7 @@ export type Database = {
     };
     Functions: {
       cancel_pending_intention_jobs: {
-        Args: { p_task_id: string };
+        Args: { p_captured_at: string; p_task_id: string };
         Returns: number;
       };
       claim_notification_copy: {

@@ -122,8 +122,75 @@ export class DebriefService {
         goalId,
         planId: dto.weekly_plan_id,
       });
+      await this.maybeCompleteMilestone(dto.weekly_plan_id, userId, goalId);
     }
     return data as unknown as Debrief;
+  }
+
+  private async maybeCompleteMilestone(
+    weeklyPlanId: string,
+    userId: string,
+    goalId: string,
+  ): Promise<void> {
+    const supabase = this.supabaseService.getAdminClient();
+
+    const { data: plan, error: planErr } = await supabase
+      .from("weekly_plans")
+      .select("milestone_id")
+      .eq("id", weeklyPlanId)
+      .maybeSingle();
+    if (planErr !== null) {
+      this.logger.warn(
+        `Milestone auto-completion: failed to read plan ${weeklyPlanId}: ${planErr.message}`,
+      );
+      return;
+    }
+    if (plan === null) {
+      return;
+    }
+
+    const { count, error: siblingErr } = await supabase
+      .from("weekly_plans")
+      .select("id", { count: "exact", head: true })
+      .eq("milestone_id", plan.milestone_id)
+      .neq("status", "completed");
+    if (siblingErr !== null) {
+      this.logger.warn(
+        `Milestone auto-completion: failed to count siblings for milestone ${plan.milestone_id}: ${siblingErr.message}`,
+      );
+      return;
+    }
+    if ((count ?? 0) > 0) {
+      return;
+    }
+
+    const completedAt = new Date().toISOString();
+    const { data: updated, error: updateErr } = await supabase
+      .from("milestones")
+      .update({ completed_at: completedAt })
+      .eq("id", plan.milestone_id)
+      .is("completed_at", null)
+      .select("id")
+      .maybeSingle();
+    if (updateErr !== null) {
+      this.logger.warn(
+        `Milestone auto-completion: failed to flip ${plan.milestone_id}: ${updateErr.message}`,
+      );
+      return;
+    }
+    if (updated === null) {
+      return;
+    }
+
+    this.eventEmitter.emit("milestone.completed", {
+      userId,
+      milestoneId: plan.milestone_id,
+      goalId,
+      completedAt,
+    });
+    this.logger.log(
+      `Auto-completed milestone ${plan.milestone_id} after final plan ${weeklyPlanId}`,
+    );
   }
 
   private async completeWeeklyPlan(weeklyPlanId: string): Promise<boolean> {

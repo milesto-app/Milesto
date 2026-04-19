@@ -11,7 +11,11 @@ import { DeliveryTelemetryService } from "../deliveries/delivery-telemetry.servi
 import { GateService } from "../gate/gate.service.js";
 import { NotificationsService } from "../notifications.service.js";
 import { OutboxService } from "../outbox/outbox.service.js";
-import type { NotificationKind } from "../outbox/outbox.types.js";
+import {
+  NOTIFICATION_KIND,
+  NOTIFICATION_TIER,
+  type NotificationKind,
+} from "../outbox/outbox.types.js";
 import { nextQuietHoursEnd } from "../producers/local-time.js";
 import { recheckPredicate } from "./predicates.js";
 
@@ -43,15 +47,38 @@ const GLOBAL_CEILING_RESCHEDULE_THRESHOLD_MS =
 const GLOBAL_CEILING_SKIP_REASON = "global_ceiling";
 const GLOBAL_CEILING_CELEBRATION_SKIP_REASON = "global_ceiling_celebration";
 
-// Celebration kinds skip winner-selection/Phase-B grouping per §8.1. The
-// dispatcher does not yet run Phase B, so the only observable difference is
-// that ceiling-skipped celebrations are tagged with a distinct skip_reason for
-// audit visibility — they remain subject to the global ceiling (§8.5).
+// Celebration kinds skip winner-selection/Phase-B grouping per §8.1. They send
+// directly after Phase A and remain subject only to the global ceiling (§8.5).
 const CELEBRATION_KINDS: ReadonlySet<string> = new Set([
   "milestone_hit",
   "goal_hit",
   "week_completed",
 ]);
+
+// Phase-B winner rank (§3.3 of notification-detection-design.md). Earlier in
+// the list = higher priority. Kinds not in the list lose any tie and will be
+// suppressed if they compete against a ranked sibling on the same local day.
+const PHASE_B_RANK_ORDER: readonly string[] = [
+  NOTIFICATION_KIND.STREAK_BROKEN,
+  NOTIFICATION_KIND.IMPLEMENTATION_INTENTION,
+  NOTIFICATION_KIND.DAILY_CHECK_IN,
+  NOTIFICATION_KIND.WEEK_COMPLETION_GAP,
+  NOTIFICATION_KIND.MILESTONE_COUNTDOWN,
+  NOTIFICATION_KIND.MILESTONE_PREVIEW,
+  NOTIFICATION_KIND.GOAL_DEADLINE_COUNTDOWN,
+  NOTIFICATION_KIND.STALE_TASKS,
+  NOTIFICATION_KIND.WINBACK_STEP,
+  NOTIFICATION_KIND.UNEXPECTED_WIN,
+];
+const PHASE_B_RANK: ReadonlyMap<string, number> = new Map(
+  PHASE_B_RANK_ORDER.map((kind, index) => [kind, index]),
+);
+const PHASE_B_WINNER_SKIP_REASON = "phase_b_winner_selected";
+
+interface PhaseBSelection {
+  survivors: NotificationJobRow[];
+  losers: NotificationJobRow[];
+}
 
 @Injectable()
 export class DispatcherService {
@@ -74,39 +101,12 @@ export class DispatcherService {
     }
     this.inFlight = true;
     try {
-      const jobs = await this.claim();
-      if (jobs.length === 0) {
+      const survivors = await this.claimAndFilter();
+      if (survivors.length === 0) {
         return;
       }
-      this.logger.log(
-        `Claimed ${String(jobs.length)} notification jobs (worker=${this.workerId})`,
-      );
-      const generations = await this.loadGenerations(jobs);
-      // Serialize dispatches per user so the global 2/day ceiling check
-      // (which reads send history) cannot race against a concurrent sibling
-      // for the same user in the same batch. Cross-user dispatches still run
-      // in parallel. Each step swallows its own rejection so an unexpected
-      // throw on one job does not cancel the user's remaining jobs.
-      const userChains = new Map<string, Promise<void>>();
-      for (const job of jobs) {
-        const prev = userChains.get(job.user_id) ?? Promise.resolve();
-        const generation =
-          job.copy_generation_id === null
-            ? null
-            : (generations.get(job.copy_generation_id) ?? null);
-        const next = prev.then(async () => {
-          try {
-            await this.dispatch(job, generation);
-          } catch (error) {
-            this.logger.error(
-              `Unhandled error dispatching job ${job.id} (user=${job.user_id})`,
-              error instanceof Error ? error.stack : undefined,
-            );
-          }
-        });
-        userChains.set(job.user_id, next);
-      }
-      await Promise.all(userChains.values());
+      const generations = await this.loadGenerations(survivors);
+      await this.dispatchWithPerUserSerialization(survivors, generations);
     } catch (error) {
       this.logger.error(
         "Dispatcher drain failed",
@@ -115,6 +115,110 @@ export class DispatcherService {
     } finally {
       this.inFlight = false;
     }
+  }
+
+  private async claimAndFilter(): Promise<NotificationJobRow[]> {
+    const jobs = await this.claim();
+    if (jobs.length === 0) {
+      return [];
+    }
+    this.logger.log(
+      `Claimed ${String(jobs.length)} notification jobs (worker=${this.workerId})`,
+    );
+    const { survivors, losers } = this.selectPhaseBWinners(jobs);
+    if (losers.length > 0) {
+      await this.skipPhaseBLosers(losers);
+    }
+    return survivors;
+  }
+
+  private async dispatchWithPerUserSerialization(
+    jobs: NotificationJobRow[],
+    generations: Map<string, CopyGenerationRow>,
+  ): Promise<void> {
+    // Serialize dispatches per user so the global 2/day ceiling check
+    // (which reads send history) cannot race against a concurrent sibling
+    // for the same user in the same batch. Cross-user dispatches still run
+    // in parallel. Each step swallows its own rejection so an unexpected
+    // throw on one job does not cancel the user's remaining jobs.
+    const userChains = new Map<string, Promise<void>>();
+    for (const job of jobs) {
+      const prev = userChains.get(job.user_id) ?? Promise.resolve();
+      const generation =
+        job.copy_generation_id === null
+          ? null
+          : (generations.get(job.copy_generation_id) ?? null);
+      const next = prev.then(async () => {
+        try {
+          await this.dispatch(job, generation);
+        } catch (error) {
+          this.logger.error(
+            `Unhandled error dispatching job ${job.id} (user=${job.user_id})`,
+            error instanceof Error ? error.stack : undefined,
+          );
+        }
+      });
+      userChains.set(job.user_id, next);
+    }
+    await Promise.all(userChains.values());
+  }
+
+  /**
+   * Group claimed non-celebration P2/P3 jobs by (user_id, local_date) and
+   * pick one winner per group via PHASE_B_RANK. Losers are removed from the
+   * dispatch flow and skipped with `phase_b_winner_selected`. Celebrations,
+   * P0/P1, and unknown-tier jobs pass through untouched.
+   *
+   * Tie-breaker order: rank → earliest scheduled_for_utc → lexicographic id.
+   */
+  private selectPhaseBWinners(jobs: NotificationJobRow[]): PhaseBSelection {
+    const passthrough: NotificationJobRow[] = [];
+    const groups = new Map<string, NotificationJobRow[]>();
+    for (const job of jobs) {
+      if (this.isPhaseBCompetitor(job)) {
+        const key = `${job.user_id}|${job.local_date ?? "null"}`;
+        const bucket = groups.get(key) ?? [];
+        bucket.push(job);
+        groups.set(key, bucket);
+      } else {
+        passthrough.push(job);
+      }
+    }
+    if (groups.size === 0) {
+      return { survivors: passthrough, losers: [] };
+    }
+    const winners: NotificationJobRow[] = [];
+    const losers: NotificationJobRow[] = [];
+    for (const bucket of groups.values()) {
+      if (bucket.length === 1) {
+        winners.push(bucket[0] as NotificationJobRow);
+        continue;
+      }
+      const [winner, ...rest] = [...bucket].sort(comparePhaseBCandidates);
+      winners.push(winner as NotificationJobRow);
+      losers.push(...rest);
+    }
+    return { survivors: [...passthrough, ...winners], losers };
+  }
+
+  private isPhaseBCompetitor(job: NotificationJobRow): boolean {
+    if (CELEBRATION_KINDS.has(job.kind)) {
+      return false;
+    }
+    return (
+      job.tier === NOTIFICATION_TIER.P2 || job.tier === NOTIFICATION_TIER.P3
+    );
+  }
+
+  private async skipPhaseBLosers(losers: NotificationJobRow[]): Promise<void> {
+    await Promise.all(
+      losers.map(async (loser) => {
+        await this.outbox.markSkipped(loser.id, PHASE_B_WINNER_SKIP_REASON);
+        this.logger.log(
+          `Phase-B suppressed job ${loser.id} (kind=${loser.kind}, user=${loser.user_id}, local_date=${loser.local_date ?? "null"})`,
+        );
+      }),
+    );
   }
 
   private async claim(): Promise<NotificationJobRow[]> {
@@ -500,6 +604,23 @@ export class DispatcherService {
 // ---------------------------------------------------------------------------
 // helpers
 // ---------------------------------------------------------------------------
+
+function comparePhaseBCandidates(
+  a: NotificationJobRow,
+  b: NotificationJobRow,
+): number {
+  const rankA = PHASE_B_RANK.get(a.kind) ?? Number.POSITIVE_INFINITY;
+  const rankB = PHASE_B_RANK.get(b.kind) ?? Number.POSITIVE_INFINITY;
+  if (rankA !== rankB) {
+    return rankA - rankB;
+  }
+  const timeA = new Date(a.scheduled_for_utc).getTime();
+  const timeB = new Date(b.scheduled_for_utc).getTime();
+  if (timeA !== timeB) {
+    return timeA - timeB;
+  }
+  return a.id.localeCompare(b.id);
+}
 
 function asRecord(value: unknown): Record<string, unknown> | null {
   if (value === null || typeof value !== "object" || Array.isArray(value)) {
