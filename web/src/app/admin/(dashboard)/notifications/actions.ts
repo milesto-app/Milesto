@@ -19,6 +19,14 @@ export type PreviewCopyPayload = {
   coachId?: number;
   stubTitle: string;
   stubTeaser: string;
+  userId?: string;
+};
+
+export type PreviewCopyResolvedContext = {
+  language: "en" | "fr";
+  coachId: number | null;
+  memoryHooks: Record<string, unknown>;
+  kindSpecific: Record<string, unknown>;
 };
 
 export type PreviewCopyResult =
@@ -34,6 +42,7 @@ export type PreviewCopyResult =
       latencyMs: number;
       attemptsUsed: number;
       providerStatus: number | null;
+      resolvedContext: PreviewCopyResolvedContext;
     }
   | { ok: false; status: number; message: string };
 
@@ -162,6 +171,12 @@ export async function previewNotificationCopy(
       latencyMs: Number(data.latencyMs ?? 0),
       attemptsUsed: Number(data.attemptsUsed ?? 0),
       providerStatus: data.providerStatus ?? null,
+      resolvedContext: {
+        language: data.resolvedContext?.language ?? payload.language,
+        coachId: data.resolvedContext?.coachId ?? null,
+        memoryHooks: data.resolvedContext?.memoryHooks ?? {},
+        kindSpecific: data.resolvedContext?.kindSpecific ?? {},
+      },
     };
   } catch {
     clearTimeout(timeout);
