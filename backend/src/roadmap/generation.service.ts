@@ -20,9 +20,9 @@ import {
   buildWeeklyTasksUserPrompt,
 } from "./prompts/weekly-task-prompts.js";
 import type { AssembledContext } from "./types/context.types.js";
-import type { GeneratedMilestone } from "./types/generated-milestone.js";
-import type { GeneratedWeeklyPlan } from "./types/generated-weekly-plan.js";
-import type { GeneratedWeeklyTask } from "./types/generated-weekly-task.js";
+import type { GeneratedMilestone } from "./types/generated-milestone.types.js";
+import type { GeneratedWeeklyPlan } from "./types/generated-weekly-plan.types.js";
+import type { GeneratedWeeklyTask } from "./types/generated-weekly-task.types.js";
 import type {
   GenerateWeeklyPlanParams,
   GenerateWeeklyTasksParams,

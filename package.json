@@ -19,6 +19,7 @@
     "lint:ios": "cd ios && swiftformat --verbose --swiftversion 5 --exclude Momentum/Sources/Shared/Components/TablerIcons.swift .",
     "test": "bun run test:backend",
     "test:backend": "bun run --cwd backend test",
+    "types:sync": "cp backend/src/supabase/database.types.ts web/src/lib/supabase/database.types.ts",
     "clean": "rm -rf backend/dist backend/node_modules web/.next web/node_modules"
   }
 }

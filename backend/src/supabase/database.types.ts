@@ -1025,6 +1025,37 @@ export type Database = {
       [_ in never]: never;
     };
     Functions: {
+      claim_notification_jobs: {
+        Args: { p_batch_size?: number; p_worker_id: string };
+        Returns: {
+          attempts: number;
+          claimed_at: string | null;
+          claimed_by: string | null;
+          created_at: string;
+          dedup_key: string;
+          experiment_id: string | null;
+          id: string;
+          kind: string;
+          last_error: string | null;
+          local_date: string | null;
+          payload: Json;
+          scheduled_for_utc: string;
+          sent_at: string | null;
+          sequence_id: string | null;
+          sequence_step: number | null;
+          skip_reason: string | null;
+          status: string;
+          tier: number;
+          user_id: string;
+          variant: string | null;
+        }[];
+        SetofOptions: {
+          from: "*";
+          to: "notification_jobs";
+          isOneToOne: false;
+          isSetofReturn: true;
+        };
+      };
       match_goal_context: {
         Args: {
           match_count?: number;
@@ -1041,10 +1072,6 @@ export type Database = {
           metadata: Json;
           similarity: number;
         }[];
-      };
-      claim_notification_jobs: {
-        Args: { p_worker_id: string; p_batch_size?: number };
-        Returns: Database["public"]["Tables"]["notification_jobs"]["Row"][];
       };
       populate_milestone_target_dates: {
         Args: { p_goal_id: string };

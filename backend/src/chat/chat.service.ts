@@ -121,7 +121,6 @@ export class ChatService {
           goalId: opts.goalId,
           conversationId: opts.conversationId,
           messageId: stored.id,
-          content,
         });
         return;
       }

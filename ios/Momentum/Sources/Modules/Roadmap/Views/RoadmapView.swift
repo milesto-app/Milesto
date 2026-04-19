@@ -19,11 +19,11 @@ struct RoadmapView: View {
     let goalId: String
     var onGoalChanged: ((String) -> Void)?
 
-    @Environment(\.modelContext) private var modelContext
-    @Query private var localGoals: [LocalGoal]
-    @State private var milestones: [DisplayMilestone] = []
-    @State private var isLoading = true
-    @State private var appeared = false
+    @Environment(\.modelContext) var modelContext
+    @Query var localGoals: [LocalGoal]
+    @State var milestones: [DisplayMilestone] = []
+    @State var isLoading = true
+    @State var appeared = false
     @State private var selectedMilestone: DisplayMilestone?
 
     private var currentGoal: LocalGoal? {
@@ -32,6 +32,13 @@ struct RoadmapView: View {
 
     private var switchableGoals: [LocalGoal] {
         localGoals.filter { $0.status == "active" || $0.status == ProfileStatus.intakeCompleted.rawValue }
+    }
+
+    private var completionProgress: Double {
+        guard !milestones.isEmpty else { return 0 }
+        let completed = Double(milestones.filter { $0.status == .completed }.count)
+        let currentProgress = milestones.contains(where: { $0.status == .current }) ? currentTaskProgress() : 0
+        return (completed + currentProgress) / Double(milestones.count)
     }
 
     var body: some View {
@@ -43,14 +50,27 @@ struct RoadmapView: View {
                 } else {
                     ScrollView(showsIndicators: false) {
                         VStack(spacing: 0) {
-                            headerSection
+                            RoadmapHeaderSection(
+                                goalTitle: currentGoal?.title ?? "",
+                                goalId: goalId,
+                                switchableGoals: switchableGoals,
+                                completionProgress: completionProgress,
+                                appeared: appeared,
+                                onGoalChanged: onGoalChanged
+                            )
 
                             VStack(spacing: 0) {
                                 ForEach(Array(milestones.enumerated()), id: \.element.id) { index, milestone in
                                     Button {
                                         selectedMilestone = milestone
                                     } label: {
-                                        milestoneRow(milestone: milestone, index: index)
+                                        RoadmapMilestoneRow(
+                                            milestone: milestone,
+                                            index: index,
+                                            total: milestones.count,
+                                            previousStatus: index > 0 ? milestones[index - 1].status : nil,
+                                            nextStatus: index < milestones.count - 1 ? milestones[index + 1].status : nil
+                                        )
                                     }
                                     .buttonStyle(.plain)
                                     .opacity(appeared ? 1 : 0)
@@ -101,349 +121,6 @@ struct RoadmapView: View {
                     appeared = true
                 }
             }
-        }
-    }
-
-    private var completionProgress: Double {
-        guard !milestones.isEmpty else { return 0 }
-        let completed = Double(milestones.filter { $0.status == .completed }.count)
-        let currentProgress = milestones.contains(where: { $0.status == .current }) ? currentTaskProgress() : 0
-        return (completed + currentProgress) / Double(milestones.count)
-    }
-
-    private var headerSection: some View {
-        HStack(alignment: .top) {
-            VStack(alignment: .leading, spacing: 8) {
-                AppText("roadmap.journey.subtitle", table: "Roadmap", style: .caption)
-                    .color(Color("TextSecondary"))
-
-                if switchableGoals.count > 1 {
-                    Menu {
-                        ForEach(switchableGoals, id: \.id) { goal in
-                            Button(goal.title) {
-                                if goal.id != goalId {
-                                    onGoalChanged?(goal.id)
-                                }
-                            }
-                        }
-                    } label: {
-                        HStack(spacing: 8) {
-                            AppText(verbatim: currentGoal?.title ?? "", style: .largeTitle)
-                            TablerIcons(.chevronDown, size: 20, color: Color("TextSecondary"))
-                        }
-                    }
-                } else {
-                    AppText(verbatim: currentGoal?.title ?? "", style: .largeTitle)
-                }
-            }
-
-            Spacer()
-
-            ZStack {
-                Circle()
-                    .stroke(Color("TextSecondary").opacity(0.15), lineWidth: 4)
-                Circle()
-                    .trim(from: 0, to: completionProgress)
-                    .stroke(Color("TintPrimary"), style: StrokeStyle(lineWidth: 4, lineCap: .round))
-                    .rotationEffect(.degrees(-90))
-                AppText(
-                    verbatim: "\(Int(completionProgress * 100))%",
-                    style: .caption
-                )
-                .weight(.semibold)
-                .color(Color("TintPrimary"))
-            }
-            .frame(width: 44, height: 44)
-        }
-        .padding(.horizontal, 24)
-        .padding(.top, 32)
-        .padding(.bottom, 20)
-        .opacity(appeared ? 1 : 0)
-        .animation(.easeOut(duration: 0.5), value: appeared)
-    }
-
-    private func milestoneRow(milestone: DisplayMilestone, index: Int) -> some View {
-        let isFirst = index == 0
-        let isLast = index == milestones.count - 1
-        let verticalPad: CGFloat = 20
-
-        return HStack(alignment: .center, spacing: 14) {
-            VStack(spacing: 0) {
-                if isFirst {
-                    Spacer().frame(height: 14)
-                } else {
-                    Rectangle()
-                        .fill(connectorColor(from: milestones[index - 1].status, to: milestone.status))
-                        .frame(width: 2)
-                        .frame(maxHeight: .infinity)
-                }
-
-                Spacer().frame(height: 4)
-                timelineDot(milestone: milestone)
-                Spacer().frame(height: 4)
-
-                if isLast {
-                    Spacer().frame(minHeight: 0)
-                } else {
-                    Rectangle()
-                        .fill(connectorColor(from: milestone.status, to: milestones[index + 1].status))
-                        .frame(width: 2)
-                        .frame(maxHeight: .infinity)
-                }
-            }
-            .frame(width: 32)
-
-            VStack(alignment: .leading, spacing: 4) {
-                AppText(
-                    verbatim: milestone.title,
-                    style: milestone.isKeyMilestone ? .headline : .body
-                )
-                .weight((milestone.isKeyMilestone || milestone.isMonthlyCheckpoint) ? .medium : .regular)
-                .color(milestone.status == .upcoming ? Color("TextSecondary") : Color("TextPrimary"))
-                .lineLimit(1)
-            }
-            .padding(.vertical, verticalPad)
-            .frame(maxWidth: .infinity, alignment: .leading)
-
-            VStack {
-                Spacer()
-                TablerIcons(.chevronRight, size: 16, color: Color("TextSecondary").opacity(0.3))
-                Spacer()
-            }
-        }
-    }
-
-    private func timelineDot(milestone: DisplayMilestone) -> some View {
-        let isSpecial = milestone.isKeyMilestone || milestone.isMonthlyCheckpoint
-        let size: CGFloat = isSpecial ? 28 : 16
-
-        return ZStack {
-            switch milestone.status {
-            case .completed:
-                Circle()
-                    .fill(Color("AccentColor"))
-                    .frame(width: size, height: size)
-            case .current:
-                Circle()
-                    .stroke(Color("AccentColor"), lineWidth: 2)
-                    .frame(width: size, height: size)
-            case .upcoming:
-                Circle()
-                    .stroke(Color("BgSurface"), lineWidth: 2)
-                    .frame(width: size, height: size)
-            }
-
-            dotIcon(milestone)
-        }
-    }
-
-    private func dotIcon(_ milestone: DisplayMilestone) -> some View {
-        let accentColor = Color("TextOnAccent")
-        let mutedColor = Color("TextSecondary")
-
-        return Group {
-            if milestone.isKeyMilestone {
-                TablerIcons(.trophy, size: 14, color: milestone.status == .upcoming ? mutedColor : accentColor)
-            } else if milestone.isMonthlyCheckpoint {
-                TablerIcons(.targetArrow, size: 14, color: milestone.status == .upcoming ? mutedColor : accentColor)
-            } else {
-                switch milestone.status {
-                case .completed:
-                    TablerIcons(.check, size: 10, color: accentColor)
-                case .current, .upcoming:
-                    EmptyView()
-                }
-            }
-        }
-    }
-
-    private func currentTaskProgress() -> Double {
-        let goalId = goalId
-        let descriptor = FetchDescriptor<LocalWeeklyTask>(
-            predicate: #Predicate { $0.goalId == goalId }
-        )
-        guard let tasks = try? modelContext.fetch(descriptor), !tasks.isEmpty else { return 0 }
-        let completed = tasks.filter(\.isCompleted).count
-        return Double(completed) / Double(tasks.count)
-    }
-
-    private func connectorColor(from: MilestoneStatus, to: MilestoneStatus) -> Color {
-        switch (from, to) {
-        case (.completed, .completed), (.completed, .current):
-            Color("AccentColor").opacity(0.4)
-        default:
-            Color("TextSecondary").opacity(0.15)
-        }
-    }
-
-    private func loadMilestones() async {
-        let cached = fetchCachedMilestones()
-        if !cached.isEmpty {
-            milestones = cached
-            isLoading = false
-            if !appeared {
-                appeared = true
-            }
-        }
-
-        do {
-            let roadmap = try await RoadmapAPIService.shared.getRoadmap(goalId: goalId)
-            guard let dtos = roadmap.milestones else { return }
-
-            syncRoadmapToCache(roadmap)
-
-            let sorted = dtos.sorted { $0.orderIndex < $1.orderIndex }
-            let currentMilestoneId = roadmap.currentMilestoneId
-            var foundCurrent = false
-
-            milestones = sorted.enumerated().map { index, dto in
-                let status: MilestoneStatus
-                if let currentId = currentMilestoneId {
-                    if dto.id == currentId {
-                        status = .current
-                        foundCurrent = true
-                    } else if !foundCurrent {
-                        status = .completed
-                    } else {
-                        status = .upcoming
-                    }
-                } else {
-                    status = index == 0 ? .current : .upcoming
-                }
-
-                return DisplayMilestone(
-                    id: dto.id,
-                    title: dto.title,
-                    description: dto.description,
-                    targetMonth: dto.targetMonth,
-                    targetWeek: dto.targetWeek,
-                    isMonthlyCheckpoint: dto.isMonthlyCheckpoint,
-                    orderIndex: dto.orderIndex,
-                    expectedOutcome: dto.expectedOutcome,
-                    status: status,
-                    progress: status == .current ? currentTaskProgress() : (status == .completed ? 1.0 : 0.0),
-                    isKeyMilestone: index == sorted.count - 1
-                )
-            }
-        } catch {}
-        isLoading = false
-    }
-
-    private func fetchCachedMilestones() -> [DisplayMilestone] {
-        let goalId = goalId
-        let descriptor = FetchDescriptor<LocalRoadmap>(
-            predicate: #Predicate { $0.goalId == goalId }
-        )
-        guard let localRoadmap = try? modelContext.fetch(descriptor).first,
-              !localRoadmap.milestones.isEmpty else { return [] }
-
-        let sorted = localRoadmap.milestones.sorted { $0.orderIndex < $1.orderIndex }
-        let currentMilestoneId = localRoadmap.currentMilestoneId
-        var foundCurrent = false
-
-        return sorted.enumerated().map { index, local in
-            let status: MilestoneStatus
-            if let currentId = currentMilestoneId {
-                if local.id == currentId {
-                    status = .current
-                    foundCurrent = true
-                } else if !foundCurrent {
-                    status = .completed
-                } else {
-                    status = .upcoming
-                }
-            } else {
-                status = index == 0 ? .current : .upcoming
-            }
-
-            return DisplayMilestone(
-                id: local.id,
-                title: local.title,
-                description: local.milestoneDescription,
-                targetMonth: local.targetMonth,
-                targetWeek: local.targetWeek,
-                isMonthlyCheckpoint: local.isMonthlyCheckpoint,
-                orderIndex: local.orderIndex,
-                expectedOutcome: local.expectedOutcome,
-                status: status,
-                progress: status == .current ? currentTaskProgress() : (status == .completed ? 1.0 : 0.0),
-                isKeyMilestone: index == sorted.count - 1
-            )
-        }
-    }
-
-    private func syncRoadmapToCache(_ dto: RoadmapDTO) {
-        let goalId = goalId
-        let descriptor = FetchDescriptor<LocalRoadmap>(
-            predicate: #Predicate { $0.goalId == goalId }
-        )
-
-        if let existing = try? modelContext.fetch(descriptor).first {
-            existing.status = dto.status.rawValue
-            existing.updatedAt = dto.updatedAt
-            existing.currentMilestoneId = dto.currentMilestoneId
-
-            if let dtos = dto.milestones {
-                let existingById = Dictionary(uniqueKeysWithValues: existing.milestones.map { ($0.id, $0) })
-                let remoteIds = Set(dtos.map(\.id))
-
-                for milestoneDTO in dtos {
-                    if let local = existingById[milestoneDTO.id] {
-                        local.title = milestoneDTO.title
-                        local.milestoneDescription = milestoneDTO.description
-                        local.expectedOutcome = milestoneDTO.expectedOutcome
-                        local.targetMonth = milestoneDTO.targetMonth
-                        local.targetWeek = milestoneDTO.targetWeek
-                        local.isMonthlyCheckpoint = milestoneDTO.isMonthlyCheckpoint
-                        local.orderIndex = milestoneDTO.orderIndex
-                    } else {
-                        let local = LocalMilestone(
-                            id: milestoneDTO.id,
-                            goalId: milestoneDTO.goalId,
-                            orderIndex: milestoneDTO.orderIndex,
-                            title: milestoneDTO.title,
-                            milestoneDescription: milestoneDTO.description,
-                            expectedOutcome: milestoneDTO.expectedOutcome,
-                            targetMonth: milestoneDTO.targetMonth,
-                            targetWeek: milestoneDTO.targetWeek,
-                            isMonthlyCheckpoint: milestoneDTO.isMonthlyCheckpoint,
-                            createdAt: milestoneDTO.createdAt
-                        )
-                        local.roadmap = existing
-                        existing.milestones.append(local)
-                    }
-                }
-
-                for local in existing.milestones where !remoteIds.contains(local.id) {
-                    modelContext.delete(local)
-                }
-            }
-        } else {
-            let localMilestones = (dto.milestones ?? []).map { milestoneDTO in
-                LocalMilestone(
-                    id: milestoneDTO.id,
-                    goalId: milestoneDTO.goalId,
-                    orderIndex: milestoneDTO.orderIndex,
-                    title: milestoneDTO.title,
-                    milestoneDescription: milestoneDTO.description,
-                    expectedOutcome: milestoneDTO.expectedOutcome,
-                    targetMonth: milestoneDTO.targetMonth,
-                    targetWeek: milestoneDTO.targetWeek,
-                    isMonthlyCheckpoint: milestoneDTO.isMonthlyCheckpoint,
-                    createdAt: milestoneDTO.createdAt
-                )
-            }
-
-            let local = LocalRoadmap(
-                goalId: dto.goalId,
-                userId: dto.userId,
-                status: dto.status.rawValue,
-                createdAt: dto.createdAt,
-                updatedAt: dto.updatedAt,
-                currentMilestoneId: dto.currentMilestoneId,
-                milestones: localMilestones
-            )
-            modelContext.insert(local)
         }
     }
 }

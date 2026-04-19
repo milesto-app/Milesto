@@ -1,4 +1,3 @@
-/* eslint-disable max-lines, @typescript-eslint/naming-convention */
 export type Json =
   | string
   | number
@@ -255,6 +254,7 @@ export type Database = {
           title: string;
           updated_at: string;
           user_id: string;
+          user_motivation_quote: string | null;
         };
         Insert: {
           created_at?: string;
@@ -278,6 +278,7 @@ export type Database = {
           title: string;
           updated_at?: string;
           user_id: string;
+          user_motivation_quote?: string | null;
         };
         Update: {
           created_at?: string;
@@ -301,6 +302,7 @@ export type Database = {
           title?: string;
           updated_at?: string;
           user_id?: string;
+          user_motivation_quote?: string | null;
         };
         Relationships: [];
       };
@@ -451,6 +453,7 @@ export type Database = {
       };
       milestones: {
         Row: {
+          completed_at: string | null;
           created_at: string | null;
           description: string;
           expected_outcome: string;
@@ -459,11 +462,13 @@ export type Database = {
           is_monthly_checkpoint: boolean;
           monthly_summary: Json | null;
           order_index: number;
+          target_date: string | null;
           target_month: number;
           target_week: number;
           title: string;
         };
         Insert: {
+          completed_at?: string | null;
           created_at?: string | null;
           description: string;
           expected_outcome: string;
@@ -472,11 +477,13 @@ export type Database = {
           is_monthly_checkpoint?: boolean;
           monthly_summary?: Json | null;
           order_index: number;
+          target_date?: string | null;
           target_month: number;
           target_week: number;
           title: string;
         };
         Update: {
+          completed_at?: string | null;
           created_at?: string | null;
           description?: string;
           expected_outcome?: string;
@@ -485,6 +492,7 @@ export type Database = {
           is_monthly_checkpoint?: boolean;
           monthly_summary?: Json | null;
           order_index?: number;
+          target_date?: string | null;
           target_month?: number;
           target_week?: number;
           title?: string;
@@ -499,6 +507,194 @@ export type Database = {
           },
         ];
       };
+      notification_deliveries: {
+        Row: {
+          apns_response: Json | null;
+          created_at: string;
+          device_token: string;
+          dismissed_at: string | null;
+          id: string;
+          job_id: string;
+          opened_at: string | null;
+          received_at: string | null;
+          sent_at: string | null;
+        };
+        Insert: {
+          apns_response?: Json | null;
+          created_at?: string;
+          device_token: string;
+          dismissed_at?: string | null;
+          id?: string;
+          job_id: string;
+          opened_at?: string | null;
+          received_at?: string | null;
+          sent_at?: string | null;
+        };
+        Update: {
+          apns_response?: Json | null;
+          created_at?: string;
+          device_token?: string;
+          dismissed_at?: string | null;
+          id?: string;
+          job_id?: string;
+          opened_at?: string | null;
+          received_at?: string | null;
+          sent_at?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "notification_deliveries_job_id_fkey";
+            columns: ["job_id"];
+            isOneToOne: false;
+            referencedRelation: "notification_jobs";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      notification_experiments: {
+        Row: {
+          concluded_at: string | null;
+          created_at: string;
+          id: string;
+          kind: string;
+          started_at: string | null;
+          status: string;
+          variants: Json;
+          winner: string | null;
+        };
+        Insert: {
+          concluded_at?: string | null;
+          created_at?: string;
+          id: string;
+          kind: string;
+          started_at?: string | null;
+          status?: string;
+          variants?: Json;
+          winner?: string | null;
+        };
+        Update: {
+          concluded_at?: string | null;
+          created_at?: string;
+          id?: string;
+          kind?: string;
+          started_at?: string | null;
+          status?: string;
+          variants?: Json;
+          winner?: string | null;
+        };
+        Relationships: [];
+      };
+      notification_jobs: {
+        Row: {
+          attempts: number;
+          claimed_at: string | null;
+          claimed_by: string | null;
+          created_at: string;
+          dedup_key: string;
+          experiment_id: string | null;
+          id: string;
+          kind: string;
+          last_error: string | null;
+          local_date: string | null;
+          payload: Json;
+          scheduled_for_utc: string;
+          sent_at: string | null;
+          sequence_id: string | null;
+          sequence_step: number | null;
+          skip_reason: string | null;
+          status: string;
+          tier: number;
+          user_id: string;
+          variant: string | null;
+        };
+        Insert: {
+          attempts?: number;
+          claimed_at?: string | null;
+          claimed_by?: string | null;
+          created_at?: string;
+          dedup_key: string;
+          experiment_id?: string | null;
+          id?: string;
+          kind: string;
+          last_error?: string | null;
+          local_date?: string | null;
+          payload?: Json;
+          scheduled_for_utc: string;
+          sent_at?: string | null;
+          sequence_id?: string | null;
+          sequence_step?: number | null;
+          skip_reason?: string | null;
+          status?: string;
+          tier: number;
+          user_id: string;
+          variant?: string | null;
+        };
+        Update: {
+          attempts?: number;
+          claimed_at?: string | null;
+          claimed_by?: string | null;
+          created_at?: string;
+          dedup_key?: string;
+          experiment_id?: string | null;
+          id?: string;
+          kind?: string;
+          last_error?: string | null;
+          local_date?: string | null;
+          payload?: Json;
+          scheduled_for_utc?: string;
+          sent_at?: string | null;
+          sequence_id?: string | null;
+          sequence_step?: number | null;
+          skip_reason?: string | null;
+          status?: string;
+          tier?: number;
+          user_id?: string;
+          variant?: string | null;
+        };
+        Relationships: [];
+      };
+      notification_system_alerts: {
+        Row: {
+          created_at: string;
+          id: string;
+          kind: string;
+          payload: Json;
+        };
+        Insert: {
+          created_at?: string;
+          id?: string;
+          kind: string;
+          payload?: Json;
+        };
+        Update: {
+          created_at?: string;
+          id?: string;
+          kind?: string;
+          payload?: Json;
+        };
+        Relationships: [];
+      };
+      processed_notifications: {
+        Row: {
+          notification_type: string;
+          notification_uuid: string;
+          received_at: string;
+          subtype: string | null;
+        };
+        Insert: {
+          notification_type: string;
+          notification_uuid: string;
+          received_at?: string;
+          subtype?: string | null;
+        };
+        Update: {
+          notification_type?: string;
+          notification_uuid?: string;
+          received_at?: string;
+          subtype?: string | null;
+        };
+        Relationships: [];
+      };
       profiles: {
         Row: {
           coach_id: number | null;
@@ -507,12 +703,24 @@ export type Database = {
           first_name: string | null;
           id: string;
           language: string | null;
+          last_active_at: string | null;
           last_name: string | null;
+          notif_enabled: boolean;
+          notif_permission_requested_at: string | null;
+          notif_permission_status: string;
+          notif_preferences: Json;
+          notif_quiet_end: number | null;
+          notif_quiet_start: number | null;
+          sto_active_hour: number | null;
+          subscription_apple_signed_at: string | null;
+          subscription_auto_renew_status: boolean | null;
+          subscription_environment: string | null;
           subscription_expires_at: string | null;
           subscription_original_transaction_id: string | null;
           subscription_product_id: string | null;
           subscription_status: string;
           subscription_verified_at: string | null;
+          tenure_start_date: string | null;
           timezone: string | null;
           updated_at: string | null;
         };
@@ -523,12 +731,24 @@ export type Database = {
           first_name?: string | null;
           id: string;
           language?: string | null;
+          last_active_at?: string | null;
           last_name?: string | null;
+          notif_enabled?: boolean;
+          notif_permission_requested_at?: string | null;
+          notif_permission_status?: string;
+          notif_preferences?: Json;
+          notif_quiet_end?: number | null;
+          notif_quiet_start?: number | null;
+          sto_active_hour?: number | null;
+          subscription_apple_signed_at?: string | null;
+          subscription_auto_renew_status?: boolean | null;
+          subscription_environment?: string | null;
           subscription_expires_at?: string | null;
           subscription_original_transaction_id?: string | null;
           subscription_product_id?: string | null;
           subscription_status?: string;
           subscription_verified_at?: string | null;
+          tenure_start_date?: string | null;
           timezone?: string | null;
           updated_at?: string | null;
         };
@@ -539,20 +759,104 @@ export type Database = {
           first_name?: string | null;
           id?: string;
           language?: string | null;
+          last_active_at?: string | null;
           last_name?: string | null;
+          notif_enabled?: boolean;
+          notif_permission_requested_at?: string | null;
+          notif_permission_status?: string;
+          notif_preferences?: Json;
+          notif_quiet_end?: number | null;
+          notif_quiet_start?: number | null;
+          sto_active_hour?: number | null;
+          subscription_apple_signed_at?: string | null;
+          subscription_auto_renew_status?: boolean | null;
+          subscription_environment?: string | null;
           subscription_expires_at?: string | null;
           subscription_original_transaction_id?: string | null;
           subscription_product_id?: string | null;
           subscription_status?: string;
           subscription_verified_at?: string | null;
+          tenure_start_date?: string | null;
           timezone?: string | null;
           updated_at?: string | null;
         };
         Relationships: [];
       };
+      user_activity_events: {
+        Row: {
+          id: number;
+          kind: string;
+          local_hour: number | null;
+          occurred_at: string;
+          user_id: string;
+        };
+        Insert: {
+          id?: number;
+          kind: string;
+          local_hour?: number | null;
+          occurred_at?: string;
+          user_id: string;
+        };
+        Update: {
+          id?: number;
+          kind?: string;
+          local_hour?: number | null;
+          occurred_at?: string;
+          user_id?: string;
+        };
+        Relationships: [];
+      };
+      user_streaks: {
+        Row: {
+          created_at: string;
+          current_weeks: number;
+          freeze_tokens: number;
+          freezes_last_granted_at: string | null;
+          goal_id: string;
+          id: string;
+          last_extended_at: string | null;
+          last_extended_week: string | null;
+          longest_weeks: number;
+          user_id: string;
+        };
+        Insert: {
+          created_at?: string;
+          current_weeks?: number;
+          freeze_tokens?: number;
+          freezes_last_granted_at?: string | null;
+          goal_id: string;
+          id?: string;
+          last_extended_at?: string | null;
+          last_extended_week?: string | null;
+          longest_weeks?: number;
+          user_id: string;
+        };
+        Update: {
+          created_at?: string;
+          current_weeks?: number;
+          freeze_tokens?: number;
+          freezes_last_granted_at?: string | null;
+          goal_id?: string;
+          id?: string;
+          last_extended_at?: string | null;
+          last_extended_week?: string | null;
+          longest_weeks?: number;
+          user_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "user_streaks_goal_id_fkey";
+            columns: ["goal_id"];
+            isOneToOne: false;
+            referencedRelation: "goals";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       weekly_plans: {
         Row: {
           created_at: string | null;
+          expected_end_date: string | null;
           generation_context: Json | null;
           generation_metadata: Json | null;
           goal_id: string;
@@ -570,6 +874,7 @@ export type Database = {
         };
         Insert: {
           created_at?: string | null;
+          expected_end_date?: string | null;
           generation_context?: Json | null;
           generation_metadata?: Json | null;
           goal_id: string;
@@ -587,6 +892,7 @@ export type Database = {
         };
         Update: {
           created_at?: string | null;
+          expected_end_date?: string | null;
           generation_context?: Json | null;
           generation_metadata?: Json | null;
           goal_id?: string;
@@ -619,8 +925,41 @@ export type Database = {
           },
         ];
       };
+      weekly_task_intentions: {
+        Row: {
+          captured_at: string;
+          day_of_week: number;
+          local_hour: number;
+          location_label: string | null;
+          task_id: string;
+        };
+        Insert: {
+          captured_at?: string;
+          day_of_week: number;
+          local_hour: number;
+          location_label?: string | null;
+          task_id: string;
+        };
+        Update: {
+          captured_at?: string;
+          day_of_week?: number;
+          local_hour?: number;
+          location_label?: string | null;
+          task_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "weekly_task_intentions_task_id_fkey";
+            columns: ["task_id"];
+            isOneToOne: true;
+            referencedRelation: "weekly_tasks";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       weekly_tasks: {
         Row: {
+          completed_at: string | null;
           created_at: string | null;
           description: string;
           difficulty_rating: string | null;
@@ -635,6 +974,7 @@ export type Database = {
           weekly_plan_id: string;
         };
         Insert: {
+          completed_at?: string | null;
           created_at?: string | null;
           description: string;
           difficulty_rating?: string | null;
@@ -649,6 +989,7 @@ export type Database = {
           weekly_plan_id: string;
         };
         Update: {
+          completed_at?: string | null;
           created_at?: string | null;
           description?: string;
           difficulty_rating?: string | null;
@@ -684,6 +1025,37 @@ export type Database = {
       [_ in never]: never;
     };
     Functions: {
+      claim_notification_jobs: {
+        Args: { p_batch_size?: number; p_worker_id: string };
+        Returns: {
+          attempts: number;
+          claimed_at: string | null;
+          claimed_by: string | null;
+          created_at: string;
+          dedup_key: string;
+          experiment_id: string | null;
+          id: string;
+          kind: string;
+          last_error: string | null;
+          local_date: string | null;
+          payload: Json;
+          scheduled_for_utc: string;
+          sent_at: string | null;
+          sequence_id: string | null;
+          sequence_step: number | null;
+          skip_reason: string | null;
+          status: string;
+          tier: number;
+          user_id: string;
+          variant: string | null;
+        }[];
+        SetofOptions: {
+          from: "*";
+          to: "notification_jobs";
+          isOneToOne: false;
+          isSetofReturn: true;
+        };
+      };
       match_goal_context: {
         Args: {
           match_count?: number;
@@ -700,6 +1072,14 @@ export type Database = {
           metadata: Json;
           similarity: number;
         }[];
+      };
+      populate_milestone_target_dates: {
+        Args: { p_goal_id: string };
+        Returns: undefined;
+      };
+      record_user_activity: {
+        Args: { p_kind: string; p_occurred_at?: string; p_user_id: string };
+        Returns: undefined;
       };
       reserve_generation: {
         Args: {

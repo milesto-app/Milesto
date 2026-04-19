@@ -12,16 +12,43 @@ import type {
   MonthlySummary,
   WeekData,
   WeeklyPlan,
+  WeeklySummary,
 } from "./types/weekly-plan.types.js";
 import { WeeklyPlanDataService } from "./weekly-plan-data.service.js";
-import {
-  formatMonthlySummaryForEmbedding,
-  formatSummaryForEmbedding,
-} from "./weekly-plan-format.js";
 import { WeeklyPlanQueryService } from "./weekly-plan-query.service.js";
 import { WeeklyPlanStorageService } from "./weekly-plan-storage.service.js";
 
 const DAYS_PER_WEEK = 7;
+
+function formatSummaryForEmbedding(
+  summary: WeeklySummary,
+  weekNumber: number,
+): string {
+  const lines = [
+    `Weekly Summary (Week ${String(weekNumber)}):`,
+    `Completion: ${String(summary.tasks_completed)}/${String(summary.tasks_total)} (${String(summary.completion_rate)}%)`,
+    `Debriefs: ${String(summary.debrief_count ?? 0)}`,
+  ];
+  if (summary.narrative !== undefined && summary.narrative.length > 0) {
+    lines.push(summary.narrative);
+  }
+  return lines.join("\n");
+}
+
+function formatMonthlySummaryForEmbedding(
+  summary: MonthlySummary,
+  targetMonth: number,
+): string {
+  const lines = [
+    `Monthly Summary (Month ${String(targetMonth)}):`,
+    `Completion: ${String(summary.tasks_completed)}/${String(summary.tasks_total)} (${String(summary.completion_rate)}%)`,
+    `Debriefs: ${String(summary.debrief_count)}`,
+  ];
+  if (summary.narrative !== undefined && summary.narrative.length > 0) {
+    lines.push(summary.narrative);
+  }
+  return lines.join("\n");
+}
 
 interface WeeklyPlanDeps {
   contextPipeline: ContextPipelineService;
