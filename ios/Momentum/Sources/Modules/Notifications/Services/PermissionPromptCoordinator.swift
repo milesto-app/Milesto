@@ -18,10 +18,16 @@ final class PermissionPromptCoordinator: ObservableObject {
     private var cachedStatus: NotifPermissionStatus = .notRequested
     private var accountCreatedAt: Date?
     private var didFireThisSession = false
+    private var boundAccountId: String?
 
     private init() {}
 
-    func updateFromProfile(status: String?, accountCreatedAt: Date?) {
+    func updateFromProfile(userId: String?, status: String?, accountCreatedAt: Date?) {
+        if userId != boundAccountId {
+            boundAccountId = userId
+            didFireThisSession = false
+            isExplainerVisible = false
+        }
         self.accountCreatedAt = accountCreatedAt
         if let status, let parsed = NotifPermissionStatus(rawValue: status) {
             cachedStatus = parsed

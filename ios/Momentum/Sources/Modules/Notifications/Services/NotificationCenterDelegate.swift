@@ -48,20 +48,21 @@ extension NotificationCenterDelegate: UNUserNotificationCenterDelegate {
     ) {
         let userInfo = response.notification.request.content.userInfo
         let actionId = response.actionIdentifier
+        let payload = NotificationPayload(userInfo: userInfo)
 
-        Task { @MainActor in
-            let payload = NotificationPayload(userInfo: userInfo)
-
-            if let jobId = payload.jobId, let deviceToken = SharedKeychain.apnsDeviceToken() {
+        if let jobId = payload.jobId, let deviceToken = SharedKeychain.apnsDeviceToken() {
+            Task.detached {
                 await NotificationTelemetryAPIService.shared.reportOpened(jobId: jobId, deviceToken: deviceToken)
             }
+        }
 
-            let url: URL? = if actionId == Self.whyActionIdentifier {
-                payload.whyDeeplink
-            } else {
-                payload.ctaDeeplink
-            }
+        let url: URL? = if actionId == Self.whyActionIdentifier {
+            payload.whyDeeplink
+        } else {
+            payload.ctaDeeplink
+        }
 
+        Task { @MainActor in
             if let url {
                 if !DeepLinkRouter.shared.handle(url), UIApplication.shared.canOpenURL(url) {
                     await UIApplication.shared.open(url)

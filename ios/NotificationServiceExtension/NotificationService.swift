@@ -17,25 +17,18 @@ final class NotificationService: UNNotificationServiceExtension {
         self.contentHandler = contentHandler
         bestAttempt = (request.content.mutableCopy() as? UNMutableNotificationContent)
 
-        guard let bestAttempt else {
-            contentHandler(request.content)
-            return
-        }
+        let content = bestAttempt ?? request.content
 
         let userInfo = request.content.userInfo
-        guard let jobId = userInfo["job_id"] as? String,
-              let deviceToken = SharedKeychain.apnsDeviceToken(),
-              let session = SharedKeychain.supabaseAccessToken(),
-              session.expiresAt > Date()
-        else {
-            contentHandler(bestAttempt)
-            return
+        if let jobId = userInfo["job_id"] as? String,
+           let deviceToken = SharedKeychain.apnsDeviceToken(),
+           let session = SharedKeychain.supabaseAccessToken(),
+           session.expiresAt > Date()
+        {
+            fireAndForgetReceived(jobId: jobId, deviceToken: deviceToken, bearer: session.token)
         }
 
-        reportReceived(jobId: jobId, deviceToken: deviceToken, bearer: session.token) { [weak self] in
-            guard let self, let bestAttempt = self.bestAttempt else { return }
-            contentHandler(bestAttempt)
-        }
+        contentHandler(content)
     }
 
     override func serviceExtensionTimeWillExpire() {
@@ -44,25 +37,18 @@ final class NotificationService: UNNotificationServiceExtension {
         }
     }
 
-    private func reportReceived(
-        jobId: String,
-        deviceToken: String,
-        bearer: String,
-        completion: @escaping () -> Void
-    ) {
+    private func fireAndForgetReceived(jobId: String, deviceToken: String, bearer: String) {
         let url = backendBaseURL.appendingPathComponent("notifications/delivery/received")
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         request.setValue("Bearer \(bearer)", forHTTPHeaderField: "Authorization")
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.timeoutInterval = 10
+        request.timeoutInterval = 5
 
         let body: [String: String] = ["job_id": jobId, "device_token": deviceToken]
         request.httpBody = try? JSONSerialization.data(withJSONObject: body)
 
-        let task = URLSession.shared.dataTask(with: request) { _, _, _ in
-            completion()
-        }
+        let task = URLSession.shared.dataTask(with: request) { _, _, _ in }
         task.resume()
     }
 }

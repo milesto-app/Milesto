@@ -185,13 +185,16 @@ struct ProfileGateView: View {
             }
             hasSynced = true
             permissionCoordinator.updateFromProfile(
+                userId: userId,
                 status: localProfile?.notifPermissionStatus,
                 accountCreatedAt: localProfile?.createdAt
             )
+            permissionCoordinator.tryTriggerFallback()
             handleDeepLinkRoute(deepLinkRouter.pendingRoute)
         }
         .onChange(of: localProfile?.notifPermissionStatus) { _, newStatus in
             permissionCoordinator.updateFromProfile(
+                userId: userId,
                 status: newStatus,
                 accountCreatedAt: localProfile?.createdAt
             )
