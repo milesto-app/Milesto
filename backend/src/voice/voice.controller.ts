@@ -83,6 +83,7 @@ export class VoiceController {
       dto.text,
       dto.coach_id,
       userId,
+      dto.language,
     );
 
     res.set('Content-Type', result.content_type);

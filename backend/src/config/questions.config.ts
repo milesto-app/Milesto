@@ -96,7 +96,7 @@ const UNIVERSAL_BATCH_1_FR: UniversalQuestion[] = [
     question_type: 'single_choice',
     config: {
       options: [
-        "D\u00e9butant complet \u2014 j'ai peu ou pas d'exp\u00e9rience ici",
+        "D\u00e9butant complet \u2014 j'ai peu ou pas d'exp\u00e9rience ou de connaissances ici",
         'Je connais les bases mais je ne les ai pas encore mises en pratique',
         "J'ai essay\u00e9 des choses mais rien de coh\u00e9rent ou structur\u00e9",
         "J'ai une bonne base mais j'ai atteint un plafond que je n'arrive pas \u00e0 d\u00e9passer",
@@ -114,7 +114,7 @@ const UNIVERSAL_BATCH_1_FR: UniversalQuestion[] = [
   },
   {
     question_text:
-      "Combien d'heures par semaine peux-tu r\u00e9alistement prot\u00e9ger pour \u00e7a \u2014 m\u00eame dans tes semaines les plus charg\u00e9es ?",
+      "Combien d'heures par semaine peux-tu r\u00e9ellement consacrer \u00e0 \u00e7a \u2014 m\u00eame dans tes semaines les plus charg\u00e9es ?",
     question_type: 'scale',
     config: {
       min: 1,
@@ -125,8 +125,7 @@ const UNIVERSAL_BATCH_1_FR: UniversalQuestion[] = [
     order_in_batch: 3,
   },
   {
-    question_text:
-      "Quand veux-tu pouvoir dire \u00ab j'ai r\u00e9ussi \u00bb ?",
+    question_text: "Quand veux-tu pouvoir dire \u00ab je l'ai fait \u00bb ?",
     question_type: 'text',
     config: { format: 'date' },
     order_in_batch: 4,
@@ -141,7 +140,7 @@ const UNIVERSAL_BATCH_1_FR: UniversalQuestion[] = [
         'Une accumulation graduelle qui a fini par atteindre un point de basculement',
         "Voir quelqu'un d'autre accomplir ce que je veux",
         'Une \u00e9ch\u00e9ance ou un changement de vie approche',
-        'Quelque chose a simplement cliqu\u00e9 \u2014 je me suis r\u00e9veill\u00e9 pr\u00eat \u00e0 commencer',
+        'Il y a eu un d\u00e9clic \u2014 je me suis r\u00e9veill\u00e9 pr\u00eat \u00e0 commencer',
       ],
     },
     order_in_batch: 5,

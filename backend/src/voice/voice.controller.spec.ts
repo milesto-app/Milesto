@@ -105,6 +105,7 @@ describe('VoiceController.synthesize', () => {
       'Hello',
       1,
       'user-123',
+      undefined,
     );
     expect(mockSet).toHaveBeenCalledWith('Content-Type', 'audio/mpeg');
     expect(mockSend).toHaveBeenCalledWith(MOCK_SYNTHESIS.audio);

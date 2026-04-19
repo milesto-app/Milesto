@@ -3,6 +3,7 @@ import SwiftUI
 struct VoicePlaybackButton: View {
     let text: String
     let coachId: Int
+    var language: TTSLanguage = .fromLocale()
 
     @State private var isLoading = false
     @State private var showError = false
@@ -41,7 +42,7 @@ struct VoicePlaybackButton: View {
         isLoading = true
         Task {
             do {
-                let audioData = try await VoiceAPIService.shared.synthesize(text: text, coachId: coachId)
+                let audioData = try await loadAudio()
                 try player.play(data: audioData)
             } catch {
                 player.stop()
@@ -49,5 +50,20 @@ struct VoicePlaybackButton: View {
             }
             isLoading = false
         }
+    }
+
+    private func loadAudio() async throws -> Data {
+        if let cached = await TTSCacheService.shared.cachedAudio(
+            text: text, coachId: coachId, language: language
+        ) {
+            return cached
+        }
+        let data = try await VoiceAPIService.shared.synthesize(
+            text: text, coachId: coachId, language: language
+        )
+        await TTSCacheService.shared.store(
+            audio: data, text: text, coachId: coachId, language: language
+        )
+        return data
     }
 }

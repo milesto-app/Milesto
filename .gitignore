@@ -136,3 +136,8 @@ web/node_modules/
 web/.next/
 web/.env.local
 web/.env
+
+# --- Scripts ---
+scripts/**/node_modules/
+scripts/**/bun.lock
+scripts/**/bun.lockb
