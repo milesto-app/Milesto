@@ -29,6 +29,17 @@ final class NotificationService {
         return true
     }
 
+    func refreshRegistrationIfAuthorized() async {
+        let center = UNUserNotificationCenter.current()
+        let settings = await center.notificationSettings()
+        guard settings.authorizationStatus == .authorized || settings.authorizationStatus == .provisional else {
+            return
+        }
+        await MainActor.run {
+            UIApplication.shared.registerForRemoteNotifications()
+        }
+    }
+
     func registerToken(_ tokenData: Data) async {
         let token = tokenData.map { String(format: "%02x", $0) }.joined()
 

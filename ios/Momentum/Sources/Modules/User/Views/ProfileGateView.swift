@@ -187,6 +187,7 @@ struct ProfileGateView: View {
                 status: localProfile?.notifPermissionStatus,
                 accountCreatedAt: localProfile?.createdAt
             )
+            handleDeepLinkRoute(deepLinkRouter.pendingRoute)
         }
         .onChange(of: localProfile?.notifPermissionStatus) { _, newStatus in
             permissionCoordinator.updateFromProfile(
@@ -204,15 +205,12 @@ struct ProfileGateView: View {
         switch route {
         case .coachReply:
             isChatPresented = true
-            _ = deepLinkRouter.consume()
         case .task:
             selectedTab = 1
-            _ = deepLinkRouter.consume()
-        case .notifWhy:
-            _ = deepLinkRouter.consume()
         case .unknown:
-            _ = deepLinkRouter.consume()
+            break
         }
+        _ = deepLinkRouter.consume()
     }
 
     private func syncGoals() async {

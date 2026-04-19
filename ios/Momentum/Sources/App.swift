@@ -73,12 +73,16 @@ struct MomentumApp: App {
             .task(id: isAuthenticated) {
                 await SubscriptionSyncOutbox.shared.configure(container: sharedModelContainer)
                 guard isAuthenticated else { return }
+                await NotificationService.shared.refreshRegistrationIfAuthorized()
                 await SubscriptionService.shared.onAppStart()
             }
             .onChange(of: scenePhase) { _, newPhase in
                 if newPhase == .active, isAuthenticated {
                     permissionCoordinator.tryTriggerFallback()
-                    Task { await ActivityAPIService.shared.recordForeground() }
+                    Task {
+                        await NotificationService.shared.refreshRegistrationIfAuthorized()
+                        await ActivityAPIService.shared.recordForeground()
+                    }
                 }
             }
         }
