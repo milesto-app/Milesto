@@ -41,6 +41,7 @@ final class NotificationService {
         do {
             try await DeviceTokenAPIService.shared.register(token: token, environment: environment)
             UserDefaults.standard.set(token, forKey: lastTokenKey)
+            SharedKeychain.setAPNSDeviceToken(token)
         } catch {}
     }
 
@@ -49,6 +50,7 @@ final class NotificationService {
         do {
             try await DeviceTokenAPIService.shared.unregister(token: token)
             UserDefaults.standard.removeObject(forKey: lastTokenKey)
+            SharedKeychain.setAPNSDeviceToken(nil)
         } catch {}
     }
 }

@@ -60,13 +60,14 @@ struct MomentumApp: App {
             .tint(Color("TintPrimary"))
             .environmentObject(authService)
             .environmentObject(permissionCoordinator)
+            .environmentObject(DeepLinkRouter.shared)
             .sheet(isPresented: $permissionCoordinator.isExplainerVisible) {
                 NotificationPermissionExplainerSheet()
                     .environmentObject(permissionCoordinator)
             }
             .onOpenURL { url in
-                Task {
-                    await authService.handleDeepLink(url)
+                if !DeepLinkRouter.shared.handle(url) {
+                    Task { await authService.handleDeepLink(url) }
                 }
             }
             .task(id: isAuthenticated) {
@@ -77,6 +78,7 @@ struct MomentumApp: App {
             .onChange(of: scenePhase) { _, newPhase in
                 if newPhase == .active, isAuthenticated {
                     permissionCoordinator.tryTriggerFallback()
+                    Task { await ActivityAPIService.shared.recordForeground() }
                 }
             }
         }
@@ -85,6 +87,16 @@ struct MomentumApp: App {
 }
 
 final class AppDelegate: NSObject, UIApplicationDelegate {
+    func application(
+        _: UIApplication,
+        didFinishLaunchingWithOptions _: [UIApplication.LaunchOptionsKey: Any]? = nil
+    ) -> Bool {
+        Task { @MainActor in
+            NotificationCenterDelegate.shared.register()
+        }
+        return true
+    }
+
     func application(
         _: UIApplication,
         didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data

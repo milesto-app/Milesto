@@ -6,6 +6,7 @@ struct ProfileGateView: View {
 
     @Environment(\.modelContext) private var modelContext
     @EnvironmentObject private var permissionCoordinator: PermissionPromptCoordinator
+    @EnvironmentObject private var deepLinkRouter: DeepLinkRouter
 
     @Query private var localProfiles: [LocalProfile]
     @Query private var localGoals: [LocalGoal]
@@ -192,6 +193,25 @@ struct ProfileGateView: View {
                 status: newStatus,
                 accountCreatedAt: localProfile?.createdAt
             )
+        }
+        .onChange(of: deepLinkRouter.pendingRoute) { _, route in
+            handleDeepLinkRoute(route)
+        }
+    }
+
+    private func handleDeepLinkRoute(_ route: DeepLinkRoute?) {
+        guard let route else { return }
+        switch route {
+        case .coachReply:
+            isChatPresented = true
+            _ = deepLinkRouter.consume()
+        case .task:
+            selectedTab = 1
+            _ = deepLinkRouter.consume()
+        case .notifWhy:
+            _ = deepLinkRouter.consume()
+        case .unknown:
+            _ = deepLinkRouter.consume()
         }
     }
 
