@@ -5,8 +5,8 @@ import UserNotifications
 final class NotificationCenterDelegate: NSObject {
     static let shared = NotificationCenterDelegate()
 
-    static let genericCategoryIdentifier = "MOMENTUM_GENERIC"
-    static let whyActionIdentifier = "WHY_THIS"
+    nonisolated static let genericCategoryIdentifier = "MOMENTUM_GENERIC"
+    nonisolated static let whyActionIdentifier = "WHY_THIS"
 
     override private init() {
         super.init()

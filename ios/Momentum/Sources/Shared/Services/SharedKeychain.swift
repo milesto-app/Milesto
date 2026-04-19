@@ -1,13 +1,13 @@
 import Foundation
 import Security
 
-enum SharedKeychainKey: String {
+nonisolated enum SharedKeychainKey: String {
     case supabaseAccessToken = "supabase_access_token"
     case supabaseAccessTokenExpiresAt = "supabase_access_token_expires_at"
     case apnsDeviceToken = "apns_device_token"
 }
 
-enum SharedKeychain {
+nonisolated enum SharedKeychain {
     private static let accessGroupSuffix = "app.momentum-ai.shared"
 
     private static var fullAccessGroup: String {
