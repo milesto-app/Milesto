@@ -27,6 +27,13 @@ const MS_PER_HOUR = 3_600_000;
 const STALE_JOB_MAX_AGE_MS = MAX_JOB_AGE_HOURS * MS_PER_HOUR;
 const MAX_ATTEMPTS = 3;
 const BATCH_SIZE = 500;
+const GLOBAL_CEILING_MAX_SENDS = 2;
+const GLOBAL_CEILING_WINDOW_HOURS = 24;
+const GLOBAL_CEILING_WINDOW_MS = GLOBAL_CEILING_WINDOW_HOURS * MS_PER_HOUR;
+const GLOBAL_CEILING_RESCHEDULE_THRESHOLD_HOURS = 2;
+const GLOBAL_CEILING_RESCHEDULE_THRESHOLD_MS =
+  GLOBAL_CEILING_RESCHEDULE_THRESHOLD_HOURS * MS_PER_HOUR;
+const GLOBAL_CEILING_SKIP_REASON = "global_ceiling";
 
 @Injectable()
 export class DispatcherService {
@@ -100,20 +107,11 @@ export class DispatcherService {
       return;
     }
 
-    const decision = await this.gate.isPushAllowed(
-      job.user_id,
-      job.kind as NotificationKind,
-    );
-    if (!decision.allowed) {
-      if (decision.reason === "quiet_hours" && decision.timezone !== null) {
-        await this.deferForQuietHours(
-          job,
-          decision.timezone,
-          decision.quietEnd,
-        );
-        return;
-      }
-      await this.outbox.markSkipped(job.id, decision.reason ?? "gate_denied");
+    if (!(await this.passesGate(job))) {
+      return;
+    }
+
+    if ((await this.applyGlobalCeiling(job)) === "blocked") {
       return;
     }
 
@@ -123,6 +121,90 @@ export class DispatcherService {
       const message = error instanceof Error ? error.message : String(error);
       await this.recordFailure(job, message);
     }
+  }
+
+  private async passesGate(job: NotificationJobRow): Promise<boolean> {
+    const decision = await this.gate.isPushAllowed(
+      job.user_id,
+      job.kind as NotificationKind,
+    );
+    if (decision.allowed) {
+      return true;
+    }
+    if (decision.reason === "quiet_hours" && decision.timezone !== null) {
+      await this.deferForQuietHours(job, decision.timezone, decision.quietEnd);
+      return false;
+    }
+    await this.outbox.markSkipped(job.id, decision.reason ?? "gate_denied");
+    return false;
+  }
+
+  private async applyGlobalCeiling(
+    job: NotificationJobRow,
+  ): Promise<"allowed" | "blocked"> {
+    const supabase = this.supabaseService.getAdminClient();
+    const { data, error } = await supabase.rpc("recent_sends_window", {
+      p_user_id: job.user_id,
+      p_window_hours: GLOBAL_CEILING_WINDOW_HOURS,
+    });
+    if (error !== null) {
+      this.logger.warn(
+        `Global ceiling RPC failed for job ${job.id}: ${error.message} — allowing send (fail-open)`,
+      );
+      return "allowed";
+    }
+    const row = data[0];
+    const sendCount = row?.send_count ?? 0;
+    if (sendCount < GLOBAL_CEILING_MAX_SENDS) {
+      return "allowed";
+    }
+    const earliest = row?.earliest_sent_at ?? null;
+    if (earliest === null) {
+      this.logger.warn(
+        `Global ceiling: job ${job.id} has count=${String(sendCount)} but no earliest_sent_at — allowing send (fail-open)`,
+      );
+      return "allowed";
+    }
+    const nextAllowedSlot = new Date(
+      new Date(earliest).getTime() + GLOBAL_CEILING_WINDOW_MS,
+    );
+    const delayMs = nextAllowedSlot.getTime() - Date.now();
+    if (delayMs <= GLOBAL_CEILING_RESCHEDULE_THRESHOLD_MS) {
+      await this.rescheduleForGlobalCeiling(job, nextAllowedSlot);
+      return "blocked";
+    }
+    await this.outbox.markSkipped(job.id, GLOBAL_CEILING_SKIP_REASON);
+    this.logger.log(
+      `Skipped job ${job.id} (kind=${job.kind}) via global_ceiling — next slot ${nextAllowedSlot.toISOString()} is >${String(GLOBAL_CEILING_RESCHEDULE_THRESHOLD_HOURS)}h away`,
+    );
+    return "blocked";
+  }
+
+  private async rescheduleForGlobalCeiling(
+    job: NotificationJobRow,
+    nextAllowedSlot: Date,
+  ): Promise<void> {
+    const supabase = this.supabaseService.getAdminClient();
+    const restoredAttempts = Math.max(job.attempts - 1, 0);
+    const { error } = await supabase
+      .from("notification_jobs")
+      .update({
+        status: "pending",
+        claimed_by: null,
+        claimed_at: null,
+        scheduled_for_utc: nextAllowedSlot.toISOString(),
+        attempts: restoredAttempts,
+      })
+      .eq("id", job.id);
+    if (error !== null) {
+      this.logger.error(
+        `Failed to reschedule job ${job.id} for global ceiling: ${error.message}`,
+      );
+      return;
+    }
+    this.logger.log(
+      `Rescheduled job ${job.id} (kind=${job.kind}) to ${nextAllowedSlot.toISOString()} due to global ceiling`,
+    );
   }
 
   private async deferForQuietHours(

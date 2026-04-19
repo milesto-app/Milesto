@@ -1095,6 +1095,13 @@ export type Database = {
         Args: { p_goal_id: string };
         Returns: undefined;
       };
+      recent_sends_window: {
+        Args: { p_user_id: string; p_window_hours?: number };
+        Returns: {
+          earliest_sent_at: string;
+          send_count: number;
+        }[];
+      };
       record_user_activity: {
         Args: { p_kind: string; p_occurred_at?: string; p_user_id: string };
         Returns: undefined;
