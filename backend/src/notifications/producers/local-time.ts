@@ -144,6 +144,31 @@ export function nextQuietHoursEnd(
   return localToUtc(adjusted, timezone);
 }
 
+const MS_PER_DAY_LT = 86_400_000;
+const DAYS_PER_WEEK = 7;
+const SUNDAY_TO_MONDAY_OFFSET = 6;
+
+function padToWidth(n: number): string {
+  return n.toString().padStart(DATE_FIELD_PAD_WIDTH, "0");
+}
+
+export function localWeekStartDate(moment: LocalMoment): string {
+  const dayUtc = Date.UTC(moment.year, moment.month - 1, moment.day);
+  const weekdayZeroSunday = new Date(dayUtc).getUTCDay();
+  const daysSinceMonday =
+    (weekdayZeroSunday + SUNDAY_TO_MONDAY_OFFSET) % DAYS_PER_WEEK;
+  const mondayUtc = dayUtc - daysSinceMonday * MS_PER_DAY_LT;
+  const monday = new Date(mondayUtc);
+  return `${String(monday.getUTCFullYear())}-${padToWidth(monday.getUTCMonth() + 1)}-${padToWidth(monday.getUTCDate())}`;
+}
+
+export function previousLocalWeekStartDate(moment: LocalMoment): string {
+  const weekStart = localWeekStartDate(moment);
+  const startUtc = Date.parse(`${weekStart}T00:00:00.000Z`);
+  const prev = new Date(startUtc - DAYS_PER_WEEK * MS_PER_DAY_LT);
+  return `${String(prev.getUTCFullYear())}-${padToWidth(prev.getUTCMonth() + 1)}-${padToWidth(prev.getUTCDate())}`;
+}
+
 export function computeNextDailyCheckInSlot(
   input: NextSlotInput,
 ): ScheduledSlot {

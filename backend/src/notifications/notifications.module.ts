@@ -17,6 +17,9 @@ import { MilestonePreviewProducer } from "./producers/milestone-preview.producer
 import { SchedulerService } from "./producers/scheduler.service.js";
 import { StoService } from "./sto/sto.service.js";
 import { StoCronService } from "./sto/sto-cron.service.js";
+import { StreaksService } from "./streaks/streaks.service.js";
+import { StreaksAtRiskService } from "./streaks/streaks-at-risk.service.js";
+import { StreaksNightlyService } from "./streaks/streaks-nightly.service.js";
 
 @Global()
 @Module({
@@ -40,6 +43,9 @@ import { StoCronService } from "./sto/sto-cron.service.js";
     SchedulerService,
     StoCronService,
     StoService,
+    StreaksAtRiskService,
+    StreaksNightlyService,
+    StreaksService,
   ],
   exports: [
     ActivityService,

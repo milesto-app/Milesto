@@ -11,6 +11,8 @@ import {
 } from "../outbox/outbox.types.js";
 import { StoService } from "../sto/sto.service.js";
 import { StoCronService } from "../sto/sto-cron.service.js";
+import { StreaksAtRiskService } from "../streaks/streaks-at-risk.service.js";
+import { StreaksNightlyService } from "../streaks/streaks-nightly.service.js";
 import { computeNextDailyCheckInSlot } from "./local-time.js";
 import { resolvePersonaBucket } from "./persona-defaults.js";
 
@@ -56,6 +58,8 @@ export class SchedulerService {
     private readonly gate: GateService,
     private readonly stoService: StoService,
     private readonly stoCron: StoCronService,
+    private readonly streaksNightly: StreaksNightlyService,
+    private readonly streaksAtRisk: StreaksAtRiskService,
   ) {}
 
   @Cron(SCHEDULE_EVERY_15_MIN)
@@ -64,9 +68,12 @@ export class SchedulerService {
       return;
     }
     this.inFlight = true;
+    const now = new Date();
     try {
       await this.scheduleDailyCheckIns();
-      await this.stoCron.tickForLocalTime(new Date());
+      await this.stoCron.tickForLocalTime(now);
+      await this.streaksNightly.tick(now);
+      await this.streaksAtRisk.tick(now);
     } catch (error) {
       this.logger.error(
         "Scheduler tick failed",
