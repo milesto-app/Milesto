@@ -101,6 +101,10 @@ private struct WeeklyTaskDetailPage: View {
     let appeared: Bool
     let onToggle: ((WeeklyTaskDTO) -> Void)?
 
+    @State private var showIntentionSheet = false
+    @State private var existingIntention: WeeklyTaskIntentionDTO?
+    @State private var didLoadIntention = false
+
     private var accent: Color {
         switch task.difficultyRating {
         case .easy: return Color("TintPrimary")
@@ -132,6 +136,12 @@ private struct WeeklyTaskDetailPage: View {
                     .opacity(appeared ? 1 : 0)
                     .offset(y: appeared ? 0 : 12)
 
+                intentionButton
+                    .padding(.horizontal, 24)
+                    .padding(.top, 4)
+                    .opacity(appeared ? 1 : 0)
+                    .offset(y: appeared ? 0 : 12)
+
                 if onToggle != nil {
                     toggleButton
                         .padding(.horizontal, 24)
@@ -143,6 +153,43 @@ private struct WeeklyTaskDetailPage: View {
             .padding(.bottom, 40)
         }
         .contentMargins(.top, 96)
+        .sheet(isPresented: $showIntentionSheet) {
+            TaskIntentionSheet(task: task, existing: existingIntention) { saved in
+                existingIntention = saved
+            }
+        }
+        .task(id: task.id) {
+            guard !didLoadIntention else { return }
+            existingIntention = try? await IntentionsAPIService.shared.get(taskId: task.id)
+            didLoadIntention = true
+        }
+    }
+
+    private var intentionButton: some View {
+        Button {
+            showIntentionSheet = true
+        } label: {
+            HStack(spacing: 10) {
+                TablerIcons(.calendarTime, size: 20, color: accent)
+                AppText(
+                    existingIntention == nil
+                        ? "roadmap.intention.cta.new"
+                        : "roadmap.intention.cta.edit",
+                    table: "Roadmap",
+                    style: .body
+                )
+                .weight(.semibold)
+                .color(Color("TextPrimary"))
+                Spacer()
+                TablerIcons(.chevronRight, size: 18, color: Color("TextSecondary"))
+            }
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 14)
+            .padding(.horizontal, 18)
+        }
+        .glassEffect(.regular.interactive(), in: RoundedRectangle(cornerRadius: 14))
+        .disabled(!didLoadIntention)
+        .opacity(didLoadIntention ? 1 : 0.6)
     }
 
     private var heroCard: some View {

@@ -8,20 +8,33 @@ final class NotificationService {
 
     private init() {}
 
-    func requestPermissionAndRegister() async {
+    @discardableResult
+    func requestPermissionAndRegister() async -> Bool {
         let center = UNUserNotificationCenter.current()
         let settings = await center.notificationSettings()
 
         switch settings.authorizationStatus {
         case .notDetermined:
             let granted = (try? await center.requestAuthorization(options: [.alert, .sound, .badge])) ?? false
-            guard granted else { return }
+            guard granted else { return false }
         case .authorized, .provisional:
             break
         default:
-            return
+            return false
         }
 
+        await MainActor.run {
+            UIApplication.shared.registerForRemoteNotifications()
+        }
+        return true
+    }
+
+    func refreshRegistrationIfAuthorized() async {
+        let center = UNUserNotificationCenter.current()
+        let settings = await center.notificationSettings()
+        guard settings.authorizationStatus == .authorized || settings.authorizationStatus == .provisional else {
+            return
+        }
         await MainActor.run {
             UIApplication.shared.registerForRemoteNotifications()
         }
@@ -39,6 +52,7 @@ final class NotificationService {
         do {
             try await DeviceTokenAPIService.shared.register(token: token, environment: environment)
             UserDefaults.standard.set(token, forKey: lastTokenKey)
+            SharedKeychain.setAPNSDeviceToken(token)
         } catch {}
     }
 
@@ -47,6 +61,7 @@ final class NotificationService {
         do {
             try await DeviceTokenAPIService.shared.unregister(token: token)
             UserDefaults.standard.removeObject(forKey: lastTokenKey)
+            SharedKeychain.setAPNSDeviceToken(nil)
         } catch {}
     }
 }

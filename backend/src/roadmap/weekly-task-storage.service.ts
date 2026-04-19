@@ -61,36 +61,48 @@ export class WeeklyTaskStorageService {
     return data as WeeklyTask[];
   }
 
-  public async updateTask(params: UpdateTaskParams): Promise<WeeklyTask> {
+  public async updateTask(
+    params: UpdateTaskParams,
+  ): Promise<{ task: WeeklyTask; didTransition: boolean }> {
     const supabase = this.supabaseService.getAdminClient();
 
-    const { error: findError } = await supabase
+    const { data: transitioned, error: transitionError } = await supabase
       .from("weekly_tasks")
-      .select("id")
+      .update({
+        is_completed: params.isCompleted,
+        completed_at: params.isCompleted ? new Date().toISOString() : null,
+      })
       .eq("id", params.taskId)
       .eq("goal_id", params.goalId)
       .eq("user_id", params.userId)
-      .single();
-
-    if (findError !== null) {
-      throw new NotFoundException("Weekly task not found");
-    }
-
-    const { data, error } = await supabase
-      .from("weekly_tasks")
-      .update({ is_completed: params.isCompleted })
-      .eq("id", params.taskId)
-      .eq("goal_id", params.goalId)
-      .eq("user_id", params.userId)
+      .eq("is_completed", !params.isCompleted)
       .select()
-      .single();
+      .maybeSingle();
 
-    if (error !== null) {
-      this.logger.error(`Failed to update weekly task: ${error.message}`);
+    if (transitionError !== null) {
+      this.logger.error(
+        `Failed to update weekly task: ${transitionError.message}`,
+      );
       throw new InternalServerErrorException("Failed to update weekly task");
     }
 
-    return data as WeeklyTask;
+    if (transitioned !== null) {
+      return { task: transitioned as WeeklyTask, didTransition: true };
+    }
+
+    const { data: current, error: readError } = await supabase
+      .from("weekly_tasks")
+      .select("*")
+      .eq("id", params.taskId)
+      .eq("goal_id", params.goalId)
+      .eq("user_id", params.userId)
+      .maybeSingle();
+
+    if (readError !== null || current === null) {
+      throw new NotFoundException("Weekly task not found");
+    }
+
+    return { task: current as WeeklyTask, didTransition: false };
   }
 
   public async storeTasks(params: StoreTasksParams): Promise<WeeklyTask[]> {

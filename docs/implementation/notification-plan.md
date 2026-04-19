@@ -4,9 +4,10 @@
 
 ## Context
 
-`docs/notification-detection-design.md` specifies *when* Momentum sends pushes and the detection architecture (transactional outbox + claim-based dispatcher, streaks, STO, winback, coach-voiced memory hooks). The design is approved; this plan sequences it into buildable work.
+`docs/notification-detection-design.md` specifies _when_ Momentum sends pushes and the detection architecture (transactional outbox + claim-based dispatcher, streaks, STO, winback, coach-voiced memory hooks). The design is approved; this plan sequences it into buildable work.
 
 **Current state** (verified via exploration):
+
 - **APNs transport works end-to-end.** `backend/src/notifications/notifications.service.ts` handles JWT (ES256), HTTP/2, fan-out, batching (100/user), 410 cleanup. `device_tokens` table exists.
 - **EventEmitter2 is wired.** `roadmap.generated`, `weekly-plan.generated`, `debrief.submitted`, `weekly-tasks.generated`, `summary.generated` emit today. Missing: `task.completed`, `milestone.completed`, `goal.completed`, `weekly-plan.completed`, `coach.reply.ready`.
 - **`@nestjs/schedule` is NOT installed.** No cron anywhere. No dispatcher, no outbox, no scheduler.
@@ -15,11 +16,11 @@
 
 **Structure**: three milestones of 6–8 sub-phases each. Each milestone is independently shippable and delivers measurable value.
 
-| Milestone | Sub-phases | Outcome |
-|---|---|---|
-| **M1 — Foundation & MVP** | M1.1–M1.7 | Schema exists, outbox+dispatcher work, first real push (`coach_reply_ready`) lands on device, permission prompt is deferred to a high-affect moment, `user_motivation_quote` captured for memory hooks. |
-| **M2 — Evidence-based core** | M2.1–M2.8 | Daily check-in, implementation intentions (Gollwitzer d=0.65), quiet hours/opt-out UI, STO, global 2/day ceiling, weekly streaks, celebration pushes, `milestone_preview`. The product now runs on the real retention loop. |
-| **M3 — Retention optimization & measurement** | M3.1–M3.6 | Winback sequences (incl. day-30 break-up + 90-day auto-pause), remaining P1/P2 kinds, `coach_proactive` nightly LLM push, dynamic fatigue + aversion signal, experimentation, observability. |
+| Milestone                                     | Sub-phases | Outcome                                                                                                                                                                                                                                                                                                            |
+| --------------------------------------------- | ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **M1 — Foundation & MVP**                     | M1.1–M1.7  | Schema exists, outbox+dispatcher work, first real push (`coach_reply_ready`) lands on device, permission prompt is deferred to a high-affect moment, `user_motivation_quote` captured for memory hooks.                                                                                                            |
+| **M2 — Evidence-based core**                  | M2.1–M2.9  | Daily check-in, implementation intentions (Gollwitzer d=0.65), quiet hours/opt-out UI, STO, global 2/day ceiling, weekly streaks, celebration pushes, `milestone_preview`, coach-voiced LLM copy-gen with safe fallbacks. The product now runs on the real retention loop with personality, not placeholder stubs. |
+| **M3 — Retention optimization & measurement** | M3.1–M3.6  | Winback sequences (incl. day-30 break-up + 90-day auto-pause), remaining P1/P2 kinds, `coach_proactive` nightly LLM push, dynamic fatigue + aversion signal, experimentation, observability.                                                                                                                       |
 
 ---
 
@@ -27,16 +28,17 @@
 
 - Migrations: one SQL file per sub-phase under `backend/migrations/YYYYMMDD_notif_NN_description.sql`. Apply with `mcp__supabase__apply_migration`. After every DDL: `mcp__supabase__get_advisors` for security + performance lints.
 - Backend modules: new code under `backend/src/notifications/` split into subfolders — `outbox/`, `dispatcher/`, `producers/`, `streaks/`, `activity/`, `experiments/`, `gate/`, `fatigue/`, `winback/`, `sto/`, `intentions/`. Existing `notifications.service.ts` (APNs client) is reused, not rewritten.
-- Event names: kebab-case per existing convention. **Each event has exactly one emitter** (table below). The emitter inserts the outbox row *inside the same DB transaction* as the state change — not an `@OnEvent` listener — because `@nestjs/event-emitter` fires synchronously in-process but bypasses the DB transaction, so a listener crash after commit would lose the notification. Listeners are only used for read-only side effects (quality signals, embeddings). Cross-module event listeners (e.g., streaks, winback cancellation) subscribe to events that are emitted *after* the outbox insert completes.
+- Event names: kebab-case per existing convention. **Each event has exactly one emitter** (table below). The emitter inserts the outbox row _inside the same DB transaction_ as the state change — not an `@OnEvent` listener — because `@nestjs/event-emitter` fires synchronously in-process but bypasses the DB transaction, so a listener crash after commit would lose the notification. Listeners are only used for read-only side effects (quality signals, embeddings). Cross-module event listeners (e.g., streaks, winback cancellation) subscribe to events that are emitted _after_ the outbox insert completes.
 
-  | Event | Single emitter (owner) |
-  |---|---|
-  | `task.completed` | `weekly-task.service.ts` (`toggleComplete` method) |
-  | `milestone.completed` | `milestones.service.ts` (new) |
-  | `goal.completed` | `goals.service.ts` (`markComplete`) |
-  | `weekly-plan.completed` | `debrief.service.ts` (the debrief is the only trigger for plan completion in current product) |
-  | `coach.reply.ready` | `chat/messages.service.ts` (where the assistant message row is inserted) |
-  | `user.activity` | `activity.service.ts` (explicitly emitted by `ActivityService.record()` so winback cancellation can subscribe) |
+  | Event                   | Single emitter (owner)                                                                                         |
+  | ----------------------- | -------------------------------------------------------------------------------------------------------------- |
+  | `task.completed`        | `weekly-task.service.ts` (`toggleComplete` method)                                                             |
+  | `milestone.completed`   | `milestones.service.ts` (new)                                                                                  |
+  | `goal.completed`        | `goals.service.ts` (`markComplete`)                                                                            |
+  | `weekly-plan.completed` | `debrief.service.ts` (the debrief is the only trigger for plan completion in current product)                  |
+  | `coach.reply.ready`     | `chat/messages.service.ts` (where the assistant message row is inserted)                                       |
+  | `user.activity`         | `activity.service.ts` (explicitly emitted by `ActivityService.record()` so winback cancellation can subscribe) |
+
 - iOS: SwiftUI + Swift 6 strict concurrency; notification handling in `ios/Momentum/Sources/Modules/Notifications/` (new module). Service extension in a new target `NotificationServiceExtension`.
 - Web admin: no scope until M3 (M3.5–M3.6 observability and experiments).
 - After each backend change that touches protected code: run the `/codex-review` skill (per global CLAUDE.md).
@@ -52,6 +54,7 @@
 ## M1.1 — Schema migrations (core tables + columns)
 
 **Files (new migrations under `backend/migrations/`):**
+
 - `20260420_notif_01_profile_columns.sql`
 - `20260420_notif_02_goal_milestone_task_columns.sql`
 - `20260420_notif_03_notification_jobs.sql`
@@ -63,6 +66,7 @@
 - `20260420_notif_09_weekly_task_intentions.sql`
 
 **Columns to add:**
+
 - `profiles`: `last_active_at timestamptz`, `notif_enabled boolean default true`, `notif_quiet_start smallint`, `notif_quiet_end smallint`, `notif_preferences jsonb default '{}'`, `notif_permission_status text default 'not_requested'`, `notif_permission_requested_at timestamptz`, `sto_active_hour smallint`, `tenure_start_date date`.
 - `goals`: `user_motivation_quote text` (§11.3).
 - `milestones`: `target_date date`, `completed_at timestamptz` (set on completion event).
@@ -70,37 +74,43 @@
 - `weekly_tasks`: `completed_at timestamptz` + `CHECK ((is_completed = true) = (completed_at IS NOT NULL))`.
 
 **Tables** match the design's §3.1, §5.2, §6.1, §9.1, §10 exactly. Indexes per §3.1:
+
 - `notification_jobs`: `UNIQUE(dedup_key)`; partial on `(scheduled_for_utc) WHERE status = 'pending'`; partial on `(user_id, local_date) WHERE tier IN (2,3)`; partial on `(status, claimed_at) WHERE status = 'claimed'`; partial on `(sequence_id, sequence_step)`; partial on `(experiment_id, variant)`.
 - `user_activity_events`: `(user_id, occurred_at DESC, local_hour)` (regular index rather than a partial one, because `occurred_at > now() - interval '30 days'` is not IMMUTABLE); prune via retention job.
 - `weekly_tasks`: `(completed_at) WHERE completed_at IS NOT NULL` for on-demand "last progress" query.
 
 **RLS** per §10:
+
 - `notification_jobs`, `notification_deliveries`, `notification_system_alerts`, `user_activity_events`, `notification_experiments` → deny-all for `anon`/`authenticated`; service-role bypasses. Pattern from `backend/migrations/20260418_apple_iap_schema.sql:27-41`.
 - `user_streaks` → authenticated can SELECT own rows (for UI streak display); service-role writes.
 - `weekly_task_intentions` → authenticated can SELECT/INSERT/UPDATE/DELETE own rows (join via `weekly_tasks.user_id`).
 
 **Migration ordering for `weekly_tasks.completed_at`** (avoids CHECK-on-dirty-data failure):
+
 1. `ALTER TABLE weekly_tasks ADD COLUMN completed_at timestamptz` (nullable, no constraint).
 2. Backfill: `UPDATE weekly_tasks SET completed_at = COALESCE(updated_at, created_at) WHERE is_completed = true`.
 3. `ALTER TABLE weekly_tasks ADD CONSTRAINT weekly_tasks_completed_at_consistency CHECK ((is_completed = true) = (completed_at IS NOT NULL)) NOT VALID`.
 4. `ALTER TABLE weekly_tasks VALIDATE CONSTRAINT weekly_tasks_completed_at_consistency` — converts to validated once data is clean.
 
 **Other backfills** (same migration, separate statements):
+
 - `profiles.tenure_start_date = created_at::date` for all users.
 - `milestones.target_date = goals.target_date - interval '(goals total_weeks - milestones.target_week) weeks'` (best-effort; recomputed on next roadmap generation).
 - `weekly_plans.expected_end_date` via generated-column (`GENERATED ALWAYS AS (week_start_date + 6) STORED`) so no backfill needed.
 
-**`notification_deliveries` uniqueness**: add `UNIQUE (job_id, device_token)` so `received`/`opened` callbacks are idempotent. Rows are *pre-inserted at send time* (one per device token) with `sent_at = now()` and `received_at/opened_at = null`; iOS telemetry then updates these rows rather than inserting new ones.
+**`notification_deliveries` uniqueness**: add `UNIQUE (job_id, device_token)` so `received`/`opened` callbacks are idempotent. Rows are _pre-inserted at send time_ (one per device token) with `sent_at = now()` and `received_at/opened_at = null`; iOS telemetry then updates these rows rather than inserting new ones.
 
 **Verification:** `mcp__supabase__list_tables` shows all 7 new tables; `mcp__supabase__execute_sql` spot-checks one row per table; `mcp__supabase__get_advisors` returns zero new security/performance warnings.
 
 ## M1.2 — `user_activity_events` write path + foreground endpoint
 
 **Backend (new):**
+
 - `backend/src/notifications/activity/activity.service.ts` — `record(userId, kind, occurredAt?)`. Computes `local_hour` via `profiles.timezone` (`AT TIME ZONE` in SQL, or Luxon on the service). Also touches `profiles.last_active_at = greatest(now(), last_active_at)`.
 - `backend/src/notifications/activity/activity.controller.ts` — `POST /api/activity/foreground` (authenticated). Rate-limit to 1/min per user (in-memory Map with TTL — foreground storms).
 
 **Backend (wiring):**
+
 - `backend/src/notifications/notifications.module.ts` — register `ActivityService` & controller.
 
 **Verification:** iOS simulator foreground → row in `user_activity_events` within 500ms; `profiles.last_active_at` advances. Simulate 10 foregrounds in 5 s → ≤2 rows written.
@@ -108,11 +118,13 @@
 ## M1.3 — iOS telemetry endpoints + service extension + why-deeplink category
 
 **Backend (new endpoints):**
+
 - `POST /api/notifications/delivery/received` → `UPDATE notification_deliveries SET received_at = COALESCE(received_at, now()) WHERE job_id = $1 AND device_token = $2`. Idempotent (re-delivery leaves the original timestamp). If no row matches (old/stale push from before the table existed), returns 200 with a no-op.
 - `POST /api/notifications/delivery/opened` → same pattern on `opened_at`.
 - Both endpoints attached to `NotificationsController` (existing file); DTOs under `backend/src/notifications/dto/`.
 
 **iOS (new):**
+
 - **App Group** added to app + extension (`group.app.momentum-ai.shared`) so the extension can read a shared access token written by the main app via a `SharedKeychain` wrapper. This is what unblocks authenticated calls from the service extension.
 - New target `NotificationServiceExtension` (mutable-content extension). `NotificationService.swift` (in extension) implements `didReceive(_:withContentHandler:)` → POSTs to `/delivery/received` with `job_id` from the **top-level payload** (the payload contract below places `job_id` as a sibling of `aps`, not inside it — Apple strips unknown keys from `aps` but preserves custom top-level keys). Reads the token from shared keychain. If token missing/expired, extension silently skips the telemetry POST — backend already pre-inserts a row at send time, so missing `received_at` is acceptable (opens still correlate).
 - `ios/Momentum/Sources/Modules/Notifications/NotificationCenterDelegate.swift` — new `UNUserNotificationCenterDelegate`. Implements:
@@ -125,6 +137,7 @@
 - `AppDelegate.swift`: set `UNUserNotificationCenter.current().delegate = NotificationCenterDelegate.shared` in `application(_:didFinishLaunchingWithOptions:)`. Register categories here too.
 
 **Payload contract (per §4.6):** APNs payload is shaped so required iOS directives are inside `aps`:
+
 ```
 {
   "aps": {
@@ -141,6 +154,7 @@
   "memory_hooks": { ... }
 }
 ```
+
 Putting `mutable-content` and `category` inside `aps` is required for the service extension and category actions to fire.
 
 **Verification:** Send a test push via admin `POST /api/notifications/send` with a fake job_id → `notification_deliveries.received_at` populates; tap → `opened_at` populates; long-press reveals "Why this notification?" action.
@@ -150,12 +164,14 @@ Putting `mutable-content` and `category` inside `aps` is required for the servic
 Touch `profiles.last_active_at` and append to `user_activity_events` at every user-initiated mutation. Also add event emissions from the single-owner table.
 
 **Files to modify:**
+
 - `backend/src/chat/messages.service.ts` → on insert-by-user: `ActivityService.record(userId, 'message_sent')`.
 - `backend/src/roadmap/weekly-task.service.ts` → when `is_completed` toggles true: `ActivityService.record(userId, 'task_completed')` + set `weekly_tasks.completed_at = now()`, and emit `task.completed` event (used by streak eval in M2.6, winback cancellation in M3.1).
 - `backend/src/roadmap/debrief.service.ts:103` → after insert: `ActivityService.record(userId, 'debrief_submitted')`. Also check if the debrief completes the plan (`weekly_plans.status → 'completed'`); if so emit `weekly-plan.completed`.
 - `backend/src/roadmap/roadmap.service.ts` — after roadmap persistence, compute `milestones.target_date` from `goals.target_date` and `target_week`.
 
 **Event emissions added here:**
+
 - `task.completed` (payload: `{userId, taskId, goalId, weeklyPlanId, completedAt}`) — `weekly-task.service.ts`.
 - `milestone.completed` — owner is a new `milestones.service.ts`. No product flow flips milestones to complete today, so this phase ships with only the emitter wired; an admin trigger endpoint lets QA force the event. Auto-detection arrives in M3.2.
 - `goal.completed` — `goals.service.ts` on status → `completed`.
@@ -169,13 +185,15 @@ Touch `profiles.last_active_at` and append to `user_activity_events` at every us
 Install `@nestjs/schedule` and set up the first real notification flow.
 
 **Backend (new):**
+
 - `backend/src/notifications/outbox/outbox.service.ts` — `insert(job)` helper with dedup via `ON CONFLICT (dedup_key) DO NOTHING`. `cancel(filter)` for superseding. `markSkipped(id, reason)`, `markSent(id)`, `markFailed(id, error)`.
 - `backend/src/notifications/dispatcher/dispatcher.service.ts` — cron every 1 min. Calls the thin pg function `claim_notification_jobs(worker_id, batch_size)` which ONLY does the atomic claim. Two-phase send logic (Phase A P0/P1, Phase B P2/P3 grouping + winner selection, global ceiling, gate checks) lives in TypeScript.
 - `backend/src/notifications/dispatcher/predicates.ts` — per-kind predicate functions called both at enqueue and at dispatch (re-check, §3.3).
 - `backend/src/notifications/dispatcher/orphan-recovery.service.ts` — cron every 2 min; `UPDATE notification_jobs SET status='pending' WHERE status='claimed' AND claimed_at < now() - interval '5 min'`.
-- `backend/src/notifications/producers/coach-reply.producer.ts` — inserts `coach_reply_ready` job *in the same transaction* as the assistant-message insert in `chat/messages.service.ts` (via pg RPC `persist_assistant_message_tx`), not via `@OnEvent`. Event is still emitted post-commit for read-only listeners (embeddings, etc.).
+- `backend/src/notifications/producers/coach-reply.producer.ts` — inserts `coach_reply_ready` job _in the same transaction_ as the assistant-message insert in `chat/messages.service.ts` (via pg RPC `persist_assistant_message_tx`), not via `@OnEvent`. Event is still emitted post-commit for read-only listeners (embeddings, etc.).
 
 **Backend (infra):**
+
 - `bun add @nestjs/schedule`.
 - `backend/src/app.module.ts` — `ScheduleModule.forRoot()`.
 - PG function `claim_notification_jobs` via migration `20260421_notif_10_claim_fn.sql`.
@@ -187,6 +205,7 @@ Install `@nestjs/schedule` and set up the first real notification flow.
 Highest-leverage opt-in lever; ships before more kinds to avoid wasted pushes to unpermitted users.
 
 **iOS:**
+
 - Remove unconditional `requestPermissionAndRegister()` from `App.swift:68` / `App.swift:73`.
 - Add a `PermissionPromptCoordinator` that fires on:
   1. First coach-message reveal (hook in coach conversation view-model).
@@ -200,11 +219,13 @@ Highest-leverage opt-in lever; ships before more kinds to avoid wasted pushes to
 ## M1.7 — Onboarding capture of `user_motivation_quote`
 
 **iOS:**
+
 - Add free-text step to onboarding flow ("Why does this goal matter to you?") — `OnboardingMotivationView.swift`.
 - PATCH `goals.user_motivation_quote` via existing goals endpoint. If endpoint doesn't accept it, add field to the DTO.
 - Make optional; skip retains null.
 
 **Backend:**
+
 - Extend `backend/src/goals/dto/update-goal.dto.ts` (or create) to accept `user_motivation_quote`.
 
 **Verification:** new user onboards → `SELECT user_motivation_quote FROM goals WHERE user_id = $new`. Quote appears verbatim.
@@ -213,15 +234,16 @@ Highest-leverage opt-in lever; ships before more kinds to avoid wasted pushes to
 
 ---
 
-# Milestone 2 — Evidence-based core (M2.1–M2.8)
+# Milestone 2 — Evidence-based core (M2.1–M2.9)
 
-**Outcome**: the retention loop runs on real psychology — daily check-ins at the user's actual active hour, if-then implementation intentions (Gollwitzer d=0.65), weekly streaks with freeze tokens, celebration pushes, goal-gradient bridging. Users can mute everything they don't want via per-kind settings. The global 2/day ceiling prevents over-firing.
+**Outcome**: the retention loop runs on real psychology — daily check-ins at the user's actual active hour, if-then implementation intentions (Gollwitzer d=0.65), weekly streaks with freeze tokens, celebration pushes, goal-gradient bridging, and LLM-generated coach-voiced copy on every eligible push. Users can mute everything they don't want via per-kind settings. The global 2/day ceiling prevents over-firing.
 
-**Why this grouping**: these sub-phases depend on M1's foundation but can be implemented in any order within M2 as long as M2.3 (opt-out gate) lands before M2.6 (streaks) and M2.5 (global ceiling) lands before M2.7 (celebrations) — the dependency graph is enforced by the sub-phase order below. Each sub-phase is shippable on its own.
+**Why this grouping**: these sub-phases depend on M1's foundation but can be implemented in any order within M2 as long as M2.3 (opt-out gate) lands before M2.6 (streaks), M2.5 (global ceiling) lands before M2.7 (celebrations), and M2.9 (copy-gen) lands after M2.1–M2.8 have defined the producers and memory-hook payload contracts. Each sub-phase is shippable on its own.
 
 ## M2.1 — Time-anchored scheduler + `daily_check_in` (persona-default hour)
 
 **Backend:**
+
 - `backend/src/notifications/producers/scheduler.service.ts` — cron every 15 min. For each active user, compute next-24h `daily_check_in` if one isn't already pending. Uses persona default hour for v1 (drill 07, standard 19, gentle 20) — STO takes over in M2.4. Inserts with dedup `daily_check_in:<user_id>:<YYYY-MM-DD-local>`.
 - Predicate: active weekly_plan, `incomplete_task_count > 0`, `notif_enabled`, not in quiet hours (M2.3 — for v1 hardcode quiet 22-07).
 - Re-check at dispatch (already in dispatcher skeleton from M1.5).
@@ -233,10 +255,12 @@ Highest-leverage opt-in lever; ships before more kinds to avoid wasted pushes to
 Highest-leverage evidence-based mechanic; ships before other nudge kinds.
 
 **iOS:**
-- On weekly-plan publication screen, per task, prompt *"When will you do this? Where?"* with day/hour/location inputs.
+
+- On weekly-plan publication screen, per task, prompt _"When will you do this? Where?"_ with day/hour/location inputs.
 - POST `weekly_task_intentions(task_id, day_of_week, local_hour, location_label)`.
 
 **Backend:**
+
 - `backend/src/notifications/intentions/intentions.controller.ts` — CRUD on `weekly_task_intentions` (auth'd user can only touch own tasks).
 - `backend/src/notifications/producers/intention.producer.ts` — invoked by scheduler. For each captured intention: insert `implementation_intention` job at the if-then local time. Predicate: task still incomplete. **Overrides STO** per design.
 - Dispatcher winner-selection rank (already defined): `implementation_intention` second only to `streak_broken`.
@@ -246,6 +270,7 @@ Highest-leverage evidence-based mechanic; ships before other nudge kinds.
 ## M2.3 — Quiet hours, opt-out UI, per-kind toggles
 
 **iOS:**
+
 - Settings → Notifications (new `NotificationSettingsView.swift`).
   - Master toggle (→ `profiles.notif_enabled`).
   - Quiet hours start/end pickers.
@@ -253,6 +278,7 @@ Highest-leverage evidence-based mechanic; ships before other nudge kinds.
 - PATCH `profiles` with updated fields.
 
 **Backend — `notif_preferences` schema (fixed here so downstream phases can rely on it):**
+
 ```
 profiles.notif_preferences = {
   "global": { "paused_until": <timestamptz?> },     // written by winback M3.1, fatigue M3.4 (global floor)
@@ -264,6 +290,7 @@ profiles.notif_preferences = {
 ```
 
 **Central gate function** `isPushAllowed(userId, kind): { allowed, reason }` lives in `backend/src/notifications/gate/gate.service.ts` and is called by BOTH producers (before enqueue) AND dispatcher (before send — re-check for late-breaking pauses). It checks, in order:
+
 1. `profiles.notif_enabled = false` → `user_disabled`.
 2. `notif_preferences.global.paused_until > now()` → `global_paused`.
 3. `notif_preferences[kind].enabled = false` → `kind_disabled`.
@@ -277,6 +304,7 @@ All subsequent sub-phases that say "check opt-out" mean "call `gate.service.isPu
 ## M2.4 — STO computation (requires ≥ 7 days of activity data)
 
 **Backend:**
+
 - `backend/src/notifications/sto/sto.service.ts` — `computeActiveHour(userId): number | null`. Implements §6.2.
 - `backend/src/notifications/sto/sto-cron.service.ts` — runs as a consumer of the 15-min local-time scheduler: fires once per user when their local time enters the 02:00–02:14 window. Updates `profiles.sto_active_hour` with whiplash guard: only change if ≥ 2 hours different or stored > 14 days old.
 - Scheduler (M2.1) switches from persona-default to `coalesce(sto_active_hour, persona_default_hour)` for `daily_check_in`; `streak_at_risk` uses `max(sto_active_hour, 18)`; `coach_proactive` uses `sto_active_hour`.
@@ -286,6 +314,7 @@ All subsequent sub-phases that say "check opt-out" mean "call `gate.service.isPu
 ## M2.5 — Global 2/day hard ceiling (§8.5)
 
 **Backend:**
+
 - Dispatcher preflight: before APNs send, `SELECT count(*) FROM notification_jobs WHERE user_id=$u AND sent_at > now() - interval '24h'`. If ≥ 2: reschedule to the earliest gap. If gap > 2h late: skip with `skip_reason = 'global_ceiling'`.
 - Track via a materialized counter if profiling shows the count-query is hot (not needed for v1).
 
@@ -294,6 +323,7 @@ All subsequent sub-phases that say "check opt-out" mean "call `gate.service.isPu
 ## M2.6 — Weekly streaks system
 
 **Backend:**
+
 - `backend/src/notifications/streaks/streaks.service.ts` — `evaluateOnTaskCompleted(userId, goalId, completedAt)` per §5.3. Insert/update `user_streaks` row.
 - `backend/src/notifications/streaks/streaks-nightly.service.ts` — hooked into the per-user local-time scheduler (see cross-cutting). For each user whose local Sunday is ending (23:00–23:59 local), scan for broken streaks where no `task.completed` fired this local week. Insert `streak_broken` jobs for the user's local Monday morning.
 - `@OnEvent('task.completed')` listener calls the streak service. May emit `streak_milestone` at {4, 8, 12, 26, 52} weeks.
@@ -302,6 +332,7 @@ All subsequent sub-phases that say "check opt-out" mean "call `gate.service.isPu
 - §5.7 guardrails: no streak mention in push copy for first 60 days (gate in copy module via `now()::date - profiles.tenure_start_date < 60`). In-app streak visible from day 1.
 
 **iOS:**
+
 - Streak card on goal detail / roadmap view — reads `user_streaks` via existing Supabase client.
 
 **Verification:** complete task Mon week N → `current_weeks = 1`. Complete task Mon week N+1 → `current_weeks = 2`. Skip week N+2 entirely, no freeze → Sunday 23:30 local tick marks broken, Monday `streak_broken` fires.
@@ -313,6 +344,7 @@ All subsequent sub-phases that say "check opt-out" mean "call `gate.service.isPu
 **Scope clarification**: "cap-exempt" in the design (§8.1) means only **exempt from the P2/P3 per-day winner-selection suppression** — i.e. they don't compete in the group, they send directly. They are **still subject to the absolute 2-per-24h global ceiling (§8.5)**. A user completing 3 milestones in one evening will see 2 pushes, not 3.
 
 **Backend:**
+
 - Producers listen on `milestone.completed`, `goal.completed`, `weekly-plan.completed`. Insert jobs (tier 2).
 - Dispatcher: celebration kinds skip Phase B grouping (send directly after Phase A), but still pass through the global ceiling check from M2.5.
 - If a celebration job is suppressed by the global ceiling, `skip_reason = 'global_ceiling_celebration'` — celebrations that can't fit still deserve an audit trail because they're rare.
@@ -322,13 +354,248 @@ All subsequent sub-phases that say "check opt-out" mean "call `gate.service.isPu
 ## M2.8 — `milestone_preview` (goal-gradient bridge, §11.6)
 
 **Backend:**
+
 - Listener on `milestone.completed` → schedule `milestone_preview` job for now + 24 h, dedup `milestone_preview:<milestone_id>`.
 - Predicate: next milestone exists, not yet complete. Payload includes `{ next_milestone_name, weeks_available, any_prep_already_done }`.
 - Check weekly_tasks already created for the next milestone — count fills `any_prep_already_done`.
 
 **Verification:** complete milestone M → 24 h later, push previews milestone M+1 with endowed-progress framing.
 
-**M2 exit criterion**: a user who completes tasks every week sees a daily_check_in at their actual active hour, can capture if-then intentions that fire at the exact captured moment, has a working streak counter with freeze tokens, gets celebration pushes on milestone completion, and sees a gentle bridge push to the next milestone 24 h after. A user who dislikes any kind can mute it individually.
+## M2.9 — Coach-voiced copy generation
+
+Turn every eligible push from a placeholder stub into an LLM-generated, coach-voiced message. Consolidates the "copy-gen module" referenced throughout the design into a concrete milestone so M2's "evidence-based core" ships with personality, not placeholder text.
+
+**Why now (not deferred to M3)**: M2.1–M2.8 all write placeholder strings today. Without coach voice the retention loop feels generic and undercuts the personalization premise. M3.3 (`coach_proactive`) also needs LLM copy and reuses this service instead of reinventing it.
+
+**Architecture — dispatcher stays LLM-free**: a separate consumer generates copy 1–15 minutes before each scheduled send. Jobs carry `copy_status`; the dispatcher joins `notification_copy_generations` at send time and picks generated copy if ready, the producer-written stub otherwise. No LLM call is ever awaited in the dispatcher hot path.
+
+### M2.9.1 — Schema + fallback consolidation
+
+**Files:**
+
+- `backend/migrations/20260422_notif_11_copy_gen.sql`.
+
+**Additions to `notification_jobs`:**
+
+- `copy_status text not null default 'pending' check (copy_status in ('pending','generating','generated','failed','skipped_stub'))`.
+- `copy_claimed_at timestamptz` (lease timestamp).
+- `copy_claimed_by text` (worker id).
+- `copy_attempts int not null default 0`.
+- `copy_input_hash text` (sha256 over generation-relevant inputs; producer writes on insert; see M2.9.3).
+- `copy_generation_id uuid` (nullable FK to `notification_copy_generations`).
+
+**New table `notification_copy_generations`:**
+
+- `id uuid primary key default gen_random_uuid()`.
+- `job_id uuid not null references notification_jobs(id) on delete cascade`.
+- `kind text not null`, `coach_id int`, `language text not null`, `model text not null`.
+- `prompt_version text not null` (e.g. `v1.0-strict-en`; experiment variants stored as `exp:<id>:<variant>`).
+- `input_hash text not null` (snapshot of the job's input_hash at generation time).
+- `attempt_no int not null`.
+- `status text not null check (status in ('generated','failed'))`.
+- `output jsonb` (final `{title, body}` including any validator-driven truncation).
+- `provider_status int`, `error_code text` (enum: `timeout` / `parse_error` / `banned_phrase` / `streak_mention_forbidden` / `truncated` / `rate_limited` / `http_error` / `other`).
+- `prompt_tokens int`, `completion_tokens int`, `latency_ms int`.
+- `created_at timestamptz not null default now()`.
+- Indexes: `(job_id)`; `(kind, created_at desc)`; partial `(status) where status = 'failed'`.
+- RLS: deny-all to `anon`/`authenticated`; service-role only (per §10 pattern).
+
+**Additions to `notification_deliveries`:**
+
+- `send_source text not null default 'stub' check (send_source in ('stub','generated'))` — stamped by dispatcher at send time so open-rate lift (generated vs stub) can be measured per kind.
+
+**SQL views created in the same migration:**
+
+- `v_copy_gen_success_rate_24h` — `status='generated' / total` per kind over 24h.
+- `v_copy_gen_fallback_by_reason` — counts grouped by `error_code` over 24h.
+- `v_copy_gen_open_rate_lift` — joins `notification_deliveries.send_source` with opens → per-kind generated vs stub open rate.
+
+**Fallback consolidation:**
+
+- `backend/src/notifications/copy/fallbacks.ts` — single source of truth for per-kind/language stub `{title, teaser}`. Producers (scheduler, streaks, milestone-preview, celebrations) stop carrying local constants (`DAILY_CHECK_IN_TEASER`, `MILESTONE_FALLBACK_TITLE`, etc.) and read from this module. This guarantees the dispatcher's fallback path and the producer's insert-time stub never diverge.
+
+**Verification:** `list_tables` shows `notification_copy_generations`; `get_advisors` clean. All 426 existing M2 tests still pass after the fallback refactor.
+
+### M2.9.2 — Copy-gen service + dedicated client + validators
+
+**Files (new):**
+
+- `backend/src/notifications/copy/copy-gen.client.ts` — thin wrapper over `AiService` exposing `generate({model, systemPrompt, userPrompt, schema}): Promise<ClientResult>`. Per-call timeout **4 s**; provider backoff: retry once on 429/5xx with 1 s delay; total wall-clock budget **9 s** (fits in the 15 min lookahead window many times over). JSON structured-output mode (Zod schema passed to OpenRouter `response_format`). No regex-parse fallback — parse failure is terminal for that attempt.
+- `backend/src/notifications/copy/copy-gen.service.ts` — orchestrator. `generate(jobContext): Promise<{status: 'generated'|'failed', output?: {title,body}, errorCode?, generationRowId}>`.
+- `backend/src/notifications/copy/prompts/system-prompts.ts` — one per `(persona × language)` (4 personas × 2 languages = 8 prompts). Each tagged with `promptVersion`.
+- `backend/src/notifications/copy/prompts/variants/` — experiment prompt overrides populated when M3.5 experiments launch.
+- `backend/src/notifications/copy/validators.ts` — three-stage pipeline (order matters):
+  1. **Parse + required-field** (Zod schema: `{title: string min 1, body: string min 1}`). Parse failure → `errorCode='parse_error'`, status `'failed'`.
+  2. **Length clamp** (non-fatal): hard-truncate `title` to 40 chars and `body` to 180 chars. When clamping occurs, set `errorCode='truncated'` on the generation row but return status `'generated'`.
+  3. **Semantic validators** (fatal): banned-phrase scanner (normalized: lowercase + NFD-strip accents + word-boundary regex on stem list) and `suppressStreakCopy` scanner (blocks `streak|série|serie` stems when flag is set). Failure → `errorCode='banned_phrase'` or `'streak_mention_forbidden'`, status `'failed'`.
+- `backend/src/notifications/copy/banned-phrases.ts` — stem list per language per §11.9 (parasocial "we miss you"; phantom-emotional "your coach is disappointed"; shame-based "you let yourself down"; fake urgency / fake social proof patterns).
+- `backend/src/notifications/copy/__fixtures__/red-team/` — ≥ 10 adversarial memory-hook fixtures per `(kind × persona × language)`. Inputs crafted to tempt parasocial / phantom-emotion outputs.
+- `backend/src/notifications/copy/copy-gen.red-team.spec.ts` — runs fixtures through the full service with a stubbed LLM that returns worst-case output patterns from a pre-seeded bank, then through the real validator. Asserts 100% rejection of banned outputs.
+
+**Retry ladder inside the service (fits 9 s total budget):**
+
+1. First attempt with standard system prompt (≤ 4 s).
+2. On parse or semantic-validator failure → one retry with a stricter user prompt enumerating the banned phrase list (≤ 4 s + 1 s delay).
+3. On second failure → return `{status: 'failed', errorCode}`. Caller falls back to stub via the dispatcher path.
+
+**Verification:** unit-test grid per `(kind × persona × language)` asserts (a) happy-path output passes validator, (b) red-team outputs are rejected with the correct `errorCode`, (c) `suppressStreakCopy` output contains no streak stem, (d) budget breach forces failure before 10 s wall-clock. Snapshot tests guard the system prompts against regressions.
+
+### M2.9.3 — Pre-dispatch consumer + dispatcher integration
+
+**Pre-dispatch claim (worker-lease SQL):**
+
+```sql
+UPDATE notification_jobs
+SET copy_status = 'generating',
+    copy_claimed_at = now(),
+    copy_claimed_by = $workerId,
+    copy_attempts = copy_attempts + 1
+WHERE id IN (
+  SELECT id FROM notification_jobs
+  WHERE copy_status = 'pending'
+    AND status = 'pending'
+    AND scheduled_for_utc BETWEEN now() AND now() + interval '15 min'
+    AND copy_attempts < 3
+  ORDER BY scheduled_for_utc
+  FOR UPDATE SKIP LOCKED
+  LIMIT 20
+)
+RETURNING id, kind, coach_id, language, payload, copy_input_hash, copy_attempts;
+```
+
+**Files (new):**
+
+- `backend/src/notifications/copy/copy-gen.consumer.ts` — cron every 30 s with 0–5 s jitter. Claims batch, generates with `p-limit(5)` concurrency. On success: `INSERT INTO notification_copy_generations ... RETURNING id`, then `UPDATE notification_jobs SET copy_status='generated', copy_generation_id=$gid`. On failure: `UPDATE notification_jobs SET copy_status='failed', copy_generation_id=$gid` (generation row captures `error_code`); if `copy_attempts < 3`, orphan recovery can reset for retry.
+- `backend/src/notifications/copy/copy-gen-orphan-recovery.service.ts` — cron every 2 min. `UPDATE notification_jobs SET copy_status='pending', copy_claimed_at=NULL, copy_claimed_by=NULL WHERE copy_status='generating' AND copy_claimed_at < now() - interval '2 min' AND copy_attempts < 3`.
+
+**Throughput controls:**
+
+- Batch size 20 per tick; concurrency 5 parallel LLM calls per worker.
+- Lookahead window 15 min smooths STO-clustered bursts (design §6.2 clusters many users at the same local 02:00/STO hour).
+- Backlog alert: when `count(*) WHERE copy_status='pending' AND scheduled_for_utc < now() + interval '2 min' > 50` → insert `notification_system_alerts` row.
+
+**Input-hash invalidation on reschedule:**
+
+Producer helper `computeCopyInputHash(job)` computes sha256 over `(kind, language, coach_id, floor(scheduled_for_utc_epoch_seconds / 900), canonical_json(memory_hooks), canonical_json(kind_specific), suppress_streak_copy)`. Whenever the dispatcher or gate reschedules a job (quiet-hours deferral, global-ceiling deferral, predicate re-fire), it recomputes the hash. If different from `copy_input_hash`:
+
+```sql
+UPDATE notification_jobs
+SET copy_status = 'pending',
+    copy_input_hash = $new,
+    copy_generation_id = NULL,
+    copy_attempts = 0,
+    copy_claimed_at = NULL,
+    copy_claimed_by = NULL
+WHERE id = $id;
+```
+
+The previous `notification_copy_generations` row is retained for audit but decoupled.
+
+**Dispatcher is LLM-free at send time.** One fresh read per batch joins generation rows:
+
+```sql
+SELECT nj.id, nj.payload AS stub_payload, cg.output AS generated, cg.status AS gen_status, cg.id AS gen_id
+FROM notification_jobs nj
+LEFT JOIN notification_copy_generations cg ON nj.copy_generation_id = cg.id
+WHERE nj.id = ANY($claimed_ids);
+```
+
+Selection: if `cg.status = 'generated'` → render `cg.output` and stamp `notification_deliveries.send_source = 'generated'`; else → render `nj.payload.title/teaser` and stamp `send_source = 'stub'`.
+
+**Per-kind copy-gen policy (single authoritative table):**
+
+| Kind                                            | copy_status at insert                            | Reason                                                                                                                                                                      |
+| ----------------------------------------------- | ------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `coach_reply_ready`                             | `skipped_stub`                                   | Body is the coach's actual reply excerpt; no generation needed.                                                                                                             |
+| `implementation_intention`                      | `skipped_stub`                                   | Body is the user's captured if-then text verbatim; no generation needed.                                                                                                    |
+| `daily_check_in`                                | `pending` → pre-dispatch consumer                | ≥ 15 min scheduled lead time.                                                                                                                                               |
+| `streak_at_risk`                                | `pending` → pre-dispatch consumer                | Scheduled at Sunday STO slot; ample lead time.                                                                                                                              |
+| `streak_broken`                                 | `pending` → pre-dispatch consumer                | Scheduled overnight for Monday morning; ample lead time.                                                                                                                    |
+| `streak_milestone`                              | `pending` → producer-side post-commit generation | Fires near-immediately after `task.completed`. See producer-side rules below.                                                                                               |
+| `milestone_hit` / `goal_hit` / `week_completed` | `pending` → producer-side post-commit generation | Short lead time after completion events.                                                                                                                                    |
+| `milestone_preview`                             | `pending` → pre-dispatch consumer                | 24 h scheduled lead time.                                                                                                                                                   |
+| `coach_proactive` (M3.3)                        | `pending` → pre-dispatch consumer                | Scheduled at STO slot; ample lead time. May opt into a stronger `memory_hooks.preferred_model` once cost-effectiveness is proven against the `openai/gpt-5.4-nano` default. |
+| `winback_step` (M3.1)                           | `pending` → pre-dispatch consumer                | Scheduled days ahead.                                                                                                                                                       |
+
+**Producer-side post-commit generation** (celebrations + `streak_milestone`, which fire with short lead time):
+
+1. Producer's outbox insert transaction writes the job with `copy_status='generating'`, `copy_claimed_by='producer:<producerName>'`, `copy_claimed_at=now()`, `copy_attempts=1`. The LLM call is **not** inside the transaction.
+2. After the transaction commits, the producer schedules `void CopyGenService.generate(ctx)` via `setImmediate`. On completion, the service writes `notification_copy_generations` and updates the job in its own short transaction: `copy_status='generated'|'failed'`, `copy_generation_id=$gid`.
+3. If the producer process dies before completion, the orphan-recovery cron releases the lease after 2 min and the pre-dispatch consumer picks it up — still usually within the send window.
+4. If the dispatcher claims the job before generation finishes, `cg.status` is not yet `'generated'` and dispatcher renders the stub. Identical fallback path as every other kind.
+
+**Config / kill-switches (env, not user preference):**
+
+- `COPY_GEN_GLOBAL_ENABLED=false` → consumer no-ops; orphan-recovery still runs; dispatcher sends stubs universally.
+- `COPY_GEN_ENABLED_KINDS=daily_check_in,milestone_preview` → per-kind allowlist. Producers mark non-listed kinds `copy_status='skipped_stub'` at insert so the consumer ignores them cleanly.
+- `COPY_GEN_ROLLOUT_PERCENT=10` → producer computes `hash(user_id) % 100 < N`; ineligible users get `copy_status='skipped_stub'` at insert.
+- `COPY_GEN_DEFAULT_MODEL=openai/gpt-5.4-nano` → default model, chosen for cost. Override via `memory_hooks.preferred_model` on a per-job basis when a specific kind justifies the cost delta (M3.3 is the likely candidate).
+
+**Verification:**
+
+- Seed 10 `daily_check_in` jobs 3 min ahead → consumer generates all within 60 s → `copy_status='generated'`; dispatch renders distinct per-persona per-language copy.
+- Point `AI_API_URL` to an unreachable host → consumer logs `error_code='http_error'`, `copy_status='failed'` → dispatcher still delivers stubs → `send_source='stub'` on all deliveries.
+- Enqueue 100 jobs over 1 min → p95 end-to-end generation latency < 20 s (includes retry + queue wait).
+- Reschedule a generated job into quiet hours → `recomputeInputHash` differs → `copy_status` flips to `'pending'` → next tick regenerates.
+- Kill the worker mid-generation → orphan-recovery resets lease within 2 min → next tick regenerates.
+
+### M2.9.4 — Backend observability + rollout
+
+The admin UI for copy-gen is deferred to M3.6 (respects the existing "no web admin until M3" scope). M2.9.4 ships backend-only observability so rollout can be measured from day one via SQL and logs.
+
+**Steady-state SLO — ≥ 75 % of sent pushes carry personalized AI-generated copy.**
+
+Measured fleet-wide over any rolling 24 h after rollout completes:
+
+```sql
+count(*) filter (where send_source = 'generated' or kind = 'coach_reply_ready')
+/ count(*)::float
+```
+
+- `send_source = 'generated'` covers every M2.9-allowlisted kind where the pre-dispatch consumer (or producer-side post-commit gen) succeeded and the dispatcher rendered `notification_copy_generations.output`.
+- `coach_reply_ready` is counted as AI-generated because its teaser is the coach LLM's actual reply excerpt (personalized, AI-authored, even though it bypasses M2.9).
+- Kinds that are inherently user-authored (`implementation_intention` — verbatim user text) and all stub fallbacks count against the SLO.
+
+If fleet-wide share falls below 75 % for more than 24 h, copy-gen's fallback rate is too high (usually a provider/prompt regression). Response ladder:
+
+1. Inspect `v_copy_gen_fallback_by_reason`: identify the dominant `error_code`.
+2. If provider-side (`rate_limited`, `http_error`, `timeout`): raise concurrency/backoff ceiling or temporarily switch `COPY_GEN_DEFAULT_MODEL` to a more reliable provider/model.
+3. If validator-side (`banned_phrase`, `streak_mention_forbidden`, `parse_error`): iterate the system prompt for the affected `(kind, persona, language)` triplet; bump `promptVersion`; add the failing case to the red-team fixture suite so it can't regress.
+4. If a specific kind can't meet quality — disable it in `COPY_GEN_ENABLED_KINDS` (dispatcher falls back to stub), file a prompt-revision follow-up issue; users still get safe copy while the fix lands.
+
+**Backend:**
+
+- Structured NestJS logs per generation: `{kind, coach_id, language, status, error_code, attempt_no, latency_ms, prompt_version, provider_status, input_hash}` — sink to Supabase Logs.
+- SQL views from M2.9.1 (`v_copy_gen_success_rate_24h`, `v_copy_gen_fallback_by_reason`, `v_copy_gen_open_rate_lift`) plus a new view `v_copy_gen_slo_24h` computing the SLO fraction above (queried ad-hoc or via Supabase Logs until M3.6 surfaces them).
+- Alert: if `v_copy_gen_slo_24h < 0.75` for two consecutive 1 h windows → insert row in `notification_system_alerts` with `kind='copy_gen_slo_breach'`.
+
+**Rollout plan (reaches SLO by end of week 2, sustained by weeks 3–4):**
+
+| Week | `COPY_GEN_ENABLED_KINDS`                                                       | `COPY_GEN_ROLLOUT_PERCENT` | Expected fleet AI-generated share                                                                                |
+| ---- | ------------------------------------------------------------------------------ | -------------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| 1    | `daily_check_in, milestone_preview`                                            | 25                         | ≈ 35–40 % (10 % pilot gets AI copy on ≥ 90 % of their `daily_check_in` volume + all `coach_reply_ready` traffic) |
+| 2    | `daily_check_in, milestone_preview`                                            | 100                        | ≥ 75 % (`daily_check_in` alone dominates push volume; plus `coach_reply_ready`)                                  |
+| 3    | + `streak_milestone, milestone_hit, goal_hit, week_completed, coach_proactive` | 100                        | ≥ 85 % — only `implementation_intention` + rare streak-at-risk/broken remain on stubs                            |
+| 4    | + `streak_at_risk, streak_broken, winback_step` (all M2.9-eligible kinds)      | 100                        | ≥ 90 % — only user-authored `implementation_intention` stays stub by design                                      |
+
+Week-1 pilot (25 %) is a deliberate de-risking step. The SLO obligation binds from week 2 onward.
+
+Week 3 gating: producer sets `suppressStreakCopy=true` for users with `tenure_start_date > now() - 60 days` per §5.7 — prevents premature streak framing during the first two months.
+
+Daily manual review of `notification_copy_generations` rows with `status='failed'` during week 4 (highest-risk kinds for tone failures).
+
+**Experiment hook (M3.5 dependency):**
+
+- Producer optionally calls `ExperimentService.assignVariant` and stamps `experiment_id` + `variant` on the outbox row.
+- Copy-gen service loads `prompts/variants/<experiment>/<variant>.ts` when present; `prompt_version` on the generation row becomes `exp:<id>:<variant>` so analytics can segment by arm.
+
+**Verification:**
+
+- Set `COPY_GEN_ROLLOUT_PERCENT=25` → producer marks ~75 % of new jobs `skipped_stub` → `v_copy_gen_slo_24h` shows the 25 % bucket getting generated copy (plus `coach_reply_ready` which always counts).
+- Flip `COPY_GEN_GLOBAL_ENABLED=false` → within 30 s, consumer stops creating new `notification_copy_generations` rows; jobs already marked `generated` continue to dispatch with their already-written copy; new jobs dispatch as stubs; `v_copy_gen_slo_24h` degrades.
+- Post-full-rollout steady-state: `v_copy_gen_slo_24h ≥ 0.75` continuously. Simulate a provider outage (invalid `AI_API_URL`) → within two 1 h windows, alert row in `notification_system_alerts` with `kind='copy_gen_slo_breach'`.
+
+**M2 exit criterion**: a user who completes tasks every week sees a daily_check_in at their actual active hour, can capture if-then intentions that fire at the exact captured moment, has a working streak counter with freeze tokens, gets celebration pushes on milestone completion, sees a gentle bridge push to the next milestone 24 h after, and every eligible push (per the M2.9 rollout allowlist) lands in the user's coach voice in their language — with safe fallback to stub copy if generation fails, times out, or is invalidated by reschedule. A user who dislikes any kind can mute it individually. **SLO**: fleet-wide AI-generated share (`v_copy_gen_slo_24h`) holds ≥ 75 % for ≥ 7 consecutive rolling 24 h windows post week-2 rollout.
 
 ---
 
@@ -341,6 +608,7 @@ All subsequent sub-phases that say "check opt-out" mean "call `gate.service.isPu
 ## M3.1 — Winback sequence (5 steps + day-30 break-up + 90-day auto-pause)
 
 **Backend:**
+
 - `backend/src/notifications/winback/winback.service.ts` — runs as a consumer of the 15-min local-time scheduler: fires once per user when their local time enters the 02:00–02:14 window. Detects dormancy: `profiles.last_active_at < now() - persona_threshold_days` and no active sequence.
 - On dormancy: insert all 5 steps at once with shared `sequence_id`, offset days per persona (§11.1 table). Steps 1–5 have tiers P3/P2/P1/P2/P1 with copy hints in `payload.memory_hooks`.
 - `@OnEvent('task.completed')` and `@OnEvent('user.activity')` → cancel pending `winback_step` rows via `sequence_id` (update to `cancelled`, `skip_reason = 'user_returned'`).
@@ -354,6 +622,7 @@ All subsequent sub-phases that say "check opt-out" mean "call `gate.service.isPu
 `plan_not_generated`, `weekly_debrief_prompt`, `week_completion_gap`, `stale_tasks`.
 
 **Backend:**
+
 - `plan_not_generated` producer + the race protection in §4.2 (grace sentinel at Monday 00:05 local; cancel-on-`weekly-plan.generated`).
 - `weekly_debrief_prompt` producer (Sunday 19:00 local, scoped to most-recent-per-goal, 7-day expiry window).
 - `week_completion_gap` (Fri/Sat local, near-complete plan).
@@ -365,17 +634,19 @@ All subsequent sub-phases that say "check opt-out" mean "call `gate.service.isPu
 ## M3.3 — `coach_proactive` local-02:00-tick producer (§11.8)
 
 **Backend:**
+
 - `backend/src/notifications/producers/coach-proactive.producer.ts` — runs as a consumer of the 15-min local-time scheduler: fires once per eligible user when their local time enters the 02:00–02:14 window.
 - Gating signals: missed day, debrief emotional content (sentiment from existing embeddings), milestone pressure (target_date in 7d + < 50% complete), unusually high task difficulty.
-- Calls OpenRouter LLM with coach persona + memory hooks to produce one message; stores directly in `payload.teaser` (skip copy-gen re-run).
+- Producer inserts the job with `copy_status='pending'` and rich `memory_hooks`. The default `openai/gpt-5.4-nano` is used like every other kind; if observed quality is insufficient for this high-stakes proactive push (§11.8), set `memory_hooks.preferred_model` to a stronger model after comparing cost vs measured open-rate lift. The M2.9 pre-dispatch consumer picks it up like any other kind — no inline LLM call here.
 - Cap ≤ 2 per user per week (check count of `coach_proactive` sent in last 7 d).
-- Guardrails per §11.8: no phantom-emotional copy; LLM system prompt includes banned-phrase list.
+- Guardrails per §11.8 are enforced by M2.9 validators (banned phrases, phantom-emotional patterns). The `coach_proactive` prompt lives under `backend/src/notifications/copy/prompts/system-prompts.ts` and is subject to the same red-team test fixtures as other kinds.
 
-**Verification:** seed an eligible user → the 15-min local-time scheduler's 02:00-local tick inserts a job → push lands at STO hour with coach voice.
+**Verification:** seed an eligible user → the 15-min local-time scheduler's 02:00-local tick inserts a job → M2.9 consumer generates Sonnet-grade copy within the pre-dispatch window → push lands at STO hour with coach voice.
 
 ## M3.4 — Dynamic fatigue + aversion signal (§8.4)
 
 **Backend:**
+
 - `backend/src/notifications/fatigue/fatigue.service.ts` — computes per-(user, kind) rolling open rate over last 10 sends. Adjusts per-kind enablement: auto-pause at <5% open, <15% halve frequency, ≥40% allow bonus.
 - Aversion signal: compute rolling `foreground_count_24h_after_send / baseline`. Persist the baseline in `profiles.activity_baseline_per_day` (new small column, add via micro-migration). If ratio < 0.7 for 5 consecutive sends of same kind → auto-pause 21 days.
 - Global fatigue floor: > 10 sends / 7 d → suppress non-P0 for 24 h.
@@ -385,11 +656,13 @@ All subsequent sub-phases that say "check opt-out" mean "call `gate.service.isPu
 ## M3.5 — Experimentation + measurement
 
 **Backend:**
+
 - `backend/src/notifications/experiments/experiments.service.ts` — `assignVariant(userId, experimentId): variantLabel` using `hash(user_id || experiment_id)`.
 - Producers optionally call `assignVariant` and stamp `experiment_id` + `variant` on outbox rows.
 - Metrics job (daily) writes a `notification_experiment_metrics` view/materialized view consumed by the admin dashboard.
 
 **Web (dashboard):**
+
 - `web/app/admin/notifications/experiments/page.tsx` — list experiments, view variants, view measured open rate / CTR / task completion lift / retention lift / APNs 410 rate.
 
 **Verification:** create a draft experiment in admin, set status `running`, seed users via admin tool → variant assignment deterministic across sessions.
@@ -397,10 +670,12 @@ All subsequent sub-phases that say "check opt-out" mean "call `gate.service.isPu
 ## M3.6 — Observability
 
 **pg_cron (observer-only, per §3.4):**
+
 - Extension check via `mcp__supabase__list_extensions`; enable if missing (`CREATE EXTENSION IF NOT EXISTS pg_cron`).
 - Scheduled job every 10 min inserts into `notification_system_alerts` when pending rows exist older than 10 min.
 
 **Web dashboard:**
+
 - `web/app/admin/notifications/dashboard/page.tsx` — tiles for:
   - D1/D7/D30 return (north-star, §9.3).
   - Weekly task completion rate.
@@ -408,9 +683,11 @@ All subsequent sub-phases that say "check opt-out" mean "call `gate.service.isPu
   - Winback sequence conversion.
   - Per-kind open rate + unsubscribe rate.
   - APNs 410 invalidation rate.
-- Pulls from `notification_deliveries`, `user_activity_events`, `user_streaks`, `device_tokens`.
+  - **Copy-gen tiles (from M2.9):** success rate (from `v_copy_gen_success_rate_24h`), fallback breakdown by `error_code` (from `v_copy_gen_fallback_by_reason`), open-rate lift generated vs stub per kind (from `v_copy_gen_open_rate_lift`), last 100 generations with kind / coach / language / output preview (filterable by `status='failed'` for triage).
+- Pulls from `notification_deliveries`, `user_activity_events`, `user_streaks`, `device_tokens`, `notification_copy_generations`.
 
 **Backend:**
+
 - Log-based alerting: dispatcher logs structured events `{kind, skip_reason, user_id}` via NestJS logger; parsed into Supabase logs dashboards.
 
 **Verification:** stop dispatcher for 20 min → pg_cron alert row inserted; dashboard tile surfaces it.
@@ -421,8 +698,8 @@ All subsequent sub-phases that say "check opt-out" mean "call `gate.service.isPu
 
 ## Critical files (new or modified across milestones)
 
-- `backend/migrations/20260420_notif_01..09_*.sql`, `20260421_notif_10_claim_fn.sql` — schema (M1.1, M1.5).
-- `backend/src/notifications/{activity,outbox,dispatcher,producers,streaks,sto,fatigue,experiments,winback,gate,intentions}/*` — new submodules.
+- `backend/migrations/20260420_notif_01..09_*.sql`, `20260421_notif_10_claim_fn.sql`, `20260422_notif_11_copy_gen.sql` — schema (M1.1, M1.5, M2.9.1).
+- `backend/src/notifications/{activity,outbox,dispatcher,producers,streaks,sto,fatigue,experiments,winback,gate,intentions,copy}/*` — new submodules.
 - `backend/src/notifications/notifications.module.ts` — wires all submodules.
 - `backend/src/notifications/notifications.service.ts` — unchanged (APNs transport reuse).
 - `backend/src/roadmap/weekly-task.service.ts`, `backend/src/roadmap/debrief.service.ts`, `backend/src/chat/messages.service.ts`, `backend/src/goals/goals.service.ts`, `backend/src/roadmap/roadmap.service.ts` — event emissions (M1.4).
@@ -439,15 +716,15 @@ All subsequent sub-phases that say "check opt-out" mean "call `gate.service.isPu
 
 - **Timezone**: every `local_hour`/`local_date` computation uses `AT TIME ZONE profiles.timezone`. If null → skip with `skip_reason = 'no_timezone'` (§4.1).
 - **Late jobs**: dispatcher skips with `skip_reason = 'stale'` if `scheduled_for_utc < now() - 2h` (§4.5).
-- **Transactional outbox**: producers insert outbox rows *inside the same DB transaction as the state-changing mutation*. Concretely: the emitter service (e.g., `weekly-task.service.ts.toggleComplete`) opens a transaction, writes the state change + outbox row + `user_activity_events` row together, commits, then emits the Nest event for read-only listeners. This is the design's §3.2A purity. Dedup keys add a second line of defense but are not a substitute: a post-commit listener that crashes would silently drop the notification. v1 uses pg RPC helpers for the 5 event-emitting mutations.
+- **Transactional outbox**: producers insert outbox rows _inside the same DB transaction as the state-changing mutation_. Concretely: the emitter service (e.g., `weekly-task.service.ts.toggleComplete`) opens a transaction, writes the state change + outbox row + `user_activity_events` row together, commits, then emits the Nest event for read-only listeners. This is the design's §3.2A purity. Dedup keys add a second line of defense but are not a substitute: a post-commit listener that crashes would silently drop the notification. v1 uses pg RPC helpers for the 5 event-emitting mutations.
 - **Scheduling — one authoritative model**:
   - **Single scheduler cron, every 15 min (UTC).** For each active user it computes the user's current local hour/date (`AT TIME ZONE profiles.timezone`) and evaluates all time-anchored kinds against the user's local windows.
   - **All** time-anchored kinds resolve through this one evaluator, including those the design doc labels "nightly": `streak_at_risk` (Sunday evening local), `streak_broken` (Monday morning local), `weekly_debrief_prompt` (Sunday 19:00 local), `plan_not_generated` (Monday 08:00 local), `streaks-nightly` (23:00–23:59 Sunday local), `sto` recomputation (02:00–02:14 local), `winback` dormancy check, `coach_proactive` gating (02:00–02:14 local). No separate UTC-pinned crons.
   - This replaces the design's "nightly Nest cron at 02:00 UTC" with a "run once per user per local day at their local 02:00 window" guarantee. DST-safe because each tick recomputes local time from scratch.
   - Idempotency is guaranteed by dedup keys (§4.4) which include `YYYY-MM-DD-local` — so a user whose clock jumps through the window twice (rare, DST-fall-back) can't get two jobs.
-- **Claim SQL lives in backend code, not pg function**: dispatcher issues the `UPDATE … WHERE id IN (SELECT … FOR UPDATE SKIP LOCKED)` via Supabase RPC using a minimal function `claim_notification_jobs(worker_id, batch_size)` that *only* does the claim and returns rows. Dispatch policy (winner selection, ceiling checks, predicate re-check) stays in TypeScript where it can be unit-tested and version-controlled cleanly.
-- **Copy generation**: deferred to a separate module/doc per design. This plan fixes the payload shape (§4.6) that copy-gen will consume.
-- **Ethical copy constraints** (§8.6, §11.9): enforced in copy-gen module; the producers/dispatcher don't generate strings — they pass `memory_hooks` + `kind_specific` only.
+- **Claim SQL lives in backend code, not pg function**: dispatcher issues the `UPDATE … WHERE id IN (SELECT … FOR UPDATE SKIP LOCKED)` via Supabase RPC using a minimal function `claim_notification_jobs(worker_id, batch_size)` that _only_ does the claim and returns rows. Dispatch policy (winner selection, ceiling checks, predicate re-check) stays in TypeScript where it can be unit-tested and version-controlled cleanly.
+- **Copy generation**: owned by M2.9 (`backend/src/notifications/copy/`). Producers insert a safe stub `{title, teaser}` plus `memory_hooks` + `kind_specific` at enqueue; a pre-dispatch consumer generates the coach-voiced version and writes it to `notification_copy_generations`. The dispatcher joins that table at send time and picks generated copy if ready, stub otherwise. **No LLM call is ever awaited in the dispatcher hot path.**
+- **Ethical copy constraints** (§8.6, §11.9): enforced by M2.9 validators in three stages — (a) Zod parse/required-field check, (b) length clamp with `error_code='truncated'` logged, (c) normalized banned-phrase scanner (lowercase + NFD-strip accents) + `suppressStreakCopy` scanner for users with `tenure_start_date < now() - 60 days`. A red-team test suite per (kind × persona × language) asserts the validators reject adversarial outputs.
 
 ---
 
@@ -455,28 +732,32 @@ All subsequent sub-phases that say "check opt-out" mean "call `gate.service.isPu
 
 **Per-sub-phase smoke tests** (automated where possible):
 
-| Sub-phase | Smoke test |
-|---|---|
-| M1.1 | `mcp__supabase__list_tables` shows 7 new tables; `get_advisors` clean. |
-| M1.2 | cURL `/api/activity/foreground` with auth token → row in `user_activity_events`. |
-| M1.3 | Send test push via admin endpoint → `notification_deliveries.received_at` populates; tap → `opened_at` populates. |
-| M1.4 | Complete a task via iOS → `task.completed` event logged; `profiles.last_active_at` advances. |
-| M1.5 | Send chat message → assistant reply → `coach_reply_ready` job fires within 1 min; push arrives on device. |
-| M1.6 | Fresh install, do not prompt at launch; prompt appears post-first-coach-reveal. |
-| M1.7 | New user → `goals.user_motivation_quote` populated verbatim. |
-| M2.1 | Scheduler enqueues `daily_check_in` for next 24h; dispatch re-check skips if tasks complete. |
-| M2.2 | Capture if-then for Tue 20:00 → push fires at Tue 20:00 local. |
-| M2.3 | Flip master notif off → dispatcher skips all pending P0/P1/P2/P3. |
-| M2.4 | Seed 14 days of 20:00 activity → `sto_active_hour = 20`. |
-| M2.5 | Enqueue 3 P0s in 5 min → only 2 send. |
-| M2.6 | 3-week chain with week-4 skip + freeze absorb → streak = 4. |
-| M2.7 | Complete 3 milestones in one evening → 2 celebration pushes fire, 3rd skipped with `global_ceiling_celebration`. |
-| M2.8 | 24 h post-milestone → `milestone_preview` push lands. |
-| M3.1 | Dormant user → 5 steps enqueued; foreground mid-sequence → remaining steps cancelled. |
-| M3.2 | Skip Monday plan gen → Monday 08:00 local `plan_not_generated` fires (unless grace). |
-| M3.3 | Eligible user → LLM-generated coach-proactive push lands within cap. |
-| M3.4 | 10 unopened sends of kind X → auto-pause. |
-| M3.5 | Split experiment into A/B → assignments deterministic; dashboard surfaces metrics. |
-| M3.6 | Stop dispatcher → pg_cron alert row visible in admin dashboard. |
+| Sub-phase | Smoke test                                                                                                                                                                                                                                                                                      |
+| --------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| M1.1      | `mcp__supabase__list_tables` shows 7 new tables; `get_advisors` clean.                                                                                                                                                                                                                          |
+| M1.2      | cURL `/api/activity/foreground` with auth token → row in `user_activity_events`.                                                                                                                                                                                                                |
+| M1.3      | Send test push via admin endpoint → `notification_deliveries.received_at` populates; tap → `opened_at` populates.                                                                                                                                                                               |
+| M1.4      | Complete a task via iOS → `task.completed` event logged; `profiles.last_active_at` advances.                                                                                                                                                                                                    |
+| M1.5      | Send chat message → assistant reply → `coach_reply_ready` job fires within 1 min; push arrives on device.                                                                                                                                                                                       |
+| M1.6      | Fresh install, do not prompt at launch; prompt appears post-first-coach-reveal.                                                                                                                                                                                                                 |
+| M1.7      | New user → `goals.user_motivation_quote` populated verbatim.                                                                                                                                                                                                                                    |
+| M2.1      | Scheduler enqueues `daily_check_in` for next 24h; dispatch re-check skips if tasks complete.                                                                                                                                                                                                    |
+| M2.2      | Capture if-then for Tue 20:00 → push fires at Tue 20:00 local.                                                                                                                                                                                                                                  |
+| M2.3      | Flip master notif off → dispatcher skips all pending P0/P1/P2/P3.                                                                                                                                                                                                                               |
+| M2.4      | Seed 14 days of 20:00 activity → `sto_active_hour = 20`.                                                                                                                                                                                                                                        |
+| M2.5      | Enqueue 3 P0s in 5 min → only 2 send.                                                                                                                                                                                                                                                           |
+| M2.6      | 3-week chain with week-4 skip + freeze absorb → streak = 4.                                                                                                                                                                                                                                     |
+| M2.7      | Complete 3 milestones in one evening → 2 celebration pushes fire, 3rd skipped with `global_ceiling_celebration`.                                                                                                                                                                                |
+| M2.8      | 24 h post-milestone → `milestone_preview` push lands.                                                                                                                                                                                                                                           |
+| M2.9.1    | `copy_status` column + `notification_copy_generations` table exist; refactored fallback-stub producers pass all 426 M2 tests; `get_advisors` clean.                                                                                                                                             |
+| M2.9.2    | Unit-test grid per (kind × persona × language): happy-path passes validator; red-team fixtures rejected with correct `error_code`; `suppressStreakCopy` enforced; 10 s wall-clock budget enforced.                                                                                              |
+| M2.9.3    | 10 `daily_check_in` jobs 3 min ahead → all generated within 60 s. Kill OpenRouter → dispatcher still sends stubs with `send_source='stub'`. Reschedule into quiet hours → hash flips `copy_status='pending'`; next tick regenerates. Kill worker mid-gen → orphan-recovery resets within 2 min. |
+| M2.9.4    | `COPY_GEN_ROLLOUT_PERCENT=10` → only bucket-0 users get `send_source='generated'`. Kill-switch `COPY_GEN_GLOBAL_ENABLED=false` stops new generations within 30 s; previously-generated jobs still dispatch with their already-written copy.                                                     |
+| M3.1      | Dormant user → 5 steps enqueued; foreground mid-sequence → remaining steps cancelled.                                                                                                                                                                                                           |
+| M3.2      | Skip Monday plan gen → Monday 08:00 local `plan_not_generated` fires (unless grace).                                                                                                                                                                                                            |
+| M3.3      | Eligible user → LLM-generated coach-proactive push lands within cap.                                                                                                                                                                                                                            |
+| M3.4      | 10 unopened sends of kind X → auto-pause.                                                                                                                                                                                                                                                       |
+| M3.5      | Split experiment into A/B → assignments deterministic; dashboard surfaces metrics.                                                                                                                                                                                                              |
+| M3.6      | Stop dispatcher → pg_cron alert row visible in admin dashboard.                                                                                                                                                                                                                                 |
 
 **Global integration test after M3**: run a 7-day simulated user lifecycle (onboard → motivation quote → permission grant → weekly plan with intentions → mixed task completion → streak ↑ → dormancy → winback step 1 → recovery → streak_broken → comeback) and assert per-sub-phase invariants.

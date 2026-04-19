@@ -3,6 +3,7 @@ import SwiftUI
 
 enum GoalIntakeStep {
     case goalSetup
+    case motivation(goalId: String)
     case intake(goalId: String)
 }
 
@@ -15,7 +16,9 @@ struct GoalIntakeFlowView: View {
     @Environment(\.modelContext) private var modelContext
     @State private var step: GoalIntakeStep = .goalSetup
     @State private var goalDescription = ""
+    @State private var motivationQuote = ""
     @State private var isCreatingGoal = false
+    @State private var isSavingMotivation = false
     @State private var showError = false
     @State private var errorMessage = ""
 
@@ -28,6 +31,13 @@ struct GoalIntakeFlowView: View {
                         goalDescription: $goalDescription,
                         isLoading: isCreatingGoal,
                         onContinue: createGoal
+                    )
+                case let .motivation(goalId):
+                    OnboardingMotivationView(
+                        motivationQuote: $motivationQuote,
+                        isSaving: isSavingMotivation,
+                        onContinue: { saveMotivation(goalId: goalId) },
+                        onSkip: { advanceToIntake(goalId: goalId) }
                     )
                 case let .intake(goalId):
                     IntakeContainerView(goalId: goalId, onComplete: {
@@ -90,12 +100,39 @@ struct GoalIntakeFlowView: View {
                 modelContext.insert(localGoal)
 
                 withAnimation(.easeInOut(duration: 0.3)) {
-                    step = .intake(goalId: goal.id)
+                    step = .motivation(goalId: goal.id)
                 }
             } catch {
                 errorMessage = error.localizedDescription
                 showError = true
             }
+        }
+    }
+
+    private func saveMotivation(goalId: String) {
+        Task { @MainActor in
+            isSavingMotivation = true
+            defer { isSavingMotivation = false }
+
+            let trimmed = motivationQuote.trimmingCharacters(in: .whitespacesAndNewlines)
+            guard !trimmed.isEmpty else {
+                advanceToIntake(goalId: goalId)
+                return
+            }
+
+            do {
+                try await GoalAPIService.shared.updateGoal(goalId: goalId, motivationQuote: trimmed)
+                advanceToIntake(goalId: goalId)
+            } catch {
+                errorMessage = error.localizedDescription
+                showError = true
+            }
+        }
+    }
+
+    private func advanceToIntake(goalId: String) {
+        withAnimation(.easeInOut(duration: 0.3)) {
+            step = .intake(goalId: goalId)
         }
     }
 }

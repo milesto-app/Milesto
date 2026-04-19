@@ -7,6 +7,7 @@ import {
 } from "@nestjs/common";
 import { EventEmitter2 } from "@nestjs/event-emitter";
 
+import { ActivityService } from "../notifications/activity/activity.service.js";
 import type { Json } from "../supabase/database.types.js";
 import { SUPABASE_UNIQUE_VIOLATION } from "../supabase/error-codes.js";
 import { SupabaseService } from "../supabase/supabase.service.js";
@@ -20,6 +21,7 @@ export class DebriefService {
   constructor(
     private readonly supabaseService: SupabaseService,
     private readonly eventEmitter: EventEmitter2,
+    private readonly activity: ActivityService,
   ) {}
 
   public async submitDebrief(
@@ -99,7 +101,14 @@ export class DebriefService {
       this.logger.error(`Failed to store debrief: ${error.message}`);
       throw new InternalServerErrorException("Failed to store debrief");
     }
-    await this.completeWeeklyPlan(dto.weekly_plan_id);
+    const didCompletePlan = await this.completeWeeklyPlan(dto.weekly_plan_id);
+    this.activity
+      .record(userId, "debrief_submitted")
+      .catch((activityError: unknown) => {
+        this.logger.warn(
+          `Failed to record debrief_submitted activity: ${activityError instanceof Error ? activityError.message : String(activityError)}`,
+        );
+      });
     this.eventEmitter.emit("debrief.submitted", {
       debriefId: (data as Record<string, unknown>).id,
       goalId,
@@ -107,20 +116,97 @@ export class DebriefService {
       weeklyPlanId: dto.weekly_plan_id,
       note: dto.note,
     });
+    if (didCompletePlan) {
+      this.eventEmitter.emit("weekly-plan.completed", {
+        userId,
+        goalId,
+        planId: dto.weekly_plan_id,
+      });
+      await this.maybeCompleteMilestone(dto.weekly_plan_id, userId, goalId);
+    }
     return data as unknown as Debrief;
   }
 
-  private async completeWeeklyPlan(weeklyPlanId: string): Promise<void> {
+  private async maybeCompleteMilestone(
+    weeklyPlanId: string,
+    userId: string,
+    goalId: string,
+  ): Promise<void> {
     const supabase = this.supabaseService.getAdminClient();
-    const { error } = await supabase
+
+    const { data: plan, error: planErr } = await supabase
+      .from("weekly_plans")
+      .select("milestone_id")
+      .eq("id", weeklyPlanId)
+      .maybeSingle();
+    if (planErr !== null) {
+      this.logger.warn(
+        `Milestone auto-completion: failed to read plan ${weeklyPlanId}: ${planErr.message}`,
+      );
+      return;
+    }
+    if (plan === null) {
+      return;
+    }
+
+    const { count, error: siblingErr } = await supabase
+      .from("weekly_plans")
+      .select("id", { count: "exact", head: true })
+      .eq("milestone_id", plan.milestone_id)
+      .neq("status", "completed");
+    if (siblingErr !== null) {
+      this.logger.warn(
+        `Milestone auto-completion: failed to count siblings for milestone ${plan.milestone_id}: ${siblingErr.message}`,
+      );
+      return;
+    }
+    if ((count ?? 0) > 0) {
+      return;
+    }
+
+    const completedAt = new Date().toISOString();
+    const { data: updated, error: updateErr } = await supabase
+      .from("milestones")
+      .update({ completed_at: completedAt })
+      .eq("id", plan.milestone_id)
+      .is("completed_at", null)
+      .select("id")
+      .maybeSingle();
+    if (updateErr !== null) {
+      this.logger.warn(
+        `Milestone auto-completion: failed to flip ${plan.milestone_id}: ${updateErr.message}`,
+      );
+      return;
+    }
+    if (updated === null) {
+      return;
+    }
+
+    this.eventEmitter.emit("milestone.completed", {
+      userId,
+      milestoneId: plan.milestone_id,
+      goalId,
+      completedAt,
+    });
+    this.logger.log(
+      `Auto-completed milestone ${plan.milestone_id} after final plan ${weeklyPlanId}`,
+    );
+  }
+
+  private async completeWeeklyPlan(weeklyPlanId: string): Promise<boolean> {
+    const supabase = this.supabaseService.getAdminClient();
+    const { data, error } = await supabase
       .from("weekly_plans")
       .update({ status: "completed" })
       .eq("id", weeklyPlanId)
-      .eq("status", "active");
+      .eq("status", "active")
+      .select("id");
     if (error) {
       this.logger.error(
         `Failed to complete weekly plan ${weeklyPlanId}: ${error.message}`,
       );
+      return false;
     }
+    return data.length > 0;
   }
 }

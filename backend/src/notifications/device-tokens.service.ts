@@ -83,7 +83,7 @@ export class DeviceTokensService {
         "Failed to fetch device tokens for user",
         error.message,
       );
-      return [];
+      throw new InternalServerErrorException("Failed to fetch device tokens");
     }
 
     return data;

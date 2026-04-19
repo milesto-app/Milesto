@@ -32,26 +32,35 @@ final class AuthService: NSObject, ObservableObject {
                 if let session {
                     authState = .authenticated(userId: session.user.id.uuidString)
                     currentUserId = session.user.id.uuidString
+                    persistSession(session)
                 } else {
                     authState = .unauthenticated
                     currentUserId = nil
                 }
             case .signedIn:
-                if let userId = session?.user.id.uuidString {
-                    authState = .authenticated(userId: userId)
-                    currentUserId = userId
+                if let session {
+                    authState = .authenticated(userId: session.user.id.uuidString)
+                    currentUserId = session.user.id.uuidString
+                    persistSession(session)
                 }
             case .signedOut:
                 authState = .unauthenticated
                 currentUserId = nil
+                SharedKeychain.clearAll()
             case .tokenRefreshed:
-                if let userId = session?.user.id.uuidString {
-                    currentUserId = userId
+                if let session {
+                    currentUserId = session.user.id.uuidString
+                    persistSession(session)
                 }
             default:
                 break
             }
         }
+    }
+
+    private func persistSession(_ session: Session) {
+        let expiresAt = Date(timeIntervalSince1970: session.expiresAt)
+        SharedKeychain.setSupabaseAccessToken(session.accessToken, expiresAt: expiresAt)
     }
 
     func signUp(email: String, password: String) async throws -> String {

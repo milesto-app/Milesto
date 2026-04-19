@@ -10,7 +10,7 @@ Momentum is an AI-powered personal coaching backend built with NestJS + TypeScri
 
 ```bash
 bun run build              # Compile (nest build)
-bun run lint               # Prettier + ESLint with auto-fix
+bun run lint               # ESLint with auto-fix (Prettier runs from repo root)
 bun run test               # All unit tests (Jest)
 bun run test:e2e           # End-to-end tests
 bun run eval               # Build + run evaluation suite
@@ -67,16 +67,6 @@ bun run eval               # Build + run evaluation suite
 - **DTOs**: use `class-validator` decorators, `!` assertion on required fields, `?` on optional.
 - Guards/interceptors live in `common/`.
 - All endpoints documented with `@ApiOperation` and `@ApiResponse`.
-
-## Versioning
-
-Version format in `package.json` is `proud.default.shame` (mapped to semver `major.minor.patch`):
-
-- **proud** — big release. **Never bump this.**
-- **default** — normal change (new feature, meaningful refactor).
-- **shame** — small edit (bug fix, tweak, doc change).
-
-**Always bump either `default` or `shame` when making an edit.** Default to `shame`; use `default` only when the change is substantial enough to warrant it.
 
 ## Testing
 

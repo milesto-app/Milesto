@@ -239,6 +239,74 @@
         }
       }
     },
+    "onboarding.motivation.placeholder" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "What will change once you reach it?"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Qu'est-ce qui changera une fois atteint ?"
+          }
+        }
+      }
+    },
+    "onboarding.motivation.skip" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Skip for now"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Passer pour l'instant"
+          }
+        }
+      }
+    },
+    "onboarding.motivation.subtitle" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your coach will reference this when it matters most."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Votre coach s'y référera quand ça comptera vraiment."
+          }
+        }
+      }
+    },
+    "onboarding.motivation.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Why does this goal matter to you?"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pourquoi cet objectif compte-t-il pour vous ?"
+          }
+        }
+      }
+    },
     "onboarding.name.firstName" : {
       "extractionState" : "manual",
       "localizations" : {

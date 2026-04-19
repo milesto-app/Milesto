@@ -1,0 +1,300 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "notifications.action.why" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Why this notification?"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pourquoi cette notification ?"
+          }
+        }
+      }
+    },
+    "notifications.permission.body" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your coach will nudge you at the right moments — check-ins, streaks, and replies. No spam, no background noise."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Votre coach vous contactera aux bons moments : rappels, séries, réponses. Pas de spam, pas de bruit."
+          }
+        }
+      }
+    },
+    "notifications.permission.enable" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enable notifications"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Activer les notifications"
+          }
+        }
+      }
+    },
+    "notifications.permission.notNow" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Not now"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pas maintenant"
+          }
+        }
+      }
+    },
+    "notifications.permission.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stay in the loop with your coach"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Restez en lien avec votre coach"
+          }
+        }
+      }
+    },
+    "notifications.why.body" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Momentum sends pushes when they'll move your goal forward — replies from your coach, check-ins tied to your plan, and milestones you've hit. You can tune these anytime in Settings."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Momentum vous envoie des notifications quand elles font avancer votre objectif : réponses de votre coach, rappels liés à votre plan, jalons atteints. Vous pouvez les ajuster à tout moment dans les Réglages."
+          }
+        }
+      }
+    },
+    "notifications.why.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Why this notification?"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pourquoi cette notification ?"
+          }
+        }
+      }
+    },
+    "notifications.settings.kind.coach_proactive" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Proactive coach check-ins" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Messages proactifs du coach" } }
+      }
+    },
+    "notifications.settings.kind.daily_check_in" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Daily check-in" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Rappel quotidien" } }
+      }
+    },
+    "notifications.settings.kind.goal_hit" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Goal achieved" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Objectif atteint" } }
+      }
+    },
+    "notifications.settings.kind.implementation_intention" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "If-then reminders" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Rappels \"si… alors…\"" } }
+      }
+    },
+    "notifications.settings.kind.milestone_hit" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Milestone completed" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Étape atteinte" } }
+      }
+    },
+    "notifications.settings.kind.milestone_preview" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Next milestone preview" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Aperçu prochaine étape" } }
+      }
+    },
+    "notifications.settings.kind.plan_not_generated" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Weekly plan missing" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Plan hebdomadaire manquant" } }
+      }
+    },
+    "notifications.settings.kind.stale_tasks" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Stale tasks nudge" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Tâches en retard" } }
+      }
+    },
+    "notifications.settings.kind.streak_at_risk" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Streak at risk" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Série menacée" } }
+      }
+    },
+    "notifications.settings.kind.streak_broken" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Streak broken" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Série cassée" } }
+      }
+    },
+    "notifications.settings.kind.streak_milestone" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Streak milestone" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Palier de série" } }
+      }
+    },
+    "notifications.settings.kind.week_completed" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Week completed" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Semaine terminée" } }
+      }
+    },
+    "notifications.settings.kind.week_completion_gap" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Weekly completion reminder" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Rappel de fin de semaine" } }
+      }
+    },
+    "notifications.settings.kind.weekly_debrief_prompt" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Weekly debrief prompt" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Invitation au débrief" } }
+      }
+    },
+    "notifications.settings.kind.winback_step" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Return nudges" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Rappels de retour" } }
+      }
+    },
+    "notifications.settings.kinds.header" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "By type" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Par type" } }
+      }
+    },
+    "notifications.settings.master.footer" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Turning this off stops every push, including coach replies." } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Désactive toutes les notifications, y compris les réponses du coach." } }
+      }
+    },
+    "notifications.settings.master.toggle" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Allow notifications" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Autoriser les notifications" } }
+      }
+    },
+    "notifications.settings.quiet.end" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "End" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Fin" } }
+      }
+    },
+    "notifications.settings.quiet.footer" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Coach replies can still come through during quiet hours." } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Les réponses du coach passent pendant les heures silencieuses." } }
+      }
+    },
+    "notifications.settings.quiet.header" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Quiet hours" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Heures silencieuses" } }
+      }
+    },
+    "notifications.settings.quiet.start" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Start" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Début" } }
+      }
+    },
+    "notifications.settings.row.subtitle" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Push, quiet hours, per-type preferences" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Push, heures silencieuses, préférences par type" } }
+      }
+    },
+    "notifications.settings.row.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Notifications" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Notifications" } }
+      }
+    },
+    "notifications.settings.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Notifications" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Notifications" } }
+      }
+    }
+  },
+  "version" : "1.0"
+}
