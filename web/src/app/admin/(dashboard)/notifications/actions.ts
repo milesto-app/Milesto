@@ -6,6 +6,7 @@ export type SendNotificationPayload = {
   title: string;
   body: string;
   userIds?: string[];
+  data?: Record<string, string>;
 };
 
 export type SendNotificationResult =
