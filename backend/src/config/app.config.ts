@@ -154,4 +154,11 @@ export const config = {
     verifyThrottleLimit: 10,
     verifyThrottleTtlMs: 60_000,
   },
+  copyGen: {
+    defaultModel: "openai/gpt-5.4-nano",
+    perCallTimeoutMs: 4_000,
+    retryBackoffMs: 1_000,
+    totalBudgetMs: 9_000,
+    maxAttempts: 2,
+  },
 };
