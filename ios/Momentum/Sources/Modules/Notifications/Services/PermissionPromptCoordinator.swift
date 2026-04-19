@@ -6,7 +6,6 @@ enum NotifPermissionStatus: String {
     case notRequested = "not_requested"
     case granted
     case denied
-    case deniedSoft = "denied_soft"
 }
 
 @MainActor
@@ -56,12 +55,7 @@ final class PermissionPromptCoordinator: ObservableObject {
         isExplainerVisible = false
     }
 
-    func handleNotNowTapped() async {
-        guard !isSubmitting else { return }
-        isSubmitting = true
-        defer { isSubmitting = false }
-
-        await persist(status: .deniedSoft)
+    func handleNotNowTapped() {
         isExplainerVisible = false
     }
 

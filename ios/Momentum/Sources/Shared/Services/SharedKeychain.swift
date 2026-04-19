@@ -8,11 +8,14 @@ enum SharedKeychainKey: String {
 }
 
 enum SharedKeychain {
-    static let accessGroup = "app.momentum-ai.shared"
+    private static let accessGroupSuffix = "app.momentum-ai.shared"
 
     private static var fullAccessGroup: String {
-        guard let prefix = teamIdentifierPrefix() else { return accessGroup }
-        return "\(prefix)\(accessGroup)"
+        guard let prefix = Bundle.main.object(forInfoDictionaryKey: "AppIdentifierPrefix") as? String,
+              !prefix.isEmpty,
+              !prefix.contains("$(")
+        else { return accessGroupSuffix }
+        return "\(prefix)\(accessGroupSuffix)"
     }
 
     static func set(_ key: SharedKeychainKey, value: String?) {
@@ -99,28 +102,5 @@ enum SharedKeychain {
 
     static func apnsDeviceToken() -> String? {
         string(.apnsDeviceToken)
-    }
-
-    private static func teamIdentifierPrefix() -> String? {
-        let query: [String: Any] = [
-            kSecClass as String: kSecClassGenericPassword,
-            kSecAttrAccount as String: "_momentum_team_prefix_probe",
-            kSecReturnAttributes as String: true,
-            kSecMatchLimit as String: kSecMatchLimitOne,
-        ]
-        var result: AnyObject?
-        _ = SecItemCopyMatching(query as CFDictionary, &result)
-        if let attributes = result as? [String: Any],
-           let group = attributes[kSecAttrAccessGroup as String] as? String,
-           let dotIndex = group.firstIndex(of: ".")
-        {
-            return String(group[..<group.index(after: dotIndex)])
-        }
-        if let infoDict = Bundle.main.infoDictionary,
-           let appID = infoDict["AppIdentifierPrefix"] as? String
-        {
-            return appID
-        }
-        return nil
     }
 }

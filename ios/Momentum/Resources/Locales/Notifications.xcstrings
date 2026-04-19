@@ -85,6 +85,40 @@
           }
         }
       }
+    },
+    "notifications.why.body" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Momentum sends pushes when they'll move your goal forward — replies from your coach, check-ins tied to your plan, and milestones you've hit. You can tune these anytime in Settings."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Momentum vous envoie des notifications quand elles font avancer votre objectif : réponses de votre coach, rappels liés à votre plan, jalons atteints. Vous pouvez les ajuster à tout moment dans les Réglages."
+          }
+        }
+      }
+    },
+    "notifications.why.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Why this notification?"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pourquoi cette notification ?"
+          }
+        }
+      }
     }
   },
   "version" : "1.0"

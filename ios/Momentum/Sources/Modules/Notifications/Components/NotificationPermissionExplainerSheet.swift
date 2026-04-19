@@ -28,7 +28,7 @@ struct NotificationPermissionExplainerSheet: View {
                 .disabled(coordinator.isSubmitting)
 
                 AppButton("notifications.permission.notNow", table: "Notifications", style: .text) {
-                    Task { await coordinator.handleNotNowTapped() }
+                    coordinator.handleNotNowTapped()
                 }
                 .fullWidth()
                 .disabled(coordinator.isSubmitting)

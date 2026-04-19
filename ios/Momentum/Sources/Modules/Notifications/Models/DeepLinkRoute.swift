@@ -3,6 +3,7 @@ import Foundation
 enum DeepLinkRoute: Equatable {
     case task(id: String)
     case coachReply(id: String)
+    case notifWhy(jobId: String)
     case unknown
 
     static func parse(_ url: URL) -> DeepLinkRoute {
@@ -15,6 +16,8 @@ enum DeepLinkRoute: Equatable {
             return .task(id: components[0])
         case let ("coach", components) where components.count == 2 && components[0] == "reply":
             return .coachReply(id: components[1])
+        case let ("notif", components) where components.count == 2 && components[0] == "why":
+            return .notifWhy(jobId: components[1])
         default:
             return .unknown
         }

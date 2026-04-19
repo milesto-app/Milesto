@@ -25,13 +25,14 @@ final class NotificationService: UNNotificationServiceExtension {
         let userInfo = request.content.userInfo
         guard let jobId = userInfo["job_id"] as? String,
               let deviceToken = SharedKeychain.apnsDeviceToken(),
-              let token = SharedKeychain.supabaseAccessToken()
+              let session = SharedKeychain.supabaseAccessToken(),
+              session.expiresAt > Date()
         else {
             contentHandler(bestAttempt)
             return
         }
 
-        reportReceived(jobId: jobId, deviceToken: deviceToken, bearer: token.token) { [weak self] in
+        reportReceived(jobId: jobId, deviceToken: deviceToken, bearer: session.token) { [weak self] in
             guard let self, let bestAttempt = self.bestAttempt else { return }
             contentHandler(bestAttempt)
         }
