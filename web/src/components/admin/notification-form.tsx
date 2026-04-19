@@ -1,9 +1,10 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
-import { Send } from "lucide-react";
+import { Send, Sparkles } from "lucide-react";
 
 import {
+  previewNotificationCopy,
   sendNotification,
   type SendNotificationPayload,
 } from "@/app/admin/(dashboard)/notifications/actions";
@@ -28,8 +29,29 @@ type SendResult = {
   recipientCount?: number;
 };
 
+type PreviewInfo = {
+  success: boolean;
+  status: "generated" | "failed";
+  errorCode: string | null;
+  model: string;
+  personality: string;
+  promptVersion: string;
+  latencyMs: number;
+  attemptsUsed: number;
+};
+
+type Language = "en" | "fr";
+
 const BROADCAST_VALUE = "__all__";
 const CUSTOM_TYPE_VALUE = "__custom__";
+const DEFAULT_COACH_VALUE = "__default__";
+
+const COACH_OPTIONS: readonly { id: number; label: string }[] = [
+  { id: 1, label: "Motivator" },
+  { id: 2, label: "Zen" },
+  { id: 3, label: "Strict" },
+  { id: 4, label: "Buddy" },
+];
 
 function userLabel(user: AdminUserOption): string {
   const name = [user.firstName, user.lastName].filter(Boolean).join(" ").trim();
@@ -41,16 +63,70 @@ export function NotificationForm({ users }: { users: AdminUserOption[] }) {
   const [body, setBody] = useState("");
   const [userId, setUserId] = useState<string>(BROADCAST_VALUE);
   const [typeKind, setTypeKind] = useState<string>(CUSTOM_TYPE_VALUE);
+  const [language, setLanguage] = useState<Language>("en");
+  const [coachValue, setCoachValue] = useState<string>(DEFAULT_COACH_VALUE);
   const [sending, setSending] = useState(false);
+  const [previewing, setPreviewing] = useState(false);
   const [result, setResult] = useState<SendResult | null>(null);
+  const [preview, setPreview] = useState<PreviewInfo | null>(null);
+  const [previewError, setPreviewError] = useState<string | null>(null);
 
   function handleTypeChange(value: string) {
     setTypeKind(value);
+    setPreview(null);
+    setPreviewError(null);
     if (value === CUSTOM_TYPE_VALUE) return;
     const preset = NOTIFICATION_TYPE_PRESETS.find((p) => p.kind === value);
     if (preset) {
       setTitle(preset.title);
       setBody(preset.body);
+    }
+  }
+
+  async function handleGenerate() {
+    if (typeKind === CUSTOM_TYPE_VALUE) return;
+    const preset = NOTIFICATION_TYPE_PRESETS.find((p) => p.kind === typeKind);
+    if (!preset) return;
+
+    setPreviewing(true);
+    setPreview(null);
+    setPreviewError(null);
+    setResult(null);
+
+    try {
+      const data = await previewNotificationCopy({
+        kind: preset.kind,
+        language,
+        coachId:
+          coachValue === DEFAULT_COACH_VALUE ? undefined : Number(coachValue),
+        stubTitle: preset.title,
+        stubTeaser: preset.body,
+      });
+
+      if (!data.ok) {
+        setPreviewError(data.message);
+        return;
+      }
+
+      if (data.status === "generated" && data.title && data.body) {
+        setTitle(data.title);
+        setBody(data.body);
+      }
+
+      setPreview({
+        success: data.status === "generated",
+        status: data.status,
+        errorCode: data.errorCode,
+        model: data.model,
+        personality: data.personality,
+        promptVersion: data.promptVersion,
+        latencyMs: data.latencyMs,
+        attemptsUsed: data.attemptsUsed,
+      });
+    } catch {
+      setPreviewError("Failed to reach the server");
+    } finally {
+      setPreviewing(false);
     }
   }
 
@@ -96,6 +172,8 @@ export function NotificationForm({ users }: { users: AdminUserOption[] }) {
       setSending(false);
     }
   }
+
+  const canGenerate = typeKind !== CUSTOM_TYPE_VALUE && !previewing;
 
   return (
     <Card className="border-border/50 shadow-none">
@@ -169,6 +247,112 @@ export function NotificationForm({ users }: { users: AdminUserOption[] }) {
               <code>kind</code> so the iOS app handles it like a real one.
             </p>
           </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-1.5">
+              <label
+                htmlFor="notif-language"
+                className="text-sm font-medium text-foreground"
+              >
+                Language
+              </label>
+              <Select<string>
+                value={language}
+                onValueChange={(value) => {
+                  if (value === "en" || value === "fr") setLanguage(value);
+                }}
+              >
+                <SelectTrigger id="notif-language">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="en">English</SelectItem>
+                  <SelectItem value="fr">Français</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-1.5">
+              <label
+                htmlFor="notif-coach"
+                className="text-sm font-medium text-foreground"
+              >
+                Coach
+              </label>
+              <Select<string>
+                value={coachValue}
+                onValueChange={(value) => {
+                  if (value !== null) setCoachValue(value);
+                }}
+              >
+                <SelectTrigger id="notif-coach">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value={DEFAULT_COACH_VALUE}>
+                    Default (motivateur)
+                  </SelectItem>
+                  {COACH_OPTIONS.map((coach) => (
+                    <SelectItem key={coach.id} value={String(coach.id)}>
+                      {coach.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              disabled={!canGenerate}
+              onClick={handleGenerate}
+              className="gap-2"
+            >
+              <Sparkles className="h-3.5 w-3.5" />
+              {previewing ? "Generating..." : "Generate with LLM"}
+            </Button>
+            <p className="text-xs text-muted-foreground">
+              Runs the real copy-gen pipeline for the selected type.
+            </p>
+          </div>
+
+          {preview && (
+            <div
+              className={`space-y-1 rounded-lg px-4 py-3 text-xs ${
+                preview.success
+                  ? "bg-primary/10 text-primary"
+                  : "bg-destructive/10 text-destructive"
+              }`}
+            >
+              <div className="flex items-center gap-2">
+                <Badge
+                  className={`border-0 font-medium ${
+                    preview.success
+                      ? "bg-primary/20 text-primary"
+                      : "bg-destructive/20 text-destructive"
+                  }`}
+                >
+                  {preview.success ? "Generated" : "Failed"}
+                </Badge>
+                <span>
+                  {preview.personality} · {preview.model} ·{" "}
+                  {preview.attemptsUsed} attempt
+                  {preview.attemptsUsed === 1 ? "" : "s"} · {preview.latencyMs}
+                  ms
+                </span>
+              </div>
+              {!preview.success && preview.errorCode && (
+                <div>Error: {preview.errorCode}</div>
+              )}
+            </div>
+          )}
+
+          {previewError && (
+            <div className="rounded-lg bg-destructive/10 px-4 py-3 text-xs text-destructive">
+              {previewError}
+            </div>
+          )}
 
           <div className="space-y-1.5">
             <label
