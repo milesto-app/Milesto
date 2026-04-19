@@ -152,6 +152,21 @@ describe("StreaksNightlyService", () => {
     );
   });
 
+  it("evaluates gate against the Monday 08:00 scheduled slot, not the Sunday 23:00 sweep time", async () => {
+    // Users with default quiet hours (22-07) are inside quiet hours at Sunday
+    // 23:00 but outside at Monday 08:00. The gate must be called with the
+    // scheduled delivery time so the push is not silently dropped.
+    await service.tick(new Date("2026-04-19T23:05:00Z"));
+    expect(gateIsPushAllowed).toHaveBeenCalledWith(
+      USER_ID,
+      NOTIFICATION_KIND.STREAK_BROKEN,
+      expect.any(Date),
+    );
+    const call = gateIsPushAllowed.mock.calls[0] as [string, string, Date];
+    const scheduled = call[2];
+    expect(scheduled.toISOString()).toBe("2026-04-20T08:00:00.000Z");
+  });
+
   it("consumes a freeze token instead of breaking the streak when freeze_tokens > 0", async () => {
     mocks.streak.freeze_tokens = 1;
     await buildModule();

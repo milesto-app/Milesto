@@ -31,6 +31,8 @@ type ProfileRow = {
   coach_id: number | null;
   language: string | null;
   timezone: string | null;
+  notif_quiet_start?: number | null;
+  notif_quiet_end?: number | null;
 };
 
 interface MockState {
@@ -217,9 +219,9 @@ describe("MilestonePreviewProducer", () => {
     expect(call[0].scheduledForUtc.getTime()).toBe(expectedMs);
   });
 
-  it("shifts the push to 08:00 local next day when the +24h slot falls inside quiet hours", async () => {
+  it("shifts the push to the user's quietEnd local hour when the +24h slot falls inside quiet hours", async () => {
     state.profile = { coach_id: 1, language: "en", timezone: "Europe/Paris" };
-    // +24h from 2026-04-01T23:30Z → 2026-04-02T23:30Z → local Paris 2026-04-03 01:30 (quiet)
+    // +24h from 2026-04-01T23:30Z → 2026-04-02T23:30Z → local Paris 2026-04-03 01:30 (quiet, default 22-07).
     const event: MilestoneCompletedPayload = {
       ...buildEvent(),
       completedAt: "2026-04-01T23:30:00.000Z",
@@ -228,9 +230,34 @@ describe("MilestonePreviewProducer", () => {
     await producer.handle(event);
 
     const call = outboxInsert.mock.calls[0] as [{ scheduledForUtc: Date }];
-    // Expect 2026-04-03 08:00 Europe/Paris (DST summer = UTC+2) = 06:00 UTC
+    // Expect 2026-04-03 07:00 Europe/Paris (DST summer = UTC+2) = 05:00 UTC.
     expect(call[0].scheduledForUtc.toISOString()).toBe(
-      "2026-04-03T06:00:00.000Z",
+      "2026-04-03T05:00:00.000Z",
+    );
+  });
+
+  it("shifts to the user's custom quietEnd so the gate does not silently drop the push", async () => {
+    // User's custom quiet hours: 20:00-09:00. Default-based shift (08:00) would
+    // still be inside their quiet window; custom-aware shift lands at 09:00.
+    state.profile = {
+      coach_id: 1,
+      language: "en",
+      timezone: "Europe/Paris",
+      notif_quiet_start: 20,
+      notif_quiet_end: 9,
+    } as ProfileRow;
+    // +24h from 2026-04-01T23:30Z → local Paris 2026-04-03 01:30 (inside custom window).
+    const event: MilestoneCompletedPayload = {
+      ...buildEvent(),
+      completedAt: "2026-04-01T23:30:00.000Z",
+    };
+
+    await producer.handle(event);
+
+    const call = outboxInsert.mock.calls[0] as [{ scheduledForUtc: Date }];
+    // Expect 2026-04-03 09:00 Europe/Paris (DST summer UTC+2) = 07:00 UTC.
+    expect(call[0].scheduledForUtc.toISOString()).toBe(
+      "2026-04-03T07:00:00.000Z",
     );
   });
 

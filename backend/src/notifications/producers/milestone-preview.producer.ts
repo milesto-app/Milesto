@@ -9,7 +9,11 @@ import {
   NOTIFICATION_KIND,
   NOTIFICATION_TIER,
 } from "../outbox/outbox.types.js";
-import { isInQuietHours, localToUtc, toLocalMoment } from "./local-time.js";
+import {
+  isInQuietHours,
+  nextQuietHoursEnd,
+  toLocalMoment,
+} from "./local-time.js";
 import { resolvePersonaBucket } from "./persona-defaults.js";
 
 export interface MilestoneCompletedPayload {
@@ -25,9 +29,9 @@ type SupportedLanguage = (typeof SUPPORTED_LANGUAGES)[number];
 const PREVIEW_DELAY_HOURS = 24;
 const MS_PER_HOUR = 3_600_000;
 const PREVIEW_DELAY_MS = PREVIEW_DELAY_HOURS * MS_PER_HOUR;
-const QUIET_HOURS_START_V1 = 22;
-const QUIET_HOURS_END_V1 = 7;
-const QUIET_SHIFT_HOUR = 8;
+// Fallbacks mirror GateService when the profile has no explicit preference.
+const DEFAULT_QUIET_START = 22;
+const DEFAULT_QUIET_END = 7;
 const DEFAULT_TIMEZONE = "UTC";
 const MILESTONE_PREVIEW_CTA_PREFIX = "momentum://goal/";
 
@@ -45,6 +49,8 @@ interface ProfileContext {
   coachId: number | null;
   language: SupportedLanguage;
   timezone: string;
+  quietStart: number;
+  quietEnd: number;
 }
 
 interface NextMilestone {
@@ -101,7 +107,7 @@ export class MilestonePreviewProducer {
     const profile = await this.loadProfile(payload.userId);
     const scheduledForUtc = this.computeScheduledUtc(
       payload.completedAt,
-      profile.timezone,
+      profile,
     );
     const anyPrep = await this.countPrepTasks(next.id);
     const weeksAvailable = Math.max(
@@ -155,41 +161,20 @@ export class MilestonePreviewProducer {
     }
   }
 
-  private computeScheduledUtc(completedAt: string, timezone: string): Date {
+  private computeScheduledUtc(
+    completedAt: string,
+    profile: ProfileContext,
+  ): Date {
     const base = new Date(new Date(completedAt).getTime() + PREVIEW_DELAY_MS);
-    const localAtSlot = toLocalMoment(base, timezone);
+    const localAtSlot = toLocalMoment(base, profile.timezone);
     if (
-      !isInQuietHours(
-        localAtSlot.hour,
-        QUIET_HOURS_START_V1,
-        QUIET_HOURS_END_V1,
-      )
+      !isInQuietHours(localAtSlot.hour, profile.quietStart, profile.quietEnd)
     ) {
       return base;
     }
-    const shifted = { ...localAtSlot, hour: QUIET_SHIFT_HOUR, minute: 0 };
-    if (localAtSlot.hour >= QUIET_HOURS_START_V1) {
-      const nextDayMs = Date.UTC(
-        shifted.year,
-        shifted.month - 1,
-        shifted.day + 1,
-        shifted.hour,
-        shifted.minute,
-        0,
-      );
-      const nextDay = new Date(nextDayMs);
-      return localToUtc(
-        {
-          year: nextDay.getUTCFullYear(),
-          month: nextDay.getUTCMonth() + 1,
-          day: nextDay.getUTCDate(),
-          hour: shifted.hour,
-          minute: shifted.minute,
-        },
-        timezone,
-      );
-    }
-    return localToUtc(shifted, timezone);
+    // Shift to the next occurrence of the user's configured quietEnd so the
+    // producer-side shift agrees with the gate's quiet-hours check.
+    return nextQuietHoursEnd(base, profile.timezone, profile.quietEnd);
   }
 
   private async loadCompletedMilestone(
@@ -248,19 +233,29 @@ export class MilestonePreviewProducer {
     const supabase = this.supabaseService.getAdminClient();
     const { data, error } = await supabase
       .from("profiles")
-      .select("coach_id, language, timezone")
+      .select(
+        "coach_id, language, timezone, notif_quiet_start, notif_quiet_end",
+      )
       .eq("id", userId)
       .single();
     if (error !== null) {
       this.logger.warn(
         `Failed to load profile ${userId} for milestone_preview: ${error.message} — using defaults`,
       );
-      return { coachId: null, language: "en", timezone: DEFAULT_TIMEZONE };
+      return {
+        coachId: null,
+        language: "en",
+        timezone: DEFAULT_TIMEZONE,
+        quietStart: DEFAULT_QUIET_START,
+        quietEnd: DEFAULT_QUIET_END,
+      };
     }
     return {
       coachId: data.coach_id,
       language: resolveLanguage(data.language),
       timezone: data.timezone ?? DEFAULT_TIMEZONE,
+      quietStart: data.notif_quiet_start ?? DEFAULT_QUIET_START,
+      quietEnd: data.notif_quiet_end ?? DEFAULT_QUIET_END,
     };
   }
 

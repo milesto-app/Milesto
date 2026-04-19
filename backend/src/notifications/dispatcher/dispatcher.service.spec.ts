@@ -332,6 +332,80 @@ describe("DispatcherService — global ceiling (M2.5)", () => {
     }
   });
 
+  it("serializes dispatches per user so ceiling-check cannot race for same-user jobs in a batch", async () => {
+    // Two jobs for the same user. Without per-user serialization, Promise.all
+    // in drain() would dispatch both concurrently, so both could observe the
+    // same recent_sends_window snapshot and both send. With the per-user
+    // chain in place, the second job's send must wait for the first to
+    // resolve.
+    rpcConfig.claimRows = [
+      buildJob({ id: "job-a", user_id: "user-1" }),
+      buildJob({ id: "job-b", user_id: "user-1" }),
+    ];
+    rpcConfig.recentSends = { send_count: 0, earliest_sent_at: null };
+
+    jest.useRealTimers();
+
+    let firstSendResolve: () => void = () => undefined;
+    const firstSendPending = new Promise<void>((resolve) => {
+      firstSendResolve = resolve;
+    });
+    let firstSendReachedResolve: () => void = () => undefined;
+    const firstSendReached = new Promise<void>((resolve) => {
+      firstSendReachedResolve = resolve;
+    });
+    let sendCallCount = 0;
+    notifications.sendToUserWithReport.mockImplementation(async () => {
+      sendCallCount += 1;
+      if (sendCallCount === 1) {
+        firstSendReachedResolve();
+        await firstSendPending;
+      }
+      return [{ token: "tok", accepted: true, statusCode: 200 }];
+    });
+
+    const drainPromise = service.drain();
+    await firstSendReached;
+
+    // Only the first job should have reached APNs; the second is blocked on
+    // the per-user chain waiting for the first to settle.
+    expect(sendCallCount).toBe(1);
+
+    firstSendResolve();
+    await drainPromise;
+
+    // Both jobs eventually sent, but serially.
+    expect(sendCallCount).toBe(2);
+    expect(notifications.sendToUserWithReport).toHaveBeenCalledTimes(2);
+  });
+
+  it("isolates unhandled errors in the per-user chain so later jobs for the same user still dispatch", async () => {
+    rpcConfig.claimRows = [
+      buildJob({ id: "job-a", user_id: "user-1" }),
+      buildJob({ id: "job-b", user_id: "user-1" }),
+    ];
+    rpcConfig.recentSends = { send_count: 0, earliest_sent_at: null };
+
+    let sendCallCount = 0;
+    notifications.sendToUserWithReport.mockImplementation(async () => {
+      sendCallCount += 1;
+      return Promise.resolve([
+        { token: "tok", accepted: true, statusCode: 200 },
+      ]);
+    });
+    // Simulate an unhandled rejection from markSent escaping dispatch()'s
+    // inner try/catch (which only wraps dispatchAndRecord).
+    outbox.markSent.mockImplementationOnce(async () =>
+      Promise.reject(new Error("simulated unhandled failure")),
+    );
+
+    await service.drain();
+
+    // Both jobs should have reached APNs despite job-a's markSent throwing
+    // — the per-user chain must not abort on unhandled rejections.
+    expect(sendCallCount).toBe(2);
+  });
+
   it("should reschedule celebration kinds like any other kind when next gap is ≤2h", async () => {
     // Earliest send was 23h ago → next slot 1h in the future (<2h threshold).
     const earliestMs = NOW_MS - 23 * MS_PER_HOUR;

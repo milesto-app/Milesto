@@ -258,16 +258,6 @@ export class StreaksNightlyService {
     streak: StreakRow,
     now: Date,
   ): Promise<void> {
-    const decision = await this.gate.isPushAllowed(
-      candidate.user_id,
-      NOTIFICATION_KIND.STREAK_BROKEN,
-    );
-    if (!decision.allowed) {
-      this.logger.debug(
-        `Gate blocked streak_broken for ${candidate.user_id}/${streak.goal_id}: ${decision.reason ?? "unknown"}`,
-      );
-      return;
-    }
     const mondayLocalDate = this.nextMondayLocalDate(now, candidate.timezone);
     const parsed = this.parseLocalDate(mondayLocalDate);
     const scheduledForUtc = localToUtc(
@@ -278,6 +268,17 @@ export class StreaksNightlyService {
       },
       candidate.timezone,
     );
+    const decision = await this.gate.isPushAllowed(
+      candidate.user_id,
+      NOTIFICATION_KIND.STREAK_BROKEN,
+      scheduledForUtc,
+    );
+    if (!decision.allowed) {
+      this.logger.debug(
+        `Gate blocked streak_broken for ${candidate.user_id}/${streak.goal_id}: ${decision.reason ?? "unknown"}`,
+      );
+      return;
+    }
     const shouldSuppressCopy = this.shouldSuppressStreakCopy(
       candidate.tenure_start_date,
     );

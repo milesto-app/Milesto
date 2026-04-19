@@ -74,7 +74,27 @@ export class DispatcherService {
       this.logger.log(
         `Claimed ${String(jobs.length)} notification jobs (worker=${this.workerId})`,
       );
-      await Promise.all(jobs.map(async (job) => this.dispatch(job)));
+      // Serialize dispatches per user so the global 2/day ceiling check
+      // (which reads send history) cannot race against a concurrent sibling
+      // for the same user in the same batch. Cross-user dispatches still run
+      // in parallel. Each step swallows its own rejection so an unexpected
+      // throw on one job does not cancel the user's remaining jobs.
+      const userChains = new Map<string, Promise<void>>();
+      for (const job of jobs) {
+        const prev = userChains.get(job.user_id) ?? Promise.resolve();
+        const next = prev.then(async () => {
+          try {
+            await this.dispatch(job);
+          } catch (error) {
+            this.logger.error(
+              `Unhandled error dispatching job ${job.id} (user=${job.user_id})`,
+              error instanceof Error ? error.stack : undefined,
+            );
+          }
+        });
+        userChains.set(job.user_id, next);
+      }
+      await Promise.all(userChains.values());
     } catch (error) {
       this.logger.error(
         "Dispatcher drain failed",
