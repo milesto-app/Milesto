@@ -1,4 +1,4 @@
-import { Controller, Param, Post, UseGuards } from "@nestjs/common";
+import { Controller, Logger, Param, Post, UseGuards } from "@nestjs/common";
 import {
   ApiBearerAuth,
   ApiOperation,
@@ -30,6 +30,8 @@ const GENERATE_WEEKLY_LIMIT = 5;
 @Controller("goals/:goalId/roadmap")
 @UseGuards(AuthGuard)
 export class RoadmapController {
+  private readonly logger = new Logger(RoadmapController.name);
+
   constructor(
     private readonly roadmapService: RoadmapService,
     private readonly weeklyPlanService: WeeklyPlanService,
@@ -65,7 +67,14 @@ export class RoadmapController {
     @Param("goalId") goalId: string,
     @UserId() userId: string,
   ): Promise<Roadmap> {
-    return this.roadmapService.generateMilestones(goalId, userId);
+    try {
+      return await this.roadmapService.generateMilestones(goalId, userId);
+    } catch (error) {
+      this.logger.warn(
+        `Roadmap generation rejected for goal ${goalId}: ${error instanceof Error ? error.message : String(error)}`,
+      );
+      throw error;
+    }
   }
 
   @Post("weekly-plan/generate")
