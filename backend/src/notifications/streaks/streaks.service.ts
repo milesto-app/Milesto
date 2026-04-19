@@ -3,6 +3,7 @@ import { OnEvent } from "@nestjs/event-emitter";
 
 import { SupabaseService } from "../../supabase/supabase.service.js";
 import { resolveLanguage, streakMilestoneStub } from "../copy/fallbacks.js";
+import { PostCommitCopyGenRunner } from "../copy/post-commit-copy-gen.runner.js";
 import { GateService } from "../gate/gate.service.js";
 import { OutboxService } from "../outbox/outbox.service.js";
 import {
@@ -67,6 +68,7 @@ export class StreaksService {
     private readonly supabaseService: SupabaseService,
     private readonly outbox: OutboxService,
     private readonly gate: GateService,
+    private readonly postCommitCopyGen: PostCommitCopyGenRunner,
   ) {}
 
   @OnEvent("task.completed")
@@ -241,9 +243,13 @@ export class StreaksService {
     const pad = (n: number): string =>
       n.toString().padStart(LOCAL_DATE_PAD_WIDTH, "0");
     const localDate = `${String(localAtEvaluation.year)}-${pad(localAtEvaluation.month)}-${pad(localAtEvaluation.day)}`;
-    const { title, teaser } = streakMilestoneStub(
-      resolveLanguage(context.language),
-    );
+    const language = resolveLanguage(context.language);
+    const { title, teaser } = streakMilestoneStub(language);
+    const kindSpecific = {
+      goal_id: goalId,
+      weeks,
+      suppress_streak_copy: shouldSuppressCopy,
+    };
     try {
       const result = await this.outbox.insert({
         userId,
@@ -263,18 +269,32 @@ export class StreaksService {
                   id: context.coachId,
                   persona: resolvePersonaBucket(context.coachId),
                 },
-          kind_specific: {
-            goal_id: goalId,
-            weeks,
-            suppress_streak_copy: shouldSuppressCopy,
-          },
+          kind_specific: kindSpecific,
           memory_hooks: {},
+        },
+        copyGen: {
+          language,
+          coachId: context.coachId,
+          memoryHooks: {},
+          kindSpecific,
+          suppressStreakCopy: shouldSuppressCopy,
+          producerName: "streak-milestone",
         },
       });
       if (result.status === "inserted") {
         this.logger.log(
           `Enqueued streak_milestone job ${result.jobId} for ${userId}/${goalId} (weeks=${String(weeks)})`,
         );
+        this.postCommitCopyGen.runIfShortFuse({
+          insertResult: result,
+          kind: NOTIFICATION_KIND.STREAK_MILESTONE,
+          language,
+          coachId: context.coachId,
+          stub: { title, teaser },
+          memoryHooks: {},
+          kindSpecific,
+          suppressStreakCopy: shouldSuppressCopy,
+        });
       }
     } catch (error) {
       this.logger.error(

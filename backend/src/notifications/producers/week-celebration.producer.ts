@@ -3,6 +3,7 @@ import { OnEvent } from "@nestjs/event-emitter";
 
 import { COACH_BY_ID } from "../../coach/coaches.config.js";
 import { SupabaseService } from "../../supabase/supabase.service.js";
+import { PostCommitCopyGenRunner } from "../copy/post-commit-copy-gen.runner.js";
 import { GateService } from "../gate/gate.service.js";
 import { OutboxService } from "../outbox/outbox.service.js";
 import {
@@ -50,6 +51,7 @@ export class WeekCelebrationProducer {
     private readonly outbox: OutboxService,
     private readonly gate: GateService,
     private readonly supabaseService: SupabaseService,
+    private readonly postCommitCopyGen: PostCommitCopyGenRunner,
   ) {}
 
   @OnEvent("weekly-plan.completed")
@@ -82,6 +84,10 @@ export class WeekCelebrationProducer {
     const title = TITLE_COPY[profile.language];
     const teaser = TEASER_COPY[profile.language];
 
+    const kindSpecific = {
+      weekly_plan_id: event.planId,
+      goal_id: event.goalId,
+    };
     const result = await this.outbox.insert({
       userId: event.userId,
       kind: NOTIFICATION_KIND.WEEK_COMPLETED,
@@ -93,17 +99,32 @@ export class WeekCelebrationProducer {
         teaser,
         cta_deeplink: "momentum://plan",
         coach: coach === undefined ? { persona } : { id: coach.id, persona },
-        kind_specific: {
-          weekly_plan_id: event.planId,
-          goal_id: event.goalId,
-        },
+        kind_specific: kindSpecific,
         memory_hooks: {},
+      },
+      copyGen: {
+        language: profile.language,
+        coachId: profile.coachId,
+        memoryHooks: {},
+        kindSpecific,
+        suppressStreakCopy: false,
+        producerName: "week-celebration",
       },
     });
     if (result.status === "inserted") {
       this.logger.log(
         `Enqueued week_completed job ${result.jobId} for plan ${event.planId}`,
       );
+      this.postCommitCopyGen.runIfShortFuse({
+        insertResult: result,
+        kind: NOTIFICATION_KIND.WEEK_COMPLETED,
+        language: profile.language,
+        coachId: profile.coachId,
+        stub: { title, teaser },
+        memoryHooks: {},
+        kindSpecific,
+        suppressStreakCopy: false,
+      });
     }
   }
 

@@ -120,6 +120,12 @@ export class MilestonePreviewProducer {
       return;
     }
 
+    const kindSpecific = {
+      next_milestone_id: next.id,
+      next_milestone_name: next.title,
+      weeks_available: weeksAvailable,
+      any_prep_already_done: anyPrep > 0,
+    };
     const result = await this.outbox.insert({
       userId: payload.userId,
       kind: NOTIFICATION_KIND.MILESTONE_PREVIEW,
@@ -131,13 +137,15 @@ export class MilestonePreviewProducer {
         teaser,
         cta_deeplink: `${MILESTONE_PREVIEW_CTA_PREFIX}${payload.goalId}`,
         coach: coach === undefined ? { persona } : { id: coach.id, persona },
-        kind_specific: {
-          next_milestone_id: next.id,
-          next_milestone_name: next.title,
-          weeks_available: weeksAvailable,
-          any_prep_already_done: anyPrep > 0,
-        },
+        kind_specific: kindSpecific,
         memory_hooks: {},
+      },
+      copyGen: {
+        language: profile.language,
+        coachId: profile.coachId,
+        memoryHooks: {},
+        kindSpecific,
+        suppressStreakCopy: false,
       },
     });
     if (result.status === "inserted") {

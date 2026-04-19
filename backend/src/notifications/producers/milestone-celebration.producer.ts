@@ -3,6 +3,7 @@ import { OnEvent } from "@nestjs/event-emitter";
 
 import { COACH_BY_ID } from "../../coach/coaches.config.js";
 import { SupabaseService } from "../../supabase/supabase.service.js";
+import { PostCommitCopyGenRunner } from "../copy/post-commit-copy-gen.runner.js";
 import { GateService } from "../gate/gate.service.js";
 import { OutboxService } from "../outbox/outbox.service.js";
 import {
@@ -51,6 +52,7 @@ export class MilestoneCelebrationProducer {
     private readonly outbox: OutboxService,
     private readonly gate: GateService,
     private readonly supabaseService: SupabaseService,
+    private readonly postCommitCopyGen: PostCommitCopyGenRunner,
   ) {}
 
   @OnEvent("milestone.completed")
@@ -83,6 +85,10 @@ export class MilestoneCelebrationProducer {
     const title = TITLE_COPY[profile.language];
     const teaser = TEASER_COPY[profile.language];
 
+    const kindSpecific = {
+      milestone_id: event.milestoneId,
+      goal_id: event.goalId,
+    };
     const result = await this.outbox.insert({
       userId: event.userId,
       kind: NOTIFICATION_KIND.MILESTONE_HIT,
@@ -94,17 +100,32 @@ export class MilestoneCelebrationProducer {
         teaser,
         cta_deeplink: `momentum://milestone/${event.milestoneId}`,
         coach: coach === undefined ? { persona } : { id: coach.id, persona },
-        kind_specific: {
-          milestone_id: event.milestoneId,
-          goal_id: event.goalId,
-        },
+        kind_specific: kindSpecific,
         memory_hooks: {},
+      },
+      copyGen: {
+        language: profile.language,
+        coachId: profile.coachId,
+        memoryHooks: {},
+        kindSpecific,
+        suppressStreakCopy: false,
+        producerName: "milestone-celebration",
       },
     });
     if (result.status === "inserted") {
       this.logger.log(
         `Enqueued milestone_hit job ${result.jobId} for milestone ${event.milestoneId}`,
       );
+      this.postCommitCopyGen.runIfShortFuse({
+        insertResult: result,
+        kind: NOTIFICATION_KIND.MILESTONE_HIT,
+        language: profile.language,
+        coachId: profile.coachId,
+        stub: { title, teaser },
+        memoryHooks: {},
+        kindSpecific,
+        suppressStreakCopy: false,
+      });
     }
   }
 

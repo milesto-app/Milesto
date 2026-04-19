@@ -3,6 +3,7 @@ import { OnEvent } from "@nestjs/event-emitter";
 
 import { COACH_BY_ID } from "../../coach/coaches.config.js";
 import { SupabaseService } from "../../supabase/supabase.service.js";
+import { PostCommitCopyGenRunner } from "../copy/post-commit-copy-gen.runner.js";
 import { GateService } from "../gate/gate.service.js";
 import { OutboxService } from "../outbox/outbox.service.js";
 import {
@@ -49,6 +50,7 @@ export class GoalCelebrationProducer {
     private readonly outbox: OutboxService,
     private readonly gate: GateService,
     private readonly supabaseService: SupabaseService,
+    private readonly postCommitCopyGen: PostCommitCopyGenRunner,
   ) {}
 
   @OnEvent("goal.completed")
@@ -81,6 +83,7 @@ export class GoalCelebrationProducer {
     const title = TITLE_COPY[profile.language];
     const teaser = TEASER_COPY[profile.language];
 
+    const kindSpecific = { goal_id: event.goalId };
     const result = await this.outbox.insert({
       userId: event.userId,
       kind: NOTIFICATION_KIND.GOAL_HIT,
@@ -92,16 +95,32 @@ export class GoalCelebrationProducer {
         teaser,
         cta_deeplink: `momentum://goal/${event.goalId}`,
         coach: coach === undefined ? { persona } : { id: coach.id, persona },
-        kind_specific: {
-          goal_id: event.goalId,
-        },
+        kind_specific: kindSpecific,
         memory_hooks: {},
+      },
+      copyGen: {
+        language: profile.language,
+        coachId: profile.coachId,
+        memoryHooks: {},
+        kindSpecific,
+        suppressStreakCopy: false,
+        producerName: "goal-celebration",
       },
     });
     if (result.status === "inserted") {
       this.logger.log(
         `Enqueued goal_hit job ${result.jobId} for goal ${event.goalId}`,
       );
+      this.postCommitCopyGen.runIfShortFuse({
+        insertResult: result,
+        kind: NOTIFICATION_KIND.GOAL_HIT,
+        language: profile.language,
+        coachId: profile.coachId,
+        stub: { title, teaser },
+        memoryHooks: {},
+        kindSpecific,
+        suppressStreakCopy: false,
+      });
     }
   }
 

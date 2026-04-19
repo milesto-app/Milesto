@@ -5,6 +5,8 @@ import { Cron, CronExpression } from "@nestjs/schedule";
 
 import type { Database } from "../../supabase/database.types.js";
 import { SupabaseService } from "../../supabase/supabase.service.js";
+import { computeCopyInputHash } from "../copy/copy-input-hash.js";
+import { resolveLanguage, type SupportedLanguage } from "../copy/fallbacks.js";
 import { DeliveryTelemetryService } from "../deliveries/delivery-telemetry.service.js";
 import { GateService } from "../gate/gate.service.js";
 import { NotificationsService } from "../notifications.service.js";
@@ -15,11 +17,16 @@ import { recheckPredicate } from "./predicates.js";
 
 type NotificationJobRow =
   Database["public"]["Tables"]["notification_jobs"]["Row"];
+type CopyGenerationRow =
+  Database["public"]["Tables"]["notification_copy_generations"]["Row"];
+
+type SendSource = "stub" | "generated";
 
 interface RenderedPayload {
   title: string;
   body: string;
   data: Record<string, string>;
+  sendSource: SendSource;
 }
 
 const MAX_JOB_AGE_HOURS = 2;
@@ -74,6 +81,7 @@ export class DispatcherService {
       this.logger.log(
         `Claimed ${String(jobs.length)} notification jobs (worker=${this.workerId})`,
       );
+      const generations = await this.loadGenerations(jobs);
       // Serialize dispatches per user so the global 2/day ceiling check
       // (which reads send history) cannot race against a concurrent sibling
       // for the same user in the same batch. Cross-user dispatches still run
@@ -82,9 +90,13 @@ export class DispatcherService {
       const userChains = new Map<string, Promise<void>>();
       for (const job of jobs) {
         const prev = userChains.get(job.user_id) ?? Promise.resolve();
+        const generation =
+          job.copy_generation_id === null
+            ? null
+            : (generations.get(job.copy_generation_id) ?? null);
         const next = prev.then(async () => {
           try {
-            await this.dispatch(job);
+            await this.dispatch(job, generation);
           } catch (error) {
             this.logger.error(
               `Unhandled error dispatching job ${job.id} (user=${job.user_id})`,
@@ -118,7 +130,37 @@ export class DispatcherService {
     return data;
   }
 
-  private async dispatch(job: NotificationJobRow): Promise<void> {
+  private async loadGenerations(
+    jobs: NotificationJobRow[],
+  ): Promise<Map<string, CopyGenerationRow>> {
+    const ids = jobs
+      .map((j) => j.copy_generation_id)
+      .filter((id): id is string => id !== null);
+    if (ids.length === 0) {
+      return new Map();
+    }
+    const supabase = this.supabaseService.getAdminClient();
+    const { data, error } = await supabase
+      .from("notification_copy_generations")
+      .select("*")
+      .in("id", ids);
+    if (error !== null) {
+      this.logger.warn(
+        `Failed to bulk-load copy generations for ${String(ids.length)} jobs: ${error.message} — falling back to stubs`,
+      );
+      return new Map();
+    }
+    const map = new Map<string, CopyGenerationRow>();
+    for (const row of data) {
+      map.set(row.id, row);
+    }
+    return map;
+  }
+
+  private async dispatch(
+    job: NotificationJobRow,
+    generation: CopyGenerationRow | null,
+  ): Promise<void> {
     if (this.isStale(job)) {
       await this.outbox.markSkipped(job.id, "stale");
       return;
@@ -147,7 +189,7 @@ export class DispatcherService {
     }
 
     try {
-      await this.dispatchAndRecord(job);
+      await this.dispatchAndRecord(job, generation);
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       await this.recordFailure(job, message);
@@ -220,6 +262,7 @@ export class DispatcherService {
   ): Promise<void> {
     const supabase = this.supabaseService.getAdminClient();
     const restoredAttempts = Math.max(job.attempts - 1, 0);
+    const copyReset = this.buildCopyResetOnReschedule(job, nextAllowedSlot);
     const { error } = await supabase
       .from("notification_jobs")
       .update({
@@ -228,6 +271,7 @@ export class DispatcherService {
         claimed_at: null,
         scheduled_for_utc: nextAllowedSlot.toISOString(),
         attempts: restoredAttempts,
+        ...copyReset,
       })
       .eq("id", job.id);
     if (error !== null) {
@@ -249,6 +293,7 @@ export class DispatcherService {
     const rescheduledFor = nextQuietHoursEnd(new Date(), timezone, quietEnd);
     const supabase = this.supabaseService.getAdminClient();
     const restoredAttempts = Math.max(job.attempts - 1, 0);
+    const copyReset = this.buildCopyResetOnReschedule(job, rescheduledFor);
     const { error } = await supabase
       .from("notification_jobs")
       .update({
@@ -257,6 +302,7 @@ export class DispatcherService {
         claimed_at: null,
         scheduled_for_utc: rescheduledFor.toISOString(),
         attempts: restoredAttempts,
+        ...copyReset,
       })
       .eq("id", job.id);
     if (error !== null) {
@@ -270,8 +316,87 @@ export class DispatcherService {
     );
   }
 
-  private async dispatchAndRecord(job: NotificationJobRow): Promise<void> {
-    const rendered = this.renderPayload(job);
+  /**
+   * Copy-gen state to apply when a job is rescheduled. If the input-hash
+   * would flip under the new `scheduled_for_utc` (15-min slot changed), the
+   * previously-generated copy may no longer fit — reset copy_status to
+   * `pending` so the next consumer tick regenerates. Stub-only jobs and
+   * jobs without a hash (shouldn't happen for eligible kinds, but guard
+   * anyway) are left untouched.
+   */
+  private buildCopyResetOnReschedule(
+    job: NotificationJobRow,
+    newScheduledForUtc: Date,
+  ): Partial<Database["public"]["Tables"]["notification_jobs"]["Update"]> {
+    if (job.copy_status === "skipped_stub" || job.copy_input_hash === null) {
+      return {};
+    }
+    const hashInputs = this.buildHashInputsFromJob(job, newScheduledForUtc);
+    if (hashInputs === null) {
+      return {};
+    }
+    const newHash = computeCopyInputHash(hashInputs);
+    if (newHash === job.copy_input_hash) {
+      return {};
+    }
+    return {
+      copy_status: "pending",
+      copy_input_hash: newHash,
+      copy_generation_id: null,
+      copy_claimed_at: null,
+      copy_claimed_by: null,
+      copy_attempts: 0,
+    };
+  }
+
+  private buildHashInputsFromJob(
+    job: NotificationJobRow,
+    newScheduledForUtc: Date,
+  ): {
+    kind: string;
+    language: SupportedLanguage;
+    coachId: number | null;
+    scheduledForUtc: Date;
+    memoryHooks: Record<string, unknown>;
+    kindSpecific: Record<string, unknown>;
+    suppressStreakCopy: boolean;
+  } | null {
+    const payload = asRecord(job.payload);
+    if (payload === null) {
+      return null;
+    }
+    const copyGenContext = asRecord(payload["copy_gen_context"]);
+    if (copyGenContext === null) {
+      return null;
+    }
+    const language = resolveLanguage(
+      typeof copyGenContext["language"] === "string"
+        ? copyGenContext["language"]
+        : null,
+    );
+    const coachId = extractCoachId(payload["coach"]);
+    const memoryHooks = asRecord(payload["memory_hooks"]) ?? {};
+    const kindSpecific = asRecord(payload["kind_specific"]) ?? {};
+    const shouldSuppressStreak =
+      typeof copyGenContext["suppress_streak_copy"] === "boolean"
+        ? copyGenContext["suppress_streak_copy"]
+        : false;
+    return {
+      kind: job.kind,
+      language,
+      coachId,
+      scheduledForUtc: newScheduledForUtc,
+      memoryHooks,
+      kindSpecific,
+      suppressStreakCopy: shouldSuppressStreak,
+    };
+  }
+
+  private async dispatchAndRecord(
+    job: NotificationJobRow,
+    generation: CopyGenerationRow | null,
+  ): Promise<void> {
+    const rendered = this.renderPayload(job, generation);
     const reports = await this.notificationsService.sendToUserWithReport(
       job.user_id,
       rendered.title,
@@ -285,10 +410,18 @@ export class DispatcherService {
     }
     if (reports.some((report) => report.accepted)) {
       await this.outbox.markSent(job.id);
-      await this.deliveryTelemetry.recordDispatchResults(job.id, reports);
+      await this.deliveryTelemetry.recordDispatchResults(
+        job.id,
+        reports,
+        rendered.sendSource,
+      );
       return;
     }
-    await this.deliveryTelemetry.recordDispatchResults(job.id, reports);
+    await this.deliveryTelemetry.recordDispatchResults(
+      job.id,
+      reports,
+      rendered.sendSource,
+    );
     const failureReason = reports[0]?.error ?? "apns_rejected";
     await this.recordFailure(job, failureReason);
   }
@@ -340,26 +473,69 @@ export class DispatcherService {
     return job !== null && job.sent_at !== null;
   }
 
-  private renderPayload(job: NotificationJobRow): RenderedPayload {
-    const payload =
-      typeof job.payload === "object" && job.payload !== null
-        ? (job.payload as Record<string, unknown>)
-        : {};
-    const title = typeof payload["title"] === "string" ? payload["title"] : "";
-    const teaser =
-      typeof payload["teaser"] === "string" ? payload["teaser"] : "";
+  private renderPayload(
+    job: NotificationJobRow,
+    generation: CopyGenerationRow | null,
+  ): RenderedPayload {
+    const payload = asRecord(job.payload) ?? {};
+    const generated = extractGeneratedCopy(generation);
+    const title =
+      generated !== null ? generated.title : stringField(payload, "title");
+    const body =
+      generated !== null ? generated.body : stringField(payload, "teaser");
     return {
       title,
-      body: teaser,
+      body,
       data: {
         job_id: job.id,
         kind: job.kind,
-        cta_deeplink:
-          typeof payload["cta_deeplink"] === "string"
-            ? payload["cta_deeplink"]
-            : "",
+        cta_deeplink: stringField(payload, "cta_deeplink"),
         why_deeplink: `momentum://notif/why/${job.id}`,
       },
+      sendSource: generated !== null ? "generated" : "stub",
     };
   }
+}
+
+// ---------------------------------------------------------------------------
+// helpers
+// ---------------------------------------------------------------------------
+
+function asRecord(value: unknown): Record<string, unknown> | null {
+  if (value === null || typeof value !== "object" || Array.isArray(value)) {
+    return null;
+  }
+  return value as Record<string, unknown>;
+}
+
+function stringField(payload: Record<string, unknown>, key: string): string {
+  const raw = payload[key];
+  return typeof raw === "string" ? raw : "";
+}
+
+function extractCoachId(coach: unknown): number | null {
+  if (coach === null || typeof coach !== "object" || Array.isArray(coach)) {
+    return null;
+  }
+  const id = (coach as Record<string, unknown>)["id"];
+  return typeof id === "number" ? id : null;
+}
+
+function extractGeneratedCopy(
+  generation: CopyGenerationRow | null,
+): { title: string; body: string } | null {
+  if (generation === null || generation.status !== "generated") {
+    return null;
+  }
+  const output = generation.output;
+  if (output === null || typeof output !== "object" || Array.isArray(output)) {
+    return null;
+  }
+  const rec = output as Record<string, unknown>;
+  const title = rec["title"];
+  const body = rec["body"];
+  if (typeof title !== "string" || typeof body !== "string") {
+    return null;
+  }
+  return { title, body };
 }
