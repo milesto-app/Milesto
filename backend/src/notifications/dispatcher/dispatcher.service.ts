@@ -6,8 +6,12 @@ import { Cron, CronExpression } from "@nestjs/schedule";
 import type { Database } from "../../supabase/database.types.js";
 import { SupabaseService } from "../../supabase/supabase.service.js";
 import { DeliveryTelemetryService } from "../deliveries/delivery-telemetry.service.js";
+import { GateService } from "../gate/gate.service.js";
 import { NotificationsService } from "../notifications.service.js";
 import { OutboxService } from "../outbox/outbox.service.js";
+import type { NotificationKind } from "../outbox/outbox.types.js";
+import { nextQuietHoursEnd } from "../producers/local-time.js";
+import { recheckPredicate } from "./predicates.js";
 
 type NotificationJobRow =
   Database["public"]["Tables"]["notification_jobs"]["Row"];
@@ -23,6 +27,24 @@ const MS_PER_HOUR = 3_600_000;
 const STALE_JOB_MAX_AGE_MS = MAX_JOB_AGE_HOURS * MS_PER_HOUR;
 const MAX_ATTEMPTS = 3;
 const BATCH_SIZE = 500;
+const GLOBAL_CEILING_MAX_SENDS = 2;
+const GLOBAL_CEILING_WINDOW_HOURS = 24;
+const GLOBAL_CEILING_WINDOW_MS = GLOBAL_CEILING_WINDOW_HOURS * MS_PER_HOUR;
+const GLOBAL_CEILING_RESCHEDULE_THRESHOLD_HOURS = 2;
+const GLOBAL_CEILING_RESCHEDULE_THRESHOLD_MS =
+  GLOBAL_CEILING_RESCHEDULE_THRESHOLD_HOURS * MS_PER_HOUR;
+const GLOBAL_CEILING_SKIP_REASON = "global_ceiling";
+const GLOBAL_CEILING_CELEBRATION_SKIP_REASON = "global_ceiling_celebration";
+
+// Celebration kinds skip winner-selection/Phase-B grouping per §8.1. The
+// dispatcher does not yet run Phase B, so the only observable difference is
+// that ceiling-skipped celebrations are tagged with a distinct skip_reason for
+// audit visibility — they remain subject to the global ceiling (§8.5).
+const CELEBRATION_KINDS: ReadonlySet<string> = new Set([
+  "milestone_hit",
+  "goal_hit",
+  "week_completed",
+]);
 
 @Injectable()
 export class DispatcherService {
@@ -35,6 +57,7 @@ export class DispatcherService {
     private readonly notificationsService: NotificationsService,
     private readonly outbox: OutboxService,
     private readonly deliveryTelemetry: DeliveryTelemetryService,
+    private readonly gate: GateService,
   ) {}
 
   @Cron(CronExpression.EVERY_MINUTE)
@@ -51,7 +74,27 @@ export class DispatcherService {
       this.logger.log(
         `Claimed ${String(jobs.length)} notification jobs (worker=${this.workerId})`,
       );
-      await Promise.all(jobs.map(async (job) => this.dispatch(job)));
+      // Serialize dispatches per user so the global 2/day ceiling check
+      // (which reads send history) cannot race against a concurrent sibling
+      // for the same user in the same batch. Cross-user dispatches still run
+      // in parallel. Each step swallows its own rejection so an unexpected
+      // throw on one job does not cancel the user's remaining jobs.
+      const userChains = new Map<string, Promise<void>>();
+      for (const job of jobs) {
+        const prev = userChains.get(job.user_id) ?? Promise.resolve();
+        const next = prev.then(async () => {
+          try {
+            await this.dispatch(job);
+          } catch (error) {
+            this.logger.error(
+              `Unhandled error dispatching job ${job.id} (user=${job.user_id})`,
+              error instanceof Error ? error.stack : undefined,
+            );
+          }
+        });
+        userChains.set(job.user_id, next);
+      }
+      await Promise.all(userChains.values());
     } catch (error) {
       this.logger.error(
         "Dispatcher drain failed",
@@ -89,12 +132,142 @@ export class DispatcherService {
       return;
     }
 
+    const recheck = await recheckPredicate(job, this.supabaseService);
+    if (!recheck.valid) {
+      await this.outbox.markSkipped(job.id, recheck.reason);
+      return;
+    }
+
+    if (!(await this.passesGate(job))) {
+      return;
+    }
+
+    if ((await this.applyGlobalCeiling(job)) === "blocked") {
+      return;
+    }
+
     try {
       await this.dispatchAndRecord(job);
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       await this.recordFailure(job, message);
     }
+  }
+
+  private async passesGate(job: NotificationJobRow): Promise<boolean> {
+    const decision = await this.gate.isPushAllowed(
+      job.user_id,
+      job.kind as NotificationKind,
+    );
+    if (decision.allowed) {
+      return true;
+    }
+    if (decision.reason === "quiet_hours" && decision.timezone !== null) {
+      await this.deferForQuietHours(job, decision.timezone, decision.quietEnd);
+      return false;
+    }
+    await this.outbox.markSkipped(job.id, decision.reason ?? "gate_denied");
+    return false;
+  }
+
+  private async applyGlobalCeiling(
+    job: NotificationJobRow,
+  ): Promise<"allowed" | "blocked"> {
+    const supabase = this.supabaseService.getAdminClient();
+    const { data, error } = await supabase.rpc("recent_sends_window", {
+      p_user_id: job.user_id,
+      p_window_hours: GLOBAL_CEILING_WINDOW_HOURS,
+    });
+    if (error !== null) {
+      this.logger.warn(
+        `Global ceiling RPC failed for job ${job.id}: ${error.message} — allowing send (fail-open)`,
+      );
+      return "allowed";
+    }
+    const row = data[0];
+    const sendCount = row?.send_count ?? 0;
+    if (sendCount < GLOBAL_CEILING_MAX_SENDS) {
+      return "allowed";
+    }
+    const earliest = row?.earliest_sent_at ?? null;
+    if (earliest === null) {
+      this.logger.warn(
+        `Global ceiling: job ${job.id} has count=${String(sendCount)} but no earliest_sent_at — allowing send (fail-open)`,
+      );
+      return "allowed";
+    }
+    const nextAllowedSlot = new Date(
+      new Date(earliest).getTime() + GLOBAL_CEILING_WINDOW_MS,
+    );
+    const delayMs = nextAllowedSlot.getTime() - Date.now();
+    if (delayMs <= GLOBAL_CEILING_RESCHEDULE_THRESHOLD_MS) {
+      await this.rescheduleForGlobalCeiling(job, nextAllowedSlot);
+      return "blocked";
+    }
+    const skipReason = CELEBRATION_KINDS.has(job.kind)
+      ? GLOBAL_CEILING_CELEBRATION_SKIP_REASON
+      : GLOBAL_CEILING_SKIP_REASON;
+    await this.outbox.markSkipped(job.id, skipReason);
+    this.logger.log(
+      `Skipped job ${job.id} (kind=${job.kind}) via ${skipReason} — next slot ${nextAllowedSlot.toISOString()} is >${String(GLOBAL_CEILING_RESCHEDULE_THRESHOLD_HOURS)}h away`,
+    );
+    return "blocked";
+  }
+
+  private async rescheduleForGlobalCeiling(
+    job: NotificationJobRow,
+    nextAllowedSlot: Date,
+  ): Promise<void> {
+    const supabase = this.supabaseService.getAdminClient();
+    const restoredAttempts = Math.max(job.attempts - 1, 0);
+    const { error } = await supabase
+      .from("notification_jobs")
+      .update({
+        status: "pending",
+        claimed_by: null,
+        claimed_at: null,
+        scheduled_for_utc: nextAllowedSlot.toISOString(),
+        attempts: restoredAttempts,
+      })
+      .eq("id", job.id);
+    if (error !== null) {
+      this.logger.error(
+        `Failed to reschedule job ${job.id} for global ceiling: ${error.message}`,
+      );
+      return;
+    }
+    this.logger.log(
+      `Rescheduled job ${job.id} (kind=${job.kind}) to ${nextAllowedSlot.toISOString()} due to global ceiling`,
+    );
+  }
+
+  private async deferForQuietHours(
+    job: NotificationJobRow,
+    timezone: string,
+    quietEnd: number,
+  ): Promise<void> {
+    const rescheduledFor = nextQuietHoursEnd(new Date(), timezone, quietEnd);
+    const supabase = this.supabaseService.getAdminClient();
+    const restoredAttempts = Math.max(job.attempts - 1, 0);
+    const { error } = await supabase
+      .from("notification_jobs")
+      .update({
+        status: "pending",
+        claimed_by: null,
+        claimed_at: null,
+        scheduled_for_utc: rescheduledFor.toISOString(),
+        attempts: restoredAttempts,
+      })
+      .eq("id", job.id);
+    if (error !== null) {
+      this.logger.error(
+        `Failed to defer job ${job.id} for quiet hours: ${error.message}`,
+      );
+      return;
+    }
+    this.logger.log(
+      `Deferred job ${job.id} (kind=${job.kind}) to ${rescheduledFor.toISOString()} due to quiet hours`,
+    );
   }
 
   private async dispatchAndRecord(job: NotificationJobRow): Promise<void> {

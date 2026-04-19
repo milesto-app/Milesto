@@ -712,6 +712,7 @@ export type Database = {
           notif_quiet_end: number | null;
           notif_quiet_start: number | null;
           sto_active_hour: number | null;
+          sto_active_hour_updated_at: string | null;
           subscription_apple_signed_at: string | null;
           subscription_auto_renew_status: boolean | null;
           subscription_environment: string | null;
@@ -740,6 +741,7 @@ export type Database = {
           notif_quiet_end?: number | null;
           notif_quiet_start?: number | null;
           sto_active_hour?: number | null;
+          sto_active_hour_updated_at?: string | null;
           subscription_apple_signed_at?: string | null;
           subscription_auto_renew_status?: boolean | null;
           subscription_environment?: string | null;
@@ -768,6 +770,7 @@ export type Database = {
           notif_quiet_end?: number | null;
           notif_quiet_start?: number | null;
           sto_active_hour?: number | null;
+          sto_active_hour_updated_at?: string | null;
           subscription_apple_signed_at?: string | null;
           subscription_auto_renew_status?: boolean | null;
           subscription_environment?: string | null;
@@ -1056,6 +1059,23 @@ export type Database = {
           isSetofReturn: true;
         };
       };
+      daily_check_in_candidates: {
+        Args: Record<string, never>;
+        Returns: {
+          coach_id: number;
+          language: string;
+          timezone: string;
+          user_id: string;
+        }[];
+      };
+      daily_check_in_predicate: {
+        Args: { p_user_id: string };
+        Returns: boolean;
+      };
+      implementation_intention_predicate: {
+        Args: { p_task_id: string };
+        Returns: boolean;
+      };
       match_goal_context: {
         Args: {
           match_count?: number;
@@ -1073,9 +1093,21 @@ export type Database = {
           similarity: number;
         }[];
       };
+      milestone_preview_predicate: {
+        Args: { p_milestone_id: string };
+        Returns: boolean;
+      };
+      notif_preferences_is_valid: { Args: { p: Json }; Returns: boolean };
       populate_milestone_target_dates: {
         Args: { p_goal_id: string };
         Returns: undefined;
+      };
+      recent_sends_window: {
+        Args: { p_user_id: string; p_window_hours?: number };
+        Returns: {
+          earliest_sent_at: string;
+          send_count: number;
+        }[];
       };
       record_user_activity: {
         Args: { p_kind: string; p_occurred_at?: string; p_user_id: string };
@@ -1089,6 +1121,40 @@ export type Database = {
           p_user_id: string;
         };
         Returns: Json;
+      };
+      set_notif_preference_kind_enabled: {
+        Args: { p_enabled: boolean; p_kind: string };
+        Returns: Json;
+      };
+      sto_activity_stats: {
+        Args: { p_user_id: string };
+        Returns: {
+          distinct_days: number;
+          hour_distribution: Json;
+        }[];
+      };
+      streak_at_risk_predicate: {
+        Args: { p_goal_id: string; p_user_id: string };
+        Returns: boolean;
+      };
+      streak_broken_predicate: {
+        Args: { p_goal_id: string; p_user_id: string };
+        Returns: boolean;
+      };
+      streak_local_week_start: { Args: { p_tz: string }; Returns: string };
+      streak_milestone_predicate: {
+        Args: { p_goal_id: string; p_user_id: string; p_weeks: number };
+        Returns: boolean;
+      };
+      streak_user_candidates: {
+        Args: Record<string, never>;
+        Returns: {
+          coach_id: number;
+          language: string;
+          tenure_start_date: string;
+          timezone: string;
+          user_id: string;
+        }[];
       };
     };
     Enums: {

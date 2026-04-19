@@ -8,10 +8,24 @@ import { DeviceTokensController } from "./device-tokens.controller.js";
 import { DeviceTokensService } from "./device-tokens.service.js";
 import { DispatcherService } from "./dispatcher/dispatcher.service.js";
 import { OrphanRecoveryService } from "./dispatcher/orphan-recovery.service.js";
+import { GateService } from "./gate/gate.service.js";
+import { IntentionsController } from "./intentions/intentions.controller.js";
+import { IntentionsService } from "./intentions/intentions.service.js";
 import { NotificationsController } from "./notifications.controller.js";
 import { NotificationsService } from "./notifications.service.js";
 import { OutboxService } from "./outbox/outbox.service.js";
 import { CoachReplyProducer } from "./producers/coach-reply.producer.js";
+import { GoalCelebrationProducer } from "./producers/goal-celebration.producer.js";
+import { IntentionProducer } from "./producers/intention.producer.js";
+import { MilestoneCelebrationProducer } from "./producers/milestone-celebration.producer.js";
+import { MilestonePreviewProducer } from "./producers/milestone-preview.producer.js";
+import { SchedulerService } from "./producers/scheduler.service.js";
+import { WeekCelebrationProducer } from "./producers/week-celebration.producer.js";
+import { StoService } from "./sto/sto.service.js";
+import { StoCronService } from "./sto/sto-cron.service.js";
+import { StreaksService } from "./streaks/streaks.service.js";
+import { StreaksAtRiskService } from "./streaks/streaks-at-risk.service.js";
+import { StreaksNightlyService } from "./streaks/streaks-nightly.service.js";
 
 @Global()
 @Module({
@@ -19,6 +33,7 @@ import { CoachReplyProducer } from "./producers/coach-reply.producer.js";
     ActivityController,
     DeliveryTelemetryController,
     DeviceTokensController,
+    IntentionsController,
     NotificationsController,
   ],
   providers: [
@@ -27,10 +42,29 @@ import { CoachReplyProducer } from "./producers/coach-reply.producer.js";
     DeliveryTelemetryService,
     DeviceTokensService,
     DispatcherService,
+    GateService,
+    GoalCelebrationProducer,
+    IntentionProducer,
+    IntentionsService,
+    MilestoneCelebrationProducer,
+    MilestonePreviewProducer,
     NotificationsService,
     OrphanRecoveryService,
     OutboxService,
+    SchedulerService,
+    StoCronService,
+    StoService,
+    StreaksAtRiskService,
+    StreaksNightlyService,
+    StreaksService,
+    WeekCelebrationProducer,
   ],
-  exports: [ActivityService, NotificationsService, OutboxService],
+  exports: [
+    ActivityService,
+    GateService,
+    NotificationsService,
+    OutboxService,
+    StoService,
+  ],
 })
 export class NotificationsModule {}
