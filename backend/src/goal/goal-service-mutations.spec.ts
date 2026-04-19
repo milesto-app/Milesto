@@ -2,6 +2,7 @@ import {
   InternalServerErrorException,
   NotFoundException,
 } from "@nestjs/common";
+import { EventEmitter2 } from "@nestjs/event-emitter";
 import type { TestingModule } from "@nestjs/testing";
 import { Test } from "@nestjs/testing";
 
@@ -47,6 +48,7 @@ beforeEach(async () => {
         provide: UserLanguageService,
         useValue: { getLanguage: jest.fn().mockResolvedValue("en") },
       },
+      { provide: EventEmitter2, useValue: { emit: jest.fn() } },
     ],
   }).compile();
 
@@ -102,7 +104,11 @@ describe("GoalService.getGoalProfile", () => {
 
 describe("GoalService.updateStatus", () => {
   it("should update goal status successfully", async () => {
-    const isMock = jest.fn().mockResolvedValue({ error: null });
+    const singleMock = jest
+      .fn()
+      .mockResolvedValue({ data: { user_id: "user-123" }, error: null });
+    const selectMock = jest.fn().mockReturnValue({ single: singleMock });
+    const isMock = jest.fn().mockReturnValue({ select: selectMock });
     const eqMock = jest.fn().mockReturnValue({ is: isMock });
     const updateMock = jest.fn().mockReturnValue({ eq: eqMock });
     mockSupabase.from.mockReturnValue({ update: updateMock });
@@ -113,9 +119,11 @@ describe("GoalService.updateStatus", () => {
   });
 
   it("should throw InternalServerErrorException on Supabase error", async () => {
-    const isMock = jest
+    const singleMock = jest
       .fn()
-      .mockResolvedValue({ error: { message: "DB error" } });
+      .mockResolvedValue({ data: null, error: { message: "DB error" } });
+    const selectMock = jest.fn().mockReturnValue({ single: singleMock });
+    const isMock = jest.fn().mockReturnValue({ select: selectMock });
     const eqMock = jest.fn().mockReturnValue({ is: isMock });
     const updateMock = jest.fn().mockReturnValue({ eq: eqMock });
     mockSupabase.from.mockReturnValue({ update: updateMock });

@@ -1,4 +1,15 @@
-import { Body, Controller, Get, Param, Post, UseGuards } from "@nestjs/common";
+import {
+  BadRequestException,
+  Body,
+  Controller,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Param,
+  Patch,
+  Post,
+  UseGuards,
+} from "@nestjs/common";
 import {
   ApiBearerAuth,
   ApiOperation,
@@ -11,6 +22,7 @@ import { UserId } from "../common/decorators/user.decorator.js";
 import { AuthGuard } from "../common/guards/auth.guard.js";
 import type { Database } from "../supabase/database.types.js";
 import { CreateGoalDto } from "./dto/create-goal.dto.js";
+import { UpdateGoalDto } from "./dto/update-goal.dto.js";
 import type { GoalProfileResult } from "./goal.service.js";
 import { GoalService } from "./goal.service.js";
 
@@ -33,6 +45,32 @@ export class GoalController {
     @Body() dto: CreateGoalDto,
   ): Promise<GoalRow> {
     return this.goalService.create(userId, dto.description, dto.title);
+  }
+
+  @Patch(":goalId")
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({
+    summary: "Update goal fields",
+    description:
+      "Partial update — currently supports user_motivation_quote captured at onboarding.",
+  })
+  @ApiParam({ name: "goalId", description: "The goal UUID" })
+  @ApiResponse({ status: 204, description: "Goal updated" })
+  @ApiResponse({ status: 400, description: "No updatable fields provided" })
+  @ApiResponse({ status: 401, description: "Unauthorized" })
+  public async update(
+    @UserId() userId: string,
+    @Param("goalId") goalId: string,
+    @Body() dto: UpdateGoalDto,
+  ): Promise<void> {
+    if (dto.user_motivation_quote === undefined) {
+      throw new BadRequestException("No updatable fields provided");
+    }
+    await this.goalService.updateMotivationQuote(
+      userId,
+      goalId,
+      dto.user_motivation_quote,
+    );
   }
 
   @Get(":goalId/profile")

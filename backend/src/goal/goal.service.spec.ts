@@ -2,6 +2,7 @@ import {
   InternalServerErrorException,
   NotFoundException,
 } from "@nestjs/common";
+import { EventEmitter2 } from "@nestjs/event-emitter";
 import type { TestingModule } from "@nestjs/testing";
 import { Test } from "@nestjs/testing";
 
@@ -67,6 +68,7 @@ beforeEach(async () => {
         provide: UserLanguageService,
         useValue: { getLanguage: jest.fn().mockResolvedValue("en") },
       },
+      { provide: EventEmitter2, useValue: { emit: jest.fn() } },
     ],
   }).compile();
 

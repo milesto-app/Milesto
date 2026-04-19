@@ -15,6 +15,7 @@ export interface WeeklyTask {
   is_fallback: boolean;
   quality_scores: Record<string, unknown> | null;
   created_at: string;
+  completed_at: string | null;
 }
 
 export interface TaskRating {

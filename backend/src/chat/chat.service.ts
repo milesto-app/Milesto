@@ -1,4 +1,5 @@
 import { Injectable, Logger } from "@nestjs/common";
+import { EventEmitter2 } from "@nestjs/event-emitter";
 import type {
   ChatCompletionMessageParam,
   ChatCompletionTool,
@@ -6,6 +7,7 @@ import type {
 
 import { AiService } from "../ai/ai.service.js";
 import { config } from "../config/app.config.js";
+import { ActivityService } from "../notifications/activity/activity.service.js";
 import { UsageService } from "../usage/usage.service.js";
 import { GenerationType } from "../usage/usage.types.js";
 import { ChatHistoryService } from "./chat-history.service.js";
@@ -25,6 +27,8 @@ interface AgentLoopOptions {
   tools: ChatCompletionTool[];
   ctx: ToolExecutionContext;
   conversationId: string;
+  userId: string;
+  goalId: string;
   onEvent: (event: ChatStreamEvent) => void;
 }
 
@@ -39,6 +43,8 @@ export class ChatService {
     private readonly prompt: ChatPromptService,
     private readonly toolRegistryService: ChatToolRegistryService,
     private readonly usageService: UsageService,
+    private readonly activity: ActivityService,
+    private readonly events: EventEmitter2,
   ) {
     this.toolRegistry = this.toolRegistryService.getRegistry();
   }
@@ -60,6 +66,11 @@ export class ChatService {
     await this.history.storeMessage(conversation.id, {
       role: "user",
       content: dto.content,
+    });
+    this.activity.record(userId, "message_sent").catch((error: unknown) => {
+      this.logger.warn(
+        `Failed to record message_sent activity: ${error instanceof Error ? error.message : String(error)}`,
+      );
     });
     const storedMessages = await this.history.getMessages(conversation.id);
     const [{ coachId, language }, goalContext, memory] = await Promise.all([
@@ -84,6 +95,8 @@ export class ChatService {
       tools,
       ctx: { userId, goalId: dto.goalId },
       conversationId: conversation.id,
+      userId,
+      goalId: dto.goalId,
       onEvent,
     });
     onEvent({ type: "message_end" });
@@ -99,8 +112,15 @@ export class ChatService {
       const { content, toolCalls } = await consumeStream(stream, opts.onEvent);
 
       if (toolCalls.length === 0) {
-        await this.history.storeMessage(opts.conversationId, {
+        const stored = await this.history.storeMessage(opts.conversationId, {
           role: "assistant",
+          content,
+        });
+        this.events.emit("coach.reply.ready", {
+          userId: opts.userId,
+          goalId: opts.goalId,
+          conversationId: opts.conversationId,
+          messageId: stored.id,
           content,
         });
         return;

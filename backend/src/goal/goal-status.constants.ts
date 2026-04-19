@@ -5,6 +5,7 @@ export const GOAL_STATUS = {
   PROFILE_GENERATION_FAILED: "profile_generation_failed",
   ROADMAP_GENERATING: "roadmap_generating",
   ACTIVE: "active",
+  COMPLETED: "completed",
 } as const;
 
 export const PROFILE_VIEWABLE_STATUSES: readonly string[] = [
