@@ -50,11 +50,11 @@ struct RoadmapStreakCard: View {
     private func streakMetric(
         icon: TablerIconOutline,
         value: String,
-        labelKey: String
+        labelKey: LocalizedStringKey
     ) -> some View {
         VStack(spacing: 4) {
             HStack(spacing: 6) {
-                TablerIcon(icon, size: 16, color: Color("TintPrimary"))
+                TablerIcons(icon, size: 16, color: Color("TintPrimary"))
                 AppText(verbatim: value, style: .headline)
                     .weight(.semibold)
             }
