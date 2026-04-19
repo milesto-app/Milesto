@@ -7,6 +7,7 @@ struct ProfileDTO: Codable {
     var dateOfBirth: Date?
     var coachId: Int?
     var language: String?
+    var notifPermissionStatus: String?
     var createdAt: Date?
 
     enum CodingKeys: String, CodingKey {
@@ -16,6 +17,7 @@ struct ProfileDTO: Codable {
         case dateOfBirth = "date_of_birth"
         case coachId = "coach_id"
         case language
+        case notifPermissionStatus = "notif_permission_status"
         case createdAt = "created_at"
     }
 
@@ -26,6 +28,7 @@ struct ProfileDTO: Codable {
         lastName = try container.decodeIfPresent(String.self, forKey: .lastName)
         coachId = try container.decodeIfPresent(Int.self, forKey: .coachId)
         language = try container.decodeIfPresent(String.self, forKey: .language)
+        notifPermissionStatus = try container.decodeIfPresent(String.self, forKey: .notifPermissionStatus)
 
         if let dateString = try container.decodeIfPresent(String.self, forKey: .dateOfBirth) {
             let formatter = DateFormatter()
@@ -44,13 +47,14 @@ struct ProfileDTO: Codable {
         }
     }
 
-    init(id: UUID, firstName: String?, lastName: String?, dateOfBirth: Date?, coachId: Int?, language: String? = nil, createdAt: Date? = nil) {
+    init(id: UUID, firstName: String?, lastName: String?, dateOfBirth: Date?, coachId: Int?, language: String? = nil, notifPermissionStatus: String? = nil, createdAt: Date? = nil) {
         self.id = id
         self.firstName = firstName
         self.lastName = lastName
         self.dateOfBirth = dateOfBirth
         self.coachId = coachId
         self.language = language
+        self.notifPermissionStatus = notifPermissionStatus
         self.createdAt = createdAt
     }
 }

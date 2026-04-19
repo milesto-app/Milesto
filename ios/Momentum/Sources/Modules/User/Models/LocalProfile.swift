@@ -12,6 +12,7 @@ final class LocalProfile {
     var coachId: Int?
     var dateOfBirth: Date?
     var language: String?
+    var notifPermissionStatus: String?
     var createdAt: Date?
 
     init(
@@ -24,6 +25,7 @@ final class LocalProfile {
         coachId: Int? = nil,
         dateOfBirth: Date? = nil,
         language: String? = nil,
+        notifPermissionStatus: String? = nil,
         createdAt: Date? = nil
     ) {
         self.userId = userId
@@ -35,6 +37,7 @@ final class LocalProfile {
         self.coachId = coachId
         self.dateOfBirth = dateOfBirth
         self.language = language
+        self.notifPermissionStatus = notifPermissionStatus
         self.createdAt = createdAt
     }
 }

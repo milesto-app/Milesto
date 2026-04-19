@@ -52,6 +52,7 @@ final class ProfileSyncService {
             existing.coachId = fetchedProfile?.coachId
             existing.dateOfBirth = fetchedProfile?.dateOfBirth
             existing.language = fetchedProfile?.language
+            existing.notifPermissionStatus = fetchedProfile?.notifPermissionStatus
             existing.createdAt = fetchedProfile?.createdAt
         } else {
             let newProfile = LocalProfile(
@@ -64,6 +65,7 @@ final class ProfileSyncService {
                 coachId: fetchedProfile?.coachId,
                 dateOfBirth: fetchedProfile?.dateOfBirth,
                 language: fetchedProfile?.language,
+                notifPermissionStatus: fetchedProfile?.notifPermissionStatus,
                 createdAt: fetchedProfile?.createdAt
             )
             modelContext.insert(newProfile)

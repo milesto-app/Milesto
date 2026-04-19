@@ -15,6 +15,21 @@ final class GoalAPIService {
         )
     }
 
+    func updateGoal(goalId: String, motivationQuote: String?) async throws {
+        struct Body: Encodable {
+            let userMotivationQuote: String?
+
+            enum CodingKeys: String, CodingKey {
+                case userMotivationQuote = "user_motivation_quote"
+            }
+        }
+        try await BackendClient.shared.requestVoid(
+            method: "PATCH",
+            path: "goals/\(goalId)",
+            body: Body(userMotivationQuote: motivationQuote)
+        )
+    }
+
     func getGoal(goalId: String) async throws -> GoalDTO {
         try await Supabase.client
             .from("goals")
