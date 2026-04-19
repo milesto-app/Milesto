@@ -107,4 +107,14 @@ describe('VoiceService.synthesize language selection', () => {
     ).rejects.toThrow(NotFoundException);
     expect(ttsSynthesize).not.toHaveBeenCalled();
   });
+
+  it('should honor explicit language and skip user lookup', async () => {
+    await service.synthesize(TEST_TEXT, MOTIVATOR_COACH_ID, TEST_USER_ID, 'fr');
+
+    expect(getLanguage).not.toHaveBeenCalled();
+    expect(ttsSynthesize).toHaveBeenCalledWith(
+      TEST_TEXT,
+      '5jCmrHdxbpU36l1wb3Ke',
+    );
+  });
 });

@@ -125,8 +125,7 @@ const UNIVERSAL_BATCH_1_FR: UniversalQuestion[] = [
     order_in_batch: 3,
   },
   {
-    question_text:
-      "Quand veux-tu pouvoir dire \u00ab je l'ai fait \u00bb ?",
+    question_text: "Quand veux-tu pouvoir dire \u00ab je l'ai fait \u00bb ?",
     question_type: 'text',
     config: { format: 'date' },
     order_in_batch: 4,
@@ -141,7 +140,7 @@ const UNIVERSAL_BATCH_1_FR: UniversalQuestion[] = [
         'Une accumulation graduelle qui a fini par atteindre un point de basculement',
         "Voir quelqu'un d'autre accomplir ce que je veux",
         'Une \u00e9ch\u00e9ance ou un changement de vie approche',
-        "Il y a eu un d\u00e9clic \u2014 je me suis r\u00e9veill\u00e9 pr\u00eat \u00e0 commencer",
+        'Il y a eu un d\u00e9clic \u2014 je me suis r\u00e9veill\u00e9 pr\u00eat \u00e0 commencer',
       ],
     },
     order_in_batch: 5,

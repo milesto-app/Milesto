@@ -1,7 +1,9 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import {
+  IsIn,
   IsInt,
   IsNotEmpty,
+  IsOptional,
   IsString,
   Max,
   MaxLength,
@@ -10,6 +12,9 @@ import {
 
 const MAX_TEXT_LENGTH = 5000;
 const MAX_COACH_ID = 100;
+const SUPPORTED_LANGUAGES = ['en', 'fr'] as const;
+
+export type SynthesizeLanguage = (typeof SUPPORTED_LANGUAGES)[number];
 
 export class SynthesizeDto {
   @ApiProperty({
@@ -26,4 +31,13 @@ export class SynthesizeDto {
   @Min(1)
   @Max(MAX_COACH_ID)
   public coach_id!: number;
+
+  @ApiPropertyOptional({
+    description:
+      'Override voice language. When omitted, the user profile language is used.',
+    enum: SUPPORTED_LANGUAGES,
+  })
+  @IsOptional()
+  @IsIn(SUPPORTED_LANGUAGES)
+  public language?: SynthesizeLanguage;
 }
