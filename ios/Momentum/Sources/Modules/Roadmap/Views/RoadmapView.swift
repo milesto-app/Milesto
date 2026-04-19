@@ -60,6 +60,8 @@ struct RoadmapView: View {
                                 onGoalChanged: onGoalChanged
                             )
 
+                            RoadmapStreakCard(goalId: goalId)
+
                             VStack(spacing: 0) {
                                 ForEach(Array(milestones.enumerated()), id: \.element.id) { index, milestone in
                                     Button {

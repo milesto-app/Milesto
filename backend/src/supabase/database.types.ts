@@ -1112,6 +1112,29 @@ export type Database = {
         Args: { p_enabled: boolean; p_kind: string };
         Returns: Json;
       };
+      streak_at_risk_predicate: {
+        Args: { p_goal_id: string; p_user_id: string };
+        Returns: boolean;
+      };
+      streak_broken_predicate: {
+        Args: { p_goal_id: string; p_user_id: string };
+        Returns: boolean;
+      };
+      streak_local_week_start: { Args: { p_tz: string }; Returns: string };
+      streak_milestone_predicate: {
+        Args: { p_goal_id: string; p_user_id: string; p_weeks: number };
+        Returns: boolean;
+      };
+      streak_user_candidates: {
+        Args: Record<string, never>;
+        Returns: {
+          coach_id: number;
+          language: string;
+          tenure_start_date: string;
+          timezone: string;
+          user_id: string;
+        }[];
+      };
     };
     Enums: {
       [_ in never]: never;

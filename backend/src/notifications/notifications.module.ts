@@ -15,6 +15,9 @@ import { OutboxService } from "./outbox/outbox.service.js";
 import { CoachReplyProducer } from "./producers/coach-reply.producer.js";
 import { MilestonePreviewProducer } from "./producers/milestone-preview.producer.js";
 import { SchedulerService } from "./producers/scheduler.service.js";
+import { StreaksService } from "./streaks/streaks.service.js";
+import { StreaksAtRiskService } from "./streaks/streaks-at-risk.service.js";
+import { StreaksNightlyService } from "./streaks/streaks-nightly.service.js";
 
 @Global()
 @Module({
@@ -36,6 +39,9 @@ import { SchedulerService } from "./producers/scheduler.service.js";
     OrphanRecoveryService,
     OutboxService,
     SchedulerService,
+    StreaksAtRiskService,
+    StreaksNightlyService,
+    StreaksService,
   ],
   exports: [ActivityService, GateService, NotificationsService, OutboxService],
 })

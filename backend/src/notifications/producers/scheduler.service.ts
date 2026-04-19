@@ -9,6 +9,8 @@ import {
   NOTIFICATION_KIND,
   NOTIFICATION_TIER,
 } from "../outbox/outbox.types.js";
+import { StreaksAtRiskService } from "../streaks/streaks-at-risk.service.js";
+import { StreaksNightlyService } from "../streaks/streaks-nightly.service.js";
 import { computeNextDailyCheckInSlot } from "./local-time.js";
 import {
   getPersonaDefaultHour,
@@ -55,6 +57,8 @@ export class SchedulerService {
     private readonly supabaseService: SupabaseService,
     private readonly outbox: OutboxService,
     private readonly gate: GateService,
+    private readonly streaksNightly: StreaksNightlyService,
+    private readonly streaksAtRisk: StreaksAtRiskService,
   ) {}
 
   @Cron(SCHEDULE_EVERY_15_MIN)
@@ -63,8 +67,11 @@ export class SchedulerService {
       return;
     }
     this.inFlight = true;
+    const now = new Date();
     try {
       await this.scheduleDailyCheckIns();
+      await this.streaksNightly.tick(now);
+      await this.streaksAtRisk.tick(now);
     } catch (error) {
       this.logger.error(
         "Scheduler tick failed",
