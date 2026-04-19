@@ -48,7 +48,7 @@ export class IntentionsService {
         `Failed to save intention: ${error.message}`,
       );
     }
-    await this.cancelPendingJobsForTask(input.task_id);
+    await this.cancelPendingJobsForTask(input.task_id, data.captured_at);
     return data;
   }
 
@@ -108,7 +108,7 @@ export class IntentionsService {
     if (data === null) {
       throw new NotFoundException("Intention not found");
     }
-    await this.cancelPendingJobsForTask(taskId);
+    await this.cancelPendingJobsForTask(taskId, data.captured_at);
     return data;
   }
 
@@ -127,20 +127,27 @@ export class IntentionsService {
         `Failed to delete intention: ${error.message}`,
       );
     }
-    await this.cancelPendingJobsForTask(taskId);
+    await this.cancelPendingJobsForTask(taskId, new Date().toISOString());
   }
 
-  private async cancelPendingJobsForTask(taskId: string): Promise<void> {
+  private async cancelPendingJobsForTask(
+    taskId: string,
+    capturedAt: string,
+  ): Promise<void> {
     const supabase = this.supabaseService.getAdminClient();
-    const { error } = await supabase
-      .from("notification_jobs")
-      .update({ status: "skipped", skip_reason: "intention_changed" })
-      .eq("kind", "implementation_intention")
-      .eq("status", "pending")
-      .filter("payload->kind_specific->>task_id", "eq", taskId);
+    const { data, error } = await supabase.rpc(
+      "cancel_pending_intention_jobs",
+      { p_task_id: taskId, p_captured_at: capturedAt },
+    );
     if (error !== null) {
       this.logger.warn(
-        `Failed to cancel pending intention jobs for task ${taskId}: ${error.message}`,
+        `Failed to cancel pending intention jobs for task ${taskId} (captured_at=${capturedAt}): ${error.message}`,
+      );
+      return;
+    }
+    if (data > 0) {
+      this.logger.log(
+        `Cancelled ${String(data)} pending implementation_intention jobs for task ${taskId} (captured_at=${capturedAt})`,
       );
     }
   }

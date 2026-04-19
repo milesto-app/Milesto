@@ -7,7 +7,10 @@ import { DeliveryTelemetryService } from "../deliveries/delivery-telemetry.servi
 import { GateService } from "../gate/gate.service.js";
 import { NotificationsService } from "../notifications.service.js";
 import { OutboxService } from "../outbox/outbox.service.js";
-import { NOTIFICATION_KIND } from "../outbox/outbox.types.js";
+import {
+  NOTIFICATION_KIND,
+  NOTIFICATION_TIER,
+} from "../outbox/outbox.types.js";
 import { DispatcherService } from "./dispatcher.service.js";
 
 type NotificationJobRow =
@@ -424,6 +427,131 @@ describe("DispatcherService — global ceiling (M2.5)", () => {
     // Both jobs should have reached APNs despite job-a's markSent throwing
     // — the per-user chain must not abort on unhandled rejections.
     expect(sendCallCount).toBe(2);
+  });
+
+  it("selects one winner per (user, local_date) and skips the losers with phase_b_winner_selected", async () => {
+    rpcConfig.claimRows = [
+      buildJob({
+        id: "job-daily",
+        kind: NOTIFICATION_KIND.DAILY_CHECK_IN,
+        tier: NOTIFICATION_TIER.P2,
+        local_date: "2026-04-20",
+      }),
+      buildJob({
+        id: "job-intention",
+        kind: NOTIFICATION_KIND.IMPLEMENTATION_INTENTION,
+        tier: NOTIFICATION_TIER.P2,
+        local_date: "2026-04-20",
+      }),
+      buildJob({
+        id: "job-stale",
+        kind: NOTIFICATION_KIND.STALE_TASKS,
+        tier: NOTIFICATION_TIER.P3,
+        local_date: "2026-04-20",
+      }),
+    ];
+
+    await service.drain();
+
+    expect(outbox.markSkipped.mock.calls).toEqual(
+      expect.arrayContaining([
+        ["job-daily", "phase_b_winner_selected"],
+        ["job-stale", "phase_b_winner_selected"],
+      ]),
+    );
+    expect(notifications.sendToUserWithReport).toHaveBeenCalledTimes(1);
+    expect(outbox.markSent).toHaveBeenCalledWith("job-intention");
+  });
+
+  it("breaks rank ties by earliest scheduled_for_utc", async () => {
+    const earlier = new Date(NOW_MS - 30_000).toISOString();
+    const later = new Date(NOW_MS - 10_000).toISOString();
+    rpcConfig.claimRows = [
+      buildJob({
+        id: "job-late",
+        kind: NOTIFICATION_KIND.DAILY_CHECK_IN,
+        tier: NOTIFICATION_TIER.P2,
+        local_date: "2026-04-20",
+        scheduled_for_utc: later,
+      }),
+      buildJob({
+        id: "job-early",
+        kind: NOTIFICATION_KIND.DAILY_CHECK_IN,
+        tier: NOTIFICATION_TIER.P2,
+        local_date: "2026-04-20",
+        scheduled_for_utc: earlier,
+      }),
+    ];
+
+    await service.drain();
+
+    expect(outbox.markSkipped).toHaveBeenCalledWith(
+      "job-late",
+      "phase_b_winner_selected",
+    );
+    expect(outbox.markSent).toHaveBeenCalledWith("job-early");
+  });
+
+  it("lets celebration kinds pass through Phase-B alongside a non-celebration winner", async () => {
+    rpcConfig.claimRows = [
+      buildJob({
+        id: "job-celebration",
+        kind: NOTIFICATION_KIND.MILESTONE_HIT,
+        tier: NOTIFICATION_TIER.P2,
+        local_date: "2026-04-20",
+      }),
+      buildJob({
+        id: "job-daily",
+        kind: NOTIFICATION_KIND.DAILY_CHECK_IN,
+        tier: NOTIFICATION_TIER.P2,
+        local_date: "2026-04-20",
+      }),
+      buildJob({
+        id: "job-stale",
+        kind: NOTIFICATION_KIND.STALE_TASKS,
+        tier: NOTIFICATION_TIER.P3,
+        local_date: "2026-04-20",
+      }),
+    ];
+
+    await service.drain();
+
+    expect(outbox.markSkipped).toHaveBeenCalledWith(
+      "job-stale",
+      "phase_b_winner_selected",
+    );
+    expect(outbox.markSkipped).not.toHaveBeenCalledWith(
+      "job-celebration",
+      expect.anything(),
+    );
+    expect(notifications.sendToUserWithReport).toHaveBeenCalledTimes(2);
+  });
+
+  it("does not cross users when grouping Phase-B competitors", async () => {
+    rpcConfig.claimRows = [
+      buildJob({
+        id: "job-a",
+        user_id: "user-1",
+        kind: NOTIFICATION_KIND.DAILY_CHECK_IN,
+        tier: NOTIFICATION_TIER.P2,
+        local_date: "2026-04-20",
+      }),
+      buildJob({
+        id: "job-b",
+        user_id: "user-2",
+        kind: NOTIFICATION_KIND.DAILY_CHECK_IN,
+        tier: NOTIFICATION_TIER.P2,
+        local_date: "2026-04-20",
+      }),
+    ];
+
+    await service.drain();
+
+    expect(outbox.markSkipped).not.toHaveBeenCalledWith(
+      expect.anything(),
+      "phase_b_winner_selected",
+    );
+    expect(notifications.sendToUserWithReport).toHaveBeenCalledTimes(2);
   });
 
   it("should reschedule celebration kinds like any other kind when next gap is ≤2h", async () => {
