@@ -6,9 +6,9 @@ import {
 } from "@nestjs/common";
 
 import type { Database, Json } from "../supabase/database.types.js";
-import { SUPABASE_NOT_FOUND } from "../supabase/error-codes.js";
 import { SupabaseService } from "../supabase/supabase.service.js";
 import type { GeneratedQuestion } from "./intake-prompt.service.js";
+import { IntakeStoreQueryService } from "./intake-store-query.service.js";
 import type { AnswerInput } from "./types/intake.types.js";
 
 type IntakeQuestionUpdate =
@@ -38,33 +38,21 @@ export interface QuestionConfig {
 export class IntakeStoreService {
   private readonly logger = new Logger(IntakeStoreService.name);
 
-  constructor(private readonly supabaseService: SupabaseService) {}
+  constructor(
+    private readonly supabaseService: SupabaseService,
+    private readonly queryService: IntakeStoreQueryService,
+  ) {}
 
   public async queryLatestBatch(
     goalId: string,
   ): Promise<Record<string, unknown> | null> {
-    const supabase = this.supabaseService.getAdminClient();
-    const { data, error } = await supabase
-      .from("intake_batches")
-      .select("*")
-      .eq("goal_id", goalId)
-      .order("batch_number", { ascending: false })
-      .limit(1)
-      .single();
-
-    if (error !== null && error.code !== SUPABASE_NOT_FOUND) {
-      this.logger.error(
-        `Failed to query batches for goal ${goalId}: ${error.message}`,
-      );
-      throw new InternalServerErrorException("Failed to query batches");
-    }
-    return data;
+    return this.queryService.queryLatestBatch(goalId);
   }
 
   public async queryUnansweredBatch(
     goalId: string,
   ): Promise<{ id: string; batch_number: number }> {
-    const latestBatch = await this.queryLatestBatch(goalId);
+    const latestBatch = await this.queryService.queryLatestBatch(goalId);
     if (latestBatch === null || (latestBatch.is_answered as boolean)) {
       throw new ConflictException("No unanswered batch available");
     }
@@ -79,48 +67,14 @@ export class IntakeStoreService {
   ): Promise<
     Array<{ id: string; question_type: string; config: QuestionConfig | null }>
   > {
-    const supabase = this.supabaseService.getAdminClient();
-    const { data, error } = await supabase
-      .from("intake_questions")
-      .select("*")
-      .eq("batch_id", batchId);
-
-    if (error !== null) {
-      this.logger.error(
-        `Failed to query questions for batch ${batchId}: ${error.message}`,
-      );
-      throw new InternalServerErrorException("Failed to query questions");
-    }
-    return data as Array<{
-      id: string;
-      question_type: string;
-      config: QuestionConfig | null;
-    }>;
+    return this.queryService.loadBatchQuestions(batchId);
   }
 
   public async reServeBatch(batch: {
     id: string;
     batch_number: number;
   }): Promise<StoredBatch> {
-    const supabase = this.supabaseService.getAdminClient();
-    const { data, error } = await supabase
-      .from("intake_questions")
-      .select("id, question_text, question_type, config, order_in_batch")
-      .eq("batch_id", batch.id)
-      .order("order_in_batch");
-
-    if (error !== null) {
-      this.logger.error(
-        `Failed to query questions for batch ${batch.id}: ${error.message}`,
-      );
-      throw new InternalServerErrorException("Failed to query questions");
-    }
-    return {
-      batch_id: batch.id,
-      batch_number: batch.batch_number,
-      is_complete: false,
-      questions: data,
-    };
+    return this.queryService.reServeBatch(batch);
   }
 
   public async storeGeneratedBatch(

@@ -13,6 +13,7 @@ import { IntakePromptService } from "./intake-prompt.service.js";
 import { IntakeQualityService } from "./intake-quality.service.js";
 import { IntakeReembedService } from "./intake-reembed.service.js";
 import { IntakeStoreService } from "./intake-store.service.js";
+import { IntakeStoreQueryService } from "./intake-store-query.service.js";
 import { IntakeTargetDateService } from "./intake-target-date.service.js";
 
 const PROVIDERS = [
@@ -23,6 +24,7 @@ const PROVIDERS = [
   IntakePromptService,
   IntakeQualityService,
   IntakeStoreService,
+  IntakeStoreQueryService,
   IntakeContextService,
   IntakeGenerationService,
   IntakeReembedService,

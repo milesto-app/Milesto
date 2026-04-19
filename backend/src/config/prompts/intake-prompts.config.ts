@@ -1,10 +1,10 @@
-import type { PriorBatchContext } from "../../config/questions.config.js";
 import {
   MAX_ANSWER_LENGTH_LONG,
   MIN_ANSWER_LENGTH_SHORT,
-} from "../constants/intake.constants.js";
+} from "../../intake/constants/intake.constants.js";
+import type { PriorBatchContext } from "../questions.config.js";
 
-export { buildIntakeBatchSystemPrompt } from "./intake-batch-system-prompts.js";
+export { buildIntakeBatchSystemPrompt } from "./intake-system-prompt.config.js";
 
 interface BatchUserPromptParams {
   goalDescription: string;

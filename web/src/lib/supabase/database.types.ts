@@ -499,27 +499,6 @@ export type Database = {
           },
         ];
       };
-      processed_notifications: {
-        Row: {
-          notification_type: string;
-          notification_uuid: string;
-          received_at: string;
-          subtype: string | null;
-        };
-        Insert: {
-          notification_type: string;
-          notification_uuid: string;
-          received_at?: string;
-          subtype?: string | null;
-        };
-        Update: {
-          notification_type?: string;
-          notification_uuid?: string;
-          received_at?: string;
-          subtype?: string | null;
-        };
-        Relationships: [];
-      };
       profiles: {
         Row: {
           coach_id: number | null;
@@ -529,9 +508,6 @@ export type Database = {
           id: string;
           language: string | null;
           last_name: string | null;
-          subscription_apple_signed_at: string | null;
-          subscription_auto_renew_status: boolean | null;
-          subscription_environment: string | null;
           subscription_expires_at: string | null;
           subscription_original_transaction_id: string | null;
           subscription_product_id: string | null;
@@ -548,9 +524,6 @@ export type Database = {
           id: string;
           language?: string | null;
           last_name?: string | null;
-          subscription_apple_signed_at?: string | null;
-          subscription_auto_renew_status?: boolean | null;
-          subscription_environment?: string | null;
           subscription_expires_at?: string | null;
           subscription_original_transaction_id?: string | null;
           subscription_product_id?: string | null;
@@ -567,9 +540,6 @@ export type Database = {
           id?: string;
           language?: string | null;
           last_name?: string | null;
-          subscription_apple_signed_at?: string | null;
-          subscription_auto_renew_status?: boolean | null;
-          subscription_environment?: string | null;
           subscription_expires_at?: string | null;
           subscription_original_transaction_id?: string | null;
           subscription_product_id?: string | null;
