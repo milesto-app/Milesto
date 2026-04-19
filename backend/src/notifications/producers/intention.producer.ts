@@ -101,11 +101,24 @@ export class IntentionProducer {
   }
 
   private async fetchCandidates(): Promise<IntentionCandidate[]> {
+    const rows = await this.fetchIntentionRows();
+    if (rows.length === 0) {
+      return [];
+    }
+    const userIds = this.collectUserIds(rows);
+    if (userIds.length === 0) {
+      return [];
+    }
+    const profilesById = await this.fetchProfilesById(userIds);
+    return this.buildCandidates(rows, profilesById);
+  }
+
+  private async fetchIntentionRows(): Promise<Record<string, unknown>[]> {
     const supabase = this.supabaseService.getAdminClient();
     const { data, error } = await supabase
       .from("weekly_task_intentions")
       .select(
-        "task_id, day_of_week, local_hour, location_label, weekly_tasks!inner(title, user_id, is_completed, profiles:user_id(timezone, language, coach_id, notif_enabled, notif_permission_status))",
+        "task_id, day_of_week, local_hour, location_label, weekly_tasks!inner(title, user_id, is_completed)",
       )
       .eq("weekly_tasks.is_completed", false);
     if (error !== null) {
@@ -114,16 +127,60 @@ export class IntentionProducer {
       );
       return [];
     }
-    return this.mapCandidates(data);
+    return Array.isArray(data) ? (data as Record<string, unknown>[]) : [];
   }
 
-  private mapCandidates(rows: unknown): IntentionCandidate[] {
-    if (!Array.isArray(rows)) {
-      return [];
+  private collectUserIds(rows: Record<string, unknown>[]): string[] {
+    const ids = new Set<string>();
+    for (const row of rows) {
+      const task = row["weekly_tasks"];
+      if (typeof task !== "object" || task === null) {
+        continue;
+      }
+      const userId = (task as Record<string, unknown>)["user_id"];
+      if (typeof userId === "string" && userId !== "") {
+        ids.add(userId);
+      }
     }
+    return Array.from(ids);
+  }
+
+  private async fetchProfilesById(
+    userIds: string[],
+  ): Promise<Map<string, Record<string, unknown>>> {
+    const supabase = this.supabaseService.getAdminClient();
+    const { data, error } = await supabase
+      .from("profiles")
+      .select(
+        "id, timezone, language, coach_id, notif_enabled, notif_permission_status",
+      )
+      .in("id", userIds);
+    if (error !== null) {
+      this.logger.error(
+        `Failed to fetch intention candidate profiles: ${error.message}`,
+      );
+      return new Map();
+    }
+    const map = new Map<string, Record<string, unknown>>();
+    if (!Array.isArray(data)) {
+      return map;
+    }
+    for (const raw of data as Record<string, unknown>[]) {
+      const id = raw["id"];
+      if (typeof id === "string") {
+        map.set(id, raw);
+      }
+    }
+    return map;
+  }
+
+  private buildCandidates(
+    rows: Record<string, unknown>[],
+    profilesById: Map<string, Record<string, unknown>>,
+  ): IntentionCandidate[] {
     const mapped: IntentionCandidate[] = [];
     for (const raw of rows) {
-      const candidate = this.toCandidate(raw);
+      const candidate = this.toCandidate(raw, profilesById);
       if (candidate !== null) {
         mapped.push(candidate);
       }
@@ -131,8 +188,11 @@ export class IntentionProducer {
     return mapped;
   }
 
-  private toCandidate(raw: unknown): IntentionCandidate | null {
-    const parts = this.extractCandidateParts(raw);
+  private toCandidate(
+    raw: unknown,
+    profilesById: Map<string, Record<string, unknown>>,
+  ): IntentionCandidate | null {
+    const parts = this.extractCandidateParts(raw, profilesById);
     if (parts === null) {
       return null;
     }
@@ -165,7 +225,10 @@ export class IntentionProducer {
     };
   }
 
-  private extractCandidateParts(raw: unknown): {
+  private extractCandidateParts(
+    raw: unknown,
+    profilesById: Map<string, Record<string, unknown>>,
+  ): {
     row: Record<string, unknown>;
     task: Record<string, unknown>;
     profile: Record<string, unknown>;
@@ -179,15 +242,15 @@ export class IntentionProducer {
       return null;
     }
     const taskObj = task as Record<string, unknown>;
-    const profile = taskObj["profiles"];
-    if (typeof profile !== "object" || profile === null) {
+    const userId = taskObj["user_id"];
+    if (typeof userId !== "string") {
       return null;
     }
-    return {
-      row,
-      task: taskObj,
-      profile: profile as Record<string, unknown>,
-    };
+    const profile = profilesById.get(userId);
+    if (profile === undefined) {
+      return null;
+    }
+    return { row, task: taskObj, profile };
   }
 
   private async enqueueForCandidate(
