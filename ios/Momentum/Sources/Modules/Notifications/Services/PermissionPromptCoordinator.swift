@@ -68,8 +68,26 @@ final class PermissionPromptCoordinator: ObservableObject {
     private func attemptTrigger() {
         guard !didFireThisSession else { return }
         guard cachedStatus == .notRequested else { return }
-        didFireThisSession = true
-        isExplainerVisible = true
+        Task { await evaluateAndMaybeShow() }
+    }
+
+    private func evaluateAndMaybeShow() async {
+        guard cachedStatus == .notRequested, !didFireThisSession else { return }
+        let settings = await UNUserNotificationCenter.current().notificationSettings()
+        switch settings.authorizationStatus {
+        case .notDetermined:
+            didFireThisSession = true
+            isExplainerVisible = true
+        case .authorized, .provisional:
+            cachedStatus = .granted
+            await persist(status: .granted)
+            await NotificationService.shared.refreshRegistrationIfAuthorized()
+        case .denied:
+            cachedStatus = .denied
+            await persist(status: .denied)
+        default:
+            break
+        }
     }
 
     private func persist(status: NotifPermissionStatus) async {
