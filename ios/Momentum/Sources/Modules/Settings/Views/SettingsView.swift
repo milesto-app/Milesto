@@ -261,7 +261,7 @@ struct SettingsView: View {
         } footer: {
             HStack {
                 Spacer()
-                AppText(verbatim: "Version 1.0.0", style: .caption)
+                AppText(verbatim: "\(String(localized: "settings.version", table: "Settings")) \(Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "")", style: .caption)
                     .color(Color("TextSecondary"))
                 Spacer()
             }
