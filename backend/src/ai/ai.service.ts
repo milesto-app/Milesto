@@ -39,7 +39,7 @@ export class AiService {
   }
 
   public async generateEmbedding(text: string): Promise<number[]> {
-    return this.withTimeout(async (signal) => {
+    return this.withTimeout(config.ai.callTimeoutMs, async (signal) => {
       try {
         const response = await this.openai.embeddings.create(
           {
@@ -73,10 +73,12 @@ export class AiService {
     user: string,
     model?: string,
     reasoning?: string,
+    timeoutMs?: number,
   ): Promise<T> {
+    const effectiveTimeoutMs = timeoutMs ?? config.ai.callTimeoutMs;
     for (let attempt = 1; attempt <= config.ai.maxRetries; attempt++) {
       try {
-        return await this.withTimeout(async (signal) => {
+        return await this.withTimeout(effectiveTimeoutMs, async (signal) => {
           const response = await this.openai.chat.completions.create(
             {
               model: model ?? config.ai.defaultModel,
@@ -130,12 +132,13 @@ export class AiService {
   }
 
   private async withTimeout<T>(
+    timeoutMs: number,
     operation: (signal: AbortSignal) => Promise<T>,
   ): Promise<T> {
     const controller = new AbortController();
     const timeout = setTimeout(() => {
       controller.abort();
-    }, config.ai.callTimeoutMs);
+    }, timeoutMs);
 
     try {
       return await operation(controller.signal);
