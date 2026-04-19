@@ -3,6 +3,7 @@ import { Cron } from "@nestjs/schedule";
 
 import { COACH_BY_ID } from "../../coach/coaches.config.js";
 import { SupabaseService } from "../../supabase/supabase.service.js";
+import { GateService } from "../gate/gate.service.js";
 import { OutboxService } from "../outbox/outbox.service.js";
 import {
   NOTIFICATION_KIND,
@@ -53,6 +54,7 @@ export class SchedulerService {
   constructor(
     private readonly supabaseService: SupabaseService,
     private readonly outbox: OutboxService,
+    private readonly gate: GateService,
   ) {}
 
   @Cron(SCHEDULE_EVERY_15_MIN)
@@ -131,6 +133,17 @@ export class SchedulerService {
     const title =
       coach?.displayName[language] ?? FALLBACK_COACH_TITLE[language];
     const teaser = DAILY_CHECK_IN_TEASER[language];
+    const decision = await this.gate.isPushAllowed(
+      candidate.user_id,
+      NOTIFICATION_KIND.DAILY_CHECK_IN,
+      slot.utc,
+    );
+    if (!decision.allowed) {
+      this.logger.debug(
+        `Skipping daily_check_in for user ${candidate.user_id}: ${decision.reason ?? "unknown"}`,
+      );
+      return "failed";
+    }
     try {
       const result = await this.outbox.insert({
         userId: candidate.user_id,

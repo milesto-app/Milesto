@@ -6,8 +6,11 @@ import { Cron, CronExpression } from "@nestjs/schedule";
 import type { Database } from "../../supabase/database.types.js";
 import { SupabaseService } from "../../supabase/supabase.service.js";
 import { DeliveryTelemetryService } from "../deliveries/delivery-telemetry.service.js";
+import { GateService } from "../gate/gate.service.js";
 import { NotificationsService } from "../notifications.service.js";
 import { OutboxService } from "../outbox/outbox.service.js";
+import type { NotificationKind } from "../outbox/outbox.types.js";
+import { nextQuietHoursEnd } from "../producers/local-time.js";
 import { recheckPredicate } from "./predicates.js";
 
 type NotificationJobRow =
@@ -36,6 +39,7 @@ export class DispatcherService {
     private readonly notificationsService: NotificationsService,
     private readonly outbox: OutboxService,
     private readonly deliveryTelemetry: DeliveryTelemetryService,
+    private readonly gate: GateService,
   ) {}
 
   @Cron(CronExpression.EVERY_MINUTE)
@@ -96,12 +100,58 @@ export class DispatcherService {
       return;
     }
 
+    const decision = await this.gate.isPushAllowed(
+      job.user_id,
+      job.kind as NotificationKind,
+    );
+    if (!decision.allowed) {
+      if (decision.reason === "quiet_hours" && decision.timezone !== null) {
+        await this.deferForQuietHours(
+          job,
+          decision.timezone,
+          decision.quietEnd,
+        );
+        return;
+      }
+      await this.outbox.markSkipped(job.id, decision.reason ?? "gate_denied");
+      return;
+    }
+
     try {
       await this.dispatchAndRecord(job);
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       await this.recordFailure(job, message);
     }
+  }
+
+  private async deferForQuietHours(
+    job: NotificationJobRow,
+    timezone: string,
+    quietEnd: number,
+  ): Promise<void> {
+    const rescheduledFor = nextQuietHoursEnd(new Date(), timezone, quietEnd);
+    const supabase = this.supabaseService.getAdminClient();
+    const restoredAttempts = Math.max(job.attempts - 1, 0);
+    const { error } = await supabase
+      .from("notification_jobs")
+      .update({
+        status: "pending",
+        claimed_by: null,
+        claimed_at: null,
+        scheduled_for_utc: rescheduledFor.toISOString(),
+        attempts: restoredAttempts,
+      })
+      .eq("id", job.id);
+    if (error !== null) {
+      this.logger.error(
+        `Failed to defer job ${job.id} for quiet hours: ${error.message}`,
+      );
+      return;
+    }
+    this.logger.log(
+      `Deferred job ${job.id} (kind=${job.kind}) to ${rescheduledFor.toISOString()} due to quiet hours`,
+    );
   }
 
   private async dispatchAndRecord(job: NotificationJobRow): Promise<void> {

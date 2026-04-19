@@ -8,6 +8,7 @@ import { DeviceTokensController } from "./device-tokens.controller.js";
 import { DeviceTokensService } from "./device-tokens.service.js";
 import { DispatcherService } from "./dispatcher/dispatcher.service.js";
 import { OrphanRecoveryService } from "./dispatcher/orphan-recovery.service.js";
+import { GateService } from "./gate/gate.service.js";
 import { NotificationsController } from "./notifications.controller.js";
 import { NotificationsService } from "./notifications.service.js";
 import { OutboxService } from "./outbox/outbox.service.js";
@@ -29,12 +30,13 @@ import { SchedulerService } from "./producers/scheduler.service.js";
     DeliveryTelemetryService,
     DeviceTokensService,
     DispatcherService,
+    GateService,
     MilestonePreviewProducer,
     NotificationsService,
     OrphanRecoveryService,
     OutboxService,
     SchedulerService,
   ],
-  exports: [ActivityService, NotificationsService, OutboxService],
+  exports: [ActivityService, GateService, NotificationsService, OutboxService],
 })
 export class NotificationsModule {}

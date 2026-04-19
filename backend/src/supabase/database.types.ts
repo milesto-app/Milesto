@@ -1090,6 +1090,7 @@ export type Database = {
         Args: { p_milestone_id: string };
         Returns: boolean;
       };
+      notif_preferences_is_valid: { Args: { p: Json }; Returns: boolean };
       populate_milestone_target_dates: {
         Args: { p_goal_id: string };
         Returns: undefined;
@@ -1105,6 +1106,10 @@ export type Database = {
           p_type: string;
           p_user_id: string;
         };
+        Returns: Json;
+      };
+      set_notif_preference_kind_enabled: {
+        Args: { p_enabled: boolean; p_kind: string };
         Returns: Json;
       };
     };

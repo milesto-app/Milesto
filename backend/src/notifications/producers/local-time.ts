@@ -125,6 +125,25 @@ export interface NextSlotInput {
   quietEnd: number;
 }
 
+export function nextQuietHoursEnd(
+  now: Date,
+  timezone: string,
+  quietEnd: number,
+): Date {
+  const nowLocal = toLocalMoment(now, timezone);
+  const target: LocalMoment = {
+    year: nowLocal.year,
+    month: nowLocal.month,
+    day: nowLocal.day,
+    hour: quietEnd,
+    minute: 0,
+  };
+  const minutesNow = nowLocal.hour * MINUTES_PER_HOUR + nowLocal.minute;
+  const minutesTarget = quietEnd * MINUTES_PER_HOUR;
+  const adjusted = minutesTarget <= minutesNow ? addDays(target, 1) : target;
+  return localToUtc(adjusted, timezone);
+}
+
 export function computeNextDailyCheckInSlot(
   input: NextSlotInput,
 ): ScheduledSlot {

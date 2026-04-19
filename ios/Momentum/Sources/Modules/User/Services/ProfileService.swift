@@ -8,6 +8,9 @@ struct ProfileUpdateFields: Encodable {
     var coachId: Int?
     var language: String?
     var notifPermissionStatus: String?
+    var notifEnabled: Bool?
+    var notifQuietStart: Int?
+    var notifQuietEnd: Int?
 
     enum CodingKeys: String, CodingKey {
         case firstName = "first_name"
@@ -16,6 +19,9 @@ struct ProfileUpdateFields: Encodable {
         case coachId = "coach_id"
         case language
         case notifPermissionStatus = "notif_permission_status"
+        case notifEnabled = "notif_enabled"
+        case notifQuietStart = "notif_quiet_start"
+        case notifQuietEnd = "notif_quiet_end"
     }
 
     func encode(to encoder: Encoder) throws {
@@ -26,6 +32,9 @@ struct ProfileUpdateFields: Encodable {
         if let coachId { try container.encode(coachId, forKey: .coachId) }
         if let language { try container.encode(language, forKey: .language) }
         if let notifPermissionStatus { try container.encode(notifPermissionStatus, forKey: .notifPermissionStatus) }
+        if let notifEnabled { try container.encode(notifEnabled, forKey: .notifEnabled) }
+        if let notifQuietStart { try container.encode(notifQuietStart, forKey: .notifQuietStart) }
+        if let notifQuietEnd { try container.encode(notifQuietEnd, forKey: .notifQuietEnd) }
     }
 }
 
@@ -73,6 +82,17 @@ final class ProfileService {
             .value
 
         return response.first
+    }
+
+    func setKindEnabled(kind: String, enabled: Bool) async throws -> NotifPreferences {
+        struct Params: Encodable {
+            let p_kind: String
+            let p_enabled: Bool
+        }
+        return try await Supabase.client
+            .rpc("set_notif_preference_kind_enabled", params: Params(p_kind: kind, p_enabled: enabled))
+            .execute()
+            .value
     }
 }
 

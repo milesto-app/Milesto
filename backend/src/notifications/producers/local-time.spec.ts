@@ -3,6 +3,7 @@ import {
   formatLocalDate,
   isInQuietHours,
   localToUtc,
+  nextQuietHoursEnd,
   toLocalMoment,
 } from "./local-time.js";
 
@@ -166,6 +167,28 @@ describe("local-time", () => {
       });
       expect(slot.localHour).toBe(7);
       expect(slot.localDate).toBe("2026-04-20");
+    });
+  });
+
+  describe("nextQuietHoursEnd", () => {
+    it("should return today's quietEnd UTC when now is before quietEnd local", () => {
+      // 00:00 UTC = 02:00 Paris. quietEnd=7 → same-day 07:00 Paris = 05:00 UTC.
+      const utc = nextQuietHoursEnd(
+        new Date("2026-04-20T00:00:00Z"),
+        "Europe/Paris",
+        7,
+      );
+      expect(utc.toISOString()).toBe("2026-04-20T05:00:00.000Z");
+    });
+
+    it("should roll to next-day quietEnd when now is past quietEnd local", () => {
+      // 10:00 UTC = 12:00 Paris. quietEnd=7 → tomorrow 07:00 Paris = next day 05:00 UTC.
+      const utc = nextQuietHoursEnd(
+        new Date("2026-04-20T10:00:00Z"),
+        "Europe/Paris",
+        7,
+      );
+      expect(utc.toISOString()).toBe("2026-04-21T05:00:00.000Z");
     });
   });
 });
