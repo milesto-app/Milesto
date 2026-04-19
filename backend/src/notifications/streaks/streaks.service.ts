@@ -4,6 +4,7 @@ import { OnEvent } from "@nestjs/event-emitter";
 import { SupabaseService } from "../../supabase/supabase.service.js";
 import { resolveLanguage, streakMilestoneStub } from "../copy/fallbacks.js";
 import { PostCommitCopyGenRunner } from "../copy/post-commit-copy-gen.runner.js";
+import { isWithinTenureGuardrail } from "../copy/tenure-guardrail.js";
 import { GateService } from "../gate/gate.service.js";
 import { OutboxService } from "../outbox/outbox.service.js";
 import {
@@ -41,8 +42,6 @@ export const STREAK_MILESTONE_WEEKS = [
 export type StreakMilestoneWeek = (typeof STREAK_MILESTONE_WEEKS)[number];
 
 const DEFAULT_TIMEZONE = "UTC";
-const TENURE_GUARDRAIL_DAYS = 60;
-const MS_PER_DAY = 86_400_000;
 const LOCAL_DATE_PAD_WIDTH = 2;
 
 interface StreakRow {
@@ -237,9 +236,7 @@ export class StreaksService {
       );
       return;
     }
-    const shouldSuppressCopy = this.shouldSuppressStreakCopy(
-      context.tenureStartDate,
-    );
+    const shouldSuppressCopy = isWithinTenureGuardrail(context.tenureStartDate);
     const pad = (n: number): string =>
       n.toString().padStart(LOCAL_DATE_PAD_WIDTH, "0");
     const localDate = `${String(localAtEvaluation.year)}-${pad(localAtEvaluation.month)}-${pad(localAtEvaluation.day)}`;
@@ -302,17 +299,5 @@ export class StreaksService {
         error instanceof Error ? error.stack : undefined,
       );
     }
-  }
-
-  private shouldSuppressStreakCopy(tenureStartDate: string | null): boolean {
-    if (tenureStartDate === null) {
-      return false;
-    }
-    const tenureStart = Date.parse(`${tenureStartDate}T00:00:00.000Z`);
-    if (Number.isNaN(tenureStart)) {
-      return false;
-    }
-    const daysSince = Math.floor((Date.now() - tenureStart) / MS_PER_DAY);
-    return daysSince < TENURE_GUARDRAIL_DAYS;
   }
 }
