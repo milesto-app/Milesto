@@ -208,7 +208,7 @@ export class StreaksNightlyService {
         continue;
       }
       if (streak.freeze_tokens > 0) {
-        await this.consumeFreezeToken(streak);
+        await this.consumeFreezeToken(streak, thisWeek);
         continue;
       }
       await this.markBroken(streak);
@@ -216,11 +216,17 @@ export class StreaksNightlyService {
     }
   }
 
-  private async consumeFreezeToken(streak: StreakRow): Promise<void> {
+  private async consumeFreezeToken(
+    streak: StreakRow,
+    thisWeek: string,
+  ): Promise<void> {
     const supabase = this.supabaseService.getAdminClient();
     const { error } = await supabase
       .from("user_streaks")
-      .update({ freeze_tokens: streak.freeze_tokens - 1 })
+      .update({
+        freeze_tokens: streak.freeze_tokens - 1,
+        last_extended_week: thisWeek,
+      })
       .eq("id", streak.id);
     if (error !== null) {
       this.logger.error(
@@ -283,6 +289,8 @@ export class StreaksNightlyService {
         scheduledForUtc,
         localDate: mondayLocalDate,
         payload: {
+          title: "Momentum",
+          teaser: "Let's pick up where you left off.",
           kind_specific: {
             goal_id: streak.goal_id,
             previous_weeks: streak.current_weeks,

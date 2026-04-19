@@ -230,6 +230,8 @@ export class StreaksAtRiskService {
         scheduledForUtc: targetUtc,
         localDate,
         payload: {
+          title: "Momentum",
+          teaser: "Your streak is close — don't drop it.",
           kind_specific: {
             goal_id: streak.goal_id,
             current_weeks: streak.current_weeks,

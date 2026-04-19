@@ -55,6 +55,9 @@ interface UserStreakContext {
   tenureStartDate: string | null;
 }
 
+const MILESTONE_FALLBACK_TITLE = "Momentum";
+const MILESTONE_FALLBACK_TEASER = "Weekly streak extended.";
+
 @Injectable()
 export class StreaksService {
   private readonly logger = new Logger(StreaksService.name);
@@ -244,6 +247,8 @@ export class StreaksService {
         scheduledForUtc: new Date(),
         localDate,
         payload: {
+          title: MILESTONE_FALLBACK_TITLE,
+          teaser: MILESTONE_FALLBACK_TEASER,
           kind_specific: {
             goal_id: goalId,
             weeks,
