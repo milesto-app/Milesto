@@ -507,6 +507,68 @@ export type Database = {
           },
         ];
       };
+      notification_copy_generations: {
+        Row: {
+          attempt_no: number;
+          coach_id: number | null;
+          created_at: string;
+          error_code: string | null;
+          id: string;
+          input_hash: string;
+          job_id: string;
+          kind: string;
+          language: string;
+          latency_ms: number | null;
+          model: string;
+          output: Json | null;
+          prompt_version: string;
+          provider_status: number | null;
+          status: string;
+        };
+        Insert: {
+          attempt_no?: number;
+          coach_id?: number | null;
+          created_at?: string;
+          error_code?: string | null;
+          id?: string;
+          input_hash: string;
+          job_id: string;
+          kind: string;
+          language: string;
+          latency_ms?: number | null;
+          model: string;
+          output?: Json | null;
+          prompt_version: string;
+          provider_status?: number | null;
+          status: string;
+        };
+        Update: {
+          attempt_no?: number;
+          coach_id?: number | null;
+          created_at?: string;
+          error_code?: string | null;
+          id?: string;
+          input_hash?: string;
+          job_id?: string;
+          kind?: string;
+          language?: string;
+          latency_ms?: number | null;
+          model?: string;
+          output?: Json | null;
+          prompt_version?: string;
+          provider_status?: number | null;
+          status?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "notification_copy_generations_job_id_fkey";
+            columns: ["job_id"];
+            isOneToOne: false;
+            referencedRelation: "notification_jobs";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       notification_deliveries: {
         Row: {
           apns_response: Json | null;
@@ -517,6 +579,7 @@ export type Database = {
           job_id: string;
           opened_at: string | null;
           received_at: string | null;
+          send_source: string;
           sent_at: string | null;
         };
         Insert: {
@@ -528,6 +591,7 @@ export type Database = {
           job_id: string;
           opened_at?: string | null;
           received_at?: string | null;
+          send_source?: string;
           sent_at?: string | null;
         };
         Update: {
@@ -539,6 +603,7 @@ export type Database = {
           job_id?: string;
           opened_at?: string | null;
           received_at?: string | null;
+          send_source?: string;
           sent_at?: string | null;
         };
         Relationships: [
@@ -589,6 +654,12 @@ export type Database = {
           attempts: number;
           claimed_at: string | null;
           claimed_by: string | null;
+          copy_attempts: number;
+          copy_claimed_at: string | null;
+          copy_claimed_by: string | null;
+          copy_generation_id: string | null;
+          copy_input_hash: string | null;
+          copy_status: string;
           created_at: string;
           dedup_key: string;
           experiment_id: string | null;
@@ -611,6 +682,12 @@ export type Database = {
           attempts?: number;
           claimed_at?: string | null;
           claimed_by?: string | null;
+          copy_attempts?: number;
+          copy_claimed_at?: string | null;
+          copy_claimed_by?: string | null;
+          copy_generation_id?: string | null;
+          copy_input_hash?: string | null;
+          copy_status?: string;
           created_at?: string;
           dedup_key: string;
           experiment_id?: string | null;
@@ -633,6 +710,12 @@ export type Database = {
           attempts?: number;
           claimed_at?: string | null;
           claimed_by?: string | null;
+          copy_attempts?: number;
+          copy_claimed_at?: string | null;
+          copy_claimed_by?: string | null;
+          copy_generation_id?: string | null;
+          copy_input_hash?: string | null;
+          copy_status?: string;
           created_at?: string;
           dedup_key?: string;
           experiment_id?: string | null;
@@ -651,7 +734,15 @@ export type Database = {
           user_id?: string;
           variant?: string | null;
         };
-        Relationships: [];
+        Relationships: [
+          {
+            foreignKeyName: "notification_jobs_copy_generation_id_fkey";
+            columns: ["copy_generation_id"];
+            isOneToOne: false;
+            referencedRelation: "notification_copy_generations";
+            referencedColumns: ["id"];
+          },
+        ];
       };
       notification_system_alerts: {
         Row: {
@@ -1025,15 +1116,60 @@ export type Database = {
       };
     };
     Views: {
-      [_ in never]: never;
+      v_copy_gen_fallback_by_reason: {
+        Row: {
+          error_code: string | null;
+          failures: number | null;
+          kind: string | null;
+        };
+        Relationships: [];
+      };
+      v_copy_gen_open_rate_lift: {
+        Row: {
+          kind: string | null;
+          open_rate: number | null;
+          opened: number | null;
+          send_source: string | null;
+          sent: number | null;
+        };
+        Relationships: [];
+      };
+      v_copy_gen_slo_24h: {
+        Row: {
+          ai_generated: number | null;
+          ai_share: number | null;
+          total: number | null;
+        };
+        Relationships: [];
+      };
+      v_copy_gen_success_rate_24h: {
+        Row: {
+          failed: number | null;
+          generated: number | null;
+          kind: string | null;
+          success_rate: number | null;
+          total: number | null;
+        };
+        Relationships: [];
+      };
     };
     Functions: {
+      cancel_pending_intention_jobs: {
+        Args: { p_task_id: string };
+        Returns: number;
+      };
       claim_notification_jobs: {
         Args: { p_batch_size?: number; p_worker_id: string };
         Returns: {
           attempts: number;
           claimed_at: string | null;
           claimed_by: string | null;
+          copy_attempts: number;
+          copy_claimed_at: string | null;
+          copy_claimed_by: string | null;
+          copy_generation_id: string | null;
+          copy_input_hash: string | null;
+          copy_status: string;
           created_at: string;
           dedup_key: string;
           experiment_id: string | null;
@@ -1060,7 +1196,7 @@ export type Database = {
         };
       };
       daily_check_in_candidates: {
-        Args: Record<string, never>;
+        Args: never;
         Returns: {
           coach_id: number;
           language: string;
@@ -1073,7 +1209,7 @@ export type Database = {
         Returns: boolean;
       };
       implementation_intention_predicate: {
-        Args: { p_task_id: string };
+        Args: { p_captured_at?: string; p_task_id: string };
         Returns: boolean;
       };
       match_goal_context: {
@@ -1147,7 +1283,7 @@ export type Database = {
         Returns: boolean;
       };
       streak_user_candidates: {
-        Args: Record<string, never>;
+        Args: never;
         Returns: {
           coach_id: number;
           language: string;

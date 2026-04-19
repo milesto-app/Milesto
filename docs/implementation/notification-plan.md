@@ -16,11 +16,11 @@
 
 **Structure**: three milestones of 6–8 sub-phases each. Each milestone is independently shippable and delivers measurable value.
 
-| Milestone                                     | Sub-phases | Outcome                                                                                                                                                                                                                     |
-| --------------------------------------------- | ---------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **M1 — Foundation & MVP**                     | M1.1–M1.7  | Schema exists, outbox+dispatcher work, first real push (`coach_reply_ready`) lands on device, permission prompt is deferred to a high-affect moment, `user_motivation_quote` captured for memory hooks.                     |
+| Milestone                                     | Sub-phases | Outcome                                                                                                                                                                                                                                                                                                            |
+| --------------------------------------------- | ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **M1 — Foundation & MVP**                     | M1.1–M1.7  | Schema exists, outbox+dispatcher work, first real push (`coach_reply_ready`) lands on device, permission prompt is deferred to a high-affect moment, `user_motivation_quote` captured for memory hooks.                                                                                                            |
 | **M2 — Evidence-based core**                  | M2.1–M2.9  | Daily check-in, implementation intentions (Gollwitzer d=0.65), quiet hours/opt-out UI, STO, global 2/day ceiling, weekly streaks, celebration pushes, `milestone_preview`, coach-voiced LLM copy-gen with safe fallbacks. The product now runs on the real retention loop with personality, not placeholder stubs. |
-| **M3 — Retention optimization & measurement** | M3.1–M3.6  | Winback sequences (incl. day-30 break-up + 90-day auto-pause), remaining P1/P2 kinds, `coach_proactive` nightly LLM push, dynamic fatigue + aversion signal, experimentation, observability.                                |
+| **M3 — Retention optimization & measurement** | M3.1–M3.6  | Winback sequences (incl. day-30 break-up + 90-day auto-pause), remaining P1/P2 kinds, `coach_proactive` nightly LLM push, dynamic fatigue + aversion signal, experimentation, observability.                                                                                                                       |
 
 ---
 
@@ -504,18 +504,18 @@ Selection: if `cg.status = 'generated'` → render `cg.output` and stamp `notifi
 
 **Per-kind copy-gen policy (single authoritative table):**
 
-| Kind                                                      | copy_status at insert                   | Reason                                                                              |
-| --------------------------------------------------------- | --------------------------------------- | ----------------------------------------------------------------------------------- |
-| `coach_reply_ready`                                       | `skipped_stub`                          | Body is the coach's actual reply excerpt; no generation needed.                     |
-| `implementation_intention`                                | `skipped_stub`                          | Body is the user's captured if-then text verbatim; no generation needed.            |
-| `daily_check_in`                                          | `pending` → pre-dispatch consumer       | ≥ 15 min scheduled lead time.                                                       |
-| `streak_at_risk`                                          | `pending` → pre-dispatch consumer       | Scheduled at Sunday STO slot; ample lead time.                                      |
-| `streak_broken`                                           | `pending` → pre-dispatch consumer       | Scheduled overnight for Monday morning; ample lead time.                            |
-| `streak_milestone`                                        | `pending` → producer-side post-commit generation | Fires near-immediately after `task.completed`. See producer-side rules below. |
-| `milestone_hit` / `goal_hit` / `week_completed`           | `pending` → producer-side post-commit generation | Short lead time after completion events.                                    |
-| `milestone_preview`                                       | `pending` → pre-dispatch consumer       | 24 h scheduled lead time.                                                           |
-| `coach_proactive` (M3.3)                                  | `pending` → pre-dispatch consumer       | Scheduled at STO slot; ample lead time. May opt into a stronger `memory_hooks.preferred_model` once cost-effectiveness is proven against the `openai/gpt-5.4-nano` default. |
-| `winback_step` (M3.1)                                     | `pending` → pre-dispatch consumer       | Scheduled days ahead.                                                               |
+| Kind                                            | copy_status at insert                            | Reason                                                                                                                                                                      |
+| ----------------------------------------------- | ------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `coach_reply_ready`                             | `skipped_stub`                                   | Body is the coach's actual reply excerpt; no generation needed.                                                                                                             |
+| `implementation_intention`                      | `skipped_stub`                                   | Body is the user's captured if-then text verbatim; no generation needed.                                                                                                    |
+| `daily_check_in`                                | `pending` → pre-dispatch consumer                | ≥ 15 min scheduled lead time.                                                                                                                                               |
+| `streak_at_risk`                                | `pending` → pre-dispatch consumer                | Scheduled at Sunday STO slot; ample lead time.                                                                                                                              |
+| `streak_broken`                                 | `pending` → pre-dispatch consumer                | Scheduled overnight for Monday morning; ample lead time.                                                                                                                    |
+| `streak_milestone`                              | `pending` → producer-side post-commit generation | Fires near-immediately after `task.completed`. See producer-side rules below.                                                                                               |
+| `milestone_hit` / `goal_hit` / `week_completed` | `pending` → producer-side post-commit generation | Short lead time after completion events.                                                                                                                                    |
+| `milestone_preview`                             | `pending` → pre-dispatch consumer                | 24 h scheduled lead time.                                                                                                                                                   |
+| `coach_proactive` (M3.3)                        | `pending` → pre-dispatch consumer                | Scheduled at STO slot; ample lead time. May opt into a stronger `memory_hooks.preferred_model` once cost-effectiveness is proven against the `openai/gpt-5.4-nano` default. |
+| `winback_step` (M3.1)                           | `pending` → pre-dispatch consumer                | Scheduled days ahead.                                                                                                                                                       |
 
 **Producer-side post-commit generation** (celebrations + `streak_milestone`, which fire with short lead time):
 
@@ -571,12 +571,12 @@ If fleet-wide share falls below 75 % for more than 24 h, copy-gen's fallback rat
 
 **Rollout plan (reaches SLO by end of week 2, sustained by weeks 3–4):**
 
-| Week | `COPY_GEN_ENABLED_KINDS`                                                                                                            | `COPY_GEN_ROLLOUT_PERCENT` | Expected fleet AI-generated share |
-| ---- | ----------------------------------------------------------------------------------------------------------------------------------- | -------------------------- | --------------------------------- |
-| 1    | `daily_check_in, milestone_preview`                                                                                                 | 25                         | ≈ 35–40 % (10 % pilot gets AI copy on ≥ 90 % of their `daily_check_in` volume + all `coach_reply_ready` traffic) |
-| 2    | `daily_check_in, milestone_preview`                                                                                                 | 100                        | ≥ 75 % (`daily_check_in` alone dominates push volume; plus `coach_reply_ready`) |
-| 3    | + `streak_milestone, milestone_hit, goal_hit, week_completed, coach_proactive`                                                      | 100                        | ≥ 85 % — only `implementation_intention` + rare streak-at-risk/broken remain on stubs |
-| 4    | + `streak_at_risk, streak_broken, winback_step` (all M2.9-eligible kinds)                                                           | 100                        | ≥ 90 % — only user-authored `implementation_intention` stays stub by design |
+| Week | `COPY_GEN_ENABLED_KINDS`                                                       | `COPY_GEN_ROLLOUT_PERCENT` | Expected fleet AI-generated share                                                                                |
+| ---- | ------------------------------------------------------------------------------ | -------------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| 1    | `daily_check_in, milestone_preview`                                            | 25                         | ≈ 35–40 % (10 % pilot gets AI copy on ≥ 90 % of their `daily_check_in` volume + all `coach_reply_ready` traffic) |
+| 2    | `daily_check_in, milestone_preview`                                            | 100                        | ≥ 75 % (`daily_check_in` alone dominates push volume; plus `coach_reply_ready`)                                  |
+| 3    | + `streak_milestone, milestone_hit, goal_hit, week_completed, coach_proactive` | 100                        | ≥ 85 % — only `implementation_intention` + rare streak-at-risk/broken remain on stubs                            |
+| 4    | + `streak_at_risk, streak_broken, winback_step` (all M2.9-eligible kinds)      | 100                        | ≥ 90 % — only user-authored `implementation_intention` stays stub by design                                      |
 
 Week-1 pilot (25 %) is a deliberate de-risking step. The SLO obligation binds from week 2 onward.
 
@@ -732,32 +732,32 @@ Daily manual review of `notification_copy_generations` rows with `status='failed
 
 **Per-sub-phase smoke tests** (automated where possible):
 
-| Sub-phase | Smoke test                                                                                                        |
-| --------- | ----------------------------------------------------------------------------------------------------------------- |
-| M1.1      | `mcp__supabase__list_tables` shows 7 new tables; `get_advisors` clean.                                            |
-| M1.2      | cURL `/api/activity/foreground` with auth token → row in `user_activity_events`.                                  |
-| M1.3      | Send test push via admin endpoint → `notification_deliveries.received_at` populates; tap → `opened_at` populates. |
-| M1.4      | Complete a task via iOS → `task.completed` event logged; `profiles.last_active_at` advances.                      |
-| M1.5      | Send chat message → assistant reply → `coach_reply_ready` job fires within 1 min; push arrives on device.         |
-| M1.6      | Fresh install, do not prompt at launch; prompt appears post-first-coach-reveal.                                   |
-| M1.7      | New user → `goals.user_motivation_quote` populated verbatim.                                                      |
-| M2.1      | Scheduler enqueues `daily_check_in` for next 24h; dispatch re-check skips if tasks complete.                      |
-| M2.2      | Capture if-then for Tue 20:00 → push fires at Tue 20:00 local.                                                    |
-| M2.3      | Flip master notif off → dispatcher skips all pending P0/P1/P2/P3.                                                 |
-| M2.4      | Seed 14 days of 20:00 activity → `sto_active_hour = 20`.                                                          |
-| M2.5      | Enqueue 3 P0s in 5 min → only 2 send.                                                                             |
-| M2.6      | 3-week chain with week-4 skip + freeze absorb → streak = 4.                                                       |
-| M2.7      | Complete 3 milestones in one evening → 2 celebration pushes fire, 3rd skipped with `global_ceiling_celebration`.  |
-| M2.8      | 24 h post-milestone → `milestone_preview` push lands.                                                             |
-| M2.9.1    | `copy_status` column + `notification_copy_generations` table exist; refactored fallback-stub producers pass all 426 M2 tests; `get_advisors` clean. |
-| M2.9.2    | Unit-test grid per (kind × persona × language): happy-path passes validator; red-team fixtures rejected with correct `error_code`; `suppressStreakCopy` enforced; 10 s wall-clock budget enforced. |
+| Sub-phase | Smoke test                                                                                                                                                                                                                                                                                      |
+| --------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| M1.1      | `mcp__supabase__list_tables` shows 7 new tables; `get_advisors` clean.                                                                                                                                                                                                                          |
+| M1.2      | cURL `/api/activity/foreground` with auth token → row in `user_activity_events`.                                                                                                                                                                                                                |
+| M1.3      | Send test push via admin endpoint → `notification_deliveries.received_at` populates; tap → `opened_at` populates.                                                                                                                                                                               |
+| M1.4      | Complete a task via iOS → `task.completed` event logged; `profiles.last_active_at` advances.                                                                                                                                                                                                    |
+| M1.5      | Send chat message → assistant reply → `coach_reply_ready` job fires within 1 min; push arrives on device.                                                                                                                                                                                       |
+| M1.6      | Fresh install, do not prompt at launch; prompt appears post-first-coach-reveal.                                                                                                                                                                                                                 |
+| M1.7      | New user → `goals.user_motivation_quote` populated verbatim.                                                                                                                                                                                                                                    |
+| M2.1      | Scheduler enqueues `daily_check_in` for next 24h; dispatch re-check skips if tasks complete.                                                                                                                                                                                                    |
+| M2.2      | Capture if-then for Tue 20:00 → push fires at Tue 20:00 local.                                                                                                                                                                                                                                  |
+| M2.3      | Flip master notif off → dispatcher skips all pending P0/P1/P2/P3.                                                                                                                                                                                                                               |
+| M2.4      | Seed 14 days of 20:00 activity → `sto_active_hour = 20`.                                                                                                                                                                                                                                        |
+| M2.5      | Enqueue 3 P0s in 5 min → only 2 send.                                                                                                                                                                                                                                                           |
+| M2.6      | 3-week chain with week-4 skip + freeze absorb → streak = 4.                                                                                                                                                                                                                                     |
+| M2.7      | Complete 3 milestones in one evening → 2 celebration pushes fire, 3rd skipped with `global_ceiling_celebration`.                                                                                                                                                                                |
+| M2.8      | 24 h post-milestone → `milestone_preview` push lands.                                                                                                                                                                                                                                           |
+| M2.9.1    | `copy_status` column + `notification_copy_generations` table exist; refactored fallback-stub producers pass all 426 M2 tests; `get_advisors` clean.                                                                                                                                             |
+| M2.9.2    | Unit-test grid per (kind × persona × language): happy-path passes validator; red-team fixtures rejected with correct `error_code`; `suppressStreakCopy` enforced; 10 s wall-clock budget enforced.                                                                                              |
 | M2.9.3    | 10 `daily_check_in` jobs 3 min ahead → all generated within 60 s. Kill OpenRouter → dispatcher still sends stubs with `send_source='stub'`. Reschedule into quiet hours → hash flips `copy_status='pending'`; next tick regenerates. Kill worker mid-gen → orphan-recovery resets within 2 min. |
-| M2.9.4    | `COPY_GEN_ROLLOUT_PERCENT=10` → only bucket-0 users get `send_source='generated'`. Kill-switch `COPY_GEN_GLOBAL_ENABLED=false` stops new generations within 30 s; previously-generated jobs still dispatch with their already-written copy. |
-| M3.1      | Dormant user → 5 steps enqueued; foreground mid-sequence → remaining steps cancelled.                             |
-| M3.2      | Skip Monday plan gen → Monday 08:00 local `plan_not_generated` fires (unless grace).                              |
-| M3.3      | Eligible user → LLM-generated coach-proactive push lands within cap.                                              |
-| M3.4      | 10 unopened sends of kind X → auto-pause.                                                                         |
-| M3.5      | Split experiment into A/B → assignments deterministic; dashboard surfaces metrics.                                |
-| M3.6      | Stop dispatcher → pg_cron alert row visible in admin dashboard.                                                   |
+| M2.9.4    | `COPY_GEN_ROLLOUT_PERCENT=10` → only bucket-0 users get `send_source='generated'`. Kill-switch `COPY_GEN_GLOBAL_ENABLED=false` stops new generations within 30 s; previously-generated jobs still dispatch with their already-written copy.                                                     |
+| M3.1      | Dormant user → 5 steps enqueued; foreground mid-sequence → remaining steps cancelled.                                                                                                                                                                                                           |
+| M3.2      | Skip Monday plan gen → Monday 08:00 local `plan_not_generated` fires (unless grace).                                                                                                                                                                                                            |
+| M3.3      | Eligible user → LLM-generated coach-proactive push lands within cap.                                                                                                                                                                                                                            |
+| M3.4      | 10 unopened sends of kind X → auto-pause.                                                                                                                                                                                                                                                       |
+| M3.5      | Split experiment into A/B → assignments deterministic; dashboard surfaces metrics.                                                                                                                                                                                                              |
+| M3.6      | Stop dispatcher → pg_cron alert row visible in admin dashboard.                                                                                                                                                                                                                                 |
 
 **Global integration test after M3**: run a 7-day simulated user lifecycle (onboard → motivation quote → permission grant → weekly plan with intentions → mixed task completion → streak ↑ → dormancy → winback step 1 → recovery → streak_broken → comeback) and assert per-sub-phase invariants.

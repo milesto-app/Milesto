@@ -1,6 +1,7 @@
 import { Injectable, Logger } from "@nestjs/common";
 
 import { SupabaseService } from "../../supabase/supabase.service.js";
+import { resolveLanguage, streakAtRiskStub } from "../copy/fallbacks.js";
 import { GateService } from "../gate/gate.service.js";
 import { OutboxService } from "../outbox/outbox.service.js";
 import {
@@ -224,6 +225,9 @@ export class StreaksAtRiskService {
     const scheduledForUtc = localToUtc(local, candidate.timezone);
     const targetUtc =
       scheduledForUtc.getTime() < now.getTime() ? now : scheduledForUtc;
+    const { title, teaser } = streakAtRiskStub(
+      resolveLanguage(candidate.language),
+    );
     try {
       const result = await this.outbox.insert({
         userId: candidate.user_id,
@@ -233,8 +237,8 @@ export class StreaksAtRiskService {
         scheduledForUtc: targetUtc,
         localDate,
         payload: {
-          title: "Momentum",
-          teaser: "Your streak is close — don't drop it.",
+          title,
+          teaser,
           cta_deeplink: `momentum://goal/${streak.goal_id}`,
           coach:
             candidate.coach_id === null

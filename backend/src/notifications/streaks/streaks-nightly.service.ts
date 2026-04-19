@@ -1,6 +1,7 @@
 import { Injectable, Logger } from "@nestjs/common";
 
 import { SupabaseService } from "../../supabase/supabase.service.js";
+import { resolveLanguage, streakBrokenStub } from "../copy/fallbacks.js";
 import { GateService } from "../gate/gate.service.js";
 import { OutboxService } from "../outbox/outbox.service.js";
 import {
@@ -282,6 +283,9 @@ export class StreaksNightlyService {
     const shouldSuppressCopy = this.shouldSuppressStreakCopy(
       candidate.tenure_start_date,
     );
+    const { title, teaser } = streakBrokenStub(
+      resolveLanguage(candidate.language),
+    );
     try {
       const result = await this.outbox.insert({
         userId: candidate.user_id,
@@ -291,8 +295,8 @@ export class StreaksNightlyService {
         scheduledForUtc,
         localDate: mondayLocalDate,
         payload: {
-          title: "Momentum",
-          teaser: "Let's pick up where you left off.",
+          title,
+          teaser,
           cta_deeplink: `momentum://goal/${streak.goal_id}`,
           coach:
             candidate.coach_id === null

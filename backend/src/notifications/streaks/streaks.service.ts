@@ -2,6 +2,7 @@ import { Injectable, Logger } from "@nestjs/common";
 import { OnEvent } from "@nestjs/event-emitter";
 
 import { SupabaseService } from "../../supabase/supabase.service.js";
+import { resolveLanguage, streakMilestoneStub } from "../copy/fallbacks.js";
 import { GateService } from "../gate/gate.service.js";
 import { OutboxService } from "../outbox/outbox.service.js";
 import {
@@ -55,10 +56,8 @@ interface UserStreakContext {
   timezone: string;
   tenureStartDate: string | null;
   coachId: number | null;
+  language: string | null;
 }
-
-const MILESTONE_FALLBACK_TITLE = "Momentum";
-const MILESTONE_FALLBACK_TEASER = "Weekly streak extended.";
 
 @Injectable()
 export class StreaksService {
@@ -135,7 +134,7 @@ export class StreaksService {
     const supabase = this.supabaseService.getAdminClient();
     const { data, error } = await supabase
       .from("profiles")
-      .select("timezone, tenure_start_date, coach_id")
+      .select("timezone, tenure_start_date, coach_id, language")
       .eq("id", userId)
       .maybeSingle();
     if (error !== null) {
@@ -151,6 +150,7 @@ export class StreaksService {
       timezone: data.timezone ?? DEFAULT_TIMEZONE,
       tenureStartDate: data.tenure_start_date,
       coachId: data.coach_id,
+      language: data.language,
     };
   }
 
@@ -241,6 +241,9 @@ export class StreaksService {
     const pad = (n: number): string =>
       n.toString().padStart(LOCAL_DATE_PAD_WIDTH, "0");
     const localDate = `${String(localAtEvaluation.year)}-${pad(localAtEvaluation.month)}-${pad(localAtEvaluation.day)}`;
+    const { title, teaser } = streakMilestoneStub(
+      resolveLanguage(context.language),
+    );
     try {
       const result = await this.outbox.insert({
         userId,
@@ -250,8 +253,8 @@ export class StreaksService {
         scheduledForUtc: new Date(),
         localDate,
         payload: {
-          title: MILESTONE_FALLBACK_TITLE,
-          teaser: MILESTONE_FALLBACK_TEASER,
+          title,
+          teaser,
           cta_deeplink: `momentum://goal/${goalId}`,
           coach:
             context.coachId === null
