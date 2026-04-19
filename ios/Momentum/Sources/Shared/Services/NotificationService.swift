@@ -8,23 +8,25 @@ final class NotificationService {
 
     private init() {}
 
-    func requestPermissionAndRegister() async {
+    @discardableResult
+    func requestPermissionAndRegister() async -> Bool {
         let center = UNUserNotificationCenter.current()
         let settings = await center.notificationSettings()
 
         switch settings.authorizationStatus {
         case .notDetermined:
             let granted = (try? await center.requestAuthorization(options: [.alert, .sound, .badge])) ?? false
-            guard granted else { return }
+            guard granted else { return false }
         case .authorized, .provisional:
             break
         default:
-            return
+            return false
         }
 
         await MainActor.run {
             UIApplication.shared.registerForRemoteNotifications()
         }
+        return true
     }
 
     func registerToken(_ tokenData: Data) async {

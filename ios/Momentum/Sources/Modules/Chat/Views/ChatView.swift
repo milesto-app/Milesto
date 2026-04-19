@@ -6,6 +6,7 @@ struct ChatView: View {
     var onClose: (() -> Void)?
 
     @Environment(\.modelContext) var modelContext
+    @EnvironmentObject private var permissionCoordinator: PermissionPromptCoordinator
     @State var messages: [ChatMessage] = []
     @State var inputText = ""
     @State var isStreaming = false
@@ -87,6 +88,11 @@ struct ChatView: View {
         .onChange(of: isSidebarOpen) { _, isOpen in
             if isOpen {
                 fetchConversations()
+            }
+        }
+        .onChange(of: messages.contains(where: { $0.role == .assistant })) { _, hasAssistant in
+            if hasAssistant {
+                permissionCoordinator.tryTriggerOnFirstCoachReveal()
             }
         }
         .onAppear {

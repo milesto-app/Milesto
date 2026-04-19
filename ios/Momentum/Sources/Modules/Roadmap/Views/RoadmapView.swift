@@ -20,6 +20,7 @@ struct RoadmapView: View {
     var onGoalChanged: ((String) -> Void)?
 
     @Environment(\.modelContext) var modelContext
+    @EnvironmentObject private var permissionCoordinator: PermissionPromptCoordinator
     @Query var localGoals: [LocalGoal]
     @State var milestones: [DisplayMilestone] = []
     @State var isLoading = true
@@ -109,6 +110,12 @@ struct RoadmapView: View {
                 Task {
                     await loadMilestones()
                 }
+                permissionCoordinator.tryTriggerOnFirstRoadmapDisplay()
+            }
+        }
+        .onChange(of: milestones.isEmpty) { _, isEmpty in
+            if !isEmpty {
+                permissionCoordinator.tryTriggerOnFirstRoadmapDisplay()
             }
         }
         .onChange(of: goalId) {

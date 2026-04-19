@@ -5,6 +5,7 @@ struct ProfileGateView: View {
     let userId: String
 
     @Environment(\.modelContext) private var modelContext
+    @EnvironmentObject private var permissionCoordinator: PermissionPromptCoordinator
 
     @Query private var localProfiles: [LocalProfile]
     @Query private var localGoals: [LocalGoal]
@@ -181,6 +182,16 @@ struct ProfileGateView: View {
                 }
             }
             hasSynced = true
+            permissionCoordinator.updateFromProfile(
+                status: localProfile?.notifPermissionStatus,
+                accountCreatedAt: localProfile?.createdAt
+            )
+        }
+        .onChange(of: localProfile?.notifPermissionStatus) { _, newStatus in
+            permissionCoordinator.updateFromProfile(
+                status: newStatus,
+                accountCreatedAt: localProfile?.createdAt
+            )
         }
     }
 

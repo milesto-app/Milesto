@@ -7,6 +7,7 @@ struct ProfileUpdateFields: Encodable {
     var dateOfBirth: String?
     var coachId: Int?
     var language: String?
+    var notifPermissionStatus: String?
 
     enum CodingKeys: String, CodingKey {
         case firstName = "first_name"
@@ -14,6 +15,7 @@ struct ProfileUpdateFields: Encodable {
         case dateOfBirth = "date_of_birth"
         case coachId = "coach_id"
         case language
+        case notifPermissionStatus = "notif_permission_status"
     }
 
     func encode(to encoder: Encoder) throws {
@@ -23,6 +25,7 @@ struct ProfileUpdateFields: Encodable {
         if let dateOfBirth { try container.encode(dateOfBirth, forKey: .dateOfBirth) }
         if let coachId { try container.encode(coachId, forKey: .coachId) }
         if let language { try container.encode(language, forKey: .language) }
+        if let notifPermissionStatus { try container.encode(notifPermissionStatus, forKey: .notifPermissionStatus) }
     }
 }
 
