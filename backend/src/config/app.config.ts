@@ -1,7 +1,7 @@
 const APPLE_PRODUCT_IDS = ['momentum_monthly', 'momentum_quarterly'] as const;
 
 const APPLE_DEFAULT_ENVIRONMENT = 'Sandbox';
-const APPLE_DEFAULT_ROOT_CA_DIR = 'apple-root-certs';
+const APPLE_DEFAULT_ROOT_CA_DIR = 'resources/apple-root-certs';
 
 function parseAppAppleId(raw: string | undefined): number | undefined {
   if (raw === undefined || raw === '') {
@@ -151,5 +151,7 @@ export const config = {
     webhookThrottleTtlMs: 60_000,
     webhookMaxBodyBytes: 1_048_576,
     maxFailedDrainAttempts: 5,
+    verifyThrottleLimit: 10,
+    verifyThrottleTtlMs: 60_000,
   },
 };

@@ -30,6 +30,8 @@ import {
 
 const TYPE_AUTO_RENEWABLE = 'Auto-Renewable Subscription';
 const OWNERSHIP_FAMILY_SHARED = 'FAMILY_SHARED';
+const UUID_REGEX =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 interface SubscriptionStatusResponse {
   status: string;
@@ -458,6 +460,9 @@ export class SubscriptionService {
     userId: string,
   ): void {
     if (appAccountToken === undefined || appAccountToken === '') {
+      throw new UnauthorizedException('Transaction not bound to this user');
+    }
+    if (!UUID_REGEX.test(appAccountToken) || !UUID_REGEX.test(userId)) {
       throw new UnauthorizedException('Transaction not bound to this user');
     }
     if (appAccountToken.toLowerCase() !== userId.toLowerCase()) {

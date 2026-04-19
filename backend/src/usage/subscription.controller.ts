@@ -32,6 +32,12 @@ export class SubscriptionController {
 
   @Post('verify')
   @UseGuards(AuthGuard)
+  @Throttle({
+    default: {
+      limit: config.subscription.verifyThrottleLimit,
+      ttl: config.subscription.verifyThrottleTtlMs,
+    },
+  })
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Verify and sync Apple subscription' })
   @ApiResponse({ status: HttpStatus.OK, description: 'Subscription synced' })
