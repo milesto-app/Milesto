@@ -135,9 +135,7 @@ var title: String {
 
 ## View Size
 
-**Soft cap: ~250 lines per SwiftUI view file.** When a view grows past that, extract sections into `Modules/<Feature>/Components/` as feature-prefixed reusable views (e.g., `HomeHeroSection`, `RoadmapMilestoneRow`, `ChatTopBar`, `PaywallPlanCard`). Each extracted component takes its dependencies through `let`/`@Binding` parameters and exposes callbacks for actions — no `@State` or `modelContext` inside section components unless they own that state exclusively.
-
-If a view's data-loading / cache-sync helpers push the file past the cap, move them into a sibling extension file `Views/<ViewName>+Data.swift` instead of bloating the view file.
+**Soft cap: ~250 lines per SwiftUI view file.** When a view grows past that, extract sections into `Modules/<Feature>/Components/` as feature-prefixed reusable views (e.g., `HomeHeroSection`, `RoadmapMilestoneRow`, `ChatTopBar`, `PaywallPlanCard`).
 
 ## Code Style
 
