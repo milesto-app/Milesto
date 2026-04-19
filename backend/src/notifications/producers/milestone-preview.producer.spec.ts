@@ -2,6 +2,7 @@ import type { TestingModule } from "@nestjs/testing";
 import { Test } from "@nestjs/testing";
 
 import { SupabaseService } from "../../supabase/supabase.service.js";
+import { GateService } from "../gate/gate.service.js";
 import { OutboxService } from "../outbox/outbox.service.js";
 import {
   NOTIFICATION_KIND,
@@ -150,6 +151,12 @@ describe("MilestonePreviewProducer", () => {
           provide: SupabaseService,
           useValue: {
             getAdminClient: () => ({ from }),
+          },
+        },
+        {
+          provide: GateService,
+          useValue: {
+            isPushAllowed: jest.fn().mockResolvedValue({ allowed: true }),
           },
         },
       ],

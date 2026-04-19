@@ -68,7 +68,7 @@ export class GoalCelebrationProducer {
       event.userId,
       NOTIFICATION_KIND.GOAL_HIT,
     );
-    if (!decision.allowed) {
+    if (!decision.allowed && decision.reason !== "quiet_hours") {
       this.logger.debug(
         `goal_hit gated for user ${event.userId}: ${decision.reason ?? "unknown"}`,
       );

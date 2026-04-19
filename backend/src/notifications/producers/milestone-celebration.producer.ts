@@ -70,7 +70,7 @@ export class MilestoneCelebrationProducer {
       event.userId,
       NOTIFICATION_KIND.MILESTONE_HIT,
     );
-    if (!decision.allowed) {
+    if (!decision.allowed && decision.reason !== "quiet_hours") {
       this.logger.debug(
         `milestone_hit gated for user ${event.userId}: ${decision.reason ?? "unknown"}`,
       );

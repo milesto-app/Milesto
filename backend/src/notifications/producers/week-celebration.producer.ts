@@ -69,7 +69,7 @@ export class WeekCelebrationProducer {
       event.userId,
       NOTIFICATION_KIND.WEEK_COMPLETED,
     );
-    if (!decision.allowed) {
+    if (!decision.allowed && decision.reason !== "quiet_hours") {
       this.logger.debug(
         `week_completed gated for user ${event.userId}: ${decision.reason ?? "unknown"}`,
       );

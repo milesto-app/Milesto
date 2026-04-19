@@ -13,7 +13,10 @@ import {
   localWeekStartDate,
   toLocalMoment,
 } from "../producers/local-time.js";
-import { getPersonaDefaultHour } from "../producers/persona-defaults.js";
+import {
+  getPersonaDefaultHour,
+  resolvePersonaBucket,
+} from "../producers/persona-defaults.js";
 
 export const AT_RISK_SUNDAY_HOUR = 18;
 const FIFTEEN_MIN_WINDOW = 15;
@@ -232,6 +235,14 @@ export class StreaksAtRiskService {
         payload: {
           title: "Momentum",
           teaser: "Your streak is close — don't drop it.",
+          cta_deeplink: `momentum://goal/${streak.goal_id}`,
+          coach:
+            candidate.coach_id === null
+              ? { persona: resolvePersonaBucket(null) }
+              : {
+                  id: candidate.coach_id,
+                  persona: resolvePersonaBucket(candidate.coach_id),
+                },
           kind_specific: {
             goal_id: streak.goal_id,
             current_weeks: streak.current_weeks,

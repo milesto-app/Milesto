@@ -12,6 +12,7 @@ import {
   localWeekStartDate,
   toLocalMoment,
 } from "../producers/local-time.js";
+import { resolvePersonaBucket } from "../producers/persona-defaults.js";
 
 export const SUNDAY_SWEEP_START_HOUR = 23;
 export const FREEZE_REPLENISH_HOUR = 2;
@@ -291,6 +292,14 @@ export class StreaksNightlyService {
         payload: {
           title: "Momentum",
           teaser: "Let's pick up where you left off.",
+          cta_deeplink: `momentum://goal/${streak.goal_id}`,
+          coach:
+            candidate.coach_id === null
+              ? { persona: resolvePersonaBucket(null) }
+              : {
+                  id: candidate.coach_id,
+                  persona: resolvePersonaBucket(candidate.coach_id),
+                },
           kind_specific: {
             goal_id: streak.goal_id,
             previous_weeks: streak.current_weeks,

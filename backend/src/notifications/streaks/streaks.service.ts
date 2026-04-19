@@ -13,6 +13,7 @@ import {
   previousLocalWeekStartDate,
   toLocalMoment,
 } from "../producers/local-time.js";
+import { resolvePersonaBucket } from "../producers/persona-defaults.js";
 
 export interface TaskCompletedPayload {
   userId: string;
@@ -53,6 +54,7 @@ interface StreakRow {
 interface UserStreakContext {
   timezone: string;
   tenureStartDate: string | null;
+  coachId: number | null;
 }
 
 const MILESTONE_FALLBACK_TITLE = "Momentum";
@@ -133,7 +135,7 @@ export class StreaksService {
     const supabase = this.supabaseService.getAdminClient();
     const { data, error } = await supabase
       .from("profiles")
-      .select("timezone, tenure_start_date")
+      .select("timezone, tenure_start_date, coach_id")
       .eq("id", userId)
       .maybeSingle();
     if (error !== null) {
@@ -148,6 +150,7 @@ export class StreaksService {
     return {
       timezone: data.timezone ?? DEFAULT_TIMEZONE,
       tenureStartDate: data.tenure_start_date,
+      coachId: data.coach_id,
     };
   }
 
@@ -249,6 +252,14 @@ export class StreaksService {
         payload: {
           title: MILESTONE_FALLBACK_TITLE,
           teaser: MILESTONE_FALLBACK_TEASER,
+          cta_deeplink: `momentum://goal/${goalId}`,
+          coach:
+            context.coachId === null
+              ? { persona: resolvePersonaBucket(null) }
+              : {
+                  id: context.coachId,
+                  persona: resolvePersonaBucket(context.coachId),
+                },
           kind_specific: {
             goal_id: goalId,
             weeks,

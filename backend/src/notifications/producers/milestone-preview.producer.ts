@@ -3,6 +3,7 @@ import { OnEvent } from "@nestjs/event-emitter";
 
 import { COACH_BY_ID } from "../../coach/coaches.config.js";
 import { SupabaseService } from "../../supabase/supabase.service.js";
+import { GateService } from "../gate/gate.service.js";
 import { OutboxService } from "../outbox/outbox.service.js";
 import {
   NOTIFICATION_KIND,
@@ -67,6 +68,7 @@ export class MilestonePreviewProducer {
   constructor(
     private readonly outbox: OutboxService,
     private readonly supabaseService: SupabaseService,
+    private readonly gate: GateService,
   ) {}
 
   @OnEvent("milestone.completed")
@@ -113,6 +115,18 @@ export class MilestonePreviewProducer {
       FALLBACK_COACH_TITLE[profile.language];
     const teaser = `${TEASER_TEMPLATE[profile.language]}${next.title}`;
     const persona = resolvePersonaBucket(profile.coachId);
+
+    const decision = await this.gate.isPushAllowed(
+      payload.userId,
+      NOTIFICATION_KIND.MILESTONE_PREVIEW,
+      scheduledForUtc,
+    );
+    if (!decision.allowed) {
+      this.logger.debug(
+        `Skipping milestone_preview for user ${payload.userId}: ${decision.reason ?? "unknown"}`,
+      );
+      return;
+    }
 
     const result = await this.outbox.insert({
       userId: payload.userId,

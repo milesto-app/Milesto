@@ -134,7 +134,7 @@ export class IntentionsService {
     const supabase = this.supabaseService.getAdminClient();
     const { error } = await supabase
       .from("notification_jobs")
-      .update({ status: "cancelled", skip_reason: "intention_changed" })
+      .update({ status: "skipped", skip_reason: "intention_changed" })
       .eq("kind", "implementation_intention")
       .eq("status", "pending")
       .filter("payload->kind_specific->>task_id", "eq", taskId);
