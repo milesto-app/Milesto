@@ -1,18 +1,17 @@
-import { COACH_JUDGE } from "./judges/coach-judge.js";
-import { COGNITIVE_PSYCH_JUDGE } from "./judges/cognitive-psych-judge.js";
-import { DROPOUT_PREDICTOR_JUDGE } from "./judges/dropout-predictor-judge.js";
-import { THERAPIST_JUDGE } from "./judges/therapist-judge.js";
+export type { DimensionScore, MetaJudgeResult, PersonaJudge, PersonaScores };
+export {
+  ALL_PERSONA_JUDGES,
+  META_JUDGE_SYSTEM_PROMPT,
+} from "./judges/index.js";
 
-export { META_JUDGE_SYSTEM_PROMPT } from "./judges/meta-judge.js";
-
-export interface PersonaJudge {
+interface PersonaJudge {
   name: string;
   axis: string;
   scoreFields: string[];
   systemPrompt: string;
 }
 
-export interface MetaJudgeResult {
+interface MetaJudgeResult {
   weakest_question: {
     index: number;
     original: string;
@@ -31,19 +30,12 @@ export interface MetaJudgeResult {
   grade_rationale: string;
 }
 
-export interface DimensionScore {
+interface DimensionScore {
   score: number;
   per_question: Array<{ q: number; score: number; reason: string }>;
 }
 
-export interface PersonaScores {
+interface PersonaScores {
   [dimension: string]: DimensionScore | number;
   composite: number;
 }
-
-export const ALL_PERSONA_JUDGES: PersonaJudge[] = [
-  COACH_JUDGE,
-  COGNITIVE_PSYCH_JUDGE,
-  THERAPIST_JUDGE,
-  DROPOUT_PREDICTOR_JUDGE,
-];

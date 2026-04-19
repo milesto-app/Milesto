@@ -2,6 +2,14 @@ import { Injectable } from "@nestjs/common";
 
 import { AiService } from "../ai/ai.service.js";
 import { config } from "../config/app.config.js";
+import {
+  buildIntakeBatchSystemPrompt,
+  buildIntakeBatchUserPrompt,
+} from "../config/prompts/intake-prompts.config.js";
+import {
+  buildProfileSystemPrompt,
+  buildProfileUserPrompt,
+} from "../config/prompts/profile-prompts.config.js";
 import type {
   GeneratedQuestion,
   GoalProfile,
@@ -9,14 +17,6 @@ import type {
   UniversalQuestion,
 } from "../config/questions.config.js";
 import { getUniversalBatch1 } from "../config/questions.config.js";
-import {
-  buildIntakeBatchSystemPrompt,
-  buildIntakeBatchUserPrompt,
-} from "./prompts/intake-batch-prompts.js";
-import {
-  buildProfileSystemPrompt,
-  buildProfileUserPrompt,
-} from "./prompts/profile-prompts.js";
 
 export interface NextBatchParams {
   goalDescription: string;

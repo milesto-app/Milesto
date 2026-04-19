@@ -3,6 +3,7 @@ import { OnEvent } from "@nestjs/event-emitter";
 
 import { AiService } from "../ai/ai.service.js";
 import { config } from "../config/app.config.js";
+import { QUALITY_JUDGE_SYSTEM_PROMPT } from "../config/prompts/quality-prompts.config.js";
 import { SupabaseService } from "../supabase/supabase.service.js";
 import {
   validateGoalProfile,
@@ -14,7 +15,6 @@ import {
   buildQualityUserPrompt,
   computeComposite,
 } from "./intake-quality-scoring.js";
-import { QUALITY_JUDGE_SYSTEM_PROMPT } from "./prompts/intake-quality-prompts.js";
 import type { BatchServedEvent } from "./types/intake.types.js";
 
 const SCORE_DECIMAL_PLACES = 2;
