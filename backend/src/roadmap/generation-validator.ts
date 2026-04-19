@@ -1,9 +1,9 @@
 import { plainToInstance } from "class-transformer";
 import { validateSync } from "class-validator";
 
-import { GeneratedMilestone } from "./types/generated-milestone.js";
-import { GeneratedWeeklyPlan } from "./types/generated-weekly-plan.js";
-import { GeneratedWeeklyTask } from "./types/generated-weekly-task.js";
+import { GeneratedMilestone } from "./types/generated-milestone.types.js";
+import { GeneratedWeeklyPlan } from "./types/generated-weekly-plan.types.js";
+import { GeneratedWeeklyTask } from "./types/generated-weekly-task.types.js";
 
 const FIRST_ORDER_INDEX = 1;
 

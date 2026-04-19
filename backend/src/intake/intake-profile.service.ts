@@ -14,7 +14,6 @@ import { SupabaseService } from "../supabase/supabase.service.js";
 import { UsageService } from "../usage/usage.service.js";
 import { GenerationType } from "../usage/usage.types.js";
 import { IntakeContextService } from "./intake-context.service.js";
-import { buildProfileData } from "./intake-profile-data.js";
 import { IntakeProfileStoreService } from "./intake-profile-store.service.js";
 import type { GoalProfile } from "./intake-prompt.service.js";
 import { IntakePromptService } from "./intake-prompt.service.js";
@@ -179,7 +178,7 @@ export class IntakeProfileService {
     const { error } = await client
       .from("goals")
       .update({
-        profile_data: buildProfileData(profile) as Json,
+        profile_data: this.buildProfileData(profile) as Json,
         narrative_summary: profile.narrative_summary,
         profile_created_at: new Date().toISOString(),
       })
@@ -198,5 +197,18 @@ export class IntakeProfileService {
       user_id: userId,
     } satisfies ProfileGeneratedEvent);
     return { profile_id: goalId, profile_status: "intake_completed" };
+  }
+
+  private buildProfileData(profile: GoalProfile): Record<string, unknown> {
+    return {
+      current_state: profile.current_state,
+      desired_state: profile.desired_state,
+      constraints: profile.constraints,
+      motivation: profile.motivation,
+      domain_context: profile.domain_context,
+      ...(profile.goal_specific_insights !== undefined && {
+        goal_specific_insights: profile.goal_specific_insights,
+      }),
+    };
   }
 }

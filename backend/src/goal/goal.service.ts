@@ -18,7 +18,7 @@ import {
 import {
   buildGoalTitleSystemPrompt,
   buildGoalTitleUserPrompt,
-} from "./prompts/goal-title-prompt.js";
+} from "./prompts/goal-title-prompts.js";
 
 type GoalRow = Database["public"]["Tables"]["goals"]["Row"];
 
