@@ -156,6 +156,8 @@ describe("GenerationService", () => {
         expect.any(String),
         expect.any(String),
         config.roadmap.milestoneModel,
+        undefined,
+        config.roadmap.callTimeoutMs,
       );
     });
 
@@ -243,6 +245,8 @@ describe("GenerationService", () => {
         expect.any(String),
         expect.any(String),
         expect.any(String),
+        undefined,
+        config.roadmap.callTimeoutMs,
       );
     });
 
@@ -352,6 +356,8 @@ describe("GenerationService", () => {
         expect.any(String),
         expect.any(String),
         config.roadmap.weeklyModel,
+        undefined,
+        config.roadmap.callTimeoutMs,
       );
     });
 
@@ -602,6 +608,8 @@ describe("GenerationService", () => {
         expect.any(String),
         expect.any(String),
         config.roadmap.weeklyTaskModel,
+        undefined,
+        config.roadmap.callTimeoutMs,
       );
     });
 

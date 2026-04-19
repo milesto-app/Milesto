@@ -23,14 +23,16 @@ interface IntentionRow {
     title: string;
     user_id: string;
     is_completed: boolean;
-    profiles: {
-      timezone: string | null;
-      language: string | null;
-      coach_id: number | null;
-      notif_enabled: boolean;
-      notif_permission_status: string;
-    } | null;
   } | null;
+}
+
+interface ProfileRow {
+  id: string;
+  timezone: string | null;
+  language: string | null;
+  coach_id: number | null;
+  notif_enabled: boolean;
+  notif_permission_status: string;
 }
 
 function buildRow(overrides: Partial<IntentionRow> = {}): IntentionRow {
@@ -43,32 +45,49 @@ function buildRow(overrides: Partial<IntentionRow> = {}): IntentionRow {
       title: "Run 5k",
       user_id: USER_ID,
       is_completed: false,
-      profiles: {
-        timezone: TIMEZONE,
-        language: "en",
-        coach_id: 1,
-        notif_enabled: true,
-        notif_permission_status: "granted",
-      },
     },
     ...overrides,
   };
 }
 
-function createSupabaseMock(rows: IntentionRow[]): {
+function buildProfile(overrides: Partial<ProfileRow> = {}): ProfileRow {
+  return {
+    id: USER_ID,
+    timezone: TIMEZONE,
+    language: "en",
+    coach_id: 1,
+    notif_enabled: true,
+    notif_permission_status: "granted",
+    ...overrides,
+  };
+}
+
+function createSupabaseMock(
+  rows: IntentionRow[],
+  profiles: ProfileRow[] = [buildProfile()],
+): {
   from: jest.Mock;
 } {
-  const eq = jest
-    .fn()
-    .mockImplementation(async () =>
-      Promise.resolve({ data: rows, error: null }),
-    );
-  const query = {
+  const intentionQuery = {
     select: jest.fn().mockReturnThis(),
-    eq,
+    eq: jest
+      .fn()
+      .mockImplementation(async () =>
+        Promise.resolve({ data: rows, error: null }),
+      ),
+  };
+  const profileQuery = {
+    select: jest.fn().mockReturnThis(),
+    in: jest
+      .fn()
+      .mockImplementation(async () =>
+        Promise.resolve({ data: profiles, error: null }),
+      ),
   };
   return {
-    from: jest.fn(() => query),
+    from: jest.fn((table: string) =>
+      table === "profiles" ? profileQuery : intentionQuery,
+    ),
   };
 }
 

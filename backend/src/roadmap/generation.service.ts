@@ -123,6 +123,8 @@ export class GenerationService {
           params.systemPrompt,
           params.userPrompt,
           params.model,
+          undefined,
+          config.roadmap.callTimeoutMs,
         );
         const validated = params.validate(raw);
         return {
