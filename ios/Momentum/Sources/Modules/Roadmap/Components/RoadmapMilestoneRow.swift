@@ -15,7 +15,10 @@ struct RoadmapMilestoneRow: View {
         HStack(alignment: .center, spacing: 14) {
             VStack(spacing: 0) {
                 if isFirst {
-                    Spacer().frame(height: 14)
+                    Rectangle()
+                        .fill(Color.clear)
+                        .frame(width: 2)
+                        .frame(maxHeight: .infinity)
                 } else if let previousStatus {
                     Rectangle()
                         .fill(connectorColor(from: previousStatus, to: milestone.status))
@@ -105,7 +108,7 @@ struct RoadmapMilestoneRow: View {
     private func connectorColor(from: MilestoneStatus, to: MilestoneStatus) -> Color {
         switch (from, to) {
         case (.completed, .completed), (.completed, .current):
-            Color("AccentColor").opacity(0.4)
+            Color("AccentColor")
         default:
             Color("TextSecondary").opacity(0.15)
         }

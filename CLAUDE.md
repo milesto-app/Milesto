@@ -36,3 +36,13 @@ A root `package.json` provides bun-based scripts that orchestrate common tasks a
 - **RLS required** — always enable Row Level Security on new tables with appropriate policies.
 - **After DDL changes** — run `get_advisors` (security + performance) to catch issues.
 - **After any changes** — run `bun run lint` at the repo root before reporting the task as done.
+
+## Versioning
+
+The iOS Marketing Version (`MARKETING_VERSION` in `ios/Momentum.xcodeproj/project.pbxproj`) follows `proud.default.shame` (mapped to semver `major.minor.patch`):
+
+- **proud** — big release. **Never bump this.**
+- **default** — normal change (new feature, meaningful refactor).
+- **shame** — small edit (bug fix, tweak, copy change).
+
+**Bump only once per PR, not per individual edit.** Default to `shame`; use `default` only when the PR's changes are substantial enough to warrant it.
