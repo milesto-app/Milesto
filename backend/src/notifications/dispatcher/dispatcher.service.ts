@@ -34,6 +34,17 @@ const GLOBAL_CEILING_RESCHEDULE_THRESHOLD_HOURS = 2;
 const GLOBAL_CEILING_RESCHEDULE_THRESHOLD_MS =
   GLOBAL_CEILING_RESCHEDULE_THRESHOLD_HOURS * MS_PER_HOUR;
 const GLOBAL_CEILING_SKIP_REASON = "global_ceiling";
+const GLOBAL_CEILING_CELEBRATION_SKIP_REASON = "global_ceiling_celebration";
+
+// Celebration kinds skip winner-selection/Phase-B grouping per §8.1. The
+// dispatcher does not yet run Phase B, so the only observable difference is
+// that ceiling-skipped celebrations are tagged with a distinct skip_reason for
+// audit visibility — they remain subject to the global ceiling (§8.5).
+const CELEBRATION_KINDS: ReadonlySet<string> = new Set([
+  "milestone_hit",
+  "goal_hit",
+  "week_completed",
+]);
 
 @Injectable()
 export class DispatcherService {
@@ -173,9 +184,12 @@ export class DispatcherService {
       await this.rescheduleForGlobalCeiling(job, nextAllowedSlot);
       return "blocked";
     }
-    await this.outbox.markSkipped(job.id, GLOBAL_CEILING_SKIP_REASON);
+    const skipReason = CELEBRATION_KINDS.has(job.kind)
+      ? GLOBAL_CEILING_CELEBRATION_SKIP_REASON
+      : GLOBAL_CEILING_SKIP_REASON;
+    await this.outbox.markSkipped(job.id, skipReason);
     this.logger.log(
-      `Skipped job ${job.id} (kind=${job.kind}) via global_ceiling — next slot ${nextAllowedSlot.toISOString()} is >${String(GLOBAL_CEILING_RESCHEDULE_THRESHOLD_HOURS)}h away`,
+      `Skipped job ${job.id} (kind=${job.kind}) via ${skipReason} — next slot ${nextAllowedSlot.toISOString()} is >${String(GLOBAL_CEILING_RESCHEDULE_THRESHOLD_HOURS)}h away`,
     );
     return "blocked";
   }

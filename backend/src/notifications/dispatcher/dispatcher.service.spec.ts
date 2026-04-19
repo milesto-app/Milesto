@@ -269,10 +269,12 @@ describe("DispatcherService — global ceiling (M2.5)", () => {
     });
   });
 
-  it("should skip with global_ceiling when next gap is >2h away", async () => {
+  it("should skip with global_ceiling when next gap is >2h away for non-celebration kinds", async () => {
     // Earliest send was 10h ago → next slot 14h in future (>2h threshold).
     const earliestMs = NOW_MS - 10 * MS_PER_HOUR;
-    rpcConfig.claimRows = [buildJob()];
+    rpcConfig.claimRows = [
+      buildJob({ kind: NOTIFICATION_KIND.DAILY_CHECK_IN }),
+    ];
     rpcConfig.recentSends = {
       send_count: 2,
       earliest_sent_at: new Date(earliestMs).toISOString(),
@@ -303,7 +305,7 @@ describe("DispatcherService — global ceiling (M2.5)", () => {
     );
   });
 
-  it("should still enforce the ceiling for celebration kinds (milestone_hit, goal_hit, week_completed, milestone_preview)", async () => {
+  it("should tag celebration kinds with global_ceiling_celebration when ceiling-suppressed >2h gap", async () => {
     const earliestMs = NOW_MS - 10 * MS_PER_HOUR;
     rpcConfig.recentSends = {
       send_count: 2,
@@ -313,7 +315,6 @@ describe("DispatcherService — global ceiling (M2.5)", () => {
       NOTIFICATION_KIND.MILESTONE_HIT,
       NOTIFICATION_KIND.GOAL_HIT,
       NOTIFICATION_KIND.WEEK_COMPLETED,
-      NOTIFICATION_KIND.MILESTONE_PREVIEW,
     ];
 
     for (const kind of celebrationKinds) {
@@ -326,8 +327,31 @@ describe("DispatcherService — global ceiling (M2.5)", () => {
       expect(notifications.sendToUserWithReport).not.toHaveBeenCalled();
       expect(outbox.markSkipped).toHaveBeenCalledWith(
         `job-${kind}`,
-        "global_ceiling",
+        "global_ceiling_celebration",
       );
     }
+  });
+
+  it("should reschedule celebration kinds like any other kind when next gap is ≤2h", async () => {
+    // Earliest send was 23h ago → next slot 1h in the future (<2h threshold).
+    const earliestMs = NOW_MS - 23 * MS_PER_HOUR;
+    rpcConfig.claimRows = [
+      buildJob({
+        id: "job-milestone",
+        kind: NOTIFICATION_KIND.MILESTONE_HIT,
+      }),
+    ];
+    rpcConfig.recentSends = {
+      send_count: 2,
+      earliest_sent_at: new Date(earliestMs).toISOString(),
+    };
+
+    await service.drain();
+
+    expect(outbox.markSkipped).not.toHaveBeenCalled();
+    expect(jobUpdates).toHaveLength(1);
+    expect(jobUpdates[0]?.patch["scheduled_for_utc"]).toBe(
+      new Date(earliestMs + 24 * MS_PER_HOUR).toISOString(),
+    );
   });
 });

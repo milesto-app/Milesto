@@ -15,9 +15,12 @@ import { NotificationsController } from "./notifications.controller.js";
 import { NotificationsService } from "./notifications.service.js";
 import { OutboxService } from "./outbox/outbox.service.js";
 import { CoachReplyProducer } from "./producers/coach-reply.producer.js";
+import { GoalCelebrationProducer } from "./producers/goal-celebration.producer.js";
 import { IntentionProducer } from "./producers/intention.producer.js";
+import { MilestoneCelebrationProducer } from "./producers/milestone-celebration.producer.js";
 import { MilestonePreviewProducer } from "./producers/milestone-preview.producer.js";
 import { SchedulerService } from "./producers/scheduler.service.js";
+import { WeekCelebrationProducer } from "./producers/week-celebration.producer.js";
 import { StoService } from "./sto/sto.service.js";
 import { StoCronService } from "./sto/sto-cron.service.js";
 import { StreaksService } from "./streaks/streaks.service.js";
@@ -40,8 +43,10 @@ import { StreaksNightlyService } from "./streaks/streaks-nightly.service.js";
     DeviceTokensService,
     DispatcherService,
     GateService,
+    GoalCelebrationProducer,
     IntentionProducer,
     IntentionsService,
+    MilestoneCelebrationProducer,
     MilestonePreviewProducer,
     NotificationsService,
     OrphanRecoveryService,
@@ -52,6 +57,7 @@ import { StreaksNightlyService } from "./streaks/streaks-nightly.service.js";
     StreaksAtRiskService,
     StreaksNightlyService,
     StreaksService,
+    WeekCelebrationProducer,
   ],
   exports: [
     ActivityService,
