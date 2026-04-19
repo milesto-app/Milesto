@@ -12,6 +12,7 @@ import { NotificationsController } from "./notifications.controller.js";
 import { NotificationsService } from "./notifications.service.js";
 import { OutboxService } from "./outbox/outbox.service.js";
 import { CoachReplyProducer } from "./producers/coach-reply.producer.js";
+import { MilestonePreviewProducer } from "./producers/milestone-preview.producer.js";
 import { SchedulerService } from "./producers/scheduler.service.js";
 
 @Global()
@@ -28,6 +29,7 @@ import { SchedulerService } from "./producers/scheduler.service.js";
     DeliveryTelemetryService,
     DeviceTokensService,
     DispatcherService,
+    MilestonePreviewProducer,
     NotificationsService,
     OrphanRecoveryService,
     OutboxService,

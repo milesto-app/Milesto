@@ -36,8 +36,55 @@ const dailyCheckInPredicate: PredicateFn = async (job, supabaseService) => {
   return { valid: false, reason: "predicate_invalidated" };
 };
 
+function readNextMilestoneId(job: NotificationJobRow): string | null {
+  const payload = job.payload;
+  if (
+    typeof payload !== "object" ||
+    payload === null ||
+    Array.isArray(payload)
+  ) {
+    return null;
+  }
+  const kindSpecific = (payload as Record<string, unknown>)["kind_specific"];
+  if (
+    typeof kindSpecific !== "object" ||
+    kindSpecific === null ||
+    Array.isArray(kindSpecific)
+  ) {
+    return null;
+  }
+  const nextId = (kindSpecific as Record<string, unknown>)["next_milestone_id"];
+  return typeof nextId === "string" ? nextId : null;
+}
+
+const milestonePreviewPredicate: PredicateFn = async (job, supabaseService) => {
+  const nextMilestoneId = readNextMilestoneId(job);
+  if (nextMilestoneId === null) {
+    logger.warn(
+      `milestone_preview predicate missing kind_specific.next_milestone_id for job ${job.id} — allowing send (fail-open)`,
+    );
+    return { valid: true };
+  }
+  const supabase = supabaseService.getAdminClient();
+  const { data: isValid, error } = await supabase.rpc(
+    "milestone_preview_predicate",
+    { p_milestone_id: nextMilestoneId },
+  );
+  if (error !== null) {
+    logger.warn(
+      `milestone_preview predicate re-check failed for job ${job.id}: ${error.message} — allowing send (fail-open)`,
+    );
+    return { valid: true };
+  }
+  if (isValid) {
+    return { valid: true };
+  }
+  return { valid: false, reason: "predicate_invalidated" };
+};
+
 const PREDICATES: Partial<Record<string, PredicateFn>> = {
   [NOTIFICATION_KIND.DAILY_CHECK_IN]: dailyCheckInPredicate,
+  [NOTIFICATION_KIND.MILESTONE_PREVIEW]: milestonePreviewPredicate,
 };
 
 export async function recheckPredicate(

@@ -1086,6 +1086,10 @@ export type Database = {
           similarity: number;
         }[];
       };
+      milestone_preview_predicate: {
+        Args: { p_milestone_id: string };
+        Returns: boolean;
+      };
       populate_milestone_target_dates: {
         Args: { p_goal_id: string };
         Returns: undefined;
