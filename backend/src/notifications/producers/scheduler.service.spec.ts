@@ -6,6 +6,9 @@ import { GateService } from "../gate/gate.service.js";
 import { OutboxService } from "../outbox/outbox.service.js";
 import { StoService } from "../sto/sto.service.js";
 import { StoCronService } from "../sto/sto-cron.service.js";
+import { StreaksAtRiskService } from "../streaks/streaks-at-risk.service.js";
+import { StreaksNightlyService } from "../streaks/streaks-nightly.service.js";
+import { IntentionProducer } from "./intention.producer.js";
 import { SchedulerService } from "./scheduler.service.js";
 
 interface Candidate {
@@ -65,6 +68,20 @@ describe("SchedulerService", () => {
           useValue: { getEffectiveTargetHour },
         },
         { provide: StoCronService, useValue: buildStoCron() },
+        {
+          provide: StreaksNightlyService,
+          useValue: { tick: jest.fn().mockResolvedValue(undefined) },
+        },
+        {
+          provide: StreaksAtRiskService,
+          useValue: { tick: jest.fn().mockResolvedValue(undefined) },
+        },
+        {
+          provide: IntentionProducer,
+          useValue: {
+            scheduleIntentions: jest.fn().mockResolvedValue(undefined),
+          },
+        },
       ],
     }).compile();
 
