@@ -3,6 +3,7 @@ import { Cron } from "@nestjs/schedule";
 
 import { COACH_BY_ID } from "../../coach/coaches.config.js";
 import { SupabaseService } from "../../supabase/supabase.service.js";
+import { dailyCheckInStub, resolveLanguage } from "../copy/fallbacks.js";
 import { GateService } from "../gate/gate.service.js";
 import { OutboxService } from "../outbox/outbox.service.js";
 import {
@@ -27,25 +28,6 @@ interface DailyCheckInCandidate {
   timezone: string;
   coach_id: number | null;
   language: string;
-}
-
-const SUPPORTED_LANGUAGES = ["en", "fr"] as const;
-type SupportedLanguage = (typeof SUPPORTED_LANGUAGES)[number];
-
-const DAILY_CHECK_IN_TEASER: Readonly<Record<SupportedLanguage, string>> = {
-  en: "Ready for today's plan?",
-  fr: "Prêt pour le plan du jour ?",
-};
-
-const FALLBACK_COACH_TITLE: Readonly<Record<SupportedLanguage, string>> = {
-  en: "Your coach",
-  fr: "Ton coach",
-};
-
-function resolveLanguage(raw: string): SupportedLanguage {
-  return (SUPPORTED_LANGUAGES as readonly string[]).includes(raw)
-    ? (raw as SupportedLanguage)
-    : "en";
 }
 
 @Injectable()
@@ -145,9 +127,10 @@ export class SchedulerService {
         ? undefined
         : COACH_BY_ID.get(candidate.coach_id);
     const language = resolveLanguage(candidate.language);
-    const title =
-      coach?.displayName[language] ?? FALLBACK_COACH_TITLE[language];
-    const teaser = DAILY_CHECK_IN_TEASER[language];
+    const { title, teaser } = dailyCheckInStub(
+      language,
+      coach?.displayName[language],
+    );
     const decision = await this.gate.isPushAllowed(
       candidate.user_id,
       NOTIFICATION_KIND.DAILY_CHECK_IN,

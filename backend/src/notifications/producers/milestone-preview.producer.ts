@@ -3,6 +3,11 @@ import { OnEvent } from "@nestjs/event-emitter";
 
 import { COACH_BY_ID } from "../../coach/coaches.config.js";
 import { SupabaseService } from "../../supabase/supabase.service.js";
+import {
+  milestonePreviewStub,
+  resolveLanguage,
+  type SupportedLanguage,
+} from "../copy/fallbacks.js";
 import { GateService } from "../gate/gate.service.js";
 import { OutboxService } from "../outbox/outbox.service.js";
 import {
@@ -23,9 +28,6 @@ export interface MilestoneCompletedPayload {
   completedAt: string;
 }
 
-const SUPPORTED_LANGUAGES = ["en", "fr"] as const;
-type SupportedLanguage = (typeof SUPPORTED_LANGUAGES)[number];
-
 const PREVIEW_DELAY_HOURS = 24;
 const MS_PER_HOUR = 3_600_000;
 const PREVIEW_DELAY_MS = PREVIEW_DELAY_HOURS * MS_PER_HOUR;
@@ -34,16 +36,6 @@ const DEFAULT_QUIET_START = 22;
 const DEFAULT_QUIET_END = 7;
 const DEFAULT_TIMEZONE = "UTC";
 const MILESTONE_PREVIEW_CTA_PREFIX = "momentum://goal/";
-
-const FALLBACK_COACH_TITLE: Readonly<Record<SupportedLanguage, string>> = {
-  en: "Your coach",
-  fr: "Ton coach",
-};
-
-const TEASER_TEMPLATE: Readonly<Record<SupportedLanguage, string>> = {
-  en: "Next up: ",
-  fr: "La suite : ",
-};
 
 interface ProfileContext {
   coachId: number | null;
@@ -58,13 +50,6 @@ interface NextMilestone {
   title: string;
   target_week: number;
   target_date: string | null;
-}
-
-function resolveLanguage(raw: string | null): SupportedLanguage {
-  const value = raw ?? "en";
-  return (SUPPORTED_LANGUAGES as readonly string[]).includes(value)
-    ? (value as SupportedLanguage)
-    : "en";
 }
 
 @Injectable()
@@ -116,10 +101,11 @@ export class MilestonePreviewProducer {
     );
     const coach =
       profile.coachId === null ? undefined : COACH_BY_ID.get(profile.coachId);
-    const title =
-      coach?.displayName[profile.language] ??
-      FALLBACK_COACH_TITLE[profile.language];
-    const teaser = `${TEASER_TEMPLATE[profile.language]}${next.title}`;
+    const { title, teaser } = milestonePreviewStub(
+      profile.language,
+      coach?.displayName[profile.language],
+      next.title,
+    );
     const persona = resolvePersonaBucket(profile.coachId);
 
     const decision = await this.gate.isPushAllowed(
