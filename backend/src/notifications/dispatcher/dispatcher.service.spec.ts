@@ -41,6 +41,12 @@ function buildJob(
     attempts: 1,
     claimed_at: null,
     claimed_by: null,
+    copy_attempts: 0,
+    copy_claimed_at: null,
+    copy_claimed_by: null,
+    copy_generation_id: null,
+    copy_input_hash: null,
+    copy_status: "skipped_stub",
     created_at: NOW_ISO,
     dedup_key: "daily_check_in:user-1:2026-04-20",
     experiment_id: null,
@@ -166,12 +172,26 @@ describe("DispatcherService — global ceiling (M2.5)", () => {
       }),
     };
 
-    const from = (table: string): typeof jobsTable | typeof deliveriesTable => {
+    const generationsTable = {
+      select: (): {
+        in: () => Promise<{ data: unknown[]; error: null }>;
+      } => ({
+        in: async (): Promise<{ data: unknown[]; error: null }> =>
+          Promise.resolve({ data: [], error: null }),
+      }),
+    };
+
+    const from = (
+      table: string,
+    ): typeof jobsTable | typeof deliveriesTable | typeof generationsTable => {
       if (table === "notification_jobs") {
         return jobsTable;
       }
       if (table === "notification_deliveries") {
         return deliveriesTable;
+      }
+      if (table === "notification_copy_generations") {
+        return generationsTable;
       }
       throw new Error(`Unexpected supabase.from(${table}) in dispatcher spec`);
     };

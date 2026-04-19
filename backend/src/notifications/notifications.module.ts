@@ -3,7 +3,10 @@ import { Global, Module } from "@nestjs/common";
 import { ActivityController } from "./activity/activity.controller.js";
 import { ActivityService } from "./activity/activity.service.js";
 import { CopyGenClient } from "./copy/copy-gen.client.js";
+import { CopyGenConsumerService } from "./copy/copy-gen.consumer.js";
 import { CopyGenService } from "./copy/copy-gen.service.js";
+import { CopyGenOrphanRecoveryService } from "./copy/copy-gen-orphan-recovery.service.js";
+import { PostCommitCopyGenRunner } from "./copy/post-commit-copy-gen.runner.js";
 import { DeliveryTelemetryController } from "./deliveries/delivery-telemetry.controller.js";
 import { DeliveryTelemetryService } from "./deliveries/delivery-telemetry.service.js";
 import { DeviceTokensController } from "./device-tokens.controller.js";
@@ -42,6 +45,8 @@ import { StreaksNightlyService } from "./streaks/streaks-nightly.service.js";
     ActivityService,
     CoachReplyProducer,
     CopyGenClient,
+    CopyGenConsumerService,
+    CopyGenOrphanRecoveryService,
     CopyGenService,
     DeliveryTelemetryService,
     DeviceTokensService,
@@ -55,6 +60,7 @@ import { StreaksNightlyService } from "./streaks/streaks-nightly.service.js";
     NotificationsService,
     OrphanRecoveryService,
     OutboxService,
+    PostCommitCopyGenRunner,
     SchedulerService,
     StoCronService,
     StoService,

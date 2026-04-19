@@ -225,9 +225,17 @@ export class StreaksAtRiskService {
     const scheduledForUtc = localToUtc(local, candidate.timezone);
     const targetUtc =
       scheduledForUtc.getTime() < now.getTime() ? now : scheduledForUtc;
-    const { title, teaser } = streakAtRiskStub(
-      resolveLanguage(candidate.language),
-    );
+    const language = resolveLanguage(candidate.language);
+    const { title, teaser } = streakAtRiskStub(language);
+    const kindSpecific = {
+      goal_id: streak.goal_id,
+      current_weeks: streak.current_weeks,
+      freeze_tokens: streak.freeze_tokens,
+      suppress_streak_copy: shouldSuppressCopy,
+    };
+    const memoryHooks = {
+      current_streak_weeks: streak.current_weeks,
+    };
     try {
       const result = await this.outbox.insert({
         userId: candidate.user_id,
@@ -247,15 +255,15 @@ export class StreaksAtRiskService {
                   id: candidate.coach_id,
                   persona: resolvePersonaBucket(candidate.coach_id),
                 },
-          kind_specific: {
-            goal_id: streak.goal_id,
-            current_weeks: streak.current_weeks,
-            freeze_tokens: streak.freeze_tokens,
-            suppress_streak_copy: shouldSuppressCopy,
-          },
-          memory_hooks: {
-            current_streak_weeks: streak.current_weeks,
-          },
+          kind_specific: kindSpecific,
+          memory_hooks: memoryHooks,
+        },
+        copyGen: {
+          language,
+          coachId: candidate.coach_id,
+          memoryHooks,
+          kindSpecific,
+          suppressStreakCopy: shouldSuppressCopy,
         },
       });
       if (result.status === "inserted") {

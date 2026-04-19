@@ -1,3 +1,5 @@
+import type { SupportedLanguage } from "../copy/fallbacks.js";
+
 export const NOTIFICATION_KIND = {
   COACH_REPLY_READY: "coach_reply_ready",
   ROADMAP_GENERATED: "roadmap_generated",
@@ -35,6 +37,25 @@ export const NOTIFICATION_TIER = {
 export type NotificationTier =
   (typeof NOTIFICATION_TIER)[keyof typeof NOTIFICATION_TIER];
 
+/**
+ * Inputs the M2.9.3 eligibility helper needs to hash + gate copy-gen for this
+ * job. Producers pass this when the kind is copy-gen-relevant; omit for kinds
+ * that never generate copy (the row gets `copy_status='skipped_stub'`).
+ *
+ * `producerName` is required for short-fuse kinds (celebrations,
+ * streak_milestone) because the outbox stamps the job's lease with
+ * `copy_claimed_by='producer:<producerName>'` so the pre-dispatch consumer
+ * never double-claims.
+ */
+export interface CopyGenProducerInputs {
+  readonly language: SupportedLanguage;
+  readonly coachId: number | null;
+  readonly memoryHooks: Readonly<Record<string, unknown>>;
+  readonly kindSpecific: Readonly<Record<string, unknown>>;
+  readonly suppressStreakCopy: boolean;
+  readonly producerName?: string;
+}
+
 export interface OutboxJobInput {
   userId: string;
   kind: NotificationKind;
@@ -47,4 +68,5 @@ export interface OutboxJobInput {
   sequenceStep?: number;
   experimentId?: string;
   variant?: string;
+  copyGen?: CopyGenProducerInputs;
 }

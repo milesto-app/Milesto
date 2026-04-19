@@ -283,9 +283,18 @@ export class StreaksNightlyService {
     const shouldSuppressCopy = this.shouldSuppressStreakCopy(
       candidate.tenure_start_date,
     );
-    const { title, teaser } = streakBrokenStub(
-      resolveLanguage(candidate.language),
-    );
+    const language = resolveLanguage(candidate.language);
+    const { title, teaser } = streakBrokenStub(language);
+    const kindSpecific = {
+      goal_id: streak.goal_id,
+      previous_weeks: streak.current_weeks,
+      longest_weeks: streak.longest_weeks,
+      suppress_streak_copy: shouldSuppressCopy,
+    };
+    const memoryHooks = {
+      previous_streak_weeks: streak.current_weeks,
+      longest_streak_weeks: streak.longest_weeks,
+    };
     try {
       const result = await this.outbox.insert({
         userId: candidate.user_id,
@@ -305,16 +314,15 @@ export class StreaksNightlyService {
                   id: candidate.coach_id,
                   persona: resolvePersonaBucket(candidate.coach_id),
                 },
-          kind_specific: {
-            goal_id: streak.goal_id,
-            previous_weeks: streak.current_weeks,
-            longest_weeks: streak.longest_weeks,
-            suppress_streak_copy: shouldSuppressCopy,
-          },
-          memory_hooks: {
-            previous_streak_weeks: streak.current_weeks,
-            longest_streak_weeks: streak.longest_weeks,
-          },
+          kind_specific: kindSpecific,
+          memory_hooks: memoryHooks,
+        },
+        copyGen: {
+          language,
+          coachId: candidate.coach_id,
+          memoryHooks,
+          kindSpecific,
+          suppressStreakCopy: shouldSuppressCopy,
         },
       });
       if (result.status === "inserted") {

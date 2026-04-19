@@ -17,7 +17,7 @@
 // pure here means it can be exercised end-to-end in tests without a
 // Supabase client.
 
-import { Injectable, Logger } from "@nestjs/common";
+import { Injectable } from "@nestjs/common";
 
 import { COACH_BY_ID } from "../../coach/coaches.config.js";
 import { config } from "../../config/app.config.js";
@@ -92,8 +92,6 @@ type AttemptOutcome =
 
 @Injectable()
 export class CopyGenService {
-  private readonly logger = new Logger(CopyGenService.name);
-
   constructor(private readonly client: CopyGenClient) {}
 
   public async generate(context: CopyGenJobContext): Promise<CopyGenResult> {
@@ -185,7 +183,9 @@ export class CopyGenService {
         result: {
           status: "generated",
           output: validation.output,
-          errorCode: validation.errorCode,
+          ...(validation.errorCode !== undefined
+            ? { errorCode: validation.errorCode }
+            : {}),
           promptVersion: ctx.prompt.promptVersion,
           personality: ctx.personality,
           model: ctx.model,

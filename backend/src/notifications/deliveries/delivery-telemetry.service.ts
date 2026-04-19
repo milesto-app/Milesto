@@ -13,6 +13,7 @@ export class DeliveryTelemetryService {
   public async recordDispatchResults(
     jobId: string,
     reports: DeliveryReport[],
+    sendSource: "stub" | "generated" = "stub",
   ): Promise<void> {
     if (reports.length === 0) {
       return;
@@ -24,6 +25,7 @@ export class DeliveryTelemetryService {
       device_token: report.token,
       sent_at: nowIso,
       apns_response: this.buildApnsResponse(report),
+      send_source: sendSource,
     }));
     const { error } = await supabase
       .from("notification_deliveries")

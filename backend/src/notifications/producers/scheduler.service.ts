@@ -142,6 +142,11 @@ export class SchedulerService {
       );
       return "failed";
     }
+    const kindSpecific = {
+      target_local_hour: slot.localHour,
+      target_local_date: slot.localDate,
+      timezone: candidate.timezone,
+    };
     try {
       const result = await this.outbox.insert({
         userId: candidate.user_id,
@@ -155,12 +160,15 @@ export class SchedulerService {
           teaser,
           cta_deeplink: DAILY_CHECK_IN_CTA,
           coach: coach === undefined ? { persona } : { id: coach.id, persona },
-          kind_specific: {
-            target_local_hour: slot.localHour,
-            target_local_date: slot.localDate,
-            timezone: candidate.timezone,
-          },
+          kind_specific: kindSpecific,
           memory_hooks: {},
+        },
+        copyGen: {
+          language,
+          coachId: candidate.coach_id,
+          memoryHooks: {},
+          kindSpecific,
+          suppressStreakCopy: false,
         },
       });
       return result.status;

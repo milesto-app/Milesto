@@ -2,6 +2,7 @@ import type { TestingModule } from "@nestjs/testing";
 import { Test } from "@nestjs/testing";
 
 import { SupabaseService } from "../../supabase/supabase.service.js";
+import { PostCommitCopyGenRunner } from "../copy/post-commit-copy-gen.runner.js";
 import { GateService } from "../gate/gate.service.js";
 import { OutboxService } from "../outbox/outbox.service.js";
 import {
@@ -191,6 +192,10 @@ describe("StreaksService", () => {
         {
           provide: SupabaseService,
           useValue: { getAdminClient: () => ({ from: supa.from }) },
+        },
+        {
+          provide: PostCommitCopyGenRunner,
+          useValue: { runIfShortFuse: jest.fn() },
         },
       ],
     }).compile();
