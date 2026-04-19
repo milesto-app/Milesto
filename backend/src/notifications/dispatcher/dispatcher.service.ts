@@ -8,6 +8,7 @@ import { SupabaseService } from "../../supabase/supabase.service.js";
 import { DeliveryTelemetryService } from "../deliveries/delivery-telemetry.service.js";
 import { NotificationsService } from "../notifications.service.js";
 import { OutboxService } from "../outbox/outbox.service.js";
+import { recheckPredicate } from "./predicates.js";
 
 type NotificationJobRow =
   Database["public"]["Tables"]["notification_jobs"]["Row"];
@@ -86,6 +87,12 @@ export class DispatcherService {
         `Job ${job.id} already has an accepted delivery — skipping APNs re-send (markSent retry path)`,
       );
       await this.outbox.markSent(job.id);
+      return;
+    }
+
+    const recheck = await recheckPredicate(job, this.supabaseService);
+    if (!recheck.valid) {
+      await this.outbox.markSkipped(job.id, recheck.reason);
       return;
     }
 

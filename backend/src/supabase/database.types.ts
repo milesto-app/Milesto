@@ -1056,6 +1056,19 @@ export type Database = {
           isSetofReturn: true;
         };
       };
+      daily_check_in_candidates: {
+        Args: Record<string, never>;
+        Returns: {
+          coach_id: number;
+          language: string;
+          timezone: string;
+          user_id: string;
+        }[];
+      };
+      daily_check_in_predicate: {
+        Args: { p_user_id: string };
+        Returns: boolean;
+      };
       match_goal_context: {
         Args: {
           match_count?: number;
