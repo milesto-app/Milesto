@@ -178,6 +178,9 @@ export class RoadmapStorageService {
       updateData.roadmap_model_used = metadata.model_used;
       updateData.roadmap_generation_metadata = { ...metadata };
     }
+    if (status === ROADMAP_STATUS.FAILED) {
+      updateData.roadmap_generation_attempts = 0;
+    }
     const { error } = await supabase
       .from("goals")
       .update(updateData)
