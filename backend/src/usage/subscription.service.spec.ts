@@ -18,7 +18,7 @@ const OTHER_USER_ID = '22222222-2222-2222-2222-222222222222';
 process.env.NODE_ENV = 'test';
 process.env.APPLE_BUNDLE_ID = TEST_BUNDLE_ID;
 process.env.APPLE_ENVIRONMENT = 'Sandbox';
-process.env.APPLE_ROOT_CA_DIR = 'apple-root-certs';
+process.env.APPLE_ROOT_CA_DIR = 'resources/apple-root-certs';
 
 const verifyAndDecodeTransactionMock = jest.fn();
 const verifyAndDecodeNotificationMock = jest.fn();

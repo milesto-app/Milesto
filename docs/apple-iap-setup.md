@@ -4,7 +4,7 @@ This document covers configuration required for the Momentum backend to verify A
 
 ## Apple Root CA certificates
 
-`@apple/app-store-server-library` does NOT ship Apple root certificates. Four DER-encoded `.cer` files must be present in the directory referenced by `APPLE_ROOT_CA_DIR` (default: `backend/apple-root-certs/`):
+`@apple/app-store-server-library` does NOT ship Apple root certificates. Four DER-encoded `.cer` files must be present in the directory referenced by `APPLE_ROOT_CA_DIR` (default: `backend/resources/apple-root-certs/`):
 
 - `AppleIncRootCertificate.cer` — https://www.apple.com/appleca/AppleIncRootCertificate.cer
 - `AppleRootCA-G2.cer` — https://www.apple.com/certificateauthority/AppleRootCA-G2.cer
@@ -16,7 +16,7 @@ These are public root CA certs and are committed to the repo. If Apple rotates o
 Validate a `.cer` is well-formed DER:
 
 ```bash
-openssl x509 -inform DER -in apple-root-certs/AppleIncRootCertificate.cer -noout -subject -issuer
+openssl x509 -inform DER -in resources/apple-root-certs/AppleIncRootCertificate.cer -noout -subject -issuer
 ```
 
 ## Environment variables
@@ -26,7 +26,7 @@ openssl x509 -inform DER -in apple-root-certs/AppleIncRootCertificate.cer -noout
 | `APPLE_BUNDLE_ID`      | Always          | Must match Xcode `PRODUCT_BUNDLE_IDENTIFIER`. Current value: `app.momentum-ai.auth.mobile`.                         |
 | `APPLE_ENVIRONMENT`    | Always          | `Sandbox` (default) or `Production`.                                                                                |
 | `APPLE_APP_APPLE_ID`   | Production only | Numeric App Apple ID from App Store Connect. Required when `APPLE_ENVIRONMENT=Production`; startup fails otherwise. |
-| `APPLE_ROOT_CA_DIR`    | Optional        | Path to Apple root cert directory. Default `apple-root-certs`.                                                      |
+| `APPLE_ROOT_CA_DIR`    | Optional        | Path to Apple root cert directory. Default `resources/apple-root-certs`.                                            |
 | `APPLE_ISSUER_ID`      | Follow-up       | App Store Server API issuer (UUID). Needed for reconciliation; not required for webhook path.                       |
 | `APPLE_KEY_ID`         | Follow-up       | App Store Server API key ID (10-char).                                                                              |
 | `APPLE_PRIVATE_KEY_P8` | Follow-up       | `.p8` private key contents.                                                                                         |
@@ -90,7 +90,7 @@ Apple retries on 4xx and 5xx, so returning 200 on known-ignored conditions preve
 
 1. Install deps: `cd backend && bun install`.
 2. Create `.env` from `.env.example`. Set `APPLE_BUNDLE_ID=app.momentum-ai.auth.mobile` and `APPLE_ENVIRONMENT=Sandbox`.
-3. Ensure `backend/apple-root-certs/` contains the four `.cer` files (already committed).
+3. Ensure `backend/resources/apple-root-certs/` contains the four `.cer` files (already committed).
 4. Run `bun run test` to validate the wiring.
 5. To exercise the webhook end-to-end, use Apple Request Test Notification or expose your local server via a tunnel and point Sandbox URL at it.
 

@@ -16,7 +16,7 @@ COPY package.json bun.lock ./
 RUN bun install --frozen-lockfile --production && \
     rm -rf /root/.bun/install/cache
 COPY --from=build /app/dist ./dist
-COPY --from=build /app/apple-root-certs ./apple-root-certs
+COPY --from=build /app/resources ./resources
 USER bun
 EXPOSE 3000
 CMD ["bun", "dist/main.js"]
