@@ -7,6 +7,7 @@ import {
 import { EventEmitter2 } from "@nestjs/event-emitter";
 
 import { UserLanguageService } from "../common/user-language.service.js";
+import { ActivityService } from "../notifications/activity/activity.service.js";
 import { ContextPipelineService } from "./context-pipeline.service.js";
 import { GenerationService } from "./generation.service.js";
 import type { WeeklyPlan } from "./types/weekly-plan.types.js";
@@ -39,6 +40,7 @@ export class WeeklyTaskService {
     private readonly events: EventEmitter2,
     private readonly weeklyPlan: WeeklyPlanService,
     private readonly languageService: UserLanguageService,
+    private readonly activity: ActivityService,
   ) {}
 
   public async getWeeklyTasks(
@@ -81,7 +83,24 @@ export class WeeklyTaskService {
   public async toggleTaskCompletion(
     params: UpdateTaskParams,
   ): Promise<WeeklyTask> {
-    return this.storage.updateTask(params);
+    const { task, didTransition } = await this.storage.updateTask(params);
+    if (didTransition && params.isCompleted) {
+      this.activity
+        .record(params.userId, "task_completed")
+        .catch((error: unknown) => {
+          this.logger.warn(
+            `Failed to record task_completed activity: ${error instanceof Error ? error.message : String(error)}`,
+          );
+        });
+      this.events.emit("task.completed", {
+        userId: params.userId,
+        taskId: task.id,
+        goalId: params.goalId,
+        weeklyPlanId: task.weekly_plan_id,
+        completedAt: task.completed_at,
+      });
+    }
+    return task;
   }
 
   public async getWeeklyCompletionRate(

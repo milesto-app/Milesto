@@ -4,6 +4,7 @@ import {
   Logger,
   NotFoundException,
 } from "@nestjs/common";
+import { EventEmitter2 } from "@nestjs/event-emitter";
 
 import { AiService } from "../ai/ai.service.js";
 import { UserLanguageService } from "../common/user-language.service.js";
@@ -39,6 +40,7 @@ export class GoalService {
     private readonly aiService: AiService,
     private readonly usageService: UsageService,
     private readonly languageService: UserLanguageService,
+    private readonly events: EventEmitter2,
   ) {}
 
   public async create(
@@ -166,17 +168,48 @@ export class GoalService {
     }
   }
 
+  public async updateMotivationQuote(
+    userId: string,
+    goalId: string,
+    quote: string,
+  ): Promise<void> {
+    const supabase = this.supabaseService.getAdminClient();
+    const { data, error } = await supabase
+      .from("goals")
+      .update({
+        user_motivation_quote: quote,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", goalId)
+      .eq("user_id", userId)
+      .is("deleted_at", null)
+      .select("id");
+    if (error) {
+      throw new InternalServerErrorException(
+        `Failed to update motivation quote: ${error.message}`,
+      );
+    }
+    if (data.length === 0) {
+      throw new NotFoundException("Goal not found");
+    }
+  }
+
   public async updateStatus(goalId: string, status: string): Promise<void> {
     const supabase = this.supabaseService.getAdminClient();
-    const { error } = await supabase
+    const { data, error } = await supabase
       .from("goals")
       .update({ status, updated_at: new Date().toISOString() })
       .eq("id", goalId)
-      .is("deleted_at", null);
+      .is("deleted_at", null)
+      .select("user_id")
+      .single();
     if (error) {
       throw new InternalServerErrorException(
         `Failed to update goal status: ${error.message}`,
       );
+    }
+    if (status === GOAL_STATUS.COMPLETED) {
+      this.events.emit("goal.completed", { goalId, userId: data.user_id });
     }
   }
 }

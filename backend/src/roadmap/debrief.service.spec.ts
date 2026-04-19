@@ -3,6 +3,7 @@ import { EventEmitter2 } from "@nestjs/event-emitter";
 import type { TestingModule } from "@nestjs/testing";
 import { Test } from "@nestjs/testing";
 
+import { ActivityService } from "../notifications/activity/activity.service.js";
 import { SupabaseService } from "../supabase/supabase.service.js";
 import { DebriefService } from "./debrief.service.js";
 
@@ -10,6 +11,7 @@ describe("DebriefService", () => {
   let service: DebriefService;
   let mockSupabaseService: { getAdminClient: jest.Mock };
   let mockEventEmitter: { emit: jest.Mock };
+  let mockActivity: { record: jest.Mock };
 
   const userId = "user-uuid";
   const goalId = "goal-uuid";
@@ -17,12 +19,14 @@ describe("DebriefService", () => {
   beforeEach(async () => {
     mockSupabaseService = { getAdminClient: jest.fn() };
     mockEventEmitter = { emit: jest.fn() };
+    mockActivity = { record: jest.fn().mockResolvedValue(undefined) };
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         DebriefService,
         { provide: SupabaseService, useValue: mockSupabaseService },
         { provide: EventEmitter2, useValue: mockEventEmitter },
+        { provide: ActivityService, useValue: mockActivity },
       ],
     }).compile();
 
@@ -89,7 +93,11 @@ describe("DebriefService", () => {
           return {
             update: jest.fn().mockReturnValue({
               eq: jest.fn().mockReturnValue({
-                eq: jest.fn().mockResolvedValue({ error: null }),
+                eq: jest.fn().mockReturnValue({
+                  select: jest
+                    .fn()
+                    .mockResolvedValue({ data: [{ id: "plan" }], error: null }),
+                }),
               }),
             }),
           };
