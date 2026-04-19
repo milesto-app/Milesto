@@ -1,6 +1,6 @@
 import { buildLanguageBlock } from "../../common/language-prompt.helper.js";
-import type { PriorBatchContext } from "../questions.config.js";
-import { buildTimelineContext } from "./intake-prompts.config.js";
+import type { PriorBatchContext } from "../../config/questions.config.js";
+import { buildTimelineContext } from "./intake-batch-prompts.js";
 
 const PROFILE_BASE_PROMPT = `You are a coaching profile synthesizer. Your job is to analyze all intake responses and create a comprehensive, structured coaching profile.
 
