@@ -44,7 +44,7 @@ export class NotificationsService implements OnModuleDestroy {
     this.privateKeyPem = configService
       .getOrThrow<string>("APNS_PRIVATE_KEY")
       .replace(/\\n/g, "\n");
-    this.bundleId = configService.getOrThrow<string>("APNS_BUNDLE_ID");
+    this.bundleId = configService.getOrThrow<string>("APPLE_BUNDLE_ID");
   }
 
   public onModuleDestroy(): void {
