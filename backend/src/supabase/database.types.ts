@@ -1158,6 +1158,48 @@ export type Database = {
         Args: { p_task_id: string };
         Returns: number;
       };
+      claim_notification_copy: {
+        Args: {
+          p_batch_size?: number;
+          p_lookahead_minutes?: number;
+          p_max_attempts?: number;
+          p_worker_id: string;
+        };
+        Returns: {
+          attempts: number;
+          claimed_at: string | null;
+          claimed_by: string | null;
+          copy_attempts: number;
+          copy_claimed_at: string | null;
+          copy_claimed_by: string | null;
+          copy_generation_id: string | null;
+          copy_input_hash: string | null;
+          copy_status: string;
+          created_at: string;
+          dedup_key: string;
+          experiment_id: string | null;
+          id: string;
+          kind: string;
+          last_error: string | null;
+          local_date: string | null;
+          payload: Json;
+          scheduled_for_utc: string;
+          sent_at: string | null;
+          sequence_id: string | null;
+          sequence_step: number | null;
+          skip_reason: string | null;
+          status: string;
+          tier: number;
+          user_id: string;
+          variant: string | null;
+        }[];
+        SetofOptions: {
+          from: "*";
+          to: "notification_jobs";
+          isOneToOne: false;
+          isSetofReturn: true;
+        };
+      };
       claim_notification_jobs: {
         Args: { p_batch_size?: number; p_worker_id: string };
         Returns: {
@@ -1248,6 +1290,10 @@ export type Database = {
       record_user_activity: {
         Args: { p_kind: string; p_occurred_at?: string; p_user_id: string };
         Returns: undefined;
+      };
+      release_notification_copy_claim: {
+        Args: { p_job_id: string; p_worker_id: string };
+        Returns: boolean;
       };
       reserve_generation: {
         Args: {
