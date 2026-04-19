@@ -20,6 +20,7 @@ import { IntentionsService } from "./intentions/intentions.service.js";
 import { NotificationsController } from "./notifications.controller.js";
 import { NotificationsService } from "./notifications.service.js";
 import { OutboxService } from "./outbox/outbox.service.js";
+import { PreviewContextService } from "./preview/preview-context.service.js";
 import { CoachReplyProducer } from "./producers/coach-reply.producer.js";
 import { GoalCelebrationProducer } from "./producers/goal-celebration.producer.js";
 import { IntentionProducer } from "./producers/intention.producer.js";
@@ -63,6 +64,7 @@ import { StreaksNightlyService } from "./streaks/streaks-nightly.service.js";
     OrphanRecoveryService,
     OutboxService,
     PostCommitCopyGenRunner,
+    PreviewContextService,
     SchedulerService,
     StoCronService,
     StoService,

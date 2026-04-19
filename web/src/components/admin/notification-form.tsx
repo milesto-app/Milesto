@@ -38,6 +38,9 @@ type PreviewInfo = {
   promptVersion: string;
   latencyMs: number;
   attemptsUsed: number;
+  personalized: boolean;
+  memoryHooks: Record<string, unknown>;
+  kindSpecific: Record<string, unknown>;
 };
 
 type Language = "en" | "fr";
@@ -93,6 +96,8 @@ export function NotificationForm({ users }: { users: AdminUserOption[] }) {
     setPreviewError(null);
     setResult(null);
 
+    const personalizedUserId = userId === BROADCAST_VALUE ? undefined : userId;
+
     try {
       const data = await previewNotificationCopy({
         kind: preset.kind,
@@ -101,6 +106,9 @@ export function NotificationForm({ users }: { users: AdminUserOption[] }) {
           coachValue === DEFAULT_COACH_VALUE ? undefined : Number(coachValue),
         stubTitle: preset.title,
         stubTeaser: preset.body,
+        ...(personalizedUserId !== undefined
+          ? { userId: personalizedUserId }
+          : {}),
       });
 
       if (!data.ok) {
@@ -122,6 +130,9 @@ export function NotificationForm({ users }: { users: AdminUserOption[] }) {
         promptVersion: data.promptVersion,
         latencyMs: data.latencyMs,
         attemptsUsed: data.attemptsUsed,
+        personalized: personalizedUserId !== undefined,
+        memoryHooks: data.resolvedContext.memoryHooks,
+        kindSpecific: data.resolvedContext.kindSpecific,
       });
     } catch {
       setPreviewError("Failed to reach the server");
@@ -313,13 +324,15 @@ export function NotificationForm({ users }: { users: AdminUserOption[] }) {
               {previewing ? "Generating..." : "Generate with LLM"}
             </Button>
             <p className="text-xs text-muted-foreground">
-              Runs the real copy-gen pipeline for the selected type.
+              {userId === BROADCAST_VALUE
+                ? "Pick a recipient to personalize with their goal, milestones and streak."
+                : "Pulls this user's goal, milestones, task and streak into the prompt."}
             </p>
           </div>
 
           {preview && (
             <div
-              className={`space-y-1 rounded-lg px-4 py-3 text-xs ${
+              className={`space-y-2 rounded-lg px-4 py-3 text-xs ${
                 preview.success
                   ? "bg-primary/10 text-primary"
                   : "bg-destructive/10 text-destructive"
@@ -341,10 +354,31 @@ export function NotificationForm({ users }: { users: AdminUserOption[] }) {
                   {preview.attemptsUsed === 1 ? "" : "s"} · {preview.latencyMs}
                   ms
                 </span>
+                <Badge className="ml-auto border-0 bg-foreground/10 text-foreground font-medium">
+                  {preview.personalized ? "Personalized" : "Generic"}
+                </Badge>
               </div>
               {!preview.success && preview.errorCode && (
                 <div>Error: {preview.errorCode}</div>
               )}
+              {preview.personalized &&
+                Object.keys(preview.memoryHooks).length > 0 && (
+                  <details className="text-foreground/80">
+                    <summary className="cursor-pointer select-none">
+                      Context sent to the LLM
+                    </summary>
+                    <pre className="mt-2 overflow-x-auto whitespace-pre-wrap rounded bg-foreground/5 p-2 text-[10px] leading-snug">
+                      {JSON.stringify(
+                        {
+                          memory_hooks: preview.memoryHooks,
+                          kind_specific: preview.kindSpecific,
+                        },
+                        null,
+                        2,
+                      )}
+                    </pre>
+                  </details>
+                )}
             </div>
           )}
 
