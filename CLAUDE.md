@@ -35,3 +35,4 @@ A root `package.json` provides bun-based scripts that orchestrate common tasks a
 - **Supabase MCP** — use MCP tools for migrations, SQL, edge functions, logs, advisors, etc.
 - **RLS required** — always enable Row Level Security on new tables with appropriate policies.
 - **After DDL changes** — run `get_advisors` (security + performance) to catch issues.
+- **After any changes** — run `bun run lint` at the repo root before reporting the task as done.

@@ -3,6 +3,10 @@
 import { useState, type FormEvent } from "react";
 import { Send } from "lucide-react";
 
+import {
+  sendNotification,
+  type SendNotificationPayload,
+} from "@/app/admin/(dashboard)/notifications/actions";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -27,7 +31,7 @@ export function NotificationForm() {
     setSending(true);
     setResult(null);
 
-    const payload: Record<string, unknown> = {
+    const payload: SendNotificationPayload = {
       title: title.trim(),
       body: body.trim(),
     };
@@ -38,21 +42,10 @@ export function NotificationForm() {
     }
 
     try {
-      const res = await fetch("/api/notifications/send", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify(payload),
-      });
+      const data = await sendNotification(payload);
 
-      const data = await res.json();
-
-      if (!res.ok) {
-        setResult({
-          success: false,
-          message:
-            data.message ?? data.error ?? `Request failed (${res.status})`,
-        });
+      if (!data.ok) {
+        setResult({ success: false, message: data.message });
         return;
       }
 
