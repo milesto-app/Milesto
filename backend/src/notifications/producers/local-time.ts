@@ -169,6 +169,53 @@ export function previousLocalWeekStartDate(moment: LocalMoment): string {
   return `${String(prev.getUTCFullYear())}-${padToWidth(prev.getUTCMonth() + 1)}-${padToWidth(prev.getUTCDate())}`;
 }
 
+function dayOfWeekSundayZero(moment: LocalMoment): number {
+  const utcMs = Date.UTC(
+    moment.year,
+    moment.month - 1,
+    moment.day,
+    moment.hour,
+    moment.minute,
+    0,
+  );
+  return new Date(utcMs).getUTCDay();
+}
+
+export interface NextWeekdaySlotInput {
+  now: Date;
+  timezone: string;
+  targetDayOfWeek: number;
+  targetHour: number;
+}
+
+export function computeNextWeekdayHourSlot(
+  input: NextWeekdaySlotInput,
+): ScheduledSlot {
+  const { now, timezone, targetDayOfWeek, targetHour } = input;
+  const nowLocal = toLocalMoment(now, timezone);
+  const currentDow = dayOfWeekSundayZero(nowLocal);
+  let dayOffset =
+    (targetDayOfWeek - currentDow + DAYS_PER_WEEK) % DAYS_PER_WEEK;
+  const minutesNow = nowLocal.hour * MINUTES_PER_HOUR + nowLocal.minute;
+  const minutesTarget = targetHour * MINUTES_PER_HOUR;
+  if (dayOffset === 0 && minutesTarget <= minutesNow) {
+    dayOffset = DAYS_PER_WEEK;
+  }
+  const base: LocalMoment = {
+    year: nowLocal.year,
+    month: nowLocal.month,
+    day: nowLocal.day,
+    hour: targetHour,
+    minute: 0,
+  };
+  const target = dayOffset === 0 ? base : addDays(base, dayOffset);
+  return {
+    utc: localToUtc(target, timezone),
+    localDate: formatLocalDate(target),
+    localHour: target.hour,
+  };
+}
+
 export function computeNextDailyCheckInSlot(
   input: NextSlotInput,
 ): ScheduledSlot {

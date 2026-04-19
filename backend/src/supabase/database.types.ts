@@ -1072,6 +1072,10 @@ export type Database = {
         Args: { p_user_id: string };
         Returns: boolean;
       };
+      implementation_intention_predicate: {
+        Args: { p_task_id: string };
+        Returns: boolean;
+      };
       match_goal_context: {
         Args: {
           match_count?: number;

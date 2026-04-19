@@ -9,10 +9,13 @@ import { DeviceTokensService } from "./device-tokens.service.js";
 import { DispatcherService } from "./dispatcher/dispatcher.service.js";
 import { OrphanRecoveryService } from "./dispatcher/orphan-recovery.service.js";
 import { GateService } from "./gate/gate.service.js";
+import { IntentionsController } from "./intentions/intentions.controller.js";
+import { IntentionsService } from "./intentions/intentions.service.js";
 import { NotificationsController } from "./notifications.controller.js";
 import { NotificationsService } from "./notifications.service.js";
 import { OutboxService } from "./outbox/outbox.service.js";
 import { CoachReplyProducer } from "./producers/coach-reply.producer.js";
+import { IntentionProducer } from "./producers/intention.producer.js";
 import { MilestonePreviewProducer } from "./producers/milestone-preview.producer.js";
 import { SchedulerService } from "./producers/scheduler.service.js";
 import { StoService } from "./sto/sto.service.js";
@@ -27,6 +30,7 @@ import { StreaksNightlyService } from "./streaks/streaks-nightly.service.js";
     ActivityController,
     DeliveryTelemetryController,
     DeviceTokensController,
+    IntentionsController,
     NotificationsController,
   ],
   providers: [
@@ -36,6 +40,8 @@ import { StreaksNightlyService } from "./streaks/streaks-nightly.service.js";
     DeviceTokensService,
     DispatcherService,
     GateService,
+    IntentionProducer,
+    IntentionsService,
     MilestonePreviewProducer,
     NotificationsService,
     OrphanRecoveryService,

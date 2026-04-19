@@ -15,6 +15,7 @@ export type GateReason =
 export const BYPASS_QUIET_HOURS_KINDS: ReadonlySet<NotificationKind> = new Set([
   "coach_reply_ready",
   "streak_at_risk",
+  "implementation_intention",
 ]);
 
 const DEFAULT_QUIET_START = 22;

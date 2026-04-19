@@ -13,6 +13,7 @@ import { StoService } from "../sto/sto.service.js";
 import { StoCronService } from "../sto/sto-cron.service.js";
 import { StreaksAtRiskService } from "../streaks/streaks-at-risk.service.js";
 import { StreaksNightlyService } from "../streaks/streaks-nightly.service.js";
+import { IntentionProducer } from "./intention.producer.js";
 import { computeNextDailyCheckInSlot } from "./local-time.js";
 import { resolvePersonaBucket } from "./persona-defaults.js";
 
@@ -60,6 +61,7 @@ export class SchedulerService {
     private readonly stoCron: StoCronService,
     private readonly streaksNightly: StreaksNightlyService,
     private readonly streaksAtRisk: StreaksAtRiskService,
+    private readonly intentionProducer: IntentionProducer,
   ) {}
 
   @Cron(SCHEDULE_EVERY_15_MIN)
@@ -74,6 +76,7 @@ export class SchedulerService {
       await this.stoCron.tickForLocalTime(now);
       await this.streaksNightly.tick(now);
       await this.streaksAtRisk.tick(now);
+      await this.intentionProducer.scheduleIntentions(now);
     } catch (error) {
       this.logger.error(
         "Scheduler tick failed",

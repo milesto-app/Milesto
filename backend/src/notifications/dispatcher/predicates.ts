@@ -36,6 +36,55 @@ const dailyCheckInPredicate: PredicateFn = async (job, supabaseService) => {
   return { valid: false, reason: "predicate_invalidated" };
 };
 
+function readTaskId(job: NotificationJobRow): string | null {
+  const payload = job.payload;
+  if (
+    typeof payload !== "object" ||
+    payload === null ||
+    Array.isArray(payload)
+  ) {
+    return null;
+  }
+  const kindSpecific = (payload as Record<string, unknown>)["kind_specific"];
+  if (
+    typeof kindSpecific !== "object" ||
+    kindSpecific === null ||
+    Array.isArray(kindSpecific)
+  ) {
+    return null;
+  }
+  const taskId = (kindSpecific as Record<string, unknown>)["task_id"];
+  return typeof taskId === "string" ? taskId : null;
+}
+
+const implementationIntentionPredicate: PredicateFn = async (
+  job,
+  supabaseService,
+) => {
+  const taskId = readTaskId(job);
+  if (taskId === null) {
+    logger.warn(
+      `implementation_intention predicate missing kind_specific.task_id for job ${job.id} — allowing send (fail-open)`,
+    );
+    return { valid: true };
+  }
+  const supabase = supabaseService.getAdminClient();
+  const { data: isValid, error } = await supabase.rpc(
+    "implementation_intention_predicate",
+    { p_task_id: taskId },
+  );
+  if (error !== null) {
+    logger.warn(
+      `implementation_intention predicate re-check failed for job ${job.id}: ${error.message} — allowing send (fail-open)`,
+    );
+    return { valid: true };
+  }
+  if (isValid) {
+    return { valid: true };
+  }
+  return { valid: false, reason: "predicate_invalidated" };
+};
+
 function readNextMilestoneId(job: NotificationJobRow): string | null {
   const payload = job.payload;
   if (
@@ -202,6 +251,8 @@ const streakMilestonePredicate: PredicateFn = async (job, supabaseService) => {
 
 const PREDICATES: Partial<Record<string, PredicateFn>> = {
   [NOTIFICATION_KIND.DAILY_CHECK_IN]: dailyCheckInPredicate,
+  [NOTIFICATION_KIND.IMPLEMENTATION_INTENTION]:
+    implementationIntentionPredicate,
   [NOTIFICATION_KIND.MILESTONE_PREVIEW]: milestonePreviewPredicate,
   [NOTIFICATION_KIND.STREAK_AT_RISK]: streakAtRiskPredicate,
   [NOTIFICATION_KIND.STREAK_BROKEN]: streakBrokenPredicate,
