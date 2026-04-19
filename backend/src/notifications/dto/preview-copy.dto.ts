@@ -7,6 +7,7 @@ import {
   IsObject,
   IsOptional,
   IsString,
+  IsUUID,
   Max,
   Min,
 } from "class-validator";
@@ -59,4 +60,12 @@ export class PreviewCopyDto {
   @IsOptional()
   @IsBoolean()
   public suppressStreakCopy?: boolean;
+
+  @ApiPropertyOptional({
+    description:
+      "If provided, backend fetches the user's profile/goal/milestones/streak and merges them into memoryHooks + kindSpecific so the LLM can personalize. Client-supplied fields take precedence.",
+  })
+  @IsOptional()
+  @IsUUID("4")
+  public userId?: string;
 }
