@@ -1,12 +1,12 @@
-import type { TestingModule } from '@nestjs/testing';
-import { Test } from '@nestjs/testing';
+import type { TestingModule } from "@nestjs/testing";
+import { Test } from "@nestjs/testing";
 
-import { SupabaseService } from '../supabase/supabase.service.js';
-import { RoadmapController } from './roadmap.controller.js';
-import { RoadmapService } from './roadmap.service.js';
-import { WeeklyPlanService } from './weekly-plan.service.js';
+import { SupabaseService } from "../supabase/supabase.service.js";
+import { RoadmapController } from "./roadmap.controller.js";
+import { RoadmapService } from "./roadmap.service.js";
+import { WeeklyPlanService } from "./weekly-plan.service.js";
 
-describe('RoadmapController', () => {
+describe("RoadmapController", () => {
   let controller: RoadmapController;
   let mockRoadmapService: {
     generateMilestones: jest.Mock;
@@ -15,21 +15,21 @@ describe('RoadmapController', () => {
     generateWeeklyPlan: jest.Mock;
   };
 
-  const userId = 'user-123';
-  const goalId = 'goal-456';
+  const userId = "user-123";
+  const goalId = "goal-456";
 
   const mockRoadmap = {
     goal_id: goalId,
     user_id: userId,
-    status: 'complete',
+    status: "complete",
     generation_attempts: 1,
-    milestones: [{ id: 'ms-1', title: 'M1', order_index: 1 }],
+    milestones: [{ id: "ms-1", title: "M1", order_index: 1 }],
   };
 
   const mockWeeklyPlan = {
-    id: 'plan-uuid',
-    objectives: ['Run 3 times', 'Research gear'],
-    status: 'active',
+    id: "plan-uuid",
+    objectives: ["Run 3 times", "Research gear"],
+    status: "active",
   };
 
   beforeEach(async () => {
@@ -53,12 +53,12 @@ describe('RoadmapController', () => {
     controller = module.get<RoadmapController>(RoadmapController);
   });
 
-  it('should be defined', () => {
+  it("should be defined", () => {
     expect(controller).toBeDefined();
   });
 
-  describe('POST /generate', () => {
-    it('should call generateMilestones and return roadmap', async () => {
+  describe("POST /generate", () => {
+    it("should call generateMilestones and return roadmap", async () => {
       mockRoadmapService.generateMilestones.mockResolvedValue(mockRoadmap);
 
       const result = await controller.generateRoadmap(goalId, userId);
@@ -71,8 +71,8 @@ describe('RoadmapController', () => {
     });
   });
 
-  describe('POST /weekly-plan/generate', () => {
-    it('should call generateWeeklyPlan with goalId and userId', async () => {
+  describe("POST /weekly-plan/generate", () => {
+    it("should call generateWeeklyPlan with goalId and userId", async () => {
       mockWeeklyPlanService.generateWeeklyPlan.mockResolvedValue(
         mockWeeklyPlan,
       );

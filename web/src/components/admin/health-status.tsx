@@ -6,11 +6,7 @@ import type { HealthResult } from "@/lib/supabase/queries/health";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 
-export function HealthStatus({
-  initialData,
-}: {
-  initialData: HealthResult;
-}) {
+export function HealthStatus({ initialData }: { initialData: HealthResult }) {
   const [data, setData] = useState(initialData);
   const [lastChecked, setLastChecked] = useState<Date | null>(null);
 
@@ -68,7 +64,9 @@ function ServiceCard({
   const isHealthy = status === "healthy";
 
   return (
-    <Card className={`border-border/50 shadow-none transition-colors ${isHealthy ? "" : "border-destructive/30 bg-destructive/[0.03]"}`}>
+    <Card
+      className={`border-border/50 shadow-none transition-colors ${isHealthy ? "" : "border-destructive/30 bg-destructive/[0.03]"}`}
+    >
       <CardContent className="p-5">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -79,7 +77,9 @@ function ServiceCard({
                   : "bg-destructive shadow-[0_0_8px_oklch(0.55_0.22_25_/_0.4)]"
               }`}
             />
-            <span className="text-sm font-semibold text-foreground">{name}</span>
+            <span className="text-sm font-semibold text-foreground">
+              {name}
+            </span>
           </div>
           <Badge
             className={`border-0 font-medium ${

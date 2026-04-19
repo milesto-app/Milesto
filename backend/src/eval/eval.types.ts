@@ -1,4 +1,4 @@
-import type { MetaJudgeResult, PersonaScores } from './personas.js';
+import type { MetaJudgeResult, PersonaScores } from "./personas.js";
 
 export interface EvalQuestion {
   question_text: string;

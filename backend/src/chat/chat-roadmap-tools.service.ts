@@ -1,7 +1,7 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger } from "@nestjs/common";
 
-import { RoadmapService } from '../roadmap/roadmap.service.js';
-import type { ToolExecutionContext } from './types/chat.types.js';
+import { RoadmapService } from "../roadmap/roadmap.service.js";
+import type { ToolExecutionContext } from "./types/chat.types.js";
 
 @Injectable()
 export class ChatRoadmapToolsService {
@@ -33,7 +33,7 @@ export class ChatRoadmapToolsService {
       this.logger.warn(`getRoadmap failed: ${message}`);
       return {
         error:
-          'Unable to fetch roadmap. The goal may not have a generated roadmap yet.',
+          "Unable to fetch roadmap. The goal may not have a generated roadmap yet.",
       };
     }
   }

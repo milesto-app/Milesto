@@ -22,7 +22,10 @@ function subscriptionBadge(status: string) {
       );
     case "expired":
       return (
-        <Badge variant="destructive" className="border-0 font-medium bg-destructive/10 text-destructive">
+        <Badge
+          variant="destructive"
+          className="border-0 font-medium bg-destructive/10 text-destructive"
+        >
           Expired
         </Badge>
       );
@@ -50,17 +53,30 @@ export function UserTable({
         <Table>
           <TableHeader>
             <TableRow className="hover:bg-transparent">
-              <TableHead className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Email</TableHead>
-              <TableHead className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Name</TableHead>
-              <TableHead className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Plan</TableHead>
-              <TableHead className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Coach</TableHead>
-              <TableHead className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Joined</TableHead>
+              <TableHead className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                Email
+              </TableHead>
+              <TableHead className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                Name
+              </TableHead>
+              <TableHead className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                Plan
+              </TableHead>
+              <TableHead className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                Coach
+              </TableHead>
+              <TableHead className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                Joined
+              </TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {users.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={5} className="py-12 text-center text-sm text-muted-foreground">
+                <TableCell
+                  colSpan={5}
+                  className="py-12 text-center text-sm text-muted-foreground"
+                >
                   No users found
                 </TableCell>
               </TableRow>
@@ -76,9 +92,13 @@ export function UserTable({
                     </Link>
                   </TableCell>
                   <TableCell className="text-sm text-muted-foreground">
-                    {[user.firstName, user.lastName].filter(Boolean).join(" ") || "\u2014"}
+                    {[user.firstName, user.lastName]
+                      .filter(Boolean)
+                      .join(" ") || "\u2014"}
                   </TableCell>
-                  <TableCell>{subscriptionBadge(user.subscriptionStatus)}</TableCell>
+                  <TableCell>
+                    {subscriptionBadge(user.subscriptionStatus)}
+                  </TableCell>
                   <TableCell className="text-sm text-muted-foreground font-mono">
                     {user.coachId ?? "\u2014"}
                   </TableCell>

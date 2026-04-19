@@ -1,14 +1,14 @@
-import { InternalServerErrorException } from '@nestjs/common';
-import type { TestingModule } from '@nestjs/testing';
-import { Test } from '@nestjs/testing';
+import { InternalServerErrorException } from "@nestjs/common";
+import type { TestingModule } from "@nestjs/testing";
+import { Test } from "@nestjs/testing";
 
-import { SupabaseService } from '../supabase/supabase.service.js';
-import type { StoreTasksParams } from './weekly-task-storage.service.js';
-import { WeeklyTaskStorageService } from './weekly-task-storage.service.js';
+import { SupabaseService } from "../supabase/supabase.service.js";
+import type { StoreTasksParams } from "./weekly-task-storage.service.js";
+import { WeeklyTaskStorageService } from "./weekly-task-storage.service.js";
 
-const GOAL_ID = 'goal-uuid';
-const USER_ID = 'user-uuid';
-const PLAN_ID = 'plan-uuid';
+const GOAL_ID = "goal-uuid";
+const USER_ID = "user-uuid";
+const PLAN_ID = "plan-uuid";
 
 interface MockResult {
   data: unknown;
@@ -17,7 +17,7 @@ interface MockResult {
 
 function createQueryBuilder(resolveValue: MockResult): Record<string, unknown> {
   const builder: Record<string, unknown> = {};
-  const chainMethods = ['select', 'eq', 'insert', 'order'];
+  const chainMethods = ["select", "eq", "insert", "order"];
   for (const method of chainMethods) {
     builder[method] = jest.fn().mockReturnValue(builder);
   }
@@ -32,14 +32,14 @@ function buildStoreParams(): StoreTasksParams {
   return {
     tasks: [
       {
-        title: 'Task 1',
-        description: 'First',
+        title: "Task 1",
+        description: "First",
         order_index: 1,
         difficulty_rating: null,
       },
       {
-        title: 'Task 2',
-        description: 'Second',
+        title: "Task 2",
+        description: "Second",
         order_index: 2,
         difficulty_rating: null,
       },
@@ -51,7 +51,7 @@ function buildStoreParams(): StoreTasksParams {
   };
 }
 
-describe('WeeklyTaskStorageService', () => {
+describe("WeeklyTaskStorageService", () => {
   let service: WeeklyTaskStorageService;
   let mockFrom: jest.Mock;
 
@@ -73,11 +73,11 @@ describe('WeeklyTaskStorageService', () => {
     service = module.get<WeeklyTaskStorageService>(WeeklyTaskStorageService);
   });
 
-  describe('storeTasks', () => {
-    it('should return inserted tasks when insert succeeds', async () => {
+  describe("storeTasks", () => {
+    it("should return inserted tasks when insert succeeds", async () => {
       const inserted = [
-        { id: 't1', order_index: 1 },
-        { id: 't2', order_index: 2 },
+        { id: "t1", order_index: 1 },
+        { id: "t2", order_index: 2 },
       ];
       mockFrom.mockReturnValue(
         createQueryBuilder({ data: inserted, error: null }),
@@ -88,16 +88,16 @@ describe('WeeklyTaskStorageService', () => {
       expect(result).toEqual(inserted);
     });
 
-    it('should return existing tasks when insert hits unique violation', async () => {
+    it("should return existing tasks when insert hits unique violation", async () => {
       const existing = [
-        { id: 't1', order_index: 1 },
-        { id: 't2', order_index: 2 },
+        { id: "t1", order_index: 1 },
+        { id: "t2", order_index: 2 },
       ];
       mockFrom
         .mockReturnValueOnce(
           createQueryBuilder({
             data: null,
-            error: { code: '23505', message: 'duplicate key' },
+            error: { code: "23505", message: "duplicate key" },
           }),
         )
         .mockReturnValueOnce(
@@ -109,11 +109,11 @@ describe('WeeklyTaskStorageService', () => {
       expect(result).toEqual(existing);
     });
 
-    it('should throw InternalServerErrorException when insert fails with other error', async () => {
+    it("should throw InternalServerErrorException when insert fails with other error", async () => {
       mockFrom.mockReturnValue(
         createQueryBuilder({
           data: null,
-          error: { code: '08006', message: 'connection failure' },
+          error: { code: "08006", message: "connection failure" },
         }),
       );
 

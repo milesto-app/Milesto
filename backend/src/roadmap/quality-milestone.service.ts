@@ -1,19 +1,19 @@
-import { Injectable, Logger } from '@nestjs/common';
-import { OnEvent } from '@nestjs/event-emitter';
+import { Injectable, Logger } from "@nestjs/common";
+import { OnEvent } from "@nestjs/event-emitter";
 
-import { AiService } from '../ai/ai.service.js';
-import type { Json } from '../supabase/database.types.js';
-import { SupabaseService } from '../supabase/supabase.service.js';
-import { MILESTONE_JUDGE_SYSTEM_PROMPT } from './prompts/quality-prompts.js';
+import { AiService } from "../ai/ai.service.js";
+import type { Json } from "../supabase/database.types.js";
+import { SupabaseService } from "../supabase/supabase.service.js";
+import { MILESTONE_JUDGE_SYSTEM_PROMPT } from "./prompts/quality-prompts.js";
 import {
   checkWarnings,
   clampScore,
   evaluateQuality,
-} from './quality-helpers.js';
+} from "./quality-helpers.js";
 import type {
   MilestoneQualityScores,
   RoadmapGeneratedEvent,
-} from './types/quality.types.js';
+} from "./types/quality.types.js";
 
 const MILESTONE_SCORE_DIMENSIONS = 4;
 const JSON_INDENT = 2;
@@ -27,7 +27,7 @@ export class QualityMilestoneService {
     private readonly supabaseService: SupabaseService,
   ) {}
 
-  @OnEvent('roadmap.generated')
+  @OnEvent("roadmap.generated")
   public async handleRoadmapGenerated(
     payload: RoadmapGeneratedEvent,
   ): Promise<void> {
@@ -58,9 +58,9 @@ export class QualityMilestoneService {
 
     const scores = this.buildScores(rawScores);
     const { error: updateError } = await supabase
-      .from('goals')
+      .from("goals")
       .update({ roadmap_quality_scores: scores as unknown as Json })
-      .eq('id', payload.goalId);
+      .eq("id", payload.goalId);
 
     if (updateError !== null) {
       this.logger.error(
@@ -71,7 +71,7 @@ export class QualityMilestoneService {
 
     checkWarnings({
       logger: this.logger,
-      generationType: 'milestone',
+      generationType: "milestone",
       scores,
       goalId: payload.goalId,
     });
@@ -81,7 +81,7 @@ export class QualityMilestoneService {
   }
 
   private async loadMilestoneContext(
-    supabase: ReturnType<SupabaseService['getAdminClient']>,
+    supabase: ReturnType<SupabaseService["getAdminClient"]>,
     payload: RoadmapGeneratedEvent,
   ): Promise<{ content: string; goalContext: string } | null> {
     const roadmapData = await this.loadRoadmapMetadata(
@@ -108,13 +108,13 @@ export class QualityMilestoneService {
   }
 
   private async loadRoadmapMetadata(
-    supabase: ReturnType<SupabaseService['getAdminClient']>,
+    supabase: ReturnType<SupabaseService["getAdminClient"]>,
     goalId: string,
   ): Promise<{ id: string } | null> {
     const { data, error } = await supabase
-      .from('goals')
-      .select('id, roadmap_generation_metadata')
-      .eq('id', goalId)
+      .from("goals")
+      .select("id, roadmap_generation_metadata")
+      .eq("id", goalId)
       .single();
     // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
     if (error !== null || data === null) {
@@ -127,16 +127,16 @@ export class QualityMilestoneService {
   }
 
   private async loadMilestones(
-    supabase: ReturnType<SupabaseService['getAdminClient']>,
+    supabase: ReturnType<SupabaseService["getAdminClient"]>,
     goalId: string,
   ): Promise<unknown[] | null> {
     const { data, error } = await supabase
-      .from('milestones')
+      .from("milestones")
       .select(
-        'title, description, expected_outcome, is_monthly_checkpoint, order_index',
+        "title, description, expected_outcome, is_monthly_checkpoint, order_index",
       )
-      .eq('goal_id', goalId)
-      .order('order_index');
+      .eq("goal_id", goalId)
+      .order("order_index");
     // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
     if (error !== null || data === null || data.length === 0) {
       this.logger.error(
@@ -148,14 +148,14 @@ export class QualityMilestoneService {
   }
 
   private async loadGoal(
-    supabase: ReturnType<SupabaseService['getAdminClient']>,
+    supabase: ReturnType<SupabaseService["getAdminClient"]>,
     goalId: string,
   ): Promise<{ title: string; description: string } | null> {
     const { data, error } = await supabase
-      .from('goals')
-      .select('title, description')
-      .eq('id', goalId)
-      .is('deleted_at', null)
+      .from("goals")
+      .select("title, description")
+      .eq("id", goalId)
+      .is("deleted_at", null)
       .single();
     // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
     if (error !== null || data === null) {

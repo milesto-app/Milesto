@@ -1,4 +1,4 @@
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 import {
   IsIn,
   IsInt,
@@ -8,25 +8,25 @@ import {
   Max,
   MaxLength,
   Min,
-} from 'class-validator';
+} from "class-validator";
 
 const MAX_TEXT_LENGTH = 5000;
 const MAX_COACH_ID = 100;
-const SUPPORTED_LANGUAGES = ['en', 'fr'] as const;
+const SUPPORTED_LANGUAGES = ["en", "fr"] as const;
 
 export type SynthesizeLanguage = (typeof SUPPORTED_LANGUAGES)[number];
 
 export class SynthesizeDto {
   @ApiProperty({
-    description: 'Text to synthesize into speech',
-    example: 'Hello, how are you?',
+    description: "Text to synthesize into speech",
+    example: "Hello, how are you?",
   })
   @IsString()
   @IsNotEmpty()
   @MaxLength(MAX_TEXT_LENGTH)
   public text!: string;
 
-  @ApiProperty({ description: 'Coach ID to determine voice', example: 1 })
+  @ApiProperty({ description: "Coach ID to determine voice", example: 1 })
   @IsInt()
   @Min(1)
   @Max(MAX_COACH_ID)
@@ -34,7 +34,7 @@ export class SynthesizeDto {
 
   @ApiPropertyOptional({
     description:
-      'Override voice language. When omitted, the user profile language is used.',
+      "Override voice language. When omitted, the user profile language is used.",
     enum: SUPPORTED_LANGUAGES,
   })
   @IsOptional()

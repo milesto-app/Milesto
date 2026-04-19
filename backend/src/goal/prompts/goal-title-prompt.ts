@@ -1,4 +1,4 @@
-import { buildLanguageBlock } from '../../common/language-prompt.helper.js';
+import { buildLanguageBlock } from "../../common/language-prompt.helper.js";
 
 export function buildGoalTitleSystemPrompt(language: string): string {
   return `You are a concise title generator for personal goals.

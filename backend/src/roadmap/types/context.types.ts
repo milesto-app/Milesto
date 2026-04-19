@@ -19,7 +19,7 @@ export interface AssembledContext {
   totalChunks: number;
 }
 
-export type RetrievalTier = 'hnsw_reranked' | 'hnsw_only' | 'sql_fallback';
+export type RetrievalTier = "hnsw_reranked" | "hnsw_only" | "sql_fallback";
 
 export interface ChunkRetrievalLog {
   chunk_id: string;

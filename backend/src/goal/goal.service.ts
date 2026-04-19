@@ -3,24 +3,24 @@ import {
   InternalServerErrorException,
   Logger,
   NotFoundException,
-} from '@nestjs/common';
+} from "@nestjs/common";
 
-import { AiService } from '../ai/ai.service.js';
-import { UserLanguageService } from '../common/user-language.service.js';
-import type { Database, Json } from '../supabase/database.types.js';
-import { SupabaseService } from '../supabase/supabase.service.js';
-import { UsageService } from '../usage/usage.service.js';
-import { GenerationType } from '../usage/usage.types.js';
+import { AiService } from "../ai/ai.service.js";
+import { UserLanguageService } from "../common/user-language.service.js";
+import type { Database, Json } from "../supabase/database.types.js";
+import { SupabaseService } from "../supabase/supabase.service.js";
+import { UsageService } from "../usage/usage.service.js";
+import { GenerationType } from "../usage/usage.types.js";
 import {
   GOAL_STATUS,
   PROFILE_VIEWABLE_STATUSES,
-} from './goal-status.constants.js';
+} from "./goal-status.constants.js";
 import {
   buildGoalTitleSystemPrompt,
   buildGoalTitleUserPrompt,
-} from './prompts/goal-title-prompt.js';
+} from "./prompts/goal-title-prompt.js";
 
-type GoalRow = Database['public']['Tables']['goals']['Row'];
+type GoalRow = Database["public"]["Tables"]["goals"]["Row"];
 
 export interface GoalProfileResult {
   id: string;
@@ -51,7 +51,7 @@ export class GoalService {
     const supabase = this.supabaseService.getAdminClient();
 
     const { data, error } = await supabase
-      .from('goals')
+      .from("goals")
       .insert({
         user_id: userId,
         title: resolvedTitle,
@@ -66,7 +66,7 @@ export class GoalService {
       this.logger.error(
         `Failed to create goal for user ${userId}: ${error.message}`,
       );
-      throw new InternalServerErrorException('Failed to create goal');
+      throw new InternalServerErrorException("Failed to create goal");
     }
 
     this.logger.log(`Goal ${data.id} created for user ${userId}`);
@@ -102,15 +102,15 @@ export class GoalService {
     const supabase = this.supabaseService.getAdminClient();
 
     const { data, error } = await supabase
-      .from('goals')
-      .select('*')
-      .eq('id', goalId)
-      .eq('user_id', userId)
-      .is('deleted_at', null)
+      .from("goals")
+      .select("*")
+      .eq("id", goalId)
+      .eq("user_id", userId)
+      .is("deleted_at", null)
       .single();
 
     if (error) {
-      throw new NotFoundException('Goal not found');
+      throw new NotFoundException("Goal not found");
     }
 
     return data;
@@ -123,20 +123,20 @@ export class GoalService {
     const goal = await this.findOne(userId, goalId);
 
     if (!PROFILE_VIEWABLE_STATUSES.includes(goal.status)) {
-      throw new NotFoundException('Profile not found');
+      throw new NotFoundException("Profile not found");
     }
 
     const supabase = this.supabaseService.getAdminClient();
 
     const { data: profile, error } = await supabase
-      .from('goals')
-      .select('id, profile_data, narrative_summary, profile_created_at')
-      .eq('id', goalId)
-      .eq('user_id', userId)
+      .from("goals")
+      .select("id, profile_data, narrative_summary, profile_created_at")
+      .eq("id", goalId)
+      .eq("user_id", userId)
       .single();
 
     if (error) {
-      throw new NotFoundException('Profile not found');
+      throw new NotFoundException("Profile not found");
     }
 
     return {
@@ -154,25 +154,25 @@ export class GoalService {
   ): Promise<void> {
     const supabase = this.supabaseService.getAdminClient();
     const { error } = await supabase
-      .from('goals')
+      .from("goals")
       .update({ target_date: targetDate, updated_at: new Date().toISOString() })
-      .eq('id', goalId)
-      .is('deleted_at', null);
+      .eq("id", goalId)
+      .is("deleted_at", null);
     if (error) {
       this.logger.error(
         `Failed to set target date for goal ${goalId}: ${error.message}`,
       );
-      throw new InternalServerErrorException('Failed to set target date');
+      throw new InternalServerErrorException("Failed to set target date");
     }
   }
 
   public async updateStatus(goalId: string, status: string): Promise<void> {
     const supabase = this.supabaseService.getAdminClient();
     const { error } = await supabase
-      .from('goals')
+      .from("goals")
       .update({ status, updated_at: new Date().toISOString() })
-      .eq('id', goalId)
-      .is('deleted_at', null);
+      .eq("id", goalId)
+      .is("deleted_at", null);
     if (error) {
       throw new InternalServerErrorException(
         `Failed to update goal status: ${error.message}`,

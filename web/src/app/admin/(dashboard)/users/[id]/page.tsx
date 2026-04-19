@@ -41,17 +41,29 @@ export default async function UserDetailPage({
         <CardContent className="p-6">
           <div className="flex items-start justify-between">
             <div>
-              <h1 className="text-lg font-semibold text-foreground">{user.email}</h1>
+              <h1 className="text-lg font-semibold text-foreground">
+                {user.email}
+              </h1>
               <p className="mt-0.5 text-sm text-muted-foreground">
-                {[user.firstName, user.lastName].filter(Boolean).join(" ") || "No name set"}
+                {[user.firstName, user.lastName].filter(Boolean).join(" ") ||
+                  "No name set"}
               </p>
             </div>
             {isProActive ? (
-              <Badge className="border-0 bg-primary/10 text-primary font-medium">Pro</Badge>
+              <Badge className="border-0 bg-primary/10 text-primary font-medium">
+                Pro
+              </Badge>
             ) : user.subscriptionStatus === "expired" ? (
-              <Badge variant="destructive" className="border-0 bg-destructive/10 text-destructive font-medium">Expired</Badge>
+              <Badge
+                variant="destructive"
+                className="border-0 bg-destructive/10 text-destructive font-medium"
+              >
+                Expired
+              </Badge>
             ) : (
-              <Badge variant="secondary" className="font-medium">Free</Badge>
+              <Badge variant="secondary" className="font-medium">
+                Free
+              </Badge>
             )}
           </div>
 
@@ -60,13 +72,17 @@ export default async function UserDetailPage({
               <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
                 Coach
               </p>
-              <p className="mt-0.5 text-sm font-medium">{user.coachId ?? "\u2014"}</p>
+              <p className="mt-0.5 text-sm font-medium">
+                {user.coachId ?? "\u2014"}
+              </p>
             </div>
             <div>
               <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
                 Language
               </p>
-              <p className="mt-0.5 text-sm font-medium">{user.language ?? "\u2014"}</p>
+              <p className="mt-0.5 text-sm font-medium">
+                {user.language ?? "\u2014"}
+              </p>
             </div>
             <div>
               <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">

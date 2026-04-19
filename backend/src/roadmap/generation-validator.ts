@@ -1,9 +1,9 @@
-import { plainToInstance } from 'class-transformer';
-import { validateSync } from 'class-validator';
+import { plainToInstance } from "class-transformer";
+import { validateSync } from "class-validator";
 
-import { GeneratedMilestone } from './types/generated-milestone.js';
-import { GeneratedWeeklyPlan } from './types/generated-weekly-plan.js';
-import { GeneratedWeeklyTask } from './types/generated-weekly-task.js';
+import { GeneratedMilestone } from "./types/generated-milestone.js";
+import { GeneratedWeeklyPlan } from "./types/generated-weekly-plan.js";
+import { GeneratedWeeklyTask } from "./types/generated-weekly-task.js";
 
 const FIRST_ORDER_INDEX = 1;
 
@@ -23,10 +23,10 @@ function repairMilestones(items: unknown[]): GeneratedMilestone[] {
   const cleaned = items.map((item) => {
     const rec = item as Record<string, unknown>;
     return {
-      title: typeof rec.title === 'string' ? rec.title : '',
-      description: typeof rec.description === 'string' ? rec.description : '',
+      title: typeof rec.title === "string" ? rec.title : "",
+      description: typeof rec.description === "string" ? rec.description : "",
       expected_outcome:
-        typeof rec.expected_outcome === 'string' ? rec.expected_outcome : '',
+        typeof rec.expected_outcome === "string" ? rec.expected_outcome : "",
       is_monthly_checkpoint: Boolean(rec.is_monthly_checkpoint),
       order_index: Number(rec.order_index),
     };
@@ -41,13 +41,13 @@ function repairMilestones(items: unknown[]): GeneratedMilestone[] {
   }
 
   throw new Error(
-    `Milestone validation failed after repair: ${repairErrors.map((e) => e.toString()).join(', ')}`,
+    `Milestone validation failed after repair: ${repairErrors.map((e) => e.toString()).join(", ")}`,
   );
 }
 
 export function validateWeeklyPlan(raw: unknown): GeneratedWeeklyPlan {
   const data =
-    typeof raw === 'object' && raw !== null && !Array.isArray(raw) ? raw : {};
+    typeof raw === "object" && raw !== null && !Array.isArray(raw) ? raw : {};
   const instance = plainToInstance(GeneratedWeeklyPlan, data);
   const errors = validateSync(instance as object);
 
@@ -73,7 +73,7 @@ function repairWeeklyPlan(data: unknown): GeneratedWeeklyPlan {
   }
 
   throw new Error(
-    `Weekly plan validation failed after repair: ${repairErrors.map((e) => e.toString()).join(', ')}`,
+    `Weekly plan validation failed after repair: ${repairErrors.map((e) => e.toString()).join(", ")}`,
   );
 }
 
@@ -93,8 +93,8 @@ function repairWeeklyTasks(items: unknown[]): GeneratedWeeklyTask[] {
   const cleaned = items.map((item, idx) => {
     const rec = item as Record<string, unknown>;
     return {
-      title: typeof rec.title === 'string' ? rec.title : '',
-      description: typeof rec.description === 'string' ? rec.description : '',
+      title: typeof rec.title === "string" ? rec.title : "",
+      description: typeof rec.description === "string" ? rec.description : "",
       order_index: Number(rec.order_index) || idx + FIRST_ORDER_INDEX,
       difficulty_rating: rec.difficulty_rating,
     };
@@ -109,6 +109,6 @@ function repairWeeklyTasks(items: unknown[]): GeneratedWeeklyTask[] {
   }
 
   throw new Error(
-    `Weekly tasks validation failed after repair: ${repairErrors.map((e) => e.toString()).join(', ')}`,
+    `Weekly tasks validation failed after repair: ${repairErrors.map((e) => e.toString()).join(", ")}`,
   );
 }

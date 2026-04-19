@@ -1,6 +1,6 @@
-import { buildLanguageBlock } from '../../common/language-prompt.helper.js';
-import type { AssembledContext } from '../types/context.types.js';
-import type { GoalData } from '../types/roadmap.types.js';
+import { buildLanguageBlock } from "../../common/language-prompt.helper.js";
+import type { AssembledContext } from "../types/context.types.js";
+import type { GoalData } from "../types/roadmap.types.js";
 
 const MIN_MILESTONES = 3;
 const MS_PER_SECOND = 1000;
@@ -76,7 +76,7 @@ export function buildMilestoneUserPrompt(
   return `## Goal
 Title: ${goal.title}
 Description: ${goal.description}
-Deadline: ${goal.target_date ?? 'Not specified'}
+Deadline: ${goal.target_date ?? "Not specified"}
 Weeks until deadline: ${String(weeksUntilDeadline)}
 Total months: ${String(monthCount)}
 
@@ -85,36 +85,36 @@ ${requirementsSection}
 
 ${constraintSection}
 
-${sections.join('\n\n')}`;
+${sections.join("\n\n")}`;
 }
 
 function buildConstraintSection(goal: GoalData): string {
   if (goal.profile_data === undefined) {
-    return '';
+    return "";
   }
 
   const pd = goal.profile_data;
   const fieldMap: Array<[string, string]> = [
-    ['current_state', 'Current State'],
-    ['desired_state', 'Desired State'],
-    ['constraints', 'Constraints'],
-    ['motivation', 'Motivation'],
-    ['domain_context', 'Domain'],
-    ['effort_level', 'Effort Level'],
-    ['available_time', 'Available Time'],
-    ['experience_level', 'Experience Level'],
+    ["current_state", "Current State"],
+    ["desired_state", "Desired State"],
+    ["constraints", "Constraints"],
+    ["motivation", "Motivation"],
+    ["domain_context", "Domain"],
+    ["effort_level", "Effort Level"],
+    ["available_time", "Available Time"],
+    ["experience_level", "Experience Level"],
   ];
 
   const constraintLines: string[] = [];
   for (const [key, label] of fieldMap) {
     if (pd[key] !== undefined) {
       const value =
-        typeof pd[key] === 'string' ? pd[key] : JSON.stringify(pd[key]);
+        typeof pd[key] === "string" ? pd[key] : JSON.stringify(pd[key]);
       constraintLines.push(`${label}: ${value}`);
     }
   }
 
   return constraintLines.length > 0
-    ? `## User Constraints\n${constraintLines.join('\n')}`
-    : '';
+    ? `## User Constraints\n${constraintLines.join("\n")}`
+    : "";
 }

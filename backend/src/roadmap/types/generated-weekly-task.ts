@@ -5,7 +5,7 @@ import {
   IsOptional,
   IsPositive,
   IsString,
-} from 'class-validator';
+} from "class-validator";
 
 export class GeneratedWeeklyTask {
   @IsString()
@@ -21,6 +21,6 @@ export class GeneratedWeeklyTask {
   public order_index!: number;
 
   @IsOptional()
-  @IsIn(['easy', 'moderate', 'hard'])
+  @IsIn(["easy", "moderate", "hard"])
   public difficulty_rating?: string;
 }

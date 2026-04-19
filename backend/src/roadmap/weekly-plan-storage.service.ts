@@ -4,18 +4,18 @@ import {
   InternalServerErrorException,
   Logger,
   NotFoundException,
-} from '@nestjs/common';
-import { EventEmitter2 } from '@nestjs/event-emitter';
+} from "@nestjs/common";
+import { EventEmitter2 } from "@nestjs/event-emitter";
 
-import type { Database, Json } from '../supabase/database.types.js';
-import { SupabaseService } from '../supabase/supabase.service.js';
-import { ROADMAP_STATUS } from './constants/roadmap.constants.js';
-import type { Milestone, Roadmap } from './types/roadmap.types.js';
-import type { StorePlanRow, WeeklyPlan } from './types/weekly-plan.types.js';
+import type { Database, Json } from "../supabase/database.types.js";
+import { SupabaseService } from "../supabase/supabase.service.js";
+import { ROADMAP_STATUS } from "./constants/roadmap.constants.js";
+import type { Milestone, Roadmap } from "./types/roadmap.types.js";
+import type { StorePlanRow, WeeklyPlan } from "./types/weekly-plan.types.js";
 
-export type { StorePlanRow } from './types/weekly-plan.types.js';
+export type { StorePlanRow } from "./types/weekly-plan.types.js";
 
-type GoalRow = Database['public']['Tables']['goals']['Row'];
+type GoalRow = Database["public"]["Tables"]["goals"]["Row"];
 
 const SUNDAY_DAY = 0;
 const SUNDAY_OFFSET = -6;
@@ -38,8 +38,8 @@ export class WeeklyPlanStorageService {
       generation_metadata: row.generation_metadata as unknown as Json,
     };
     const { data, error } = await supabase
-      .from('weekly_plans')
-      .upsert(dbRow, { onConflict: 'goal_id,week_number' })
+      .from("weekly_plans")
+      .upsert(dbRow, { onConflict: "goal_id,week_number" })
       .select()
       .single();
 
@@ -52,7 +52,7 @@ export class WeeklyPlanStorageService {
   }
 
   public emitPlanGenerated(planId: string, goalId: string): void {
-    this.eventEmitter.emit('weekly-plan.generated', { planId, goalId });
+    this.eventEmitter.emit("weekly-plan.generated", { planId, goalId });
   }
 
   public getCurrentWeekStart(): string {
@@ -63,7 +63,7 @@ export class WeeklyPlanStorageService {
       day +
       (day === SUNDAY_DAY ? SUNDAY_OFFSET : MONDAY_OFFSET);
     const monday = new Date(now.setDate(diff));
-    return monday.toISOString().split('T')[0] ?? '';
+    return monday.toISOString().split("T")[0] ?? "";
   }
 
   public async autoCompleteExpiredPlans(
@@ -74,11 +74,11 @@ export class WeeklyPlanStorageService {
     const cutoffDate = new Date();
     cutoffDate.setDate(cutoffDate.getDate() - daysAgo);
     await supabase
-      .from('weekly_plans')
-      .update({ status: 'completed' })
-      .eq('goal_id', goalId)
-      .eq('status', 'active')
-      .lt('week_start_date', cutoffDate.toISOString().split('T')[0] ?? '');
+      .from("weekly_plans")
+      .update({ status: "completed" })
+      .eq("goal_id", goalId)
+      .eq("status", "active")
+      .lt("week_start_date", cutoffDate.toISOString().split("T")[0] ?? "");
   }
 
   public async getLastCompletedPlanWithoutSummary(
@@ -86,12 +86,12 @@ export class WeeklyPlanStorageService {
   ): Promise<WeeklyPlan | null> {
     const supabase = this.supabaseService.getAdminClient();
     const { data } = await supabase
-      .from('weekly_plans')
-      .select('*')
-      .eq('goal_id', goalId)
-      .eq('status', 'completed')
-      .is('summary', null)
-      .order('week_number', { ascending: false })
+      .from("weekly_plans")
+      .select("*")
+      .eq("goal_id", goalId)
+      .eq("status", "completed")
+      .is("summary", null)
+      .order("week_number", { ascending: false })
       .limit(1)
       .single();
     return (data as WeeklyPlan | null) ?? null;
@@ -100,9 +100,9 @@ export class WeeklyPlanStorageService {
   public async calculateWeekNumber(goalId: string): Promise<number> {
     const supabase = this.supabaseService.getAdminClient();
     const { count } = await supabase
-      .from('weekly_plans')
-      .select('*', { count: 'exact', head: true })
-      .eq('goal_id', goalId);
+      .from("weekly_plans")
+      .select("*", { count: "exact", head: true })
+      .eq("goal_id", goalId);
     return (count ?? 0) + 1;
   }
 
@@ -112,11 +112,11 @@ export class WeeklyPlanStorageService {
   ): Promise<WeeklyPlan | null> {
     const supabase = this.supabaseService.getAdminClient();
     const { data, error } = await supabase
-      .from('weekly_plans')
-      .select('*')
-      .eq('goal_id', goalId)
-      .eq('user_id', userId)
-      .eq('status', 'active')
+      .from("weekly_plans")
+      .select("*")
+      .eq("goal_id", goalId)
+      .eq("user_id", userId)
+      .eq("status", "active")
       .single();
     // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
     if (error || data === null) {
@@ -140,29 +140,29 @@ export class WeeklyPlanStorageService {
       `Fallback plan creation also failed: ${fallbackError instanceof Error ? fallbackError.message : String(fallbackError)}`,
     );
     throw new InternalServerErrorException(
-      'Weekly plan generation failed and fallback could not be stored',
+      "Weekly plan generation failed and fallback could not be stored",
     );
   }
 
   private async loadRoadmap(
-    supabase: ReturnType<SupabaseService['getAdminClient']>,
+    supabase: ReturnType<SupabaseService["getAdminClient"]>,
     goalId: string,
     userId: string,
   ): Promise<Roadmap> {
     const { data: goal, error } = await supabase
-      .from('goals')
+      .from("goals")
       .select(
-        'id, user_id, roadmap_status, roadmap_generation_attempts, roadmap_model_used, roadmap_generation_metadata, roadmap_quality_scores, roadmap_created_at, roadmap_updated_at',
+        "id, user_id, roadmap_status, roadmap_generation_attempts, roadmap_model_used, roadmap_generation_metadata, roadmap_quality_scores, roadmap_created_at, roadmap_updated_at",
       )
-      .eq('id', goalId)
-      .eq('user_id', userId)
+      .eq("id", goalId)
+      .eq("user_id", userId)
       .single();
     // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
     if (error || goal === null || goal.roadmap_status === null) {
-      throw new NotFoundException('No roadmap found for this goal');
+      throw new NotFoundException("No roadmap found for this goal");
     }
     if (goal.roadmap_status !== ROADMAP_STATUS.COMPLETE) {
-      throw new BadRequestException('Goal has no completed roadmap');
+      throw new BadRequestException("Goal has no completed roadmap");
     }
     return this.buildRoadmap(goal);
   }
@@ -170,15 +170,15 @@ export class WeeklyPlanStorageService {
   private buildRoadmap(
     goal: Pick<
       GoalRow,
-      | 'id'
-      | 'user_id'
-      | 'roadmap_status'
-      | 'roadmap_generation_attempts'
-      | 'roadmap_model_used'
-      | 'roadmap_generation_metadata'
-      | 'roadmap_quality_scores'
-      | 'roadmap_created_at'
-      | 'roadmap_updated_at'
+      | "id"
+      | "user_id"
+      | "roadmap_status"
+      | "roadmap_generation_attempts"
+      | "roadmap_model_used"
+      | "roadmap_generation_metadata"
+      | "roadmap_quality_scores"
+      | "roadmap_created_at"
+      | "roadmap_updated_at"
     >,
   ): Roadmap {
     const now = new Date().toISOString();
@@ -186,7 +186,7 @@ export class WeeklyPlanStorageService {
       goal_id: goal.id,
       user_id: goal.user_id,
       status: (goal.roadmap_status ??
-        ROADMAP_STATUS.GENERATING) as Roadmap['status'],
+        ROADMAP_STATUS.GENERATING) as Roadmap["status"],
       generation_attempts: goal.roadmap_generation_attempts,
       model_used: goal.roadmap_model_used,
       generation_metadata:
@@ -200,7 +200,7 @@ export class WeeklyPlanStorageService {
   }
 
   private async loadActiveMilestone(
-    supabase: ReturnType<SupabaseService['getAdminClient']>,
+    supabase: ReturnType<SupabaseService["getAdminClient"]>,
     roadmap: Roadmap,
     goalId: string,
   ): Promise<Milestone> {
@@ -228,31 +228,31 @@ export class WeeklyPlanStorageService {
   }
 
   private async loadAllMilestones(
-    supabase: ReturnType<SupabaseService['getAdminClient']>,
+    supabase: ReturnType<SupabaseService["getAdminClient"]>,
     goalId: string,
   ): Promise<Milestone[]> {
     const { data: milestones, error } = await supabase
-      .from('milestones')
-      .select('*')
-      .eq('goal_id', goalId)
-      .order('order_index', { ascending: true });
+      .from("milestones")
+      .select("*")
+      .eq("goal_id", goalId)
+      .order("order_index", { ascending: true });
     // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
     if (error || milestones === null || milestones.length === 0) {
-      throw new NotFoundException('No milestones found for this roadmap');
+      throw new NotFoundException("No milestones found for this roadmap");
     }
     return milestones as Milestone[];
   }
 
   private async getLastPlanMilestoneIndex(
-    supabase: ReturnType<SupabaseService['getAdminClient']>,
+    supabase: ReturnType<SupabaseService["getAdminClient"]>,
     goalId: string,
     milestones: Milestone[],
   ): Promise<number> {
     const { data: lastPlan } = await supabase
-      .from('weekly_plans')
-      .select('milestone_id, status')
-      .eq('goal_id', goalId)
-      .order('week_number', { ascending: false })
+      .from("weekly_plans")
+      .select("milestone_id, status")
+      .eq("goal_id", goalId)
+      .order("week_number", { ascending: false })
       .limit(1)
       .single();
 
@@ -266,7 +266,7 @@ export class WeeklyPlanStorageService {
       return 0;
     }
 
-    if (lastPlan.status === 'completed') {
+    if (lastPlan.status === "completed") {
       return Math.min(index + 1, milestones.length - 1);
     }
 
@@ -274,15 +274,15 @@ export class WeeklyPlanStorageService {
   }
 
   private async getTimeBasedMilestoneIndex(
-    supabase: ReturnType<SupabaseService['getAdminClient']>,
+    supabase: ReturnType<SupabaseService["getAdminClient"]>,
     roadmap: Roadmap,
     goalId: string,
     milestoneCount: number,
   ): Promise<number> {
     const { data: goal } = await supabase
-      .from('goals')
-      .select('target_date')
-      .eq('id', goalId)
+      .from("goals")
+      .select("target_date")
+      .eq("id", goalId)
       .single();
 
     if (

@@ -1,12 +1,12 @@
-import { Injectable, Logger } from '@nestjs/common';
-import { OnEvent } from '@nestjs/event-emitter';
+import { Injectable, Logger } from "@nestjs/common";
+import { OnEvent } from "@nestjs/event-emitter";
 
-import { AiService } from '../ai/ai.service.js';
-import { SupabaseService } from '../supabase/supabase.service.js';
+import { AiService } from "../ai/ai.service.js";
+import { SupabaseService } from "../supabase/supabase.service.js";
 import type {
   MonthlySummary,
   WeeklySummary,
-} from './types/weekly-plan.types.js';
+} from "./types/weekly-plan.types.js";
 
 interface DebriefSubmittedPayload {
   debriefId: string;
@@ -32,7 +32,7 @@ export class SummaryEmbeddingService {
     private readonly supabaseService: SupabaseService,
   ) {}
 
-  @OnEvent('debrief.submitted')
+  @OnEvent("debrief.submitted")
   public async handleDebriefSubmitted(
     payload: DebriefSubmittedPayload,
   ): Promise<void> {
@@ -41,11 +41,11 @@ export class SummaryEmbeddingService {
 
       const supabase = this.supabaseService.getAdminClient();
       const { error: insertError } = await supabase
-        .from('context_embeddings')
+        .from("context_embeddings")
         .insert({
           goal_id: payload.goalId,
           user_id: payload.userId,
-          content_type: 'debrief_note',
+          content_type: "debrief_note",
           content_text: payload.note,
           embedding: JSON.stringify(embedding),
         });
@@ -67,7 +67,7 @@ export class SummaryEmbeddingService {
     }
   }
 
-  @OnEvent('summary.generated')
+  @OnEvent("summary.generated")
   public async handleSummaryGenerated(
     payload: SummaryGeneratedPayload,
   ): Promise<void> {
@@ -78,11 +78,11 @@ export class SummaryEmbeddingService {
 
       const supabase = this.supabaseService.getAdminClient();
       const { error: insertError } = await supabase
-        .from('context_embeddings')
+        .from("context_embeddings")
         .insert({
           goal_id: payload.goalId,
           user_id: payload.userId,
-          content_type: 'weekly_summary',
+          content_type: "weekly_summary",
           content_text: payload.contentText,
           embedding: JSON.stringify(embedding),
         });

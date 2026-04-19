@@ -367,7 +367,7 @@ private struct WeeklyTaskDetailPage: View {
             isCompleted: false,
             isFallback: false,
             createdAt: ""
-        )
+        ),
     ]
     return NavigationStack {
         WeeklyTaskDetailView(

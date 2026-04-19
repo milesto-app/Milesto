@@ -18,19 +18,50 @@ import { StatsCard } from "@/components/admin/stats-card";
 function goalStatusBadge(status: string) {
   switch (status) {
     case "active":
-      return <Badge className="border-0 bg-primary/10 text-primary font-medium">Active</Badge>;
+      return (
+        <Badge className="border-0 bg-primary/10 text-primary font-medium">
+          Active
+        </Badge>
+      );
     case "intake_in_progress":
-      return <Badge variant="secondary" className="font-medium">Intake</Badge>;
+      return (
+        <Badge variant="secondary" className="font-medium">
+          Intake
+        </Badge>
+      );
     case "intake_completed":
-      return <Badge variant="secondary" className="font-medium">Intake Done</Badge>;
+      return (
+        <Badge variant="secondary" className="font-medium">
+          Intake Done
+        </Badge>
+      );
     case "profile_generating":
-      return <Badge variant="outline" className="font-medium">Profiling</Badge>;
+      return (
+        <Badge variant="outline" className="font-medium">
+          Profiling
+        </Badge>
+      );
     case "profile_generation_failed":
-      return <Badge variant="destructive" className="border-0 bg-destructive/10 text-destructive font-medium">Failed</Badge>;
+      return (
+        <Badge
+          variant="destructive"
+          className="border-0 bg-destructive/10 text-destructive font-medium"
+        >
+          Failed
+        </Badge>
+      );
     case "roadmap_generating":
-      return <Badge variant="outline" className="font-medium">Roadmap Gen</Badge>;
+      return (
+        <Badge variant="outline" className="font-medium">
+          Roadmap Gen
+        </Badge>
+      );
     default:
-      return <Badge variant="secondary" className="font-medium">{status}</Badge>;
+      return (
+        <Badge variant="secondary" className="font-medium">
+          {status}
+        </Badge>
+      );
   }
 }
 
@@ -43,7 +74,9 @@ export default async function DashboardPage() {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-xl font-semibold tracking-tight text-foreground">Overview</h1>
+        <h1 className="text-xl font-semibold tracking-tight text-foreground">
+          Overview
+        </h1>
         <p className="mt-1 text-sm text-muted-foreground">
           Key metrics and recent activity
         </p>
@@ -64,10 +97,18 @@ export default async function DashboardPage() {
           <Table>
             <TableHeader>
               <TableRow className="hover:bg-transparent">
-                <TableHead className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Title</TableHead>
-                <TableHead className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Status</TableHead>
-                <TableHead className="text-xs font-medium uppercase tracking-wider text-muted-foreground">User</TableHead>
-                <TableHead className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Created</TableHead>
+                <TableHead className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                  Title
+                </TableHead>
+                <TableHead className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                  Status
+                </TableHead>
+                <TableHead className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                  User
+                </TableHead>
+                <TableHead className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                  Created
+                </TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>

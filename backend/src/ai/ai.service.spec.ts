@@ -1,9 +1,9 @@
-import { ConfigService } from '@nestjs/config';
-import type { TestingModule } from '@nestjs/testing';
-import { Test } from '@nestjs/testing';
+import { ConfigService } from "@nestjs/config";
+import type { TestingModule } from "@nestjs/testing";
+import { Test } from "@nestjs/testing";
 
-import { config } from '../config/app.config.js';
-import { AiService } from './ai.service.js';
+import { config } from "../config/app.config.js";
+import { AiService } from "./ai.service.js";
 
 const MOCK_EMBEDDING_VALUE = 0.1;
 
@@ -19,7 +19,7 @@ beforeEach(async () => {
       AiService,
       {
         provide: ConfigService,
-        useValue: { getOrThrow: jest.fn().mockReturnValue('test-api-key') },
+        useValue: { getOrThrow: jest.fn().mockReturnValue("test-api-key") },
       },
     ],
   }).compile();
@@ -33,22 +33,22 @@ beforeEach(async () => {
   (service as unknown as { openai: typeof mockOpenai }).openai = mockOpenai;
 });
 
-describe('AiService.generateEmbedding', () => {
+describe("AiService.generateEmbedding", () => {
   const mockVector = new Array(config.ai.embedding.dimensions).fill(
     MOCK_EMBEDDING_VALUE,
   ) as number[];
 
-  it('should call OpenAI embeddings API with correct params', async () => {
+  it("should call OpenAI embeddings API with correct params", async () => {
     mockOpenai.embeddings.create.mockResolvedValue({
       data: [{ embedding: mockVector }],
     });
 
-    await service.generateEmbedding('test text');
+    await service.generateEmbedding("test text");
 
     expect(mockOpenai.embeddings.create).toHaveBeenCalledWith(
       {
         model: config.ai.embedding.model,
-        input: 'test text',
+        input: "test text",
         dimensions: config.ai.embedding.dimensions,
       },
       expect.objectContaining({
@@ -57,54 +57,54 @@ describe('AiService.generateEmbedding', () => {
     );
   });
 
-  it('should return the embedding vector', async () => {
+  it("should return the embedding vector", async () => {
     mockOpenai.embeddings.create.mockResolvedValue({
       data: [{ embedding: mockVector }],
     });
 
-    const result = await service.generateEmbedding('test text');
+    const result = await service.generateEmbedding("test text");
 
     expect(result).toEqual(mockVector);
     expect(result).toHaveLength(config.ai.embedding.dimensions);
   });
 
-  it('should propagate errors from the OpenAI SDK', async () => {
+  it("should propagate errors from the OpenAI SDK", async () => {
     mockOpenai.embeddings.create.mockRejectedValue(
-      new Error('OpenAI API error'),
+      new Error("OpenAI API error"),
     );
 
-    await expect(service.generateEmbedding('test text')).rejects.toThrow(
-      'OpenAI API error',
+    await expect(service.generateEmbedding("test text")).rejects.toThrow(
+      "OpenAI API error",
     );
   });
 
-  it('should apply timeout via AbortController', async () => {
+  it("should apply timeout via AbortController", async () => {
     mockOpenai.embeddings.create.mockResolvedValue({
       data: [{ embedding: mockVector }],
     });
 
-    await service.generateEmbedding('test text');
+    await service.generateEmbedding("test text");
 
     const callArgs = mockOpenai.embeddings.create.mock.calls[0] as unknown[];
     const options = callArgs[1] as { signal: AbortSignal };
-    expect(options).toHaveProperty('signal');
+    expect(options).toHaveProperty("signal");
     expect(options.signal).toBeInstanceOf(AbortSignal);
   });
 });
 
-describe('AiService.createStream', () => {
-  it('should call OpenAI chat completions with correct params', async () => {
+describe("AiService.createStream", () => {
+  it("should call OpenAI chat completions with correct params", async () => {
     const mockStream = { async *[Symbol.asyncIterator]() {} };
     mockOpenai.chat.completions.create.mockResolvedValue(mockStream);
 
-    const messages = [{ role: 'user' as const, content: 'hello' }];
+    const messages = [{ role: "user" as const, content: "hello" }];
     const tools = [
       {
-        type: 'function' as const,
+        type: "function" as const,
         function: {
-          name: 'test_tool',
-          description: 'A test tool',
-          parameters: { type: 'object', properties: {} },
+          name: "test_tool",
+          description: "A test tool",
+          parameters: { type: "object", properties: {} },
         },
       },
     ];
@@ -119,7 +119,7 @@ describe('AiService.createStream', () => {
     });
   });
 
-  it('should return the stream from OpenAI', async () => {
+  it("should return the stream from OpenAI", async () => {
     const mockStream = { async *[Symbol.asyncIterator]() {} };
     mockOpenai.chat.completions.create.mockResolvedValue(mockStream);
 

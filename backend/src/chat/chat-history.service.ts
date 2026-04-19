@@ -1,12 +1,12 @@
-import { Injectable, Logger, NotFoundException } from '@nestjs/common';
-import type { SupabaseClient } from '@supabase/supabase-js';
+import { Injectable, Logger, NotFoundException } from "@nestjs/common";
+import type { SupabaseClient } from "@supabase/supabase-js";
 
-import { config } from '../config/app.config.js';
-import { SupabaseService } from '../supabase/supabase.service.js';
-import type { Conversation, StoredMessage } from './types/chat.types.js';
+import { config } from "../config/app.config.js";
+import { SupabaseService } from "../supabase/supabase.service.js";
+import type { Conversation, StoredMessage } from "./types/chat.types.js";
 
 export interface StoreMessageInput {
-  role: 'user' | 'assistant' | 'tool';
+  role: "user" | "assistant" | "tool";
   content?: string | null;
   tool_calls?: unknown[] | null;
   tool_call_id?: string | null;
@@ -25,9 +25,9 @@ export class ChatHistoryService {
   ): Promise<Conversation> {
     const supabase = this.getClient();
     const { data, error } = (await supabase
-      .from('conversations')
+      .from("conversations")
       .insert({ user_id: userId, goal_id: goalId })
-      .select('*')
+      .select("*")
       .single()) as {
       data: Conversation | null;
       error: { message: string } | null;
@@ -47,17 +47,17 @@ export class ChatHistoryService {
   ): Promise<Conversation> {
     const supabase = this.getClient();
     const { data, error } = (await supabase
-      .from('conversations')
-      .select('*')
-      .eq('id', conversationId)
-      .eq('user_id', userId)
+      .from("conversations")
+      .select("*")
+      .eq("id", conversationId)
+      .eq("user_id", userId)
       .single()) as {
       data: Conversation | null;
       error: { message: string } | null;
     };
 
     if (error) {
-      throw new NotFoundException('Conversation not found');
+      throw new NotFoundException("Conversation not found");
     }
 
     return data as Conversation;
@@ -69,7 +69,7 @@ export class ChatHistoryService {
   ): Promise<StoredMessage> {
     const supabase = this.getClient();
     const { data, error } = (await supabase
-      .from('messages')
+      .from("messages")
       .insert({
         conversation_id: conversationId,
         role: message.role,
@@ -78,7 +78,7 @@ export class ChatHistoryService {
         tool_call_id: message.tool_call_id ?? null,
         tool_name: message.tool_name ?? null,
       })
-      .select('*')
+      .select("*")
       .single()) as {
       data: StoredMessage | null;
       error: { message: string } | null;
@@ -95,10 +95,10 @@ export class ChatHistoryService {
   public async getMessages(conversationId: string): Promise<StoredMessage[]> {
     const supabase = this.getClient();
     const { data, error } = await supabase
-      .from('messages')
-      .select('*')
-      .eq('conversation_id', conversationId)
-      .order('created_at', { ascending: true })
+      .from("messages")
+      .select("*")
+      .eq("conversation_id", conversationId)
+      .order("created_at", { ascending: true })
       .limit(config.chat.maxHistoryMessages);
 
     if (error) {

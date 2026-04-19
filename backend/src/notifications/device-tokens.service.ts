@@ -2,9 +2,9 @@ import {
   Injectable,
   InternalServerErrorException,
   Logger,
-} from '@nestjs/common';
+} from "@nestjs/common";
 
-import { SupabaseService } from '../supabase/supabase.service.js';
+import { SupabaseService } from "../supabase/supabase.service.js";
 
 export type DeviceToken = {
   token: string;
@@ -24,19 +24,19 @@ export class DeviceTokensService {
   ): Promise<void> {
     const supabase = this.supabaseService.getAdminClient();
 
-    const { error } = await supabase.from('device_tokens').upsert(
+    const { error } = await supabase.from("device_tokens").upsert(
       {
         user_id: userId,
         token,
         environment,
         updated_at: new Date().toISOString(),
       },
-      { onConflict: 'token' },
+      { onConflict: "token" },
     );
 
     if (error !== null) {
-      this.logger.error('Failed to upsert device token', error.message);
-      throw new InternalServerErrorException('Failed to register device token');
+      this.logger.error("Failed to upsert device token", error.message);
+      throw new InternalServerErrorException("Failed to register device token");
     }
   }
 
@@ -44,15 +44,15 @@ export class DeviceTokensService {
     const supabase = this.supabaseService.getAdminClient();
 
     const { error } = await supabase
-      .from('device_tokens')
+      .from("device_tokens")
       .delete()
-      .eq('user_id', userId)
-      .eq('token', token);
+      .eq("user_id", userId)
+      .eq("token", token);
 
     if (error !== null) {
-      this.logger.error('Failed to delete device token', error.message);
+      this.logger.error("Failed to delete device token", error.message);
       throw new InternalServerErrorException(
-        'Failed to unregister device token',
+        "Failed to unregister device token",
       );
     }
   }
@@ -61,12 +61,12 @@ export class DeviceTokensService {
     const supabase = this.supabaseService.getAdminClient();
 
     const { error } = await supabase
-      .from('device_tokens')
+      .from("device_tokens")
       .delete()
-      .eq('token', token);
+      .eq("token", token);
 
     if (error !== null) {
-      this.logger.error('Failed to delete stale device token', error.message);
+      this.logger.error("Failed to delete stale device token", error.message);
     }
   }
 
@@ -74,13 +74,13 @@ export class DeviceTokensService {
     const supabase = this.supabaseService.getAdminClient();
 
     const { data, error } = await supabase
-      .from('device_tokens')
-      .select('token, environment')
-      .eq('user_id', userId);
+      .from("device_tokens")
+      .select("token, environment")
+      .eq("user_id", userId);
 
     if (error !== null) {
       this.logger.error(
-        'Failed to fetch device tokens for user',
+        "Failed to fetch device tokens for user",
         error.message,
       );
       return [];
@@ -97,12 +97,12 @@ export class DeviceTokensService {
 
     for (;;) {
       const { data, error } = await supabase
-        .from('device_tokens')
-        .select('user_id')
+        .from("device_tokens")
+        .select("user_id")
         .range(offset, offset + PAGE_SIZE - 1);
 
       if (error !== null) {
-        this.logger.error('Failed to fetch all user IDs', error.message);
+        this.logger.error("Failed to fetch all user IDs", error.message);
         break;
       }
 

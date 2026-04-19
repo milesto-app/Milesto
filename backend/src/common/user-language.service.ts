@@ -1,8 +1,8 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger } from "@nestjs/common";
 
-import { SupabaseService } from '../supabase/supabase.service.js';
+import { SupabaseService } from "../supabase/supabase.service.js";
 
-const DEFAULT_LANGUAGE = 'en';
+const DEFAULT_LANGUAGE = "en";
 
 @Injectable()
 export class UserLanguageService {
@@ -13,9 +13,9 @@ export class UserLanguageService {
   public async getLanguage(userId: string): Promise<string> {
     const supabase = this.supabaseService.getAdminClient();
     const { data, error } = await supabase
-      .from('profiles')
-      .select('language')
-      .eq('id', userId)
+      .from("profiles")
+      .select("language")
+      .eq("id", userId)
       .single();
 
     if (error !== null) {

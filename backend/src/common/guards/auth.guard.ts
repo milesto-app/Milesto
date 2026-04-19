@@ -3,10 +3,10 @@ import {
   ExecutionContext,
   Injectable,
   UnauthorizedException,
-} from '@nestjs/common';
-import type { Request } from 'express';
+} from "@nestjs/common";
+import type { Request } from "express";
 
-import { SupabaseService } from '../../supabase/supabase.service.js';
+import { SupabaseService } from "../../supabase/supabase.service.js";
 
 const BEARER_PREFIX_LENGTH = 7;
 
@@ -18,9 +18,9 @@ export class AuthGuard implements CanActivate {
     const request = context.switchToHttp().getRequest<Request>();
     const authHeader = request.headers.authorization;
 
-    if (authHeader === undefined || !authHeader.startsWith('Bearer ')) {
+    if (authHeader === undefined || !authHeader.startsWith("Bearer ")) {
       throw new UnauthorizedException(
-        'Missing or invalid authorization header',
+        "Missing or invalid authorization header",
       );
     }
 
@@ -33,10 +33,10 @@ export class AuthGuard implements CanActivate {
     } = await client.auth.getUser();
 
     if (error !== null || user === null) {
-      throw new UnauthorizedException('Invalid or expired token');
+      throw new UnauthorizedException("Invalid or expired token");
     }
 
-    (request as unknown as Record<string, unknown>)['user'] = user;
+    (request as unknown as Record<string, unknown>)["user"] = user;
     return true;
   }
 }

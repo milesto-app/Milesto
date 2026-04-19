@@ -1,7 +1,7 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger } from "@nestjs/common";
 
-import { SupabaseService } from '../supabase/supabase.service.js';
-import type { WeekData, WeeklyPlan } from './types/weekly-plan.types.js';
+import { SupabaseService } from "../supabase/supabase.service.js";
+import type { WeekData, WeeklyPlan } from "./types/weekly-plan.types.js";
 
 @Injectable()
 export class WeeklyPlanQueryService {
@@ -34,17 +34,17 @@ export class WeeklyPlanQueryService {
   }
 
   private async queryTaskData(
-    supabase: ReturnType<SupabaseService['getAdminClient']>,
+    supabase: ReturnType<SupabaseService["getAdminClient"]>,
     goalId: string,
     weeklyPlanId: string,
     callback: (total: number, completed: number) => number,
   ): Promise<number> {
     try {
       const { data, error } = await supabase
-        .from('weekly_tasks')
-        .select('is_completed')
-        .eq('goal_id', goalId)
-        .eq('weekly_plan_id', weeklyPlanId);
+        .from("weekly_tasks")
+        .select("is_completed")
+        .eq("goal_id", goalId)
+        .eq("weekly_plan_id", weeklyPlanId);
       if (error) {
         this.logger.debug(`weekly_tasks query skipped: ${error.message}`);
         return callback(0, 0);
@@ -65,18 +65,18 @@ export class WeeklyPlanQueryService {
   }
 
   private async queryDebriefData(
-    supabase: ReturnType<SupabaseService['getAdminClient']>,
+    supabase: ReturnType<SupabaseService["getAdminClient"]>,
     goalId: string,
     weeklyPlanId: string,
     debriefNotes: string[],
   ): Promise<void> {
     try {
       const { data, error } = await supabase
-        .from('debriefs')
-        .select('note')
-        .eq('goal_id', goalId)
-        .eq('weekly_plan_id', weeklyPlanId)
-        .not('note', 'is', null);
+        .from("debriefs")
+        .select("note")
+        .eq("goal_id", goalId)
+        .eq("weekly_plan_id", weeklyPlanId)
+        .not("note", "is", null);
       if (error) {
         this.logger.debug(`debriefs query skipped: ${error.message}`);
         return;

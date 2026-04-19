@@ -1,13 +1,13 @@
-import type { Logger } from '@nestjs/common';
+import type { Logger } from "@nestjs/common";
 
-import type { AiService } from '../ai/ai.service.js';
-import { config } from '../config/app.config.js';
+import type { AiService } from "../ai/ai.service.js";
+import { config } from "../config/app.config.js";
 import type {
   GenerationType,
   MilestoneQualityScores,
   WeeklyPlanQualityScores,
   WeeklyTaskQualityScores,
-} from './types/quality.types.js';
+} from "./types/quality.types.js";
 
 const MIN_SCORE = 0;
 const MAX_SCORE = 5;
@@ -29,7 +29,7 @@ export interface WarningParams {
 
 export function checkWarnings(params: WarningParams): void {
   for (const [dimension, value] of Object.entries(params.scores)) {
-    if (dimension === 'composite') {
+    if (dimension === "composite") {
       continue;
     }
     if ((value as number) < LOW_SCORE_THRESHOLD) {

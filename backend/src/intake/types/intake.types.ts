@@ -1,4 +1,4 @@
-import type { PriorBatchContext } from '../../config/questions.config.js';
+import type { PriorBatchContext } from "../../config/questions.config.js";
 
 export interface BatchAnsweredEvent {
   goal_id: string;

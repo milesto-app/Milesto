@@ -1,10 +1,10 @@
-import { buildLanguageBlock } from '../../common/language-prompt.helper.js';
-import type { AssembledContext } from '../types/context.types.js';
-import type { Milestone } from '../types/roadmap.types.js';
+import { buildLanguageBlock } from "../../common/language-prompt.helper.js";
+import type { AssembledContext } from "../types/context.types.js";
+import type { Milestone } from "../types/roadmap.types.js";
 import type {
   GenerationContext,
   WeekData,
-} from '../types/weekly-plan.types.js';
+} from "../types/weekly-plan.types.js";
 
 interface WeeklyPlanPromptParams {
   context: AssembledContext;
@@ -46,7 +46,7 @@ export function buildWeeklyPlanUserPrompt(
   sections.push(`## Week Info\nWeek Number: ${String(params.weekNumber)}`);
   appendSummaryContextSections(sections, params.generationContext);
   appendRetrievedContextSections(sections, params.context);
-  return sections.join('\n\n');
+  return sections.join("\n\n");
 }
 
 function buildMilestoneSection(params: WeeklyPlanPromptParams): string {
@@ -68,7 +68,7 @@ function appendSummaryContextSections(
     sections.push(`## Last Week Summary
 Completion Rate: ${String(ws.completion_rate)}%
 Tasks Completed: ${String(ws.tasks_completed)}/${String(ws.tasks_total)}
-${ws.narrative !== undefined ? `Narrative: ${ws.narrative}` : ''}`);
+${ws.narrative !== undefined ? `Narrative: ${ws.narrative}` : ""}`);
   }
 
   if (
@@ -122,7 +122,7 @@ export function buildWeeklySummaryNarrativeUserPrompt(
 Completion Rate: ${String(completionRate)}%
 Tasks Completed: ${String(weekData.tasksCompleted)}/${String(weekData.tasksTotal)}
 Debrief Notes:
-${weekData.debriefNotes.map((note, i) => `${String(i + 1)}. ${note}`).join('\n')}`;
+${weekData.debriefNotes.map((note, i) => `${String(i + 1)}. ${note}`).join("\n")}`;
 }
 
 export function buildMonthlySummaryNarrativeSystemPrompt(
@@ -141,5 +141,5 @@ export function buildMonthlySummaryNarrativeUserPrompt(
 Average Completion Rate: ${String(params.avgCompletionRate)}%
 Total Tasks: ${String(params.totalCompleted)}/${String(params.totalTasks)}
 Weekly Narratives:
-${params.weeklyNarratives.map((n, i) => `Week ${String(i + 1)}: ${n}`).join('\n')}`;
+${params.weeklyNarratives.map((n, i) => `Week ${String(i + 1)}: ${n}`).join("\n")}`;
 }

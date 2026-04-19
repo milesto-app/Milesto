@@ -1,29 +1,29 @@
-import { Controller, Post, UseGuards } from '@nestjs/common';
+import { Controller, Post, UseGuards } from "@nestjs/common";
 import {
   ApiBearerAuth,
   ApiOperation,
   ApiResponse,
   ApiTags,
-} from '@nestjs/swagger';
+} from "@nestjs/swagger";
 
-import { AuthGuard } from '../common/guards/auth.guard.js';
-import { AdminGuard } from '../notifications/guards/admin.guard.js';
-import { IntakeReembedService } from './intake-reembed.service.js';
-import type { ReembedResult } from './types/intake.types.js';
+import { AuthGuard } from "../common/guards/auth.guard.js";
+import { AdminGuard } from "../notifications/guards/admin.guard.js";
+import { IntakeReembedService } from "./intake-reembed.service.js";
+import type { ReembedResult } from "./types/intake.types.js";
 
-@ApiTags('Admin')
+@ApiTags("Admin")
 @ApiBearerAuth()
-@Controller('admin')
+@Controller("admin")
 @UseGuards(AuthGuard, AdminGuard)
 export class AdminController {
   constructor(private readonly reembedService: IntakeReembedService) {}
 
-  @Post('reembed-missing')
+  @Post("reembed-missing")
   @ApiOperation({
-    summary: 'Retry embedding for all entries that failed to embed',
+    summary: "Retry embedding for all entries that failed to embed",
   })
-  @ApiResponse({ status: 201, description: 'Re-embedding results returned' })
-  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 201, description: "Re-embedding results returned" })
+  @ApiResponse({ status: 401, description: "Unauthorized" })
   public async reembedMissing(): Promise<ReembedResult> {
     return this.reembedService.reembedMissing();
   }

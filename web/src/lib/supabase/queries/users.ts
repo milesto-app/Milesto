@@ -114,10 +114,7 @@ export async function getUserDetail(
     const goalIds = goals.map((g) => g.id);
 
     const [milestonesRes, tasksRes] = await Promise.all([
-      supabase
-        .from("milestones")
-        .select("goal_id")
-        .in("goal_id", goalIds),
+      supabase.from("milestones").select("goal_id").in("goal_id", goalIds),
       supabase
         .from("weekly_tasks")
         .select("goal_id, is_completed")

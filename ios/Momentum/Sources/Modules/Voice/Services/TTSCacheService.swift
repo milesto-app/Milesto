@@ -1,7 +1,7 @@
 import CryptoKit
 import Foundation
 
-enum TTSLanguage: String, Sendable {
+enum TTSLanguage: String {
     case en
     case fr
 
@@ -21,7 +21,7 @@ actor TTSCacheService {
         let base = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first!
         let dir = base.appendingPathComponent("TTSCache", isDirectory: true)
         try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
-        self.cacheDir = dir
+        cacheDir = dir
     }
 
     func cachedAudio(text: String, coachId: Int, language: TTSLanguage) -> Data? {

@@ -1,10 +1,10 @@
-import { BadRequestException } from '@nestjs/common';
+import { BadRequestException } from "@nestjs/common";
 
 import {
   DEFAULT_SCALE_MAX,
   DEFAULT_SCALE_MIN,
   SINGLE_CHOICE_OPTION_COUNT,
-} from './constants/intake.constants.js';
+} from "./constants/intake.constants.js";
 
 interface AnswerInput {
   question_id: string;
@@ -29,9 +29,9 @@ function validateTextAnswer(
   answer: AnswerInput,
   config: QuestionConfig | null,
 ): void {
-  if (answer.answer_text === undefined || answer.answer_text.trim() === '') {
+  if (answer.answer_text === undefined || answer.answer_text.trim() === "") {
     throw new BadRequestException(
-      'Text question requires a non-empty answer_text',
+      "Text question requires a non-empty answer_text",
     );
   }
   validateDateFormat(answer.answer_text, config);
@@ -40,18 +40,18 @@ function validateTextAnswer(
     answer.selected_options !== undefined
   ) {
     throw new BadRequestException(
-      'Text question must not have answer_numeric or selected_options',
+      "Text question must not have answer_numeric or selected_options",
     );
   }
 }
 
 function validateDateFormat(text: string, config: QuestionConfig | null): void {
-  if (config?.format !== 'date') {
+  if (config?.format !== "date") {
     return;
   }
   const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
   if (!dateRegex.test(text) || isNaN(new Date(`${text}T00:00:00Z`).getTime())) {
-    throw new BadRequestException('Invalid date format. Expected YYYY-MM-DD.');
+    throw new BadRequestException("Invalid date format. Expected YYYY-MM-DD.");
   }
 }
 
@@ -60,7 +60,7 @@ function validateScaleAnswer(
   config: QuestionConfig | null,
 ): void {
   if (answer.answer_numeric === undefined) {
-    throw new BadRequestException('Scale question requires answer_numeric');
+    throw new BadRequestException("Scale question requires answer_numeric");
   }
   validateScaleRange(answer.answer_numeric, config);
   if (
@@ -68,7 +68,7 @@ function validateScaleAnswer(
     answer.selected_options !== undefined
   ) {
     throw new BadRequestException(
-      'Scale question must not have answer_text or selected_options',
+      "Scale question must not have answer_text or selected_options",
     );
   }
 }
@@ -96,7 +96,7 @@ function validateSingleChoiceAnswer(
     answer.selected_options.length !== SINGLE_CHOICE_OPTION_COUNT
   ) {
     throw new BadRequestException(
-      'Single choice question requires exactly one selected option',
+      "Single choice question requires exactly one selected option",
     );
   }
   const selected = answer.selected_options[0];
@@ -105,7 +105,7 @@ function validateSingleChoiceAnswer(
   }
   if (answer.answer_text !== undefined || answer.answer_numeric !== undefined) {
     throw new BadRequestException(
-      'Single choice question must not have answer_text or answer_numeric',
+      "Single choice question must not have answer_text or answer_numeric",
     );
   }
 }
@@ -120,7 +120,7 @@ function validateMultipleChoiceAnswer(
     answer.selected_options.length === 0
   ) {
     throw new BadRequestException(
-      'Multiple choice question requires at least one selected option',
+      "Multiple choice question requires at least one selected option",
     );
   }
   for (const opt of answer.selected_options) {
@@ -130,7 +130,7 @@ function validateMultipleChoiceAnswer(
   }
   if (answer.answer_text !== undefined || answer.answer_numeric !== undefined) {
     throw new BadRequestException(
-      'Multiple choice question must not have answer_text or answer_numeric',
+      "Multiple choice question must not have answer_text or answer_numeric",
     );
   }
 }
@@ -167,7 +167,7 @@ export function validateAnswerSet(
   }
   if (seen.size !== questionMap.size) {
     throw new BadRequestException(
-      'Every batch question must be answered exactly once',
+      "Every batch question must be answered exactly once",
     );
   }
 }
@@ -177,16 +177,16 @@ export function validateAnswer(
   question: QuestionInput,
 ): void {
   switch (question.question_type) {
-    case 'text':
+    case "text":
       validateTextAnswer(answer, question.config);
       break;
-    case 'scale':
+    case "scale":
       validateScaleAnswer(answer, question.config);
       break;
-    case 'single_choice':
+    case "single_choice":
       validateSingleChoiceAnswer(answer, question.config);
       break;
-    case 'multiple_choice':
+    case "multiple_choice":
       validateMultipleChoiceAnswer(answer, question.config);
       break;
     default:

@@ -1,9 +1,9 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger } from "@nestjs/common";
 
-import { SupabaseService } from '../supabase/supabase.service.js';
-import type { ProfileResult } from './types/intake.types.js';
+import { SupabaseService } from "../supabase/supabase.service.js";
+import type { ProfileResult } from "./types/intake.types.js";
 
-const FAILED_STATUS = 'profile_generation_failed';
+const FAILED_STATUS = "profile_generation_failed";
 
 @Injectable()
 export class IntakeProfileStoreService {
@@ -14,10 +14,10 @@ export class IntakeProfileStoreService {
   public async markFailure(goalId: string): Promise<ProfileResult> {
     const client = this.supabaseService.getAdminClient();
     const { error } = await client
-      .from('goals')
+      .from("goals")
       .update({ status: FAILED_STATUS, updated_at: new Date().toISOString() })
-      .eq('id', goalId)
-      .is('deleted_at', null);
+      .eq("id", goalId)
+      .is("deleted_at", null);
     if (error !== null) {
       this.logger.error(
         `Failed to update goal ${goalId} to ${FAILED_STATUS}: ${error.message}`,
@@ -29,10 +29,10 @@ export class IntakeProfileStoreService {
   public async updateGoalStatus(goalId: string, status: string): Promise<void> {
     const client = this.supabaseService.getAdminClient();
     const { error } = await client
-      .from('goals')
+      .from("goals")
       .update({ status, updated_at: new Date().toISOString() })
-      .eq('id', goalId)
-      .is('deleted_at', null);
+      .eq("id", goalId)
+      .is("deleted_at", null);
     if (error !== null) {
       this.logger.error(
         `Failed to update goal ${goalId} status to ${status}: ${error.message}`,

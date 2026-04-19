@@ -1,17 +1,17 @@
-import { Transform } from 'class-transformer';
+import { Transform } from "class-transformer";
 import {
   IsNotEmpty,
   IsOptional,
   IsString,
   IsUUID,
   MaxLength,
-} from 'class-validator';
+} from "class-validator";
 
 const MAX_MESSAGE_LENGTH = 2000;
 
 export class SendMessageDto {
   @Transform(({ value }): string | undefined =>
-    typeof value === 'string' ? value : undefined,
+    typeof value === "string" ? value : undefined,
   )
   @IsUUID()
   @IsOptional()

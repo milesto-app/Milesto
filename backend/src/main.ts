@@ -1,17 +1,17 @@
-import { ValidationPipe } from '@nestjs/common';
-import { NestFactory } from '@nestjs/core';
-import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { ValidationPipe } from "@nestjs/common";
+import { NestFactory } from "@nestjs/core";
+import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
 
-import { AppModule } from './app.module.js';
+import { AppModule } from "./app.module.js";
 
 const DEFAULT_PORT = 3000;
 
 async function bootstrap(): Promise<void> {
   const app = await NestFactory.create(AppModule);
 
-  app.setGlobalPrefix('api');
+  app.setGlobalPrefix("api");
   app.enableCors({
-    origin: process.env.CORS_ORIGIN?.split(',') ?? [],
+    origin: process.env.CORS_ORIGIN?.split(",") ?? [],
   });
   app.useGlobalPipes(
     new ValidationPipe({
@@ -22,14 +22,14 @@ async function bootstrap(): Promise<void> {
   );
 
   const config = new DocumentBuilder()
-    .setTitle('Momentum API')
-    .setDescription('AI-powered personal coaching app API')
-    .setVersion('1.0')
+    .setTitle("Momentum API")
+    .setDescription("AI-powered personal coaching app API")
+    .setVersion("1.0")
     .addBearerAuth()
     .build();
   const document = SwaggerModule.createDocument(app, config);
 
-  SwaggerModule.setup('docs', app, document);
+  SwaggerModule.setup("docs", app, document);
 
   await app.listen(process.env.PORT ?? DEFAULT_PORT);
 }

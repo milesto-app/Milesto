@@ -11,10 +11,7 @@ export type HealthResult = {
 export async function checkHealth(): Promise<HealthResult> {
   await requireAdmin();
 
-  const [backend, supa] = await Promise.all([
-    checkBackend(),
-    checkSupabase(),
-  ]);
+  const [backend, supa] = await Promise.all([checkBackend(), checkSupabase()]);
 
   return { backend, supabase: supa };
 }
