@@ -1,7 +1,7 @@
 import type {
   MonthlySummary,
   WeeklySummary,
-} from './types/weekly-plan.types.js';
+} from "./types/weekly-plan.types.js";
 
 export function formatSummaryForEmbedding(
   summary: WeeklySummary,
@@ -15,7 +15,7 @@ export function formatSummaryForEmbedding(
   if (summary.narrative !== undefined && summary.narrative.length > 0) {
     lines.push(summary.narrative);
   }
-  return lines.join('\n');
+  return lines.join("\n");
 }
 
 export function formatMonthlySummaryForEmbedding(
@@ -30,5 +30,5 @@ export function formatMonthlySummaryForEmbedding(
   if (summary.narrative !== undefined && summary.narrative.length > 0) {
     lines.push(summary.narrative);
   }
-  return lines.join('\n');
+  return lines.join("\n");
 }

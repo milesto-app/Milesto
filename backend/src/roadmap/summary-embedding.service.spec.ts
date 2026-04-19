@@ -1,11 +1,11 @@
-import type { TestingModule } from '@nestjs/testing';
-import { Test } from '@nestjs/testing';
+import type { TestingModule } from "@nestjs/testing";
+import { Test } from "@nestjs/testing";
 
-import { AiService } from '../ai/ai.service.js';
-import { SupabaseService } from '../supabase/supabase.service.js';
-import { SummaryEmbeddingService } from './summary-embedding.service.js';
+import { AiService } from "../ai/ai.service.js";
+import { SupabaseService } from "../supabase/supabase.service.js";
+import { SummaryEmbeddingService } from "./summary-embedding.service.js";
 
-describe('SummaryEmbeddingService', () => {
+describe("SummaryEmbeddingService", () => {
   let service: SummaryEmbeddingService;
   let mockAiService: { generateEmbedding: jest.Mock };
   let mockSupabaseService: { getAdminClient: jest.Mock };
@@ -25,8 +25,8 @@ describe('SummaryEmbeddingService', () => {
     service = module.get<SummaryEmbeddingService>(SummaryEmbeddingService);
   });
 
-  describe('handleDebriefSubmitted', () => {
-    it('should generate embedding and store it', async () => {
+  describe("handleDebriefSubmitted", () => {
+    it("should generate embedding and store it", async () => {
       const mockEmbedding = [0.1, 0.2, 0.3];
       mockAiService.generateEmbedding.mockResolvedValue(mockEmbedding);
       mockSupabaseService.getAdminClient.mockReturnValue({
@@ -36,35 +36,35 @@ describe('SummaryEmbeddingService', () => {
       });
 
       await service.handleDebriefSubmitted({
-        debriefId: 'debrief-uuid',
-        goalId: 'goal-uuid',
-        userId: 'user-uuid',
-        note: 'Some reflection',
+        debriefId: "debrief-uuid",
+        goalId: "goal-uuid",
+        userId: "user-uuid",
+        note: "Some reflection",
       });
 
       expect(mockAiService.generateEmbedding).toHaveBeenCalledWith(
-        'Some reflection',
+        "Some reflection",
       );
     });
 
-    it('should handle embedding failure gracefully', async () => {
+    it("should handle embedding failure gracefully", async () => {
       mockAiService.generateEmbedding.mockRejectedValue(
-        new Error('API failure'),
+        new Error("API failure"),
       );
 
       await expect(
         service.handleDebriefSubmitted({
-          debriefId: 'debrief-uuid',
-          goalId: 'goal-uuid',
-          userId: 'user-uuid',
-          note: 'Some reflection',
+          debriefId: "debrief-uuid",
+          goalId: "goal-uuid",
+          userId: "user-uuid",
+          note: "Some reflection",
         }),
       ).resolves.not.toThrow();
     });
   });
 
-  describe('handleSummaryGenerated', () => {
-    it('should generate embedding for summary content', async () => {
+  describe("handleSummaryGenerated", () => {
+    it("should generate embedding for summary content", async () => {
       const mockEmbedding = [0.1, 0.2, 0.3];
       mockAiService.generateEmbedding.mockResolvedValue(mockEmbedding);
       mockSupabaseService.getAdminClient.mockReturnValue({
@@ -74,19 +74,19 @@ describe('SummaryEmbeddingService', () => {
       });
 
       await service.handleSummaryGenerated({
-        planId: 'plan-uuid',
-        goalId: 'goal-uuid',
-        userId: 'user-uuid',
+        planId: "plan-uuid",
+        goalId: "goal-uuid",
+        userId: "user-uuid",
         summary: {
           completion_rate: 80,
           tasks_completed: 4,
           tasks_total: 5,
         },
-        contentText: 'Weekly summary text',
+        contentText: "Weekly summary text",
       });
 
       expect(mockAiService.generateEmbedding).toHaveBeenCalledWith(
-        'Weekly summary text',
+        "Weekly summary text",
       );
     });
   });

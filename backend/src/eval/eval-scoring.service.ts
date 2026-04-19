@@ -1,8 +1,8 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger } from "@nestjs/common";
 
-import { AiService } from '../ai/ai.service.js';
-import { config } from '../config/app.config.js';
-import type { PersonaScores } from './personas.js';
+import { AiService } from "../ai/ai.service.js";
+import { config } from "../config/app.config.js";
+import type { PersonaScores } from "./personas.js";
 
 const DEFAULT_JUDGE_RETRIES = 2;
 const COMPOSITE_TOLERANCE = 0.05;
@@ -43,7 +43,7 @@ export class EvalScoringService {
         }
       }
     }
-    throw new Error('Unreachable');
+    throw new Error("Unreachable");
   }
 
   public validateAndFixComposite(
@@ -89,9 +89,9 @@ export class EvalScoringService {
 
     for (const field of scoreFields) {
       const val = scores[field];
-      if (typeof val === 'number') {
+      if (typeof val === "number") {
         values.push(val);
-      } else if (typeof val === 'object' && 'score' in val) {
+      } else if (typeof val === "object" && "score" in val) {
         values.push((val as { score: number }).score);
       }
     }

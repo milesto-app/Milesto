@@ -24,16 +24,19 @@ export async function POST(request: Request) {
   const timeout = setTimeout(() => controller.abort(), 10000);
 
   try {
-    const res = await fetch(`${process.env.BACKEND_URL}/api/notifications/send`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${session.access_token}`,
+    const res = await fetch(
+      `${process.env.BACKEND_URL}/api/notifications/send`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify(body),
+        signal: controller.signal,
+        cache: "no-store",
       },
-      body: JSON.stringify(body),
-      signal: controller.signal,
-      cache: "no-store",
-    });
+    );
     clearTimeout(timeout);
 
     const data = await res.json();

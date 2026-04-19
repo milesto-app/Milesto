@@ -3,30 +3,30 @@ import {
   Inject,
   Injectable,
   Logger,
-} from '@nestjs/common';
-import { EventEmitter2 } from '@nestjs/event-emitter';
+} from "@nestjs/common";
+import { EventEmitter2 } from "@nestjs/event-emitter";
 
-import { UserLanguageService } from '../common/user-language.service.js';
-import { config } from '../config/app.config.js';
-import { GoalService } from '../goal/goal.service.js';
-import type { Json } from '../supabase/database.types.js';
-import { SupabaseService } from '../supabase/supabase.service.js';
-import { UsageService } from '../usage/usage.service.js';
-import { GenerationType } from '../usage/usage.types.js';
-import { IntakeContextService } from './intake-context.service.js';
-import { buildProfileData } from './intake-profile-data.js';
-import { IntakeProfileStoreService } from './intake-profile-store.service.js';
-import type { GoalProfile } from './intake-prompt.service.js';
-import { IntakePromptService } from './intake-prompt.service.js';
-import { IntakeQualityService } from './intake-quality.service.js';
+import { UserLanguageService } from "../common/user-language.service.js";
+import { config } from "../config/app.config.js";
+import { GoalService } from "../goal/goal.service.js";
+import type { Json } from "../supabase/database.types.js";
+import { SupabaseService } from "../supabase/supabase.service.js";
+import { UsageService } from "../usage/usage.service.js";
+import { GenerationType } from "../usage/usage.types.js";
+import { IntakeContextService } from "./intake-context.service.js";
+import { buildProfileData } from "./intake-profile-data.js";
+import { IntakeProfileStoreService } from "./intake-profile-store.service.js";
+import type { GoalProfile } from "./intake-prompt.service.js";
+import { IntakePromptService } from "./intake-prompt.service.js";
+import { IntakeQualityService } from "./intake-quality.service.js";
 import type {
   ProfileGeneratedEvent,
   ProfileGenParams,
   ProfileResult,
   StoreProfileParams,
-} from './types/intake.types.js';
+} from "./types/intake.types.js";
 
-const FAILED_STATUS = 'profile_generation_failed';
+const FAILED_STATUS = "profile_generation_failed";
 
 @Injectable()
 export class IntakeProfileService {
@@ -63,7 +63,7 @@ export class IntakeProfileService {
     const goal = await this.goalService.findOne(userId, goalId);
     if (goal.status !== FAILED_STATUS) {
       throw new BadRequestException(
-        'Profile retry is only available for goals with failed profile generation',
+        "Profile retry is only available for goals with failed profile generation",
       );
     }
     if (goal.profile_generation_attempts >= config.intake.maxProfileRetries) {
@@ -93,7 +93,7 @@ export class IntakeProfileService {
     try {
       await this.profileStore.updateGoalStatus(
         params.goalId,
-        'profile_generating',
+        "profile_generating",
       );
       const priorBatches = await this.contextService.loadPriorBatchContext(
         params.goalId,
@@ -138,7 +138,7 @@ export class IntakeProfileService {
       return profile;
     }
     this.logger.warn(
-      `Profile validation failed for goal ${params.goalId}: ${validation.errors.join(', ')}. Retrying...`,
+      `Profile validation failed for goal ${params.goalId}: ${validation.errors.join(", ")}. Retrying...`,
     );
     return this.callAiWithValidation(params);
   }
@@ -155,7 +155,7 @@ export class IntakeProfileService {
       const validation = this.qualityService.validateGoalProfile(profile);
       if (!validation.valid) {
         this.logger.error(
-          `Profile validation failed after retry for goal ${params.goalId}: ${validation.errors.join(', ')}`,
+          `Profile validation failed after retry for goal ${params.goalId}: ${validation.errors.join(", ")}`,
         );
         await this.profileStore.markFailure(params.goalId);
         return null;
@@ -177,26 +177,26 @@ export class IntakeProfileService {
   ): Promise<ProfileResult> {
     const client = this.supabaseService.getAdminClient();
     const { error } = await client
-      .from('goals')
+      .from("goals")
       .update({
         profile_data: buildProfileData(profile) as Json,
         narrative_summary: profile.narrative_summary,
         profile_created_at: new Date().toISOString(),
       })
-      .eq('id', goalId);
+      .eq("id", goalId);
     if (error !== null) {
       this.logger.error(
         `Failed to store profile for goal ${goalId}: ${error.message}`,
       );
       return this.profileStore.markFailure(goalId);
     }
-    await this.profileStore.updateGoalStatus(goalId, 'intake_completed');
+    await this.profileStore.updateGoalStatus(goalId, "intake_completed");
     this.logger.log(`Profile generated and stored for goal ${goalId}`);
-    this.eventEmitter.emit('profile.generated', {
+    this.eventEmitter.emit("profile.generated", {
       goal_id: goalId,
       profile_id: goalId,
       user_id: userId,
     } satisfies ProfileGeneratedEvent);
-    return { profile_id: goalId, profile_status: 'intake_completed' };
+    return { profile_id: goalId, profile_status: "intake_completed" };
   }
 }

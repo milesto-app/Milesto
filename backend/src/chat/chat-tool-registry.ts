@@ -1,11 +1,11 @@
 import {
   buildDebriefTools,
   buildRoadmapTools,
-} from './chat-debrief-registry.js';
-import type { ChatDebriefToolsService } from './chat-debrief-tools.service.js';
-import type { ChatRoadmapToolsService } from './chat-roadmap-tools.service.js';
-import type { ChatToolsService } from './chat-tools.service.js';
-import type { ChatToolEntry, ChatToolExecutor } from './types/chat.types.js';
+} from "./chat-debrief-registry.js";
+import type { ChatDebriefToolsService } from "./chat-debrief-tools.service.js";
+import type { ChatRoadmapToolsService } from "./chat-roadmap-tools.service.js";
+import type { ChatToolsService } from "./chat-tools.service.js";
+import type { ChatToolEntry, ChatToolExecutor } from "./types/chat.types.js";
 
 export interface ToolRegistryDeps {
   toolsService: ChatToolsService;
@@ -23,12 +23,12 @@ interface ToolConfig {
 function createToolEntry(config: ToolConfig): ChatToolEntry {
   return {
     definition: {
-      type: 'function' as const,
+      type: "function" as const,
       function: {
         name: config.name,
         description: config.description,
         parameters: {
-          type: 'object' as const,
+          type: "object" as const,
           properties: config.parameters?.properties ?? {},
           required: config.parameters?.required ?? [],
         },
@@ -61,14 +61,14 @@ export function buildToolRegistry(
 function buildTaskTools(toolsService: ChatToolsService): ToolConfig[] {
   return [
     {
-      name: 'getWeeklyTasks',
+      name: "getWeeklyTasks",
       description:
         "Fetch this week's tasks. Returns array of {id, title, description, is_completed, difficulty_rating}.",
       executor: (async (_args, ctx) =>
         toolsService.getWeeklyTasks(ctx)) satisfies ChatToolExecutor,
     },
     {
-      name: 'toggleTaskCompletion',
+      name: "toggleTaskCompletion",
       description: "Toggle a weekly task's completion status.",
       executor: (async (args, ctx) =>
         toolsService.toggleTaskCompletion(
@@ -78,15 +78,15 @@ function buildTaskTools(toolsService: ChatToolsService): ToolConfig[] {
       parameters: {
         properties: {
           taskId: {
-            type: 'string',
-            description: 'UUID of the weekly task',
+            type: "string",
+            description: "UUID of the weekly task",
           },
           isCompleted: {
-            type: 'boolean',
-            description: 'New completion status',
+            type: "boolean",
+            description: "New completion status",
           },
         },
-        required: ['taskId', 'isCompleted'],
+        required: ["taskId", "isCompleted"],
       },
     },
   ];
@@ -95,37 +95,37 @@ function buildTaskTools(toolsService: ChatToolsService): ToolConfig[] {
 function buildMemoryTools(toolsService: ChatToolsService): ToolConfig[] {
   return [
     {
-      name: 'editMemory',
+      name: "editMemory",
       description:
-        'Replace the stored coach memory with new content. Expects the complete updated text.',
+        "Replace the stored coach memory with new content. Expects the complete updated text.",
       executor: (async (args, ctx) =>
         toolsService.editMemory(args, ctx)) satisfies ChatToolExecutor,
       parameters: {
         properties: {
           content: {
-            type: 'string',
+            type: "string",
             description:
-              'The full updated memory content to save, replacing any previous memory.',
+              "The full updated memory content to save, replacing any previous memory.",
           },
         },
-        required: ['content'],
+        required: ["content"],
       },
     },
     {
-      name: 'saveInsight',
+      name: "saveInsight",
       description:
-        'Save a single atomic observation about the user. Duplicates are auto-detected.',
+        "Save a single atomic observation about the user. Duplicates are auto-detected.",
       executor: (async (args, ctx) =>
         toolsService.saveInsight(args, ctx)) satisfies ChatToolExecutor,
       parameters: {
         properties: {
           insight: {
-            type: 'string',
+            type: "string",
             description:
-              'A single atomic insight about the user. Be specific and concise.',
+              "A single atomic insight about the user. Be specific and concise.",
           },
         },
-        required: ['insight'],
+        required: ["insight"],
       },
     },
   ];
@@ -134,9 +134,9 @@ function buildMemoryTools(toolsService: ChatToolsService): ToolConfig[] {
 function buildStatsTools(toolsService: ChatToolsService): ToolConfig[] {
   return [
     {
-      name: 'getProgressStats',
+      name: "getProgressStats",
       description:
-        'Fetch weekly progress: completed count, total count, completion rate, week number.',
+        "Fetch weekly progress: completed count, total count, completion rate, week number.",
       executor: (async (_args, ctx) =>
         toolsService.getProgressStats(ctx)) satisfies ChatToolExecutor,
     },
@@ -146,7 +146,7 @@ function buildStatsTools(toolsService: ChatToolsService): ToolConfig[] {
 function buildSearchTools(toolsService: ChatToolsService): ToolConfig[] {
   return [
     {
-      name: 'searchContext',
+      name: "searchContext",
       description:
         "Search the user's stored context (intake answers, goal profile, summaries, debrief notes, insights).",
       executor: (async (args, ctx) =>
@@ -154,18 +154,18 @@ function buildSearchTools(toolsService: ChatToolsService): ToolConfig[] {
       parameters: {
         properties: {
           query: {
-            type: 'string',
+            type: "string",
             description:
-              'The search query describing what information to find.',
+              "The search query describing what information to find.",
           },
           contentTypes: {
-            type: 'array',
-            items: { type: 'string' },
+            type: "array",
+            items: { type: "string" },
             description:
-              'Optional filter by content type: intake_answer, goal_profile, user_profile, weekly_summary, debrief_note, coach_insight.',
+              "Optional filter by content type: intake_answer, goal_profile, user_profile, weekly_summary, debrief_note, coach_insight.",
           },
         },
-        required: ['query'],
+        required: ["query"],
       },
     },
   ];

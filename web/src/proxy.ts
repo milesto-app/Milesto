@@ -5,7 +5,10 @@ import { createServerClient } from "@supabase/ssr";
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  if (pathname.startsWith("/admin/login") || pathname.startsWith("/admin/auth")) {
+  if (
+    pathname.startsWith("/admin/login") ||
+    pathname.startsWith("/admin/auth")
+  ) {
     return NextResponse.next();
   }
 

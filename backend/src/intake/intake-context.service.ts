@@ -1,7 +1,7 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger } from "@nestjs/common";
 
-import { SupabaseService } from '../supabase/supabase.service.js';
-import type { PriorBatchContext } from './intake-prompt.service.js';
+import { SupabaseService } from "../supabase/supabase.service.js";
+import type { PriorBatchContext } from "./intake-prompt.service.js";
 
 @Injectable()
 export class IntakeContextService {
@@ -15,7 +15,7 @@ export class IntakeContextService {
     const supabase = this.supabaseService.getAdminClient();
 
     const { data: priorData, error } = await supabase
-      .from('intake_batches')
+      .from("intake_batches")
       .select(
         `id, batch_number,
         intake_questions (
@@ -23,9 +23,9 @@ export class IntakeContextService {
           answer_text, answer_numeric, selected_options
         )`,
       )
-      .eq('goal_id', goalId)
-      .eq('is_answered', true)
-      .order('batch_number');
+      .eq("goal_id", goalId)
+      .eq("is_answered", true)
+      .order("batch_number");
 
     if (error !== null) {
       this.logger.error(`Failed to load prior batch context: ${error.message}`);
@@ -56,23 +56,23 @@ export class IntakeContextService {
 }
 
 function formatNumericAnswer(value: unknown): string {
-  return typeof value === 'number' ? String(value) : '[no answer]';
+  return typeof value === "number" ? String(value) : "[no answer]";
 }
 
 function formatAnswer(question: Record<string, unknown>): string {
   switch (question.question_type) {
-    case 'text': {
+    case "text": {
       const text = question.answer_text as string | null | undefined;
-      return typeof text === 'string' && text !== '' ? text : '[no answer]';
+      return typeof text === "string" && text !== "" ? text : "[no answer]";
     }
-    case 'scale':
+    case "scale":
       return formatNumericAnswer(question.answer_numeric);
-    case 'single_choice':
-    case 'multiple_choice': {
+    case "single_choice":
+    case "multiple_choice": {
       const options = question.selected_options as string[] | null | undefined;
-      return Array.isArray(options) ? options.join(', ') : '';
+      return Array.isArray(options) ? options.join(", ") : "";
     }
     default:
-      return '[unknown type]';
+      return "[unknown type]";
   }
 }

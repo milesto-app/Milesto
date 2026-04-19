@@ -1,4 +1,4 @@
-import { ArrayMinSize, IsArray, IsString } from 'class-validator';
+import { ArrayMinSize, IsArray, IsString } from "class-validator";
 
 export class GeneratedWeeklyPlan {
   @IsArray()

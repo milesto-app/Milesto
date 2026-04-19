@@ -1,6 +1,6 @@
 export function buildToolUsagePrompt(): string {
   return [
-    '<tool_usage>',
+    "<tool_usage>",
     buildReactiveTools(),
     buildProactiveTools(),
     buildDecisionFramework(),
@@ -8,8 +8,8 @@ export function buildToolUsagePrompt(): string {
     buildEditMemoryVsSaveInsight(),
     buildToolExamples(),
     buildToolRules(),
-    '</tool_usage>',
-  ].join('\n\n');
+    "</tool_usage>",
+  ].join("\n\n");
 }
 
 export function buildBoundariesPrompt(): string {

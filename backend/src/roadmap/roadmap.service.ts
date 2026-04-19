@@ -1,20 +1,20 @@
-import { BadRequestException, Injectable, Logger } from '@nestjs/common';
-import { EventEmitter2 } from '@nestjs/event-emitter';
+import { BadRequestException, Injectable, Logger } from "@nestjs/common";
+import { EventEmitter2 } from "@nestjs/event-emitter";
 
-import { UserLanguageService } from '../common/user-language.service.js';
-import { GoalService } from '../goal/goal.service.js';
-import { SupabaseService } from '../supabase/supabase.service.js';
-import { UsageService } from '../usage/usage.service.js';
-import { GenerationType } from '../usage/usage.types.js';
-import { ROADMAP_STATUS } from './constants/roadmap.constants.js';
-import { ContextPipelineService } from './context-pipeline.service.js';
-import { GenerationService } from './generation.service.js';
-import { RoadmapStorageService } from './roadmap-storage.service.js';
+import { UserLanguageService } from "../common/user-language.service.js";
+import { GoalService } from "../goal/goal.service.js";
+import { SupabaseService } from "../supabase/supabase.service.js";
+import { UsageService } from "../usage/usage.service.js";
+import { GenerationType } from "../usage/usage.types.js";
+import { ROADMAP_STATUS } from "./constants/roadmap.constants.js";
+import { ContextPipelineService } from "./context-pipeline.service.js";
+import { GenerationService } from "./generation.service.js";
+import { RoadmapStorageService } from "./roadmap-storage.service.js";
 import type {
   GoalData,
   MilestoneSummary,
   Roadmap,
-} from './types/roadmap.types.js';
+} from "./types/roadmap.types.js";
 
 @Injectable()
 export class RoadmapService {
@@ -84,9 +84,9 @@ export class RoadmapService {
         ROADMAP_STATUS.COMPLETE,
         metadata,
       );
-      await this.goal.updateStatus(goalId, 'active');
+      await this.goal.updateStatus(goalId, "active");
 
-      this.events.emit('roadmap.generated', { goalId });
+      this.events.emit("roadmap.generated", { goalId });
       this.logger.log(
         `Roadmap generated for goal ${goalId}: ${String(milestones.length)} milestones`,
       );
@@ -123,10 +123,10 @@ export class RoadmapService {
     try {
       const supabase = this.supabaseService.getAdminClient();
       const { data: profile } = await supabase
-        .from('goals')
-        .select('profile_data')
-        .eq('id', goalId)
-        .eq('user_id', userId)
+        .from("goals")
+        .select("profile_data")
+        .eq("id", goalId)
+        .eq("user_id", userId)
         .single();
       profileData =
         (profile?.profile_data as Record<string, unknown> | null | undefined) ??
@@ -154,7 +154,7 @@ export class RoadmapService {
     userId: string,
   ): Promise<GoalData> {
     const foundGoal = await this.goal.findOne(userId, goalId);
-    const GENERATION_ALLOWED_STATUSES = ['intake_completed', 'active'];
+    const GENERATION_ALLOWED_STATUSES = ["intake_completed", "active"];
     if (!GENERATION_ALLOWED_STATUSES.includes(foundGoal.status)) {
       throw new BadRequestException(
         `Goal must be in intake_completed or active status, current: ${foundGoal.status}`,

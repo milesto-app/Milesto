@@ -1,25 +1,25 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger } from "@nestjs/common";
 
-import { UserLanguageService } from '../common/user-language.service.js';
-import { UsageService } from '../usage/usage.service.js';
-import { GenerationType } from '../usage/usage.types.js';
-import { ContextPipelineService } from './context-pipeline.service.js';
-import { GenerationService } from './generation.service.js';
-import type { Milestone, Roadmap } from './types/roadmap.types.js';
+import { UserLanguageService } from "../common/user-language.service.js";
+import { UsageService } from "../usage/usage.service.js";
+import { GenerationType } from "../usage/usage.types.js";
+import { ContextPipelineService } from "./context-pipeline.service.js";
+import { GenerationService } from "./generation.service.js";
+import type { Milestone, Roadmap } from "./types/roadmap.types.js";
 import type {
   GenerateAndStoreParams,
   GenerationContext,
   MonthlySummary,
   WeekData,
   WeeklyPlan,
-} from './types/weekly-plan.types.js';
-import { WeeklyPlanDataService } from './weekly-plan-data.service.js';
+} from "./types/weekly-plan.types.js";
+import { WeeklyPlanDataService } from "./weekly-plan-data.service.js";
 import {
   formatMonthlySummaryForEmbedding,
   formatSummaryForEmbedding,
-} from './weekly-plan-format.js';
-import { WeeklyPlanQueryService } from './weekly-plan-query.service.js';
-import { WeeklyPlanStorageService } from './weekly-plan-storage.service.js';
+} from "./weekly-plan-format.js";
+import { WeeklyPlanQueryService } from "./weekly-plan-query.service.js";
+import { WeeklyPlanStorageService } from "./weekly-plan-storage.service.js";
 
 const DAYS_PER_WEEK = 7;
 

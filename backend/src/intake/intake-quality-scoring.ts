@@ -1,4 +1,4 @@
-import { QUALITY_SCORE_DIMENSIONS } from './constants/intake.constants.js';
+import { QUALITY_SCORE_DIMENSIONS } from "./constants/intake.constants.js";
 
 interface QualityScores {
   relevance: number;
@@ -20,12 +20,12 @@ export function buildQualityUserPrompt(params: QualityPromptParams): string {
   const { questions, goalDescription, batchNumber, priorQuestions } = params;
   const currentBatch = questions
     .map((q, i) => `${String(i + 1)}. [${q.question_type}] ${q.question_text}`)
-    .join('\n');
+    .join("\n");
 
   const priorSection =
     priorQuestions.length > 0
-      ? `## Prior Batch Questions\n${priorQuestions.map((q) => `- [Batch ${String(q.batch_number)}] ${q.question_text}`).join('\n')}`
-      : '## Prior Batch Questions\nNone (this is the first batch)';
+      ? `## Prior Batch Questions\n${priorQuestions.map((q) => `- [Batch ${String(q.batch_number)}] ${q.question_text}`).join("\n")}`
+      : "## Prior Batch Questions\nNone (this is the first batch)";
 
   return `## Goal Description\n${goalDescription}\n\n## Current Batch (Batch ${String(batchNumber)})\n${currentBatch}\n\n${priorSection}\n\nScore this batch.`;
 }

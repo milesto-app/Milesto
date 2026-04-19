@@ -1,10 +1,10 @@
 import type {
   ChatCompletionChunk,
   ChatCompletionMessageParam,
-} from 'openai/resources/chat/completions';
+} from "openai/resources/chat/completions";
 
-import type { ChatStreamEvent } from './types/chat.types.js';
-import type { StoredMessage } from './types/chat.types.js';
+import type { ChatStreamEvent } from "./types/chat.types.js";
+import type { StoredMessage } from "./types/chat.types.js";
 
 export interface ToolCallResult {
   id: string;
@@ -21,7 +21,7 @@ export async function consumeStream(
   stream: AsyncIterable<ChatCompletionChunk>,
   onEvent: (event: ChatStreamEvent) => void,
 ): Promise<StreamResult> {
-  let content = '';
+  let content = "";
   const toolCallMap = new Map<number, ToolCallResult>();
 
   for await (const chunk of stream) {
@@ -32,7 +32,7 @@ export async function consumeStream(
 
     if (delta.content !== undefined && delta.content !== null) {
       content += delta.content;
-      onEvent({ type: 'text_delta', delta: delta.content });
+      onEvent({ type: "text_delta", delta: delta.content });
     }
 
     if (delta.tool_calls !== undefined) {
@@ -49,9 +49,9 @@ function createToolCallEntry(
   tc: ChatCompletionChunk.Choice.Delta.ToolCall,
 ): ToolCallResult {
   return {
-    id: tc.id ?? '',
-    name: tc.function?.name ?? '',
-    arguments: tc.function?.arguments ?? '',
+    id: tc.id ?? "",
+    name: tc.function?.name ?? "",
+    arguments: tc.function?.arguments ?? "",
   };
 }
 
@@ -84,27 +84,27 @@ function accumulateToolCall(
 }
 
 function convertStoredMessage(msg: StoredMessage): ChatCompletionMessageParam {
-  if (msg.role === 'user') {
-    return { role: 'user', content: msg.content ?? '' };
+  if (msg.role === "user") {
+    return { role: "user", content: msg.content ?? "" };
   }
 
-  if (msg.role === 'tool') {
+  if (msg.role === "tool") {
     return {
-      role: 'tool',
-      tool_call_id: msg.tool_call_id ?? '',
-      content: msg.content ?? '',
+      role: "tool",
+      tool_call_id: msg.tool_call_id ?? "",
+      content: msg.content ?? "",
     };
   }
 
   if (msg.tool_calls !== null && msg.tool_calls.length > 0) {
     return {
-      role: 'assistant',
+      role: "assistant",
       content: msg.content ?? null,
       tool_calls: msg.tool_calls,
     };
   }
 
-  return { role: 'assistant', content: msg.content ?? '' };
+  return { role: "assistant", content: msg.content ?? "" };
 }
 
 export function toOpenAiMessages(
@@ -112,7 +112,7 @@ export function toOpenAiMessages(
   stored: StoredMessage[],
 ): ChatCompletionMessageParam[] {
   const messages: ChatCompletionMessageParam[] = [
-    { role: 'system', content: systemPrompt },
+    { role: "system", content: systemPrompt },
   ];
 
   for (const msg of stored) {

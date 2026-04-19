@@ -1,10 +1,10 @@
 import {
   MAX_ANSWER_LENGTH_LONG,
   MIN_ANSWER_LENGTH_SHORT,
-} from '../../intake/constants/intake.constants.js';
-import type { PriorBatchContext } from '../questions.config.js';
+} from "../../intake/constants/intake.constants.js";
+import type { PriorBatchContext } from "../questions.config.js";
 
-export { buildIntakeBatchSystemPrompt } from './intake-system-prompt.config.js';
+export { buildIntakeBatchSystemPrompt } from "./intake-system-prompt.config.js";
 
 interface BatchUserPromptParams {
   goalDescription: string;
@@ -33,60 +33,60 @@ Deepen plan-critical dimensions (current state, desired outcome, constraints) fi
 
 function buildPriorContext(priorBatches: PriorBatchContext[]): string {
   if (priorBatches.length === 0) {
-    return '';
+    return "";
   }
 
-  let context = '<prior_responses>\n';
+  let context = "<prior_responses>\n";
   for (const batch of priorBatches) {
     context += `--- Batch ${String(batch.batch_number)} ---\n`;
     for (const q of batch.questions) {
       context += formatPriorQuestion(q);
     }
   }
-  context += '</prior_responses>\n\n';
+  context += "</prior_responses>\n\n";
   return context;
 }
 
 function formatPriorQuestion(
-  q: PriorBatchContext['questions'][number],
+  q: PriorBatchContext["questions"][number],
 ): string {
   const annotation = getAnnotation(q);
   const optionsLine = getOptionsLine(q);
   return `Q: ${q.question_text} (${q.question_type})${optionsLine}\nA: ${q.answer}${annotation}\n`;
 }
 
-function getAnnotation(q: PriorBatchContext['questions'][number]): string {
+function getAnnotation(q: PriorBatchContext["questions"][number]): string {
   if (
-    q.question_type !== 'text' ||
-    q.answer === '' ||
-    q.answer === '[no answer]'
+    q.question_type !== "text" ||
+    q.answer === "" ||
+    q.answer === "[no answer]"
   ) {
-    return '';
+    return "";
   }
   if (q.answer.length > MAX_ANSWER_LENGTH_LONG) {
-    return ' [LONG ANSWER - high engagement signal]';
+    return " [LONG ANSWER - high engagement signal]";
   }
   if (q.answer.length < MIN_ANSWER_LENGTH_SHORT) {
-    return ' [SHORT ANSWER - possible avoidance signal]';
+    return " [SHORT ANSWER - possible avoidance signal]";
   }
-  return '';
+  return "";
 }
 
-function getOptionsLine(q: PriorBatchContext['questions'][number]): string {
+function getOptionsLine(q: PriorBatchContext["questions"][number]): string {
   if (
-    q.question_type !== 'single_choice' &&
-    q.question_type !== 'multiple_choice'
+    q.question_type !== "single_choice" &&
+    q.question_type !== "multiple_choice"
   ) {
-    return '';
+    return "";
   }
   if (q.config === null || q.config === undefined) {
-    return '';
+    return "";
   }
   const options = (q.config as { options?: string[] }).options;
   if (!Array.isArray(options)) {
-    return '';
+    return "";
   }
-  return `\nOptions: ${options.join(' / ')}`;
+  return `\nOptions: ${options.join(" / ")}`;
 }
 
 const MS_PER_DAY = 86_400_000;
@@ -104,13 +104,13 @@ export function buildTimelineContext(
       }
     }
   }
-  return '';
+  return "";
 }
 
 function tryBuildTimeline(
-  q: PriorBatchContext['questions'][number],
+  q: PriorBatchContext["questions"][number],
 ): string | null {
-  if (q.config?.format !== 'date') {
+  if (q.config?.format !== "date") {
     return null;
   }
 
@@ -134,11 +134,11 @@ function formatTimeRemaining(diffDays: number): string {
     return `Overdue by ${String(Math.abs(diffDays))} days`;
   }
   if (diffDays === 0) {
-    return 'Due today';
+    return "Due today";
   }
   if (diffDays < DAYS_PER_MONTH) {
     return `${String(diffDays)} days`;
   }
   const months = Math.round(diffDays / DAYS_PER_MONTH);
-  return `~${String(months)} ${months === 1 ? 'month' : 'months'} (${String(diffDays)} days)`;
+  return `~${String(months)} ${months === 1 ? "month" : "months"} (${String(diffDays)} days)`;
 }

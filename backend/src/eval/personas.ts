@@ -2,7 +2,7 @@ export type { DimensionScore, MetaJudgeResult, PersonaJudge, PersonaScores };
 export {
   ALL_PERSONA_JUDGES,
   META_JUDGE_SYSTEM_PROMPT,
-} from './judges/index.js';
+} from "./judges/index.js";
 
 interface PersonaJudge {
   name: string;

@@ -1,17 +1,17 @@
-import { Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException } from "@nestjs/common";
 
-import { COACH_BY_ID } from '../coach/coaches.config.js';
-import { UserLanguageService } from '../common/user-language.service.js';
-import { UsageService } from '../usage/usage.service.js';
-import { GenerationType } from '../usage/usage.types.js';
-import type { SynthesizeLanguage } from './dto/synthesize.dto.js';
-import type { SynthesisResult, TranscriptionResult } from './voice.types.js';
-import { VoiceSttService } from './voice-stt.service.js';
-import { VoiceTtsService } from './voice-tts.service.js';
+import { COACH_BY_ID } from "../coach/coaches.config.js";
+import { UserLanguageService } from "../common/user-language.service.js";
+import { UsageService } from "../usage/usage.service.js";
+import { GenerationType } from "../usage/usage.types.js";
+import type { SynthesizeLanguage } from "./dto/synthesize.dto.js";
+import type { SynthesisResult, TranscriptionResult } from "./voice.types.js";
+import { VoiceSttService } from "./voice-stt.service.js";
+import { VoiceTtsService } from "./voice-tts.service.js";
 
 type SupportedLanguage = SynthesizeLanguage;
 
-const FRENCH_LANGUAGE_PREFIX = 'fr';
+const FRENCH_LANGUAGE_PREFIX = "fr";
 
 @Injectable()
 export class VoiceService {
@@ -69,6 +69,6 @@ export class VoiceService {
 
   private normalizeLanguage(raw: string): SupportedLanguage {
     const prefix = raw.toLowerCase().split(/[-_]/)[0];
-    return prefix === FRENCH_LANGUAGE_PREFIX ? 'fr' : 'en';
+    return prefix === FRENCH_LANGUAGE_PREFIX ? "fr" : "en";
   }
 }

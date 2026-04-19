@@ -1,10 +1,10 @@
-const APPLE_PRODUCT_IDS = ['momentum_monthly', 'momentum_quarterly'] as const;
+const APPLE_PRODUCT_IDS = ["momentum_monthly", "momentum_quarterly"] as const;
 
-const APPLE_DEFAULT_ENVIRONMENT = 'Sandbox';
-const APPLE_DEFAULT_ROOT_CA_DIR = 'resources/apple-root-certs';
+const APPLE_DEFAULT_ENVIRONMENT = "Sandbox";
+const APPLE_DEFAULT_ROOT_CA_DIR = "resources/apple-root-certs";
 
 function parseAppAppleId(raw: string | undefined): number | undefined {
-  if (raw === undefined || raw === '') {
+  if (raw === undefined || raw === "") {
     return undefined;
   }
   const parsed = Number(raw);
@@ -26,24 +26,24 @@ interface AppleServerApiConfig {
 }
 
 function readAppleConfig(): AppleConfig {
-  const bundleId = process.env.APPLE_BUNDLE_ID ?? '';
+  const bundleId = process.env.APPLE_BUNDLE_ID ?? "";
   const environment =
     process.env.APPLE_ENVIRONMENT ?? APPLE_DEFAULT_ENVIRONMENT;
   const appAppleId = parseAppAppleId(process.env.APPLE_APP_APPLE_ID);
   const rootCaDir = process.env.APPLE_ROOT_CA_DIR ?? APPLE_DEFAULT_ROOT_CA_DIR;
 
-  if (process.env.NODE_ENV !== 'test' && bundleId === '') {
+  if (process.env.NODE_ENV !== "test" && bundleId === "") {
     throw new Error(
-      'APPLE_BUNDLE_ID must be set (got empty string). Set it in your environment (e.g. app.momentum-ai.auth.mobile).',
+      "APPLE_BUNDLE_ID must be set (got empty string). Set it in your environment (e.g. app.momentum-ai.auth.mobile).",
     );
   }
   if (
-    process.env.NODE_ENV !== 'test' &&
-    environment === 'Production' &&
+    process.env.NODE_ENV !== "test" &&
+    environment === "Production" &&
     appAppleId === undefined
   ) {
     throw new Error(
-      'APPLE_APP_APPLE_ID must be set when APPLE_ENVIRONMENT=Production (numeric App Apple ID from App Store Connect).',
+      "APPLE_APP_APPLE_ID must be set when APPLE_ENVIRONMENT=Production (numeric App Apple ID from App Store Connect).",
     );
   }
 
@@ -66,12 +66,12 @@ function readAppleServerApiConfig(): AppleServerApiConfig {
 
 export const config = {
   ai: {
-    baseUrl: 'https://openrouter.ai/api/v1',
-    defaultModel: 'google/gemini-3-flash-preview',
+    baseUrl: "https://openrouter.ai/api/v1",
+    defaultModel: "google/gemini-3-flash-preview",
     callTimeoutMs: 30_000,
     maxRetries: 3,
     embedding: {
-      model: 'text-embedding-3-small',
+      model: "text-embedding-3-small",
       dimensions: 1536,
     },
   },
@@ -81,10 +81,10 @@ export const config = {
     questionsPerBatch: { min: 3, max: 5 },
     maxProfileRetries: 3,
     qualityWarnThreshold: 0.5,
-    model: 'google/gemini-3-flash-preview',
+    model: "google/gemini-3-flash-preview",
   },
   eval: {
-    judgeModel: 'x-ai/grok-4.1-fast',
+    judgeModel: "x-ai/grok-4.1-fast",
   },
   throttle: {
     globalLimit: 60,
@@ -96,25 +96,25 @@ export const config = {
     matchCount: 20,
     matchThreshold: 0.7,
     rerankTopN: 10,
-    milestoneModel: 'openai/gpt-5.4',
-    weeklyModel: 'openai/gpt-5.4',
-    weeklyTaskModel: 'openai/gpt-5.4',
+    milestoneModel: "openai/gpt-5.4",
+    weeklyModel: "openai/gpt-5.4",
+    weeklyTaskModel: "openai/gpt-5.4",
     maxGenerationAttempts: 3,
   },
   cohere: {
-    apiVersion: '2',
-    model: 'rerank-v3.5',
+    apiVersion: "2",
+    model: "rerank-v3.5",
   },
   voice: {
-    ttsModelId: 'eleven_flash_v2_5',
-    outputFormat: 'mp3_44100_128' as const,
+    ttsModelId: "eleven_flash_v2_5",
+    outputFormat: "mp3_44100_128" as const,
     callTimeoutMs: 30_000,
     maxAudioSizeBytes: 10_485_760,
     supportedInputFormats: [
-      'audio/wav',
-      'audio/mpeg',
-      'audio/mp4',
-      'audio/webm',
+      "audio/wav",
+      "audio/mpeg",
+      "audio/mp4",
+      "audio/webm",
     ],
   },
   coach: {
@@ -126,15 +126,15 @@ export const config = {
   },
   apns: {
     host: {
-      production: 'api.push.apple.com',
-      sandbox: 'api.sandbox.push.apple.com',
+      production: "api.push.apple.com",
+      sandbox: "api.sandbox.push.apple.com",
     },
     jwtCacheTtlMs: 3_300_000,
     broadcastBatchSize: 100,
   },
   chat: {
-    model: 'google/gemini-3-flash-preview',
-    reasoningEffort: 'high',
+    model: "google/gemini-3-flash-preview",
+    reasoningEffort: "high",
     maxToolRounds: 5,
     maxHistoryMessages: 50,
     streamTimeoutMs: 60_000,

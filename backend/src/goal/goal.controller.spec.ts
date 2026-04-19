@@ -1,9 +1,9 @@
-import type { TestingModule } from '@nestjs/testing';
-import { Test } from '@nestjs/testing';
+import type { TestingModule } from "@nestjs/testing";
+import { Test } from "@nestjs/testing";
 
-import { SupabaseService } from '../supabase/supabase.service.js';
-import { GoalController } from './goal.controller.js';
-import { GoalService } from './goal.service.js';
+import { SupabaseService } from "../supabase/supabase.service.js";
+import { GoalController } from "./goal.controller.js";
+import { GoalService } from "./goal.service.js";
 
 let controller: GoalController;
 let goalService: {
@@ -28,27 +28,27 @@ beforeEach(async () => {
   controller = module.get<GoalController>(GoalController);
 });
 
-it('GoalController should be defined', () => {
+it("GoalController should be defined", () => {
   expect(controller).toBeDefined();
 });
 
-describe('GoalController.create', () => {
-  it('should call goalService.create with correct params', async () => {
+describe("GoalController.create", () => {
+  it("should call goalService.create with correct params", async () => {
     const dto = {
-      title: 'Run a marathon',
-      description: 'Complete a full marathon',
+      title: "Run a marathon",
+      description: "Complete a full marathon",
     };
     const expectedGoal = {
-      id: 'goal-456',
+      id: "goal-456",
       ...dto,
-      status: 'intake_in_progress',
+      status: "intake_in_progress",
     };
     goalService.create.mockResolvedValue(expectedGoal);
 
-    const result = await controller.create('user-123', dto);
+    const result = await controller.create("user-123", dto);
 
     expect(goalService.create).toHaveBeenCalledWith(
-      'user-123',
+      "user-123",
       dto.description,
       dto.title,
     );
@@ -56,16 +56,16 @@ describe('GoalController.create', () => {
   });
 });
 
-describe('GoalController.getGoalProfile', () => {
-  it('should call goalService.getGoalProfile with correct params', async () => {
-    const expectedProfile = { id: 'profile-1', goal_id: 'goal-456' };
+describe("GoalController.getGoalProfile", () => {
+  it("should call goalService.getGoalProfile with correct params", async () => {
+    const expectedProfile = { id: "profile-1", goal_id: "goal-456" };
     goalService.getGoalProfile.mockResolvedValue(expectedProfile);
 
-    const result = await controller.getGoalProfile('user-123', 'goal-456');
+    const result = await controller.getGoalProfile("user-123", "goal-456");
 
     expect(goalService.getGoalProfile).toHaveBeenCalledWith(
-      'user-123',
-      'goal-456',
+      "user-123",
+      "goal-456",
     );
     expect(result).toEqual(expectedProfile);
   });

@@ -1,10 +1,10 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable } from "@nestjs/common";
 
 import type {
   BatchEvalResult,
   EvalReport,
   GoalEvalResult,
-} from './eval.types.js';
+} from "./eval.types.js";
 
 const DECIMAL_PLACES = 2;
 const AI_BATCH_START = 2;
@@ -14,28 +14,28 @@ export class EvalReportService {
   public generateReport(report: EvalReport): string {
     const lines: string[] = [];
     lines.push(`# Prompt Eval Report — ${report.timestamp}`);
-    lines.push('');
+    lines.push("");
 
     this.appendSummaryTable(lines, report.goals);
-    lines.push('---');
-    lines.push('');
-    lines.push('## Per-Goal Details');
+    lines.push("---");
+    lines.push("");
+    lines.push("## Per-Goal Details");
 
     for (const goal of report.goals) {
       this.appendGoalDetail(lines, goal);
     }
 
-    return lines.join('\n');
+    return lines.join("\n");
   }
 
   private appendSummaryTable(lines: string[], goals: GoalEvalResult[]): void {
-    lines.push('## Summary');
-    lines.push('');
+    lines.push("## Summary");
+    lines.push("");
     lines.push(
-      '| Domain | Universal | AI Avg | Batches | Gold Standard | AI vs Gold Delta |',
+      "| Domain | Universal | AI Avg | Batches | Gold Standard | AI vs Gold Delta |",
     );
     lines.push(
-      '|--------|-----------|--------|---------|---------------|------------------|',
+      "|--------|-----------|--------|---------|---------------|------------------|",
     );
 
     for (const goal of goals) {
@@ -45,7 +45,7 @@ export class EvalReportService {
       const batchCount =
         goal.aiBatches.length > 0
           ? `${goal.aiBatches.length} (done@${goal.completedAtBatch})`
-          : 'N/A';
+          : "N/A";
       const goldScore = goal.goldBatch.overallComposite.toFixed(DECIMAL_PLACES);
       const deltaAvg = this.computeDeltaAvgString(goal.delta);
 
@@ -53,13 +53,13 @@ export class EvalReportService {
         `| ${goal.domain} | ${uniScore} | ${aiAvg} | ${batchCount} | ${goldScore} | ${deltaAvg} |`,
       );
     }
-    lines.push('');
+    lines.push("");
   }
 
   private appendGoalDetail(lines: string[], goal: GoalEvalResult): void {
-    lines.push('');
+    lines.push("");
     lines.push(`### ${goal.domain}: "${goal.goalDescription}"`);
-    lines.push('');
+    lines.push("");
 
     const axes = Object.keys(goal.goldBatch.compositeByAxis);
     this.appendProgressionTable(lines, goal, axes);
@@ -71,13 +71,13 @@ export class EvalReportService {
     goal: GoalEvalResult,
     axes: string[],
   ): void {
-    lines.push('#### Batch Progression');
-    lines.push('');
-    lines.push(`| Batch | ${axes.join(' | ')} | Composite |`);
-    lines.push(`|-------|${axes.map(() => '------').join('|')}|-----------|`);
+    lines.push("#### Batch Progression");
+    lines.push("");
+    lines.push(`| Batch | ${axes.join(" | ")} | Composite |`);
+    lines.push(`|-------|${axes.map(() => "------").join("|")}|-----------|`);
 
     const formatCols = (c: Record<string, number>): string =>
-      axes.map((a) => (c[a] ?? 0).toFixed(DECIMAL_PLACES)).join(' | ');
+      axes.map((a) => (c[a] ?? 0).toFixed(DECIMAL_PLACES)).join(" | ");
 
     lines.push(
       `| Universal (1) | ${formatCols(goal.universalBatch.compositeByAxis)} | ${goal.universalBatch.overallComposite.toFixed(DECIMAL_PLACES)} |`,
@@ -94,7 +94,7 @@ export class EvalReportService {
       `| Gold Standard | ${formatCols(goal.goldBatch.compositeByAxis)} | ${goal.goldBatch.overallComposite.toFixed(DECIMAL_PLACES)} |`,
     );
     this.appendDeltaRow(lines, goal.delta, axes);
-    lines.push('');
+    lines.push("");
   }
 
   private appendAiAverageRow(
@@ -112,7 +112,7 @@ export class EvalReportService {
           aiBatches.length;
         return avg.toFixed(DECIMAL_PLACES);
       })
-      .join(' | ');
+      .join(" | ");
     const aiOverallAvg = (
       aiBatches.reduce((s, b) => s + b.overallComposite, 0) / aiBatches.length
     ).toFixed(DECIMAL_PLACES);
@@ -127,14 +127,14 @@ export class EvalReportService {
     const deltaCols = axes
       .map((a) => {
         const d = delta[a] ?? 0;
-        const sign = d >= 0 ? '+' : '';
+        const sign = d >= 0 ? "+" : "";
         return `${sign}${d.toFixed(DECIMAL_PLACES)}`;
       })
-      .join(' | ');
+      .join(" | ");
     const vals = Object.values(delta);
     const deltaOverall =
       vals.length > 0 ? vals.reduce((a, b) => a + b, 0) / vals.length : 0;
-    const deltaSign = deltaOverall >= 0 ? '+' : '';
+    const deltaSign = deltaOverall >= 0 ? "+" : "";
     lines.push(
       `| **Delta** | ${deltaCols} | ${deltaSign}${deltaOverall.toFixed(DECIMAL_PLACES)} |`,
     );
@@ -142,12 +142,12 @@ export class EvalReportService {
 
   private appendMetaJudgeVerdicts(lines: string[], goal: GoalEvalResult): void {
     const batchesForMeta = [
-      { label: 'Universal Batch', data: goal.universalBatch },
+      { label: "Universal Batch", data: goal.universalBatch },
       ...goal.aiBatches.map((b, i) => ({
         label: `AI Batch ${i + AI_BATCH_START}`,
         data: b,
       })),
-      { label: 'Gold Standard', data: goal.goldBatch },
+      { label: "Gold Standard", data: goal.goldBatch },
     ];
 
     for (const batch of batchesForMeta) {
@@ -167,37 +167,37 @@ export class EvalReportService {
       return;
     }
     lines.push(`#### Meta-Judge: ${label}`);
-    lines.push('');
+    lines.push("");
     lines.push(`**Grade:** ${mj.overall_grade}`);
-    lines.push('');
+    lines.push("");
     lines.push(`**Personality:** ${mj.batch_personality}`);
-    lines.push('');
+    lines.push("");
     lines.push(`**Rationale:** ${mj.grade_rationale}`);
-    lines.push('');
+    lines.push("");
     lines.push(
       `**Weakest Question (#${mj.weakest_question.index}):** "${mj.weakest_question.original}"`,
     );
     lines.push(`> ${mj.weakest_question.reason}`);
-    lines.push('');
+    lines.push("");
     lines.push(
       `**Suggested Rewrite:** "${mj.weakest_question.improved_version}"`,
     );
     lines.push(`> ${mj.weakest_question.improvement_rationale}`);
-    lines.push('');
+    lines.push("");
     lines.push(
       `**Strongest Question (#${mj.strongest_question.index}):** "${mj.strongest_question.original}"`,
     );
     lines.push(`> ${mj.strongest_question.reason}`);
-    lines.push('');
+    lines.push("");
     if (mj.missing_dimensions.length > 0) {
-      lines.push(`**Missing Dimensions:** ${mj.missing_dimensions.join(', ')}`);
-      lines.push('');
+      lines.push(`**Missing Dimensions:** ${mj.missing_dimensions.join(", ")}`);
+      lines.push("");
     }
   }
 
   private computeAiAvgString(goal: GoalEvalResult): string {
     if (goal.aiBatches.length === 0) {
-      return 'N/A';
+      return "N/A";
     }
     return (
       goal.aiBatches.reduce((s, b) => s + b.overallComposite, 0) /
@@ -208,7 +208,7 @@ export class EvalReportService {
   private computeDeltaAvgString(delta: Record<string, number>): string {
     const vals = Object.values(delta);
     if (vals.length === 0) {
-      return 'N/A';
+      return "N/A";
     }
     return (vals.reduce((a, b) => a + b, 0) / vals.length).toFixed(
       DECIMAL_PLACES,

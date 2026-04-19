@@ -3,16 +3,16 @@ import {
   Injectable,
   InternalServerErrorException,
   Logger,
-} from '@nestjs/common';
+} from "@nestjs/common";
 
-import type { Database, Json } from '../supabase/database.types.js';
-import { SupabaseService } from '../supabase/supabase.service.js';
-import type { GeneratedQuestion } from './intake-prompt.service.js';
-import { IntakeStoreQueryService } from './intake-store-query.service.js';
-import type { AnswerInput } from './types/intake.types.js';
+import type { Database, Json } from "../supabase/database.types.js";
+import { SupabaseService } from "../supabase/supabase.service.js";
+import type { GeneratedQuestion } from "./intake-prompt.service.js";
+import { IntakeStoreQueryService } from "./intake-store-query.service.js";
+import type { AnswerInput } from "./types/intake.types.js";
 
 type IntakeQuestionUpdate =
-  Database['public']['Tables']['intake_questions']['Update'];
+  Database["public"]["Tables"]["intake_questions"]["Update"];
 
 export interface StoreBatchOptions {
   goalId: string;
@@ -54,7 +54,7 @@ export class IntakeStoreService {
   ): Promise<{ id: string; batch_number: number }> {
     const latestBatch = await this.queryService.queryLatestBatch(goalId);
     if (latestBatch === null || (latestBatch.is_answered as boolean)) {
-      throw new ConflictException('No unanswered batch available');
+      throw new ConflictException("No unanswered batch available");
     }
     return {
       id: latestBatch.id as string,
@@ -83,7 +83,7 @@ export class IntakeStoreService {
     const supabase = this.supabaseService.getAdminClient();
 
     const { data: batch, error } = await supabase
-      .from('intake_batches')
+      .from("intake_batches")
       .insert({
         goal_id: options.goalId,
         batch_number: options.batchNumber,
@@ -136,15 +136,15 @@ export class IntakeStoreService {
       answered_at: answeredAt,
     };
     const { error } = await supabase
-      .from('intake_questions')
+      .from("intake_questions")
       .update(update)
-      .eq('id', answer.question_id)
-      .eq('batch_id', batchId);
+      .eq("id", answer.question_id)
+      .eq("batch_id", batchId);
     if (error !== null) {
       this.logger.error(
         `Failed to update answer for question ${answer.question_id}: ${error.message}`,
       );
-      throw new InternalServerErrorException('Failed to save answers');
+      throw new InternalServerErrorException("Failed to save answers");
     }
   }
 
@@ -166,9 +166,9 @@ export class IntakeStoreService {
     }));
 
     const { data, error } = await supabase
-      .from('intake_questions')
+      .from("intake_questions")
       .insert(rows)
-      .select('id, question_text, question_type, config, order_in_batch');
+      .select("id, question_text, question_type, config, order_in_batch");
 
     if (error !== null) {
       throw new Error(`Failed to create questions: ${error.message}`);
@@ -179,13 +179,13 @@ export class IntakeStoreService {
   private async markBatchAnswered(batchId: string): Promise<void> {
     const supabase = this.supabaseService.getAdminClient();
     const { error } = await supabase
-      .from('intake_batches')
+      .from("intake_batches")
       .update({ is_answered: true })
-      .eq('id', batchId);
+      .eq("id", batchId);
 
     if (error !== null) {
       this.logger.error(`Failed to mark batch as answered: ${error.message}`);
-      throw new InternalServerErrorException('Failed to update batch status');
+      throw new InternalServerErrorException("Failed to update batch status");
     }
   }
 }

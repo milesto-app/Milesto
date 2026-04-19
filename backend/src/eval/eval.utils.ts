@@ -1,4 +1,4 @@
-import type { BatchEvalResult, EvalQuestion } from './eval.types.js';
+import type { BatchEvalResult, EvalQuestion } from "./eval.types.js";
 
 export interface RawQuestion {
   question_text: string;

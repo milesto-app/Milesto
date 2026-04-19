@@ -1,8 +1,8 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger } from "@nestjs/common";
 
-import { GoalService } from '../goal/goal.service.js';
-import type { QuestionConfig } from './intake-store.service.js';
-import type { AnswerInput } from './types/intake.types.js';
+import { GoalService } from "../goal/goal.service.js";
+import type { QuestionConfig } from "./intake-store.service.js";
+import type { AnswerInput } from "./types/intake.types.js";
 
 @Injectable()
 export class IntakeTargetDateService {
@@ -19,7 +19,7 @@ export class IntakeTargetDateService {
     }>,
     answers: AnswerInput[],
   ): Promise<void> {
-    const dateQuestion = questions.find((q) => q.config?.format === 'date');
+    const dateQuestion = questions.find((q) => q.config?.format === "date");
     if (dateQuestion === undefined) {
       return;
     }

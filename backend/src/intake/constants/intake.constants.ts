@@ -10,8 +10,8 @@ export const SINGLE_CHOICE_OPTION_COUNT = 1;
 export const QUALITY_SCORE_DIMENSIONS = 4;
 
 export const VALID_QUESTION_TYPES = [
-  'text',
-  'scale',
-  'single_choice',
-  'multiple_choice',
+  "text",
+  "scale",
+  "single_choice",
+  "multiple_choice",
 ] as const;

@@ -1,4 +1,4 @@
-import type OpenAI from 'openai';
+import type OpenAI from "openai";
 
 export interface Conversation {
   id: string;
@@ -11,7 +11,7 @@ export interface Conversation {
 export interface StoredMessage {
   id: string;
   conversation_id: string;
-  role: 'user' | 'assistant' | 'tool';
+  role: "user" | "assistant" | "tool";
   content: string | null;
   tool_calls: OpenAI.Chat.Completions.ChatCompletionMessageToolCall[] | null;
   tool_call_id: string | null;
@@ -20,12 +20,12 @@ export interface StoredMessage {
 }
 
 export type ChatStreamEvent =
-  | { type: 'message_start'; conversationId: string }
-  | { type: 'tool_start'; toolName: string }
-  | { type: 'tool_end'; toolName: string }
-  | { type: 'text_delta'; delta: string }
-  | { type: 'message_end' }
-  | { type: 'error'; message: string };
+  | { type: "message_start"; conversationId: string }
+  | { type: "tool_start"; toolName: string }
+  | { type: "tool_end"; toolName: string }
+  | { type: "text_delta"; delta: string }
+  | { type: "message_end" }
+  | { type: "error"; message: string };
 
 export type ChatToolExecutor = (
   args: Record<string, unknown>,

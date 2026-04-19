@@ -1,7 +1,7 @@
-import { Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException } from "@nestjs/common";
 
-import type { CoachConfig, PublicCoach } from './coaches.config.js';
-import { COACH_BY_ID, COACHES } from './coaches.config.js';
+import type { CoachConfig, PublicCoach } from "./coaches.config.js";
+import { COACH_BY_ID, COACHES } from "./coaches.config.js";
 
 @Injectable()
 export class CoachService {

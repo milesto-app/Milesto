@@ -1,6 +1,6 @@
-import { Global, Module } from '@nestjs/common';
+import { Global, Module } from "@nestjs/common";
 
-import { UserLanguageService } from './user-language.service.js';
+import { UserLanguageService } from "./user-language.service.js";
 
 @Global()
 @Module({

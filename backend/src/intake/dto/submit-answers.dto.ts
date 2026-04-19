@@ -1,5 +1,5 @@
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { Type } from 'class-transformer';
+import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
+import { Type } from "class-transformer";
 import {
   ArrayMinSize,
   ArrayUnique,
@@ -9,26 +9,26 @@ import {
   IsString,
   IsUUID,
   ValidateNested,
-} from 'class-validator';
+} from "class-validator";
 
 export class AnswerDto {
   @ApiProperty({
-    description: 'UUID of the question being answered',
-    example: '550e8400-e29b-41d4-a716-446655440000',
+    description: "UUID of the question being answered",
+    example: "550e8400-e29b-41d4-a716-446655440000",
   })
   @IsUUID()
   public question_id!: string;
 
   @ApiPropertyOptional({
-    description: 'Text answer (for text questions)',
-    example: 'I want to improve my fitness',
+    description: "Text answer (for text questions)",
+    example: "I want to improve my fitness",
   })
   @IsOptional()
   @IsString()
   public answer_text?: string;
 
   @ApiPropertyOptional({
-    description: 'Numeric answer (for scale questions)',
+    description: "Numeric answer (for scale questions)",
     example: 7,
   })
   @IsOptional()
@@ -36,8 +36,8 @@ export class AnswerDto {
   public answer_numeric?: number;
 
   @ApiPropertyOptional({
-    description: 'Selected option(s) (for choice questions)',
-    example: ['Option A'],
+    description: "Selected option(s) (for choice questions)",
+    example: ["Option A"],
     type: [String],
   })
   @IsOptional()
@@ -48,13 +48,13 @@ export class AnswerDto {
 
 export class SubmitAnswersDto {
   @ApiProperty({
-    description: 'Array of answers for the current batch',
+    description: "Array of answers for the current batch",
     type: [AnswerDto],
   })
   @IsArray()
   @ArrayMinSize(1)
   @ArrayUnique<AnswerDto>((answer) => answer.question_id, {
-    message: 'answers must contain a unique entry per question_id',
+    message: "answers must contain a unique entry per question_id",
   })
   @ValidateNested({ each: true })
   @Type(() => AnswerDto)

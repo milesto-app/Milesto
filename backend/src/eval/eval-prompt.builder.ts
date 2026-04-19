@@ -1,5 +1,5 @@
-import type { EvalPriorBatch, EvalQuestion } from './eval.types.js';
-import type { GoldStandard, GoldStandardQuestion } from './gold-standards.js';
+import type { EvalPriorBatch, EvalQuestion } from "./eval.types.js";
+import type { GoldStandard, GoldStandardQuestion } from "./gold-standards.js";
 
 export interface JudgePromptInput {
   goalDescription: string;
@@ -20,17 +20,17 @@ export function formatQuestions(questions: EvalQuestion[]): string {
     .map((q, i) => {
       const opts = (q.config as { options?: string[] } | null)?.options;
       const optionsSuffix =
-        opts !== undefined ? `\n   Options: ${opts.join(' / ')}` : '';
+        opts !== undefined ? `\n   Options: ${opts.join(" / ")}` : "";
       return `${i + 1}. [${q.question_type}] ${q.question_text}${optionsSuffix}`;
     })
-    .join('\n');
+    .join("\n");
 }
 
 export function formatPriorContext(
   priorBatches: EvalPriorBatch[] | null,
 ): string {
   if (priorBatches === null || priorBatches.length === 0) {
-    return 'None — this is the first batch.';
+    return "None — this is the first batch.";
   }
   return priorBatches
     .map(
@@ -39,9 +39,9 @@ export function formatPriorContext(
           .map(
             (q) => `Q: ${q.question_text} (${q.question_type})\nA: ${q.answer}`,
           )
-          .join('\n')}`,
+          .join("\n")}`,
     )
-    .join('\n\n');
+    .join("\n\n");
 }
 
 export function formatGoldStandardQuestions(
@@ -51,10 +51,10 @@ export function formatGoldStandardQuestions(
     .map((q, i) => {
       const opts = (q.config as { options?: string[] } | null)?.options;
       const optionsSuffix =
-        opts !== undefined ? `\n   Options: ${opts.join(' / ')}` : '';
+        opts !== undefined ? `\n   Options: ${opts.join(" / ")}` : "";
       return `${i + 1}. [${q.question_type}] ${q.question_text}${optionsSuffix}\n   Rationale: ${q.rationale}`;
     })
-    .join('\n');
+    .join("\n");
 }
 
 export function formatQuestionsWithScale(questions: EvalQuestion[]): string {
@@ -63,7 +63,7 @@ export function formatQuestionsWithScale(questions: EvalQuestion[]): string {
       let line = `${i + 1}. [${q.question_type}] ${q.question_text}`;
       const opts = (q.config as { options?: string[] } | null)?.options;
       if (opts !== undefined) {
-        line += `\n   Options: ${opts.join(' / ')}`;
+        line += `\n   Options: ${opts.join(" / ")}`;
       }
       const scaleConfig = q.config as {
         min?: number;
@@ -71,17 +71,17 @@ export function formatQuestionsWithScale(questions: EvalQuestion[]): string {
         min_label?: string;
         max_label?: string;
       } | null;
-      if (q.question_type === 'scale' && scaleConfig?.min !== undefined) {
+      if (q.question_type === "scale" && scaleConfig?.min !== undefined) {
         line += `\n   Scale: ${scaleConfig.min} (${scaleConfig.min_label}) to ${scaleConfig.max} (${scaleConfig.max_label})`;
       }
       return line;
     })
-    .join('\n');
+    .join("\n");
 }
 
 export function buildGoldSection(goldStandard: GoldStandard | null): string {
   if (goldStandard === null) {
-    return '';
+    return "";
   }
   return `\n\n## Gold Standard Reference (what an ideal batch looks like for this domain)\n${formatGoldStandardQuestions(goldStandard.questions)}\n\nScore the "Batch Under Evaluation" against the criteria in your system prompt. Use the Gold Standard as a reference for what excellence looks like in this domain, but score the batch on its own merits.`;
 }

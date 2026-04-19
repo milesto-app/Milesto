@@ -1,12 +1,12 @@
-import { Injectable, Logger } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
+import { Injectable, Logger } from "@nestjs/common";
+import { ConfigService } from "@nestjs/config";
 
-import { config } from '../config/app.config.js';
+import { config } from "../config/app.config.js";
 import type {
   ContextChunk,
   RankedChunk,
   RerankResult,
-} from './types/context.types.js';
+} from "./types/context.types.js";
 
 const RERANK_TIMEOUT_MS = 10_000;
 
@@ -21,7 +21,7 @@ export class RerankService {
   private readonly cohereApiKey: string;
 
   constructor(private readonly configService: ConfigService) {
-    this.cohereApiKey = this.configService.get<string>('COHERE_API_KEY') ?? '';
+    this.cohereApiKey = this.configService.get<string>("COHERE_API_KEY") ?? "";
   }
 
   public async rerank(
@@ -33,8 +33,8 @@ export class RerankService {
     }
 
     if (this.cohereApiKey.length === 0) {
-      this.logger.warn('COHERE_API_KEY not configured, skipping rerank');
-      return this.buildFallbackResult(chunks, 'COHERE_API_KEY not configured');
+      this.logger.warn("COHERE_API_KEY not configured, skipping rerank");
+      return this.buildFallbackResult(chunks, "COHERE_API_KEY not configured");
     }
 
     const controller = new AbortController();
@@ -63,10 +63,10 @@ export class RerankService {
   ): Promise<RerankResult> {
     const url = `https://api.cohere.com/v${config.cohere.apiVersion}/rerank`;
     const response = await fetch(url, {
-      method: 'POST',
+      method: "POST",
       headers: {
         Authorization: `Bearer ${this.cohereApiKey}`,
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
       body: JSON.stringify({
         model: config.cohere.model,

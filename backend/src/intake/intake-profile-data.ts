@@ -1,4 +1,4 @@
-import type { GoalProfile } from './intake-prompt.service.js';
+import type { GoalProfile } from "./intake-prompt.service.js";
 
 export function buildProfileData(
   profile: GoalProfile,

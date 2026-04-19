@@ -5,19 +5,50 @@ import { Card, CardContent } from "@/components/ui/card";
 function statusBadge(status: string) {
   switch (status) {
     case "active":
-      return <Badge className="border-0 bg-primary/10 text-primary font-medium">Active</Badge>;
+      return (
+        <Badge className="border-0 bg-primary/10 text-primary font-medium">
+          Active
+        </Badge>
+      );
     case "intake_in_progress":
-      return <Badge variant="secondary" className="font-medium">Intake</Badge>;
+      return (
+        <Badge variant="secondary" className="font-medium">
+          Intake
+        </Badge>
+      );
     case "intake_completed":
-      return <Badge variant="secondary" className="font-medium">Intake Done</Badge>;
+      return (
+        <Badge variant="secondary" className="font-medium">
+          Intake Done
+        </Badge>
+      );
     case "profile_generating":
-      return <Badge variant="outline" className="font-medium">Profiling</Badge>;
+      return (
+        <Badge variant="outline" className="font-medium">
+          Profiling
+        </Badge>
+      );
     case "profile_generation_failed":
-      return <Badge variant="destructive" className="border-0 bg-destructive/10 text-destructive font-medium">Profile Failed</Badge>;
+      return (
+        <Badge
+          variant="destructive"
+          className="border-0 bg-destructive/10 text-destructive font-medium"
+        >
+          Profile Failed
+        </Badge>
+      );
     case "roadmap_generating":
-      return <Badge variant="outline" className="font-medium">Generating Roadmap</Badge>;
+      return (
+        <Badge variant="outline" className="font-medium">
+          Generating Roadmap
+        </Badge>
+      );
     default:
-      return <Badge variant="secondary" className="font-medium">{status}</Badge>;
+      return (
+        <Badge variant="secondary" className="font-medium">
+          {status}
+        </Badge>
+      );
   }
 }
 

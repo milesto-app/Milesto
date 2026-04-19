@@ -1,12 +1,12 @@
-import { Injectable, Logger } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
-import { ElevenLabsClient } from 'elevenlabs';
-import type { Readable } from 'stream';
+import { Injectable, Logger } from "@nestjs/common";
+import { ConfigService } from "@nestjs/config";
+import { ElevenLabsClient } from "elevenlabs";
+import type { Readable } from "stream";
 
-import { config } from '../config/app.config.js';
-import type { SynthesisResult } from './voice.types.js';
+import { config } from "../config/app.config.js";
+import type { SynthesisResult } from "./voice.types.js";
 
-const CONTENT_TYPE = 'audio/mpeg';
+const CONTENT_TYPE = "audio/mpeg";
 const MP3_BITRATE_BYTES_PER_SECOND = 16_000;
 
 @Injectable()
@@ -16,7 +16,7 @@ export class VoiceTtsService {
 
   constructor(private readonly configService: ConfigService) {
     this.client = new ElevenLabsClient({
-      apiKey: this.configService.getOrThrow<string>('ELEVENLABS_API_KEY'),
+      apiKey: this.configService.getOrThrow<string>("ELEVENLABS_API_KEY"),
     });
   }
 

@@ -1,19 +1,19 @@
-import { Injectable, Logger } from '@nestjs/common';
-import { EventEmitter2 } from '@nestjs/event-emitter';
+import { Injectable, Logger } from "@nestjs/common";
+import { EventEmitter2 } from "@nestjs/event-emitter";
 
-import type { Json } from '../supabase/database.types.js';
-import { SupabaseService } from '../supabase/supabase.service.js';
-import { GenerationNarrativeService } from './generation-narrative.service.js';
+import type { Json } from "../supabase/database.types.js";
+import { SupabaseService } from "../supabase/supabase.service.js";
+import { GenerationNarrativeService } from "./generation-narrative.service.js";
 import type {
   MonthlySummary,
   WeeklyPlan,
   WeeklySummary,
-} from './types/weekly-plan.types.js';
-import { WeeklyPlanQueryService } from './weekly-plan-query.service.js';
+} from "./types/weekly-plan.types.js";
+import { WeeklyPlanQueryService } from "./weekly-plan-query.service.js";
 
 const MONTHLY_SUMMARY_MIN_PLANS = 2;
 
-type SupabaseClient = ReturnType<SupabaseService['getAdminClient']>;
+type SupabaseClient = ReturnType<SupabaseService["getAdminClient"]>;
 type MilestoneRef = { target_month: number; id: string };
 
 interface SummaryParams {
@@ -56,9 +56,9 @@ export class WeeklyPlanDataService {
     );
     const supabase = this.supabaseService.getAdminClient();
     const { error } = await supabase
-      .from('weekly_plans')
+      .from("weekly_plans")
       .update({ summary: summary as unknown as Json })
-      .eq('id', params.lastCompleted.id);
+      .eq("id", params.lastCompleted.id);
     if (error) {
       this.logger.warn(
         `Failed to persist weekly summary for plan ${params.lastCompleted.id}: ${error.message}`,
@@ -68,7 +68,7 @@ export class WeeklyPlanDataService {
       summary,
       params.lastCompleted.week_number,
     );
-    this.eventEmitter.emit('summary.generated', {
+    this.eventEmitter.emit("summary.generated", {
       planId: params.lastCompleted.id,
       goalId: params.goalId,
       userId: params.userId,
@@ -108,11 +108,11 @@ export class WeeklyPlanDataService {
   ): Promise<unknown[] | null> {
     const supabase = this.supabaseService.getAdminClient();
     const { data } = await supabase
-      .from('weekly_plans')
-      .select('*, milestones!inner(target_month, id)')
-      .eq('goal_id', goalId)
-      .eq('status', 'completed')
-      .order('week_number', { ascending: false })
+      .from("weekly_plans")
+      .select("*, milestones!inner(target_month, id)")
+      .eq("goal_id", goalId)
+      .eq("status", "completed")
+      .order("week_number", { ascending: false })
       .limit(MONTHLY_SUMMARY_MIN_PLANS);
     return data;
   }
@@ -145,9 +145,9 @@ export class WeeklyPlanDataService {
   }
   private async storeMonthlySummary(params: MonthlyParams): Promise<void> {
     const { data: row } = await params.supabase
-      .from('milestones')
-      .select('monthly_summary')
-      .eq('id', params.milestone.id)
+      .from("milestones")
+      .select("monthly_summary")
+      .eq("id", params.milestone.id)
       .single();
     if (row?.monthly_summary !== null && row?.monthly_summary !== undefined) {
       return;
@@ -171,12 +171,12 @@ export class WeeklyPlanDataService {
     milestoneId: string,
   ): Promise<WeeklySummary[]> {
     const { data } = await supabase
-      .from('weekly_plans')
-      .select('summary')
-      .eq('milestone_id', milestoneId)
-      .eq('status', 'completed')
-      .not('summary', 'is', null)
-      .order('week_number', { ascending: true });
+      .from("weekly_plans")
+      .select("summary")
+      .eq("milestone_id", milestoneId)
+      .eq("status", "completed")
+      .not("summary", "is", null)
+      .order("week_number", { ascending: true });
     if (data === null || data.length === 0) {
       return [];
     }
@@ -188,9 +188,9 @@ export class WeeklyPlanDataService {
     monthlySummary: MonthlySummary,
   ): Promise<void> {
     const { error } = await params.supabase
-      .from('milestones')
+      .from("milestones")
       .update({ monthly_summary: monthlySummary as unknown as Json })
-      .eq('id', params.milestone.id);
+      .eq("id", params.milestone.id);
     if (error) {
       this.logger.warn(
         `Failed to store monthly summary on milestone ${params.milestone.id}: ${error.message}`,
@@ -201,7 +201,7 @@ export class WeeklyPlanDataService {
       monthlySummary,
       params.milestone.target_month,
     );
-    this.eventEmitter.emit('summary.generated', {
+    this.eventEmitter.emit("summary.generated", {
       planId: params.milestone.id,
       goalId: params.goalId,
       userId: params.userId,

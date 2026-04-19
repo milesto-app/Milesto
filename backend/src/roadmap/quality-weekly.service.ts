@@ -1,19 +1,19 @@
-import { Injectable, Logger } from '@nestjs/common';
-import { OnEvent } from '@nestjs/event-emitter';
+import { Injectable, Logger } from "@nestjs/common";
+import { OnEvent } from "@nestjs/event-emitter";
 
-import { AiService } from '../ai/ai.service.js';
-import type { Json } from '../supabase/database.types.js';
-import { SupabaseService } from '../supabase/supabase.service.js';
-import { WEEKLY_PLAN_JUDGE_SYSTEM_PROMPT } from './prompts/quality-prompts.js';
+import { AiService } from "../ai/ai.service.js";
+import type { Json } from "../supabase/database.types.js";
+import { SupabaseService } from "../supabase/supabase.service.js";
+import { WEEKLY_PLAN_JUDGE_SYSTEM_PROMPT } from "./prompts/quality-prompts.js";
 import {
   checkWarnings,
   clampScore,
   evaluateQuality,
-} from './quality-helpers.js';
+} from "./quality-helpers.js";
 import type {
   WeeklyPlanGeneratedEvent,
   WeeklyPlanQualityScores,
-} from './types/quality.types.js';
+} from "./types/quality.types.js";
 
 const PLAN_SCORE_DIMENSIONS = 3;
 const SCORE_DECIMAL_PLACES = 2;
@@ -27,7 +27,7 @@ export class QualityWeeklyService {
     private readonly supabaseService: SupabaseService,
   ) {}
 
-  @OnEvent('weekly-plan.generated')
+  @OnEvent("weekly-plan.generated")
   public async handleWeeklyPlanGenerated(
     payload: WeeklyPlanGeneratedEvent,
   ): Promise<void> {
@@ -58,9 +58,9 @@ export class QualityWeeklyService {
 
     const scores = this.buildScores(rawScores);
     const { error: updateError } = await supabase
-      .from('weekly_plans')
+      .from("weekly_plans")
       .update({ quality_scores: scores as unknown as Json })
-      .eq('id', payload.planId);
+      .eq("id", payload.planId);
 
     if (updateError !== null) {
       this.logger.error(
@@ -71,7 +71,7 @@ export class QualityWeeklyService {
 
     checkWarnings({
       logger: this.logger,
-      generationType: 'weekly_plan',
+      generationType: "weekly_plan",
       scores,
       goalId: payload.goalId,
     });
@@ -81,13 +81,13 @@ export class QualityWeeklyService {
   }
 
   private async loadWeeklyPlanContext(
-    supabase: ReturnType<SupabaseService['getAdminClient']>,
+    supabase: ReturnType<SupabaseService["getAdminClient"]>,
     payload: WeeklyPlanGeneratedEvent,
   ): Promise<{ content: string; milestoneContext: string } | null> {
     const { data: plan, error: planError } = await supabase
-      .from('weekly_plans')
-      .select('id, objectives, milestone_id')
-      .eq('id', payload.planId)
+      .from("weekly_plans")
+      .select("id, objectives, milestone_id")
+      .eq("id", payload.planId)
       .single();
 
     // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
@@ -99,9 +99,9 @@ export class QualityWeeklyService {
     }
 
     const { data: milestone, error: milestoneError } = await supabase
-      .from('milestones')
-      .select('title, description, expected_outcome')
-      .eq('id', plan.milestone_id)
+      .from("milestones")
+      .select("title, description, expected_outcome")
+      .eq("id", plan.milestone_id)
       .single();
 
     // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition

@@ -1,10 +1,10 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger } from "@nestjs/common";
 
 import {
   SUPABASE_NOT_FOUND,
   SUPABASE_UNIQUE_VIOLATION,
-} from '../supabase/error-codes.js';
-import { SupabaseService } from '../supabase/supabase.service.js';
+} from "../supabase/error-codes.js";
+import { SupabaseService } from "../supabase/supabase.service.js";
 
 @Injectable()
 export class ProcessedNotificationsService {
@@ -15,9 +15,9 @@ export class ProcessedNotificationsService {
   public async isProcessed(notificationUuid: string): Promise<boolean> {
     const supabase = this.supabaseService.getAdminClient();
     const { data, error } = await supabase
-      .from('processed_notifications')
-      .select('notification_uuid')
-      .eq('notification_uuid', notificationUuid)
+      .from("processed_notifications")
+      .select("notification_uuid")
+      .eq("notification_uuid", notificationUuid)
       .maybeSingle();
 
     if (error && error.code !== SUPABASE_NOT_FOUND) {
@@ -36,7 +36,7 @@ export class ProcessedNotificationsService {
     subtype: string | null,
   ): Promise<boolean> {
     const supabase = this.supabaseService.getAdminClient();
-    const { error } = await supabase.from('processed_notifications').insert({
+    const { error } = await supabase.from("processed_notifications").insert({
       notification_uuid: notificationUuid,
       notification_type: notificationType,
       subtype,

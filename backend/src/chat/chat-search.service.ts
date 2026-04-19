@@ -1,10 +1,10 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger } from "@nestjs/common";
 
-import { AiService } from '../ai/ai.service.js';
-import { config } from '../config/app.config.js';
-import { RerankService } from '../roadmap/rerank.service.js';
-import type { ContextChunk } from '../roadmap/types/context.types.js';
-import { SupabaseService } from '../supabase/supabase.service.js';
+import { AiService } from "../ai/ai.service.js";
+import { config } from "../config/app.config.js";
+import { RerankService } from "../roadmap/rerank.service.js";
+import type { ContextChunk } from "../roadmap/types/context.types.js";
+import { SupabaseService } from "../supabase/supabase.service.js";
 
 export interface SearchResult {
   content_type: string;
@@ -71,7 +71,7 @@ export class ChatSearchService {
       this.logger.log(
         `Duplicate insight detected for goal ${params.goalId}, skipping`,
       );
-      return { saved: false, reason: 'A very similar insight already exists.' };
+      return { saved: false, reason: "A very similar insight already exists." };
     }
 
     await this.insertInsight(params, embedding);
@@ -118,7 +118,7 @@ export class ChatSearchService {
     params: FetchParams,
   ): Promise<ContextChunk[]> {
     const supabase = this.supabaseService.getAdminClient();
-    const { data, error } = await supabase.rpc('match_goal_context', {
+    const { data, error } = await supabase.rpc("match_goal_context", {
       query_embedding: JSON.stringify(params.queryEmbedding),
       p_goal_id: params.goalId,
       p_user_id: params.userId,
@@ -150,11 +150,11 @@ export class ChatSearchService {
   ): Promise<boolean> {
     try {
       const supabase = this.supabaseService.getAdminClient();
-      const { data, error } = await supabase.rpc('match_goal_context', {
+      const { data, error } = await supabase.rpc("match_goal_context", {
         query_embedding: JSON.stringify(embedding),
         p_goal_id: params.goalId,
         p_user_id: params.userId,
-        p_content_types: ['coach_insight'],
+        p_content_types: ["coach_insight"],
         match_threshold: config.chat.insightDuplicateThreshold,
         match_count: config.chat.insightDuplicateCheckCount,
       });
@@ -180,10 +180,10 @@ export class ChatSearchService {
     embedding: number[],
   ): Promise<void> {
     const supabase = this.supabaseService.getAdminClient();
-    const { error } = await supabase.from('context_embeddings').insert({
+    const { error } = await supabase.from("context_embeddings").insert({
       goal_id: params.goalId,
       user_id: params.userId,
-      content_type: 'coach_insight',
+      content_type: "coach_insight",
       content_text: params.insight,
       embedding: JSON.stringify(embedding),
     });

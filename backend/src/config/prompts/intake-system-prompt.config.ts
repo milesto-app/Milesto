@@ -1,4 +1,4 @@
-import { buildLanguageBlock } from '../../common/language-prompt.helper.js';
+import { buildLanguageBlock } from "../../common/language-prompt.helper.js";
 
 export interface BatchPromptParams {
   batchNumber: number;
@@ -27,7 +27,7 @@ export function buildIntakeBatchSystemPrompt(
     buildTypesAndRules({ min, max, batchNumber, maxBatches }),
     buildPacingAndCompletion({ batchNumber, maxBatches }),
     buildLanguageBlock(params.language),
-  ].join('\n\n');
+  ].join("\n\n");
 }
 
 function buildRolePurpose(): string {

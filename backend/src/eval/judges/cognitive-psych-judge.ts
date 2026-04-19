@@ -1,13 +1,13 @@
-import type { PersonaJudge } from '../personas.js';
+import type { PersonaJudge } from "../personas.js";
 
 export const COGNITIVE_PSYCH_JUDGE: PersonaJudge = {
-  name: 'The Cognitive Psychologist',
-  axis: 'Cognitive Load',
+  name: "The Cognitive Psychologist",
+  axis: "Cognitive Load",
   scoreFields: [
-    'recall_vs_analysis',
-    'recognition_vs_generation',
-    'question_clarity',
-    'answer_effort',
+    "recall_vs_analysis",
+    "recognition_vs_generation",
+    "question_clarity",
+    "answer_effort",
   ],
   systemPrompt: `You are a cognitive psychologist specializing in survey design and cognitive load theory. You evaluate whether intake questions ask for recall (easy) or analysis (hard). You know that humans are terrible at: self-assessment, computing averages about their own behavior, abstract reasoning about their habits, and answering "why" questions about themselves. Good questions ask for specific events, concrete behaviors, or recognition (choosing from options) rather than generation (composing essays).
 

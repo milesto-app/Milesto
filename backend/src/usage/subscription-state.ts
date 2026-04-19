@@ -1,14 +1,14 @@
-import type { JWSRenewalInfoDecodedPayload } from '@apple/app-store-server-library/dist/models/JWSRenewalInfoDecodedPayload.js';
-import type { JWSTransactionDecodedPayload } from '@apple/app-store-server-library/dist/models/JWSTransactionDecodedPayload.js';
-import type { ResponseBodyV2DecodedPayload } from '@apple/app-store-server-library/dist/models/ResponseBodyV2DecodedPayload.js';
+import type { JWSRenewalInfoDecodedPayload } from "@apple/app-store-server-library/dist/models/JWSRenewalInfoDecodedPayload.js";
+import type { JWSTransactionDecodedPayload } from "@apple/app-store-server-library/dist/models/JWSTransactionDecodedPayload.js";
+import type { ResponseBodyV2DecodedPayload } from "@apple/app-store-server-library/dist/models/ResponseBodyV2DecodedPayload.js";
 
 export const SUBSCRIPTION_STATUS = {
-  ACTIVE: 'active',
-  GRACE_PERIOD: 'grace_period',
-  BILLING_RETRY: 'billing_retry',
-  EXPIRED: 'expired',
-  REVOKED: 'revoked',
-  UNKNOWN: 'unknown',
+  ACTIVE: "active",
+  GRACE_PERIOD: "grace_period",
+  BILLING_RETRY: "billing_retry",
+  EXPIRED: "expired",
+  REVOKED: "revoked",
+  UNKNOWN: "unknown",
 } as const;
 
 export type SubscriptionStatus =
@@ -21,27 +21,27 @@ export interface SubscriptionUpdate {
 }
 
 const NOTIFICATION_TYPE = {
-  SUBSCRIBED: 'SUBSCRIBED',
-  DID_RENEW: 'DID_RENEW',
-  DID_FAIL_TO_RENEW: 'DID_FAIL_TO_RENEW',
-  GRACE_PERIOD_EXPIRED: 'GRACE_PERIOD_EXPIRED',
-  EXPIRED: 'EXPIRED',
-  REVOKE: 'REVOKE',
-  REFUND: 'REFUND',
-  REFUND_DECLINED: 'REFUND_DECLINED',
-  REFUND_REVERSED: 'REFUND_REVERSED',
-  DID_CHANGE_RENEWAL_STATUS: 'DID_CHANGE_RENEWAL_STATUS',
-  DID_CHANGE_RENEWAL_PREF: 'DID_CHANGE_RENEWAL_PREF',
-  PRICE_INCREASE: 'PRICE_INCREASE',
-  OFFER_REDEEMED: 'OFFER_REDEEMED',
-  RENEWAL_EXTENDED: 'RENEWAL_EXTENDED',
+  SUBSCRIBED: "SUBSCRIBED",
+  DID_RENEW: "DID_RENEW",
+  DID_FAIL_TO_RENEW: "DID_FAIL_TO_RENEW",
+  GRACE_PERIOD_EXPIRED: "GRACE_PERIOD_EXPIRED",
+  EXPIRED: "EXPIRED",
+  REVOKE: "REVOKE",
+  REFUND: "REFUND",
+  REFUND_DECLINED: "REFUND_DECLINED",
+  REFUND_REVERSED: "REFUND_REVERSED",
+  DID_CHANGE_RENEWAL_STATUS: "DID_CHANGE_RENEWAL_STATUS",
+  DID_CHANGE_RENEWAL_PREF: "DID_CHANGE_RENEWAL_PREF",
+  PRICE_INCREASE: "PRICE_INCREASE",
+  OFFER_REDEEMED: "OFFER_REDEEMED",
+  RENEWAL_EXTENDED: "RENEWAL_EXTENDED",
 } as const;
 
 const SUBTYPE = {
-  GRACE_PERIOD: 'GRACE_PERIOD',
-  AUTO_RENEW_ENABLED: 'AUTO_RENEW_ENABLED',
-  AUTO_RENEW_DISABLED: 'AUTO_RENEW_DISABLED',
-  BILLING_RECOVERY: 'BILLING_RECOVERY',
+  GRACE_PERIOD: "GRACE_PERIOD",
+  AUTO_RENEW_ENABLED: "AUTO_RENEW_ENABLED",
+  AUTO_RENEW_DISABLED: "AUTO_RENEW_DISABLED",
+  BILLING_RECOVERY: "BILLING_RECOVERY",
 } as const;
 
 const APPLE_AUTO_RENEW_ON = 1;
@@ -78,7 +78,7 @@ function autoRenewFromRenewalInfo(
 }
 
 function formatReason(type: string, subtype: string | undefined): string {
-  return subtype === undefined || subtype === '' ? type : `${type}:${subtype}`;
+  return subtype === undefined || subtype === "" ? type : `${type}:${subtype}`;
 }
 
 function handleRenewalStatusChange(

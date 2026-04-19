@@ -3,7 +3,6 @@ import {
   getTopUsers,
   getUsageStats,
 } from "@/lib/supabase/queries/usage";
-import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import {
   Table,
@@ -30,7 +29,9 @@ export default async function UsagePage() {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-xl font-semibold tracking-tight text-foreground">Usage</h1>
+        <h1 className="text-xl font-semibold tracking-tight text-foreground">
+          Usage
+        </h1>
         <p className="mt-1 text-sm text-muted-foreground">
           AI generation stats and subscription analytics
         </p>
@@ -72,16 +73,27 @@ export default async function UsagePage() {
               ) : (
                 <div className="space-y-3">
                   {Object.entries(subscriptions).map(([status, count]) => (
-                    <div key={status} className="flex items-center justify-between">
+                    <div
+                      key={status}
+                      className="flex items-center justify-between"
+                    >
                       <div className="flex items-center gap-2.5">
-                        <div className={`h-2 w-2 rounded-full ${
-                          status === "active" ? "bg-primary" :
-                          status === "expired" ? "bg-destructive" :
-                          "bg-muted-foreground/40"
-                        }`} />
-                        <span className="text-sm capitalize text-foreground">{status}</span>
+                        <div
+                          className={`h-2 w-2 rounded-full ${
+                            status === "active"
+                              ? "bg-primary"
+                              : status === "expired"
+                                ? "bg-destructive"
+                                : "bg-muted-foreground/40"
+                          }`}
+                        />
+                        <span className="text-sm capitalize text-foreground">
+                          {status}
+                        </span>
                       </div>
-                      <span className="font-mono text-sm font-semibold tabular-nums">{count}</span>
+                      <span className="font-mono text-sm font-semibold tabular-nums">
+                        {count}
+                      </span>
                     </div>
                   ))}
                 </div>
@@ -98,8 +110,12 @@ export default async function UsagePage() {
             <Table>
               <TableHeader>
                 <TableRow className="hover:bg-transparent">
-                  <TableHead className="text-xs font-medium uppercase tracking-wider text-muted-foreground">User</TableHead>
-                  <TableHead className="text-right text-xs font-medium uppercase tracking-wider text-muted-foreground">Generations</TableHead>
+                  <TableHead className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                    User
+                  </TableHead>
+                  <TableHead className="text-right text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                    Generations
+                  </TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>

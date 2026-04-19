@@ -1,8 +1,8 @@
-import { existsSync, readdirSync, readFileSync, statSync } from 'fs';
-import { join, resolve } from 'path';
+import { existsSync, readdirSync, readFileSync, statSync } from "fs";
+import { join, resolve } from "path";
 
-const APPLE_CERT_AUTHORITY_URL = 'https://www.apple.com/certificateauthority/';
-const SUPPORTED_CERT_EXTENSIONS = ['.cer', '.der'] as const;
+const APPLE_CERT_AUTHORITY_URL = "https://www.apple.com/certificateauthority/";
+const SUPPORTED_CERT_EXTENSIONS = [".cer", ".der"] as const;
 
 export function loadAppleRootCertificates(dir: string): Buffer[] {
   const absoluteDir = resolve(dir);

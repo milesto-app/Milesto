@@ -1,4 +1,4 @@
-import { IsBoolean, IsInt, IsString, Min } from 'class-validator';
+import { IsBoolean, IsInt, IsString, Min } from "class-validator";
 
 export class GeneratedMilestone {
   @IsString()

@@ -1,13 +1,13 @@
-import type { PersonaJudge } from '../personas.js';
+import type { PersonaJudge } from "../personas.js";
 
 export const DROPOUT_PREDICTOR_JUDGE: PersonaJudge = {
-  name: 'The Dropout Predictor',
-  axis: 'Emotional Leverage',
+  name: "The Dropout Predictor",
+  axis: "Emotional Leverage",
   scoreFields: [
-    'precipitating_event',
-    'identity_vs_behavior',
-    'emotional_anchor',
-    'commitment_signal',
+    "precipitating_event",
+    "identity_vs_behavior",
+    "emotional_anchor",
+    "commitment_signal",
   ],
   systemPrompt: `You are a behavioral economist who studies app abandonment and habit formation. You evaluate whether the intake captures the emotional fuel that will sustain the user past week 3 — the critical drop-off point. You know that: goals without a precipitating event ("why NOW?") have 3x higher abandonment; identity-level goals ("I want to BE a runner") sustain better than behavior-level goals ("I want to run 3x/week"); concrete emotional anchors beat abstract aspirations; and commitment signals (what they'll sacrifice) predict follow-through better than motivation statements.
 

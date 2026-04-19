@@ -1,25 +1,25 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger } from "@nestjs/common";
 
 import type {
   BatchEvalResult,
   EvalBatchOptions,
   EvalPriorBatch,
   EvalQuestion,
-} from './eval.types.js';
+} from "./eval.types.js";
 import {
   buildJudgeUserPrompt,
   buildSimulationSystemPrompt,
   buildSimulationUserPrompt,
   formatQuestions,
-} from './eval-prompt.builder.js';
-import { EvalScoringService } from './eval-scoring.service.js';
-import type { GoldStandard } from './gold-standards.js';
+} from "./eval-prompt.builder.js";
+import { EvalScoringService } from "./eval-scoring.service.js";
+import type { GoldStandard } from "./gold-standards.js";
 import type {
   MetaJudgeResult,
   PersonaJudge,
   PersonaScores,
-} from './personas.js';
-import { ALL_PERSONA_JUDGES, META_JUDGE_SYSTEM_PROMPT } from './personas.js';
+} from "./personas.js";
+import { ALL_PERSONA_JUDGES, META_JUDGE_SYSTEM_PROMPT } from "./personas.js";
 
 const SCORE_DECIMAL_PLACES = 2;
 
@@ -46,8 +46,8 @@ export class EvalJudgeService {
     );
 
     const personaScores = judgeResults.map((scores, i) => ({
-      judge: ALL_PERSONA_JUDGES[i]?.name ?? 'Unknown',
-      axis: ALL_PERSONA_JUDGES[i]?.axis ?? 'Unknown',
+      judge: ALL_PERSONA_JUDGES[i]?.name ?? "Unknown",
+      axis: ALL_PERSONA_JUDGES[i]?.axis ?? "Unknown",
       scores,
     }));
 
@@ -84,7 +84,7 @@ export class EvalJudgeService {
         question_type: q.question_type,
         answer:
           answers.find((a) => a.question_index === i + 1)?.answer ??
-          'No answer provided',
+          "No answer provided",
       })),
     };
   }
@@ -152,14 +152,14 @@ export class EvalJudgeService {
         (ps) =>
           `### ${ps.judge} (${ps.axis})\n${JSON.stringify(ps.scores, null, SCORE_DECIMAL_PLACES)}`,
       )
-      .join('\n\n');
+      .join("\n\n");
 
     const userPrompt = `## Goal\n${goalDescription}\n\n## Batch Under Evaluation\n${questionsFormatted}\n\n## Judge Scores\n${scoresFormatted}\n\nSynthesize the above into your verdict.`;
 
     return this.scoringService.callJudgeWithRetry<MetaJudgeResult>(
       META_JUDGE_SYSTEM_PROMPT,
       userPrompt,
-      'Meta-Judge',
+      "Meta-Judge",
     );
   }
 }

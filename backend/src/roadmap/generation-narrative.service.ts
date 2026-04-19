@@ -1,19 +1,19 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger } from "@nestjs/common";
 
-import { AiService } from '../ai/ai.service.js';
-import { config } from '../config/app.config.js';
+import { AiService } from "../ai/ai.service.js";
+import { config } from "../config/app.config.js";
 import {
   buildMonthlySummaryNarrativeSystemPrompt,
   buildMonthlySummaryNarrativeUserPrompt,
   buildWeeklySummaryNarrativeSystemPrompt,
   buildWeeklySummaryNarrativeUserPrompt,
-} from './prompts/weekly-plan-prompts.js';
+} from "./prompts/weekly-plan-prompts.js";
 import type {
   MonthlySummary,
   WeekData,
   WeeklyPlan,
   WeeklySummary,
-} from './types/weekly-plan.types.js';
+} from "./types/weekly-plan.types.js";
 
 const PERCENTAGE_MULTIPLIER = 100;
 
@@ -43,7 +43,7 @@ export class GenerationNarrativeService {
         completionRate,
         weekData,
       ),
-      label: 'Weekly summary',
+      label: "Weekly summary",
     });
 
     return {
@@ -82,7 +82,7 @@ export class GenerationNarrativeService {
         totalTasks: totals.totalTasks,
         weeklyNarratives,
       }),
-      label: 'Monthly summary',
+      label: "Monthly summary",
     });
 
     return {
@@ -120,7 +120,7 @@ export class GenerationNarrativeService {
     totalCompleted: number;
     totalTasks: number;
     avgCompletionRate: number;
-    summary: Omit<MonthlySummary, 'narrative'>;
+    summary: Omit<MonthlySummary, "narrative">;
   } {
     const totalCompleted = weeklySummaries.reduce(
       (sum, ws) => sum + ws.tasks_completed,
