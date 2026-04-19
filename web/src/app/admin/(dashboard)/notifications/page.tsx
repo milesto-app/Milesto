@@ -1,6 +1,9 @@
 import { NotificationForm } from "@/components/admin/notification-form";
+import { getAllUsersForSelect } from "@/lib/supabase/queries/users";
 
-export default function NotificationsPage() {
+export default async function NotificationsPage() {
+  const users = await getAllUsersForSelect();
+
   return (
     <div className="space-y-6">
       <div>
@@ -12,7 +15,7 @@ export default function NotificationsPage() {
         </p>
       </div>
       <div className="max-w-lg">
-        <NotificationForm />
+        <NotificationForm users={users} />
       </div>
     </div>
   );

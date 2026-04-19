@@ -12,6 +12,15 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { NOTIFICATION_TYPE_PRESETS } from "@/lib/notifications/types";
+import type { AdminUserOption } from "@/lib/supabase/queries/users";
 
 type SendResult = {
   success: boolean;
@@ -19,12 +28,31 @@ type SendResult = {
   recipientCount?: number;
 };
 
-export function NotificationForm() {
+const BROADCAST_VALUE = "__all__";
+const CUSTOM_TYPE_VALUE = "__custom__";
+
+function userLabel(user: AdminUserOption): string {
+  const name = [user.firstName, user.lastName].filter(Boolean).join(" ").trim();
+  return name === "" ? user.email : `${name} · ${user.email}`;
+}
+
+export function NotificationForm({ users }: { users: AdminUserOption[] }) {
   const [title, setTitle] = useState("");
   const [body, setBody] = useState("");
-  const [userId, setUserId] = useState("");
+  const [userId, setUserId] = useState<string>(BROADCAST_VALUE);
+  const [typeKind, setTypeKind] = useState<string>(CUSTOM_TYPE_VALUE);
   const [sending, setSending] = useState(false);
   const [result, setResult] = useState<SendResult | null>(null);
+
+  function handleTypeChange(value: string) {
+    setTypeKind(value);
+    if (value === CUSTOM_TYPE_VALUE) return;
+    const preset = NOTIFICATION_TYPE_PRESETS.find((p) => p.kind === value);
+    if (preset) {
+      setTitle(preset.title);
+      setBody(preset.body);
+    }
+  }
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
@@ -36,9 +64,12 @@ export function NotificationForm() {
       body: body.trim(),
     };
 
-    const trimmedUserId = userId.trim();
-    if (trimmedUserId) {
-      payload.userIds = [trimmedUserId];
+    if (userId !== BROADCAST_VALUE) {
+      payload.userIds = [userId];
+    }
+
+    if (typeKind !== CUSTOM_TYPE_VALUE) {
+      payload.data = { kind: typeKind };
     }
 
     try {
@@ -72,6 +103,75 @@ export function NotificationForm() {
         <form onSubmit={handleSubmit} className="space-y-5">
           <div className="space-y-1.5">
             <label
+              htmlFor="notif-user"
+              className="text-sm font-medium text-foreground"
+            >
+              Recipient
+            </label>
+            <Select<string>
+              value={userId}
+              onValueChange={(value) => {
+                if (value !== null) setUserId(value);
+              }}
+            >
+              <SelectTrigger id="notif-user">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value={BROADCAST_VALUE}>
+                  Broadcast to all users
+                </SelectItem>
+                {users.map((user) => (
+                  <SelectItem key={user.id} value={user.id}>
+                    {userLabel(user)}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <p className="text-xs text-muted-foreground">
+              Target a specific user, or broadcast to everyone with a registered
+              device.
+            </p>
+          </div>
+
+          <div className="space-y-1.5">
+            <label
+              htmlFor="notif-type"
+              className="text-sm font-medium text-foreground"
+            >
+              Notification type{" "}
+              <span className="font-normal text-muted-foreground">
+                (optional)
+              </span>
+            </label>
+            <Select<string>
+              value={typeKind}
+              onValueChange={(value) => {
+                if (value !== null) handleTypeChange(value);
+              }}
+            >
+              <SelectTrigger id="notif-type">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value={CUSTOM_TYPE_VALUE}>
+                  Custom (no kind)
+                </SelectItem>
+                {NOTIFICATION_TYPE_PRESETS.map((preset) => (
+                  <SelectItem key={preset.kind} value={preset.kind}>
+                    {preset.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <p className="text-xs text-muted-foreground">
+              Selecting a type prefills title and body and tags the payload with{" "}
+              <code>kind</code> so the iOS app handles it like a real one.
+            </p>
+          </div>
+
+          <div className="space-y-1.5">
+            <label
               htmlFor="notif-title"
               className="text-sm font-medium text-foreground"
             >
@@ -101,28 +201,6 @@ export function NotificationForm() {
               onChange={(e) => setBody(e.target.value)}
               required
             />
-          </div>
-
-          <div className="space-y-1.5">
-            <label
-              htmlFor="notif-user"
-              className="text-sm font-medium text-foreground"
-            >
-              User ID{" "}
-              <span className="font-normal text-muted-foreground">
-                (optional)
-              </span>
-            </label>
-            <Input
-              id="notif-user"
-              placeholder="Leave empty to broadcast to all users"
-              value={userId}
-              onChange={(e) => setUserId(e.target.value)}
-            />
-            <p className="text-xs text-muted-foreground">
-              Target a specific user by UUID, or leave empty to send to
-              everyone.
-            </p>
           </div>
 
           <Button type="submit" disabled={sending} className="gap-2">
