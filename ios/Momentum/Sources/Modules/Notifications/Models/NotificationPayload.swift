@@ -1,6 +1,6 @@
 import Foundation
 
-struct NotificationPayload {
+nonisolated struct NotificationPayload {
     let jobId: String?
     let kind: String?
     let reveal: String?

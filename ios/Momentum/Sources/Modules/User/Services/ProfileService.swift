@@ -85,15 +85,16 @@ final class ProfileService {
     }
 
     func setKindEnabled(kind: String, enabled: Bool) async throws -> NotifPreferences {
-        struct Params: Encodable {
-            let p_kind: String
-            let p_enabled: Bool
-        }
         return try await Supabase.client
-            .rpc("set_notif_preference_kind_enabled", params: Params(p_kind: kind, p_enabled: enabled))
+            .rpc("set_notif_preference_kind_enabled", params: SetNotifPreferenceKindEnabledParams(p_kind: kind, p_enabled: enabled))
             .execute()
             .value
     }
+}
+
+private nonisolated struct SetNotifPreferenceKindEnabledParams: Encodable {
+    let p_kind: String
+    let p_enabled: Bool
 }
 
 enum ProfileServiceError: LocalizedError {
