@@ -15,6 +15,8 @@ import { OutboxService } from "./outbox/outbox.service.js";
 import { CoachReplyProducer } from "./producers/coach-reply.producer.js";
 import { MilestonePreviewProducer } from "./producers/milestone-preview.producer.js";
 import { SchedulerService } from "./producers/scheduler.service.js";
+import { StoService } from "./sto/sto.service.js";
+import { StoCronService } from "./sto/sto-cron.service.js";
 
 @Global()
 @Module({
@@ -36,7 +38,15 @@ import { SchedulerService } from "./producers/scheduler.service.js";
     OrphanRecoveryService,
     OutboxService,
     SchedulerService,
+    StoCronService,
+    StoService,
   ],
-  exports: [ActivityService, GateService, NotificationsService, OutboxService],
+  exports: [
+    ActivityService,
+    GateService,
+    NotificationsService,
+    OutboxService,
+    StoService,
+  ],
 })
 export class NotificationsModule {}

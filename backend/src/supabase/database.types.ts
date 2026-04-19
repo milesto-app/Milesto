@@ -712,6 +712,7 @@ export type Database = {
           notif_quiet_end: number | null;
           notif_quiet_start: number | null;
           sto_active_hour: number | null;
+          sto_active_hour_updated_at: string | null;
           subscription_apple_signed_at: string | null;
           subscription_auto_renew_status: boolean | null;
           subscription_environment: string | null;
@@ -740,6 +741,7 @@ export type Database = {
           notif_quiet_end?: number | null;
           notif_quiet_start?: number | null;
           sto_active_hour?: number | null;
+          sto_active_hour_updated_at?: string | null;
           subscription_apple_signed_at?: string | null;
           subscription_auto_renew_status?: boolean | null;
           subscription_environment?: string | null;
@@ -768,6 +770,7 @@ export type Database = {
           notif_quiet_end?: number | null;
           notif_quiet_start?: number | null;
           sto_active_hour?: number | null;
+          sto_active_hour_updated_at?: string | null;
           subscription_apple_signed_at?: string | null;
           subscription_auto_renew_status?: boolean | null;
           subscription_environment?: string | null;
@@ -1118,6 +1121,13 @@ export type Database = {
       set_notif_preference_kind_enabled: {
         Args: { p_enabled: boolean; p_kind: string };
         Returns: Json;
+      };
+      sto_activity_stats: {
+        Args: { p_user_id: string };
+        Returns: {
+          distinct_days: number;
+          hour_distribution: Json;
+        }[];
       };
     };
     Enums: {

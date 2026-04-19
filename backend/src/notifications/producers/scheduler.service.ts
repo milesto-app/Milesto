@@ -9,11 +9,10 @@ import {
   NOTIFICATION_KIND,
   NOTIFICATION_TIER,
 } from "../outbox/outbox.types.js";
+import { StoService } from "../sto/sto.service.js";
+import { StoCronService } from "../sto/sto-cron.service.js";
 import { computeNextDailyCheckInSlot } from "./local-time.js";
-import {
-  getPersonaDefaultHour,
-  resolvePersonaBucket,
-} from "./persona-defaults.js";
+import { resolvePersonaBucket } from "./persona-defaults.js";
 
 const SCHEDULE_EVERY_15_MIN = "*/15 * * * *";
 const QUIET_HOURS_START_V1 = 22;
@@ -55,6 +54,8 @@ export class SchedulerService {
     private readonly supabaseService: SupabaseService,
     private readonly outbox: OutboxService,
     private readonly gate: GateService,
+    private readonly stoService: StoService,
+    private readonly stoCron: StoCronService,
   ) {}
 
   @Cron(SCHEDULE_EVERY_15_MIN)
@@ -65,6 +66,7 @@ export class SchedulerService {
     this.inFlight = true;
     try {
       await this.scheduleDailyCheckIns();
+      await this.stoCron.tickForLocalTime(new Date());
     } catch (error) {
       this.logger.error(
         "Scheduler tick failed",
@@ -116,7 +118,10 @@ export class SchedulerService {
     candidate: DailyCheckInCandidate,
     now: Date,
   ): Promise<"inserted" | "duplicate" | "failed"> {
-    const targetHour = getPersonaDefaultHour(candidate.coach_id);
+    const targetHour = await this.stoService.getEffectiveTargetHour(
+      candidate.user_id,
+      "daily_check_in",
+    );
     const slot = computeNextDailyCheckInSlot({
       now,
       timezone: candidate.timezone,
