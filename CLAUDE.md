@@ -37,6 +37,18 @@ A root `package.json` provides bun-based scripts that orchestrate common tasks a
 - **After DDL changes** — run `get_advisors` (security + performance) to catch issues.
 - **After any changes** — run `bun run lint` at the repo root before reporting the task as done.
 
+## Branching & PR Workflow
+
+Never commit directly to `dev` or `main`. When starting any code work:
+
+1. **Pull the latest `dev`** (`git checkout dev && git pull`) so the new branch starts from the current remote state.
+2. **Create a new branch** off `dev` using a descriptive prefix: `feat/`, `fix/`, `chore/`, `refactor/`, or `docs/`.
+3. **Push the branch and open a PR immediately** (before doing the work) with `[WIP]` as a prefix in the title. The PR body must explain what the PR is about — goal, scope, and why.
+4. **Push commits to that branch as you go** so the remote always reflects local progress.
+5. **When the work is done**, push the final commits and edit the PR title to remove the `[WIP]` prefix, signalling it is ready for review.
+
+This keeps local and remote `dev` in sync and avoids divergence.
+
 ## Versioning
 
 The iOS Marketing Version (`MARKETING_VERSION` in `ios/Momentum.xcodeproj/project.pbxproj`) follows `proud.default.shame` (mapped to semver `major.minor.patch`):
