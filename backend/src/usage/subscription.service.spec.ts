@@ -209,6 +209,21 @@ describe('SubscriptionService', () => {
       ).rejects.toBeInstanceOf(UnauthorizedException);
     });
 
+    it('should reject when appAccountToken is not a valid UUID', async () => {
+      verifyAndDecodeTransactionMock.mockResolvedValue(
+        buildTransaction({ appAccountToken: 'not-a-uuid' }),
+      );
+      const service = buildService({
+        profileById: new Map(),
+        profileByOriginalTx: new Map(),
+        updates: [],
+        maybeSingleQueue: [],
+      });
+      await expect(
+        service.verifyAndSync(TEST_USER_ID, 'jws'),
+      ).rejects.toBeInstanceOf(UnauthorizedException);
+    });
+
     it('should reject FAMILY_SHARED transactions', async () => {
       verifyAndDecodeTransactionMock.mockResolvedValue(
         buildTransaction({ inAppOwnershipType: 'FAMILY_SHARED' }),

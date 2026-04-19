@@ -151,5 +151,7 @@ export const config = {
     webhookThrottleTtlMs: 60_000,
     webhookMaxBodyBytes: 1_048_576,
     maxFailedDrainAttempts: 5,
+    verifyThrottleLimit: 10,
+    verifyThrottleTtlMs: 60_000,
   },
 };
