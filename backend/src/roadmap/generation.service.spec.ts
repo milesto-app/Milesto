@@ -91,7 +91,7 @@ describe('GenerationService', () => {
 
       expect(result.milestones).toHaveLength(3);
       expect(result.milestones[0]!.title).toBe('Build base endurance');
-      expect(result.metadata.model_used).toBe(config.ai.defaultModel);
+      expect(result.metadata.model_used).toBe(config.roadmap.milestoneModel);
       expect(result.metadata.context_chunks_used).toBe(5);
       expect(result.metadata.attempts).toBe(1);
       expect(result.metadata.latency_ms).toBeGreaterThanOrEqual(0);
@@ -147,7 +147,7 @@ describe('GenerationService', () => {
       ).rejects.toThrow('Milestone validation failed after repair');
     });
 
-    it('should resolve milestone model from default to appConfig.ai.defaultModel', async () => {
+    it('should use milestone model from config', async () => {
       mockAiService.generateJson.mockResolvedValue(validMilestoneResponse);
 
       await service.generateMilestones(mockContext, mockGoal, 'en');
@@ -155,7 +155,7 @@ describe('GenerationService', () => {
       expect(mockAiService.generateJson).toHaveBeenCalledWith(
         expect.any(String),
         expect.any(String),
-        config.ai.defaultModel,
+        config.roadmap.milestoneModel,
       );
     });
 
@@ -333,11 +333,11 @@ describe('GenerationService', () => {
       });
 
       expect(result.plan.objectives).toHaveLength(3);
-      expect(result.metadata.model_used).toBe(config.ai.defaultModel);
+      expect(result.metadata.model_used).toBe(config.roadmap.weeklyModel);
       expect(result.metadata.attempts).toBe(1);
     });
 
-    it('should use default model from config', async () => {
+    it('should use weekly model from config', async () => {
       mockAiService.generateJson.mockResolvedValue(validWeeklyPlanResponse);
 
       await service.generateWeeklyPlan({
@@ -351,7 +351,7 @@ describe('GenerationService', () => {
       expect(mockAiService.generateJson).toHaveBeenCalledWith(
         expect.any(String),
         expect.any(String),
-        config.ai.defaultModel,
+        config.roadmap.weeklyModel,
       );
     });
 
@@ -520,7 +520,7 @@ describe('GenerationService', () => {
 
       expect(result.tasks).toHaveLength(3);
       expect(result.tasks[0]!.title).toBe('Morning run - 5km easy pace');
-      expect(result.metadata.model_used).toBe(config.ai.defaultModel);
+      expect(result.metadata.model_used).toBe(config.roadmap.weeklyTaskModel);
       expect(result.metadata.attempts).toBe(1);
     });
 
@@ -588,7 +588,7 @@ describe('GenerationService', () => {
       expect(result.metadata.attempts).toBe(1);
     });
 
-    it('should use default model from config', async () => {
+    it('should use weekly task model from config', async () => {
       mockAiService.generateJson.mockResolvedValue(validWeeklyTasksResponse);
 
       await service.generateWeeklyTasks({
@@ -601,7 +601,7 @@ describe('GenerationService', () => {
       expect(mockAiService.generateJson).toHaveBeenCalledWith(
         expect.any(String),
         expect.any(String),
-        config.ai.defaultModel,
+        config.roadmap.weeklyTaskModel,
       );
     });
 

@@ -96,9 +96,9 @@ export const config = {
     matchCount: 20,
     matchThreshold: 0.7,
     rerankTopN: 10,
-    milestoneModel: 'default',
-    weeklyModel: 'default',
-    weeklyTaskModel: 'default',
+    milestoneModel: 'openai/gpt-5.4',
+    weeklyModel: 'openai/gpt-5.4',
+    weeklyTaskModel: 'openai/gpt-5.4',
     maxGenerationAttempts: 3,
   },
   cohere: {
