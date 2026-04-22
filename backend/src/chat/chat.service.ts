@@ -7,7 +7,6 @@ import type {
 
 import { AiService } from "../ai/ai.service.js";
 import { config } from "../config/app.config.js";
-import { ActivityService } from "../notifications/activity/activity.service.js";
 import { UsageService } from "../usage/usage.service.js";
 import { GenerationType } from "../usage/usage.types.js";
 import { ChatHistoryService } from "./chat-history.service.js";
@@ -43,7 +42,6 @@ export class ChatService {
     private readonly prompt: ChatPromptService,
     private readonly toolRegistryService: ChatToolRegistryService,
     private readonly usageService: UsageService,
-    private readonly activity: ActivityService,
     private readonly events: EventEmitter2,
   ) {
     this.toolRegistry = this.toolRegistryService.getRegistry();
@@ -66,11 +64,6 @@ export class ChatService {
     await this.history.storeMessage(conversation.id, {
       role: "user",
       content: dto.content,
-    });
-    this.activity.record(userId, "message_sent").catch((error: unknown) => {
-      this.logger.warn(
-        `Failed to record message_sent activity: ${error instanceof Error ? error.message : String(error)}`,
-      );
     });
     const storedMessages = await this.history.getMessages(conversation.id);
     const [{ coachId, language }, goalContext, memory] = await Promise.all([

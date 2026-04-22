@@ -7,7 +7,6 @@ import {
 } from "@nestjs/common";
 import { EventEmitter2 } from "@nestjs/event-emitter";
 
-import { ActivityService } from "../notifications/activity/activity.service.js";
 import type { Json } from "../supabase/database.types.js";
 import { SUPABASE_UNIQUE_VIOLATION } from "../supabase/error-codes.js";
 import { SupabaseService } from "../supabase/supabase.service.js";
@@ -21,7 +20,6 @@ export class DebriefService {
   constructor(
     private readonly supabaseService: SupabaseService,
     private readonly eventEmitter: EventEmitter2,
-    private readonly activity: ActivityService,
   ) {}
 
   public async submitDebrief(
@@ -102,13 +100,6 @@ export class DebriefService {
       throw new InternalServerErrorException("Failed to store debrief");
     }
     const didCompletePlan = await this.completeWeeklyPlan(dto.weekly_plan_id);
-    this.activity
-      .record(userId, "debrief_submitted")
-      .catch((activityError: unknown) => {
-        this.logger.warn(
-          `Failed to record debrief_submitted activity: ${activityError instanceof Error ? activityError.message : String(activityError)}`,
-        );
-      });
     this.eventEmitter.emit("debrief.submitted", {
       debriefId: (data as Record<string, unknown>).id,
       goalId,

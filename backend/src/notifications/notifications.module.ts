@@ -1,85 +1,13 @@
-import { Global, Module } from "@nestjs/common";
+import { Module } from "@nestjs/common";
 
-import { ActivityController } from "./activity/activity.controller.js";
-import { ActivityService } from "./activity/activity.service.js";
-import { CopyGenClient } from "./copy/copy-gen.client.js";
-import { CopyGenConsumerService } from "./copy/copy-gen.consumer.js";
-import { CopyGenService } from "./copy/copy-gen.service.js";
-import { CopyGenOrphanRecoveryService } from "./copy/copy-gen-orphan-recovery.service.js";
-import { CopyGenSloAlertService } from "./copy/copy-gen-slo-alert.service.js";
-import { PostCommitCopyGenRunner } from "./copy/post-commit-copy-gen.runner.js";
-import { DeliveryTelemetryController } from "./deliveries/delivery-telemetry.controller.js";
-import { DeliveryTelemetryService } from "./deliveries/delivery-telemetry.service.js";
 import { DeviceTokensController } from "./device-tokens.controller.js";
 import { DeviceTokensService } from "./device-tokens.service.js";
-import { DispatcherService } from "./dispatcher/dispatcher.service.js";
-import { OrphanRecoveryService } from "./dispatcher/orphan-recovery.service.js";
-import { GateService } from "./gate/gate.service.js";
-import { IntentionsController } from "./intentions/intentions.controller.js";
-import { IntentionsService } from "./intentions/intentions.service.js";
 import { NotificationsController } from "./notifications.controller.js";
 import { NotificationsService } from "./notifications.service.js";
-import { OutboxService } from "./outbox/outbox.service.js";
-import { PreviewContextService } from "./preview/preview-context.service.js";
-import { CoachReplyProducer } from "./producers/coach-reply.producer.js";
-import { GoalCelebrationProducer } from "./producers/goal-celebration.producer.js";
-import { IntentionProducer } from "./producers/intention.producer.js";
-import { MilestoneCelebrationProducer } from "./producers/milestone-celebration.producer.js";
-import { MilestonePreviewProducer } from "./producers/milestone-preview.producer.js";
-import { SchedulerService } from "./producers/scheduler.service.js";
-import { WeekCelebrationProducer } from "./producers/week-celebration.producer.js";
-import { StoService } from "./sto/sto.service.js";
-import { StoCronService } from "./sto/sto-cron.service.js";
-import { StreaksService } from "./streaks/streaks.service.js";
-import { StreaksAtRiskService } from "./streaks/streaks-at-risk.service.js";
-import { StreaksNightlyService } from "./streaks/streaks-nightly.service.js";
 
-@Global()
 @Module({
-  controllers: [
-    ActivityController,
-    DeliveryTelemetryController,
-    DeviceTokensController,
-    IntentionsController,
-    NotificationsController,
-  ],
-  providers: [
-    ActivityService,
-    CoachReplyProducer,
-    CopyGenClient,
-    CopyGenConsumerService,
-    CopyGenOrphanRecoveryService,
-    CopyGenService,
-    CopyGenSloAlertService,
-    DeliveryTelemetryService,
-    DeviceTokensService,
-    DispatcherService,
-    GateService,
-    GoalCelebrationProducer,
-    IntentionProducer,
-    IntentionsService,
-    MilestoneCelebrationProducer,
-    MilestonePreviewProducer,
-    NotificationsService,
-    OrphanRecoveryService,
-    OutboxService,
-    PostCommitCopyGenRunner,
-    PreviewContextService,
-    SchedulerService,
-    StoCronService,
-    StoService,
-    StreaksAtRiskService,
-    StreaksNightlyService,
-    StreaksService,
-    WeekCelebrationProducer,
-  ],
-  exports: [
-    ActivityService,
-    CopyGenService,
-    GateService,
-    NotificationsService,
-    OutboxService,
-    StoService,
-  ],
+  controllers: [DeviceTokensController, NotificationsController],
+  providers: [DeviceTokensService, NotificationsService],
+  exports: [DeviceTokensService, NotificationsService],
 })
 export class NotificationsModule {}
