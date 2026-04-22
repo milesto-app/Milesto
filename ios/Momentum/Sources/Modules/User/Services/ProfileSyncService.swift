@@ -43,12 +43,6 @@ final class ProfileSyncService {
             existing?.avatarData
         }
 
-        let notifPreferencesJSON: String? = {
-            guard let prefs = fetchedProfile?.notifPreferences else { return nil }
-            guard let data = try? JSONEncoder().encode(prefs) else { return nil }
-            return String(data: data, encoding: .utf8)
-        }()
-
         if let existing {
             existing.firstName = fetchedProfile?.firstName
             existing.lastName = fetchedProfile?.lastName
@@ -58,11 +52,6 @@ final class ProfileSyncService {
             existing.coachId = fetchedProfile?.coachId
             existing.dateOfBirth = fetchedProfile?.dateOfBirth
             existing.language = fetchedProfile?.language
-            existing.notifPermissionStatus = fetchedProfile?.notifPermissionStatus
-            existing.notifEnabled = fetchedProfile?.notifEnabled
-            existing.notifQuietStart = fetchedProfile?.notifQuietStart
-            existing.notifQuietEnd = fetchedProfile?.notifQuietEnd
-            existing.notifPreferencesJSON = notifPreferencesJSON
             existing.createdAt = fetchedProfile?.createdAt
         } else {
             let newProfile = LocalProfile(
@@ -75,11 +64,6 @@ final class ProfileSyncService {
                 coachId: fetchedProfile?.coachId,
                 dateOfBirth: fetchedProfile?.dateOfBirth,
                 language: fetchedProfile?.language,
-                notifPermissionStatus: fetchedProfile?.notifPermissionStatus,
-                notifEnabled: fetchedProfile?.notifEnabled,
-                notifQuietStart: fetchedProfile?.notifQuietStart,
-                notifQuietEnd: fetchedProfile?.notifQuietEnd,
-                notifPreferencesJSON: notifPreferencesJSON,
                 createdAt: fetchedProfile?.createdAt
             )
             modelContext.insert(newProfile)

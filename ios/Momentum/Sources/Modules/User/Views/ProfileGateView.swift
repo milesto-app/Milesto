@@ -5,8 +5,6 @@ struct ProfileGateView: View {
     let userId: String
 
     @Environment(\.modelContext) private var modelContext
-    @EnvironmentObject private var permissionCoordinator: PermissionPromptCoordinator
-    @EnvironmentObject private var deepLinkRouter: DeepLinkRouter
 
     @Query private var localProfiles: [LocalProfile]
     @Query private var localGoals: [LocalGoal]
@@ -20,7 +18,6 @@ struct ProfileGateView: View {
     @State private var isChatPresented = false
     @State private var connectionError = false
     @State private var retryId = 0
-    @State private var showWhyAlert = false
 
     private var localProfile: LocalProfile? {
         localProfiles.first { $0.userId == userId }
@@ -184,47 +181,7 @@ struct ProfileGateView: View {
                 }
             }
             hasSynced = true
-            permissionCoordinator.updateFromProfile(
-                userId: userId,
-                status: localProfile?.notifPermissionStatus,
-                accountCreatedAt: localProfile?.createdAt
-            )
-            permissionCoordinator.tryTriggerFallback()
-            handleDeepLinkRoute(deepLinkRouter.pendingRoute)
         }
-        .onChange(of: localProfile?.notifPermissionStatus) { _, newStatus in
-            permissionCoordinator.updateFromProfile(
-                userId: userId,
-                status: newStatus,
-                accountCreatedAt: localProfile?.createdAt
-            )
-        }
-        .onChange(of: deepLinkRouter.pendingRoute) { _, route in
-            handleDeepLinkRoute(route)
-        }
-        .alert(
-            String(localized: "notifications.why.title", table: "Notifications"),
-            isPresented: $showWhyAlert
-        ) {
-            Button(String(localized: "common.ok", table: "Common"), role: .cancel) {}
-        } message: {
-            Text(String(localized: "notifications.why.body", table: "Notifications"))
-        }
-    }
-
-    private func handleDeepLinkRoute(_ route: DeepLinkRoute?) {
-        guard let route else { return }
-        switch route {
-        case .coachReply:
-            isChatPresented = true
-        case .task:
-            selectedTab = 1
-        case .notifWhy:
-            showWhyAlert = true
-        case .unknown:
-            break
-        }
-        _ = deepLinkRouter.consume()
     }
 
     private func syncGoals() async {

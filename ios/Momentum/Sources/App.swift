@@ -10,7 +10,6 @@ private let storeResetGuardKey = "com.momentum.modelContainer.resetAttemptedAtBu
 struct MomentumApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
     @StateObject private var authService = AuthService.shared
-    @StateObject private var permissionCoordinator = PermissionPromptCoordinator.shared
     @Environment(\.scenePhase) private var scenePhase
 
     private var isAuthenticated: Bool {
@@ -59,29 +58,21 @@ struct MomentumApp: App {
             }
             .tint(Color("TintPrimary"))
             .environmentObject(authService)
-            .environmentObject(permissionCoordinator)
-            .environmentObject(DeepLinkRouter.shared)
-            .sheet(isPresented: $permissionCoordinator.isExplainerVisible) {
-                NotificationPermissionExplainerSheet()
-                    .environmentObject(permissionCoordinator)
-            }
             .onOpenURL { url in
-                if !DeepLinkRouter.shared.handle(url) {
-                    Task { await authService.handleDeepLink(url) }
+                Task {
+                    await authService.handleDeepLink(url)
                 }
             }
             .task(id: isAuthenticated) {
                 await SubscriptionSyncOutbox.shared.configure(container: sharedModelContainer)
                 guard isAuthenticated else { return }
-                await NotificationService.shared.refreshRegistrationIfAuthorized()
+                await NotificationService.shared.requestPermissionAndRegister()
                 await SubscriptionService.shared.onAppStart()
             }
             .onChange(of: scenePhase) { _, newPhase in
                 if newPhase == .active, isAuthenticated {
-                    permissionCoordinator.tryTriggerFallback()
                     Task {
-                        await NotificationService.shared.refreshRegistrationIfAuthorized()
-                        await ActivityAPIService.shared.recordForeground()
+                        await NotificationService.shared.requestPermissionAndRegister()
                     }
                 }
             }
@@ -91,16 +82,6 @@ struct MomentumApp: App {
 }
 
 final class AppDelegate: NSObject, UIApplicationDelegate {
-    func application(
-        _: UIApplication,
-        didFinishLaunchingWithOptions _: [UIApplication.LaunchOptionsKey: Any]? = nil
-    ) -> Bool {
-        Task { @MainActor in
-            NotificationCenterDelegate.shared.register()
-        }
-        return true
-    }
-
     func application(
         _: UIApplication,
         didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data

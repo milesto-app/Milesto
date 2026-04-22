@@ -4,7 +4,6 @@ import Security
 nonisolated enum SharedKeychainKey: String {
     case supabaseAccessToken = "supabase_access_token"
     case supabaseAccessTokenExpiresAt = "supabase_access_token_expires_at"
-    case apnsDeviceToken = "apns_device_token"
 }
 
 nonisolated enum SharedKeychain {
@@ -76,7 +75,6 @@ nonisolated enum SharedKeychain {
     static func clearAll() {
         remove(.supabaseAccessToken)
         remove(.supabaseAccessTokenExpiresAt)
-        remove(.apnsDeviceToken)
     }
 
     static func setSupabaseAccessToken(_ token: String?, expiresAt: Date?) {
@@ -94,13 +92,5 @@ nonisolated enum SharedKeychain {
               let expiry = TimeInterval(expiryString)
         else { return nil }
         return (token, Date(timeIntervalSince1970: expiry))
-    }
-
-    static func setAPNSDeviceToken(_ token: String?) {
-        set(.apnsDeviceToken, value: token)
-    }
-
-    static func apnsDeviceToken() -> String? {
-        string(.apnsDeviceToken)
     }
 }
