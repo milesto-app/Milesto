@@ -17,14 +17,6 @@ interface ApnsResponse {
   body: string;
 }
 
-export interface DeliveryReport {
-  token: string;
-  accepted: boolean;
-  statusCode?: number;
-  body?: string;
-  error?: string;
-}
-
 interface JwtCacheEntry {
   token: string;
   expiresAt: number;
@@ -103,33 +95,6 @@ export class NotificationsService implements OnModuleDestroy {
     body: string,
     data?: Record<string, string>,
   ): Promise<void> {
-    await this.sendToTokenWithReport(token, environment, title, body, data);
-  }
-
-  public async sendToUserWithReport(
-    userId: string,
-    title: string,
-    body: string,
-    data?: Record<string, string>,
-  ): Promise<DeliveryReport[]> {
-    const tokens = await this.deviceTokensService.findByUser(userId);
-    if (tokens.length === 0) {
-      return [];
-    }
-    return Promise.all(
-      tokens.map(async ({ token, environment }) =>
-        this.sendToTokenWithReport(token, environment, title, body, data),
-      ),
-    );
-  }
-
-  private async sendToTokenWithReport(
-    token: string,
-    environment: string,
-    title: string,
-    body: string,
-    data?: Record<string, string>,
-  ): Promise<DeliveryReport> {
     const host =
       environment === "sandbox"
         ? config.apns.host.sandbox
@@ -158,20 +123,11 @@ export class NotificationsService implements OnModuleDestroy {
           `APNs rejected push: status=${response.statusCode} body=${response.body}`,
         );
       }
-
-      return {
-        token,
-        accepted: response.statusCode === APNS_STATUS_OK,
-        statusCode: response.statusCode,
-        body: response.body,
-      };
     } catch (error) {
-      const message = error instanceof Error ? error.message : String(error);
       this.logger.error(
         "APNs send error",
         error instanceof Error ? error.stack : undefined,
       );
-      return { token, accepted: false, error: message };
     }
   }
 
