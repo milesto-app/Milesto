@@ -133,6 +133,17 @@ export const config = {
     jwtCacheTtlMs: 3_300_000,
     broadcastBatchSize: 100,
   },
+  notifications: {
+    cronExpression: "*/15 * * * *",
+    copyModel: "google/gemini-3-flash-lite",
+    copyCallTimeoutMs: 15_000,
+    maxPerDay: 4,
+    minMinutesBetween: 180,
+    localWindowStartHour: 9,
+    localWindowEndHour: 21,
+    maxTitleLength: 50,
+    maxBodyLength: 150,
+  },
   chat: {
     model: "google/gemini-3-flash-preview",
     reasoningEffort: "high",
