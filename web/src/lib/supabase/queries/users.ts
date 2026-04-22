@@ -163,61 +163,6 @@ export async function getUserDetail(
   };
 }
 
-export type AdminUserOption = {
-  id: string;
-  email: string;
-  firstName: string | null;
-  lastName: string | null;
-};
-
-const USER_SELECT_PER_PAGE = 200;
-const USER_SELECT_MAX_PAGES = 20;
-
-export async function getAllUsersForSelect(): Promise<AdminUserOption[]> {
-  await requireAdmin();
-  const supabase = createAdminClient();
-
-  const collected: { id: string; email: string }[] = [];
-
-  for (let page = 1; page <= USER_SELECT_MAX_PAGES; page++) {
-    const { data } = await supabase.auth.admin.listUsers({
-      page,
-      perPage: USER_SELECT_PER_PAGE,
-    });
-    const users = data?.users ?? [];
-    if (users.length === 0) break;
-    for (const u of users) {
-      if (u.email !== undefined && u.email !== "") {
-        collected.push({ id: u.id, email: u.email });
-      }
-    }
-    if (users.length < USER_SELECT_PER_PAGE) break;
-  }
-
-  if (collected.length === 0) return [];
-
-  const userIds = collected.map((u) => u.id);
-  const { data: profiles } = await supabase
-    .from("profiles")
-    .select("id, first_name, last_name")
-    .in("id", userIds);
-
-  const profileMap = new Map(profiles?.map((p) => [p.id, p]) ?? []);
-
-  const options: AdminUserOption[] = collected.map((u) => {
-    const profile = profileMap.get(u.id);
-    return {
-      id: u.id,
-      email: u.email,
-      firstName: profile?.first_name ?? null,
-      lastName: profile?.last_name ?? null,
-    };
-  });
-
-  options.sort((a, b) => a.email.localeCompare(b.email));
-  return options;
-}
-
 export async function searchUsers(query: string) {
   await requireAdmin();
   const supabase = createAdminClient();
