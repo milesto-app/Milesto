@@ -8,6 +8,11 @@ export interface NotificationPromptInput {
   language: string;
   timeOfDay: TimeOfDay;
   goalTitle: string;
+  userMotivationQuote: string | null;
+  weeklyObjectives: string[];
+  weeklyTaskCompleted: number | null;
+  weeklyTaskTotal: number | null;
+  recentCompletedTitles: string[];
   nextTaskTitle: string | null;
 }
 
@@ -32,8 +37,8 @@ ${coach.personality}
 - Write in ${defaultLanguage}.
 - One push. Title ≤ ${String(maxTitleLength)} characters. Body 1–2 short sentences, ≤ ${String(maxBodyLength)} characters.
 - Speak directly to the user. Match your personality above.
-- No emoji. No quotes. No hashtags. No trailing ellipses.
-- Be concrete: reference the goal or next task when provided.
+- Be concrete: reference the goal, the user's motivation, their recent progress, or the next task when it helps.
+- Emoji are welcome when they fit your personality — don't force them.
 </response_guidelines>
 
 <output_format>
@@ -45,7 +50,35 @@ Return ONLY a JSON object with this exact shape, no prose, no markdown fences:
 export function buildNotificationUserPrompt(
   input: NotificationPromptInput,
 ): string {
-  const lines = [`Time of day: ${input.timeOfDay}`, `Goal: ${input.goalTitle}`];
+  const lines: string[] = [
+    `Time of day: ${input.timeOfDay}`,
+    `Goal: ${input.goalTitle}`,
+  ];
+
+  if (input.userMotivationQuote !== null) {
+    lines.push(`Their motivation: "${input.userMotivationQuote}"`);
+  }
+
+  if (input.weeklyObjectives.length > 0) {
+    lines.push("This week's objectives:");
+    for (const objective of input.weeklyObjectives) {
+      lines.push(`  - ${objective}`);
+    }
+  }
+
+  if (input.weeklyTaskTotal !== null && input.weeklyTaskTotal > 0) {
+    const completed = input.weeklyTaskCompleted ?? 0;
+    lines.push(
+      `Weekly progress: ${String(completed)} of ${String(input.weeklyTaskTotal)} tasks done`,
+    );
+  }
+
+  if (input.recentCompletedTitles.length > 0) {
+    lines.push("Recently completed:");
+    for (const title of input.recentCompletedTitles) {
+      lines.push(`  - ${title}`);
+    }
+  }
 
   if (input.nextTaskTitle !== null) {
     lines.push(`Next task: ${input.nextTaskTitle}`);

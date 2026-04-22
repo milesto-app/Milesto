@@ -3,6 +3,7 @@ import { Cron } from "@nestjs/schedule";
 
 import { COACH_BY_ID } from "../coach/coaches.config.js";
 import { config } from "../config/app.config.js";
+import type { Json } from "../supabase/database.types.js";
 import { SupabaseService } from "../supabase/supabase.service.js";
 import { NotificationCopyService } from "./notification-copy.service.js";
 import type { TimeOfDay } from "./notification-prompts.js";
@@ -20,6 +21,11 @@ interface Candidate {
   local_hour: number;
   goal_id: string;
   goal_title: string;
+  user_motivation_quote: string | null;
+  weekly_objectives: Json | null;
+  weekly_task_total: number | null;
+  weekly_task_completed: number | null;
+  recent_completed_titles: string[] | null;
   next_task_title: string | null;
 }
 
@@ -81,6 +87,11 @@ export class NotificationSchedulerService {
         language: candidate.language,
         timeOfDay: bucketTimeOfDay(candidate.local_hour),
         goalTitle: candidate.goal_title,
+        userMotivationQuote: candidate.user_motivation_quote,
+        weeklyObjectives: toStringList(candidate.weekly_objectives),
+        weeklyTaskCompleted: candidate.weekly_task_completed,
+        weeklyTaskTotal: candidate.weekly_task_total,
+        recentCompletedTitles: candidate.recent_completed_titles ?? [],
         nextTaskTitle: candidate.next_task_title,
       });
       if (copy === null) {
@@ -113,4 +124,11 @@ function bucketTimeOfDay(hour: number): TimeOfDay {
     return "afternoon";
   }
   return "evening";
+}
+
+function toStringList(value: Json | null): string[] {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+  return value.filter((entry): entry is string => typeof entry === "string");
 }

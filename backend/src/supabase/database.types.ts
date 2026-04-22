@@ -781,6 +781,11 @@ export type Database = {
           local_hour: number;
           goal_id: string;
           goal_title: string;
+          user_motivation_quote: string | null;
+          weekly_objectives: Json | null;
+          weekly_task_total: number | null;
+          weekly_task_completed: number | null;
+          recent_completed_titles: string[] | null;
           next_task_title: string | null;
         }[];
       };

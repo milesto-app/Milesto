@@ -15,6 +15,11 @@ interface CandidateRow {
   local_hour: number;
   goal_id: string;
   goal_title: string;
+  user_motivation_quote: string | null;
+  weekly_objectives: string[] | null;
+  weekly_task_total: number | null;
+  weekly_task_completed: number | null;
+  recent_completed_titles: string[] | null;
   next_task_title: string | null;
 }
 
@@ -30,6 +35,11 @@ function makeCandidate(overrides: Partial<CandidateRow> = {}): CandidateRow {
     local_hour: 10,
     goal_id: "goal-1",
     goal_title: "Ship Momentum v2",
+    user_motivation_quote: "I want to prove I can ship something real.",
+    weekly_objectives: ["Draft release notes", "Fix regression bugs"],
+    weekly_task_total: 5,
+    weekly_task_completed: 2,
+    recent_completed_titles: ["Write onboarding copy"],
     next_task_title: "Draft the release notes",
     ...overrides,
   };

@@ -21,6 +21,11 @@ const baseInput: NotificationPromptInput = {
   language: "en",
   timeOfDay: "morning",
   goalTitle: "Ship Momentum v2",
+  userMotivationQuote: "I want to prove I can ship something real.",
+  weeklyObjectives: ["Draft release notes", "Fix regression bugs"],
+  weeklyTaskCompleted: 2,
+  weeklyTaskTotal: 5,
+  recentCompletedTitles: ["Write onboarding copy"],
   nextTaskTitle: "Draft the release notes",
 };
 
