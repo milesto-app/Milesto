@@ -79,20 +79,25 @@ export class AiService {
     for (let attempt = 1; attempt <= config.ai.maxRetries; attempt++) {
       try {
         return await this.withTimeout(effectiveTimeoutMs, async (signal) => {
-          const response = await this.openai.chat.completions.create(
+          const stream = await this.openai.chat.completions.create(
             {
               model: model ?? config.ai.defaultModel,
               messages: [
                 { role: "system", content: system },
                 { role: "user", content: user },
               ],
+              stream: true,
               ...(reasoning !== undefined && {
                 reasoning: { effort: reasoning },
               }),
-            } as OpenAI.Chat.ChatCompletionCreateParamsNonStreaming,
+            } as OpenAI.Chat.ChatCompletionCreateParamsStreaming,
             { signal },
           );
-          return this.extractJson(response) as T;
+          let content = "";
+          for await (const chunk of stream) {
+            content += chunk.choices[0]?.delta.content ?? "";
+          }
+          return this.extractJsonFromContent(content) as T;
         });
       } catch (error) {
         const isLastAttempt = attempt >= config.ai.maxRetries;
@@ -105,10 +110,7 @@ export class AiService {
     throw new Error("All retry attempts exhausted");
   }
 
-  private extractJson(
-    response: OpenAI.Chat.Completions.ChatCompletion,
-  ): unknown {
-    const content = response.choices[0]?.message.content ?? "";
+  private extractJsonFromContent(content: string): unknown {
     const match = content.match(/[[{][\s\S]*[}\]]/);
     if (match === null) {
       throw new Error("No JSON found in AI response");
