@@ -41,12 +41,6 @@ struct ProfileGateView: View {
                         }
 
                         Tab(value: 2) {
-                            StatsView(goalId: activeGoalId ?? "")
-                        } label: {
-                            TablerTabLabel(.chartBar, title: String(localized: "tabs.stats", table: "Common"))
-                        }
-
-                        Tab(value: 3) {
                             SettingsView(onNewGoal: { goalId in
                                 activeGoalId = goalId
                                 withAnimation(.easeInOut(duration: 0.4)) {
@@ -64,7 +58,7 @@ struct ProfileGateView: View {
                             TablerTabLabel(.settings, title: String(localized: "tabs.settings", table: "Common"))
                         }
 
-                        Tab(value: 4, role: .search) {
+                        Tab(value: 3, role: .search) {
                             Color.clear
                         } label: {
                             TablerTabLabel(.brain, title: String(localized: "tabs.chat", table: "Common"))
@@ -75,7 +69,7 @@ struct ProfileGateView: View {
                         ProgressiveBlur()
                     }
                     .onChange(of: selectedTab) { oldValue, newValue in
-                        if newValue == 4 {
+                        if newValue == 3 {
                             selectedTab = oldValue
                             isChatPresented = true
                         }
