@@ -185,15 +185,6 @@ extension ChatView {
         }
     }
 
-    func loadLatestConversationIfNeeded() async {
-        guard conversationId == nil, messages.isEmpty, !goalId.isEmpty else { return }
-        do {
-            let fetched = try await ChatAPIService.shared.listConversations(goalId: goalId)
-            guard let latest = fetched.first, conversationId == nil, messages.isEmpty else { return }
-            loadConversation(latest.id)
-        } catch {}
-    }
-
     func loadConversation(_ id: String) {
         guard id != conversationId else { return }
 
