@@ -32,7 +32,6 @@ struct SettingsView: View {
             List {
                 profileHeaderSection
                 profileDetailsSection
-                notificationsSection
                 deleteGoalSection
                 signOutSection
             }
@@ -228,23 +227,6 @@ struct SettingsView: View {
             Spacer()
             AppText(verbatim: value, style: .body)
                 .color(Color("TextSecondary"))
-        }
-    }
-
-    private var notificationsSection: some View {
-        Section {
-            NavigationLink {
-                NotificationSettingsView()
-            } label: {
-                HStack(spacing: 12) {
-                    TablerIcons(.bell, size: 24, color: Color("TintPrimary"))
-                    VStack(alignment: .leading, spacing: 2) {
-                        AppText("notifications.settings.row.title", table: "Notifications", style: .body)
-                        AppText("notifications.settings.row.subtitle", table: "Notifications", style: .caption)
-                            .color(Color("TextSecondary"))
-                    }
-                }
-            }
         }
     }
 

@@ -149,19 +149,6 @@ export class RoadmapStorageService {
         `Failed to store milestones: ${error.message}`,
       );
     }
-    await this.populateMilestoneTargetDates(goalId);
-  }
-
-  private async populateMilestoneTargetDates(goalId: string): Promise<void> {
-    const supabase = this.supabaseService.getAdminClient();
-    const { error } = await supabase.rpc("populate_milestone_target_dates", {
-      p_goal_id: goalId,
-    });
-    if (error !== null) {
-      throw new InternalServerErrorException(
-        `Failed to populate milestone target_dates for goal ${goalId}: ${error.message}`,
-      );
-    }
   }
 
   public async updateRoadmapStatus(

@@ -3,41 +3,6 @@ const APPLE_PRODUCT_IDS = ["momentum_monthly", "momentum_quarterly"] as const;
 const APPLE_DEFAULT_ENVIRONMENT = "Sandbox";
 const APPLE_DEFAULT_ROOT_CA_DIR = "resources/apple-root-certs";
 
-const COPY_GEN_DEFAULT_ROLLOUT_PERCENT = 100;
-const COPY_GEN_MIN_ROLLOUT_PERCENT = 0;
-const COPY_GEN_MAX_ROLLOUT_PERCENT = 100;
-
-const COPY_GEN_ORPHAN_LEASE_TIMEOUT_MINUTES = 2;
-const MS_PER_MINUTE_FOR_COPY_GEN = 60_000;
-const COPY_GEN_ORPHAN_LEASE_TIMEOUT_MS =
-  COPY_GEN_ORPHAN_LEASE_TIMEOUT_MINUTES * MS_PER_MINUTE_FOR_COPY_GEN;
-
-function parseCopyGenEnabledKinds(raw: string | undefined): Set<string> | null {
-  if (raw === undefined || raw.trim() === "") {
-    return null;
-  }
-  const kinds = raw
-    .split(",")
-    .map((token) => token.trim())
-    .filter((token) => token.length > 0);
-  return kinds.length === 0 ? null : new Set(kinds);
-}
-
-function parseCopyGenRolloutPercent(raw: string | undefined): number {
-  if (raw === undefined || raw === "") {
-    return COPY_GEN_DEFAULT_ROLLOUT_PERCENT;
-  }
-  const parsed = Number(raw);
-  if (!Number.isFinite(parsed)) {
-    return COPY_GEN_DEFAULT_ROLLOUT_PERCENT;
-  }
-  const clamped = Math.min(
-    COPY_GEN_MAX_ROLLOUT_PERCENT,
-    Math.max(COPY_GEN_MIN_ROLLOUT_PERCENT, Math.trunc(parsed)),
-  );
-  return clamped;
-}
-
 function parseAppAppleId(raw: string | undefined): number | undefined {
   if (raw === undefined || raw === "") {
     return undefined;
@@ -168,6 +133,17 @@ export const config = {
     jwtCacheTtlMs: 3_300_000,
     broadcastBatchSize: 100,
   },
+  notifications: {
+    cronExpression: "*/15 * * * *",
+    copyModel: "google/gemini-3-flash-lite",
+    copyCallTimeoutMs: 15_000,
+    maxPerDay: 4,
+    minMinutesBetween: 180,
+    localWindowStartHour: 9,
+    localWindowEndHour: 21,
+    maxTitleLength: 50,
+    maxBodyLength: 150,
+  },
   chat: {
     model: "google/gemini-3-flash-preview",
     reasoningEffort: "high",
@@ -189,29 +165,5 @@ export const config = {
     maxFailedDrainAttempts: 5,
     verifyThrottleLimit: 10,
     verifyThrottleTtlMs: 60_000,
-  },
-  copyGen: {
-    defaultModel: "openai/gpt-5.4-nano",
-    perCallTimeoutMs: 4_000,
-    retryBackoffMs: 1_000,
-    totalBudgetMs: 9_000,
-    maxAttempts: 2,
-    // M2.9.3 rollout / kill-switches. All three are read from the env at
-    // process start; the consumer / producers re-read `config.copyGen.*` on
-    // every eligibility decision so a redeploy picks up the new values.
-    globalEnabled: process.env.COPY_GEN_GLOBAL_ENABLED !== "false",
-    enabledKinds: parseCopyGenEnabledKinds(process.env.COPY_GEN_ENABLED_KINDS),
-    rolloutPercent: parseCopyGenRolloutPercent(
-      process.env.COPY_GEN_ROLLOUT_PERCENT,
-    ),
-    // Pre-dispatch consumer tunables (M2.9.3 §throughput-controls).
-    consumerBatchSize: 20,
-    consumerLookaheadMinutes: 15,
-    consumerConcurrency: 5,
-    consumerMaxAttempts: 3,
-    consumerBacklogAlertThreshold: 50,
-    // Orphan recovery: how long a `generating` lease can sit before it is
-    // reclaimed back to `pending` by the recovery cron.
-    orphanLeaseTimeoutMs: COPY_GEN_ORPHAN_LEASE_TIMEOUT_MS,
   },
 };

@@ -462,7 +462,6 @@ export type Database = {
           is_monthly_checkpoint: boolean;
           monthly_summary: Json | null;
           order_index: number;
-          target_date: string | null;
           target_month: number;
           target_week: number;
           title: string;
@@ -477,7 +476,6 @@ export type Database = {
           is_monthly_checkpoint?: boolean;
           monthly_summary?: Json | null;
           order_index: number;
-          target_date?: string | null;
           target_month: number;
           target_week: number;
           title: string;
@@ -492,7 +490,6 @@ export type Database = {
           is_monthly_checkpoint?: boolean;
           monthly_summary?: Json | null;
           order_index?: number;
-          target_date?: string | null;
           target_month?: number;
           target_week?: number;
           title?: string;
@@ -507,261 +504,27 @@ export type Database = {
           },
         ];
       };
-      notification_copy_generations: {
+      notification_sends: {
         Row: {
-          attempt_no: number;
-          coach_id: number | null;
-          created_at: string;
-          error_code: string | null;
+          body: string;
           id: string;
-          input_hash: string;
-          job_id: string;
-          kind: string;
-          language: string;
-          latency_ms: number | null;
-          model: string;
-          output: Json | null;
-          prompt_version: string;
-          provider_status: number | null;
-          status: string;
-        };
-        Insert: {
-          attempt_no?: number;
-          coach_id?: number | null;
-          created_at?: string;
-          error_code?: string | null;
-          id?: string;
-          input_hash: string;
-          job_id: string;
-          kind: string;
-          language: string;
-          latency_ms?: number | null;
-          model: string;
-          output?: Json | null;
-          prompt_version: string;
-          provider_status?: number | null;
-          status: string;
-        };
-        Update: {
-          attempt_no?: number;
-          coach_id?: number | null;
-          created_at?: string;
-          error_code?: string | null;
-          id?: string;
-          input_hash?: string;
-          job_id?: string;
-          kind?: string;
-          language?: string;
-          latency_ms?: number | null;
-          model?: string;
-          output?: Json | null;
-          prompt_version?: string;
-          provider_status?: number | null;
-          status?: string;
-        };
-        Relationships: [
-          {
-            foreignKeyName: "notification_copy_generations_job_id_fkey";
-            columns: ["job_id"];
-            isOneToOne: false;
-            referencedRelation: "notification_jobs";
-            referencedColumns: ["id"];
-          },
-        ];
-      };
-      notification_deliveries: {
-        Row: {
-          apns_response: Json | null;
-          created_at: string;
-          device_token: string;
-          dismissed_at: string | null;
-          id: string;
-          job_id: string;
-          opened_at: string | null;
-          received_at: string | null;
-          send_source: string;
-          sent_at: string | null;
-        };
-        Insert: {
-          apns_response?: Json | null;
-          created_at?: string;
-          device_token: string;
-          dismissed_at?: string | null;
-          id?: string;
-          job_id: string;
-          opened_at?: string | null;
-          received_at?: string | null;
-          send_source?: string;
-          sent_at?: string | null;
-        };
-        Update: {
-          apns_response?: Json | null;
-          created_at?: string;
-          device_token?: string;
-          dismissed_at?: string | null;
-          id?: string;
-          job_id?: string;
-          opened_at?: string | null;
-          received_at?: string | null;
-          send_source?: string;
-          sent_at?: string | null;
-        };
-        Relationships: [
-          {
-            foreignKeyName: "notification_deliveries_job_id_fkey";
-            columns: ["job_id"];
-            isOneToOne: false;
-            referencedRelation: "notification_jobs";
-            referencedColumns: ["id"];
-          },
-        ];
-      };
-      notification_experiments: {
-        Row: {
-          concluded_at: string | null;
-          created_at: string;
-          id: string;
-          kind: string;
-          started_at: string | null;
-          status: string;
-          variants: Json;
-          winner: string | null;
-        };
-        Insert: {
-          concluded_at?: string | null;
-          created_at?: string;
-          id: string;
-          kind: string;
-          started_at?: string | null;
-          status?: string;
-          variants?: Json;
-          winner?: string | null;
-        };
-        Update: {
-          concluded_at?: string | null;
-          created_at?: string;
-          id?: string;
-          kind?: string;
-          started_at?: string | null;
-          status?: string;
-          variants?: Json;
-          winner?: string | null;
-        };
-        Relationships: [];
-      };
-      notification_jobs: {
-        Row: {
-          attempts: number;
-          claimed_at: string | null;
-          claimed_by: string | null;
-          copy_attempts: number;
-          copy_claimed_at: string | null;
-          copy_claimed_by: string | null;
-          copy_generation_id: string | null;
-          copy_input_hash: string | null;
-          copy_status: string;
-          created_at: string;
-          dedup_key: string;
-          experiment_id: string | null;
-          id: string;
-          kind: string;
-          last_error: string | null;
-          local_date: string | null;
-          payload: Json;
-          scheduled_for_utc: string;
-          sent_at: string | null;
-          sequence_id: string | null;
-          sequence_step: number | null;
-          skip_reason: string | null;
-          status: string;
-          tier: number;
+          sent_at: string;
+          title: string;
           user_id: string;
-          variant: string | null;
         };
         Insert: {
-          attempts?: number;
-          claimed_at?: string | null;
-          claimed_by?: string | null;
-          copy_attempts?: number;
-          copy_claimed_at?: string | null;
-          copy_claimed_by?: string | null;
-          copy_generation_id?: string | null;
-          copy_input_hash?: string | null;
-          copy_status?: string;
-          created_at?: string;
-          dedup_key: string;
-          experiment_id?: string | null;
+          body: string;
           id?: string;
-          kind: string;
-          last_error?: string | null;
-          local_date?: string | null;
-          payload?: Json;
-          scheduled_for_utc: string;
-          sent_at?: string | null;
-          sequence_id?: string | null;
-          sequence_step?: number | null;
-          skip_reason?: string | null;
-          status?: string;
-          tier: number;
+          sent_at?: string;
+          title: string;
           user_id: string;
-          variant?: string | null;
         };
         Update: {
-          attempts?: number;
-          claimed_at?: string | null;
-          claimed_by?: string | null;
-          copy_attempts?: number;
-          copy_claimed_at?: string | null;
-          copy_claimed_by?: string | null;
-          copy_generation_id?: string | null;
-          copy_input_hash?: string | null;
-          copy_status?: string;
-          created_at?: string;
-          dedup_key?: string;
-          experiment_id?: string | null;
+          body?: string;
           id?: string;
-          kind?: string;
-          last_error?: string | null;
-          local_date?: string | null;
-          payload?: Json;
-          scheduled_for_utc?: string;
-          sent_at?: string | null;
-          sequence_id?: string | null;
-          sequence_step?: number | null;
-          skip_reason?: string | null;
-          status?: string;
-          tier?: number;
+          sent_at?: string;
+          title?: string;
           user_id?: string;
-          variant?: string | null;
-        };
-        Relationships: [
-          {
-            foreignKeyName: "notification_jobs_copy_generation_id_fkey";
-            columns: ["copy_generation_id"];
-            isOneToOne: false;
-            referencedRelation: "notification_copy_generations";
-            referencedColumns: ["id"];
-          },
-        ];
-      };
-      notification_system_alerts: {
-        Row: {
-          created_at: string;
-          id: string;
-          kind: string;
-          payload: Json;
-        };
-        Insert: {
-          created_at?: string;
-          id?: string;
-          kind: string;
-          payload?: Json;
-        };
-        Update: {
-          created_at?: string;
-          id?: string;
-          kind?: string;
-          payload?: Json;
         };
         Relationships: [];
       };
@@ -794,16 +557,7 @@ export type Database = {
           first_name: string | null;
           id: string;
           language: string | null;
-          last_active_at: string | null;
           last_name: string | null;
-          notif_enabled: boolean;
-          notif_permission_requested_at: string | null;
-          notif_permission_status: string;
-          notif_preferences: Json;
-          notif_quiet_end: number | null;
-          notif_quiet_start: number | null;
-          sto_active_hour: number | null;
-          sto_active_hour_updated_at: string | null;
           subscription_apple_signed_at: string | null;
           subscription_auto_renew_status: boolean | null;
           subscription_environment: string | null;
@@ -812,7 +566,6 @@ export type Database = {
           subscription_product_id: string | null;
           subscription_status: string;
           subscription_verified_at: string | null;
-          tenure_start_date: string | null;
           timezone: string | null;
           updated_at: string | null;
         };
@@ -823,16 +576,7 @@ export type Database = {
           first_name?: string | null;
           id: string;
           language?: string | null;
-          last_active_at?: string | null;
           last_name?: string | null;
-          notif_enabled?: boolean;
-          notif_permission_requested_at?: string | null;
-          notif_permission_status?: string;
-          notif_preferences?: Json;
-          notif_quiet_end?: number | null;
-          notif_quiet_start?: number | null;
-          sto_active_hour?: number | null;
-          sto_active_hour_updated_at?: string | null;
           subscription_apple_signed_at?: string | null;
           subscription_auto_renew_status?: boolean | null;
           subscription_environment?: string | null;
@@ -841,7 +585,6 @@ export type Database = {
           subscription_product_id?: string | null;
           subscription_status?: string;
           subscription_verified_at?: string | null;
-          tenure_start_date?: string | null;
           timezone?: string | null;
           updated_at?: string | null;
         };
@@ -852,16 +595,7 @@ export type Database = {
           first_name?: string | null;
           id?: string;
           language?: string | null;
-          last_active_at?: string | null;
           last_name?: string | null;
-          notif_enabled?: boolean;
-          notif_permission_requested_at?: string | null;
-          notif_permission_status?: string;
-          notif_preferences?: Json;
-          notif_quiet_end?: number | null;
-          notif_quiet_start?: number | null;
-          sto_active_hour?: number | null;
-          sto_active_hour_updated_at?: string | null;
           subscription_apple_signed_at?: string | null;
           subscription_auto_renew_status?: boolean | null;
           subscription_environment?: string | null;
@@ -870,82 +604,10 @@ export type Database = {
           subscription_product_id?: string | null;
           subscription_status?: string;
           subscription_verified_at?: string | null;
-          tenure_start_date?: string | null;
           timezone?: string | null;
           updated_at?: string | null;
         };
         Relationships: [];
-      };
-      user_activity_events: {
-        Row: {
-          id: number;
-          kind: string;
-          local_hour: number | null;
-          occurred_at: string;
-          user_id: string;
-        };
-        Insert: {
-          id?: number;
-          kind: string;
-          local_hour?: number | null;
-          occurred_at?: string;
-          user_id: string;
-        };
-        Update: {
-          id?: number;
-          kind?: string;
-          local_hour?: number | null;
-          occurred_at?: string;
-          user_id?: string;
-        };
-        Relationships: [];
-      };
-      user_streaks: {
-        Row: {
-          created_at: string;
-          current_weeks: number;
-          freeze_tokens: number;
-          freezes_last_granted_at: string | null;
-          goal_id: string;
-          id: string;
-          last_extended_at: string | null;
-          last_extended_week: string | null;
-          longest_weeks: number;
-          user_id: string;
-        };
-        Insert: {
-          created_at?: string;
-          current_weeks?: number;
-          freeze_tokens?: number;
-          freezes_last_granted_at?: string | null;
-          goal_id: string;
-          id?: string;
-          last_extended_at?: string | null;
-          last_extended_week?: string | null;
-          longest_weeks?: number;
-          user_id: string;
-        };
-        Update: {
-          created_at?: string;
-          current_weeks?: number;
-          freeze_tokens?: number;
-          freezes_last_granted_at?: string | null;
-          goal_id?: string;
-          id?: string;
-          last_extended_at?: string | null;
-          last_extended_week?: string | null;
-          longest_weeks?: number;
-          user_id?: string;
-        };
-        Relationships: [
-          {
-            foreignKeyName: "user_streaks_goal_id_fkey";
-            columns: ["goal_id"];
-            isOneToOne: false;
-            referencedRelation: "goals";
-            referencedColumns: ["id"];
-          },
-        ];
       };
       weekly_plans: {
         Row: {
@@ -1019,38 +681,6 @@ export type Database = {
           },
         ];
       };
-      weekly_task_intentions: {
-        Row: {
-          captured_at: string;
-          day_of_week: number;
-          local_hour: number;
-          location_label: string | null;
-          task_id: string;
-        };
-        Insert: {
-          captured_at?: string;
-          day_of_week: number;
-          local_hour: number;
-          location_label?: string | null;
-          task_id: string;
-        };
-        Update: {
-          captured_at?: string;
-          day_of_week?: number;
-          local_hour?: number;
-          location_label?: string | null;
-          task_id?: string;
-        };
-        Relationships: [
-          {
-            foreignKeyName: "weekly_task_intentions_task_id_fkey";
-            columns: ["task_id"];
-            isOneToOne: true;
-            referencedRelation: "weekly_tasks";
-            referencedColumns: ["id"];
-          },
-        ];
-      };
       weekly_tasks: {
         Row: {
           completed_at: string | null;
@@ -1116,144 +746,9 @@ export type Database = {
       };
     };
     Views: {
-      v_copy_gen_fallback_by_reason: {
-        Row: {
-          error_code: string | null;
-          failures: number | null;
-          kind: string | null;
-        };
-        Relationships: [];
-      };
-      v_copy_gen_open_rate_lift: {
-        Row: {
-          kind: string | null;
-          open_rate: number | null;
-          opened: number | null;
-          send_source: string | null;
-          sent: number | null;
-        };
-        Relationships: [];
-      };
-      v_copy_gen_slo_24h: {
-        Row: {
-          ai_generated: number | null;
-          ai_share: number | null;
-          total: number | null;
-        };
-        Relationships: [];
-      };
-      v_copy_gen_success_rate_24h: {
-        Row: {
-          failed: number | null;
-          generated: number | null;
-          kind: string | null;
-          success_rate: number | null;
-          total: number | null;
-        };
-        Relationships: [];
-      };
+      [_ in never]: never;
     };
     Functions: {
-      cancel_pending_intention_jobs: {
-        Args: { p_captured_at: string; p_task_id: string };
-        Returns: number;
-      };
-      claim_notification_copy: {
-        Args: {
-          p_batch_size?: number;
-          p_lookahead_minutes?: number;
-          p_max_attempts?: number;
-          p_worker_id: string;
-        };
-        Returns: {
-          attempts: number;
-          claimed_at: string | null;
-          claimed_by: string | null;
-          copy_attempts: number;
-          copy_claimed_at: string | null;
-          copy_claimed_by: string | null;
-          copy_generation_id: string | null;
-          copy_input_hash: string | null;
-          copy_status: string;
-          created_at: string;
-          dedup_key: string;
-          experiment_id: string | null;
-          id: string;
-          kind: string;
-          last_error: string | null;
-          local_date: string | null;
-          payload: Json;
-          scheduled_for_utc: string;
-          sent_at: string | null;
-          sequence_id: string | null;
-          sequence_step: number | null;
-          skip_reason: string | null;
-          status: string;
-          tier: number;
-          user_id: string;
-          variant: string | null;
-        }[];
-        SetofOptions: {
-          from: "*";
-          to: "notification_jobs";
-          isOneToOne: false;
-          isSetofReturn: true;
-        };
-      };
-      claim_notification_jobs: {
-        Args: { p_batch_size?: number; p_worker_id: string };
-        Returns: {
-          attempts: number;
-          claimed_at: string | null;
-          claimed_by: string | null;
-          copy_attempts: number;
-          copy_claimed_at: string | null;
-          copy_claimed_by: string | null;
-          copy_generation_id: string | null;
-          copy_input_hash: string | null;
-          copy_status: string;
-          created_at: string;
-          dedup_key: string;
-          experiment_id: string | null;
-          id: string;
-          kind: string;
-          last_error: string | null;
-          local_date: string | null;
-          payload: Json;
-          scheduled_for_utc: string;
-          sent_at: string | null;
-          sequence_id: string | null;
-          sequence_step: number | null;
-          skip_reason: string | null;
-          status: string;
-          tier: number;
-          user_id: string;
-          variant: string | null;
-        }[];
-        SetofOptions: {
-          from: "*";
-          to: "notification_jobs";
-          isOneToOne: false;
-          isSetofReturn: true;
-        };
-      };
-      daily_check_in_candidates: {
-        Args: never;
-        Returns: {
-          coach_id: number;
-          language: string;
-          timezone: string;
-          user_id: string;
-        }[];
-      };
-      daily_check_in_predicate: {
-        Args: { p_user_id: string };
-        Returns: boolean;
-      };
-      implementation_intention_predicate: {
-        Args: { p_captured_at?: string; p_task_id: string };
-        Returns: boolean;
-      };
       match_goal_context: {
         Args: {
           match_count?: number;
@@ -1271,29 +766,28 @@ export type Database = {
           similarity: number;
         }[];
       };
-      milestone_preview_predicate: {
-        Args: { p_milestone_id: string };
-        Returns: boolean;
-      };
-      notif_preferences_is_valid: { Args: { p: Json }; Returns: boolean };
-      populate_milestone_target_dates: {
-        Args: { p_goal_id: string };
-        Returns: undefined;
-      };
-      recent_sends_window: {
-        Args: { p_user_id: string; p_window_hours?: number };
+      pick_notification_candidates: {
+        Args: {
+          p_window_start_hour: number;
+          p_window_end_hour: number;
+          p_max_per_day: number;
+          p_min_minutes_between: number;
+        };
         Returns: {
-          earliest_sent_at: string;
-          send_count: number;
+          user_id: string;
+          language: string;
+          coach_id: number;
+          timezone: string;
+          local_hour: number;
+          goal_id: string;
+          goal_title: string;
+          user_motivation_quote: string | null;
+          weekly_objectives: Json | null;
+          weekly_task_total: number | null;
+          weekly_task_completed: number | null;
+          recent_completed_titles: string[] | null;
+          next_task_title: string | null;
         }[];
-      };
-      record_user_activity: {
-        Args: { p_kind: string; p_occurred_at?: string; p_user_id: string };
-        Returns: undefined;
-      };
-      release_notification_copy_claim: {
-        Args: { p_job_id: string; p_worker_id: string };
-        Returns: boolean;
       };
       reserve_generation: {
         Args: {
@@ -1303,40 +797,6 @@ export type Database = {
           p_user_id: string;
         };
         Returns: Json;
-      };
-      set_notif_preference_kind_enabled: {
-        Args: { p_enabled: boolean; p_kind: string };
-        Returns: Json;
-      };
-      sto_activity_stats: {
-        Args: { p_user_id: string };
-        Returns: {
-          distinct_days: number;
-          hour_distribution: Json;
-        }[];
-      };
-      streak_at_risk_predicate: {
-        Args: { p_goal_id: string; p_user_id: string };
-        Returns: boolean;
-      };
-      streak_broken_predicate: {
-        Args: { p_goal_id: string; p_user_id: string };
-        Returns: boolean;
-      };
-      streak_local_week_start: { Args: { p_tz: string }; Returns: string };
-      streak_milestone_predicate: {
-        Args: { p_goal_id: string; p_user_id: string; p_weeks: number };
-        Returns: boolean;
-      };
-      streak_user_candidates: {
-        Args: never;
-        Returns: {
-          coach_id: number;
-          language: string;
-          tenure_start_date: string;
-          timezone: string;
-          user_id: string;
-        }[];
       };
     };
     Enums: {
