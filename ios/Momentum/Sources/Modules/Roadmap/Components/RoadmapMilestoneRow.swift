@@ -46,7 +46,7 @@ struct RoadmapMilestoneRow: View {
                     verbatim: milestone.title,
                     style: milestone.isKeyMilestone ? .headline : .body
                 )
-                .weight((milestone.isKeyMilestone || milestone.isMonthlyCheckpoint) ? .medium : .regular)
+                .weight(milestone.isKeyMilestone ? .medium : .regular)
                 .color(milestone.status == .upcoming ? Color("TextSecondary") : Color("TextPrimary"))
                 .lineLimit(1)
             }
@@ -77,7 +77,7 @@ struct RoadmapMilestoneRow: View {
                     .frame(width: size, height: size)
             case .upcoming:
                 Circle()
-                    .stroke(Color("BgSurface"), lineWidth: 2)
+                    .stroke(Color("TextSecondary").opacity(0.15), lineWidth: 2)
                     .frame(width: size, height: size)
             }
 
@@ -87,20 +87,14 @@ struct RoadmapMilestoneRow: View {
 
     private var dotIcon: some View {
         let accentColor = Color("TextOnAccent")
-        let mutedColor = Color("TextSecondary")
+        let isSpecial = milestone.isKeyMilestone || milestone.isMonthlyCheckpoint
 
         return Group {
-            if milestone.isKeyMilestone {
-                TablerIcons(.trophy, size: 14, color: milestone.status == .upcoming ? mutedColor : accentColor)
-            } else if milestone.isMonthlyCheckpoint {
-                TablerIcons(.targetArrow, size: 14, color: milestone.status == .upcoming ? mutedColor : accentColor)
-            } else {
-                switch milestone.status {
-                case .completed:
-                    TablerIcons(.check, size: 10, color: accentColor)
-                case .current, .upcoming:
-                    EmptyView()
-                }
+            switch milestone.status {
+            case .completed:
+                TablerIcons(.check, size: isSpecial ? 16 : 10, color: accentColor)
+            case .current, .upcoming:
+                EmptyView()
             }
         }
     }
