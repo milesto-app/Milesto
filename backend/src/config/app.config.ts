@@ -100,7 +100,7 @@ export const config = {
     weeklyModel: "openai/gpt-5.4",
     weeklyTaskModel: "openai/gpt-5.4",
     maxGenerationAttempts: 3,
-    callTimeoutMs: 120_000,
+    callTimeoutMs: 240_000,
   },
   cohere: {
     apiVersion: "2",
