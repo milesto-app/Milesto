@@ -135,7 +135,7 @@ export const config = {
   },
   notifications: {
     cronExpression: "*/15 * * * *",
-    copyModel: "google/gemini-3-flash-lite",
+    copyModel: "google/gemini-3.1-flash-lite-preview",
     copyCallTimeoutMs: 15_000,
     maxPerDay: 4,
     minMinutesBetween: 180,
