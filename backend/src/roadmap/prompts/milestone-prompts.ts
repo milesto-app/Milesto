@@ -3,6 +3,7 @@ import type { AssembledContext } from "../types/context.types.js";
 import type { GoalData } from "../types/roadmap.types.js";
 
 const MIN_MILESTONES = 3;
+const MAX_MILESTONES = 52;
 const MS_PER_SECOND = 1000;
 const SECONDS_PER_MINUTE = 60;
 const MINUTES_PER_HOUR = 60;
@@ -51,7 +52,11 @@ export function buildMilestoneUserPrompt(
         )
       : MIN_MILESTONES;
 
-  const milestoneCount = Math.max(MIN_MILESTONES, weeksUntilDeadline);
+  const milestoneCount = Math.min(
+    MAX_MILESTONES,
+    Math.max(MIN_MILESTONES, weeksUntilDeadline),
+  );
+  const isCapped = weeksUntilDeadline > MAX_MILESTONES;
   const monthCount = Math.max(
     1,
     Math.ceil(milestoneCount / WEEKS_PER_MONTH_GROUP),
@@ -71,7 +76,10 @@ export function buildMilestoneUserPrompt(
 
   const constraintSection = buildConstraintSection(goal);
 
-  const requirementsSection = `Generate exactly ${String(milestoneCount)} weekly milestones grouped into ${String(monthCount)} months (~${String(WEEKS_PER_MONTH_GROUP)} weeks per month). Use backward planning from week ${String(milestoneCount)} to week 1. The last milestone in each month group must have is_monthly_checkpoint: true.`;
+  const cappedNote = isCapped
+    ? ` The goal's full deadline is ${String(weeksUntilDeadline)} weeks away, but plan only the first ${String(milestoneCount)} weeks — the coach will extend the roadmap later. Treat milestone ${String(milestoneCount)} as a meaningful one-year checkpoint, not the final outcome.`
+    : "";
+  const requirementsSection = `Generate exactly ${String(milestoneCount)} weekly milestones grouped into ${String(monthCount)} months (~${String(WEEKS_PER_MONTH_GROUP)} weeks per month). Use backward planning from week ${String(milestoneCount)} to week 1. The last milestone in each month group must have is_monthly_checkpoint: true.${cappedNote}`;
 
   return `## Goal
 Title: ${goal.title}
