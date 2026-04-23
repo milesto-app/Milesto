@@ -73,7 +73,7 @@ struct RoadmapMilestoneRow: View {
                     .frame(width: size, height: size)
             case .current:
                 Circle()
-                    .stroke(Color("AccentColor"), lineWidth: 2)
+                    .strokeBorder(Color("AccentColor"), lineWidth: 2)
                     .frame(width: size, height: size)
             case .upcoming:
                 Circle()
