@@ -8,6 +8,26 @@ final class ProfileSyncService {
 
     private init() {}
 
+    private func mergePendingAppleName(into fetchedProfile: ProfileDTO?) async -> ProfileDTO? {
+        let pending = AuthService.shared.consumePendingAppleName()
+        guard pending.firstName != nil || pending.lastName != nil else { return fetchedProfile }
+
+        let existingFirst = fetchedProfile?.firstName?.trimmingCharacters(in: .whitespaces) ?? ""
+        let existingLast = fetchedProfile?.lastName?.trimmingCharacters(in: .whitespaces) ?? ""
+        guard existingFirst.isEmpty, existingLast.isEmpty else { return fetchedProfile }
+
+        do {
+            return try await ProfileService.shared.updateProfile(
+                ProfileUpdateFields(
+                    firstName: pending.firstName,
+                    lastName: pending.lastName
+                )
+            )
+        } catch {
+            return fetchedProfile
+        }
+    }
+
     private func downloadAvatarData(from urlString: String?) async -> Data? {
         guard let urlString, let url = URL(string: urlString) else { return nil }
         do {
@@ -19,7 +39,8 @@ final class ProfileSyncService {
     }
 
     func sync(userId: String, in modelContext: ModelContext) async throws {
-        let fetchedProfile = try await ProfileService.shared.fetchProfile(userId: userId)
+        var fetchedProfile = try await ProfileService.shared.fetchProfile(userId: userId)
+        fetchedProfile = await mergePendingAppleName(into: fetchedProfile)
 
         var fetchedEmail: String?
         var fetchedAvatarURL: String?
