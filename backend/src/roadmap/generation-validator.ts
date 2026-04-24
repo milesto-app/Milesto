@@ -13,10 +13,24 @@ export function validateMilestones(raw: unknown): GeneratedMilestone[] {
   const errors = instances.flatMap((i) => validateSync(i as object));
 
   if (errors.length === 0) {
-    return instances;
+    return normalizeMilestones(instances);
   }
 
   return repairMilestones(items);
+}
+
+function normalizeMilestones(
+  milestones: GeneratedMilestone[],
+): GeneratedMilestone[] {
+  return milestones.map((m) =>
+    plainToInstance(GeneratedMilestone, {
+      title: m.title,
+      description: m.description,
+      expected_outcome: m.expected_outcome,
+      order_index: m.order_index,
+      is_monthly_checkpoint: false,
+    }),
+  );
 }
 
 function repairMilestones(items: unknown[]): GeneratedMilestone[] {
@@ -37,7 +51,7 @@ function repairMilestones(items: unknown[]): GeneratedMilestone[] {
   );
 
   if (repairErrors.length === 0) {
-    return repairedInstances;
+    return normalizeMilestones(repairedInstances);
   }
 
   throw new Error(

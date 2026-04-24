@@ -11,7 +11,7 @@ export class GeneratedMilestone {
   public expected_outcome!: string;
 
   @IsBoolean()
-  public is_monthly_checkpoint!: boolean;
+  public is_monthly_checkpoint = false;
 
   @IsInt()
   @Min(1)
