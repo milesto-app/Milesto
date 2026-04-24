@@ -34,11 +34,13 @@ private extension StatsAPIService {
         let isCompleted: Bool
         let weeklyPlanId: String
         let createdAt: String
+        let completedAt: String?
 
         enum CodingKeys: String, CodingKey {
             case isCompleted = "is_completed"
             case weeklyPlanId = "weekly_plan_id"
             case createdAt = "created_at"
+            case completedAt = "completed_at"
         }
     }
 
@@ -62,7 +64,7 @@ private extension StatsAPIService {
     func fetchTasks(goalId: String) async throws -> [TaskRow] {
         try await Supabase.client
             .from("weekly_tasks")
-            .select("is_completed, weekly_plan_id, created_at")
+            .select("is_completed, weekly_plan_id, created_at, completed_at")
             .eq("goal_id", value: goalId)
             .execute()
             .value
@@ -92,24 +94,70 @@ private extension StatsAPIService {
         dateFormatter.dateFormat = "yyyy-MM-dd"
         dateFormatter.timeZone = .current
 
+        let isoFormatter = ISO8601DateFormatter()
+        isoFormatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+        let isoFormatterNoFraction = ISO8601DateFormatter()
+        isoFormatterNoFraction.formatOptions = [.withInternetDateTime]
+
         let calendar = Calendar.current
         let today = calendar.startOfDay(for: Date())
 
-        let completed = tasks.filter(\.isCompleted).count
-        let total = tasks.count
-
-        var last7Days: [DayActivityDTO] = []
-        for offset in (0 ..< 7).reversed() {
-            let day = calendar.date(byAdding: .day, value: -offset, to: today)!
-            let dateString = dateFormatter.string(from: day)
-            last7Days.append(DayActivityDTO(
-                date: dateString,
-                objectivesCompleted: offset == 0 ? completed : 0,
-                objectivesTotal: offset == 0 ? total : 0
-            ))
+        let completionDays: [Date] = tasks.compactMap { task in
+            guard task.isCompleted, let raw = task.completedAt else { return nil }
+            let parsed = isoFormatter.date(from: raw) ?? isoFormatterNoFraction.date(from: raw)
+            guard let date = parsed else { return nil }
+            return calendar.startOfDay(for: date)
         }
 
-        return StreakStatsDTO(current: 0, best: 0, last7Days: last7Days)
+        let completionsByDay: [Date: Int] = completionDays.reduce(into: [:]) { acc, day in
+            acc[day, default: 0] += 1
+        }
+
+        var last7Days: [DayActivityDTO] = []
+        var maxDailyInWindow = 0
+        for offset in (0 ..< 7).reversed() {
+            let day = calendar.date(byAdding: .day, value: -offset, to: today)!
+            let count = completionsByDay[day] ?? 0
+            maxDailyInWindow = max(maxDailyInWindow, count)
+            last7Days.append(DayActivityDTO(
+                date: dateFormatter.string(from: day),
+                objectivesCompleted: count,
+                objectivesTotal: 0
+            ))
+        }
+        let dailyTarget = max(maxDailyInWindow, 1)
+        last7Days = last7Days.map {
+            DayActivityDTO(
+                date: $0.date,
+                objectivesCompleted: $0.objectivesCompleted,
+                objectivesTotal: dailyTarget
+            )
+        }
+
+        let uniqueDays = Set(completionDays)
+        var currentStreak = 0
+        var cursor = today
+        while uniqueDays.contains(cursor) {
+            currentStreak += 1
+            cursor = calendar.date(byAdding: .day, value: -1, to: cursor)!
+        }
+
+        var bestStreak = 0
+        let sortedDays = uniqueDays.sorted()
+        var run = 0
+        var previous: Date?
+        for day in sortedDays {
+            if let prev = previous, calendar.date(byAdding: .day, value: 1, to: prev) == day {
+                run += 1
+            } else {
+                run = 1
+            }
+            bestStreak = max(bestStreak, run)
+            previous = day
+        }
+        bestStreak = max(bestStreak, currentStreak)
+
+        return StreakStatsDTO(current: currentStreak, best: bestStreak, last7Days: last7Days)
     }
 
     func computeCompletion(tasks: [TaskRow]) -> CompletionStatsDTO {

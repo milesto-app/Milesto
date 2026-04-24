@@ -92,9 +92,6 @@ struct ChatView: View {
         .onAppear {
             isInputFocused = true
         }
-        .task(id: goalId) {
-            await loadLatestConversationIfNeeded()
-        }
         .alert(isLimitReached
             ? String(localized: "usage.limit.reached.title", table: "Paywall")
             : String(localized: "chat.error.generic", table: "Chat"),

@@ -39,15 +39,11 @@ A root `package.json` provides bun-based scripts that orchestrate common tasks a
 
 ## Branching & PR Workflow
 
-Never commit directly to `dev` or `main`. When starting any code work:
+Never commit directly to `dev` or `main`.
 
-1. **Pull the latest `dev`** (`git checkout dev && git pull`) so the new branch starts from the current remote state.
-2. **Create a new branch** off `dev` using a descriptive prefix: `feat/`, `fix/`, `chore/`, `refactor/`, or `docs/`.
-3. **Push the branch and open a PR immediately** (before doing the work) with `[WIP]` as a prefix in the title. The PR body must explain what the PR is about — goal, scope, and why.
-4. **Push commits to that branch as you go** so the remote always reflects local progress.
-5. **When the work is done**, push the final commits and edit the PR title to remove the `[WIP]` prefix, signalling it is ready for review.
+**Feature branch → `dev` PRs**: squash-merge is fine.
 
-This keeps local and remote `dev` in sync and avoids divergence.
+**`dev` → `main` PRs**: **never squash-merge**. Use a regular merge commit (or rebase) so every commit from `dev` is preserved on `main`. Squashing `dev` into `main` collapses history, breaks future `dev`/`main` reconciliation, and makes past work look like a single blob.
 
 ## Versioning
 
