@@ -16,6 +16,8 @@ final class AuthService: NSObject, ObservableObject {
     @Published private(set) var currentUserId: String?
 
     private var currentNonce: String?
+    private var pendingAppleFirstName: String?
+    private var pendingAppleLastName: String?
 
     override private init() {
         super.init()
@@ -46,6 +48,8 @@ final class AuthService: NSObject, ObservableObject {
             case .signedOut:
                 authState = .unauthenticated
                 currentUserId = nil
+                pendingAppleFirstName = nil
+                pendingAppleLastName = nil
                 SharedKeychain.clearAll()
             case .tokenRefreshed:
                 if let session {
@@ -121,6 +125,11 @@ final class AuthService: NSObject, ObservableObject {
             throw AuthError.unknown("Failed to get Apple ID token")
         }
 
+        let givenName = appleIDCredential.fullName?.givenName?.trimmingCharacters(in: .whitespaces)
+        let familyName = appleIDCredential.fullName?.familyName?.trimmingCharacters(in: .whitespaces)
+        pendingAppleFirstName = (givenName?.isEmpty == false) ? givenName : nil
+        pendingAppleLastName = (familyName?.isEmpty == false) ? familyName : nil
+
         do {
             let session = try await client.auth.signInWithIdToken(
                 credentials: OpenIDConnectCredentials(
@@ -167,6 +176,15 @@ final class AuthService: NSObject, ObservableObject {
         try await client.auth.signOut()
         authState = .unauthenticated
         currentUserId = nil
+        pendingAppleFirstName = nil
+        pendingAppleLastName = nil
+    }
+
+    func consumePendingAppleName() -> (firstName: String?, lastName: String?) {
+        let name = (pendingAppleFirstName, pendingAppleLastName)
+        pendingAppleFirstName = nil
+        pendingAppleLastName = nil
+        return name
     }
 
     func handleDeepLink(_ url: URL) async {
