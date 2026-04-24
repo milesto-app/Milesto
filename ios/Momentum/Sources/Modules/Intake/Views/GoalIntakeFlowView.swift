@@ -57,6 +57,11 @@ struct GoalIntakeFlowView: View {
                     .padding(.trailing, 16)
                 }
             }
+            .overlay(alignment: .topLeading) {
+                OnboardingSignOutButton()
+                    .padding(.top, 8)
+                    .padding(.leading, 16)
+            }
         }
         .onAppear {
             if let existingGoalId {

@@ -27,6 +27,11 @@ struct RoadmapGenerationView: View {
                 loadingContent
             }
         }
+        .overlay(alignment: .topLeading) {
+            OnboardingSignOutButton()
+                .padding(.top, 8)
+                .padding(.leading, 16)
+        }
         .task {
             await startGeneration()
         }

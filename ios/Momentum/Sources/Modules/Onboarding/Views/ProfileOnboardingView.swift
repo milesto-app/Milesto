@@ -52,6 +52,11 @@ struct ProfileOnboardingView: View {
             }
             .id(currentStepIndex)
             .transition(.push(from: .trailing))
+            .overlay(alignment: .topLeading) {
+                OnboardingSignOutButton()
+                    .padding(.top, 8)
+                    .padding(.leading, 16)
+            }
             .overlay {
                 if isSaving {
                     Color("TextPrimary").opacity(0.3)
