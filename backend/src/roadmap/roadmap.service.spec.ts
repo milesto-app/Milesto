@@ -72,7 +72,7 @@ describe("RoadmapService", () => {
       title: "M3",
       description: "D3",
       expected_outcome: "O3",
-      is_monthly_checkpoint: true,
+      is_monthly_checkpoint: false,
       order_index: 3,
     },
   ];

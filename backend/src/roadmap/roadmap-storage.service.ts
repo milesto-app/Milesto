@@ -21,7 +21,7 @@ import type {
 type GoalUpdate = Database["public"]["Tables"]["goals"]["Update"];
 type GoalRow = Database["public"]["Tables"]["goals"]["Row"];
 
-const WEEKS_PER_MONTH_GROUP = 3;
+const WEEKS_PER_MONTH_GROUP = 4;
 const STALE_GENERATION_MINUTES = 5;
 const MS_PER_MINUTE = 60_000;
 const STALE_GENERATION_MS = STALE_GENERATION_MINUTES * MS_PER_MINUTE;
@@ -128,7 +128,7 @@ export class RoadmapStorageService {
       title: string;
       description: string;
       expected_outcome: string;
-      is_monthly_checkpoint: boolean;
+      is_monthly_checkpoint?: boolean;
       order_index: number;
     }>,
   ): Promise<void> {
@@ -140,7 +140,7 @@ export class RoadmapStorageService {
       expected_outcome: m.expected_outcome,
       target_month: Math.ceil(m.order_index / WEEKS_PER_MONTH_GROUP),
       target_week: m.order_index,
-      is_monthly_checkpoint: m.is_monthly_checkpoint,
+      is_monthly_checkpoint: false,
       order_index: m.order_index,
     }));
     const { error } = await supabase.from("milestones").insert(rows);

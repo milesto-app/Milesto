@@ -28,6 +28,8 @@ struct RoadmapHeaderSection: View {
                             AppText(verbatim: goalTitle, style: .largeTitle)
                             TablerIcons(.chevronDown, size: 20, color: Color("TextSecondary"))
                         }
+                        .padding(.vertical, 4)
+                        .glassEffect(.regular.interactive(), in: RoundedRectangle(cornerRadius: 18, style: .continuous))
                     }
                 } else {
                     AppText(verbatim: goalTitle, style: .largeTitle)
