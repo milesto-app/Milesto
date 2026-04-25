@@ -17,22 +17,22 @@ nonisolated enum SharedKeychain {
         return "\(prefix)\(accessGroupSuffix)"
     }
 
-    static func set(_ key: SharedKeychainKey, value: String?) {
+    private static func set(account: String, value: String?) {
         guard let value else {
-            remove(key)
+            remove(account: account)
             return
         }
         guard let data = value.data(using: .utf8) else { return }
 
         let query: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
-            kSecAttrAccount as String: key.rawValue,
+            kSecAttrAccount as String: account,
             kSecAttrAccessGroup as String: fullAccessGroup,
         ]
 
         let attributes: [String: Any] = [
             kSecValueData as String: data,
-            kSecAttrAccessible as String: kSecAttrAccessibleAfterFirstUnlock,
+            kSecAttrAccessible as String: kSecAttrAccessibleWhenUnlockedThisDeviceOnly,
         ]
 
         let status = SecItemUpdate(query as CFDictionary, attributes as CFDictionary)
@@ -45,10 +45,10 @@ nonisolated enum SharedKeychain {
         }
     }
 
-    static func string(_ key: SharedKeychainKey) -> String? {
+    private static func string(account: String) -> String? {
         let query: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
-            kSecAttrAccount as String: key.rawValue,
+            kSecAttrAccount as String: account,
             kSecAttrAccessGroup as String: fullAccessGroup,
             kSecReturnData as String: true,
             kSecMatchLimit as String: kSecMatchLimitOne,
@@ -63,13 +63,25 @@ nonisolated enum SharedKeychain {
         return value
     }
 
-    static func remove(_ key: SharedKeychainKey) {
+    private static func remove(account: String) {
         let query: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
-            kSecAttrAccount as String: key.rawValue,
+            kSecAttrAccount as String: account,
             kSecAttrAccessGroup as String: fullAccessGroup,
         ]
         SecItemDelete(query as CFDictionary)
+    }
+
+    static func set(_ key: SharedKeychainKey, value: String?) {
+        set(account: key.rawValue, value: value)
+    }
+
+    static func string(_ key: SharedKeychainKey) -> String? {
+        string(account: key.rawValue)
+    }
+
+    static func remove(_ key: SharedKeychainKey) {
+        remove(account: key.rawValue)
     }
 
     static func clearAll() {
@@ -92,5 +104,17 @@ nonisolated enum SharedKeychain {
               let expiry = TimeInterval(expiryString)
         else { return nil }
         return (token, Date(timeIntervalSince1970: expiry))
+    }
+
+    static func setPendingSubscriptionJWS(_ jws: String, key: String) {
+        set(account: key, value: jws)
+    }
+
+    static func pendingSubscriptionJWS(key: String) -> String? {
+        string(account: key)
+    }
+
+    static func removePendingSubscriptionJWS(key: String) {
+        remove(account: key)
     }
 }

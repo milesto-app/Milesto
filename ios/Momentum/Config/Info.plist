@@ -15,7 +15,7 @@
 			<string>supabase-auth</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
-				<string>momentum</string>
+				<string>app.momentum-ai.auth</string>
 			</array>
 		</dict>
 	</array>

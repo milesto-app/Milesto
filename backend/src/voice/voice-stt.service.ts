@@ -50,9 +50,7 @@ export class VoiceSttService {
 
       const duration = this.estimateDuration(response.words);
 
-      this.logger.log(
-        `Transcription complete: ~${duration.toFixed(1)}s audio, text="${response.text}"`,
-      );
+      this.logger.log(`Transcription complete: ~${duration.toFixed(1)}s audio`);
 
       return {
         text: response.text,

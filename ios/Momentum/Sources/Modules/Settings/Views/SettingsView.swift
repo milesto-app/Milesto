@@ -1,5 +1,16 @@
+import OSLog
 import SwiftData
 import SwiftUI
+
+private let settingsLogger = Logger(subsystem: Bundle.main.bundleIdentifier ?? "app.momentum-ai", category: "Settings")
+
+private enum LocalUserDataPurgeError: LocalizedError {
+    case failed
+
+    var errorDescription: String? {
+        String(localized: "settings.signOut.purge.error", table: "Settings")
+    }
+}
 
 struct SettingsView: View {
     var onNewGoal: ((String) -> Void)?
@@ -53,10 +64,14 @@ struct SettingsView: View {
                 Button(String(localized: "settings.signOut.alert.cancel", table: "Settings"), role: .cancel) {}
                 Button(String(localized: "settings.signOut.alert.confirm", table: "Settings"), role: .destructive) {
                     Task {
-                        if let profile = localProfile {
-                            modelContext.delete(profile)
+                        do {
+                            try await purgeLocalUserData()
+                            try await authService.signOut()
+                        } catch {
+                            settingsLogger.error("Sign-out aborted: local purge or auth sign-out failed")
+                            errorMessage = error.localizedDescription
+                            showError = true
                         }
-                        try? await authService.signOut()
                     }
                 }
             } message: {
@@ -282,6 +297,34 @@ struct SettingsView: View {
                 errorMessage = error.localizedDescription
                 showError = true
             }
+        }
+    }
+
+    private func purgeLocalUserData() async throws {
+        do {
+            try await SubscriptionSyncOutbox.shared.purgeAll()
+            try deleteAll(LocalChatMessage.self)
+            try deleteAll(LocalConversation.self)
+            try deleteAll(LocalDebrief.self)
+            try deleteAll(LocalWeeklyTask.self)
+            try deleteAll(LocalWeeklyPlan.self)
+            try deleteAll(LocalMilestone.self)
+            try deleteAll(LocalRoadmap.self)
+            try deleteAll(LocalStats.self)
+            try deleteAll(LocalGoal.self)
+            try deleteAll(LocalProfile.self)
+            try modelContext.save()
+        } catch {
+            settingsLogger.error("Failed to purge local user data before sign-out")
+            throw LocalUserDataPurgeError.failed
+        }
+    }
+
+    private func deleteAll<T: PersistentModel>(_ modelType: T.Type) throws {
+        let descriptor = FetchDescriptor<T>()
+        let rows = try modelContext.fetch(descriptor)
+        for row in rows {
+            modelContext.delete(row)
         }
     }
 
