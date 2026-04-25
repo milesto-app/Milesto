@@ -60,7 +60,7 @@ function validateChoiceOptions(
     ) {
       continue;
     }
-    const options = (q.config as { options?: string[] } | null)?.options ?? [];
+    const options = q.config?.options ?? [];
     const distinct = new Set(options);
     if (distinct.size < MIN_DISTINCT_OPTIONS) {
       errors.push(

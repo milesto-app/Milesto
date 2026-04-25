@@ -320,7 +320,7 @@ struct SettingsView: View {
         }
     }
 
-    private func deleteAll<T: PersistentModel>(_ modelType: T.Type) throws {
+    private func deleteAll<T: PersistentModel>(_: T.Type) throws {
         let descriptor = FetchDescriptor<T>()
         let rows = try modelContext.fetch(descriptor)
         for row in rows {

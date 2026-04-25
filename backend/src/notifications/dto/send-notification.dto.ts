@@ -7,7 +7,9 @@ import {
   IsString,
   IsUUID,
   MaxLength,
-  ValidateBy,
+  Validate,
+  ValidatorConstraint,
+  ValidatorConstraintInterface,
 } from "class-validator";
 
 const MAX_TITLE_LENGTH = 50;
@@ -15,18 +17,16 @@ const MAX_BODY_LENGTH = 150;
 const MAX_DATA_KEYS = 20;
 const MAX_DATA_KEY_LENGTH = 64;
 const MAX_DATA_VALUE_LENGTH = 512;
-const IS_APNS_DATA_PAYLOAD = "isApnsDataPayload";
 
-function IsApnsDataPayload(): PropertyDecorator {
-  return ValidateBy({
-    name: IS_APNS_DATA_PAYLOAD,
-    validator: {
-      validate: (value: unknown): boolean =>
-        SendNotificationDto.isValidDataPayload(value),
-      defaultMessage: (): string =>
-        "data must contain at most 20 string entries with keys <= 64 chars and values <= 512 chars",
-    },
-  });
+@ValidatorConstraint({ name: "isApnsDataPayload", async: false })
+class ApnsDataPayloadConstraint implements ValidatorConstraintInterface {
+  public validate(value: unknown): boolean {
+    return SendNotificationDto.isValidDataPayload(value);
+  }
+
+  public defaultMessage(): string {
+    return `data must contain at most ${String(MAX_DATA_KEYS)} string entries with keys <= ${String(MAX_DATA_KEY_LENGTH)} chars and values <= ${String(MAX_DATA_VALUE_LENGTH)} chars`;
+  }
 }
 
 export class SendNotificationDto {
@@ -56,7 +56,7 @@ export class SendNotificationDto {
   })
   @IsOptional()
   @IsObject()
-  @IsApnsDataPayload()
+  @Validate(ApnsDataPayloadConstraint)
   public data?: Record<string, string>;
 
   public static isValidDataPayload(
@@ -65,11 +65,7 @@ export class SendNotificationDto {
     if (value === undefined) {
       return true;
     }
-    if (
-      value === null ||
-      typeof value !== "object" ||
-      Array.isArray(value)
-    ) {
+    if (value === null || typeof value !== "object" || Array.isArray(value)) {
       return false;
     }
     const entries = Object.entries(value as Record<string, unknown>);

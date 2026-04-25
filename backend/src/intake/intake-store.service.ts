@@ -178,7 +178,7 @@ export class IntakeStoreService {
     const update: IntakeQuestionUpdate = {
       answer_text: answer.answer_text ?? null,
       answer_numeric: answer.answer_numeric ?? null,
-      selected_options: (answer.selected_options ?? null) as Json | null,
+      selected_options: answer.selected_options ?? null,
       answered_at: answeredAt,
     };
     const { error } = await supabase

@@ -110,6 +110,6 @@ export class ChatHistoryService {
   }
 
   private getClient(): SupabaseClient {
-    return this.supabaseService.getAdminClient() as unknown as SupabaseClient;
+    return this.supabaseService.getAdminClient();
   }
 }

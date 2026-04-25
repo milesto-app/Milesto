@@ -442,7 +442,7 @@ describe("SubscriptionService", () => {
                 or: jest.fn(() => builder),
                 select: async () =>
                   Promise.resolve({
-                  error: { code: "08006", message: "conn fail" },
+                    error: { code: "08006", message: "conn fail" },
                   }),
               };
               return builder;

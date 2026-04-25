@@ -94,7 +94,7 @@ export class RoadmapStorageService {
     if (error) {
       throw new NotFoundException("Milestones not found");
     }
-    return data as MilestoneSummary[];
+    return data;
   }
 
   public async acquireGenerationLock(

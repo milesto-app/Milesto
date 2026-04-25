@@ -164,7 +164,7 @@ export class QualityMilestoneService {
       );
       return null;
     }
-    return data as { title: string; description: string };
+    return data;
   }
 
   private buildScores(

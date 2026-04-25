@@ -18,7 +18,6 @@ import { IntakeStoreService } from "./intake-store.service.js";
 import { IntakeTargetDateService } from "./intake-target-date.service.js";
 import type {
   AnswerInput,
-  BatchAnsweredEvent,
   BatchParams,
   BatchServedEvent,
 } from "./types/intake.types.js";
@@ -209,9 +208,6 @@ export class IntakeBatchService {
   }
 
   private emitBatchEvent(event: string, payload: BatchServedEvent): void {
-    this.eventEmitter.emit(
-      event,
-      payload as BatchServedEvent & BatchAnsweredEvent,
-    );
+    this.eventEmitter.emit(event, payload);
   }
 }

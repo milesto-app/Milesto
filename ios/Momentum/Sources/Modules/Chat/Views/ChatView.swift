@@ -94,7 +94,7 @@ struct ChatView: View {
             isInputFocused = true
         }
         .alert(chatErrorTitle,
-            isPresented: $showError)
+               isPresented: $showError)
         {
             Button(String(localized: "common.ok", table: "Common"), role: .cancel) {
                 isLimitReached = false

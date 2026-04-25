@@ -143,13 +143,7 @@ export class QualityWeeklyTaskService {
       );
       return null;
     }
-    return data as Array<{
-      id: string;
-      title: string;
-      description: string;
-      difficulty_rating: string | null;
-      is_fallback: boolean;
-    }>;
+    return data;
   }
 
   private async loadWeeklyPlan(
