@@ -73,6 +73,9 @@ extension ChatView {
                 if case .generationLimitReached = error {
                     isLimitReached = true
                     errorMessage = String(localized: "usage.limit.reached.message", table: "Paywall")
+                } else if case .subscriptionRequired = error {
+                    isLimitReached = true
+                    errorMessage = error.localizedDescription
                 } else {
                     errorMessage = String(localized: "chat.error.generic", table: "Chat")
                 }

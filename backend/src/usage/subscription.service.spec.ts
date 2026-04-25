@@ -89,12 +89,45 @@ function buildFakeSupabase(state: FakeDbState): SupabaseService {
       },
       update(patch: Record<string, unknown>) {
         this._patch = patch;
-        return {
-          eq: async (col: string, val: any) => {
-            state.updates.push({ where: `${col}=${String(val)}`, patch });
-            return Promise.resolve({ error: null });
+        const updateBuilder: any = {
+          _filters: [] as Array<{ op: string; col: string; val: any }>,
+          _or: null as string | null,
+          eq(col: string, val: any) {
+            this._filters.push({ op: "eq", col, val });
+            return this;
+          },
+          or(expression: string) {
+            this._or = expression;
+            return this;
+          },
+          select: async () => {
+            const idFilter = updateBuilder._filters.find(
+              (f: any) => f.op === "eq" && f.col === "id",
+            );
+            const id = idFilter?.val as string | undefined;
+            const current =
+              id === undefined ? undefined : state.profileById.get(id);
+            if (id !== undefined && updateBuilder._or !== null && current) {
+              const incoming = patch.subscription_apple_signed_at as
+                | string
+                | null
+                | undefined;
+              const existing = current.subscription_apple_signed_at;
+              if (
+                incoming !== null &&
+                incoming !== undefined &&
+                existing !== null &&
+                existing !== undefined &&
+                new Date(incoming).getTime() <= new Date(existing).getTime()
+              ) {
+                return Promise.resolve({ data: [], error: null });
+              }
+            }
+            state.updates.push({ where: `id=${String(id)}`, patch });
+            return Promise.resolve({ data: [{ id }], error: null });
           },
         };
+        return updateBuilder;
       },
       async maybeSingle() {
         if (state.maybeSingleQueue.length > 0) {
@@ -403,12 +436,17 @@ describe("SubscriptionService", () => {
                   }),
               }),
             }),
-            update: () => ({
-              eq: async () =>
-                Promise.resolve({
+            update: () => {
+              const builder = {
+                eq: jest.fn(() => builder),
+                or: jest.fn(() => builder),
+                select: async () =>
+                  Promise.resolve({
                   error: { code: "08006", message: "conn fail" },
-                }),
-            }),
+                  }),
+              };
+              return builder;
+            },
           }),
         }),
       } as unknown as SupabaseService;

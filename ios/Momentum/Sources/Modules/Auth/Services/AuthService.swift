@@ -154,7 +154,7 @@ final class AuthService: NSObject, ObservableObject {
         do {
             try await client.auth.signInWithOAuth(
                 provider: .google,
-                redirectTo: URL(string: "momentum://auth-callback")
+                redirectTo: URL(string: "app.momentum-ai.auth://auth-callback")
             )
         } catch {
             authState = .error(error.localizedDescription)

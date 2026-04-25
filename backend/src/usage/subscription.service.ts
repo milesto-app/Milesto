@@ -85,21 +85,12 @@ export class SubscriptionService {
     );
 
     const signedDateIso = this.toIsoOrNull(transaction.signedDate);
-    const isStale = await this.isStaleSignedDate(userId, signedDateIso);
-    if (isStale) {
-      this.logger.debug(
-        `Stale verify for user=${userId} tx=${transaction.transactionId ?? "unknown"} — no-op`,
-      );
-      return;
-    }
-
     const status = this.deriveStatusFromTransaction(transaction);
     const expiresAt = this.toIsoOrNull(transaction.expiresDate);
 
-    const supabase = this.supabaseService.getAdminClient();
-    const { error } = await supabase
-      .from("profiles")
-      .update({
+    const didApply = await this.applyProfilePatchIfFresh(
+      userId,
+      {
         subscription_status: status,
         subscription_expires_at: expiresAt,
         subscription_product_id: transaction.productId ?? null,
@@ -108,14 +99,14 @@ export class SubscriptionService {
         subscription_verified_at: new Date().toISOString(),
         subscription_apple_signed_at: signedDateIso,
         subscription_environment: this.stringOrNull(transaction.environment),
-      })
-      .eq("id", userId);
-
-    if (error) {
-      this.logger.error(
-        `Failed to sync subscription for user ${userId}: ${error.message}`,
+      },
+      signedDateIso,
+    );
+    if (!didApply) {
+      this.logger.debug(
+        `Stale verify for user=${userId} tx=${transaction.transactionId ?? "unknown"} — no-op`,
       );
-      throw new InternalServerErrorException("Failed to sync subscription");
+      return;
     }
 
     this.logger.log(
@@ -217,15 +208,17 @@ export class SubscriptionService {
     const signedDateIso = this.toIsoOrNull(
       notification.signedDate ?? transaction.signedDate,
     );
-    const isStale = await this.isStaleSignedDate(userId, signedDateIso);
-    if (isStale) {
+    const didApply = await this.applyWebhookUpdate(
+      userId,
+      transaction,
+      update,
+      signedDateIso,
+    );
+    if (!didApply) {
       this.logger.debug(
         `Stale webhook for user=${userId} tx=${transaction.transactionId ?? "unknown"} type=${type} — no-op`,
       );
-      return;
     }
-
-    await this.applyWebhookUpdate(userId, transaction, update, signedDateIso);
   }
 
   public async getStatus(userId: string): Promise<SubscriptionStatusResponse> {
@@ -269,8 +262,7 @@ export class SubscriptionService {
     transaction: JWSTransactionDecodedPayload,
     update: SubscriptionUpdate,
     signedDateIso: string | null,
-  ): Promise<void> {
-    const supabase = this.supabaseService.getAdminClient();
+  ): Promise<boolean> {
     const patch: TablesUpdate<"profiles"> = {
       subscription_verified_at: new Date().toISOString(),
     };
@@ -299,23 +291,19 @@ export class SubscriptionService {
       patch.subscription_apple_signed_at = signedDateIso;
     }
 
-    const { error } = await supabase
-      .from("profiles")
-      .update(patch)
-      .eq("id", userId);
-
-    if (error) {
-      this.logger.error(
-        `Failed to apply webhook update user=${userId} reason=${update.reason}: ${error.message}`,
-      );
-      throw new InternalServerErrorException(
-        "Failed to persist subscription update",
-      );
+    const didApply = await this.applyProfilePatchIfFresh(
+      userId,
+      patch,
+      signedDateIso,
+    );
+    if (!didApply) {
+      return false;
     }
 
     this.logger.log(
       `Webhook applied user=${userId} reason=${update.reason} status=${update.status ?? "unchanged"}`,
     );
+    return true;
   }
 
   private async findUserIdForWebhook(
@@ -370,32 +358,31 @@ export class SubscriptionService {
     return data?.id ?? null;
   }
 
-  private async isStaleSignedDate(
+  private async applyProfilePatchIfFresh(
     userId: string,
-    incomingIso: string | null,
+    patch: TablesUpdate<"profiles">,
+    signedDateIso: string | null,
   ): Promise<boolean> {
-    if (incomingIso === null) {
-      return false;
-    }
-
     const supabase = this.supabaseService.getAdminClient();
-    const { data, error } = await supabase
-      .from("profiles")
-      .select("subscription_apple_signed_at")
-      .eq("id", userId)
-      .maybeSingle();
+    let query = supabase.from("profiles").update(patch).eq("id", userId);
 
-    if (error && error.code !== SUPABASE_NOT_FOUND) {
-      throw new InternalServerErrorException(
-        "Failed to read subscription timestamp",
+    if (signedDateIso !== null) {
+      query = query.or(
+        `subscription_apple_signed_at.is.null,subscription_apple_signed_at.lt.${signedDateIso}`,
       );
     }
 
-    const current = data?.subscription_apple_signed_at ?? null;
-    if (current === null) {
-      return false;
+    const { data, error } = await query.select("id");
+    if (error) {
+      this.logger.error(
+        `Failed to persist subscription update user=${userId}: ${error.message}`,
+      );
+      throw new InternalServerErrorException(
+        "Failed to persist subscription update",
+      );
     }
-    return new Date(incomingIso).getTime() <= new Date(current).getTime();
+
+    return data.length > 0;
   }
 
   private async assertOriginalTransactionNotOwnedByOther(

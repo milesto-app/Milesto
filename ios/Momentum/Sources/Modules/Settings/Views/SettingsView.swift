@@ -53,9 +53,7 @@ struct SettingsView: View {
                 Button(String(localized: "settings.signOut.alert.cancel", table: "Settings"), role: .cancel) {}
                 Button(String(localized: "settings.signOut.alert.confirm", table: "Settings"), role: .destructive) {
                     Task {
-                        if let profile = localProfile {
-                            modelContext.delete(profile)
-                        }
+                        await purgeLocalUserData()
                         try? await authService.signOut()
                     }
                 }
@@ -282,6 +280,29 @@ struct SettingsView: View {
                 errorMessage = error.localizedDescription
                 showError = true
             }
+        }
+    }
+
+    private func purgeLocalUserData() async {
+        await SubscriptionSyncOutbox.shared.purgeAll()
+        deleteAll(LocalChatMessage.self)
+        deleteAll(LocalConversation.self)
+        deleteAll(LocalDebrief.self)
+        deleteAll(LocalWeeklyTask.self)
+        deleteAll(LocalWeeklyPlan.self)
+        deleteAll(LocalMilestone.self)
+        deleteAll(LocalRoadmap.self)
+        deleteAll(LocalStats.self)
+        deleteAll(LocalGoal.self)
+        deleteAll(LocalProfile.self)
+        try? modelContext.save()
+    }
+
+    private func deleteAll<T: PersistentModel>(_ modelType: T.Type) {
+        let descriptor = FetchDescriptor<T>()
+        guard let rows = try? modelContext.fetch(descriptor) else { return }
+        for row in rows {
+            modelContext.delete(row)
         }
     }
 

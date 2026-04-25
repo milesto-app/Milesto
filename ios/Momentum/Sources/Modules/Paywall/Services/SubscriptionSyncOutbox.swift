@@ -1,3 +1,4 @@
+import CryptoKit
 import Foundation
 import OSLog
 import SwiftData
@@ -9,6 +10,8 @@ private let maxDrainAttemptsPerEntry = 5
 @Model
 final class PendingSubscriptionSync {
     @Attribute(.unique) var id: UUID
+    // Stores a Keychain account key for new entries. Older app versions stored
+    // the JWS directly here; drainAll handles that legacy shape.
     var jwsRepresentation: String
     var createdAt: Date
     var userId: String?
@@ -47,14 +50,16 @@ actor SubscriptionSyncOutbox {
 
     func enqueue(jws: String, userId: String?) {
         guard let context = makeContext() else { return }
+        let jwsKey = Self.key(for: jws)
         let descriptor = FetchDescriptor<PendingSubscriptionSync>(
-            predicate: #Predicate { $0.jwsRepresentation == jws }
+            predicate: #Predicate { $0.jwsRepresentation == jwsKey }
         )
         if let existing = try? context.fetch(descriptor), !existing.isEmpty {
             outboxLogger.debug("enqueue skipped — duplicate JWS already pending")
             return
         }
-        let pending = PendingSubscriptionSync(jwsRepresentation: jws, userId: userId)
+        SharedKeychain.setPendingSubscriptionJWS(jws, key: jwsKey)
+        let pending = PendingSubscriptionSync(jwsRepresentation: jwsKey, userId: userId)
         context.insert(pending)
         do {
             try context.save()
@@ -89,9 +94,15 @@ actor SubscriptionSyncOutbox {
                 outboxLogger.debug("skip entry — attempt cap reached")
                 continue
             }
-            let body = VerifySubscriptionBody(jwsTransaction: entry.jwsRepresentation)
+            guard let jws = Self.jws(for: entry) else {
+                context.delete(entry)
+                try? context.save()
+                continue
+            }
+            let body = VerifySubscriptionBody(jwsTransaction: jws)
             do {
                 try await BackendClient.shared.requestVoid(method: "POST", path: "subscription/verify", body: body)
+                Self.removeJWS(for: entry)
                 context.delete(entry)
                 try context.save()
                 succeeded += 1
@@ -112,6 +123,7 @@ actor SubscriptionSyncOutbox {
         )
         guard let stale = try? context.fetch(descriptor), !stale.isEmpty else { return }
         for entry in stale {
+            Self.removeJWS(for: entry)
             context.delete(entry)
         }
         try? context.save()
@@ -125,9 +137,41 @@ actor SubscriptionSyncOutbox {
         )
         guard let entries = try? context.fetch(descriptor), !entries.isEmpty else { return }
         for entry in entries {
+            Self.removeJWS(for: entry)
             context.delete(entry)
         }
         try? context.save()
         outboxLogger.debug("purged \(entries.count, privacy: .public) entries for user")
+    }
+
+    func purgeAll() async {
+        guard let context = makeContext() else { return }
+        let descriptor = FetchDescriptor<PendingSubscriptionSync>()
+        guard let entries = try? context.fetch(descriptor), !entries.isEmpty else { return }
+        for entry in entries {
+            Self.removeJWS(for: entry)
+            context.delete(entry)
+        }
+        try? context.save()
+        outboxLogger.debug("purged all pending subscription sync entries")
+    }
+
+    private static func key(for jws: String) -> String {
+        let digest = SHA256.hash(data: Data(jws.utf8))
+        let hash = digest.map { String(format: "%02x", $0) }.joined()
+        return "subscription_jws_\(hash)"
+    }
+
+    private static func jws(for entry: PendingSubscriptionSync) -> String? {
+        if entry.jwsRepresentation.hasPrefix("subscription_jws_") {
+            return SharedKeychain.pendingSubscriptionJWS(key: entry.jwsRepresentation)
+        }
+        return entry.jwsRepresentation
+    }
+
+    private static func removeJWS(for entry: PendingSubscriptionSync) {
+        if entry.jwsRepresentation.hasPrefix("subscription_jws_") {
+            SharedKeychain.removePendingSubscriptionJWS(key: entry.jwsRepresentation)
+        }
     }
 }
