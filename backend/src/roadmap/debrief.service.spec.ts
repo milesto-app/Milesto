@@ -24,6 +24,13 @@ interface SpecMocks {
   milestone: MilestoneMocks;
 }
 
+interface MockQueryBuilder {
+  eq: jest.Mock;
+  select?: jest.Mock;
+  maybeSingle?: jest.Mock;
+  neq?: jest.Mock;
+}
+
 function defaultMocks(): SpecMocks {
   return {
     goalExists: true,
@@ -113,54 +120,53 @@ function planLookupData(m: MilestoneMocks): { milestone_id: string } | null {
 }
 
 function buildWeeklyPlansTable(mocks: SpecMocks): unknown {
-  const completeFlow = {
-    update: jest.fn().mockReturnValue({
-      eq: jest.fn().mockReturnValue({
-        eq: jest.fn().mockReturnValue({
-          select: jest.fn().mockResolvedValue({
-            data: mocks.planCompletes ? [{ id: "plan-uuid" }] : [],
-            error: null,
-          }),
+  return {
+    update: jest.fn().mockImplementation(() => {
+      const builder: MockQueryBuilder = {
+        eq: jest.fn(() => builder),
+        select: jest.fn().mockResolvedValue({
+          data: mocks.planCompletes ? [{ id: "plan-uuid" }] : [],
+          error: null,
         }),
-      }),
+      };
+      return builder;
     }),
     select: jest
       .fn()
-      .mockImplementation((cols: string, opts?: { count?: string }) => {
-        // "milestone_id" lookup → .eq("id", planId).maybeSingle()
+      .mockImplementation((_cols: string, opts?: { count?: string }) => {
         if (opts === undefined || opts.count === undefined) {
-          return {
-            eq: jest.fn().mockReturnValue({
-              maybeSingle: jest.fn().mockResolvedValue({
-                data: planLookupData(mocks.milestone),
-                error: mocks.milestone.planLookupError,
-              }),
+          const builder: MockQueryBuilder = {
+            eq: jest.fn(() => builder),
+            maybeSingle: jest.fn().mockResolvedValue({
+              data: planLookupData(mocks.milestone),
+              error: mocks.milestone.planLookupError,
             }),
           };
+          return builder;
         }
-        // sibling count → .eq("milestone_id").neq("status")
-        return {
-          eq: jest.fn().mockReturnValue({
-            neq: jest.fn().mockResolvedValue({
-              count: mocks.milestone.siblingActiveCount,
-              error: mocks.milestone.siblingCountError,
-            }),
+        const builder: MockQueryBuilder = {
+          eq: jest.fn(() => builder),
+          neq: jest.fn().mockResolvedValue({
+            count: mocks.milestone.siblingActiveCount,
+            error: mocks.milestone.siblingCountError,
           }),
         };
+        return builder;
       }),
   };
-  return completeFlow;
 }
 
 function buildMilestonesTable(mocks: SpecMocks): unknown {
   return {
     update: jest.fn().mockReturnValue({
       eq: jest.fn().mockReturnValue({
-        is: jest.fn().mockReturnValue({
-          select: jest.fn().mockReturnValue({
-            maybeSingle: jest
-              .fn()
-              .mockResolvedValue(mocks.milestone.milestoneUpdate),
+        eq: jest.fn().mockReturnValue({
+          is: jest.fn().mockReturnValue({
+            select: jest.fn().mockReturnValue({
+              maybeSingle: jest
+                .fn()
+                .mockResolvedValue(mocks.milestone.milestoneUpdate),
+            }),
           }),
         }),
       }),

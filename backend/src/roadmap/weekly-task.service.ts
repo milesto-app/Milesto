@@ -7,6 +7,8 @@ import {
 import { EventEmitter2 } from "@nestjs/event-emitter";
 
 import { UserLanguageService } from "../common/user-language.service.js";
+import { UsageService } from "../usage/usage.service.js";
+import { GenerationType } from "../usage/usage.types.js";
 import { ContextPipelineService } from "./context-pipeline.service.js";
 import { GenerationService } from "./generation.service.js";
 import type { WeeklyPlan } from "./types/weekly-plan.types.js";
@@ -39,6 +41,7 @@ export class WeeklyTaskService {
     private readonly events: EventEmitter2,
     private readonly weeklyPlan: WeeklyPlanService,
     private readonly languageService: UserLanguageService,
+    private readonly usageService: UsageService,
   ) {}
 
   public async getWeeklyTasks(
@@ -131,6 +134,10 @@ export class WeeklyTaskService {
   private async generateAndStore(
     params: GenerateParams,
   ): Promise<WeeklyTask[]> {
+    await this.usageService.reserveGeneration(
+      params.userId,
+      GenerationType.DAILY_OBJECTIVES,
+    );
     const weekData = await this.weeklyPlan.queryWeekData(
       params.weeklyPlan,
       params.goalId,

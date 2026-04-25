@@ -15,10 +15,47 @@ export interface SimulationPromptInput {
   batchNumber: number;
 }
 
+interface ScaleConfig {
+  min: number;
+  max: number;
+  minLabel: string;
+  maxLabel: string;
+}
+
+function readOptions(config: unknown): string[] | undefined {
+  if (typeof config !== "object" || config === null) {
+    return undefined;
+  }
+  const opts = (config as Record<string, unknown>).options;
+  if (
+    !Array.isArray(opts) ||
+    !opts.every((o): o is string => typeof o === "string")
+  ) {
+    return undefined;
+  }
+  return opts;
+}
+
+function readScaleConfig(config: unknown): ScaleConfig | undefined {
+  if (typeof config !== "object" || config === null) {
+    return undefined;
+  }
+  const rec = config as Record<string, unknown>;
+  if (typeof rec.min !== "number" || typeof rec.max !== "number") {
+    return undefined;
+  }
+  return {
+    min: rec.min,
+    max: rec.max,
+    minLabel: typeof rec.min_label === "string" ? rec.min_label : "",
+    maxLabel: typeof rec.max_label === "string" ? rec.max_label : "",
+  };
+}
+
 export function formatQuestions(questions: EvalQuestion[]): string {
   return questions
     .map((q, i) => {
-      const opts = (q.config as { options?: string[] } | null)?.options;
+      const opts = readOptions(q.config);
       const optionsSuffix =
         opts !== undefined ? `\n   Options: ${opts.join(" / ")}` : "";
       return `${i + 1}. [${q.question_type}] ${q.question_text}${optionsSuffix}`;
@@ -49,7 +86,7 @@ export function formatGoldStandardQuestions(
 ): string {
   return questions
     .map((q, i) => {
-      const opts = (q.config as { options?: string[] } | null)?.options;
+      const opts = readOptions(q.config);
       const optionsSuffix =
         opts !== undefined ? `\n   Options: ${opts.join(" / ")}` : "";
       return `${i + 1}. [${q.question_type}] ${q.question_text}${optionsSuffix}\n   Rationale: ${q.rationale}`;
@@ -61,18 +98,13 @@ export function formatQuestionsWithScale(questions: EvalQuestion[]): string {
   return questions
     .map((q, i) => {
       let line = `${i + 1}. [${q.question_type}] ${q.question_text}`;
-      const opts = (q.config as { options?: string[] } | null)?.options;
+      const opts = readOptions(q.config);
       if (opts !== undefined) {
         line += `\n   Options: ${opts.join(" / ")}`;
       }
-      const scaleConfig = q.config as {
-        min?: number;
-        max?: number;
-        min_label?: string;
-        max_label?: string;
-      } | null;
-      if (q.question_type === "scale" && scaleConfig?.min !== undefined) {
-        line += `\n   Scale: ${scaleConfig.min} (${scaleConfig.min_label}) to ${scaleConfig.max} (${scaleConfig.max_label})`;
+      const scale = readScaleConfig(q.config);
+      if (q.question_type === "scale" && scale !== undefined) {
+        line += `\n   Scale: ${String(scale.min)} (${scale.minLabel}) to ${String(scale.max)} (${scale.maxLabel})`;
       }
       return line;
     })

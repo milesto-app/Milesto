@@ -87,7 +87,17 @@ extension HomeView {
         )
         if let local = try? modelContext.fetch(descriptor).first {
             local.isCompleted = isCompleted
+            try? modelContext.save()
         }
+        notifyTaskCompletionChanged()
+    }
+
+    func notifyTaskCompletionChanged() {
+        NotificationCenter.default.post(
+            name: .weeklyTaskCompletionDidChange,
+            object: nil,
+            userInfo: ["goalId": goalId]
+        )
     }
 
     func loadAllData() async {

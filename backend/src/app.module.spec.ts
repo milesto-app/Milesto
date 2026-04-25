@@ -12,7 +12,7 @@ describe("AppModule", () => {
           return true;
         }
         if (imp !== null && typeof imp === "object" && "module" in imp) {
-          return (imp as { module: unknown }).module === ThrottlerModule;
+          return imp.module === ThrottlerModule;
         }
         return false;
       }),

@@ -1,3 +1,4 @@
+import SwiftData
 import SwiftUI
 
 struct MilestoneDetailView: View {
@@ -5,9 +6,9 @@ struct MilestoneDetailView: View {
     let title: String
     let description: String
     let expectedOutcome: String
-    let isMonthlyCheckpoint: Bool
     let status: MilestoneStatus
 
+    @Environment(\.modelContext) private var modelContext
     @State private var tasks: [WeeklyTaskDTO] = []
     @State private var isLoadingTasks = false
     @State private var selectedTaskId: String?
@@ -18,18 +19,6 @@ struct MilestoneDetailView: View {
                 VStack(spacing: 24) {
                     HStack(spacing: 8) {
                         MilestoneStatusBadge(status: status)
-
-                        if isMonthlyCheckpoint {
-                            AppText("roadmap.milestone.monthlyCheckpoint", table: "Roadmap", style: .caption)
-                                .weight(.semibold)
-                                .color(Color("TintPrimary"))
-                                .padding(.horizontal, 10)
-                                .padding(.vertical, 4)
-                                .background(
-                                    Capsule()
-                                        .fill(Color("TintPrimary").opacity(0.15))
-                                )
-                        }
 
                         Spacer()
                     }
@@ -76,11 +65,14 @@ struct MilestoneDetailView: View {
         if let idx = tasks.firstIndex(where: { $0.id == updated.id }) {
             tasks[idx] = updated
         }
+        upsertCachedTask(updated)
         Task {
-            _ = try? await RoadmapAPIService.shared.toggleTask(
+            if let remote = try? await RoadmapAPIService.shared.toggleTask(
                 taskId: updated.id,
                 isCompleted: updated.isCompleted
-            )
+            ) {
+                upsertCachedTask(remote)
+            }
         }
     }
 
@@ -163,9 +155,52 @@ struct MilestoneDetailView: View {
             isFallback: original.isFallback,
             createdAt: original.createdAt
         )
+        upsertCachedTask(tasks[index])
         Task {
-            _ = try? await RoadmapAPIService.shared.toggleTask(taskId: task.id, isCompleted: newCompleted)
+            if let updated = try? await RoadmapAPIService.shared.toggleTask(taskId: task.id, isCompleted: newCompleted) {
+                upsertCachedTask(updated)
+            }
         }
+    }
+
+    private func upsertCachedTask(_ task: WeeklyTaskDTO) {
+        let descriptor = FetchDescriptor<LocalWeeklyTask>(
+            predicate: #Predicate { $0.id == task.id }
+        )
+        if let local = try? modelContext.fetch(descriptor).first {
+            local.weeklyPlanId = task.weeklyPlanId
+            local.title = task.title
+            local.taskDescription = task.description
+            local.difficultyRating = task.difficultyRating?.rawValue
+            local.orderIndex = task.orderIndex
+            local.isCompleted = task.isCompleted
+            local.isFallback = task.isFallback
+        } else {
+            let local = LocalWeeklyTask(
+                id: task.id,
+                weeklyPlanId: task.weeklyPlanId,
+                goalId: task.goalId,
+                userId: task.userId,
+                title: task.title,
+                taskDescription: task.description,
+                difficultyRating: task.difficultyRating?.rawValue,
+                orderIndex: task.orderIndex,
+                isCompleted: task.isCompleted,
+                isFallback: task.isFallback,
+                createdAt: task.createdAt
+            )
+            modelContext.insert(local)
+        }
+        try? modelContext.save()
+        notifyTaskCompletionChanged(goalId: task.goalId)
+    }
+
+    private func notifyTaskCompletionChanged(goalId: String) {
+        NotificationCenter.default.post(
+            name: .weeklyTaskCompletionDidChange,
+            object: nil,
+            userInfo: ["goalId": goalId]
+        )
     }
 
     private var expectedOutcomeCard: some View {
@@ -190,7 +225,6 @@ struct MilestoneDetailView: View {
         title: "Courir un semi-marathon",
         description: "Completez 21,1 km en course a pied sans vous arreter. Cela demande un entrainement regulier et progressif.",
         expectedOutcome: "Etre capable de courir 21,1 km en moins de 2h30",
-        isMonthlyCheckpoint: true,
         status: .current
     )
 }

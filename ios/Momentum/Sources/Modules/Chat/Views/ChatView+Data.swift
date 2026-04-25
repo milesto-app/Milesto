@@ -72,12 +72,21 @@ extension ChatView {
             } catch let error as BackendError {
                 if case .generationLimitReached = error {
                     isLimitReached = true
+                    isSubscriptionRequired = false
                     errorMessage = String(localized: "usage.limit.reached.message", table: "Paywall")
+                } else if case .subscriptionRequired = error {
+                    isLimitReached = false
+                    isSubscriptionRequired = true
+                    errorMessage = error.localizedDescription
                 } else {
+                    isLimitReached = false
+                    isSubscriptionRequired = false
                     errorMessage = String(localized: "chat.error.generic", table: "Chat")
                 }
                 showError = true
             } catch {
+                isLimitReached = false
+                isSubscriptionRequired = false
                 errorMessage = String(localized: "chat.error.generic", table: "Chat")
                 showError = true
             }

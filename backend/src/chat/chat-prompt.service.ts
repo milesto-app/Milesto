@@ -124,7 +124,7 @@ export class ChatPromptService {
     ]);
 
     return {
-      goal: goalResult.data as GoalContext["goal"],
+      goal: goalResult.data,
       plan: planResult.data as ActivePlan | null,
     };
   }
@@ -139,6 +139,6 @@ export class ChatPromptService {
       .eq("id", milestoneId)
       .single();
 
-    return data as GoalContext["milestone"];
+    return data;
   }
 }

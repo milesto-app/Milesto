@@ -19,6 +19,7 @@ struct ChatView: View {
     @State var conversations: [ConversationSummary] = []
     @State var isLoadingHistory = false
     @State var isLimitReached = false
+    @State var isSubscriptionRequired = false
 
     var body: some View {
         ChatMessageList(
@@ -92,16 +93,15 @@ struct ChatView: View {
         .onAppear {
             isInputFocused = true
         }
-        .alert(isLimitReached
-            ? String(localized: "usage.limit.reached.title", table: "Paywall")
-            : String(localized: "chat.error.generic", table: "Chat"),
-            isPresented: $showError)
+        .alert(chatErrorTitle,
+               isPresented: $showError)
         {
             Button(String(localized: "common.ok", table: "Common"), role: .cancel) {
                 isLimitReached = false
+                isSubscriptionRequired = false
             }
         } message: {
-            if isLimitReached {
+            if isLimitReached || isSubscriptionRequired {
                 Text(errorMessage)
             }
         }
@@ -112,5 +112,15 @@ struct ChatView: View {
         if isToolRunning { return true }
         guard let last = messages.last, last.role == .assistant else { return true }
         return last.content.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+    }
+
+    private var chatErrorTitle: String {
+        if isSubscriptionRequired {
+            return String(localized: "paywall.error.title", table: "Paywall")
+        }
+        if isLimitReached {
+            return String(localized: "usage.limit.reached.title", table: "Paywall")
+        }
+        return String(localized: "chat.error.generic", table: "Chat")
     }
 }
