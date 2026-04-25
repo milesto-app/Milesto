@@ -13,12 +13,23 @@
 			<string>Editor</string>
 			<key>CFBundleURLName</key>
 			<string>supabase-auth</string>
-				<key>CFBundleURLSchemes</key>
-				<array>
-					<string>app.momentum-ai.auth</string>
-				</array>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>app.momentum-ai.auth</string>
+			</array>
 		</dict>
 	</array>
+	<key>NSAppTransportSecurity</key>
+	<dict>
+		<key>NSExceptionDomains</key>
+		<dict>
+			<key>localhost</key>
+			<dict>
+				<key>NSExceptionAllowsInsecureHTTPLoads</key>
+				<true/>
+			</dict>
+		</dict>
+	</dict>
 	<key>UIAppFonts</key>
 	<array>
 		<string>tabler-icons.ttf</string>

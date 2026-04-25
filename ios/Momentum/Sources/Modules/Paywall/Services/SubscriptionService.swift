@@ -97,8 +97,8 @@ final class SubscriptionService: ObservableObject {
         entitlementState = .notSubscribed
     }
 
-    func markNotSubscribedFromBackend() {
-        entitlementState = .notSubscribed
+    func handleBackendSubscriptionRequired() async {
+        await reconcileWithBackend()
     }
 
     func purchase(_ product: Product) async {

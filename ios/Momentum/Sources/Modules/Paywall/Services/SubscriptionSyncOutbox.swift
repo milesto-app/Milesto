@@ -144,15 +144,16 @@ actor SubscriptionSyncOutbox {
         outboxLogger.debug("purged \(entries.count, privacy: .public) entries for user")
     }
 
-    func purgeAll() async {
+    func purgeAll() async throws {
         guard let context = makeContext() else { return }
         let descriptor = FetchDescriptor<PendingSubscriptionSync>()
-        guard let entries = try? context.fetch(descriptor), !entries.isEmpty else { return }
+        let entries = try context.fetch(descriptor)
+        guard !entries.isEmpty else { return }
         for entry in entries {
             Self.removeJWS(for: entry)
             context.delete(entry)
         }
-        try? context.save()
+        try context.save()
         outboxLogger.debug("purged all pending subscription sync entries")
     }
 

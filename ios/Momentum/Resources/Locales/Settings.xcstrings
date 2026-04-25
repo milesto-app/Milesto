@@ -18,6 +18,23 @@
         }
       }
     },
+    "settings.signOut.purge.error" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "We could not clear local data. Please try signing out again."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nous n'avons pas pu effacer les données locales. Veuillez réessayer de vous déconnecter."
+          }
+        }
+      }
+    },
     "settings.deleteGoal" : {
       "extractionState" : "manual",
       "localizations" : {
