@@ -10,7 +10,7 @@ struct WeeklyTaskDetailPage: View {
 
     private var accent: Color {
         switch task.difficultyRating {
-        case .easy: return Color("Brand")
+        case .easy: return Color("Success")
         case .moderate: return Color("Warning")
         case .hard: return Color("Error")
         case nil: return Color("Brand")
