@@ -87,8 +87,9 @@ final class ProfileGate {
         guard let goals = try? await GoalAPIService.shared.listGoals() else { return }
         let remoteIds = Set(goals.map { $0.id })
         for dto in goals {
+            let dtoId = dto.id
             let descriptor = FetchDescriptor<Goal>(predicate: #Predicate { goal in
-                goal.id == dto.id
+                goal.id == dtoId
             })
             let existing = try? modelContext.fetch(descriptor).first
             if let existing {
