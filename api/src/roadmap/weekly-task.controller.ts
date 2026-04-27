@@ -1,4 +1,12 @@
-import { Body, Controller, Get, Param, Patch, UseGuards } from "@nestjs/common";
+import {
+  Body,
+  Controller,
+  Get,
+  HttpStatus,
+  Param,
+  Patch,
+  UseGuards,
+} from "@nestjs/common";
 import {
   ApiBearerAuth,
   ApiOperation,
@@ -14,13 +22,6 @@ import { config } from "../config/app.config.js";
 import type { WeeklyTask } from "./types/weekly-task.types.js";
 import { WeeklyTaskService } from "./weekly-task.service.js";
 
-const API_STATUS_OK = 200;
-const API_STATUS_BAD_REQUEST = 400;
-const API_STATUS_UNAUTHORIZED = 401;
-const API_STATUS_NOT_FOUND = 404;
-const API_STATUS_RATE_LIMIT = 429;
-const GLOBAL_ENDPOINT_LIMIT = 60;
-
 @ApiTags("weekly-tasks")
 @ApiBearerAuth()
 @Controller("goals/:goalId/weekly-tasks")
@@ -31,7 +32,7 @@ export class WeeklyTaskController {
   @Get()
   @Throttle({
     default: {
-      limit: GLOBAL_ENDPOINT_LIMIT,
+      limit: config.throttle.globalLimit,
       ttl: config.throttle.aiEndpointTtlMs,
     },
   })
@@ -39,14 +40,14 @@ export class WeeklyTaskController {
     summary: "Get weekly tasks for the active weekly plan",
   })
   @ApiParam({ name: "goalId", description: "Goal ID" })
-  @ApiResponse({ status: API_STATUS_OK, description: "Weekly tasks array" })
+  @ApiResponse({ status: HttpStatus.OK, description: "Weekly tasks array" })
   @ApiResponse({
-    status: API_STATUS_BAD_REQUEST,
+    status: HttpStatus.BAD_REQUEST,
     description: "No active weekly plan",
   })
-  @ApiResponse({ status: API_STATUS_UNAUTHORIZED, description: "Unauthorized" })
+  @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: "Unauthorized" })
   @ApiResponse({
-    status: API_STATUS_RATE_LIMIT,
+    status: HttpStatus.TOO_MANY_REQUESTS,
     description: "Rate limit exceeded",
   })
   public async getWeeklyTasks(
@@ -59,7 +60,7 @@ export class WeeklyTaskController {
   @Patch(":taskId")
   @Throttle({
     default: {
-      limit: GLOBAL_ENDPOINT_LIMIT,
+      limit: config.throttle.globalLimit,
       ttl: config.throttle.aiEndpointTtlMs,
     },
   })
@@ -68,14 +69,14 @@ export class WeeklyTaskController {
   })
   @ApiParam({ name: "goalId", description: "Goal ID" })
   @ApiParam({ name: "taskId", description: "Task ID" })
-  @ApiResponse({ status: API_STATUS_OK, description: "Updated weekly task" })
+  @ApiResponse({ status: HttpStatus.OK, description: "Updated weekly task" })
   @ApiResponse({
-    status: API_STATUS_NOT_FOUND,
+    status: HttpStatus.NOT_FOUND,
     description: "Task not found",
   })
-  @ApiResponse({ status: API_STATUS_UNAUTHORIZED, description: "Unauthorized" })
+  @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: "Unauthorized" })
   @ApiResponse({
-    status: API_STATUS_RATE_LIMIT,
+    status: HttpStatus.TOO_MANY_REQUESTS,
     description: "Rate limit exceeded",
   })
   public async toggleTaskCompletion(

@@ -84,16 +84,7 @@ export class WeeklyTaskService {
   public async toggleTaskCompletion(
     params: UpdateTaskParams,
   ): Promise<WeeklyTask> {
-    const { task, didTransition } = await this.storage.updateTask(params);
-    if (didTransition && params.isCompleted) {
-      this.events.emit("task.completed", {
-        userId: params.userId,
-        taskId: task.id,
-        goalId: params.goalId,
-        weeklyPlanId: task.weekly_plan_id,
-        completedAt: task.completed_at,
-      });
-    }
+    const { task } = await this.storage.updateTask(params);
     return task;
   }
 

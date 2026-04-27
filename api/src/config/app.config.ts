@@ -91,6 +91,8 @@ export const config = {
     globalTtlMs: 60_000,
     aiEndpointLimit: 10,
     aiEndpointTtlMs: 60_000,
+    roadmapGenerateLimit: 3,
+    weeklyPlanGenerateLimit: 5,
   },
   roadmap: {
     matchCount: 20,
