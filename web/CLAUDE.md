@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-Next.js admin dashboard and public pages for Momentum (momentum-ai.app). Uses App Router, TypeScript, Tailwind CSS v4, and shadcn/ui.
+Next.js admin dashboard and public pages for Milesto (milesto-ai.app). Uses App Router, TypeScript, Tailwind CSS v4, and shadcn/ui.
 
 ## Commands
 

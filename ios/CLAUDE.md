@@ -103,7 +103,7 @@ AppButton("common.continue", table: "Common", action: onContinue)
 AppTextField(text: $email, label: "auth.form.email", table: "Auth")
 
 // NOT this:
-AppText("Bienvenue sur Momentum", style: .largeTitle)
+AppText("Bienvenue sur Milesto", style: .largeTitle)
 ```
 
 **For native SwiftUI APIs** (`alert`, `Button`, `Tab`, `navigationTitle`) — use `String(localized:table:)`:

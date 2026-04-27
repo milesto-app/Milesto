@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Momentum is an AI-powered personal coaching app. Users set one big goal, and the app generates a personalized roadmap with milestones, weekly plans, and daily tasks — guided by an AI coach personality they choose.
+Milesto is an AI-powered personal coaching app. Users set one big goal, and the app generates a personalized roadmap with milestones, weekly plans, and daily tasks — guided by an AI coach personality they choose.
 
 The project has three codebases:
 
@@ -47,7 +47,7 @@ Never commit directly to `dev` or `main`.
 
 ## Versioning
 
-The iOS Marketing Version (`MARKETING_VERSION` in `ios/Momentum.xcodeproj/project.pbxproj`) follows `proud.default.shame` (mapped to semver `major.minor.patch`):
+The iOS Marketing Version (`MARKETING_VERSION` in `ios/Milesto.xcodeproj/project.pbxproj`) follows `proud.default.shame` (mapped to semver `major.minor.patch`):
 
 - **proud** — big release. **Never bump this.**
 - **default** — normal change (new feature, meaningful refactor).

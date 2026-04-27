@@ -2,7 +2,7 @@
 
 ## Context
 
-`docs/notification-detection-design.md` specifies _when_ Momentum sends pushes and the detection architecture (transactional outbox + claim-based dispatcher, streaks, STO, winback, coach-voiced memory hooks). The design is approved; this plan sequences it into buildable work.
+`docs/notification-detection-design.md` specifies _when_ Milesto sends pushes and the detection architecture (transactional outbox + claim-based dispatcher, streaks, STO, winback, coach-voiced memory hooks). The design is approved; this plan sequences it into buildable work.
 
 **Current state** (verified via exploration):
 
@@ -31,7 +31,7 @@
   | `coach.reply.ready`     | `chat/messages.service.ts` (where the assistant message row is inserted)                                       |
   | `user.activity`         | `activity.service.ts` (explicitly emitted by `ActivityService.record()` so winback cancellation can subscribe) |
 
-- iOS: SwiftUI + Swift 6 strict concurrency; notification handling in `ios/Momentum/Sources/Modules/Notifications/` (new module). Service extension in a new target `NotificationServiceExtension`.
+- iOS: SwiftUI + Swift 6 strict concurrency; notification handling in `ios/Milesto/Sources/Modules/Notifications/` (new module). Service extension in a new target `NotificationServiceExtension`.
 - Web admin: no scope for v1 beyond what the dashboard needs for observability (phase 21).
 - After each backend change that touches protected code: run the codex review skill (per global CLAUDE.md).
 
@@ -116,15 +116,15 @@
 
 **iOS (new):**
 
-- **App Group** added to app + extension (`group.app.momentum-ai.shared`) so the extension can read a shared access token written by the main app via a `SharedKeychain` wrapper. This is what unblocks authenticated calls from the service extension.
+- **App Group** added to app + extension (`group.app.milesto-ai.shared`) so the extension can read a shared access token written by the main app via a `SharedKeychain` wrapper. This is what unblocks authenticated calls from the service extension.
 - New target `NotificationServiceExtension` (mutable-content extension). `NotificationService.swift` (in extension) implements `didReceive(_:withContentHandler:)` → POSTs to `/delivery/received` with `job_id` from the **top-level payload** (the payload contract below places `job_id` as a sibling of `aps`, not inside it — Apple strips unknown keys from `aps` but preserves custom top-level keys). Reads the token from shared keychain. If token missing/expired, extension silently skips the telemetry POST — backend already pre-inserts a row at send time, so missing `received_at` is acceptable (opens still correlate).
-- `ios/Momentum/Sources/Modules/Notifications/NotificationCenterDelegate.swift` — new `UNUserNotificationCenterDelegate`. Implements:
+- `ios/Milesto/Sources/Modules/Notifications/NotificationCenterDelegate.swift` — new `UNUserNotificationCenterDelegate`. Implements:
   - `willPresent` → show banner + sound when app foreground.
   - `didReceive response` → POSTs `/delivery/opened`, then routes via `cta_deeplink`.
   - `willPresent` + `didReceive` both write `user_activity_events` (kind = `notification_interaction`).
 - Register categories at launch:
-  - `MOMENTUM_GENERIC` with action `WHY_THIS` (label "Why this notification?"). Action handler opens `why_deeplink` in a web sheet.
-- Deep-link router: extend `App.swift`'s `.onOpenURL` to recognize `momentum://task/<id>`, `momentum://coach/reply/<id>`, `momentum://notif/why/<job_id>`. New `DeepLinkRouter.swift` struct with `Route` enum.
+  - `MILESTO_GENERIC` with action `WHY_THIS` (label "Why this notification?"). Action handler opens `why_deeplink` in a web sheet.
+- Deep-link router: extend `App.swift`'s `.onOpenURL` to recognize `milesto://task/<id>`, `milesto://coach/reply/<id>`, `milesto://notif/why/<job_id>`. New `DeepLinkRouter.swift` struct with `Route` enum.
 - `AppDelegate.swift`: set `UNUserNotificationCenter.current().delegate = NotificationCenterDelegate.shared` in `application(_:didFinishLaunchingWithOptions:)`. Register categories here too.
 
 **Payload contract (per §4.6):** APNs payload is shaped so required iOS directives are inside `aps`:
@@ -135,7 +135,7 @@
     "alert": { "body": <teaser>, "title": <coach.name> },
     "sound": "default",
     "mutable-content": 1,
-    "category": "MOMENTUM_GENERIC"
+    "category": "MILESTO_GENERIC"
   },
   "job_id": <uuid>,
   "kind": <kind>,
@@ -474,10 +474,10 @@ All phases 10–20 that read "check opt-out" mean "call `gate.service.isPushAllo
 - `api/src/notifications/notifications.service.ts` — unchanged (APNs transport reuse).
 - `api/src/roadmap/weekly-task.service.ts`, `api/src/roadmap/debrief.service.ts`, `api/src/chat/messages.service.ts` (or equiv), `api/src/goals/goals.service.ts`, `api/src/roadmap/roadmap.service.ts` — event emissions (phase 4).
 - `api/src/app.module.ts` — `ScheduleModule.forRoot()` (phase 5).
-- `ios/Momentum/Sources/Modules/Notifications/*` — new module (phases 3, 6, 10).
+- `ios/Milesto/Sources/Modules/Notifications/*` — new module (phases 3, 6, 10).
 - `ios/NotificationServiceExtension/*` — new target (phase 3).
-- `ios/Momentum/Sources/App.swift`, `AppDelegate.swift` — delegate wiring (phases 3, 6).
-- `ios/Momentum/Sources/Modules/Settings/Views/SettingsView.swift` — add notifications section (phase 10).
+- `ios/Milesto/Sources/App.swift`, `AppDelegate.swift` — delegate wiring (phases 3, 6).
+- `ios/Milesto/Sources/Modules/Settings/Views/SettingsView.swift` — add notifications section (phase 10).
 - `web/app/admin/notifications/*` — dashboards (phases 20–21).
 
 ---

@@ -25,8 +25,8 @@ function buildTransaction(): JWSTransactionDecodedPayload {
   return {
     transactionId: "tx-1",
     originalTransactionId: "orig-1",
-    productId: "momentum_monthly",
-    bundleId: "app.momentum-ai.auth.mobile",
+    productId: "milesto_monthly",
+    bundleId: "app.milesto-ai.auth.mobile",
   };
 }
 

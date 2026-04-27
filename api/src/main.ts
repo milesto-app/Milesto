@@ -28,7 +28,7 @@ async function bootstrap(): Promise<void> {
     process.env.ENABLE_SWAGGER === "true"
   ) {
     const config = new DocumentBuilder()
-      .setTitle("Momentum API")
+      .setTitle("Milesto API")
       .setDescription("AI-powered personal coaching app API")
       .setVersion("1.0")
       .addBearerAuth()

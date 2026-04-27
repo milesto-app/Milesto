@@ -12,6 +12,11 @@ const config = [
   },
   ...nextCoreWebVitals,
   ...nextTypescript,
+  {
+    settings: {
+      react: { version: "19.2" },
+    },
+  },
 ];
 
 export default config;
