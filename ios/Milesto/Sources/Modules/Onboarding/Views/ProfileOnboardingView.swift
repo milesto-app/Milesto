@@ -4,7 +4,7 @@ import SwiftUI
 struct ProfileOnboardingView: View {
     let userId: String
     let missingSteps: [OnboardingStep]
-    let existingProfile: LocalProfile?
+    let existingProfile: Profile?
     let onComplete: () -> Void
 
     @Environment(\.modelContext) private var modelContext
@@ -127,7 +127,7 @@ struct ProfileOnboardingView: View {
 
                 onComplete()
 
-                let descriptor = FetchDescriptor<LocalProfile>(
+                let descriptor = FetchDescriptor<Profile>(
                     predicate: #Predicate { $0.userId == userId }
                 )
                 let profile = (try? modelContext.fetch(descriptor))?.first
@@ -139,7 +139,7 @@ struct ProfileOnboardingView: View {
                     profile.coachId = mergedCoachId
                     profile.language = mergedLanguage
                 } else {
-                    let newProfile = LocalProfile(
+                    let newProfile = Profile(
                         userId: userId,
                         firstName: mergedFirstName,
                         lastName: mergedLastName,

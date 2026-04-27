@@ -2,7 +2,7 @@ import StoreKit
 import SwiftUI
 
 struct PaywallView: View {
-    @StateObject private var subscription = SubscriptionService.shared
+    @State private var subscription = SubscriptionService.shared
     @State private var selectedProductId: String = SubscriptionService.quarterlyProductId
     @State private var heroVisible = false
     @State private var featuresVisible = false

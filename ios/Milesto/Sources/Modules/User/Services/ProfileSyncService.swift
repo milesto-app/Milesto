@@ -8,7 +8,7 @@ final class ProfileSyncService {
 
     private init() {}
 
-    private func mergePendingAppleName(into fetchedProfile: ProfileDTO?) async -> ProfileDTO? {
+    private func mergePendingAppleName(into fetchedProfile: Profile?) async -> Profile? {
         let pending = AuthService.shared.consumePendingAppleName()
         guard pending.firstName != nil || pending.lastName != nil else { return fetchedProfile }
 
@@ -52,7 +52,7 @@ final class ProfileSyncService {
             }
         }
 
-        let descriptor = FetchDescriptor<LocalProfile>(
+        let descriptor = FetchDescriptor<Profile>(
             predicate: #Predicate { $0.userId == userId }
         )
         let existing = (try? modelContext.fetch(descriptor))?.first
@@ -75,7 +75,7 @@ final class ProfileSyncService {
             existing.language = fetchedProfile?.language
             existing.createdAt = fetchedProfile?.createdAt
         } else {
-            let newProfile = LocalProfile(
+            let newProfile = Profile(
                 userId: userId,
                 firstName: fetchedProfile?.firstName,
                 lastName: fetchedProfile?.lastName,

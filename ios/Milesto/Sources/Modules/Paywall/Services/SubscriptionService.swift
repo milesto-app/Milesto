@@ -1,4 +1,3 @@
-import Combine
 import Foundation
 import OSLog
 import StoreKit
@@ -18,7 +17,8 @@ nonisolated struct SubscriptionStatusResponse: Decodable {
 }
 
 @MainActor
-final class SubscriptionService: ObservableObject {
+@Observable
+final class SubscriptionService {
     static let shared = SubscriptionService()
 
     static let monthlyProductId = "milesto_monthly"
@@ -38,10 +38,10 @@ final class SubscriptionService: ObservableObject {
         }
     }
 
-    @Published private(set) var products: [Product] = []
-    @Published private(set) var entitlementState: EntitlementState = .unknown
-    @Published private(set) var isPurchasing = false
-    @Published var purchaseError: String?
+    private(set) var products: [Product] = []
+    private(set) var entitlementState: EntitlementState = .unknown
+    private(set) var isPurchasing = false
+    var purchaseError: String?
 
     private var updatesTask: Task<Void, Never>?
     private var onAppStartInFlight = false

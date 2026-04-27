@@ -1,159 +1,9 @@
+import Foundation
 import SwiftData
-import SwiftUI
 
-extension HomeView {
-    func applyRemoteToggle(_ updated: WeeklyTaskDTO) {
-        if let idx = tasks.firstIndex(where: { $0.id == updated.id }) {
-            tasks[idx] = updated
-        }
-        updateCachedTask(id: updated.id, isCompleted: updated.isCompleted)
-
-        Task {
-            do {
-                let remote = try await RoadmapAPIService.shared.toggleTask(
-                    taskId: updated.id,
-                    isCompleted: updated.isCompleted
-                )
-                if let idx = tasks.firstIndex(where: { $0.id == remote.id }) {
-                    tasks[idx] = remote
-                }
-                updateCachedTask(id: remote.id, isCompleted: remote.isCompleted)
-            } catch {
-                let reverted = !updated.isCompleted
-                if let idx = tasks.firstIndex(where: { $0.id == updated.id }) {
-                    let original = tasks[idx]
-                    tasks[idx] = WeeklyTaskDTO(
-                        id: original.id,
-                        weeklyPlanId: original.weeklyPlanId,
-                        goalId: original.goalId,
-                        userId: original.userId,
-                        title: original.title,
-                        description: original.description,
-                        difficultyRating: original.difficultyRating,
-                        orderIndex: original.orderIndex,
-                        isCompleted: reverted,
-                        isFallback: original.isFallback,
-                        createdAt: original.createdAt
-                    )
-                }
-                updateCachedTask(id: updated.id, isCompleted: reverted)
-            }
-        }
-    }
-
-    func toggleTask(_ task: WeeklyTaskDTO) {
-        guard let index = tasks.firstIndex(where: { $0.id == task.id }) else { return }
-        let newCompleted = !task.isCompleted
-        let original = tasks[index]
-
-        tasks[index] = WeeklyTaskDTO(
-            id: original.id,
-            weeklyPlanId: original.weeklyPlanId,
-            goalId: original.goalId,
-            userId: original.userId,
-            title: original.title,
-            description: original.description,
-            difficultyRating: original.difficultyRating,
-            orderIndex: original.orderIndex,
-            isCompleted: newCompleted,
-            isFallback: original.isFallback,
-            createdAt: original.createdAt
-        )
-
-        updateCachedTask(id: task.id, isCompleted: newCompleted)
-
-        Task {
-            do {
-                let updated = try await RoadmapAPIService.shared.toggleTask(
-                    taskId: task.id,
-                    isCompleted: newCompleted
-                )
-                if let idx = tasks.firstIndex(where: { $0.id == updated.id }) {
-                    tasks[idx] = updated
-                }
-                updateCachedTask(id: updated.id, isCompleted: updated.isCompleted)
-            } catch {
-                if let idx = tasks.firstIndex(where: { $0.id == original.id }) {
-                    tasks[idx] = original
-                }
-                updateCachedTask(id: original.id, isCompleted: original.isCompleted)
-            }
-        }
-    }
-
-    func updateCachedTask(id: String, isCompleted: Bool) {
-        let descriptor = FetchDescriptor<LocalWeeklyTask>(
-            predicate: #Predicate { $0.id == id }
-        )
-        if let local = try? modelContext.fetch(descriptor).first {
-            local.isCompleted = isCompleted
-            try? modelContext.save()
-        }
-        notifyTaskCompletionChanged()
-    }
-
-    func notifyTaskCompletionChanged() {
-        NotificationCenter.default.post(
-            name: .weeklyTaskCompletionDidChange,
-            object: nil,
-            userInfo: ["goalId": goalId]
-        )
-    }
-
-    func loadAllData() async {
-        hasSyncError = false
-
-        let cachedTasks = fetchCachedTasks()
-        if !cachedTasks.isEmpty {
-            tasks = cachedTasks
-            isLoading = false
-        }
-
-        if weeklyPlan == nil {
-            weeklyPlan = fetchCachedWeeklyPlan()
-        }
-
-        if let cached = fetchCachedDebrief() {
-            todayDebrief = cached
-        }
-
-        var didSync = false
-
-        async let fetchPlan: () = loadWeeklyPlan()
-        async let fetchTasks: () = loadTasks()
-        _ = await(fetchPlan, fetchTasks)
-        didSync = !tasks.isEmpty || weeklyPlan != nil
-
-        if let debriefs = try? await RoadmapAPIService.shared.getDebriefHistory(goalId: goalId) {
-            let latestDebrief = debriefs.first
-            todayDebrief = latestDebrief
-            syncDebriefToCache(latestDebrief)
-        }
-
-        if !didSync, tasks.isEmpty, weeklyPlan == nil {
-            hasSyncError = true
-        }
-
-        isLoading = false
-    }
-
-    func loadWeeklyPlan() async {
-        if weeklyPlan == nil {
-            weeklyPlan = fetchCachedWeeklyPlan()
-        }
-
-        if let existing = try? await RoadmapAPIService.shared.getWeeklyPlan(goalId: goalId) {
-            weeklyPlan = existing
-            upsertWeeklyPlanToCache(existing)
-            return
-        }
-        if let generated = try? await RoadmapAPIService.shared.generateWeeklyPlan(goalId: goalId) {
-            weeklyPlan = generated
-            upsertWeeklyPlanToCache(generated)
-        }
-    }
-
+extension HomeViewModel {
     func fetchCachedWeeklyPlan() -> WeeklyPlanDTO? {
+        guard let modelContext else { return nil }
         let goalId = goalId
         let activeStatus = WeeklyPlanStatus.active.rawValue
         let descriptor = FetchDescriptor<LocalWeeklyPlan>(
@@ -176,6 +26,7 @@ extension HomeView {
     }
 
     func upsertWeeklyPlanToCache(_ dto: WeeklyPlanDTO) {
+        guard let modelContext else { return }
         let planId = dto.id
         let descriptor = FetchDescriptor<LocalWeeklyPlan>(
             predicate: #Predicate { $0.id == planId }
@@ -211,19 +62,8 @@ extension HomeView {
         }
     }
 
-    func loadTasks() async {
-        let cachedTasks = fetchCachedTasks()
-        if !cachedTasks.isEmpty {
-            tasks = cachedTasks
-        }
-
-        if let fetched = try? await RoadmapAPIService.shared.getWeeklyTasks(goalId: goalId) {
-            tasks = fetched
-            syncTasksToCache(fetched)
-        }
-    }
-
     func fetchCachedTasks() -> [WeeklyTaskDTO] {
+        guard let modelContext else { return [] }
         let goalId = goalId
         let descriptor = FetchDescriptor<LocalWeeklyTask>(
             predicate: #Predicate { $0.goalId == goalId },
@@ -248,6 +88,7 @@ extension HomeView {
     }
 
     func fetchCachedDebrief() -> DebriefDTO? {
+        guard let modelContext else { return nil }
         let goalId = goalId
         let descriptor = FetchDescriptor<LocalDebrief>(
             predicate: #Predicate { $0.goalId == goalId },
@@ -269,7 +110,7 @@ extension HomeView {
     }
 
     func syncDebriefToCache(_ dto: DebriefDTO?) {
-        guard let dto else { return }
+        guard let modelContext, let dto else { return }
 
         let debriefId = dto.id
         let descriptor = FetchDescriptor<LocalDebrief>(
@@ -299,6 +140,7 @@ extension HomeView {
     }
 
     func syncTasksToCache(_ dtos: [WeeklyTaskDTO]) {
+        guard let modelContext else { return }
         let goalId = goalId
         let descriptor = FetchDescriptor<LocalWeeklyTask>(
             predicate: #Predicate { $0.goalId == goalId }

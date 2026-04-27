@@ -76,7 +76,7 @@ struct GoalIntakeFlowView: View {
     }
 
     private func markGoalCompleted(goalId: String) {
-        let descriptor = FetchDescriptor<LocalGoal>(predicate: #Predicate { goal in
+        let descriptor = FetchDescriptor<Goal>(predicate: #Predicate { goal in
             goal.id == goalId
         })
         if let goal = try? modelContext.fetch(descriptor).first {
@@ -94,11 +94,11 @@ struct GoalIntakeFlowView: View {
                     description: goalDescription.trimmingCharacters(in: .whitespacesAndNewlines)
                 )
 
-                let localGoal = LocalGoal(
+                let localGoal = Goal(
                     id: goal.id,
                     userId: goal.userId,
                     title: goal.title,
-                    goalDescription: goal.description,
+                    goalDescription: goal.goalDescription,
                     status: goal.status,
                     createdAt: Date()
                 )

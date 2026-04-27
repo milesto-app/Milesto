@@ -7,31 +7,6 @@ private nonisolated let outboxLogger = Logger(subsystem: Bundle.main.bundleIdent
 
 private let maxDrainAttemptsPerEntry = 5
 
-@Model
-final class PendingSubscriptionSync {
-    @Attribute(.unique) var id: UUID
-    // Stores a Keychain account key for new entries. Older app versions stored
-    // the JWS directly here; drainAll handles that legacy shape.
-    var jwsRepresentation: String
-    var createdAt: Date
-    var userId: String?
-    var attemptCount: Int
-
-    init(
-        id: UUID = UUID(),
-        jwsRepresentation: String,
-        createdAt: Date = Date(),
-        userId: String? = nil,
-        attemptCount: Int = 0
-    ) {
-        self.id = id
-        self.jwsRepresentation = jwsRepresentation
-        self.createdAt = createdAt
-        self.userId = userId
-        self.attemptCount = attemptCount
-    }
-}
-
 actor SubscriptionSyncOutbox {
     static let shared = SubscriptionSyncOutbox()
 
@@ -58,7 +33,7 @@ actor SubscriptionSyncOutbox {
             outboxLogger.debug("enqueue skipped — duplicate JWS already pending")
             return
         }
-        SharedKeychain.setPendingSubscriptionJWS(jws, key: jwsKey)
+        Keychain.setPendingSubscriptionJWS(jws, key: jwsKey)
         let pending = PendingSubscriptionSync(jwsRepresentation: jwsKey, userId: userId)
         context.insert(pending)
         do {
@@ -165,14 +140,14 @@ actor SubscriptionSyncOutbox {
 
     private static func jws(for entry: PendingSubscriptionSync) -> String? {
         if entry.jwsRepresentation.hasPrefix("subscription_jws_") {
-            return SharedKeychain.pendingSubscriptionJWS(key: entry.jwsRepresentation)
+            return Keychain.pendingSubscriptionJWS(key: entry.jwsRepresentation)
         }
         return entry.jwsRepresentation
     }
 
     private static func removeJWS(for entry: PendingSubscriptionSync) {
         if entry.jwsRepresentation.hasPrefix("subscription_jws_") {
-            SharedKeychain.removePendingSubscriptionJWS(key: entry.jwsRepresentation)
+            Keychain.removePendingSubscriptionJWS(key: entry.jwsRepresentation)
         }
     }
 }

@@ -1,12 +1,12 @@
 import Foundation
 import Security
 
-nonisolated enum SharedKeychainKey: String {
+nonisolated enum KeychainKey: String {
     case supabaseAccessToken = "supabase_access_token"
     case supabaseAccessTokenExpiresAt = "supabase_access_token_expires_at"
 }
 
-nonisolated enum SharedKeychain {
+nonisolated enum Keychain {
     private static let accessGroupSuffix = "app.milesto-ai.shared"
 
     private static var fullAccessGroup: String {
@@ -72,15 +72,15 @@ nonisolated enum SharedKeychain {
         SecItemDelete(query as CFDictionary)
     }
 
-    static func set(_ key: SharedKeychainKey, value: String?) {
+    static func set(_ key: KeychainKey, value: String?) {
         set(account: key.rawValue, value: value)
     }
 
-    static func string(_ key: SharedKeychainKey) -> String? {
+    static func string(_ key: KeychainKey) -> String? {
         string(account: key.rawValue)
     }
 
-    static func remove(_ key: SharedKeychainKey) {
+    static func remove(_ key: KeychainKey) {
         remove(account: key.rawValue)
     }
 

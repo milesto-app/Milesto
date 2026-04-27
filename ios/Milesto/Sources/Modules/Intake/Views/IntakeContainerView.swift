@@ -32,7 +32,7 @@ struct IntakeContainerView: View {
     let goalId: String
     let onComplete: () -> Void
 
-    @Query private var localProfiles: [LocalProfile]
+    @Query private var localProfiles: [Profile]
     @State private var phase: IntakePhase = .loading
     @State private var currentBatchNumber = 0
     @State private var answers: [String: IntakeAnswerDTO] = [:]
