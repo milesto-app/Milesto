@@ -101,35 +101,35 @@ ios/Derived/
 ios/*.generated.swift
 ios/buildServer.json
 
-# --- Backend (backend/) ---
+# --- API (api/) ---
 
 # Compiled output
-backend/dist/
-backend/node_modules/
-backend/build/
-backend/*.tsbuildinfo
+api/dist/
+api/node_modules/
+api/build/
+api/*.tsbuildinfo
 
 # Logs
-backend/logs/
-backend/*.log
-backend/npm-debug.log*
-backend/pnpm-debug.log*
-backend/yarn-debug.log*
-backend/yarn-error.log*
-backend/lerna-debug.log*
+api/logs/
+api/*.log
+api/npm-debug.log*
+api/pnpm-debug.log*
+api/yarn-debug.log*
+api/yarn-error.log*
+api/lerna-debug.log*
 
 # Tests
-backend/coverage/
-backend/.nyc_output/
+api/coverage/
+api/.nyc_output/
 
 # Runtime data
-backend/pids/
-backend/*.pid
-backend/*.seed
-backend/*.pid.lock
+api/pids/
+api/*.pid
+api/*.seed
+api/*.pid.lock
 
 # Diagnostic reports
-backend/report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
+api/report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
 
 # --- Web (web/) ---
 web/node_modules/
