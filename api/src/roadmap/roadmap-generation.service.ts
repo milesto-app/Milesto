@@ -121,7 +121,7 @@ export class RoadmapGenerationService {
           params.systemPrompt,
           params.userPrompt,
           params.model,
-          undefined,
+          config.roadmap.reasoningEffort,
           config.roadmap.callTimeoutMs,
         );
         const validated = params.validate(raw);
