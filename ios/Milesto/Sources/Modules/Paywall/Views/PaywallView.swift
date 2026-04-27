@@ -23,7 +23,7 @@ struct PaywallView: View {
 
     var body: some View {
         ZStack {
-            Color("BgPrimary").ignoresSafeArea()
+            Color("BackgroundBase").ignoresSafeArea()
 
             PaywallAmbientGlow(scale: glowScale, opacity: glowOpacity)
                 .ignoresSafeArea()
@@ -82,11 +82,11 @@ struct PaywallView: View {
     private var hero: some View {
         VStack(alignment: .leading, spacing: 20) {
             HStack(spacing: 8) {
-                TablerIcons(.sparkles2, size: 16, color: Color("TintPrimary"))
+                TablerIcons(.sparkles2, size: 16, color: Color("Brand"))
                     .opacity(sparklePulse)
 
                 AppText("paywall.premium.tag", table: "Paywall", style: .caption)
-                    .color(Color("TintPrimary"))
+                    .color(Color("Brand"))
                     .weight(.semibold)
             }
 

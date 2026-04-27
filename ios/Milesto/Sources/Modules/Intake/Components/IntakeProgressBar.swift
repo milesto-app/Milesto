@@ -18,7 +18,7 @@ struct IntakeProgressBar: View {
                         .frame(height: 6)
 
                     Capsule()
-                        .fill(Color("TintPrimary"))
+                        .fill(Color("Brand"))
                         .frame(width: geometry.size.width * progress, height: 6)
                         .animation(.easeInOut(duration: 0.3), value: progress)
                 }

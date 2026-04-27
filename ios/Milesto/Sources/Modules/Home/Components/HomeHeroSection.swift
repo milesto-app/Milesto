@@ -21,7 +21,7 @@ struct HomeHeroSection: View {
                             .fill(Color("TextSecondary").opacity(0.3))
                             .frame(height: 10)
                         Capsule()
-                            .fill(Color("TintPrimary"))
+                            .fill(Color("Brand"))
                             .frame(
                                 width: max(geometry.size.width * progress, progress > 0 ? 10 : 0),
                                 height: 10
@@ -37,7 +37,7 @@ struct HomeHeroSection: View {
                         style: .subheadline
                     )
                     .weight(.semibold)
-                    .color(Color("TintPrimary"))
+                    .color(Color("Brand"))
                     .contentTransition(.numericText())
                     .animation(.easeInOut(duration: 0.3), value: progress)
                     Spacer()

@@ -11,20 +11,20 @@ struct PaywallCTAButton: View {
             HStack(spacing: 10) {
                 if isLoading {
                     ProgressView()
-                        .tint(Color("TextOnAccent"))
+                        .tint(Color("TextOnBrand"))
                 } else {
                     Text(titleKey, tableName: "Paywall")
                         .font(Fonts.ui(size: 17, relativeTo: .headline, weight: .semibold))
 
-                    TablerIcons(.arrowRight, size: 18, color: Color("TextOnAccent"))
+                    TablerIcons(.arrowRight, size: 18, color: Color("TextOnBrand"))
                 }
             }
-            .foregroundStyle(Color("TextOnAccent"))
+            .foregroundStyle(Color("TextOnBrand"))
             .frame(maxWidth: .infinity)
             .padding(.vertical, 18)
             .background(
                 RoundedRectangle(cornerRadius: 14)
-                    .fill(Color("TintPrimary"))
+                    .fill(Color("Brand"))
             )
             .opacity(isDisabled ? 0.5 : 1)
         }

@@ -223,7 +223,7 @@ struct SettingsView: View {
     private func editableRow(icon: TablerIconOutline, label: LocalizedStringKey, value: String, action: @escaping () -> Void) -> some View {
         Button(action: action) {
             HStack(spacing: 12) {
-                TablerIcons(icon, size: 24, color: Color("TintPrimary"))
+                TablerIcons(icon, size: 24, color: Color("Brand"))
                 AppText(label, table: "Settings", style: .body)
                 Spacer()
                 AppText(verbatim: value, style: .body)
@@ -237,7 +237,7 @@ struct SettingsView: View {
 
     private func detailRow(icon: TablerIconOutline, label: LocalizedStringKey, value: String) -> some View {
         HStack(spacing: 12) {
-            TablerIcons(icon, size: 24, color: Color("TintPrimary"))
+            TablerIcons(icon, size: 24, color: Color("Brand"))
             AppText(label, table: "Settings", style: .body)
             Spacer()
             AppText(verbatim: value, style: .body)
@@ -251,9 +251,9 @@ struct SettingsView: View {
                 showDeleteGoalAlert = true
             } label: {
                 HStack(spacing: 12) {
-                    TablerIcons(.trash, size: 24, color: Color("StatusError"))
+                    TablerIcons(.trash, size: 24, color: Color("Error"))
                     AppText("settings.deleteGoal", table: "Settings", style: .body)
-                        .color(Color("StatusError"))
+                        .color(Color("Error"))
                 }
                 .contentShape(Rectangle())
             }
@@ -267,9 +267,9 @@ struct SettingsView: View {
                 showSignOutAlert = true
             } label: {
                 HStack(spacing: 12) {
-                    TablerIcons(.logout, size: 24, color: Color("StatusError"))
+                    TablerIcons(.logout, size: 24, color: Color("Error"))
                     AppText("settings.signOut", table: "Settings", style: .body)
-                        .color(Color("StatusError"))
+                        .color(Color("Error"))
                 }
                 .contentShape(Rectangle())
             }

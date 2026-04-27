@@ -69,7 +69,7 @@ struct RoadmapMilestoneRow: View {
             if isCurrent {
                 Circle()
                     .trim(from: 0, to: currentProgressRing)
-                    .stroke(Color("TintPrimary"), style: StrokeStyle(lineWidth: 2, lineCap: .round))
+                    .stroke(Color("Brand"), style: StrokeStyle(lineWidth: 2, lineCap: .round))
                     .rotationEffect(.degrees(-90))
                     .frame(width: markerSize, height: markerSize)
             }
@@ -125,7 +125,7 @@ struct RoadmapMilestoneRow: View {
     private var markerFill: Color {
         switch milestone.status {
         case .completed:
-            Color("TintPrimary")
+            Color("Brand")
         case .current, .upcoming:
             Color("TextSecondary").opacity(0.08)
         }
@@ -134,14 +134,14 @@ struct RoadmapMilestoneRow: View {
     private var markerStroke: Color {
         switch milestone.status {
         case .completed:
-            Color("TintPrimary")
+            Color("Brand")
         case .current, .upcoming:
             Color("TextSecondary").opacity(0.18)
         }
     }
 
     private var markerIconColor: Color {
-        milestone.status == .completed ? Color("TextOnAccent") : typeColor
+        milestone.status == .completed ? Color("TextOnBrand") : typeColor
     }
 
     private var typeIcon: TablerIconOutline {

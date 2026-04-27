@@ -79,7 +79,7 @@ struct MilestoneDetailView: View {
     private var descriptionCard: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack(spacing: 8) {
-                TablerIcons(.notebook, size: 20, color: Color("TintPrimary"))
+                TablerIcons(.notebook, size: 20, color: Color("Brand"))
                 AppText("roadmap.milestone.description", table: "Roadmap", style: .headline)
             }
 
@@ -94,7 +94,7 @@ struct MilestoneDetailView: View {
     private var tasksSection: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack(spacing: 8) {
-                TablerIcons(.listCheck, size: 20, color: Color("TintPrimary"))
+                TablerIcons(.listCheck, size: 20, color: Color("Brand"))
                 AppText("roadmap.milestone.tasks", table: "Roadmap", style: .headline)
             }
 
@@ -206,7 +206,7 @@ struct MilestoneDetailView: View {
     private var expectedOutcomeCard: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack(spacing: 8) {
-                TablerIcons(.flag, size: 20, color: Color("TintPrimary"))
+                TablerIcons(.flag, size: 20, color: Color("Brand"))
                 AppText("roadmap.milestone.expectedOutcome", table: "Roadmap", style: .headline)
             }
 

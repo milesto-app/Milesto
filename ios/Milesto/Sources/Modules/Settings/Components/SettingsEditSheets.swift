@@ -151,13 +151,13 @@ struct LanguageInfoSheet: View {
                 VStack(alignment: .leading, spacing: 8) {
                     AppText("settings.language.info.currentLabel", table: "Settings", style: .caption)
                     HStack(spacing: 12) {
-                        TablerIcons(.world, size: 24, color: Color("TintPrimary"))
+                        TablerIcons(.world, size: 24, color: Color("Brand"))
                         AppText(verbatim: currentLanguageName, style: .headline)
                     }
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(16)
-                .background(Color("BgSurface"), in: RoundedRectangle(cornerRadius: 12))
+                .background(Color("BackgroundElevated"), in: RoundedRectangle(cornerRadius: 12))
 
                 AppText("settings.language.info.description", table: "Settings", style: .body)
                     .color(Color("TextSecondary"))
@@ -191,10 +191,10 @@ struct LanguageInfoSheet: View {
         HStack(alignment: .top, spacing: 12) {
             ZStack {
                 Circle()
-                    .fill(Color("TintPrimary").opacity(0.15))
+                    .fill(Color("Brand").opacity(0.15))
                     .frame(width: 28, height: 28)
                 AppText(verbatim: "\(number)", style: .subheadline)
-                    .color(Color("TintPrimary"))
+                    .color(Color("Brand"))
                     .weight(.semibold)
             }
             AppText(LocalizedStringKey(textKey), table: "Settings", style: .body)

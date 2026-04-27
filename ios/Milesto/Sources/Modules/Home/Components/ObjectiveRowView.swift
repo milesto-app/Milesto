@@ -8,11 +8,11 @@ struct ObjectiveRowView: View {
     private var difficultyColor: Color {
         switch task.difficultyRating {
         case .easy:
-            return Color("TintPrimary")
+            return Color("Brand")
         case .moderate:
-            return Color("AccentAmber")
+            return Color("Warning")
         case .hard:
-            return Color("StatusError")
+            return Color("Error")
         case nil:
             return Color("TextSecondary")
         }
@@ -35,7 +35,7 @@ struct ObjectiveRowView: View {
         TablerIcons(
             task.isCompleted ? .circleCheck : .circle,
             size: 22,
-            color: task.isCompleted ? Color("TintPrimary") : Color("TextSecondary")
+            color: task.isCompleted ? Color("Brand") : Color("TextSecondary")
         )
     }
 

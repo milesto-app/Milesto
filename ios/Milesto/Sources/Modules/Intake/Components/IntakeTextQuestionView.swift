@@ -23,11 +23,11 @@ struct IntakeTextQuestionView: View {
     var body: some View {
         ZStack(alignment: .topLeading) {
             RoundedRectangle(cornerRadius: 8)
-                .fill(Color("BgSurface"))
+                .fill(Color("BackgroundElevated"))
 
             RoundedRectangle(cornerRadius: 8)
                 .stroke(
-                    isFocused ? Color("TintPrimary") : Color("TextSecondary").opacity(0.2),
+                    isFocused ? Color("Brand") : Color("TextSecondary").opacity(0.2),
                     lineWidth: 2
                 )
 

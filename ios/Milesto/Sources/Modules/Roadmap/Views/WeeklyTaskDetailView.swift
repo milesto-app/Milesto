@@ -103,10 +103,10 @@ private struct WeeklyTaskDetailPage: View {
 
     private var accent: Color {
         switch task.difficultyRating {
-        case .easy: return Color("TintPrimary")
-        case .moderate: return Color("AccentAmber")
-        case .hard: return Color("StatusError")
-        case nil: return Color("TintPrimary")
+        case .easy: return Color("Brand")
+        case .moderate: return Color("Warning")
+        case .hard: return Color("Error")
+        case nil: return Color("Brand")
         }
     }
 
@@ -287,7 +287,7 @@ private struct WeeklyTaskDetailPage: View {
                 TablerIcons(
                     task.isCompleted ? .arrowBackUp : .check,
                     size: 20,
-                    color: Color("TextOnAccent")
+                    color: Color("TextOnBrand")
                 )
 
                 AppText(
@@ -296,7 +296,7 @@ private struct WeeklyTaskDetailPage: View {
                     style: .body
                 )
                 .weight(.semibold)
-                .color(Color("TextOnAccent"))
+                .color(Color("TextOnBrand"))
             }
             .frame(maxWidth: .infinity)
             .padding(.vertical, 16)

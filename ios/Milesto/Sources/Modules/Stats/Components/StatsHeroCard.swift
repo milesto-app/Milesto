@@ -20,7 +20,7 @@ struct StatsHeroCard: View {
 
                 AppText(verbatim: "\(Int(animatedRate * 100))%", style: .title)
                     .weight(.bold)
-                    .color(Color("TintPrimary"))
+                    .color(Color("Brand"))
             }
 
             GeometryReader { geometry in
@@ -29,7 +29,7 @@ struct StatsHeroCard: View {
                         .fill(Color("TextSecondary").opacity(0.12))
 
                     Capsule()
-                        .fill(Color("TintPrimary"))
+                        .fill(Color("Brand"))
                         .frame(width: geometry.size.width * animatedRate)
                 }
             }

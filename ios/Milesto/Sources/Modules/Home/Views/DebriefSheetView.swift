@@ -31,7 +31,7 @@ struct DebriefSheetView: View {
 
                     if let error {
                         AppText(verbatim: error, style: .caption)
-                            .color(Color("StatusError"))
+                            .color(Color("Error"))
                     }
 
                     AppButton("home.debrief.submit", table: "Home", style: .primary) {
@@ -67,9 +67,9 @@ struct DebriefSheetView: View {
     private func ratingPill(_ rating: DifficultyRating, label: String, taskId: String) -> some View {
         let isSelected = ratings[taskId] == rating
         let pillColor = switch rating {
-        case .easy: Color("TintPrimary")
-        case .moderate: Color("AccentAmber")
-        case .hard: Color("StatusError")
+        case .easy: Color("Brand")
+        case .moderate: Color("Warning")
+        case .hard: Color("Error")
         }
 
         return Button {

@@ -16,7 +16,7 @@ struct HomeTasksListSection: View {
                     verbatim: "\(completedCount)/\(tasks.count)",
                     style: .subheadline
                 )
-                .color(Color("TintPrimary"))
+                .color(Color("Brand"))
             }
             .padding(.horizontal, 24)
             .padding(.top, 12)

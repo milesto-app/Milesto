@@ -10,7 +10,7 @@ struct WeeklyPlanGenerationView: View {
 
     var body: some View {
         ZStack {
-            Color("BgPrimary").ignoresSafeArea()
+            Color("BackgroundBase").ignoresSafeArea()
 
             if hasFailed {
                 errorContent
@@ -27,7 +27,7 @@ struct WeeklyPlanGenerationView: View {
         VStack(spacing: 24) {
             Spacer()
 
-            TablerIcons(.sparkles, size: 56, color: Color("TintPrimary"))
+            TablerIcons(.sparkles, size: 56, color: Color("Brand"))
                 .scaleEffect(pulseScale)
                 .onAppear {
                     withAnimation(
@@ -49,7 +49,7 @@ struct WeeklyPlanGenerationView: View {
 
             ProgressView()
                 .controlSize(.large)
-                .tint(Color("TintPrimary"))
+                .tint(Color("Brand"))
                 .padding(.bottom, 40)
         }
         .padding(.horizontal, 24)
@@ -59,7 +59,7 @@ struct WeeklyPlanGenerationView: View {
         VStack(spacing: 24) {
             Spacer()
 
-            TablerIcons(.alertCircle, size: 48, color: Color("StatusError"))
+            TablerIcons(.alertCircle, size: 48, color: Color("Error"))
 
             AppText("home.weeklyGeneration.error.title", table: "Home", style: .title)
                 .alignment(.center)

@@ -25,9 +25,9 @@ struct PaywallPlanCard: View {
                 if let footnoteKey {
                     Spacer(minLength: 4)
                     HStack(spacing: 6) {
-                        TablerIcons(.gift, size: 12, color: Color("TintPrimary"))
+                        TablerIcons(.gift, size: 12, color: Color("Brand"))
                         AppText(footnoteKey, table: "Paywall", style: .caption)
-                            .color(Color("TintPrimary"))
+                            .color(Color("Brand"))
                             .weight(.semibold)
                     }
                 } else {
@@ -41,7 +41,7 @@ struct PaywallPlanCard: View {
             .glassEffect(.regular, in: RoundedRectangle(cornerRadius: 16))
             .overlay(
                 RoundedRectangle(cornerRadius: 16)
-                    .stroke(Color("TintPrimary"), lineWidth: 2)
+                    .stroke(Color("Brand"), lineWidth: 2)
                     .opacity(isSelected ? 1 : 0)
             )
             .overlay(
@@ -56,11 +56,11 @@ struct PaywallPlanCard: View {
                         .tracking(0.8)
                         .lineLimit(1)
                         .fixedSize(horizontal: true, vertical: false)
-                        .foregroundStyle(Color("TextOnAccent"))
+                        .foregroundStyle(Color("TextOnBrand"))
                         .padding(.horizontal, 10)
                         .padding(.vertical, 5)
                         .background(
-                            Capsule().fill(Color("TintPrimary"))
+                            Capsule().fill(Color("Brand"))
                         )
                         .offset(x: 8, y: -10)
                 }

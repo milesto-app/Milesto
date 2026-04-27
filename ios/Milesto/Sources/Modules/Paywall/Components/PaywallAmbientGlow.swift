@@ -11,8 +11,8 @@ struct PaywallAmbientGlow: View {
                     .fill(
                         RadialGradient(
                             colors: [
-                                Color("TintPrimary").opacity(0.35),
-                                Color("TintPrimary").opacity(0.1),
+                                Color("Brand").opacity(0.35),
+                                Color("Brand").opacity(0.1),
                                 Color.clear,
                             ],
                             center: .center,
@@ -30,7 +30,7 @@ struct PaywallAmbientGlow: View {
                     .fill(
                         RadialGradient(
                             colors: [
-                                Color("TintPrimary").opacity(0.18),
+                                Color("Brand").opacity(0.18),
                                 Color.clear,
                             ],
                             center: .center,

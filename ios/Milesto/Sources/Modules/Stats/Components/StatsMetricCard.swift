@@ -8,7 +8,7 @@ struct StatsMetricCard: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
-            TablerIcons(icon, size: 20, color: Color("TintPrimary"))
+            TablerIcons(icon, size: 20, color: Color("Brand"))
 
             AppText(verbatim: value, style: .title)
                 .weight(.bold)

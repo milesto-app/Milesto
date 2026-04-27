@@ -56,7 +56,7 @@ struct MilestoApp: App {
                     AuthContainerView()
                 }
             }
-            .tint(Color("TintPrimary"))
+            .tint(Color("Brand"))
             .environmentObject(authService)
             .onOpenURL { url in
                 Task {

@@ -46,7 +46,7 @@ struct StatsWeeklyChart: View {
                         VStack(spacing: 2) {
                             AppText(verbatim: dayNumber(from: day.date), style: .subheadline)
                                 .weight(.semibold)
-                                .color(isToday ? Color("TintPrimary") : Color("TextPrimary"))
+                                .color(isToday ? Color("Brand") : Color("TextPrimary"))
 
                             AppText(verbatim: dayName(from: day.date), style: .caption)
                                 .color(Color("TextSecondary"))
@@ -66,9 +66,9 @@ struct StatsWeeklyChart: View {
         if !hasActivity && ratio == 0 {
             return Color("TextSecondary").opacity(0.3)
         }
-        if ratio >= 0.7 { return Color("TintPrimary") }
-        if ratio >= 0.3 { return Color("AccentAmber") }
-        return Color("StatusError").opacity(0.7)
+        if ratio >= 0.7 { return Color("Brand") }
+        if ratio >= 0.3 { return Color("Warning") }
+        return Color("Error").opacity(0.7)
     }
 
     private func dayNumber(from dateString: String) -> String {

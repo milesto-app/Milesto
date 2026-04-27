@@ -15,9 +15,9 @@ enum AppButtonStyle {
 
     var foregroundColor: Color {
         switch self {
-        case .primary: return Color("TextOnAccent")
-        case .secondary: return Color("TintPrimary")
-        case .text: return Color("TintPrimary")
+        case .primary: return Color("TextOnBrand")
+        case .secondary: return Color("Brand")
+        case .text: return Color("Brand")
         }
     }
 
@@ -31,7 +31,7 @@ enum AppButtonStyle {
     var borderColor: Color {
         switch self {
         case .primary: return Color.clear
-        case .secondary: return Color("TintPrimary")
+        case .secondary: return Color("Brand")
         case .text: return Color.clear
         }
     }
@@ -94,7 +94,7 @@ struct AppButton: View {
         Button(action: action) {
             if style.usesGlass {
                 buttonContent
-                    .glassEffect(.regular.interactive().tint(Color("TintPrimary")), in: RoundedRectangle(cornerRadius: 12))
+                    .glassEffect(.regular.interactive().tint(Color("Brand")), in: RoundedRectangle(cornerRadius: 12))
             } else {
                 buttonContent
                     .cornerRadius(12)

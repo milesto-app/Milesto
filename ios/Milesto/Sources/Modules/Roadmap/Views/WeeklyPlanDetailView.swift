@@ -44,7 +44,7 @@ struct WeeklyPlanDetailView: View {
 
             ForEach(objectives, id: \.self) { objective in
                 HStack(alignment: .top, spacing: 8) {
-                    TablerIcons(.listCheck, size: 18, color: Color("TintPrimary"))
+                    TablerIcons(.listCheck, size: 18, color: Color("Brand"))
                     AppText(verbatim: objective, style: .body)
                 }
             }
@@ -57,12 +57,12 @@ struct WeeklyPlanDetailView: View {
     private func summaryCard(_ summary: WeeklySummaryDTO) -> some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack(spacing: 8) {
-                TablerIcons(.chartBar, size: 20, color: Color("TintPrimary"))
+                TablerIcons(.chartBar, size: 20, color: Color("Brand"))
                 AppText("roadmap.weeklyPlan.summary", table: "Roadmap", style: .headline)
             }
 
             ProgressView(value: summary.completionRate)
-                .tint(Color("TintPrimary"))
+                .tint(Color("Brand"))
 
             AppText(
                 verbatim: String(

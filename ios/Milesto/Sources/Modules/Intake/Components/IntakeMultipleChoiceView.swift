@@ -25,16 +25,16 @@ struct IntakeMultipleChoiceView: View {
                         TablerIcons(
                             isSelected ? .squareCheck : .square,
                             size: 22,
-                            color: isSelected ? Color("TintPrimary") : Color("TextSecondary")
+                            color: isSelected ? Color("Brand") : Color("TextSecondary")
                         )
                     }
                     .padding(16)
-                    .background(Color("BgSurface"))
+                    .background(Color("BackgroundElevated"))
                     .cornerRadius(8)
                     .overlay(
                         RoundedRectangle(cornerRadius: 8)
                             .stroke(
-                                isSelected ? Color("TintPrimary") : Color.clear,
+                                isSelected ? Color("Brand") : Color.clear,
                                 lineWidth: 2
                             )
                     )
