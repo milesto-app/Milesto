@@ -1,8 +1,8 @@
-# Momentum Branding
+# Milesto Branding
 
 ## Brand essence
 
-Momentum is an AI coaching app that helps people make meaningful progress on one important goal. It should feel like serious progress with emotional support.
+Milesto is an AI coaching app that helps people make meaningful progress on one important goal. It should feel like serious progress with emotional support.
 
 ## Positioning
 
@@ -44,7 +44,7 @@ Brand voice should sound like a thoughtful coach: practical, encouraging, and em
 
 ## Visual direction
 
-Momentum should feel like a modern coaching brand that combines calm clarity with forward motion.
+Milesto should feel like a modern coaching brand that combines calm clarity with forward motion.
 
 - premium, warm, focused, structured, encouraging
 - not hyper-techy
@@ -97,7 +97,7 @@ Suggested pairings:
 
 - Make real progress.
 - One goal. Clear path.
-- Turn ambition into momentum.
+- Turn ambition into milesto.
 - Progress you can feel.
 
 ## Product feeling

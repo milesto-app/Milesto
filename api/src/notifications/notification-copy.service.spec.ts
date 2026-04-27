@@ -20,7 +20,7 @@ const baseInput: NotificationPromptInput = {
   coach: coachFixture,
   language: "en",
   timeOfDay: "morning",
-  goalTitle: "Ship Momentum v2",
+  goalTitle: "Ship Milesto v2",
   userMotivationQuote: "I want to prove I can ship something real.",
   weeklyObjectives: ["Draft release notes", "Fix regression bugs"],
   weeklyTaskCompleted: 2,

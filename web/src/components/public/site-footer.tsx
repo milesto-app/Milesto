@@ -18,14 +18,14 @@ export function SiteFooter() {
             Privacy
           </Link>
           <a
-            href="mailto:support@momentum-ai.app"
+            href="mailto:support@milesto-ai.app"
             className="text-sm text-[#6b6b6b] transition-colors hover:text-[#2D5016]"
           >
             Contact
           </a>
         </nav>
         <p className="text-xs text-[#999]">
-          &copy; 2025 Momentum. All rights reserved.
+          &copy; 2025 Milesto. All rights reserved.
         </p>
       </div>
     </footer>

@@ -1,6 +1,6 @@
 # Notification Detection — Architecture Design
 
-> **Scope.** This document defines **when** Momentum should send push notifications to users, and the architecture for **detecting** those moments. It does not specify message copy, transport implementation (APNs is already wired up), or marketing pushes.
+> **Scope.** This document defines **when** Milesto should send push notifications to users, and the architecture for **detecting** those moments. It does not specify message copy, transport implementation (APNs is already wired up), or marketing pushes.
 >
 > **Codex validation.** Iteratively reviewed by Codex (OpenAI). Two rounds of feedback applied (19 distinct concerns addressed). A third validation round was attempted but the Codex process did not return; the design below incorporates all feedback received through round 2.
 >
@@ -299,8 +299,8 @@ Copy generation lives in a separate module; this design fixes the payload schema
 payload = {
   teaser: string,                 // lock-screen title/body; may be curiosity-gap
   reveal: string?,                // optional in-app expansion
-  cta_deeplink: string,           // e.g. `momentum://task/<id>` or `momentum://coach/reply/<id>`
-  why_deeplink: string,           // `momentum://notif/why/<job_id>` — every push links to "why did I get this?"
+  cta_deeplink: string,           // e.g. `milesto://task/<id>` or `milesto://coach/reply/<id>`
+  why_deeplink: string,           // `milesto://notif/why/<job_id>` — every push links to "why did I get this?"
   kind_specific: { ... },         // kind-typed details, e.g. { streak_length: 7, proportion_remaining: 0.15 }
   coach: { id: uuid, persona: 'drill' | 'standard' | 'gentle' },  // for voice
   memory_hooks: {                 // optional — populated for coach-voiced pushes, used by copy generation
@@ -321,7 +321,7 @@ Streaks are the single highest-leverage retention mechanic in goal-tracking apps
 
 ### 5.1 Weekly, not daily
 
-**Decision: streaks are weekly, not daily.** A daily streak ("did the user complete a task today?") misaligns with Momentum's product — goals like "launch a company" or "write a novel" are multi-month pursuits with legitimate zero-task days. Daily streaks punish planned rest, vacations, and real-life events, producing anxiety without commensurate progress signal.
+**Decision: streaks are weekly, not daily.** A daily streak ("did the user complete a task today?") misaligns with Milesto's product — goals like "launch a company" or "write a novel" are multi-month pursuits with legitimate zero-task days. Daily streaks punish planned rest, vacations, and real-life events, producing anxiety without commensurate progress signal.
 
 A streak is **per goal** (one goal, one streak). Definition:
 
@@ -363,7 +363,7 @@ A nightly Sunday-evening job in the engagement-recovery cron handles the case wh
 
 Research context: Duolingo publicly credits streak freezes with ~21% churn reduction for at-risk users (widely cited but unverified). The stronger signal is that _two_ equipped freezes outperform one (+0.38% DAU, per Duolingo's own experiments) — a counterintuitive finding: more protection = more engagement, not less.
 
-Momentum v1:
+Milesto v1:
 
 - **Start with 1 freeze** at streak creation.
 - **Auto-replenish: 1 token per calendar month, max 2 simultaneous.** No effort required to earn — replenishment is an _autonomy-preserving_ gift, not a reward for compliance.
@@ -449,7 +449,7 @@ A user with no `user_activity_events` for 24h locks into the sequence. Sequence 
 | ---- | ---------- | ---- | ---------------------------------------------------------------------------------------------- |
 | 1    | +1         | P3   | Soft — "Your coach is ready when you are."                                                     |
 | 2    | +3         | P2   | Memory callback — coach-voiced, quotes the user's onboarding "why" (see §11.3)                 |
-| 3    | +7         | P1   | Loss-framed — "Your roadmap is paused. Resume to keep momentum."                               |
+| 3    | +7         | P1   | Loss-framed — "Your roadmap is paused. Resume to keep milesto."                                |
 | 4    | +14        | P2   | Comeback offer — "Reset this week. No judgment."                                               |
 | 5    | +30        | P1   | **Break-up** — "I'll stop messaging unless you come back. Tap to stay in." Autonomy-returning. |
 
@@ -527,7 +527,7 @@ These are enforced by the copy-generation module; listed here because the dispat
 - **No shame-based framing** in any push. Drill-sergeant mode is demanding, never disappointed.
 - **Streak-broken copy uses comeback framing** — never moral failure, never quantified loss beyond what the user already knows.
 - **No synthetic urgency.** Countdowns must reference real dates from `goals.target_date` / `milestones.target_date`.
-- **No invented social proof.** Momentum has no cohort; phantom peers are prohibited.
+- **No invented social proof.** Milesto has no cohort; phantom peers are prohibited.
 - **No guilt-as-coach.** The coach celebrates effort and redirects gently; "I'm disappointed in you" is banned copy.
 - **The "why this notification?" affordance is present on every push** (via `why_deeplink` in payload, surfaced as an iOS category action). Autonomy-preserving transparency is non-negotiable.
 
@@ -650,7 +650,7 @@ Indexed by `weekly_tasks(completed_at) WHERE completed_at IS NOT NULL`. Reconsid
 
 ## 11. Personalization — coach as character
 
-Coaches are Momentum's core differentiator. The notification system treats the coach as an **author**, not as a flag.
+Coaches are Milesto's core differentiator. The notification system treats the coach as an **author**, not as a flag.
 
 ### 11.1 Persona-driven parameters
 
@@ -666,7 +666,7 @@ Coaches are Momentum's core differentiator. The notification system treats the c
 
 All pushes where `coach` is populated in the payload are rendered by a copy-generation module that reads `coach.persona` and produces a message in that voice. System-voiced pushes (roadmap_generated, weekly_plan_published) stay neutral but may optionally include a coach line in `reveal`.
 
-Copy generation **must set the iOS notification sender to the coach's name**, not "Momentum" — Duolingo-style character branding is the documented highest-impact single copy change. Users chose the coach; the coach speaks.
+Copy generation **must set the iOS notification sender to the coach's name**, not "Milesto" — Duolingo-style character branding is the documented highest-impact single copy change. Users chose the coach; the coach speaks.
 
 ### 11.3 Memory callback — quote the user back to themselves
 
@@ -728,7 +728,7 @@ FAccT 2024 parasocial-attachment research specifically flags mid-intensity relat
 
 ### 11.9 Ethical constraints (enforced system-wide)
 
-Momentum is wellbeing-adjacent. Tactics that work for dating or social apps can be actively harmful here. Enforced across producers, dispatcher, and copy generation:
+Milesto is wellbeing-adjacent. Tactics that work for dating or social apps can be actively harmful here. Enforced across producers, dispatcher, and copy generation:
 
 - **No shame-based copy.** Persona voice never blames or shames on missed goals.
 - **Streak breaks default to comeback framing**, not loss.
@@ -781,7 +781,7 @@ Momentum is wellbeing-adjacent. Tactics that work for dating or social apps can 
 - **Monthly summary push** — not in v1 taxonomy; likely worth experimenting with as reactivation channel between day 14 and day 30 of the winback sequence.
 - **Cross-channel (email, in-app)** — design assumes APNs only for now.
 - **Notification copy generation** — separate doc; payload schema fixed in §4.6.
-- **Shared streaks / social features** — intentionally out of scope; Momentum v1 is solo.
+- **Shared streaks / social features** — intentionally out of scope; Milesto v1 is solo.
 - **Curiosity-gap fatigue tracking** — Netflix-adjacent A/B data suggests curiosity-gap subject lines halve in effectiveness by week 4. Rotate curiosity framings per kind to avoid blanket fatigue; we have no v1 mechanic for this.
 
 ---

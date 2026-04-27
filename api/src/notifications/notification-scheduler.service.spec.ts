@@ -34,7 +34,7 @@ function makeCandidate(overrides: Partial<CandidateRow> = {}): CandidateRow {
     timezone: "Europe/Paris",
     local_hour: 10,
     goal_id: "goal-1",
-    goal_title: "Ship Momentum v2",
+    goal_title: "Ship Milesto v2",
     user_motivation_quote: "I want to prove I can ship something real.",
     weekly_objectives: ["Draft release notes", "Fix regression bugs"],
     weekly_task_total: 5,

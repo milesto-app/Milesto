@@ -11,7 +11,7 @@ import {
   UnauthorizedException,
 } from "@nestjs/common";
 
-const TEST_BUNDLE_ID = "app.momentum-ai.auth.mobile";
+const TEST_BUNDLE_ID = "app.milesto-ai.auth.mobile";
 const TEST_USER_ID = "11111111-1111-1111-1111-111111111111";
 const OTHER_USER_ID = "22222222-2222-2222-2222-222222222222";
 
@@ -192,7 +192,7 @@ function buildTransaction(
   return {
     type: "Auto-Renewable Subscription",
     bundleId: TEST_BUNDLE_ID,
-    productId: "momentum_monthly",
+    productId: "milesto_monthly",
     appAccountToken: TEST_USER_ID,
     inAppOwnershipType: "PURCHASED",
     transactionId: "tx-1",
@@ -274,7 +274,7 @@ describe("SubscriptionService", () => {
 
     it("should reject unknown productId", async () => {
       verifyAndDecodeTransactionMock.mockResolvedValue(
-        buildTransaction({ productId: "momentum_unknown" }),
+        buildTransaction({ productId: "milesto_unknown" }),
       );
       const service = buildService({
         profileById: new Map(),
@@ -511,7 +511,7 @@ describe("SubscriptionService", () => {
               id: TEST_USER_ID,
               subscription_status: "active",
               subscription_expires_at: expires,
-              subscription_product_id: "momentum_monthly",
+              subscription_product_id: "milesto_monthly",
               subscription_auto_renew_status: true,
             },
           ],
@@ -524,7 +524,7 @@ describe("SubscriptionService", () => {
       const result = await service.getStatus(TEST_USER_ID);
       expect(result.status).toBe("active");
       expect(result.expiresAt).toBe(expires);
-      expect(result.productId).toBe("momentum_monthly");
+      expect(result.productId).toBe("milesto_monthly");
       expect(result.autoRenew).toBe(true);
     });
 

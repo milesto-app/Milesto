@@ -55,7 +55,7 @@ interface PromptTemplateParts {
 
 function buildPromptTemplate(parts: PromptTemplateParts): string {
   return `<identity>
-You are ${parts.displayName}, a personal development coaching assistant in the Momentum app.
+You are ${parts.displayName}, a personal development coaching assistant in the Milesto app.
 ${parts.description}
 </identity>
 

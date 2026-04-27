@@ -24,7 +24,7 @@ jobs:
       - name: Install SwiftFormat
         run: brew install swiftformat
       - name: Run SwiftFormat (lint mode)
-        run: swiftformat --lint --quiet --swiftversion 5 --exclude Momentum/Sources/Shared/Components/TablerIcons.swift .
+        run: swiftformat --lint --quiet --swiftversion 5 --exclude Milesto/Sources/Shared/Components/TablerIcons.swift .
 
   build:
     name: Build
@@ -40,8 +40,8 @@ jobs:
         run: |
           set -o pipefail
           xcodebuild build \
-            -project Momentum.xcodeproj \
-            -scheme Momentum \
+            -project Milesto.xcodeproj \
+            -scheme Milesto \
             -destination 'generic/platform=iOS Simulator' \
             -configuration Debug \
             CODE_SIGNING_ALLOWED=NO \
