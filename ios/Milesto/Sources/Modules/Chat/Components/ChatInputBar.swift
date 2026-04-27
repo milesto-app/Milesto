@@ -31,7 +31,7 @@ struct ChatInputBar: View {
                 .padding(.bottom, 10)
                 .transition(.opacity)
             } else {
-                VoiceToggleButton(transcribedText: $text, coachId: nil, size: .compact)
+                TranscriptionToggleButton(transcribedText: $text, size: .compact)
                     .padding(.trailing, 12)
                     .padding(.bottom, 10)
                     .transition(.opacity)

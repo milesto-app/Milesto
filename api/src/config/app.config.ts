@@ -109,10 +109,7 @@ export const config = {
     apiVersion: "2",
     model: "rerank-v3.5",
   },
-  voice: {
-    ttsModelId: "eleven_flash_v2_5",
-    outputFormat: "mp3_44100_128" as const,
-    callTimeoutMs: 30_000,
+  transcription: {
     maxAudioSizeBytes: 10_485_760,
     supportedInputFormats: [
       "audio/wav",

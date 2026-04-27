@@ -53,7 +53,6 @@ struct IntakeContainerView: View {
                     batchNumber: currentBatchNumber,
                     totalBatches: totalEstimatedBatches,
                     answers: $answers,
-                    coachId: localProfiles.first?.coachId ?? 1,
                     onSubmit: { submitCurrentBatch() }
                 )
                 .id(batch.batchId)

@@ -107,7 +107,7 @@ struct DebriefSheetView: View {
 
             HStack {
                 Spacer()
-                VoiceToggleButton(transcribedText: $reflectionNote, coachId: nil)
+                TranscriptionToggleButton(transcribedText: $reflectionNote)
             }
         }
     }

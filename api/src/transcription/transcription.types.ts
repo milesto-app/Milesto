@@ -4,9 +4,3 @@ export interface TranscriptionResult {
   duration_seconds: number;
   language: string;
 }
-
-export interface SynthesisResult {
-  audio: Buffer;
-  content_type: string;
-  duration_seconds: number;
-}

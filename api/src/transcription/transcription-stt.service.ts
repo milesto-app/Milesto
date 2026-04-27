@@ -2,13 +2,13 @@ import { Injectable, Logger } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { ElevenLabsClient } from "elevenlabs";
 
-import type { TranscriptionResult } from "./voice.types.js";
+import type { TranscriptionResult } from "./transcription.types.js";
 
 const STT_MODEL_ID = "scribe_v2";
 
 @Injectable()
-export class VoiceSttService {
-  private readonly logger = new Logger(VoiceSttService.name);
+export class TranscriptionSttService {
+  private readonly logger = new Logger(TranscriptionSttService.name);
   private readonly client: ElevenLabsClient;
 
   constructor(private readonly configService: ConfigService) {

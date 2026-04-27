@@ -1,6 +1,6 @@
 import SwiftUI
 
-struct VoiceToggleButton: View {
+struct TranscriptionToggleButton: View {
     enum Size {
         case regular, compact
 
@@ -20,12 +20,10 @@ struct VoiceToggleButton: View {
     }
 
     @Binding var transcribedText: String
-    let coachId: Int?
     var size: Size = .regular
 
-    @State private var voiceState: VoiceState = .idle
+    @State private var state: TranscriptionState = .idle
     @State private var recorder = AudioRecorderService()
-    @State private var player = AudioPlayerService()
     @State private var pulseScale: CGFloat = 1.0
 
     var body: some View {
@@ -44,7 +42,7 @@ struct VoiceToggleButton: View {
         .buttonStyle(.plain)
         .padding(-6)
         .offset(x: -1)
-        .onChange(of: voiceState) { _, newState in
+        .onChange(of: state) { _, newState in
             withAnimation(pulseAnimation(for: newState)) {
                 pulseScale = newState.isRecording ? 1.12 : 1.0
             }
@@ -53,7 +51,7 @@ struct VoiceToggleButton: View {
 
     @ViewBuilder
     private var content: some View {
-        switch voiceState {
+        switch state {
         case .idle:
             TablerIcons(.microphone, size: size.iconSize, color: iconColor)
         case .recording:
@@ -63,17 +61,15 @@ struct VoiceToggleButton: View {
                 .tint(Color("TextOnBrand"))
         case .error:
             TablerIcons(.alertCircle, size: size.iconSize, color: Color("TextOnBrand"))
-        default:
-            TablerIcons(.microphone, size: size.iconSize, color: iconColor)
         }
     }
 
     private var iconColor: Color {
-        voiceState == .idle ? Color("TextSecondary") : Color("TextOnBrand")
+        state == .idle ? Color("TextSecondary") : Color("TextOnBrand")
     }
 
     private var backgroundFill: Color {
-        switch voiceState {
+        switch state {
         case .recording:
             return Color("Error")
         case .error:
@@ -83,7 +79,7 @@ struct VoiceToggleButton: View {
         }
     }
 
-    private func pulseAnimation(for state: VoiceState) -> Animation? {
+    private func pulseAnimation(for state: TranscriptionState) -> Animation? {
         if state.isRecording {
             return .easeInOut(duration: 0.8).repeatForever(autoreverses: true)
         }
@@ -91,7 +87,7 @@ struct VoiceToggleButton: View {
     }
 
     private func handleTap() {
-        switch voiceState {
+        switch state {
         case .idle:
             startRecording()
         case .recording:
@@ -111,7 +107,7 @@ struct VoiceToggleButton: View {
             do {
                 try recorder.startRecording()
                 withAnimation(.spring(duration: 0.35, bounce: 0.3)) {
-                    voiceState = .recording
+                    state = .recording
                 }
             } catch {
                 showError()
@@ -124,12 +120,12 @@ struct VoiceToggleButton: View {
             showError()
             return
         }
-        voiceState = .transcribing
+        state = .transcribing
         Task {
             do {
-                let result = try await VoiceAPIService.shared.transcribe(audioData: audioData)
+                let result = try await TranscriptionAPIService.shared.transcribe(audioData: audioData)
                 transcribedText = result.text
-                voiceState = .idle
+                state = .idle
             } catch {
                 showError()
             }
@@ -137,15 +133,15 @@ struct VoiceToggleButton: View {
     }
 
     private func showError() {
-        voiceState = .error("")
+        state = .error("")
         Task {
             try? await Task.sleep(for: .seconds(2))
-            voiceState = .idle
+            state = .idle
         }
     }
 }
 
-private extension VoiceState {
+private extension TranscriptionState {
     var isRecording: Bool {
         if case .recording = self { return true }
         return false
