@@ -163,7 +163,7 @@ final class AuthService: NSObject, ObservableObject {
         do {
             try await client.auth.signInWithOAuth(
                 provider: .google,
-                redirectTo: URL(string: "app.milesto-ai.auth://auth-callback")
+                redirectTo: URL(string: "milesto://auth-callback")
             )
         } catch {
             authState = .error(error.localizedDescription)

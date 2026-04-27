@@ -15,7 +15,7 @@
 			<string>supabase-auth</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
-				<string>app.milesto-ai.auth</string>
+				<string>milesto</string>
 			</array>
 		</dict>
 	</array>
