@@ -16,7 +16,7 @@
     "lint": "bun run lint:api && bun run lint:web && bun run lint:ios && bunx prettier --write --ignore-unknown --log-level warn .",
     "lint:api": "bun run --cwd api lint",
     "lint:web": "bun run --cwd web lint",
-    "lint:ios": "cd ios && swiftformat --quiet --swiftversion 5 --exclude Milesto/Sources/Shared/Components/TablerIcons.swift .",
+    "lint:ios": "cd ios && swiftformat --quiet --swiftversion 5 --exclude Milesto/Sources/Shared/Icons/TablerIcons.swift .",
     "types:sync": "cp api/src/supabase/database.types.ts web/src/lib/supabase/database.types.ts",
     "clean": "rm -rf api/dist api/node_modules web/.next web/node_modules"
   }

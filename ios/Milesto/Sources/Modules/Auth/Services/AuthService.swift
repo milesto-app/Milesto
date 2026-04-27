@@ -1,27 +1,20 @@
 import AuthenticationServices
-import Combine
-import CryptoKit
 import Foundation
 import Supabase
 
 @MainActor
-final class AuthService: NSObject, ObservableObject {
+@Observable
+final class AuthService {
     static let shared = AuthService()
 
     private var client: SupabaseClient {
         Supabase.client
     }
 
-    @Published private(set) var authState: AuthState = .authenticating
-    @Published private(set) var currentUserId: String?
+    private(set) var authState: AuthState = .authenticating
+    private(set) var currentUserId: String?
 
-    private var currentNonce: String?
-    private var pendingAppleFirstName: String?
-    private var pendingAppleLastName: String?
-
-    override private init() {
-        super.init()
-
+    private init() {
         Task {
             await setupAuthStateListener()
         }
@@ -48,9 +41,8 @@ final class AuthService: NSObject, ObservableObject {
             case .signedOut:
                 authState = .unauthenticated
                 currentUserId = nil
-                pendingAppleFirstName = nil
-                pendingAppleLastName = nil
-                SharedKeychain.clearAll()
+                OAuthClient.shared.clearPendingAppleName()
+                Keychain.clearAll()
             case .tokenRefreshed:
                 if let session {
                     currentUserId = session.user.id.uuidString
@@ -64,7 +56,7 @@ final class AuthService: NSObject, ObservableObject {
 
     private func persistSession(_ session: Session) {
         let expiresAt = Date(timeIntervalSince1970: session.expiresAt)
-        SharedKeychain.setSupabaseAccessToken(session.accessToken, expiresAt: expiresAt)
+        Keychain.setSupabaseAccessToken(session.accessToken, expiresAt: expiresAt)
     }
 
     func signUp(email: String, password: String) async throws -> String {
@@ -102,40 +94,14 @@ final class AuthService: NSObject, ObservableObject {
     }
 
     func signInWithApple() async throws -> String {
-        let nonce = randomNonceString()
-        currentNonce = nonce
-        let hashedNonce = sha256(nonce)
-
-        let provider = ASAuthorizationAppleIDProvider()
-        let request = provider.createRequest()
-        request.requestedScopes = [.fullName, .email]
-        request.nonce = hashedNonce
-
-        let result: ASAuthorization
-        do {
-            result = try await performAppleSignIn(request: request)
-        } catch let error as ASAuthorizationError where error.code == .canceled {
-            throw AuthError.cancelled
-        }
-
-        guard let appleIDCredential = result.credential as? ASAuthorizationAppleIDCredential,
-              let identityTokenData = appleIDCredential.identityToken,
-              let identityToken = String(data: identityTokenData, encoding: .utf8)
-        else {
-            throw AuthError.unknown("Failed to get Apple ID token")
-        }
-
-        let givenName = appleIDCredential.fullName?.givenName?.trimmingCharacters(in: .whitespaces)
-        let familyName = appleIDCredential.fullName?.familyName?.trimmingCharacters(in: .whitespaces)
-        pendingAppleFirstName = (givenName?.isEmpty == false) ? givenName : nil
-        pendingAppleLastName = (familyName?.isEmpty == false) ? familyName : nil
+        let credentials = try await OAuthClient.shared.performAppleSignIn()
 
         do {
             let session = try await client.auth.signInWithIdToken(
                 credentials: OpenIDConnectCredentials(
                     provider: .apple,
-                    idToken: identityToken,
-                    nonce: nonce
+                    idToken: credentials.identityToken,
+                    nonce: credentials.nonce
                 )
             )
             let userId = session.user.id.uuidString
@@ -145,17 +111,6 @@ final class AuthService: NSObject, ObservableObject {
         } catch {
             authState = .error(error.localizedDescription)
             throw mapAuthError(error)
-        }
-    }
-
-    private func performAppleSignIn(request: ASAuthorizationAppleIDRequest) async throws -> ASAuthorization {
-        try await withCheckedThrowingContinuation { continuation in
-            let controller = ASAuthorizationController(authorizationRequests: [request])
-            let delegate = AppleSignInDelegate(continuation: continuation)
-            controller.delegate = delegate
-            controller.presentationContextProvider = self
-            objc_setAssociatedObject(controller, "delegate", delegate, .OBJC_ASSOCIATION_RETAIN)
-            controller.performRequests()
         }
     }
 
@@ -176,15 +131,11 @@ final class AuthService: NSObject, ObservableObject {
         try await client.auth.signOut()
         authState = .unauthenticated
         currentUserId = nil
-        pendingAppleFirstName = nil
-        pendingAppleLastName = nil
+        OAuthClient.shared.clearPendingAppleName()
     }
 
     func consumePendingAppleName() -> (firstName: String?, lastName: String?) {
-        let name = (pendingAppleFirstName, pendingAppleLastName)
-        pendingAppleFirstName = nil
-        pendingAppleLastName = nil
-        return name
+        OAuthClient.shared.consumePendingAppleName()
     }
 
     func handleDeepLink(_ url: URL) async {
@@ -209,54 +160,5 @@ final class AuthService: NSObject, ObservableObject {
             return .networkError
         }
         return .unknown(error.localizedDescription)
-    }
-
-    private func randomNonceString(length: Int = 32) -> String {
-        precondition(length > 0)
-        var randomBytes = [UInt8](repeating: 0, count: length)
-        let errorCode = SecRandomCopyBytes(kSecRandomDefault, randomBytes.count, &randomBytes)
-        if errorCode != errSecSuccess {
-            fatalError("Unable to generate nonce. SecRandomCopyBytes failed with OSStatus \(errorCode)")
-        }
-        let charset: [Character] = Array("0123456789ABCDEFGHIJKLMNOPQRSTUVXYZabcdefghijklmnopqrstuvwxyz-._")
-        let nonce = randomBytes.map { byte in
-            charset[Int(byte) % charset.count]
-        }
-        return String(nonce)
-    }
-
-    private func sha256(_ input: String) -> String {
-        let inputData = Data(input.utf8)
-        let hashedData = SHA256.hash(data: inputData)
-        return hashedData.compactMap { String(format: "%02x", $0) }.joined()
-    }
-}
-
-extension AuthService: ASAuthorizationControllerPresentationContextProviding {
-    nonisolated func presentationAnchor(for _: ASAuthorizationController) -> ASPresentationAnchor {
-        DispatchQueue.main.sync {
-            guard let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-                  let window = scene.windows.first
-            else {
-                fatalError("No window found")
-            }
-            return window
-        }
-    }
-}
-
-private class AppleSignInDelegate: NSObject, ASAuthorizationControllerDelegate {
-    private let continuation: CheckedContinuation<ASAuthorization, Error>
-
-    init(continuation: CheckedContinuation<ASAuthorization, Error>) {
-        self.continuation = continuation
-    }
-
-    func authorizationController(controller _: ASAuthorizationController, didCompleteWithAuthorization authorization: ASAuthorization) {
-        continuation.resume(returning: authorization)
-    }
-
-    func authorizationController(controller _: ASAuthorizationController, didCompleteWithError error: Error) {
-        continuation.resume(throwing: error)
     }
 }

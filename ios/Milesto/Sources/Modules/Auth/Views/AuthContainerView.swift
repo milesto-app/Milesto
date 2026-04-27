@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct AuthContainerView: View {
-    @EnvironmentObject private var authService: AuthService
+    @Environment(AuthService.self) private var authService
 
     private enum AuthRoute: Hashable {
         case emailAuth
@@ -120,5 +120,5 @@ struct AuthContainerView: View {
 
 #Preview {
     AuthContainerView()
-        .environmentObject(AuthService.shared)
+        .environment(AuthService.shared)
 }

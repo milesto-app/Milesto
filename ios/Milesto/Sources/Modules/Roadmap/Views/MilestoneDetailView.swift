@@ -68,6 +68,7 @@ struct MilestoneDetailView: View {
         upsertCachedTask(updated)
         Task {
             if let remote = try? await RoadmapAPIService.shared.toggleTask(
+                goalId: updated.goalId,
                 taskId: updated.id,
                 isCompleted: updated.isCompleted
             ) {
@@ -157,7 +158,7 @@ struct MilestoneDetailView: View {
         )
         upsertCachedTask(tasks[index])
         Task {
-            if let updated = try? await RoadmapAPIService.shared.toggleTask(taskId: task.id, isCompleted: newCompleted) {
+            if let updated = try? await RoadmapAPIService.shared.toggleTask(goalId: task.goalId, taskId: task.id, isCompleted: newCompleted) {
                 upsertCachedTask(updated)
             }
         }

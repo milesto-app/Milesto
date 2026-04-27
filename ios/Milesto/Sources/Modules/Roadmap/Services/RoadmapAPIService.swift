@@ -113,15 +113,12 @@ final class RoadmapAPIService {
         )
     }
 
-    func toggleTask(taskId: String, isCompleted: Bool) async throws -> WeeklyTaskDTO {
-        try await Supabase.client
-            .from("weekly_tasks")
-            .update(UpdateTaskRequest(isCompleted: isCompleted))
-            .eq("id", value: taskId)
-            .select()
-            .single()
-            .execute()
-            .value
+    func toggleTask(goalId: String, taskId: String, isCompleted: Bool) async throws -> WeeklyTaskDTO {
+        return try await BackendClient.shared.request(
+            method: "PATCH",
+            path: "goals/\(goalId)/weekly-tasks/\(taskId)",
+            body: UpdateTaskRequest(isCompleted: isCompleted)
+        )
     }
 
     func submitDebrief(goalId: String, weeklyPlanId: String, note: String, taskRatings: [TaskRatingDTO]?) async throws -> DebriefDTO {

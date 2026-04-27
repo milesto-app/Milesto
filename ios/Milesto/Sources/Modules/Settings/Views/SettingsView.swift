@@ -16,11 +16,11 @@ struct SettingsView: View {
     var onNewGoal: ((String) -> Void)?
     var onDeleteGoal: (() -> Void)?
 
-    @EnvironmentObject private var authService: AuthService
+    @Environment(AuthService.self) private var authService
     @Environment(\.modelContext) private var modelContext
 
-    @Query private var localProfiles: [LocalProfile]
-    @Query private var localGoals: [LocalGoal]
+    @Query private var localProfiles: [Profile]
+    @Query private var localGoals: [Goal]
 
     @State private var showSignOutAlert = false
     @State private var showDeleteGoalAlert = false
@@ -30,21 +30,38 @@ struct SettingsView: View {
     @State private var isSaving = false
     @State private var showError = false
     @State private var errorMessage = ""
-    private var localProfile: LocalProfile? {
+
+    private var localProfile: Profile? {
         localProfiles.first { $0.userId == authService.currentUserId }
     }
 
-    private var activeGoal: LocalGoal? {
+    private var activeGoal: Goal? {
         localGoals.first { $0.userId.caseInsensitiveCompare(authService.currentUserId ?? "") == .orderedSame }
     }
 
     var body: some View {
         NavigationStack {
             List {
-                profileHeaderSection
-                profileDetailsSection
-                deleteGoalSection
-                signOutSection
+                SettingsProfileHeaderSection(
+                    profile: localProfile,
+                    fullName: fullName,
+                    initials: initials,
+                    onEdit: { activeSheet = .name }
+                )
+                SettingsProfileDetailsSection(
+                    profile: localProfile,
+                    coach: coach,
+                    currentAppLanguage: currentAppLanguage,
+                    onEditBirthdate: { activeSheet = .birthdate },
+                    onEditCoach: { activeSheet = .coach },
+                    onEditLanguage: { activeSheet = .language }
+                )
+                SettingsDeleteGoalSection(isDeleting: isDeleting) {
+                    showDeleteGoalAlert = true
+                }
+                SettingsSignOutSection {
+                    showSignOutAlert = true
+                }
             }
             .contentMargins(.bottom, 80, for: .scrollContent)
             .hapticRefreshable {
@@ -83,7 +100,7 @@ struct SettingsView: View {
                 Text(verbatim: errorMessage)
             }
             .sheet(item: $activeSheet) { sheet in
-                sheetContent(for: sheet)
+                SettingsSheetContent(sheet: sheet, profile: localProfile, onSave: saveFields)
                     .presentationDetents(sheet == .coach || sheet == .language ? [.large] : [.medium, .large])
             }
             .fullScreenCover(isPresented: $showNewGoal) {
@@ -104,183 +121,6 @@ struct SettingsView: View {
             .task {
                 await syncProfileData()
             }
-        }
-    }
-
-    @ViewBuilder
-    private func sheetContent(for sheet: SettingsSheet) -> some View {
-        switch sheet {
-        case .name:
-            EditNameSheet(
-                firstName: localProfile?.firstName ?? "",
-                lastName: localProfile?.lastName ?? ""
-            ) { fields in
-                saveFields(fields)
-            }
-        case .birthdate:
-            EditBirthdateSheet(
-                dateOfBirth: localProfile?.dateOfBirth ?? Date()
-            ) { fields in
-                saveFields(fields)
-            }
-        case .coach:
-            EditCoachSheet(
-                selectedCoach: localProfile?.coachId.flatMap { CoachPersonality.from(databaseId: $0) }
-            ) { fields in
-                saveFields(fields)
-            }
-        case .language:
-            LanguageInfoSheet()
-        }
-    }
-
-    private var profileHeaderSection: some View {
-        Section {
-            if localProfile == nil {
-                HStack {
-                    Spacer()
-                    ProgressView()
-                    Spacer()
-                }
-                .padding(.vertical, 32)
-                .listRowBackground(Color.clear)
-            } else {
-                Button {
-                    activeSheet = .name
-                } label: {
-                    VStack(spacing: 16) {
-                        ProfileAvatarView(
-                            imageData: localProfile?.avatarData,
-                            initials: initials,
-                            size: 80
-                        )
-
-                        VStack(spacing: 4) {
-                            if !fullName.isEmpty {
-                                HStack(spacing: 6) {
-                                    TablerIcons(.pencil, size: 16, color: .clear)
-                                    AppText(verbatim: fullName, style: .title)
-                                    TablerIcons(.pencil, size: 16, color: Color("TextSecondary"))
-                                }
-                            }
-
-                            if let email = localProfile?.email, !email.isEmpty {
-                                AppText(verbatim: email, style: .subheadline)
-                                    .alignment(.center)
-                            }
-                        }
-                    }
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 24)
-                }
-                .buttonStyle(.plain)
-                .listRowBackground(Color.clear)
-                .listRowInsets(EdgeInsets())
-            }
-        }
-    }
-
-    private var profileDetailsSection: some View {
-        Section {
-            if let dateOfBirth = localProfile?.dateOfBirth {
-                editableRow(
-                    icon: .cake,
-                    label: "settings.profile.birthDate",
-                    value: formattedDate(dateOfBirth)
-                ) {
-                    activeSheet = .birthdate
-                }
-            }
-
-            if let coach {
-                editableRow(
-                    icon: coach.icon,
-                    label: "settings.profile.coach",
-                    value: coach.title
-                ) {
-                    activeSheet = .coach
-                }
-            }
-
-            editableRow(
-                icon: .world,
-                label: "settings.profile.language",
-                value: currentAppLanguage
-            ) {
-                activeSheet = .language
-            }
-
-            if let createdAt = localProfile?.createdAt {
-                detailRow(
-                    icon: .calendar,
-                    label: "settings.profile.memberSince",
-                    value: formattedDate(createdAt)
-                )
-            }
-        }
-    }
-
-    private func editableRow(icon: TablerIconOutline, label: LocalizedStringKey, value: String, action: @escaping () -> Void) -> some View {
-        Button(action: action) {
-            HStack(spacing: 12) {
-                TablerIcons(icon, size: 24, color: Color("Brand"))
-                AppText(label, table: "Settings", style: .body)
-                Spacer()
-                AppText(verbatim: value, style: .body)
-                    .color(Color("TextSecondary"))
-                TablerIcons(.chevronRight, size: 16, color: Color("TextSecondary"))
-            }
-            .contentShape(Rectangle())
-        }
-        .buttonStyle(.plain)
-    }
-
-    private func detailRow(icon: TablerIconOutline, label: LocalizedStringKey, value: String) -> some View {
-        HStack(spacing: 12) {
-            TablerIcons(icon, size: 24, color: Color("Brand"))
-            AppText(label, table: "Settings", style: .body)
-            Spacer()
-            AppText(verbatim: value, style: .body)
-                .color(Color("TextSecondary"))
-        }
-    }
-
-    private var deleteGoalSection: some View {
-        Section {
-            Button(role: .destructive) {
-                showDeleteGoalAlert = true
-            } label: {
-                HStack(spacing: 12) {
-                    TablerIcons(.trash, size: 24, color: Color("Error"))
-                    AppText("settings.deleteGoal", table: "Settings", style: .body)
-                        .color(Color("Error"))
-                }
-                .contentShape(Rectangle())
-            }
-            .disabled(isDeleting)
-        }
-    }
-
-    private var signOutSection: some View {
-        Section {
-            Button(role: .destructive) {
-                showSignOutAlert = true
-            } label: {
-                HStack(spacing: 12) {
-                    TablerIcons(.logout, size: 24, color: Color("Error"))
-                    AppText("settings.signOut", table: "Settings", style: .body)
-                        .color(Color("Error"))
-                }
-                .contentShape(Rectangle())
-            }
-        } footer: {
-            HStack {
-                Spacer()
-                AppText(verbatim: "\(String(localized: "settings.version", table: "Settings")) \(Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "")", style: .caption)
-                    .color(Color("TextSecondary"))
-                Spacer()
-            }
-            .padding(.top, 24)
         }
     }
 
@@ -311,8 +151,8 @@ struct SettingsView: View {
             try deleteAll(LocalMilestone.self)
             try deleteAll(LocalRoadmap.self)
             try deleteAll(LocalStats.self)
-            try deleteAll(LocalGoal.self)
-            try deleteAll(LocalProfile.self)
+            try deleteAll(Goal.self)
+            try deleteAll(Profile.self)
             try modelContext.save()
         } catch {
             settingsLogger.error("Failed to purge local user data before sign-out")
@@ -373,13 +213,6 @@ struct SettingsView: View {
         return CoachPersonality.from(databaseId: coachId)
     }
 
-    private func formattedDate(_ date: Date) -> String {
-        let formatter = DateFormatter()
-        formatter.dateStyle = .medium
-        formatter.timeStyle = .none
-        return formatter.string(from: date)
-    }
-
     private var currentAppLanguage: String {
         let code = Bundle.main.preferredLocalizations.first ?? "en"
         let locale = Locale(identifier: code)
@@ -389,6 +222,6 @@ struct SettingsView: View {
 
 #Preview {
     SettingsView()
-        .environmentObject(AuthService.shared)
-        .modelContainer(for: LocalProfile.self, inMemory: true)
+        .environment(AuthService.shared)
+        .modelContainer(for: Profile.self, inMemory: true)
 }

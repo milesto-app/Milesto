@@ -26,26 +26,12 @@ struct ProfileUpdateFields: Encodable {
     }
 }
 
-enum ProfileUpdateError: LocalizedError {
-    case validationFailed(field: String, message: String)
-    case serverError(String)
-
-    var errorDescription: String? {
-        switch self {
-        case let .validationFailed(_, message):
-            return message
-        case let .serverError(message):
-            return message
-        }
-    }
-}
-
 final class ProfileService {
     static let shared = ProfileService()
 
     private init() {}
 
-    func updateProfile(_ fields: ProfileUpdateFields) async throws -> ProfileDTO {
+    func updateProfile(_ fields: ProfileUpdateFields) async throws -> Profile {
         let session = try await Supabase.client.auth.session
         return try await Supabase.client
             .from("profiles")
@@ -57,12 +43,12 @@ final class ProfileService {
             .value
     }
 
-    func fetchProfile(userId: String) async throws -> ProfileDTO? {
+    func fetchProfile(userId: String) async throws -> Profile? {
         guard let uuid = UUID(uuidString: userId) else {
             throw ProfileServiceError.invalidUserId
         }
 
-        let response: [ProfileDTO] = try await Supabase.client
+        let response: [Profile] = try await Supabase.client
             .from("profiles")
             .select()
             .eq("id", value: uuid)

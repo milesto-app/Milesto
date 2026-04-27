@@ -68,32 +68,30 @@ struct RoadmapView: View {
     let goalId: String
     var onGoalChanged: ((String) -> Void)?
 
-    @Environment(\.modelContext) var modelContext
-    @Query var localGoals: [LocalGoal]
-    @Query var localWeeklyTasks: [LocalWeeklyTask]
-    @State var milestones: [DisplayMilestone] = []
-    @State var isLoading = true
-    @State var appeared = false
+    @Environment(\.modelContext) private var modelContext
+    @Query private var localGoals: [Goal]
+    @Query private var localWeeklyTasks: [LocalWeeklyTask]
+    @State private var model = RoadmapViewModel()
     @State private var selectedMilestone: DisplayMilestone?
     @State private var expandedPastSections: Set<Int> = []
 
-    private var currentGoal: LocalGoal? {
+    private var currentGoal: Goal? {
         localGoals.first { $0.id == goalId }
     }
 
-    private var switchableGoals: [LocalGoal] {
+    private var switchableGoals: [Goal] {
         localGoals.filter { $0.status == "active" || $0.status == ProfileStatus.intakeCompleted.rawValue }
     }
 
     private var completionProgress: Double {
-        guard !milestones.isEmpty else { return 0 }
-        let completed = Double(milestones.filter { $0.status == .completed }.count)
-        let currentProgress = milestones.contains(where: { $0.status == .current }) ? currentTaskProgress() : 0
-        return (completed + currentProgress) / Double(milestones.count)
+        guard !model.milestones.isEmpty else { return 0 }
+        let completed = Double(model.milestones.filter { $0.status == .completed }.count)
+        let currentProgress = model.milestones.contains(where: { $0.status == .current }) ? model.currentTaskProgress() : 0
+        return (completed + currentProgress) / Double(model.milestones.count)
     }
 
     private var monthSections: [RoadmapMonthSection] {
-        let grouped = Dictionary(grouping: milestones) { $0.targetMonth }
+        let grouped = Dictionary(grouping: model.milestones) { $0.targetMonth }
         return grouped.keys.sorted().map { month in
             RoadmapMonthSection(
                 targetMonth: month,
@@ -116,7 +114,7 @@ struct RoadmapView: View {
     var body: some View {
         NavigationStack {
             ZStack(alignment: .top) {
-                if isLoading && milestones.isEmpty {
+                if model.isLoading && model.milestones.isEmpty {
                     ProgressView()
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
                 } else {
@@ -127,7 +125,7 @@ struct RoadmapView: View {
                                 goalId: goalId,
                                 switchableGoals: switchableGoals,
                                 completionProgress: completionProgress,
-                                appeared: appeared,
+                                appeared: model.appeared,
                                 onGoalChanged: onGoalChanged
                             )
 
@@ -136,7 +134,7 @@ struct RoadmapView: View {
                                     RoadmapPhaseSection(
                                         section: section,
                                         isExpanded: expandedPastSections.contains(section.id),
-                                        appeared: appeared,
+                                        appeared: model.appeared,
                                         animationDelay: Double(sectionIndex) * 0.08 + 0.12,
                                         onToggleExpanded: { togglePastSection(section.id) },
                                         onSelect: { selectedMilestone = $0 }
@@ -148,7 +146,7 @@ struct RoadmapView: View {
                         .padding(.bottom, 80)
                     }
                     .hapticRefreshable {
-                        await loadMilestones()
+                        await model.loadMilestones()
                     }
                 }
             }
@@ -163,34 +161,34 @@ struct RoadmapView: View {
             }
         }
         .task {
-            await loadMilestones()
+            model.configure(goalId: goalId, modelContext: modelContext)
+            await model.loadMilestones()
         }
         .onAppear {
-            appeared = true
-            if !milestones.isEmpty {
+            model.appeared = true
+            if !model.milestones.isEmpty {
                 Task {
-                    await loadMilestones()
+                    await model.loadMilestones()
                 }
             }
         }
         .onChange(of: goalId) {
-            milestones = []
+            model.configure(goalId: goalId, modelContext: modelContext)
+            model.resetForGoalChange()
             expandedPastSections = []
-            isLoading = true
-            appeared = false
             Task {
-                await loadMilestones()
-                if !appeared {
-                    appeared = true
+                await model.loadMilestones()
+                if !model.appeared {
+                    model.appeared = true
                 }
             }
         }
         .onReceive(NotificationCenter.default.publisher(for: .weeklyTaskCompletionDidChange)) { notification in
             guard notification.userInfo?["goalId"] as? String == goalId else { return }
-            refreshDisplayedProgress()
+            model.refreshDisplayedProgress()
         }
         .onChange(of: weeklyTaskProgressSignature) {
-            refreshDisplayedProgress()
+            model.refreshDisplayedProgress()
         }
     }
 
@@ -224,5 +222,5 @@ private extension Array where Element == Int {
 
 #Preview {
     RoadmapView(goalId: "preview-goal")
-        .modelContainer(for: [LocalGoal.self], inMemory: true)
+        .modelContainer(for: [Goal.self], inMemory: true)
 }

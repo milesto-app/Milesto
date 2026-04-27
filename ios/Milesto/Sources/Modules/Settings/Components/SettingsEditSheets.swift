@@ -12,6 +12,35 @@ enum SettingsSheet: Identifiable {
     }
 }
 
+struct SettingsSheetContent: View {
+    let sheet: SettingsSheet
+    let profile: Profile?
+    let onSave: (ProfileUpdateFields) -> Void
+
+    var body: some View {
+        switch sheet {
+        case .name:
+            EditNameSheet(
+                firstName: profile?.firstName ?? "",
+                lastName: profile?.lastName ?? "",
+                onSave: onSave
+            )
+        case .birthdate:
+            EditBirthdateSheet(
+                dateOfBirth: profile?.dateOfBirth ?? Date(),
+                onSave: onSave
+            )
+        case .coach:
+            EditCoachSheet(
+                selectedCoach: profile?.coachId.flatMap { CoachPersonality.from(databaseId: $0) },
+                onSave: onSave
+            )
+        case .language:
+            LanguageInfoSheet()
+        }
+    }
+}
+
 struct EditNameSheet: View {
     @State var firstName: String
     @State var lastName: String

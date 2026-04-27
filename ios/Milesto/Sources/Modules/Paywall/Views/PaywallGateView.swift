@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct PaywallGateView<Content: View>: View {
-    @StateObject private var subscription = SubscriptionService.shared
+    @State private var subscription = SubscriptionService.shared
     let content: () -> Content
 
     init(@ViewBuilder content: @escaping () -> Content) {

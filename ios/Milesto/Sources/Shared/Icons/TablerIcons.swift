@@ -73,8 +73,8 @@ extension TablerIcons {
     }
 }
 
-extension TablerIconOutline {
-    public var iconName: String {
+public extension TablerIconOutline {
+    var iconName: String {
         String(describing: self)
             .replacingOccurrences(of: "([a-z0-9])([A-Z])", with: "$1-$2", options: .regularExpression)
             .lowercased()
@@ -82,8 +82,8 @@ extension TablerIconOutline {
     }
 }
 
-extension TablerIconFilled {
-    public var iconName: String {
+public extension TablerIconFilled {
+    var iconName: String {
         String(describing: self)
             .replacingOccurrences(of: "([a-z0-9])([A-Z])", with: "$1-$2", options: .regularExpression)
             .lowercased()
@@ -10064,115 +10064,276 @@ public enum TablerIconOutline: String, CaseIterable, Sendable {
     case zzzOff = "\u{F440}"
 }
 
-extension TablerIconOutline {
+public extension TablerIconOutline {
     /// Alias for `hours12`
-    public static var _12Hours: TablerIconOutline { .hours12 }
+    static var _12Hours: TablerIconOutline {
+        .hours12
+    }
+
     /// Alias for `number123`
-    public static var _123: TablerIconOutline { .number123 }
+    static var _123: TablerIconOutline {
+        .number123
+    }
+
     /// Alias for `hours24`
-    public static var _24Hours: TablerIconOutline { .hours24 }
+    static var _24Hours: TablerIconOutline {
+        .hours24
+    }
+
     /// Alias for `auth2fa`
-    public static var _2fa: TablerIconOutline { .auth2fa }
+    static var _2fa: TablerIconOutline {
+        .auth2fa
+    }
+
     /// Alias for `view360Arrow`
-    public static var _360: TablerIconOutline { .view360Arrow }
+    static var _360: TablerIconOutline {
+        .view360Arrow
+    }
+
     /// Alias for `view360Number`
-    public static var _360View: TablerIconOutline { .view360Number }
+    static var _360View: TablerIconOutline {
+        .view360Number
+    }
+
     /// Alias for `cube3dSphere`
-    public static var _3dCubeSphere: TablerIconOutline { .cube3dSphere }
+    static var _3dCubeSphere: TablerIconOutline {
+        .cube3dSphere
+    }
+
     /// Alias for `cube3dSphereOff`
-    public static var _3dCubeSphereOff: TablerIconOutline { .cube3dSphereOff }
+    static var _3dCubeSphereOff: TablerIconOutline {
+        .cube3dSphereOff
+    }
+
     /// Alias for `rotate3d`
-    public static var _3dRotate: TablerIconOutline { .rotate3d }
+    static var _3dRotate: TablerIconOutline {
+        .rotate3d
+    }
+
     /// Alias for `package`
-    public static var boxSeam: TablerIconOutline { .package }
+    static var boxSeam: TablerIconOutline {
+        .package
+    }
+
     /// Alias for `brandAdobePremiere`
-    public static var brandAdobePremier: TablerIconOutline { .brandAdobePremiere }
+    static var brandAdobePremier: TablerIconOutline {
+        .brandAdobePremiere
+    }
+
     /// Alias for `circleNumber0`
-    public static var circle0: TablerIconOutline { .circleNumber0 }
+    static var circle0: TablerIconOutline {
+        .circleNumber0
+    }
+
     /// Alias for `circleNumber1`
-    public static var circle1: TablerIconOutline { .circleNumber1 }
+    static var circle1: TablerIconOutline {
+        .circleNumber1
+    }
+
     /// Alias for `circleNumber2`
-    public static var circle2: TablerIconOutline { .circleNumber2 }
+    static var circle2: TablerIconOutline {
+        .circleNumber2
+    }
+
     /// Alias for `circleNumber3`
-    public static var circle3: TablerIconOutline { .circleNumber3 }
+    static var circle3: TablerIconOutline {
+        .circleNumber3
+    }
+
     /// Alias for `circleNumber4`
-    public static var circle4: TablerIconOutline { .circleNumber4 }
+    static var circle4: TablerIconOutline {
+        .circleNumber4
+    }
+
     /// Alias for `circleNumber5`
-    public static var circle5: TablerIconOutline { .circleNumber5 }
+    static var circle5: TablerIconOutline {
+        .circleNumber5
+    }
+
     /// Alias for `circleNumber6`
-    public static var circle6: TablerIconOutline { .circleNumber6 }
+    static var circle6: TablerIconOutline {
+        .circleNumber6
+    }
+
     /// Alias for `circleNumber7`
-    public static var circle7: TablerIconOutline { .circleNumber7 }
+    static var circle7: TablerIconOutline {
+        .circleNumber7
+    }
+
     /// Alias for `circleNumber8`
-    public static var circle8: TablerIconOutline { .circleNumber8 }
+    static var circle8: TablerIconOutline {
+        .circleNumber8
+    }
+
     /// Alias for `circleNumber9`
-    public static var circle9: TablerIconOutline { .circleNumber9 }
+    static var circle9: TablerIconOutline {
+        .circleNumber9
+    }
+
     /// Alias for `circleDashedLetterV`
-    public static var circleDashedLetterLetterV: TablerIconOutline { .circleDashedLetterV }
+    static var circleDashedLetterLetterV: TablerIconOutline {
+        .circleDashedLetterV
+    }
+
     /// Alias for `codeAsterisk`
-    public static var codeAsterix: TablerIconOutline { .codeAsterisk }
+    static var codeAsterix: TablerIconOutline {
+        .codeAsterisk
+    }
+
     /// Alias for `rosetteDiscount`
-    public static var discount2: TablerIconOutline { .rosetteDiscount }
+    static var discount2: TablerIconOutline {
+        .rosetteDiscount
+    }
+
     /// Alias for `rosetteDiscountOff`
-    public static var discount2Off: TablerIconOutline { .rosetteDiscountOff }
+    static var discount2Off: TablerIconOutline {
+        .rosetteDiscountOff
+    }
+
     /// Alias for `rosetteDiscountCheck`
-    public static var discountCheck: TablerIconOutline { .rosetteDiscountCheck }
+    static var discountCheck: TablerIconOutline {
+        .rosetteDiscountCheck
+    }
+
     /// Alias for `handLoveYou`
-    public static var handRock: TablerIconOutline { .handLoveYou }
+    static var handRock: TablerIconOutline {
+        .handLoveYou
+    }
+
     /// Alias for `hexagonNumber0`
-    public static var hexagon0: TablerIconOutline { .hexagonNumber0 }
+    static var hexagon0: TablerIconOutline {
+        .hexagonNumber0
+    }
+
     /// Alias for `hexagonNumber1`
-    public static var hexagon1: TablerIconOutline { .hexagonNumber1 }
+    static var hexagon1: TablerIconOutline {
+        .hexagonNumber1
+    }
+
     /// Alias for `hexagonNumber2`
-    public static var hexagon2: TablerIconOutline { .hexagonNumber2 }
+    static var hexagon2: TablerIconOutline {
+        .hexagonNumber2
+    }
+
     /// Alias for `hexagonNumber3`
-    public static var hexagon3: TablerIconOutline { .hexagonNumber3 }
+    static var hexagon3: TablerIconOutline {
+        .hexagonNumber3
+    }
+
     /// Alias for `hexagonNumber4`
-    public static var hexagon4: TablerIconOutline { .hexagonNumber4 }
+    static var hexagon4: TablerIconOutline {
+        .hexagonNumber4
+    }
+
     /// Alias for `hexagonNumber5`
-    public static var hexagon5: TablerIconOutline { .hexagonNumber5 }
+    static var hexagon5: TablerIconOutline {
+        .hexagonNumber5
+    }
+
     /// Alias for `hexagonNumber6`
-    public static var hexagon6: TablerIconOutline { .hexagonNumber6 }
+    static var hexagon6: TablerIconOutline {
+        .hexagonNumber6
+    }
+
     /// Alias for `hexagonNumber7`
-    public static var hexagon7: TablerIconOutline { .hexagonNumber7 }
+    static var hexagon7: TablerIconOutline {
+        .hexagonNumber7
+    }
+
     /// Alias for `hexagonNumber8`
-    public static var hexagon8: TablerIconOutline { .hexagonNumber8 }
+    static var hexagon8: TablerIconOutline {
+        .hexagonNumber8
+    }
+
     /// Alias for `hexagonNumber9`
-    public static var hexagon9: TablerIconOutline { .hexagonNumber9 }
+    static var hexagon9: TablerIconOutline {
+        .hexagonNumber9
+    }
+
     /// Alias for `kerning`
-    public static var kering: TablerIconOutline { .kerning }
+    static var kering: TablerIconOutline {
+        .kerning
+    }
+
     /// Alias for `messageCircle`
-    public static var messageCircle2: TablerIconOutline { .messageCircle }
+    static var messageCircle2: TablerIconOutline {
+        .messageCircle
+    }
+
     /// Alias for `moodSurprised`
-    public static var moodSuprised: TablerIconOutline { .moodSurprised }
+    static var moodSuprised: TablerIconOutline {
+        .moodSurprised
+    }
+
     /// Alias for `seedling`
-    public static var seeding: TablerIconOutline { .seedling }
+    static var seeding: TablerIconOutline {
+        .seedling
+    }
+
     /// Alias for `seedlingOff`
-    public static var seedingOff: TablerIconOutline { .seedlingOff }
+    static var seedingOff: TablerIconOutline {
+        .seedlingOff
+    }
+
     /// Alias for `skiJumping`
-    public static var shiJumping: TablerIconOutline { .skiJumping }
+    static var shiJumping: TablerIconOutline {
+        .skiJumping
+    }
+
     /// Alias for `sortDescendingSmallBig`
-    public static var sortDeacendingSmallBig: TablerIconOutline { .sortDescendingSmallBig }
+    static var sortDeacendingSmallBig: TablerIconOutline {
+        .sortDescendingSmallBig
+    }
+
     /// Alias for `squareNumber0`
-    public static var square0: TablerIconOutline { .squareNumber0 }
+    static var square0: TablerIconOutline {
+        .squareNumber0
+    }
+
     /// Alias for `squareNumber1`
-    public static var square1: TablerIconOutline { .squareNumber1 }
+    static var square1: TablerIconOutline {
+        .squareNumber1
+    }
+
     /// Alias for `squareNumber2`
-    public static var square2: TablerIconOutline { .squareNumber2 }
+    static var square2: TablerIconOutline {
+        .squareNumber2
+    }
+
     /// Alias for `squareNumber3`
-    public static var square3: TablerIconOutline { .squareNumber3 }
+    static var square3: TablerIconOutline {
+        .squareNumber3
+    }
+
     /// Alias for `squareNumber4`
-    public static var square4: TablerIconOutline { .squareNumber4 }
+    static var square4: TablerIconOutline {
+        .squareNumber4
+    }
+
     /// Alias for `squareNumber5`
-    public static var square5: TablerIconOutline { .squareNumber5 }
+    static var square5: TablerIconOutline {
+        .squareNumber5
+    }
+
     /// Alias for `squareNumber6`
-    public static var square6: TablerIconOutline { .squareNumber6 }
+    static var square6: TablerIconOutline {
+        .squareNumber6
+    }
+
     /// Alias for `squareNumber7`
-    public static var square7: TablerIconOutline { .squareNumber7 }
+    static var square7: TablerIconOutline {
+        .squareNumber7
+    }
+
     /// Alias for `squareNumber8`
-    public static var square8: TablerIconOutline { .squareNumber8 }
+    static var square8: TablerIconOutline {
+        .squareNumber8
+    }
+
     /// Alias for `squareNumber9`
-    public static var square9: TablerIconOutline { .squareNumber9 }
+    static var square9: TablerIconOutline {
+        .squareNumber9
+    }
 }
 
 // MARK: - Filled Icons
@@ -12147,11 +12308,19 @@ public enum TablerIconFilled: String, CaseIterable, Sendable {
     case zoomScan = "\u{FDBF}"
 }
 
-extension TablerIconFilled {
+public extension TablerIconFilled {
     /// Alias for `rosetteDiscountCheck`
-    public static var discountCheck: TablerIconFilled { .rosetteDiscountCheck }
+    static var discountCheck: TablerIconFilled {
+        .rosetteDiscountCheck
+    }
+
     /// Alias for `messageCircle`
-    public static var messageCircle2: TablerIconFilled { .messageCircle }
+    static var messageCircle2: TablerIconFilled {
+        .messageCircle
+    }
+
     /// Alias for `seedling`
-    public static var seeding: TablerIconFilled { .seedling }
+    static var seeding: TablerIconFilled {
+        .seedling
+    }
 }

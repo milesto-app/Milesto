@@ -6,7 +6,7 @@ final class GoalAPIService {
 
     private init() {}
 
-    func createGoal(description: String) async throws -> GoalDTO {
+    func createGoal(description: String) async throws -> Goal {
         struct Body: Encodable { let description: String }
         return try await BackendClient.shared.request(
             method: "POST",
@@ -30,7 +30,7 @@ final class GoalAPIService {
         )
     }
 
-    func getGoal(goalId: String) async throws -> GoalDTO {
+    func getGoal(goalId: String) async throws -> Goal {
         try await Supabase.client
             .from("goals")
             .select()
@@ -62,7 +62,7 @@ final class GoalAPIService {
             .execute()
     }
 
-    func listGoals() async throws -> [GoalDTO] {
+    func listGoals() async throws -> [Goal] {
         try await Supabase.client
             .from("goals")
             .select()

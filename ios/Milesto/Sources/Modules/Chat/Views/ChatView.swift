@@ -5,43 +5,32 @@ struct ChatView: View {
     let goalId: String
     var onClose: (() -> Void)?
 
-    @Environment(\.modelContext) var modelContext
-    @State var messages: [ChatMessage] = []
-    @State var inputText = ""
-    @State var isStreaming = false
-    @State var conversationId: String?
-    @State var isToolRunning = false
-    @State var showError = false
-    @State var errorMessage = ""
-    @State var showThinking = false
-    @FocusState var isInputFocused: Bool
-    @State var isSidebarOpen = false
-    @State var conversations: [ConversationSummary] = []
-    @State var isLoadingHistory = false
-    @State var isLimitReached = false
-    @State var isSubscriptionRequired = false
+    @Environment(\.modelContext) private var modelContext
+    @State private var model = ChatViewModel()
+    @FocusState private var isInputFocused: Bool
+    @State private var isSidebarOpen = false
 
     var body: some View {
         ChatMessageList(
-            messages: messages,
-            isStreaming: isStreaming,
-            isWaitingForResponse: isWaitingForResponse,
-            showThinking: showThinking
+            messages: model.messages,
+            isStreaming: model.isStreaming,
+            isWaitingForResponse: model.isWaitingForResponse,
+            showThinking: model.showThinking
         )
         .overlay(alignment: .bottom) {
             VStack(spacing: 16) {
-                if messages.isEmpty {
+                if model.messages.isEmpty {
                     ChatEmptyState(
-                        isVisible: inputText.isEmpty,
+                        isVisible: model.inputText.isEmpty,
                         onSelectPrompt: { prompt in
-                            inputText = prompt
+                            model.inputText = prompt
                             isInputFocused = true
                         }
                     )
                 }
 
-                ChatInputBar(text: $inputText, isDisabled: isStreaming, isFocused: $isInputFocused) {
-                    sendMessage()
+                ChatInputBar(text: $model.inputText, isDisabled: model.isStreaming, isFocused: $isInputFocused) {
+                    model.sendMessage()
                 }
             }
         }
@@ -51,15 +40,13 @@ struct ChatView: View {
         }
         .overlay(alignment: .top) {
             ChatTopBar(
-                showEditButton: !messages.isEmpty,
+                showEditButton: !model.messages.isEmpty,
                 onOpenSidebar: {
                     isInputFocused = false
                     isSidebarOpen = true
                 },
                 onNewConversation: {
-                    messages = []
-                    conversationId = nil
-                    inputText = ""
+                    model.startNewConversation()
                 },
                 onClose: onClose
             )
@@ -67,58 +54,50 @@ struct ChatView: View {
         .overlay {
             ChatHistorySidebar(
                 isOpen: $isSidebarOpen,
-                conversations: conversations,
-                activeConversationId: conversationId,
+                conversations: model.conversations,
+                activeConversationId: model.conversationId,
                 onSelectConversation: { id in
-                    loadConversation(id)
+                    model.loadConversation(id)
                 },
                 onNewConversation: {
                     withAnimation {
-                        messages = []
-                        conversationId = nil
-                        inputText = ""
+                        model.startNewConversation()
                     }
                 },
                 onDeleteConversation: { id in
-                    deleteConversation(id)
+                    model.deleteConversation(id)
                 }
             )
             .ignoresSafeArea()
         }
         .onChange(of: isSidebarOpen) { _, isOpen in
             if isOpen {
-                fetchConversations()
+                model.fetchConversations()
             }
         }
         .onAppear {
+            model.configure(goalId: goalId, modelContext: modelContext)
             isInputFocused = true
         }
         .alert(chatErrorTitle,
-               isPresented: $showError)
+               isPresented: $model.showError)
         {
             Button(String(localized: "common.ok", table: "Common"), role: .cancel) {
-                isLimitReached = false
-                isSubscriptionRequired = false
+                model.isLimitReached = false
+                model.isSubscriptionRequired = false
             }
         } message: {
-            if isLimitReached || isSubscriptionRequired {
-                Text(errorMessage)
+            if model.isLimitReached || model.isSubscriptionRequired {
+                Text(model.errorMessage)
             }
         }
-    }
-
-    var isWaitingForResponse: Bool {
-        guard isStreaming else { return false }
-        if isToolRunning { return true }
-        guard let last = messages.last, last.role == .assistant else { return true }
-        return last.content.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
     }
 
     private var chatErrorTitle: String {
-        if isSubscriptionRequired {
+        if model.isSubscriptionRequired {
             return String(localized: "paywall.error.title", table: "Paywall")
         }
-        if isLimitReached {
+        if model.isLimitReached {
             return String(localized: "usage.limit.reached.title", table: "Paywall")
         }
         return String(localized: "chat.error.generic", table: "Chat")

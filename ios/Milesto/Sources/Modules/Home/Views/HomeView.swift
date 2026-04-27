@@ -5,19 +5,15 @@ struct HomeView: View {
     let goalId: String
     let firstName: String
 
-    @Environment(\.modelContext) var modelContext
-    @Query var localGoals: [LocalGoal]
-    @State var weeklyPlan: WeeklyPlanDTO?
-    @State var tasks: [WeeklyTaskDTO] = []
-    @State var todayDebrief: DebriefDTO?
-    @State var isLoading = true
-    @State var hasSyncError = false
+    @Environment(\.modelContext) private var modelContext
+    @Query private var localGoals: [Goal]
+    @State private var model = HomeViewModel()
     @State private var showDebriefSheet = false
     @State private var showWeeklyPlanDetail = false
     @State private var showWeeklyPlanGeneration = false
     @State private var selectedTaskId: String?
 
-    private var currentGoal: LocalGoal? {
+    private var currentGoal: Goal? {
         localGoals.first { $0.id == goalId }
     }
 
@@ -33,32 +29,11 @@ struct HomeView: View {
         return milestone.title
     }
 
-    var completedCount: Int {
-        tasks.filter(\.isCompleted).count
-    }
-
     private var formattedDate: String {
         let formatter = DateFormatter()
         formatter.locale = Locale.current
         formatter.dateFormat = "EEEE d MMMM"
         return formatter.string(from: Date()).capitalized
-    }
-
-    var goalProgress: Double {
-        guard !tasks.isEmpty else { return 0 }
-        let total = tasks.count
-        let completed = tasks.filter(\.isCompleted).count
-        return total > 0 ? Double(completed) / Double(total) : 0
-    }
-
-    var sortedTasks: [WeeklyTaskDTO] {
-        tasks.sorted {
-            if $0.isCompleted != $1.isCompleted { return !$0.isCompleted }
-            let p0 = $0.difficultyRating.priority
-            let p1 = $1.difficultyRating.priority
-            if p0 != p1 { return p0 < p1 }
-            return $0.orderIndex < $1.orderIndex
-        }
     }
 
     var body: some View {
@@ -69,16 +44,16 @@ struct HomeView: View {
                         HomeHeroSection(
                             formattedDate: formattedDate,
                             title: currentMilestoneTitle ?? currentGoal?.title ?? "",
-                            progress: goalProgress
+                            progress: model.goalProgress
                         )
 
-                        if isLoading && tasks.isEmpty && weeklyPlan == nil {
+                        if model.isLoading && model.tasks.isEmpty && model.weeklyPlan == nil {
                             ProgressView()
                                 .padding(.top, 40)
-                        } else if hasSyncError && tasks.isEmpty && weeklyPlan == nil {
+                        } else if model.hasSyncError && model.tasks.isEmpty && model.weeklyPlan == nil {
                             HomeSyncErrorSection {
-                                isLoading = true
-                                Task { await loadAllData() }
+                                model.isLoading = true
+                                Task { await model.loadAllData() }
                             }
                         } else {
                             contentSection
@@ -86,28 +61,27 @@ struct HomeView: View {
                     }
                 }
                 .hapticRefreshable {
-                    await loadAllData()
+                    await model.loadAllData()
                 }
             }
         }
         .task {
-            await loadAllData()
+            model.configure(goalId: goalId, modelContext: modelContext)
+            await model.loadAllData()
         }
         .onChange(of: goalId) {
-            tasks = []
-            weeklyPlan = nil
-            todayDebrief = nil
-            isLoading = true
+            model.configure(goalId: goalId, modelContext: modelContext)
+            model.resetForGoalChange()
             Task {
-                await loadAllData()
+                await model.loadAllData()
             }
         }
         .sheet(isPresented: $showDebriefSheet) {
-            if let weeklyPlan {
+            if let weeklyPlan = model.weeklyPlan {
                 DebriefSheetView(
                     goalId: goalId,
                     weeklyPlanId: weeklyPlan.id,
-                    completedTasks: tasks.filter(\.isCompleted),
+                    completedTasks: model.tasks.filter(\.isCompleted),
                     onDebriefComplete: {
                         showWeeklyPlanGeneration = true
                     }
@@ -115,12 +89,9 @@ struct HomeView: View {
             }
         }
         .fullScreenCover(isPresented: $showWeeklyPlanGeneration, onDismiss: {
-            weeklyPlan = nil
-            tasks = []
-            todayDebrief = nil
-            isLoading = true
+            model.resetForGoalChange()
             Task {
-                await loadAllData()
+                await model.loadAllData()
             }
         }) {
             WeeklyPlanGenerationView(goalId: goalId) {
@@ -131,7 +102,7 @@ struct HomeView: View {
 
     private var contentSection: some View {
         VStack(spacing: 16) {
-            if !tasks.isEmpty && tasks.allSatisfy(\.isCompleted) && todayDebrief?.weeklyPlanId != weeklyPlan?.id {
+            if !model.tasks.isEmpty && model.tasks.allSatisfy(\.isCompleted) && model.todayDebrief?.weeklyPlanId != model.weeklyPlan?.id {
                 DebriefPromptCard {
                     showDebriefSheet = true
                 }
@@ -139,11 +110,11 @@ struct HomeView: View {
             }
 
             HomeTasksListSection(
-                tasks: tasks,
-                sortedTasks: sortedTasks,
-                completedCount: completedCount,
+                tasks: model.tasks,
+                sortedTasks: model.sortedTasks,
+                completedCount: model.completedCount,
                 onToggle: { task in
-                    toggleTask(task)
+                    model.toggleTask(task)
                 },
                 onOpen: { taskId in
                     selectedTaskId = taskId
@@ -152,7 +123,7 @@ struct HomeView: View {
         }
         .padding(.bottom, 40)
         .navigationDestination(isPresented: $showWeeklyPlanDetail) {
-            if let weeklyPlan {
+            if let weeklyPlan = model.weeklyPlan {
                 WeeklyPlanDetailView(
                     weekNumber: weeklyPlan.weekNumber,
                     weekStartDate: weeklyPlan.weekStartDate,
@@ -163,15 +134,15 @@ struct HomeView: View {
             }
         }
         .navigationDestination(item: $selectedTaskId) { taskId in
-            let ordered = sortedTasks.map(\.id)
+            let ordered = model.sortedTasks.map(\.id)
             if let start = ordered.firstIndex(of: taskId) {
                 WeeklyTaskDetailView(
-                    tasks: tasks,
+                    tasks: model.tasks,
                     orderedIds: ordered,
                     startIndex: start,
-                    weekNumber: weeklyPlan?.weekNumber,
+                    weekNumber: model.weeklyPlan?.weekNumber,
                     onToggle: { updated in
-                        applyRemoteToggle(updated)
+                        model.applyRemoteToggle(updated)
                     }
                 )
             }
@@ -181,5 +152,5 @@ struct HomeView: View {
 
 #Preview {
     HomeView(goalId: "preview-goal", firstName: "Maty")
-        .modelContainer(for: [LocalGoal.self, LocalWeeklyTask.self, LocalWeeklyPlan.self, LocalDebrief.self], inMemory: true)
+        .modelContainer(for: [Goal.self, LocalWeeklyTask.self, LocalWeeklyPlan.self, LocalDebrief.self], inMemory: true)
 }
