@@ -26,7 +26,7 @@ struct PaywallGateView<Content: View>: View {
         }
         .animation(.easeInOut(duration: 0.4), value: subscription.entitlementState)
         .task {
-            await subscription.refreshEntitlement()
+            await subscription.reconcileWithBackend()
         }
     }
 }

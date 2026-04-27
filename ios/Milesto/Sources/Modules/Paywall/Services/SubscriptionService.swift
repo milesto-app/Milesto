@@ -61,7 +61,6 @@ final class SubscriptionService: ObservableObject {
     private init() {
         updatesTask = observeTransactionUpdates()
         Task {
-            await refreshEntitlement()
             await loadProducts()
         }
     }
@@ -98,6 +97,7 @@ final class SubscriptionService: ObservableObject {
     }
 
     func handleBackendSubscriptionRequired() async {
+        entitlementState = .notSubscribed
         await reconcileWithBackend()
     }
 
@@ -186,12 +186,15 @@ final class SubscriptionService: ObservableObject {
         }
     }
 
-    private func reconcileWithBackend() async {
+    func reconcileWithBackend() async {
         let response: SubscriptionStatusResponse
         do {
             response = try await BackendClient.shared.request(method: "GET", path: "subscription/status")
         } catch {
-            subscriptionLogger.debug("reconcile status fetch failed — preserving current entitlement state")
+            subscriptionLogger.debug("reconcile status fetch failed")
+            if entitlementState == .unknown {
+                entitlementState = .notSubscribed
+            }
             return
         }
 

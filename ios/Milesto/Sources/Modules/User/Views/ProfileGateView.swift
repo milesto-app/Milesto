@@ -88,11 +88,13 @@ struct ProfileGateView: View {
                 }
                 .transition(.opacity)
             } else if goalComplete && !roadmapReady {
-                RoadmapGenerationView(goalId: activeGoalId ?? "") {
-                    withAnimation(.easeInOut(duration: 0.4)) {
-                        roadmapReady = true
-                        if let goal = localGoals.first(where: { $0.id == activeGoalId }) {
-                            goal.status = "active"
+                PaywallGateView {
+                    RoadmapGenerationView(goalId: activeGoalId ?? "") {
+                        withAnimation(.easeInOut(duration: 0.4)) {
+                            roadmapReady = true
+                            if let goal = localGoals.first(where: { $0.id == activeGoalId }) {
+                                goal.status = "active"
+                            }
                         }
                     }
                 }
