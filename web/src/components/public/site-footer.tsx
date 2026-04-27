@@ -18,7 +18,7 @@ export function SiteFooter() {
             Privacy
           </Link>
           <a
-            href="mailto:support@milesto-ai.app"
+            href="mailto:support@milesto.app"
             className="text-sm text-[#6b6b6b] transition-colors hover:text-[#2D5016]"
           >
             Contact

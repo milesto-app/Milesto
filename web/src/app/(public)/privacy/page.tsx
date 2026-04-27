@@ -125,10 +125,10 @@ export default function PrivacyPage() {
         <p>
           To exercise any of these rights, contact us at{" "}
           <a
-            href="mailto:support@milesto-ai.app"
+            href="mailto:support@milesto.app"
             className="text-[#2D5016] underline underline-offset-2"
           >
-            support@milesto-ai.app
+            support@milesto.app
           </a>
           .
         </p>
@@ -159,10 +159,10 @@ export default function PrivacyPage() {
           If you have questions about this privacy policy or how we handle your
           data, reach out to us at{" "}
           <a
-            href="mailto:support@milesto-ai.app"
+            href="mailto:support@milesto.app"
             className="text-[#2D5016] underline underline-offset-2"
           >
-            support@milesto-ai.app
+            support@milesto.app
           </a>
           .
         </p>

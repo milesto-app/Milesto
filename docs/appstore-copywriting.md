@@ -54,7 +54,7 @@ goal,coach,AI,planner,habits,roadmap,milestones,productivity,motivation,tracker,
 
 ## Support URL
 
-https://getmilesto.app/support
+https://milesto.app/support
 
 ## Copyright
 

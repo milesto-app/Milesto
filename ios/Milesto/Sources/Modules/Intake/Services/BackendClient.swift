@@ -60,7 +60,7 @@ final class BackendClient {
     #if targetEnvironment(simulator)
         let baseURLString = "http://localhost:3000/api"
     #else
-        let baseURLString = "https://backend.milesto-ai.app/api"
+        let baseURLString = "https://api.milesto.app/api"
     #endif
     private lazy var baseURL = URL(string: baseURLString)!
     private let decoder = JSONDecoder()

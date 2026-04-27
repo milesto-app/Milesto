@@ -50,7 +50,7 @@ const faqs = [
   {
     question: "How do I contact support?",
     answer:
-      "You can reach us anytime at support@milesto-ai.app. We typically respond within 24 hours.",
+      "You can reach us anytime at support@milesto.app. We typically respond within 24 hours.",
   },
 ];
 
@@ -75,10 +75,10 @@ export default function SupportPage() {
           Our support team is happy to help with anything you need.
         </p>
         <a
-          href="mailto:support@milesto-ai.app"
+          href="mailto:support@milesto.app"
           className="mt-4 inline-block rounded-lg bg-[#2D5016] px-6 py-3 text-sm font-medium text-white transition-colors hover:bg-[#3a6a1e]"
         >
-          support@milesto-ai.app
+          support@milesto.app
         </a>
       </section>
 

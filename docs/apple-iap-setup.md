@@ -43,7 +43,7 @@ The service constructs one `SignedDataVerifier` for the configured environment, 
 
 1. App Store Connect → your app → **App Information** → **App Store Server Notifications**.
 2. Set Version to **Version 2**.
-3. Production URL: `https://backend.milesto-ai.app/api/subscription/apple-webhook`.
+3. Production URL: `https://api.milesto.app/api/subscription/apple-webhook`.
 4. Sandbox URL: same path on your staging host.
 5. Save. Use the **Request Test Notification** button after every deploy to confirm the backend responds `200`.
 
