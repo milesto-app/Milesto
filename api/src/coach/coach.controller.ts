@@ -15,7 +15,7 @@ import {
 } from "@nestjs/swagger";
 
 import { AuthGuard } from "../common/guards/auth.guard.js";
-import type { CoachConfig, PublicCoach } from "./coaches.config.js";
+import type { PublicCoach } from "./coaches.config.js";
 import { COACH_BY_ID, COACHES } from "./coaches.config.js";
 
 @ApiTags("coaches")
@@ -28,7 +28,7 @@ export class CoachController {
   @ApiResponse({ status: 200, description: "List of active coaches" })
   @ApiResponse({ status: 401, description: "Unauthorized" })
   public listCoaches(): PublicCoach[] {
-    return COACHES.map(toPublic);
+    return [...COACHES];
   }
 
   @Get(":coachId")
@@ -44,16 +44,6 @@ export class CoachController {
     if (coach === undefined) {
       throw new NotFoundException(`Coach with id ${String(coachId)} not found`);
     }
-    return toPublic(coach);
+    return coach;
   }
-}
-
-function toPublic(coach: CoachConfig): PublicCoach {
-  return {
-    id: coach.id,
-    personality: coach.personality,
-    displayName: coach.displayName,
-    description: coach.description,
-    icon: coach.icon,
-  };
 }

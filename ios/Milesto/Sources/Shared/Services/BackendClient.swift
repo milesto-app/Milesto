@@ -140,45 +140,4 @@ final class BackendClient {
 
         return try decoder.decode(T.self, from: data)
     }
-
-    func requestAudioData(path: String, body: (any Encodable)? = nil) async throws -> Data {
-        let encodedBody: Data? = if let body { try encoder.encode(body) } else { nil }
-
-        func perform(token: String) async throws -> (Data, HTTPURLResponse) {
-            guard let url = URL(string: "\(baseURL.absoluteString)/\(path)") else {
-                throw BackendError.invalidResponse
-            }
-            var request = URLRequest(url: url)
-            request.httpMethod = "POST"
-            request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
-            request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-            request.httpBody = encodedBody
-            let (data, response) = try await URLSession.shared.data(for: request)
-            guard let httpResponse = response as? HTTPURLResponse else {
-                throw BackendError.invalidResponse
-            }
-            return (data, httpResponse)
-        }
-
-        let session = try await Supabase.client.auth.session
-        let (data, httpResponse) = try await perform(token: session.accessToken)
-
-        if httpResponse.statusCode == 401 {
-            let refreshed = try await Supabase.client.auth.refreshSession()
-            let (retryData, retryResponse) = try await perform(token: refreshed.accessToken)
-            if retryResponse.statusCode == 401 {
-                throw BackendError.unauthorized
-            }
-            guard (200 ... 299).contains(retryResponse.statusCode) else {
-                throw BackendError.from(statusCode: retryResponse.statusCode, data: retryData)
-            }
-            return retryData
-        }
-
-        guard (200 ... 299).contains(httpResponse.statusCode) else {
-            throw BackendError.from(statusCode: httpResponse.statusCode, data: data)
-        }
-
-        return data
-    }
 }

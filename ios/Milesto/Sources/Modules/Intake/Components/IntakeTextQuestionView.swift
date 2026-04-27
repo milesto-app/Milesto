@@ -46,7 +46,7 @@ struct IntakeTextQuestionView: View {
 
         HStack {
             Spacer()
-            VoiceToggleButton(transcribedText: text, coachId: nil)
+            TranscriptionToggleButton(transcribedText: text)
         }
     }
 }
