@@ -132,10 +132,42 @@ api/*.pid.lock
 api/report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
 
 # --- Web (web/) ---
+
+# Dependencies
 web/node_modules/
+web/.pnp
+web/.pnp.*
+web/.yarn/*
+!web/.yarn/patches
+!web/.yarn/plugins
+!web/.yarn/releases
+!web/.yarn/versions
+
+# Testing
+web/coverage/
+
+# Next.js
 web/.next/
-web/.env.local
-web/.env
+web/out/
+
+# Production
+web/build/
+
+# Misc
+web/*.pem
+
+# Debug
+web/npm-debug.log*
+web/yarn-debug.log*
+web/yarn-error.log*
+web/.pnpm-debug.log*
+
+# Vercel
+web/.vercel
+
+# TypeScript
+web/*.tsbuildinfo
+web/next-env.d.ts
 
 # --- Root task runner ---
 /node_modules/
