@@ -1,12 +1,9 @@
 import { Injectable, Logger } from "@nestjs/common";
+import { plainToInstance } from "class-transformer";
+import { validateSync } from "class-validator";
 
 import { AiService } from "../ai/ai.service.js";
 import { config } from "../config/app.config.js";
-import {
-  validateMilestones,
-  validateWeeklyPlan,
-  validateWeeklyTasks,
-} from "./generation-validator.js";
 import {
   buildMilestoneSystemPrompt,
   buildMilestoneUserPrompt,
@@ -20,9 +17,9 @@ import {
   buildWeeklyTasksUserPrompt,
 } from "./prompts/weekly-task-prompts.js";
 import type { AssembledContext } from "./types/context.types.js";
-import type { GeneratedMilestone } from "./types/generated-milestone.types.js";
-import type { GeneratedWeeklyPlan } from "./types/generated-weekly-plan.types.js";
-import type { GeneratedWeeklyTask } from "./types/generated-weekly-task.types.js";
+import { GeneratedMilestone } from "./types/generated-milestone.types.js";
+import { GeneratedWeeklyPlan } from "./types/generated-weekly-plan.types.js";
+import { GeneratedWeeklyTask } from "./types/generated-weekly-task.types.js";
 import type {
   GenerateWeeklyPlanParams,
   GenerateWeeklyTasksParams,
@@ -32,10 +29,11 @@ import type {
 import type { GenerationMetadata, GoalData } from "./types/roadmap.types.js";
 
 const MAX_GENERATION_ATTEMPTS = 2;
+const FIRST_ORDER_INDEX = 1;
 
 @Injectable()
-export class GenerationService {
-  private readonly logger = new Logger(GenerationService.name);
+export class RoadmapGenerationService {
+  private readonly logger = new Logger(RoadmapGenerationService.name);
 
   constructor(private readonly aiService: AiService) {}
 
@@ -155,4 +153,124 @@ export class GenerationService {
       attempts: params.attempt + 1,
     };
   }
+}
+
+function validateMilestones(raw: unknown): GeneratedMilestone[] {
+  const items = Array.isArray(raw) ? raw : [raw];
+  const instances = plainToInstance(GeneratedMilestone, items);
+  const errors = instances.flatMap((i) => validateSync(i as object));
+
+  if (errors.length === 0) {
+    return normalizeMilestones(instances);
+  }
+
+  return repairMilestones(items);
+}
+
+function normalizeMilestones(
+  milestones: GeneratedMilestone[],
+): GeneratedMilestone[] {
+  return milestones.map((m) =>
+    plainToInstance(GeneratedMilestone, {
+      title: m.title,
+      description: m.description,
+      expected_outcome: m.expected_outcome,
+      order_index: m.order_index,
+      is_monthly_checkpoint: false,
+    }),
+  );
+}
+
+function repairMilestones(items: unknown[]): GeneratedMilestone[] {
+  const cleaned = items.map((item) => {
+    const rec = item as Record<string, unknown>;
+    return {
+      title: typeof rec.title === "string" ? rec.title : "",
+      description: typeof rec.description === "string" ? rec.description : "",
+      expected_outcome:
+        typeof rec.expected_outcome === "string" ? rec.expected_outcome : "",
+      is_monthly_checkpoint: Boolean(rec.is_monthly_checkpoint),
+      order_index: Number(rec.order_index),
+    };
+  });
+  const repairedInstances = plainToInstance(GeneratedMilestone, cleaned);
+  const repairErrors = repairedInstances.flatMap((i) =>
+    validateSync(i as object),
+  );
+
+  if (repairErrors.length === 0) {
+    return normalizeMilestones(repairedInstances);
+  }
+
+  throw new Error(
+    `Milestone validation failed after repair: ${repairErrors.map((e) => e.toString()).join(", ")}`,
+  );
+}
+
+function validateWeeklyPlan(raw: unknown): GeneratedWeeklyPlan {
+  const data =
+    typeof raw === "object" && raw !== null && !Array.isArray(raw) ? raw : {};
+  const instance = plainToInstance(GeneratedWeeklyPlan, data);
+  const errors = validateSync(instance as object);
+
+  if (errors.length === 0) {
+    return instance;
+  }
+
+  return repairWeeklyPlan(data);
+}
+
+function repairWeeklyPlan(data: unknown): GeneratedWeeklyPlan {
+  const rec = data as Record<string, unknown>;
+  const cleaned = {
+    objectives: Array.isArray(rec.objectives)
+      ? (rec.objectives as unknown[]).map(String)
+      : [],
+  };
+  const repairedInstance = plainToInstance(GeneratedWeeklyPlan, cleaned);
+  const repairErrors = validateSync(repairedInstance as object);
+
+  if (repairErrors.length === 0) {
+    return repairedInstance;
+  }
+
+  throw new Error(
+    `Weekly plan validation failed after repair: ${repairErrors.map((e) => e.toString()).join(", ")}`,
+  );
+}
+
+function validateWeeklyTasks(raw: unknown): GeneratedWeeklyTask[] {
+  const items = Array.isArray(raw) ? raw : [raw];
+  const instances = plainToInstance(GeneratedWeeklyTask, items);
+  const errors = instances.flatMap((i) => validateSync(i as object));
+
+  if (errors.length === 0) {
+    return instances;
+  }
+
+  return repairWeeklyTasks(items);
+}
+
+function repairWeeklyTasks(items: unknown[]): GeneratedWeeklyTask[] {
+  const cleaned = items.map((item, idx) => {
+    const rec = item as Record<string, unknown>;
+    return {
+      title: typeof rec.title === "string" ? rec.title : "",
+      description: typeof rec.description === "string" ? rec.description : "",
+      order_index: Number(rec.order_index) || idx + FIRST_ORDER_INDEX,
+      difficulty_rating: rec.difficulty_rating,
+    };
+  });
+  const repairedInstances = plainToInstance(GeneratedWeeklyTask, cleaned);
+  const repairErrors = repairedInstances.flatMap((i) =>
+    validateSync(i as object),
+  );
+
+  if (repairErrors.length === 0) {
+    return repairedInstances;
+  }
+
+  throw new Error(
+    `Weekly tasks validation failed after repair: ${repairErrors.map((e) => e.toString()).join(", ")}`,
+  );
 }

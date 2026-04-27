@@ -11,10 +11,10 @@ import { UserLanguageService } from "../common/user-language.service.js";
 import { GoalService } from "../goal/goal.service.js";
 import { SupabaseService } from "../supabase/supabase.service.js";
 import { UsageService } from "../usage/usage.service.js";
-import { ContextPipelineService } from "./context-pipeline.service.js";
-import { GenerationService } from "./generation.service.js";
 import { RoadmapService } from "./roadmap.service.js";
-import { RoadmapStorageService } from "./roadmap-storage.service.js";
+import { RoadmapContextService } from "./roadmap-context.service.js";
+import { RoadmapDataService } from "./roadmap-data.service.js";
+import { RoadmapGenerationService } from "./roadmap-generation.service.js";
 import type { AssembledContext } from "./types/context.types.js";
 
 describe("RoadmapService", () => {
@@ -124,11 +124,11 @@ describe("RoadmapService", () => {
           provide: SupabaseService,
           useValue: { getAdminClient: (): typeof mockSupabase => mockSupabase },
         },
-        { provide: ContextPipelineService, useValue: mockContextPipeline },
-        { provide: GenerationService, useValue: mockGeneration },
+        { provide: RoadmapContextService, useValue: mockContextPipeline },
+        { provide: RoadmapGenerationService, useValue: mockGeneration },
         { provide: GoalService, useValue: mockGoalService },
         { provide: EventEmitter2, useValue: mockEventEmitter },
-        { provide: RoadmapStorageService, useValue: mockRoadmapStorage },
+        { provide: RoadmapDataService, useValue: mockRoadmapStorage },
         {
           provide: UserLanguageService,
           useValue: { getLanguage: jest.fn().mockResolvedValue("en") },

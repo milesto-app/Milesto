@@ -4,7 +4,7 @@ import { Test } from "@nestjs/testing";
 
 import { AiService } from "../ai/ai.service.js";
 import { config } from "../config/app.config.js";
-import { GenerationService } from "./generation.service.js";
+import { RoadmapGenerationService } from "./roadmap-generation.service.js";
 import type { AssembledContext } from "./types/context.types.js";
 import type { GoalData, Milestone } from "./types/roadmap.types.js";
 import type {
@@ -13,8 +13,8 @@ import type {
   WeeklyPlan,
 } from "./types/weekly-plan.types.js";
 
-describe("GenerationService", () => {
-  let service: GenerationService;
+describe("RoadmapGenerationService", () => {
+  let service: RoadmapGenerationService;
   let mockAiService: { generateJson: jest.Mock };
 
   const mockContext: AssembledContext = {
@@ -64,12 +64,12 @@ describe("GenerationService", () => {
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
-        GenerationService,
+        RoadmapGenerationService,
         { provide: AiService, useValue: mockAiService },
       ],
     }).compile();
 
-    service = module.get<GenerationService>(GenerationService);
+    service = module.get<RoadmapGenerationService>(RoadmapGenerationService);
   });
 
   it("should be defined", () => {
