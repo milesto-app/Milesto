@@ -1,27 +1,27 @@
 import { BadRequestException } from "@nestjs/common";
 import type { EventEmitter2 } from "@nestjs/event-emitter";
 
+import type { AiService } from "../ai/ai.service.js";
 import type { UserLanguageService } from "../common/user-language.service.js";
 import type { GoalService } from "../goal/goal.service.js";
 import type { SupabaseService } from "../supabase/supabase.service.js";
 import type { UsageService } from "../usage/usage.service.js";
-import type { IntakeContextService } from "./intake-context.service.js";
+import type { IntakeDataService } from "./intake-data.service.js";
 import { IntakeProfileService } from "./intake-profile.service.js";
-import type { IntakeProfileStoreService } from "./intake-profile-store.service.js";
-import type { IntakePromptService } from "./intake-prompt.service.js";
-import type { IntakeQualityService } from "./intake-quality.service.js";
 
 describe("IntakeProfileService", () => {
   let service: IntakeProfileService;
   let supabaseService: { getAdminClient: jest.Mock };
   let goalService: { findOne: jest.Mock };
-  let promptService: { generateGoalProfile: jest.Mock };
-  let qualityService: { validateGoalProfile: jest.Mock };
-  let contextService: { loadPriorBatchContext: jest.Mock };
+  let aiService: { generateJson: jest.Mock };
+  let dataService: {
+    loadPriorBatchContext: jest.Mock;
+    markProfileFailure: jest.Mock;
+    updateGoalStatus: jest.Mock;
+  };
   let eventEmitter: { emit: jest.Mock };
   let mockSupabase: { from: jest.Mock };
   let languageService: { getLanguage: jest.Mock };
-  let profileStore: { markFailure: jest.Mock; updateGoalStatus: jest.Mock };
 
   const userId = "user-123";
   const goalId = "goal-456";
@@ -29,7 +29,7 @@ describe("IntakeProfileService", () => {
   const mockProfile = {
     current_state: "beginner",
     desired_state: "expert",
-    constraints: ["time"],
+    constraints: "limited time",
     motivation: "career growth",
     domain_context: "software",
     narrative_summary: "A motivated beginner",
@@ -41,18 +41,17 @@ describe("IntakeProfileService", () => {
       getAdminClient: jest.fn().mockReturnValue(mockSupabase),
     };
     goalService = { findOne: jest.fn() };
-    promptService = { generateGoalProfile: jest.fn() };
-    qualityService = { validateGoalProfile: jest.fn() };
-    contextService = { loadPriorBatchContext: jest.fn() };
-    eventEmitter = { emit: jest.fn() };
-    languageService = { getLanguage: jest.fn().mockResolvedValue("en") };
-    profileStore = {
-      markFailure: jest.fn().mockResolvedValue({
+    aiService = { generateJson: jest.fn() };
+    dataService = {
+      loadPriorBatchContext: jest.fn(),
+      markProfileFailure: jest.fn().mockResolvedValue({
         profile_id: null,
         profile_status: "profile_generation_failed",
       }),
       updateGoalStatus: jest.fn().mockResolvedValue(undefined),
     };
+    eventEmitter = { emit: jest.fn() };
+    languageService = { getLanguage: jest.fn().mockResolvedValue("en") };
 
     service = new IntakeProfileService(
       supabaseService as unknown as SupabaseService,
@@ -61,11 +60,9 @@ describe("IntakeProfileService", () => {
     );
 
     Object.assign(service, {
-      promptService: promptService as unknown as IntakePromptService,
-      qualityService: qualityService as unknown as IntakeQualityService,
-      contextService: contextService as unknown as IntakeContextService,
       languageService: languageService as unknown as UserLanguageService,
-      profileStore: profileStore as unknown as IntakeProfileStoreService,
+      aiService: aiService as unknown as AiService,
+      dataService: dataService as unknown as IntakeDataService,
       usageService: {
         reserveGeneration: jest.fn().mockResolvedValue({
           granted: true,
@@ -105,14 +102,9 @@ describe("IntakeProfileService", () => {
 
   describe("generateAndStoreProfile", () => {
     it("should generate and store profile successfully", async () => {
-      contextService.loadPriorBatchContext.mockResolvedValue([]);
-      promptService.generateGoalProfile.mockResolvedValue(mockProfile);
-      qualityService.validateGoalProfile.mockReturnValue({
-        valid: true,
-        errors: [],
-      });
+      dataService.loadPriorBatchContext.mockResolvedValue([]);
+      aiService.generateJson.mockResolvedValue(mockProfile);
 
-      // Mock storeProfile update on the goals table (goal_profiles folded into goals)
       mockSupabase.from.mockReturnValue({
         update: jest.fn().mockReturnValue({
           eq: jest.fn().mockResolvedValue({ error: null }),
@@ -128,7 +120,7 @@ describe("IntakeProfileService", () => {
 
       expect(result.profile_id).toBe(goalId);
       expect(result.profile_status).toBe("intake_completed");
-      expect(profileStore.updateGoalStatus).toHaveBeenCalledWith(
+      expect(dataService.updateGoalStatus).toHaveBeenCalledWith(
         goalId,
         "profile_generating",
       );
@@ -139,10 +131,8 @@ describe("IntakeProfileService", () => {
     });
 
     it("should return failure when AI call fails", async () => {
-      contextService.loadPriorBatchContext.mockResolvedValue([]);
-      promptService.generateGoalProfile.mockRejectedValue(
-        new Error("AI error"),
-      );
+      dataService.loadPriorBatchContext.mockResolvedValue([]);
+      aiService.generateJson.mockRejectedValue(new Error("AI error"));
 
       const result = await service.generateAndStoreProfile({
         userId,
@@ -153,18 +143,15 @@ describe("IntakeProfileService", () => {
 
       expect(result.profile_id).toBeNull();
       expect(result.profile_status).toBe("profile_generation_failed");
-      expect(profileStore.markFailure).toHaveBeenCalledWith(goalId);
+      expect(dataService.markProfileFailure).toHaveBeenCalledWith(goalId);
     });
 
     it("should retry validation and return failure on second validation failure", async () => {
-      contextService.loadPriorBatchContext.mockResolvedValue([]);
-      promptService.generateGoalProfile
-        .mockResolvedValueOnce(mockProfile)
-        .mockResolvedValueOnce(mockProfile);
-      qualityService.validateGoalProfile.mockReturnValue({
-        valid: false,
-        errors: ["bad profile"],
-      });
+      const invalidProfile = { ...mockProfile, narrative_summary: "" };
+      dataService.loadPriorBatchContext.mockResolvedValue([]);
+      aiService.generateJson
+        .mockResolvedValueOnce(invalidProfile)
+        .mockResolvedValueOnce(invalidProfile);
 
       const result = await service.generateAndStoreProfile({
         userId,
@@ -175,7 +162,7 @@ describe("IntakeProfileService", () => {
 
       expect(result.profile_id).toBeNull();
       expect(result.profile_status).toBe("profile_generation_failed");
-      expect(promptService.generateGoalProfile).toHaveBeenCalledTimes(2);
+      expect(aiService.generateJson).toHaveBeenCalledTimes(2);
     });
   });
 });

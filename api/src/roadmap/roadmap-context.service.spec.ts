@@ -4,16 +4,16 @@ import { Test } from "@nestjs/testing";
 
 import { AiService } from "../ai/ai.service.js";
 import { SupabaseService } from "../supabase/supabase.service.js";
-import { ContextPipelineService } from "./context-pipeline.service.js";
 import { RerankService } from "./rerank.service.js";
+import { RoadmapContextService } from "./roadmap-context.service.js";
 import type {
   ContextChunk,
   RankedChunk,
   RerankResult,
 } from "./types/context.types.js";
 
-describe("ContextPipelineService", () => {
-  let service: ContextPipelineService;
+describe("RoadmapContextService", () => {
+  let service: RoadmapContextService;
   let mockAiService: { generateEmbedding: jest.Mock };
   let mockRerankService: { rerank: jest.Mock };
   let mockSupabase: { rpc: jest.Mock; from: jest.Mock };
@@ -136,7 +136,7 @@ describe("ContextPipelineService", () => {
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
-        ContextPipelineService,
+        RoadmapContextService,
         { provide: AiService, useValue: mockAiService },
         {
           provide: SupabaseService,
@@ -146,7 +146,7 @@ describe("ContextPipelineService", () => {
       ],
     }).compile();
 
-    service = module.get<ContextPipelineService>(ContextPipelineService);
+    service = module.get<RoadmapContextService>(RoadmapContextService);
   });
 
   it("should assemble context via full happy path (embed -> HNSW -> rerank -> assemble)", async () => {

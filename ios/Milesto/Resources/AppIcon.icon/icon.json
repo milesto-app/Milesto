@@ -1,41 +1,94 @@
 {
-  "fill": "system-dark",
+  "fill-specializations": [
+    {
+      "value": {
+        "linear-gradient": [
+          "display-p3:0.20000,0.96471,1.00000,1.00000",
+          "srgb:0.00000,0.87843,1.00000,1.00000"
+        ],
+        "orientation": {
+          "start": {
+            "x": 0.5,
+            "y": 0
+          },
+          "stop": {
+            "x": 0.5,
+            "y": 0.7
+          }
+        }
+      }
+    },
+    {
+      "appearance": "dark",
+      "value": {
+        "solid": "display-p3:0.00000,0.00000,0.00000,1.00000"
+      }
+    }
+  ],
   "groups": [
     {
       "blend-mode": "normal",
       "blur-material": null,
       "layers": [
         {
-          "glass": true,
-          "image-name": "border.svg",
-          "name": "border",
+          "fill-specializations": [
+            {
+              "value": {
+                "solid": "display-p3:0.00000,0.00000,0.00000,1.00000"
+              }
+            },
+            {
+              "appearance": "dark",
+              "value": {
+                "linear-gradient": [
+                  "display-p3:0.20000,0.96471,1.00000,1.00000",
+                  "srgb:0.00000,0.87843,1.00000,1.00000"
+                ],
+                "orientation": {
+                  "start": {
+                    "x": 0.5,
+                    "y": 0
+                  },
+                  "stop": {
+                    "x": 0.5,
+                    "y": 0.7
+                  }
+                }
+              }
+            },
+            {
+              "appearance": "tinted",
+              "value": {
+                "solid": "display-p3:0.20000,0.96471,1.00000,1.00000"
+              }
+            }
+          ],
+          "glass-specializations": [
+            {
+              "value": true
+            },
+            {
+              "appearance": "light",
+              "value": false
+            }
+          ],
+          "image-name": "Vector 2.svg",
+          "name": "Vector 2",
           "position": {
-            "scale": 1.81,
-            "translation-in-points": [0, 0]
-          }
-        },
-        {
-          "blend-mode": "normal",
-          "fill": "automatic",
-          "glass": true,
-          "hidden": false,
-          "image-name": "Subtract 2.svg",
-          "name": "Subtract 2",
-          "position": {
-            "scale": 1.81,
-            "translation-in-points": [0, 0]
+            "scale": 1.62,
+            "translation-in-points": [-15, 0]
           }
         }
       ],
       "lighting": "individual",
       "shadow": {
-        "kind": "neutral",
+        "kind": "none",
         "opacity": 0.5
       },
       "specular": true,
       "translucency": {
-        "enabled": true,
-        "value": 0.33
+        "enabled": false,
+        "value": 0.24
       }
     }
   ],

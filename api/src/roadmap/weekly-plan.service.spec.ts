@@ -1,15 +1,16 @@
 import { NotFoundException } from "@nestjs/common";
+import { EventEmitter2 } from "@nestjs/event-emitter";
 import type { TestingModule } from "@nestjs/testing";
 import { Test } from "@nestjs/testing";
 
+import { AiService } from "../ai/ai.service.js";
 import { UserLanguageService } from "../common/user-language.service.js";
+import { SupabaseService } from "../supabase/supabase.service.js";
 import { UsageService } from "../usage/usage.service.js";
-import { ContextPipelineService } from "./context-pipeline.service.js";
-import { GenerationService } from "./generation.service.js";
+import { RoadmapContextService } from "./roadmap-context.service.js";
+import { RoadmapDataService } from "./roadmap-data.service.js";
+import { RoadmapGenerationService } from "./roadmap-generation.service.js";
 import { WeeklyPlanService } from "./weekly-plan.service.js";
-import { WeeklyPlanDataService } from "./weekly-plan-data.service.js";
-import { WeeklyPlanQueryService } from "./weekly-plan-query.service.js";
-import { WeeklyPlanStorageService } from "./weekly-plan-storage.service.js";
 
 describe("WeeklyPlanService", () => {
   let service: WeeklyPlanService;
@@ -32,8 +33,6 @@ describe("WeeklyPlanService", () => {
       autoCompleteExpiredPlans: jest.fn(),
       getLastCompletedPlanWithoutSummary: jest.fn().mockResolvedValue(null),
       calculateWeekNumber: jest.fn().mockResolvedValue(1),
-      formatSummaryForEmbedding: jest.fn(),
-      formatMonthlySummaryForEmbedding: jest.fn(),
       warnFallbackFailed: jest.fn(),
     };
 
@@ -41,25 +40,18 @@ describe("WeeklyPlanService", () => {
       providers: [
         WeeklyPlanService,
         {
-          provide: ContextPipelineService,
+          provide: RoadmapContextService,
           useValue: { assembleContext: jest.fn() },
         },
         {
-          provide: GenerationService,
+          provide: RoadmapGenerationService,
           useValue: { generateWeeklyPlan: jest.fn() },
         },
         {
-          provide: WeeklyPlanDataService,
-          useValue: {
-            generateAndStoreSummary: jest.fn(),
-            generateMonthlySummaryIfNeeded: jest.fn(),
-          },
+          provide: AiService,
+          useValue: { generateJson: jest.fn() },
         },
-        {
-          provide: WeeklyPlanQueryService,
-          useValue: { queryWeekData: jest.fn() },
-        },
-        { provide: WeeklyPlanStorageService, useValue: mockStorage },
+        { provide: RoadmapDataService, useValue: mockStorage },
         {
           provide: UserLanguageService,
           useValue: { getLanguage: jest.fn().mockResolvedValue("en") },
@@ -75,6 +67,11 @@ describe("WeeklyPlanService", () => {
             }),
           },
         },
+        {
+          provide: SupabaseService,
+          useValue: { getAdminClient: jest.fn() },
+        },
+        { provide: EventEmitter2, useValue: { emit: jest.fn() } },
       ],
     }).compile();
 

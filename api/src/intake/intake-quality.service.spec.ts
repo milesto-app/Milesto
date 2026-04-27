@@ -11,26 +11,6 @@ import {
   mockUpdateChain,
 } from "./test-helpers/supabase-mock.js";
 
-const VALID_BATCH = [
-  {
-    question_text: "What is your main challenge?",
-    question_type: "text",
-    config: null,
-    order_in_batch: 1,
-  },
-  {
-    question_text: "How confident are you?",
-    question_type: "scale",
-    config: { min: 1, max: 10, min_label: "Low", max_label: "High" },
-    order_in_batch: 2,
-  },
-  {
-    question_text: "What is your preferred approach?",
-    question_type: "single_choice",
-    config: { options: ["Structured", "Flexible", "Mixed"] },
-    order_in_batch: 3,
-  },
-];
 const PAYLOAD = {
   goal_id: "goal-123",
   batch_id: "batch-456",
@@ -70,25 +50,6 @@ describe("IntakeQualityService", () => {
       ],
     }).compile();
     service = module.get<IntakeQualityService>(IntakeQualityService);
-  });
-
-  describe("validateBatch", () => {
-    it("should return valid for a fully valid batch", () => {
-      expect(service.validateBatch(VALID_BATCH).valid).toBe(true);
-    });
-    it("should return structural layer on structural failure", () => {
-      expect(service.validateBatch(VALID_BATCH.slice(0, 1)).layer).toBe(
-        "structural",
-      );
-    });
-    it("should return semantic layer when structural passes but semantic fails", () => {
-      const batch = [
-        { ...VALID_BATCH[0], question_text: "No question mark" },
-        VALID_BATCH[1],
-        VALID_BATCH[2],
-      ];
-      expect(service.validateBatch(batch).layer).toBe("semantic");
-    });
   });
 
   describe("handleBatchServed", () => {

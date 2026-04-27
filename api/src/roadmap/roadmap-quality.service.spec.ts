@@ -3,10 +3,10 @@ import { Test } from "@nestjs/testing";
 
 import { AiService } from "../ai/ai.service.js";
 import { SupabaseService } from "../supabase/supabase.service.js";
-import { QualityMilestoneService } from "./quality-milestone.service.js";
+import { RoadmapQualityService } from "./roadmap-quality.service.js";
 
-describe("QualityMilestoneService", () => {
-  let service: QualityMilestoneService;
+describe("RoadmapQualityService", () => {
+  let service: RoadmapQualityService;
   let mockAiService: { generateJson: jest.Mock };
   let mockSupabaseService: { getAdminClient: jest.Mock };
 
@@ -16,13 +16,13 @@ describe("QualityMilestoneService", () => {
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
-        QualityMilestoneService,
+        RoadmapQualityService,
         { provide: AiService, useValue: mockAiService },
         { provide: SupabaseService, useValue: mockSupabaseService },
       ],
     }).compile();
 
-    service = module.get<QualityMilestoneService>(QualityMilestoneService);
+    service = module.get<RoadmapQualityService>(RoadmapQualityService);
   });
 
   describe("handleRoadmapGenerated", () => {
@@ -75,9 +75,7 @@ describe("QualityMilestoneService", () => {
         deadline_alignment: 4,
       });
 
-      await service.handleRoadmapGenerated({
-        goalId: "goal-uuid",
-      });
+      await service.handleRoadmapGenerated({ goalId: "goal-uuid" });
 
       expect(mockAiService.generateJson).toHaveBeenCalled();
     });
@@ -97,9 +95,7 @@ describe("QualityMilestoneService", () => {
       });
 
       await expect(
-        service.handleRoadmapGenerated({
-          goalId: "goal-uuid",
-        }),
+        service.handleRoadmapGenerated({ goalId: "goal-uuid" }),
       ).resolves.not.toThrow();
     });
   });

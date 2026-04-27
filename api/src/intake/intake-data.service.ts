@@ -5,14 +5,17 @@ import {
   Logger,
 } from "@nestjs/common";
 
+import type { PriorBatchContext } from "../config/questions.config.js";
+import type { GeneratedQuestion } from "../config/questions.config.js";
 import type { Database, Json } from "../supabase/database.types.js";
 import { SUPABASE_NOT_FOUND } from "../supabase/error-codes.js";
 import { SupabaseService } from "../supabase/supabase.service.js";
-import type { GeneratedQuestion } from "./intake-prompt.service.js";
-import type { AnswerInput } from "./types/intake.types.js";
+import type { AnswerInput, ProfileResult } from "./types/intake.types.js";
 
 type IntakeQuestionUpdate =
   Database["public"]["Tables"]["intake_questions"]["Update"];
+
+const FAILED_STATUS = "profile_generation_failed";
 
 export interface StoreBatchOptions {
   goalId: string;
@@ -35,10 +38,12 @@ export interface QuestionConfig {
 }
 
 @Injectable()
-export class IntakeStoreService {
-  private readonly logger = new Logger(IntakeStoreService.name);
+export class IntakeDataService {
+  private readonly logger = new Logger(IntakeDataService.name);
 
   constructor(private readonly supabaseService: SupabaseService) {}
+
+  // ---------- Batches & questions ----------
 
   public async queryLatestBatch(
     goalId: string,
@@ -169,6 +174,70 @@ export class IntakeStoreService {
     await this.markBatchAnswered(batchId);
   }
 
+  // ---------- Prior batch context (for AI prompt building) ----------
+
+  public async loadPriorBatchContext(
+    goalId: string,
+  ): Promise<PriorBatchContext[]> {
+    const supabase = this.supabaseService.getAdminClient();
+
+    const { data: priorData, error } = await supabase
+      .from("intake_batches")
+      .select(
+        `id, batch_number,
+        intake_questions (
+          id, question_text, question_type, config, order_in_batch,
+          answer_text, answer_numeric, selected_options
+        )`,
+      )
+      .eq("goal_id", goalId)
+      .eq("is_answered", true)
+      .order("batch_number");
+
+    if (error !== null) {
+      this.logger.error(`Failed to load prior batch context: ${error.message}`);
+      return [];
+    }
+
+    return priorData.map((batch: Record<string, unknown>) =>
+      mapBatchToPriorContext(batch),
+    );
+  }
+
+  // ---------- Profile / goal status ----------
+
+  public async markProfileFailure(goalId: string): Promise<ProfileResult> {
+    const client = this.supabaseService.getAdminClient();
+    const { error } = await client
+      .from("goals")
+      .update({ status: FAILED_STATUS, updated_at: new Date().toISOString() })
+      .eq("id", goalId)
+      .is("deleted_at", null);
+    if (error !== null) {
+      this.logger.error(
+        `Failed to update goal ${goalId} to ${FAILED_STATUS}: ${error.message}`,
+      );
+    }
+    return { profile_id: null, profile_status: FAILED_STATUS };
+  }
+
+  public async updateGoalStatus(goalId: string, status: string): Promise<void> {
+    const client = this.supabaseService.getAdminClient();
+    const { error } = await client
+      .from("goals")
+      .update({ status, updated_at: new Date().toISOString() })
+      .eq("id", goalId)
+      .is("deleted_at", null);
+    if (error !== null) {
+      this.logger.error(
+        `Failed to update goal ${goalId} status to ${status}: ${error.message}`,
+      );
+      throw new Error(`Failed to update goal status: ${error.message}`);
+    }
+  }
+
+  // ---------- Private helpers ----------
+
   private async updateAnswer(
     answer: AnswerInput,
     batchId: string,
@@ -233,5 +302,42 @@ export class IntakeStoreService {
       this.logger.error(`Failed to mark batch as answered: ${error.message}`);
       throw new InternalServerErrorException("Failed to update batch status");
     }
+  }
+}
+
+function mapBatchToPriorContext(
+  batch: Record<string, unknown>,
+): PriorBatchContext {
+  const questions = batch.intake_questions as Record<string, unknown>[] | null;
+  return {
+    batch_number: batch.batch_number as number,
+    questions: (questions ?? []).map((q) => ({
+      question_text: q.question_text as string,
+      question_type: q.question_type as string,
+      answer: formatAnswer(q),
+      config: (q.config as Record<string, unknown> | null) ?? null,
+    })),
+  };
+}
+
+function formatNumericAnswer(value: unknown): string {
+  return typeof value === "number" ? String(value) : "[no answer]";
+}
+
+function formatAnswer(question: Record<string, unknown>): string {
+  switch (question.question_type) {
+    case "text": {
+      const text = question.answer_text as string | null | undefined;
+      return typeof text === "string" && text !== "" ? text : "[no answer]";
+    }
+    case "scale":
+      return formatNumericAnswer(question.answer_numeric);
+    case "single_choice":
+    case "multiple_choice": {
+      const options = question.selected_options as string[] | null | undefined;
+      return Array.isArray(options) ? options.join(", ") : "";
+    }
+    default:
+      return "[unknown type]";
   }
 }
