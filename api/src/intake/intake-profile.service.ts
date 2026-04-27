@@ -6,18 +6,21 @@ import {
 } from "@nestjs/common";
 import { EventEmitter2 } from "@nestjs/event-emitter";
 
+import { AiService } from "../ai/ai.service.js";
 import { UserLanguageService } from "../common/user-language.service.js";
 import { config } from "../config/app.config.js";
+import type { GoalProfile } from "../config/questions.config.js";
 import { GoalService } from "../goal/goal.service.js";
 import type { Json } from "../supabase/database.types.js";
 import { SupabaseService } from "../supabase/supabase.service.js";
 import { UsageService } from "../usage/usage.service.js";
 import { GenerationType } from "../usage/usage.types.js";
-import { IntakeContextService } from "./intake-context.service.js";
-import { IntakeProfileStoreService } from "./intake-profile-store.service.js";
-import type { GoalProfile } from "./intake-prompt.service.js";
-import { IntakePromptService } from "./intake-prompt.service.js";
-import { IntakeQualityService } from "./intake-quality.service.js";
+import { IntakeDataService } from "./intake-data.service.js";
+import { validateGoalProfile } from "./intake-validators.js";
+import {
+  buildProfileSystemPrompt,
+  buildProfileUserPrompt,
+} from "./prompts/profile-prompts.js";
 import type {
   ProfileGeneratedEvent,
   ProfileGenParams,
@@ -41,16 +44,10 @@ export class IntakeProfileService {
   private readonly languageService!: UserLanguageService;
 
   @Inject()
-  private readonly promptService!: IntakePromptService;
+  private readonly aiService!: AiService;
 
   @Inject()
-  private readonly qualityService!: IntakeQualityService;
-
-  @Inject()
-  private readonly contextService!: IntakeContextService;
-
-  @Inject()
-  private readonly profileStore!: IntakeProfileStoreService;
+  private readonly dataService!: IntakeDataService;
 
   @Inject()
   private readonly usageService!: UsageService;
@@ -90,11 +87,11 @@ export class IntakeProfileService {
     params: StoreProfileParams,
   ): Promise<ProfileResult> {
     try {
-      await this.profileStore.updateGoalStatus(
+      await this.dataService.updateGoalStatus(
         params.goalId,
         "profile_generating",
       );
-      const priorBatches = await this.contextService.loadPriorBatchContext(
+      const priorBatches = await this.dataService.loadPriorBatchContext(
         params.goalId,
       );
       const genParams: ProfileGenParams = { ...params, priorBatches };
@@ -111,7 +108,7 @@ export class IntakeProfileService {
       this.logger.error(
         `Profile generation failed for goal ${params.goalId}: ${error instanceof Error ? error.message : String(error)}`,
       );
-      return this.profileStore.markFailure(params.goalId);
+      return this.dataService.markProfileFailure(params.goalId);
     }
   }
 
@@ -120,19 +117,15 @@ export class IntakeProfileService {
   ): Promise<GoalProfile | null> {
     let profile: GoalProfile;
     try {
-      profile = await this.promptService.generateGoalProfile(
-        params.goalDescription,
-        params.priorBatches,
-        params.language,
-      );
+      profile = await this.callProfileAi(params);
     } catch (error) {
       this.logger.error(
         `Profile AI call failed for goal ${params.goalId}: ${error instanceof Error ? error.message : String(error)}`,
       );
-      await this.profileStore.markFailure(params.goalId);
+      await this.dataService.markProfileFailure(params.goalId);
       return null;
     }
-    const validation = this.qualityService.validateGoalProfile(profile);
+    const validation = validateGoalProfile(profile);
     if (validation.valid) {
       return profile;
     }
@@ -146,17 +139,13 @@ export class IntakeProfileService {
     params: ProfileGenParams,
   ): Promise<GoalProfile | null> {
     try {
-      const profile = await this.promptService.generateGoalProfile(
-        params.goalDescription,
-        params.priorBatches,
-        params.language,
-      );
-      const validation = this.qualityService.validateGoalProfile(profile);
+      const profile = await this.callProfileAi(params);
+      const validation = validateGoalProfile(profile);
       if (!validation.valid) {
         this.logger.error(
           `Profile validation failed after retry for goal ${params.goalId}: ${validation.errors.join(", ")}`,
         );
-        await this.profileStore.markFailure(params.goalId);
+        await this.dataService.markProfileFailure(params.goalId);
         return null;
       }
       return profile;
@@ -164,9 +153,23 @@ export class IntakeProfileService {
       this.logger.error(
         `Profile retry AI call failed for goal ${params.goalId}: ${error instanceof Error ? error.message : String(error)}`,
       );
-      await this.profileStore.markFailure(params.goalId);
+      await this.dataService.markProfileFailure(params.goalId);
       return null;
     }
+  }
+
+  private async callProfileAi(params: ProfileGenParams): Promise<GoalProfile> {
+    const systemPrompt = buildProfileSystemPrompt(params.language);
+    const userPrompt = buildProfileUserPrompt({
+      goalDescription: params.goalDescription,
+      priorBatches: params.priorBatches,
+    });
+    return this.aiService.generateJson<GoalProfile>(
+      systemPrompt,
+      userPrompt,
+      config.intake.model,
+      "high",
+    );
   }
 
   private async storeProfile(
@@ -187,9 +190,9 @@ export class IntakeProfileService {
       this.logger.error(
         `Failed to store profile for goal ${goalId}: ${error.message}`,
       );
-      return this.profileStore.markFailure(goalId);
+      return this.dataService.markProfileFailure(goalId);
     }
-    await this.profileStore.updateGoalStatus(goalId, "intake_completed");
+    await this.dataService.updateGoalStatus(goalId, "intake_completed");
     this.logger.log(`Profile generated and stored for goal ${goalId}`);
     this.eventEmitter.emit("profile.generated", {
       goal_id: goalId,

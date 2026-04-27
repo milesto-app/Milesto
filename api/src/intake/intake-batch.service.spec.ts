@@ -4,29 +4,24 @@ import type { EventEmitter2 } from "@nestjs/event-emitter";
 import type { UserLanguageService } from "../common/user-language.service.js";
 import type { GoalService } from "../goal/goal.service.js";
 import { IntakeBatchService } from "./intake-batch.service.js";
-import type { IntakeContextService } from "./intake-context.service.js";
+import type { IntakeDataService } from "./intake-data.service.js";
 import type { IntakeGenerationService } from "./intake-generation.service.js";
-import type { IntakePromptService } from "./intake-prompt.service.js";
-import type { IntakeStoreService } from "./intake-store.service.js";
-import type { IntakeTargetDateService } from "./intake-target-date.service.js";
 
 describe("IntakeBatchService", () => {
   let service: IntakeBatchService;
-  let goalService: { findOne: jest.Mock };
-  let storeService: {
+  let goalService: { findOne: jest.Mock; setTargetDate: jest.Mock };
+  let dataService: {
     queryLatestBatch: jest.Mock;
     queryUnansweredBatch: jest.Mock;
     loadBatchQuestions: jest.Mock;
     reServeBatch: jest.Mock;
     persistAnswers: jest.Mock;
     storeGeneratedBatch: jest.Mock;
+    loadPriorBatchContext: jest.Mock;
   };
   let generationService: { generateBatch: jest.Mock };
-  let contextService: { loadPriorBatchContext: jest.Mock };
-  let promptService: { getUniversalBatch: jest.Mock };
   let eventEmitter: { emit: jest.Mock };
   let languageService: { getLanguage: jest.Mock };
-  let targetDateService: { tryExtractTargetDate: jest.Mock };
 
   const userId = "user-123";
   const goalId = "goal-456";
@@ -40,39 +35,30 @@ describe("IntakeBatchService", () => {
   });
 
   beforeEach(() => {
-    goalService = { findOne: jest.fn() };
-    storeService = {
+    goalService = { findOne: jest.fn(), setTargetDate: jest.fn() };
+    dataService = {
       queryLatestBatch: jest.fn(),
       queryUnansweredBatch: jest.fn(),
       loadBatchQuestions: jest.fn(),
       reServeBatch: jest.fn(),
       persistAnswers: jest.fn(),
       storeGeneratedBatch: jest.fn(),
+      loadPriorBatchContext: jest.fn(),
     };
     generationService = { generateBatch: jest.fn() };
-    contextService = { loadPriorBatchContext: jest.fn() };
-    promptService = { getUniversalBatch: jest.fn().mockReturnValue([]) };
     eventEmitter = { emit: jest.fn() };
     languageService = { getLanguage: jest.fn().mockResolvedValue("en") };
-    targetDateService = {
-      tryExtractTargetDate: jest.fn().mockResolvedValue(undefined),
-    };
 
     service = new IntakeBatchService(
       goalService as unknown as GoalService,
-      storeService as unknown as IntakeStoreService,
+      dataService as unknown as IntakeDataService,
       eventEmitter as unknown as EventEmitter2,
     );
 
-    // Property injection
     Object.assign(service, {
       generationService:
         generationService as unknown as IntakeGenerationService,
-      contextService: contextService as unknown as IntakeContextService,
-      promptService: promptService as unknown as IntakePromptService,
       languageService: languageService as unknown as UserLanguageService,
-      targetDateService:
-        targetDateService as unknown as IntakeTargetDateService,
     });
   });
 
@@ -87,19 +73,18 @@ describe("IntakeBatchService", () => {
 
     it("should serve first batch when no batches exist", async () => {
       goalService.findOne.mockResolvedValue(mockGoal());
-      storeService.queryLatestBatch.mockResolvedValue(null);
+      dataService.queryLatestBatch.mockResolvedValue(null);
       const batch = {
         batch_id: "b-1",
         batch_number: 1,
         is_complete: false,
         questions: [],
       };
-      storeService.storeGeneratedBatch.mockResolvedValue(batch);
+      dataService.storeGeneratedBatch.mockResolvedValue(batch);
 
       const result = await service.getNextBatch(userId, goalId);
 
-      expect(promptService.getUniversalBatch).toHaveBeenCalledWith("en");
-      expect(storeService.storeGeneratedBatch).toHaveBeenCalled();
+      expect(dataService.storeGeneratedBatch).toHaveBeenCalled();
       expect(result).toEqual(batch);
       expect(eventEmitter.emit).toHaveBeenCalledWith(
         "batch.served",
@@ -109,7 +94,7 @@ describe("IntakeBatchService", () => {
 
     it("should re-serve unanswered batch", async () => {
       goalService.findOne.mockResolvedValue(mockGoal());
-      storeService.queryLatestBatch.mockResolvedValue({
+      dataService.queryLatestBatch.mockResolvedValue({
         id: "b-1",
         batch_number: 1,
         is_answered: false,
@@ -120,22 +105,22 @@ describe("IntakeBatchService", () => {
         is_complete: false,
         questions: [],
       };
-      storeService.reServeBatch.mockResolvedValue(served);
+      dataService.reServeBatch.mockResolvedValue(served);
 
       const result = await service.getNextBatch(userId, goalId);
 
-      expect(storeService.reServeBatch).toHaveBeenCalled();
+      expect(dataService.reServeBatch).toHaveBeenCalled();
       expect(result).toEqual(served);
     });
 
     it("should generate next batch when latest is answered", async () => {
       goalService.findOne.mockResolvedValue(mockGoal());
-      storeService.queryLatestBatch.mockResolvedValue({
+      dataService.queryLatestBatch.mockResolvedValue({
         id: "b-1",
         batch_number: 1,
         is_answered: true,
       });
-      contextService.loadPriorBatchContext.mockResolvedValue([]);
+      dataService.loadPriorBatchContext.mockResolvedValue([]);
       const questions = [
         {
           question_text: "Q?",
@@ -148,7 +133,7 @@ describe("IntakeBatchService", () => {
         kind: "questions",
         questions,
       });
-      storeService.storeGeneratedBatch.mockResolvedValue({
+      dataService.storeGeneratedBatch.mockResolvedValue({
         batch_id: "b-2",
         batch_number: 2,
         is_complete: false,
@@ -163,12 +148,12 @@ describe("IntakeBatchService", () => {
 
     it("should throw when generation fails", async () => {
       goalService.findOne.mockResolvedValue(mockGoal());
-      storeService.queryLatestBatch.mockResolvedValue({
+      dataService.queryLatestBatch.mockResolvedValue({
         id: "b-1",
         batch_number: 1,
         is_answered: true,
       });
-      contextService.loadPriorBatchContext.mockResolvedValue([]);
+      dataService.loadPriorBatchContext.mockResolvedValue([]);
       generationService.generateBatch.mockRejectedValue(new Error("AI failed"));
 
       await expect(service.getNextBatch(userId, goalId)).rejects.toThrow(
@@ -188,17 +173,16 @@ describe("IntakeBatchService", () => {
 
     it("should persist answers and emit batch.answered event", async () => {
       goalService.findOne.mockResolvedValue(mockGoal());
-      storeService.queryUnansweredBatch.mockResolvedValue({
+      dataService.queryUnansweredBatch.mockResolvedValue({
         id: "b-1",
         batch_number: 1,
       });
-      storeService.loadBatchQuestions.mockResolvedValue([
+      dataService.loadBatchQuestions.mockResolvedValue([
         { id: "q-1", question_type: "text", config: null },
       ]);
-      storeService.persistAnswers.mockResolvedValue(undefined);
+      dataService.persistAnswers.mockResolvedValue(undefined);
 
-      // Mock generation for next batch
-      contextService.loadPriorBatchContext.mockResolvedValue([]);
+      dataService.loadPriorBatchContext.mockResolvedValue([]);
       generationService.generateBatch.mockResolvedValue({
         kind: "complete",
         profileResult: {
@@ -210,7 +194,7 @@ describe("IntakeBatchService", () => {
       const answers = [{ question_id: "q-1", answer_text: "My answer" }];
       await service.submitBatch(userId, goalId, answers);
 
-      expect(storeService.persistAnswers).toHaveBeenCalledWith(answers, "b-1");
+      expect(dataService.persistAnswers).toHaveBeenCalledWith(answers, "b-1");
       expect(eventEmitter.emit).toHaveBeenCalledWith(
         "batch.answered",
         expect.objectContaining({ batch_id: "b-1" }),

@@ -4,16 +4,21 @@ import {
   Logger,
 } from "@nestjs/common";
 
+import { AiService } from "../ai/ai.service.js";
+import { config } from "../config/app.config.js";
+import type {
+  GeneratedQuestion,
+  PriorBatchContext,
+} from "../config/questions.config.js";
 import { UsageService } from "../usage/usage.service.js";
 import { GenerationType } from "../usage/usage.types.js";
 import { MAX_GENERATION_ATTEMPTS } from "./constants/intake.constants.js";
 import { IntakeProfileService } from "./intake-profile.service.js";
-import type {
-  GeneratedQuestion,
-  PriorBatchContext,
-} from "./intake-prompt.service.js";
-import { IntakePromptService } from "./intake-prompt.service.js";
-import { IntakeQualityService } from "./intake-quality.service.js";
+import { validateBatch } from "./intake-validators.js";
+import {
+  buildIntakeBatchSystemPrompt,
+  buildIntakeBatchUserPrompt,
+} from "./prompts/intake-batch-prompts.js";
 import type { ProfileResult } from "./types/intake.types.js";
 
 export type BatchGenerationResult =
@@ -34,8 +39,7 @@ export class IntakeGenerationService {
   private readonly logger = new Logger(IntakeGenerationService.name);
 
   constructor(
-    private readonly promptService: IntakePromptService,
-    private readonly qualityService: IntakeQualityService,
+    private readonly aiService: AiService,
     private readonly profileService: IntakeProfileService,
     private readonly usageService: UsageService,
   ) {}
@@ -53,8 +57,8 @@ export class IntakeGenerationService {
   private async attemptGeneration(
     params: GenerateParams,
   ): Promise<BatchGenerationResult> {
-    const results = await this.runAllAttempts(params);
-    if (results === null) {
+    const result = await this.runAttempt(params, 1);
+    if (result === null) {
       this.logger.error(
         `All ${String(MAX_GENERATION_ATTEMPTS)} generation attempts failed for goal ${params.goalId}`,
       );
@@ -62,13 +66,7 @@ export class IntakeGenerationService {
         "Question generation failed after all retry attempts",
       );
     }
-    return results;
-  }
-
-  private async runAllAttempts(
-    params: GenerateParams,
-  ): Promise<BatchGenerationResult | null> {
-    return this.runAttempt(params, 1);
+    return result;
   }
 
   private async runAttempt(
@@ -98,7 +96,7 @@ export class IntakeGenerationService {
     params: GenerateParams,
     attempt: number,
   ): Promise<BatchGenerationResult | null> {
-    const generated = await this.promptService.generateNextBatch({
+    const generated = await this.generateNextBatch({
       goalDescription: params.goalDescription,
       priorBatches: params.priorBatches,
       batchNumber: params.nextBatchNumber,
@@ -115,13 +113,43 @@ export class IntakeGenerationService {
       return { kind: "complete", profileResult };
     }
 
-    const validation = this.qualityService.validateBatch(generated.questions);
+    const validation = validateBatch(generated.questions);
     if (validation.valid) {
       return { kind: "questions", questions: generated.questions };
     }
 
     this.logValidationFailure(attempt, validation);
     return null;
+  }
+
+  private async generateNextBatch(params: {
+    goalDescription: string;
+    priorBatches: PriorBatchContext[];
+    batchNumber: number;
+    language: string;
+  }): Promise<{ questions: GeneratedQuestion[]; is_complete: boolean }> {
+    if (params.batchNumber >= config.intake.maxBatches) {
+      return { questions: [], is_complete: true };
+    }
+
+    const systemPrompt = buildIntakeBatchSystemPrompt({
+      batchNumber: params.batchNumber,
+      questionsPerBatchMin: config.intake.questionsPerBatch.min,
+      questionsPerBatchMax: config.intake.questionsPerBatch.max,
+      maxBatches: config.intake.maxBatches,
+      language: params.language,
+    });
+    const userPrompt = buildIntakeBatchUserPrompt({
+      goalDescription: params.goalDescription,
+      priorBatches: params.priorBatches,
+      batchNumber: params.batchNumber,
+      maxBatches: config.intake.maxBatches,
+    });
+
+    return this.aiService.generateJson<{
+      questions: GeneratedQuestion[];
+      is_complete: boolean;
+    }>(systemPrompt, userPrompt, config.intake.model);
   }
 
   private logValidationFailure(
