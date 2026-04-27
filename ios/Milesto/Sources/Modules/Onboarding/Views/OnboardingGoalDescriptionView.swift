@@ -24,11 +24,11 @@ struct OnboardingGoalDescriptionView: View {
 
             ZStack(alignment: .topLeading) {
                 RoundedRectangle(cornerRadius: 12)
-                    .fill(Color("BgSurface"))
+                    .fill(Color("BackgroundElevated"))
 
                 RoundedRectangle(cornerRadius: 12)
                     .stroke(
-                        isFocused ? Color("TintPrimary") : Color("TextSecondary").opacity(0.2),
+                        isFocused ? Color("Brand") : Color("TextSecondary").opacity(0.2),
                         lineWidth: 2
                     )
 

@@ -29,9 +29,9 @@ struct ChatEmptyState: View {
                     onSelectPrompt(String(localized: String.LocalizationValue(prompt.key), table: "Chat"))
                 } label: {
                     VStack(alignment: .leading, spacing: 12) {
-                        TablerIcons(prompt.icon, size: 24, color: Color("TintPrimary"))
+                        TablerIcons(prompt.icon, size: 24, color: Color("Brand"))
                             .frame(width: 40, height: 40)
-                            .background(Color("TintPrimary").opacity(0.1), in: .circle)
+                            .background(Color("Brand").opacity(0.1), in: .circle)
 
                         AppText(LocalizedStringKey(prompt.key), table: "Chat", style: .subheadline)
                             .color(Color("TextPrimary"))

@@ -61,10 +61,10 @@ struct RoadmapPhaseSection: View {
                         if section.isCurrent {
                             AppText("roadmap.phase.currentBadge", table: "Roadmap", style: .caption)
                                 .weight(.semibold)
-                                .color(Color("TextOnAccent"))
+                                .color(Color("TextOnBrand"))
                                 .padding(.horizontal, 8)
                                 .padding(.vertical, 3)
-                                .background(Capsule().fill(Color("TintPrimary")))
+                                .background(Capsule().fill(Color("Brand")))
                         }
                     }
 
@@ -79,7 +79,7 @@ struct RoadmapPhaseSection: View {
                     style: .caption
                 )
                 .weight(.semibold)
-                .color(section.isCurrent ? Color("TintPrimary") : Color("TextSecondary"))
+                .color(section.isCurrent ? Color("Brand") : Color("TextSecondary"))
 
                 if hasCollapsedHistory || isExpanded {
                     TablerIcons(isExpanded ? .chevronUp : .chevronDown, size: 18, color: Color("TextSecondary"))

@@ -5,7 +5,7 @@ struct DebriefPromptCard: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
-            TablerIcons(.moonStars, size: 28, color: Color("TintPrimary"))
+            TablerIcons(.moonStars, size: 28, color: Color("Brand"))
 
             AppText("home.debrief.prompt.title", table: "Home", style: .headline)
 

@@ -9,7 +9,7 @@ struct IntakeLoadingView: View {
 
             ProgressView()
                 .controlSize(.large)
-                .tint(Color("TintPrimary"))
+                .tint(Color("Brand"))
 
             AppText(
                 isGeneratingProfile ? "intake.loading.profile" : "intake.loading.questions",

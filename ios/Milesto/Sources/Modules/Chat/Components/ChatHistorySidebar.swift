@@ -112,7 +112,7 @@ struct ChatHistorySidebar: View {
                             onDeleteConversation(conversation.id)
                         } label: {
                             HStack(spacing: 8) {
-                                TablerIcons(.trash, size: 16, color: Color("StatusError"))
+                                TablerIcons(.trash, size: 16, color: Color("Error"))
                                 AppText("chat.history.delete", table: "Chat", style: .body)
                             }
                         }

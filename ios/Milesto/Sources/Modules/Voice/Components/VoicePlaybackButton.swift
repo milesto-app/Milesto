@@ -15,11 +15,11 @@ struct VoicePlaybackButton: View {
                 if isLoading {
                     ProgressView()
                         .controlSize(.small)
-                        .tint(Color("TintPrimary"))
+                        .tint(Color("Brand"))
                 } else if player.isPlaying {
-                    TablerIcons(.playerStop, size: 18, color: Color("TintPrimary"))
+                    TablerIcons(.playerStop, size: 18, color: Color("Brand"))
                 } else {
-                    TablerIcons(.volume, size: 18, color: Color("TintPrimary"))
+                    TablerIcons(.volume, size: 18, color: Color("Brand"))
                 }
             }
             .frame(width: 32, height: 32)

@@ -46,9 +46,9 @@ struct ThinkingIndicator: View {
     private var shimmerMask: some View {
         LinearGradient(
             colors: [
-                Color("TextOnAccent").opacity(0.5),
-                Color("TextOnAccent"),
-                Color("TextOnAccent").opacity(0.5),
+                Color("TextOnBrand").opacity(0.5),
+                Color("TextOnBrand"),
+                Color("TextOnBrand").opacity(0.5),
             ],
             startPoint: UnitPoint(x: shimmerOffset - 0.3, y: 0.5),
             endPoint: UnitPoint(x: shimmerOffset + 0.3, y: 0.5)

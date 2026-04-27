@@ -57,7 +57,7 @@ struct OnboardingMotivationView: View {
                     Color("TextPrimary").opacity(0.3)
                         .ignoresSafeArea()
                     ProgressView()
-                        .tint(Color("TintPrimary"))
+                        .tint(Color("Brand"))
                 }
             }
         }

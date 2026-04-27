@@ -31,8 +31,8 @@ Available styles: `.largeTitle`, `.title`, `.headline`, `.body`, `.subheadline`,
 ```swift
 // Use this:
 TablerIcon(.home, size: 24)
-TablerIcon(.check, size: 20, color: Color("AccentColor"))
-TablerIcon.filled(.heart, size: 24, color: Color("StatusError"))
+TablerIcon(.check, size: 20, color: Color("Brand"))
+TablerIcon.filled(.heart, size: 24, color: Color("Error"))
 
 // NOT this:
 Image(systemName: "house.fill")
@@ -62,14 +62,14 @@ AppButton("Label", table: "Common", action: doSomething)
 
 ```swift
 // Use this:
-.foregroundStyle(Color("AccentColor"))
+.foregroundStyle(Color("Brand"))
 .cornerRadius(12)
 
 // NOT this:
 .foregroundStyle(.orange)
 ```
 
-Available color assets: `AccentColor`, `AccentAmber`, `BgPrimary`, `BgSurface`, `StatusDisabled`, `StatusError`, `StatusSuccess`, `TextOnAccent`, `TextPrimary`, `TextSecondary`, `TintPrimary`
+Available color assets: `BackgroundBase`, `BackgroundElevated`, `Brand`, `Error`, `Success`, `TextOnBrand`, `TextPrimary`, `TextSecondary`, `Warning`
 
 ## Localization
 

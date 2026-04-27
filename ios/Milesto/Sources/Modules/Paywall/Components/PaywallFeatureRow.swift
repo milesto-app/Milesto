@@ -8,9 +8,9 @@ struct PaywallFeatureRow: View {
         HStack(spacing: 14) {
             ZStack {
                 Circle()
-                    .fill(Color("TintPrimary").opacity(0.12))
+                    .fill(Color("Brand").opacity(0.12))
                     .frame(width: 36, height: 36)
-                TablerIcons(icon, size: 18, color: Color("TintPrimary"))
+                TablerIcons(icon, size: 18, color: Color("Brand"))
             }
 
             AppText(labelKey, table: "Paywall", style: .body)
@@ -18,7 +18,7 @@ struct PaywallFeatureRow: View {
 
             Spacer(minLength: 0)
 
-            TablerIcons(.check, size: 18, color: Color("TintPrimary"))
+            TablerIcons(.check, size: 18, color: Color("Brand"))
                 .opacity(0.7)
         }
         .frame(maxWidth: .infinity, alignment: .leading)

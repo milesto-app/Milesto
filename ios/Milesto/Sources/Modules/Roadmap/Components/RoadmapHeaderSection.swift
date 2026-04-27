@@ -43,14 +43,14 @@ struct RoadmapHeaderSection: View {
                     .stroke(Color("TextSecondary").opacity(0.15), lineWidth: 4)
                 Circle()
                     .trim(from: 0, to: completionProgress)
-                    .stroke(Color("TintPrimary"), style: StrokeStyle(lineWidth: 4, lineCap: .round))
+                    .stroke(Color("Brand"), style: StrokeStyle(lineWidth: 4, lineCap: .round))
                     .rotationEffect(.degrees(-90))
                 AppText(
                     verbatim: "\(Int(completionProgress * 100))%",
                     style: .caption
                 )
                 .weight(.semibold)
-                .color(Color("TintPrimary"))
+                .color(Color("Brand"))
             }
             .frame(width: 44, height: 44)
         }

@@ -17,7 +17,7 @@ struct StatsProgressRing: View {
 
                 Circle()
                     .trim(from: 0, to: animatedRate)
-                    .stroke(Color("TintPrimary"), style: StrokeStyle(lineWidth: lineWidth, lineCap: .round))
+                    .stroke(Color("Brand"), style: StrokeStyle(lineWidth: lineWidth, lineCap: .round))
                     .rotationEffect(.degrees(-90))
 
                 AppText(verbatim: "\(Int(animatedRate * 100))%", style: .title)
@@ -30,7 +30,7 @@ struct StatsProgressRing: View {
 
                 VStack(alignment: .leading, spacing: 8) {
                     legendRow(
-                        color: Color("TintPrimary"),
+                        color: Color("Brand"),
                         label: "stats.ring.completed",
                         count: completed
                     )
@@ -59,7 +59,7 @@ struct StatsProgressRing: View {
                 .frame(width: 12, height: 6)
 
             AppText(label, table: "Stats", style: .subheadline)
-                .color(color == Color("TintPrimary") ? Color("TintPrimary") : Color("TextSecondary"))
+                .color(color == Color("Brand") ? Color("Brand") : Color("TextSecondary"))
 
             Spacer()
 

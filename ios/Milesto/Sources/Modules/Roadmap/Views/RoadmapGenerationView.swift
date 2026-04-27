@@ -41,7 +41,7 @@ struct RoadmapGenerationView: View {
         VStack(spacing: 24) {
             Spacer()
 
-            TablerIcons(.sparkles, size: 56, color: Color("TintPrimary"))
+            TablerIcons(.sparkles, size: 56, color: Color("Brand"))
                 .scaleEffect(pulseScale)
                 .onAppear {
                     withAnimation(
@@ -69,7 +69,7 @@ struct RoadmapGenerationView: View {
 
             ProgressView()
                 .controlSize(.large)
-                .tint(Color("TintPrimary"))
+                .tint(Color("Brand"))
                 .padding(.bottom, 40)
         }
         .padding(.horizontal, 24)
@@ -79,7 +79,7 @@ struct RoadmapGenerationView: View {
         VStack(spacing: 24) {
             Spacer()
 
-            TablerIcons(.alertCircle, size: 48, color: Color("StatusError"))
+            TablerIcons(.alertCircle, size: 48, color: Color("Error"))
 
             AppText("roadmap.generation.error.title", table: "Roadmap", style: .title)
                 .alignment(.center)

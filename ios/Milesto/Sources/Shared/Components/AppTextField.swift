@@ -28,18 +28,18 @@ struct AppTextField: View {
 
     private var borderColor: Color {
         if hasError {
-            return Color("StatusError")
+            return Color("Error")
         } else if isFocused {
-            return Color("TintPrimary")
+            return Color("Brand")
         }
         return Color("TextSecondary").opacity(0.2)
     }
 
     private var iconColor: Color {
         if hasError {
-            return Color("StatusError")
+            return Color("Error")
         } else if isFocused {
-            return Color("TintPrimary")
+            return Color("Brand")
         }
         return Color("TextSecondary")
     }
@@ -48,7 +48,7 @@ struct AppTextField: View {
         VStack(alignment: .leading, spacing: 4) {
             ZStack(alignment: multiline ? .topLeading : .leading) {
                 RoundedRectangle(cornerRadius: 12)
-                    .fill(Color("BgSurface"))
+                    .fill(Color("BackgroundElevated"))
                     .frame(height: multiline ? 150 : 56)
                     .overlay(
                         RoundedRectangle(cornerRadius: 12)
@@ -66,7 +66,7 @@ struct AppTextField: View {
                         if let label = label {
                             Text(label, tableName: table)
                                 .font(shouldFloatLabel ? Fonts.ui(size: 12, relativeTo: .caption) : Fonts.ui(size: 17, relativeTo: .body))
-                                .foregroundColor(hasError ? Color("StatusError") : (isFocused ? Color("TintPrimary") : Color("TextSecondary")))
+                                .foregroundColor(hasError ? Color("Error") : (isFocused ? Color("Brand") : Color("TextSecondary")))
                                 .offset(y: shouldFloatLabel ? (multiline ? 0 : -12) : (multiline ? 8 : 0))
                                 .animation(.easeOut(duration: 0.2), value: shouldFloatLabel)
                         }
@@ -118,7 +118,7 @@ struct AppTextField: View {
             if let errorMessage = errorMessage {
                 Text(errorMessage)
                     .font(Fonts.ui(size: 12, relativeTo: .caption))
-                    .foregroundColor(Color("StatusError"))
+                    .foregroundColor(Color("Error"))
                     .padding(.horizontal, 4)
             } else if let helperText = helperText {
                 Text(helperText)

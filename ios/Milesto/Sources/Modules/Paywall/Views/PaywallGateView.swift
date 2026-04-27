@@ -13,7 +13,7 @@ struct PaywallGateView<Content: View>: View {
             switch subscription.entitlementState {
             case .unknown:
                 ZStack {
-                    Color("BgPrimary").ignoresSafeArea()
+                    Color("BackgroundBase").ignoresSafeArea()
                     ProgressView()
                 }
             case .subscribed:
