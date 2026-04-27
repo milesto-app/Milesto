@@ -8,7 +8,7 @@ struct ObjectiveRowView: View {
     private var difficultyColor: Color {
         switch task.difficultyRating {
         case .easy:
-            return Color("Brand")
+            return Color("Success")
         case .moderate:
             return Color("Warning")
         case .hard:

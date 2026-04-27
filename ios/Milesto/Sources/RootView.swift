@@ -1,9 +1,8 @@
 import SwiftData
 import SwiftUI
 
-struct ProfileGateView: View {
-    let userId: String
-
+struct RootView: View {
+    @Environment(AuthService.self) private var authService
     @Environment(\.modelContext) private var modelContext
 
     @Query private var localProfiles: [Profile]
@@ -15,10 +14,24 @@ struct ProfileGateView: View {
     @State private var retryId = 0
 
     private var localProfile: Profile? {
-        localProfiles.first { $0.userId == userId }
+        guard case let .authenticated(userId) = authService.authState else { return nil }
+        return localProfiles.first { $0.userId == userId }
     }
 
     var body: some View {
+        Group {
+            switch authService.authState {
+            case .unauthenticated, .error:
+                AuthContainerView()
+            case .authenticating:
+                Color("BackgroundBase").ignoresSafeArea()
+            case let .authenticated(userId):
+                authenticatedBody(userId: userId)
+            }
+        }
+    }
+
+    private func authenticatedBody(userId: String) -> some View {
         Group {
             if gate.goalComplete && gate.roadmapReady {
                 PaywallGateView {
@@ -142,7 +155,7 @@ struct ProfileGateView: View {
                 }
                 .padding(32)
             } else {
-                ProgressView()
+                Color("BackgroundBase").ignoresSafeArea()
             }
         }
         .task(id: retryId) {
@@ -153,7 +166,7 @@ struct ProfileGateView: View {
 }
 
 #Preview {
-    ProfileGateView(userId: "preview-user")
+    RootView()
         .environment(AuthService.shared)
         .modelContainer(for: [Profile.self, Goal.self, LocalRoadmap.self, LocalMilestone.self, LocalWeeklyPlan.self, LocalWeeklyTask.self], inMemory: true)
 }

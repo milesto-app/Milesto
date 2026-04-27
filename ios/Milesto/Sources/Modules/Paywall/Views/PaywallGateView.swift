@@ -12,16 +12,18 @@ struct PaywallGateView<Content: View>: View {
         Group {
             switch subscription.entitlementState {
             case .unknown:
-                ZStack {
-                    Color("BackgroundBase").ignoresSafeArea()
-                    ProgressView()
-                }
+                Color("BackgroundBase").ignoresSafeArea()
             case .subscribed:
                 content()
                     .transition(.opacity)
             case .notSubscribed:
                 PaywallView()
                     .transition(.opacity)
+            case .connectionError:
+                PaywallConnectionErrorView {
+                    await subscription.reconcileWithBackend()
+                }
+                .transition(.opacity)
             }
         }
         .animation(.easeInOut(duration: 0.4), value: subscription.entitlementState)

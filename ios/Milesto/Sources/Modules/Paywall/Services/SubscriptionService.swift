@@ -28,6 +28,7 @@ final class SubscriptionService {
         case unknown
         case subscribed
         case notSubscribed
+        case connectionError
     }
 
     enum PurchaseError: LocalizedError {
@@ -192,8 +193,10 @@ final class SubscriptionService {
             response = try await BackendClient.shared.request(method: "GET", path: "subscription/status")
         } catch {
             subscriptionLogger.debug("reconcile status fetch failed")
-            if entitlementState == .unknown {
-                entitlementState = .notSubscribed
+            if await currentVerifiedEntitlement() != nil {
+                entitlementState = .subscribed
+            } else if entitlementState != .subscribed {
+                entitlementState = .connectionError
             }
             return
         }
@@ -212,6 +215,9 @@ final class SubscriptionService {
                 refetched = try await BackendClient.shared.request(method: "GET", path: "subscription/status")
             } catch {
                 subscriptionLogger.debug("reconcile refetch failed — preserving current entitlement state")
+                if entitlementState != .subscribed {
+                    entitlementState = .connectionError
+                }
                 return
             }
             let refetchedActive = refetched.status == "active" || refetched.status == "grace_period"

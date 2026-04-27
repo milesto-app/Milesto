@@ -46,36 +46,27 @@ struct MilestoApp: App {
 
     var body: some Scene {
         WindowGroup {
-            Group {
-                switch authService.authState {
-                case .authenticating:
-                    ProgressView()
-                case let .authenticated(userId):
-                    ProfileGateView(userId: userId)
-                case .unauthenticated, .error:
-                    AuthContainerView()
-                }
-            }
-            .tint(Color("Brand"))
-            .environment(authService)
-            .onOpenURL { url in
-                Task {
-                    await authService.handleDeepLink(url)
-                }
-            }
-            .task(id: isAuthenticated) {
-                await SubscriptionSyncOutbox.shared.configure(container: sharedModelContainer)
-                guard isAuthenticated else { return }
-                await NotificationService.shared.requestPermissionAndRegister()
-                await SubscriptionService.shared.onAppStart()
-            }
-            .onChange(of: scenePhase) { _, newPhase in
-                if newPhase == .active, isAuthenticated {
+            RootView()
+                .tint(Color("Brand"))
+                .environment(authService)
+                .onOpenURL { url in
                     Task {
-                        await NotificationService.shared.requestPermissionAndRegister()
+                        await authService.handleDeepLink(url)
                     }
                 }
-            }
+                .task(id: isAuthenticated) {
+                    await SubscriptionSyncOutbox.shared.configure(container: sharedModelContainer)
+                    guard isAuthenticated else { return }
+                    await NotificationService.shared.requestPermissionAndRegister()
+                    await SubscriptionService.shared.onAppStart()
+                }
+                .onChange(of: scenePhase) { _, newPhase in
+                    if newPhase == .active, isAuthenticated {
+                        Task {
+                            await NotificationService.shared.requestPermissionAndRegister()
+                        }
+                    }
+                }
         }
         .modelContainer(sharedModelContainer)
     }
