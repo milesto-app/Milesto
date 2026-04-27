@@ -1,6 +1,4 @@
-# CLAUDE.md
-
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+# Agents context
 
 ## Project Overview
 
@@ -11,8 +9,6 @@ Milesto is an AI-powered personal coaching API built with NestJS + TypeScript. I
 ```bash
 bun run build              # Compile (nest build)
 bun run lint               # ESLint with auto-fix (Prettier runs from repo root)
-bun run test               # All unit tests (Jest)
-bun run test:e2e           # End-to-end tests
 bun run eval               # Build + run evaluation suite
 ```
 
@@ -67,12 +63,3 @@ bun run eval               # Build + run evaluation suite
 - **DTOs**: use `class-validator` decorators, `!` assertion on required fields, `?` on optional.
 - Guards/interceptors live in `common/`.
 - All endpoints documented with `@ApiOperation` and `@ApiResponse`.
-
-## Testing
-
-- Colocated `*.spec.ts` files next to the source.
-- `describe` block matches the class name.
-- One assertion per `it` block (or closely related assertions).
-- Use `beforeEach` for test module setup, not `beforeAll`.
-- Name tests: `should <expected behavior> when <condition>`.
-- Mock all external dependencies (Supabase, AI, HTTP).
