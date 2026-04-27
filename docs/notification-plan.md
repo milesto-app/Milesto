@@ -6,11 +6,11 @@
 
 **Current state** (verified via exploration):
 
-- **APNs transport works end-to-end.** `backend/src/notifications/notifications.service.ts` handles JWT (ES256), HTTP/2, fan-out, batching (100/user), 410 cleanup. `device_tokens` table exists.
+- **APNs transport works end-to-end.** `api/src/notifications/notifications.service.ts` handles JWT (ES256), HTTP/2, fan-out, batching (100/user), 410 cleanup. `device_tokens` table exists.
 - **EventEmitter2 is wired.** `roadmap.generated`, `weekly-plan.generated`, `debrief.submitted`, `weekly-tasks.generated`, `summary.generated` emit today. Missing: `task.completed`, `milestone.completed`, `goal.completed`, `weekly-plan.completed`, `coach.reply.ready`.
 - **`@nestjs/schedule` is NOT installed.** No cron anywhere. No dispatcher, no outbox, no scheduler.
 - **iOS:** device-token registration works (`AppDelegate.swift`), but no `UNUserNotificationCenterDelegate`, no service extension, no notification categories, no deep-link routing for pushes, no foreground activity telemetry, no settings UI. Permission prompt fires on auth (needs deferral per §9.4).
-- **DB:** ~18 schema additions needed (7 new tables + columns on `profiles`, `goals`, `milestones`, `weekly_plans`, `weekly_tasks`). Migration convention: `backend/migrations/YYYYMMDD_*.sql`, applied via Supabase MCP `apply_migration`.
+- **DB:** ~18 schema additions needed (7 new tables + columns on `profiles`, `goals`, `milestones`, `weekly_plans`, `weekly_tasks`). Migration convention: `api/migrations/YYYYMMDD_*.sql`, applied via Supabase MCP `apply_migration`.
 
 **Goal**: ship the full design in 21 ordered phases. Each phase lands independent value and unblocks the next.
 
@@ -18,8 +18,8 @@
 
 ## Conventions
 
-- Migrations: one SQL file per phase under `backend/migrations/YYYYMMDD_notif_NN_description.sql`. Apply with `mcp__supabase__apply_migration`. After every DDL: `mcp__supabase__get_advisors` for security + performance lints.
-- Backend modules: new code under `backend/src/notifications/` split into subfolders — `outbox/`, `dispatcher/`, `producers/`, `streaks/`, `activity/`, `experiments/`. Existing `notifications.service.ts` (APNs client) is reused, not rewritten.
+- Migrations: one SQL file per phase under `api/migrations/YYYYMMDD_notif_NN_description.sql`. Apply with `mcp__supabase__apply_migration`. After every DDL: `mcp__supabase__get_advisors` for security + performance lints.
+- Backend modules: new code under `api/src/notifications/` split into subfolders — `outbox/`, `dispatcher/`, `producers/`, `streaks/`, `activity/`, `experiments/`. Existing `notifications.service.ts` (APNs client) is reused, not rewritten.
 - Event names: kebab-case per existing convention (`task.completed`, `milestone.completed`, etc.). **Each event has exactly one emitter** (table below). The emitter inserts the outbox row _inside the same DB transaction_ as the state change — not an `@OnEvent` listener — because `@nestjs/event-emitter` fires synchronously in-process but bypasses the DB transaction, so a listener crash after commit would lose the notification. Listeners are only used for read-only side effects (quality signals, embeddings). Cross-module event listeners (e.g., streaks, winback cancellation) subscribe to events that are emitted _after_ the outbox insert completes.
 
   | Event                   | Single emitter (owner)                                                                                         |
@@ -39,7 +39,7 @@
 
 ## Phase 1 — Schema migrations (core tables + columns)
 
-**Files (new migrations under `backend/migrations/`):**
+**Files (new migrations under `api/migrations/`):**
 
 - `20260420_notif_01_profile_columns.sql`
 - `20260420_notif_02_goal_milestone_task_columns.sql`
@@ -94,13 +94,13 @@
 
 **Backend (new):**
 
-- `backend/src/notifications/activity/activity.service.ts` — `record(userId, kind, occurredAt?)`. Computes `local_hour` via `profiles.timezone` (`AT TIME ZONE` in SQL, or Luxon on the service). Also touches `profiles.last_active_at = greatest(now(), last_active_at)`.
-- `backend/src/notifications/activity/activity.controller.ts` — `POST /api/activity/foreground` (authenticated). Rate-limit to 1/min per user (in-memory Map with TTL — foreground storms).
+- `api/src/notifications/activity/activity.service.ts` — `record(userId, kind, occurredAt?)`. Computes `local_hour` via `profiles.timezone` (`AT TIME ZONE` in SQL, or Luxon on the service). Also touches `profiles.last_active_at = greatest(now(), last_active_at)`.
+- `api/src/notifications/activity/activity.controller.ts` — `POST /api/activity/foreground` (authenticated). Rate-limit to 1/min per user (in-memory Map with TTL — foreground storms).
 
 **Backend (wiring):**
 
-- `backend/src/notifications/notifications.module.ts` — register `ActivityService` & controller.
-- `backend/src/app.module.ts` — already imports `NotificationsModule`; nothing needed beyond re-export.
+- `api/src/notifications/notifications.module.ts` — register `ActivityService` & controller.
+- `api/src/app.module.ts` — already imports `NotificationsModule`; nothing needed beyond re-export.
 
 **Verification:** iOS simulator foreground → row in `user_activity_events` within 500ms; `profiles.last_active_at` advances. Simulate 10 foregrounds in 5 s → ≤2 rows written.
 
@@ -112,7 +112,7 @@
 
 - `POST /api/notifications/delivery/received` → `UPDATE notification_deliveries SET received_at = COALESCE(received_at, now()) WHERE job_id = $1 AND device_token = $2`. Idempotent (re-delivery leaves the original timestamp). If no row matches (old/stale push from before the table existed), returns 200 with a no-op.
 - `POST /api/notifications/delivery/opened` → same pattern on `opened_at`.
-- Both endpoints attached to `NotificationsController` (existing file); DTOs under `backend/src/notifications/dto/`.
+- Both endpoints attached to `NotificationsController` (existing file); DTOs under `api/src/notifications/dto/`.
 
 **iOS (new):**
 
@@ -158,10 +158,10 @@ Touch `profiles.last_active_at` and append to `user_activity_events` at every us
 
 **Files to modify:**
 
-- `backend/src/chat/messages.service.ts` (or wherever user messages insert) → on insert-by-user: `ActivityService.record(userId, 'message_sent')`.
-- `backend/src/roadmap/weekly-task.service.ts` → when `is_completed` toggles true: `ActivityService.record(userId, 'task_completed')` + set `weekly_tasks.completed_at = now()`, and emit `task.completed` event (used by streak eval in phase 13, winback cancellation in phase 16).
-- `backend/src/roadmap/debrief.service.ts:103` → after insert: `ActivityService.record(userId, 'debrief_submitted')`. Also check if the debrief completes the plan (`weekly_plans.status → 'completed'`); if so emit `weekly-plan.completed`.
-- `backend/src/roadmap/roadmap.service.ts` — after roadmap persistence, compute `milestones.target_date` from `goals.target_date` and `target_week`.
+- `api/src/chat/messages.service.ts` (or wherever user messages insert) → on insert-by-user: `ActivityService.record(userId, 'message_sent')`.
+- `api/src/roadmap/weekly-task.service.ts` → when `is_completed` toggles true: `ActivityService.record(userId, 'task_completed')` + set `weekly_tasks.completed_at = now()`, and emit `task.completed` event (used by streak eval in phase 13, winback cancellation in phase 16).
+- `api/src/roadmap/debrief.service.ts:103` → after insert: `ActivityService.record(userId, 'debrief_submitted')`. Also check if the debrief completes the plan (`weekly_plans.status → 'completed'`); if so emit `weekly-plan.completed`.
+- `api/src/roadmap/roadmap.service.ts` — after roadmap persistence, compute `milestones.target_date` from `goals.target_date` and `target_week`.
 
 **Event emissions added here (per user's chosen approach):**
 
@@ -181,16 +181,16 @@ Install `@nestjs/schedule` and set up the first real notification flow.
 
 **Backend (new):**
 
-- `backend/src/notifications/outbox/outbox.service.ts` — `insert(job)` helper with dedup via `ON CONFLICT (dedup_key) DO NOTHING`. `cancel(filter)` for superseding. `markSkipped(id, reason)`, `markSent(id)`, `markFailed(id, error)`.
-- `backend/src/notifications/dispatcher/dispatcher.service.ts` — cron every 1 min. Calls the thin pg function `claim_notification_jobs(worker_id, batch_size)` which ONLY does the atomic claim. Two-phase send logic (Phase A P0/P1, Phase B P2/P3 grouping + winner selection, global ceiling, gate checks) lives in TypeScript.
-- `backend/src/notifications/dispatcher/predicates.ts` — per-kind predicate functions called both at enqueue and at dispatch (re-check, §3.3).
-- `backend/src/notifications/dispatcher/orphan-recovery.service.ts` — cron every 2 min; `UPDATE notification_jobs SET status='pending' WHERE status='claimed' AND claimed_at < now() - interval '5 min'`.
-- `backend/src/notifications/producers/coach-reply.producer.ts` — inserts `coach_reply_ready` job _in the same transaction_ as the assistant-message insert in `chat/messages.service.ts` (via pg RPC `persist_assistant_message_tx`), not via `@OnEvent`. Event is still emitted post-commit for read-only listeners (embeddings, etc.).
+- `api/src/notifications/outbox/outbox.service.ts` — `insert(job)` helper with dedup via `ON CONFLICT (dedup_key) DO NOTHING`. `cancel(filter)` for superseding. `markSkipped(id, reason)`, `markSent(id)`, `markFailed(id, error)`.
+- `api/src/notifications/dispatcher/dispatcher.service.ts` — cron every 1 min. Calls the thin pg function `claim_notification_jobs(worker_id, batch_size)` which ONLY does the atomic claim. Two-phase send logic (Phase A P0/P1, Phase B P2/P3 grouping + winner selection, global ceiling, gate checks) lives in TypeScript.
+- `api/src/notifications/dispatcher/predicates.ts` — per-kind predicate functions called both at enqueue and at dispatch (re-check, §3.3).
+- `api/src/notifications/dispatcher/orphan-recovery.service.ts` — cron every 2 min; `UPDATE notification_jobs SET status='pending' WHERE status='claimed' AND claimed_at < now() - interval '5 min'`.
+- `api/src/notifications/producers/coach-reply.producer.ts` — inserts `coach_reply_ready` job _in the same transaction_ as the assistant-message insert in `chat/messages.service.ts` (via pg RPC `persist_assistant_message_tx`), not via `@OnEvent`. Event is still emitted post-commit for read-only listeners (embeddings, etc.).
 
 **Backend (infra):**
 
 - `bun add @nestjs/schedule`.
-- `backend/src/app.module.ts` — `ScheduleModule.forRoot()`.
+- `api/src/app.module.ts` — `ScheduleModule.forRoot()`.
 - PG function `claim_notification_jobs` via migration `20260421_notif_10_claim_fn.sql`.
 
 **Verification:** user sends chat message → backend persists reply → `coach.reply.ready` fires → row in `notification_jobs` (pending) → within 1 min, row moves to `sent`, iOS receives push. Open APNs sandbox token in Apple's Push Notifications Console to verify payload.
@@ -225,7 +225,7 @@ Highest-leverage opt-in lever; ships before more kinds to avoid wasted pushes to
 
 **Backend:**
 
-- Extend `backend/src/goals/dto/update-goal.dto.ts` (or create) to accept `user_motivation_quote`.
+- Extend `api/src/goals/dto/update-goal.dto.ts` (or create) to accept `user_motivation_quote`.
 
 **Verification:** new user onboards → `SELECT user_motivation_quote FROM goals WHERE user_id = $new`. Quote appears verbatim.
 
@@ -235,7 +235,7 @@ Highest-leverage opt-in lever; ships before more kinds to avoid wasted pushes to
 
 **Backend:**
 
-- `backend/src/notifications/producers/scheduler.service.ts` — cron every 15 min. For each active user, compute next-24h `daily_check_in` if one isn't already pending. Uses persona default hour for v1 (drill 07, standard 19, gentle 20) — STO takes over in phase 11. Inserts with dedup `daily_check_in:<user_id>:<YYYY-MM-DD-local>`.
+- `api/src/notifications/producers/scheduler.service.ts` — cron every 15 min. For each active user, compute next-24h `daily_check_in` if one isn't already pending. Uses persona default hour for v1 (drill 07, standard 19, gentle 20) — STO takes over in phase 11. Inserts with dedup `daily_check_in:<user_id>:<YYYY-MM-DD-local>`.
 - Predicate: active weekly_plan, `incomplete_task_count > 0`, `notif_enabled`, not in quiet hours (phase 10 — for v1 hardcode quiet 22-07).
 - Re-check at dispatch (already in dispatcher skeleton from phase 5).
 
@@ -254,8 +254,8 @@ Highest-leverage evidence-based mechanic; ships before other nudge kinds.
 
 **Backend:**
 
-- `backend/src/notifications/intentions/intentions.controller.ts` — CRUD on `weekly_task_intentions` (auth'd user can only touch own tasks).
-- `backend/src/notifications/producers/intention.producer.ts` — invoked by scheduler. For each captured intention: insert `implementation_intention` job at the if-then local time. Predicate: task still incomplete. **Overrides STO** per design.
+- `api/src/notifications/intentions/intentions.controller.ts` — CRUD on `weekly_task_intentions` (auth'd user can only touch own tasks).
+- `api/src/notifications/producers/intention.producer.ts` — invoked by scheduler. For each captured intention: insert `implementation_intention` job at the if-then local time. Predicate: task still incomplete. **Overrides STO** per design.
 - Dispatcher winner-selection rank (already defined): `implementation_intention` second only to `streak_broken`.
 
 **Verification:** capture an intention for Tuesday 20:00 → at Tuesday 20:00 local, push fires with if-then copy; if task was completed earlier, job skipped with `predicate_invalidated`.
@@ -284,7 +284,7 @@ profiles.notif_preferences = {
 }
 ```
 
-**Central gate function** `isPushAllowed(userId, kind): { allowed, reason }` lives in `backend/src/notifications/gate/gate.service.ts` and is called by BOTH producers (before enqueue) AND dispatcher (before send — re-check for late-breaking pauses). It checks, in order:
+**Central gate function** `isPushAllowed(userId, kind): { allowed, reason }` lives in `api/src/notifications/gate/gate.service.ts` and is called by BOTH producers (before enqueue) AND dispatcher (before send — re-check for late-breaking pauses). It checks, in order:
 
 1. `profiles.notif_enabled = false` → `user_disabled`.
 2. `notif_preferences.global.paused_until > now()` → `global_paused`.
@@ -302,8 +302,8 @@ All phases 10–20 that read "check opt-out" mean "call `gate.service.isPushAllo
 
 **Backend:**
 
-- `backend/src/notifications/sto/sto.service.ts` — `computeActiveHour(userId): number | null`. Implements §6.2.
-- `backend/src/notifications/sto/sto-cron.service.ts` — runs as a consumer of the 15-min local-time scheduler: fires once per user when their local time enters the 02:00–02:14 window. Updates `profiles.sto_active_hour` with whiplash guard: only change if ≥ 2 hours different or stored > 14 days old.
+- `api/src/notifications/sto/sto.service.ts` — `computeActiveHour(userId): number | null`. Implements §6.2.
+- `api/src/notifications/sto/sto-cron.service.ts` — runs as a consumer of the 15-min local-time scheduler: fires once per user when their local time enters the 02:00–02:14 window. Updates `profiles.sto_active_hour` with whiplash guard: only change if ≥ 2 hours different or stored > 14 days old.
 - Scheduler (phase 8) switches from persona-default to `coalesce(sto_active_hour, persona_default_hour)` for `daily_check_in`; `streak_at_risk` uses `max(sto_active_hour, 18)`; `coach_proactive` uses `sto_active_hour`.
 
 **Verification:** backfill 14 days of synthetic `user_activity_events` clustered around 20:00 local → the 15-min local-time scheduler's 02:00-local tick sets `sto_active_hour = 20` → next day's `daily_check_in` fires at 20:00 local.
@@ -325,8 +325,8 @@ All phases 10–20 that read "check opt-out" mean "call `gate.service.isPushAllo
 
 **Backend:**
 
-- `backend/src/notifications/streaks/streaks.service.ts` — `evaluateOnTaskCompleted(userId, goalId, completedAt)` per §5.3. Insert/update `user_streaks` row.
-- `backend/src/notifications/streaks/streaks-nightly.service.ts` — hooked into the per-user local-time scheduler (see cross-cutting). For each user whose local Sunday is ending (23:00–23:59 local), scan for broken streaks where no `task.completed` fired this local week. Insert `streak_broken` jobs for the user's local Monday morning.
+- `api/src/notifications/streaks/streaks.service.ts` — `evaluateOnTaskCompleted(userId, goalId, completedAt)` per §5.3. Insert/update `user_streaks` row.
+- `api/src/notifications/streaks/streaks-nightly.service.ts` — hooked into the per-user local-time scheduler (see cross-cutting). For each user whose local Sunday is ending (23:00–23:59 local), scan for broken streaks where no `task.completed` fired this local week. Insert `streak_broken` jobs for the user's local Monday morning.
 - `@OnEvent('task.completed')` listener calls the streak service. May emit `streak_milestone` at {4, 8, 12, 26, 52} weeks.
 - `streak_at_risk` predicate: `current_weeks ≥ 2`, `last_extended_week < this_week`, tasks remain, `freeze_tokens = 0`. Fires Sunday evening STO slot.
 - Freeze-token auto-replenish: 1/month, cap 2. Nightly cron checks `freezes_last_granted_at` per streak row.
@@ -372,7 +372,7 @@ All phases 10–20 that read "check opt-out" mean "call `gate.service.isPushAllo
 
 **Backend:**
 
-- `backend/src/notifications/winback/winback.service.ts` — runs as a consumer of the 15-min local-time scheduler: fires once per user when their local time enters the 02:00–02:14 window. Detects dormancy: `profiles.last_active_at < now() - persona_threshold_days` and no active sequence.
+- `api/src/notifications/winback/winback.service.ts` — runs as a consumer of the 15-min local-time scheduler: fires once per user when their local time enters the 02:00–02:14 window. Detects dormancy: `profiles.last_active_at < now() - persona_threshold_days` and no active sequence.
 - On dormancy: insert all 5 steps at once with shared `sequence_id`, offset days per persona (§11.1 table). Steps 1–5 have tiers P3/P2/P1/P2/P1 with copy hints in `payload.memory_hooks`.
 - `@OnEvent('task.completed')` and `@OnEvent('user.activity')` → cancel pending `winback_step` rows via `sequence_id` (update to `cancelled`, `skip_reason = 'user_returned'`).
 - Re-entry cooldown: 30 days after cancellation/completion.
@@ -402,7 +402,7 @@ All phases 10–20 that read "check opt-out" mean "call `gate.service.isPushAllo
 
 **Backend:**
 
-- `backend/src/notifications/producers/coach-proactive.producer.ts` — runs as a consumer of the 15-min local-time scheduler: fires once per eligible user when their local time enters the 02:00–02:14 window.
+- `api/src/notifications/producers/coach-proactive.producer.ts` — runs as a consumer of the 15-min local-time scheduler: fires once per eligible user when their local time enters the 02:00–02:14 window.
 - Gating signals: missed day, debrief emotional content (sentiment from existing embeddings), milestone pressure (target_date in 7d + < 50% complete), unusually high task difficulty.
 - Calls OpenRouter LLM with coach persona + memory hooks to produce one message; stores directly in `payload.teaser` (skip copy-gen re-run).
 - Cap ≤ 2 per user per week (check count of `coach_proactive` sent in last 7 d).
@@ -416,7 +416,7 @@ All phases 10–20 that read "check opt-out" mean "call `gate.service.isPushAllo
 
 **Backend:**
 
-- `backend/src/notifications/fatigue/fatigue.service.ts` — computes per-(user, kind) rolling open rate over last 10 sends. Adjusts per-kind enablement: auto-pause at <5% open, <15% halve frequency, ≥40% allow bonus.
+- `api/src/notifications/fatigue/fatigue.service.ts` — computes per-(user, kind) rolling open rate over last 10 sends. Adjusts per-kind enablement: auto-pause at <5% open, <15% halve frequency, ≥40% allow bonus.
 - Aversion signal: compute rolling `foreground_count_24h_after_send / baseline`. Persist the baseline in `profiles.activity_baseline_per_day` (new small column, add via micro-migration). If ratio < 0.7 for 5 consecutive sends of same kind → auto-pause 21 days.
 - Global fatigue floor: > 10 sends / 7 d → suppress non-P0 for 24 h.
 
@@ -428,7 +428,7 @@ All phases 10–20 that read "check opt-out" mean "call `gate.service.isPushAllo
 
 **Backend:**
 
-- `backend/src/notifications/experiments/experiments.service.ts` — `assignVariant(userId, experimentId): variantLabel` using `hash(user_id || experiment_id)`.
+- `api/src/notifications/experiments/experiments.service.ts` — `assignVariant(userId, experimentId): variantLabel` using `hash(user_id || experiment_id)`.
 - Producers optionally call `assignVariant` and stamp `experiment_id` + `variant` on outbox rows.
 - Metrics job (daily) writes a `notification_experiment_metrics` view/materialized view consumed by the admin dashboard.
 
@@ -468,12 +468,12 @@ All phases 10–20 that read "check opt-out" mean "call `gate.service.isPushAllo
 
 ## Critical files (new or modified)
 
-- `backend/migrations/20260420_notif_01..09_*.sql` — schema (phase 1).
-- `backend/src/notifications/{activity,outbox,dispatcher,producers,streaks,sto,fatigue,experiments,winback}/*` — new submodules (phases 2–20).
-- `backend/src/notifications/notifications.module.ts` — wires all submodules.
-- `backend/src/notifications/notifications.service.ts` — unchanged (APNs transport reuse).
-- `backend/src/roadmap/weekly-task.service.ts`, `backend/src/roadmap/debrief.service.ts`, `backend/src/chat/messages.service.ts` (or equiv), `backend/src/goals/goals.service.ts`, `backend/src/roadmap/roadmap.service.ts` — event emissions (phase 4).
-- `backend/src/app.module.ts` — `ScheduleModule.forRoot()` (phase 5).
+- `api/migrations/20260420_notif_01..09_*.sql` — schema (phase 1).
+- `api/src/notifications/{activity,outbox,dispatcher,producers,streaks,sto,fatigue,experiments,winback}/*` — new submodules (phases 2–20).
+- `api/src/notifications/notifications.module.ts` — wires all submodules.
+- `api/src/notifications/notifications.service.ts` — unchanged (APNs transport reuse).
+- `api/src/roadmap/weekly-task.service.ts`, `api/src/roadmap/debrief.service.ts`, `api/src/chat/messages.service.ts` (or equiv), `api/src/goals/goals.service.ts`, `api/src/roadmap/roadmap.service.ts` — event emissions (phase 4).
+- `api/src/app.module.ts` — `ScheduleModule.forRoot()` (phase 5).
 - `ios/Momentum/Sources/Modules/Notifications/*` — new module (phases 3, 6, 10).
 - `ios/NotificationServiceExtension/*` — new target (phase 3).
 - `ios/Momentum/Sources/App.swift`, `AppDelegate.swift` — delegate wiring (phases 3, 6).
