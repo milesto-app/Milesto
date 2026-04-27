@@ -20,7 +20,7 @@ jobs:
     name: Format
     runs-on: macos-26
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Install SwiftFormat
         run: brew install swiftformat
       - name: Run SwiftFormat (lint mode)
@@ -30,7 +30,7 @@ jobs:
     name: Build
     runs-on: macos-26
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Show Xcode version
         run: xcodebuild -version
       - name: Install xcbeautify
