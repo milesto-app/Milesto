@@ -1,5 +1,4 @@
 import { Injectable, Logger } from "@nestjs/common";
-import { EventEmitter2 } from "@nestjs/event-emitter";
 import type {
   ChatCompletionMessageParam,
   ChatCompletionTool,
@@ -26,8 +25,6 @@ interface AgentLoopOptions {
   tools: ChatCompletionTool[];
   ctx: ToolExecutionContext;
   conversationId: string;
-  userId: string;
-  goalId: string;
   onEvent: (event: ChatStreamEvent) => void;
 }
 
@@ -42,7 +39,6 @@ export class ChatService {
     private readonly prompt: ChatPromptService,
     private readonly toolRegistryService: ChatToolRegistryService,
     private readonly usageService: UsageService,
-    private readonly events: EventEmitter2,
   ) {
     this.toolRegistry = this.toolRegistryService.getRegistry();
   }
@@ -88,8 +84,6 @@ export class ChatService {
       tools,
       ctx: { userId, goalId: dto.goalId },
       conversationId: conversation.id,
-      userId,
-      goalId: dto.goalId,
       onEvent,
     });
     onEvent({ type: "message_end" });
@@ -105,15 +99,8 @@ export class ChatService {
       const { content, toolCalls } = await consumeStream(stream, opts.onEvent);
 
       if (toolCalls.length === 0) {
-        const stored = await this.history.storeMessage(opts.conversationId, {
+        await this.history.storeMessage(opts.conversationId, {
           role: "assistant",
-          content,
-        });
-        this.events.emit("coach.reply.ready", {
-          userId: opts.userId,
-          goalId: opts.goalId,
-          conversationId: opts.conversationId,
-          messageId: stored.id,
           content,
         });
         return;
