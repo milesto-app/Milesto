@@ -2,7 +2,7 @@
 
 
 # =============================================================================
-# deps — install all dependencies (cached via Bun store)
+# deps — install dependencies (cached via Bun store)
 # =============================================================================
 FROM oven/bun:1-alpine AS deps
 
@@ -15,50 +15,42 @@ RUN --mount=type=cache,target=/root/.bun/install/cache \
 
 
 # =============================================================================
-# builder — compile NestJS (dist/)
+# builder — compile Next.js (standalone output)
 # =============================================================================
 FROM oven/bun:1-alpine AS builder
 
 WORKDIR /app
 
 ENV NODE_ENV=production
+ENV NEXT_TELEMETRY_DISABLED=1
 
 COPY --link --from=deps /app/node_modules ./node_modules
 COPY --link . .
 
-RUN bun run build
-
-
-# =============================================================================
-# prod-deps — install production-only dependencies
-# =============================================================================
-FROM oven/bun:1-alpine AS prod-deps
-
-WORKDIR /app
-
-COPY --link package.json bun.lock ./
-
-RUN --mount=type=cache,target=/root/.bun/install/cache \
-    bun install --frozen-lockfile --production
+RUN --mount=type=cache,target=/app/.next/cache \
+    bun run build
 
 
 # =============================================================================
 # runner — minimal production image
 # =============================================================================
-FROM oven/bun:1-alpine AS runner
+FROM node:22-alpine AS runner
 
 WORKDIR /app
 
 ENV NODE_ENV=production
+ENV NEXT_TELEMETRY_DISABLED=1
 ENV PORT=3000
+ENV HOSTNAME=0.0.0.0
 
-COPY --link --from=prod-deps --chown=bun:bun /app/node_modules ./node_modules
-COPY --link --from=builder   --chown=bun:bun /app/dist         ./dist
-COPY --link --from=builder   --chown=bun:bun /app/resources    ./resources
-COPY --link                  --chown=bun:bun package.json      ./
+RUN addgroup --system --gid 1001 nodejs \
+ && adduser  --system --uid 1001 nextjs
 
-USER bun
+COPY --link --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
+COPY --link --from=builder --chown=nextjs:nodejs /app/.next/static    ./.next/static
+
+USER nextjs
 
 EXPOSE 3000
 
-CMD ["bun", "dist/main.js"]
+CMD ["node", "server.js"]
