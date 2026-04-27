@@ -41,21 +41,18 @@ describe("GenerationService", () => {
       title: "Build base endurance",
       description: "Establish a running foundation with 3-4 runs per week",
       expected_outcome: "Able to run 10km comfortably",
-      is_monthly_checkpoint: false,
       order_index: 1,
     },
     {
       title: "Increase mileage",
       description: "Gradually increase weekly mileage to 40km",
       expected_outcome: "Completing 15km long runs",
-      is_monthly_checkpoint: false,
       order_index: 2,
     },
     {
       title: "Half marathon preparation",
       description: "Train for and complete a half marathon distance",
       expected_outcome: "Run 21km under 2 hours",
-      is_monthly_checkpoint: true,
       order_index: 3,
     },
   ];
@@ -110,7 +107,28 @@ describe("GenerationService", () => {
         expect(typeof m.title).toBe("string");
         expect(typeof m.description).toBe("string");
         expect(typeof m.expected_outcome).toBe("string");
+        expect(m.is_monthly_checkpoint).toBe(false);
         expect(typeof m.order_index).toBe("number");
+      });
+    });
+
+    it("should normalize legacy checkpoint flags to false", async () => {
+      mockAiService.generateJson.mockResolvedValue(
+        validMilestoneResponse.map((m, index) => ({
+          ...m,
+          is_monthly_checkpoint: index === 2,
+        })),
+      );
+
+      const result = await service.generateMilestones(
+        mockContext,
+        mockGoal,
+        "en",
+      );
+
+      expect(result.milestones).toHaveLength(3);
+      result.milestones.forEach((m) => {
+        expect(m.is_monthly_checkpoint).toBe(false);
       });
     });
 
@@ -169,6 +187,31 @@ describe("GenerationService", () => {
       const userPrompt = mockAiService.generateJson.mock.calls[0][1] as string;
       expect(userPrompt).toContain("Run a marathon");
       expect(userPrompt).toContain("Complete a full marathon in under 4 hours");
+    });
+
+    it("should request four weekly peer steps per month without checkpoint fields", async () => {
+      mockAiService.generateJson.mockResolvedValue(validMilestoneResponse);
+
+      await service.generateMilestones(mockContext, mockGoal, "en");
+
+      const systemPrompt = mockAiService.generateJson.mock
+        .calls[0][0] as string;
+      const userPrompt = mockAiService.generateJson.mock.calls[0][1] as string;
+
+      expect(systemPrompt).toContain("4 weekly steps");
+      expect(systemPrompt).toContain("peer weekly step");
+      expect(systemPrompt).toContain("specially labeled milestones");
+      expect(systemPrompt).not.toContain("backward planning");
+      expect(systemPrompt).not.toContain("final outcome");
+      expect(systemPrompt).not.toContain("is_monthly_checkpoint");
+      expect(systemPrompt).not.toContain("monthly checkpoint");
+      expect(userPrompt).toContain("4 weekly steps per month");
+      expect(userPrompt).toContain("chronologically from week 1");
+      expect(userPrompt).toContain("peer weekly step");
+      expect(userPrompt).toContain("specially labeled milestones");
+      expect(userPrompt).not.toContain("backward planning");
+      expect(userPrompt).not.toContain("final outcome");
+      expect(userPrompt).not.toContain("is_monthly_checkpoint");
     });
 
     it("should inject profile_data as explicit user constraint variables in prompt", async () => {

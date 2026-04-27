@@ -8,6 +8,7 @@ import { HttpException } from "@nestjs/common";
 
 import { config } from "../config/app.config.js";
 import { SupabaseService } from "../supabase/supabase.service.js";
+import { SubscriptionRequiredException } from "./subscription-required.exception.js";
 import type {
   GenerationType,
   ReservationResult,
@@ -25,6 +26,8 @@ export class UsageService {
     type: GenerationType,
   ): Promise<ReservationResult> {
     const supabase = this.supabaseService.getAdminClient();
+    await this.assertActiveSubscription(userId);
+
     const { data, error } = await supabase.rpc("reserve_generation", {
       p_user_id: userId,
       p_type: type,
@@ -98,6 +101,34 @@ export class UsageService {
       isPro,
       resetsAt: this.getNextResetTime(),
     };
+  }
+
+  private async assertActiveSubscription(userId: string): Promise<void> {
+    const supabase = this.supabaseService.getAdminClient();
+    const { data, error } = await supabase
+      .from("profiles")
+      .select("subscription_status, subscription_expires_at")
+      .eq("id", userId)
+      .maybeSingle();
+
+    if (error) {
+      this.logger.error(
+        `Failed to fetch subscription for usage: ${error.message}`,
+      );
+      throw new InternalServerErrorException("Usage check failed");
+    }
+
+    const status = data?.subscription_status;
+    const expiresAt = data?.subscription_expires_at;
+    const isSubscribed =
+      (status === "active" || status === "grace_period") &&
+      expiresAt !== null &&
+      expiresAt !== undefined &&
+      new Date(expiresAt) > new Date();
+
+    if (!isSubscribed) {
+      throw new SubscriptionRequiredException();
+    }
   }
 
   private getNextResetTime(): string {

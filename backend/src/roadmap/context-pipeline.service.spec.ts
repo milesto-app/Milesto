@@ -232,7 +232,7 @@ describe("ContextPipelineService", () => {
       selected: rankedDuplicates,
       allCandidates: rankedDuplicates,
       rerankApplied: true,
-    } as RerankResult);
+    });
 
     const result = await service.assembleContext(goalId, userId);
 
@@ -280,7 +280,7 @@ describe("ContextPipelineService", () => {
       selected: sqlRanked,
       allCandidates: sqlRanked,
       rerankApplied: true,
-    } as RerankResult);
+    });
 
     const result = await service.assembleContext(goalId, userId);
 
@@ -371,7 +371,7 @@ describe("ContextPipelineService", () => {
       selected: rankedCross,
       allCandidates: rankedCross,
       rerankApplied: true,
-    } as RerankResult);
+    });
 
     const result = await service.assembleContext(goalId, userId);
 
@@ -391,7 +391,7 @@ describe("ContextPipelineService", () => {
       selected: [],
       allCandidates: [],
       rerankApplied: false,
-    } as RerankResult);
+    });
 
     const result = await service.assembleContext(goalId, userId);
 
@@ -420,7 +420,7 @@ describe("ContextPipelineService", () => {
       selected: [],
       allCandidates: [],
       rerankApplied: false,
-    } as RerankResult);
+    });
 
     await service.assembleContext(goalId, userId);
 
@@ -472,7 +472,7 @@ describe("ContextPipelineService", () => {
         selected,
         allCandidates,
         rerankApplied: true,
-      } as RerankResult);
+      });
 
       await service.assembleContext(goalId, userId);
 
@@ -544,7 +544,7 @@ describe("ContextPipelineService", () => {
         allCandidates: chunksNoRerank,
         rerankApplied: false,
         failureReason: "Cohere API error: 503",
-      } as RerankResult);
+      });
 
       await service.assembleContext(goalId, userId);
 
@@ -615,7 +615,7 @@ describe("ContextPipelineService", () => {
         selected: sqlChunks,
         allCandidates: sqlChunks,
         rerankApplied: false,
-      } as RerankResult);
+      });
 
       await service.assembleContext(goalId, userId);
 
@@ -694,7 +694,7 @@ describe("ContextPipelineService", () => {
         selected: sqlChunksWithRerank,
         allCandidates: sqlChunksWithRerank,
         rerankApplied: true,
-      } as RerankResult);
+      });
 
       await service.assembleContext(goalId, userId);
 
@@ -743,7 +743,7 @@ describe("ContextPipelineService", () => {
         selected: mockRankedChunks,
         allCandidates: mockRankedChunks,
         rerankApplied: true,
-      } as RerankResult);
+      });
 
       await service.assembleContext(goalId, userId);
 
@@ -775,7 +775,7 @@ describe("ContextPipelineService", () => {
         selected: singleRanked,
         allCandidates: singleRanked,
         rerankApplied: true,
-      } as RerankResult);
+      });
 
       await service.assembleContext(goalId, userId);
 

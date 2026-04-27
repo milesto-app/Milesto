@@ -11,27 +11,25 @@ const HOURS_PER_DAY = 24;
 const MS_PER_DAY =
   MS_PER_SECOND * SECONDS_PER_MINUTE * MINUTES_PER_HOUR * HOURS_PER_DAY;
 const DAYS_PER_WEEK = 7;
-const WEEKS_PER_MONTH_GROUP = 3;
+const WEEKS_PER_MONTH_GROUP = 4;
 
 export function buildMilestoneSystemPrompt(language: string): string {
-  return `You are a coaching AI that creates personalized weekly milestone roadmaps using backward planning.
+  return `You are a coaching AI that creates personalized weekly milestone roadmaps.
 
-Your task is to generate weekly milestones grouped by month, working backward from the target deadline to the present.
+Your task is to generate weekly milestones grouped by month, progressing chronologically from the user's current state toward the goal.
 
 Rules:
 - Produce a minimum of ${String(MIN_MILESTONES)} milestones (one per week)
-- Group milestones into months of ~${String(WEEKS_PER_MONTH_GROUP)} weeks each
-- The last milestone in each month group must have is_monthly_checkpoint set to true
+- Group milestones into months of ${String(WEEKS_PER_MONTH_GROUP)} weekly steps each
 - Each milestone represents one week of focused work toward the goal
 - Consider the user's effort level, available time, and experience level
 - Milestones should be progressive, building on each other
-- Use backward planning: start from the final outcome and work backward to determine what must be achieved each week
+- Treat every milestone as a peer weekly step; do not create destination, capstone, summary, or otherwise specially labeled milestones
 
 Return a JSON array of objects with these exact fields:
 - "title": A concise milestone title (no prefixes like "Month X Milestone:" — just the topic)
 - "description": Detailed description of what this milestone involves
 - "expected_outcome": What the user should have achieved by this milestone
-- "is_monthly_checkpoint": true if this is the last milestone in its month group, false otherwise
 - "order_index": Sequential index starting from 1
 
 Return ONLY the JSON array, no other text.${buildLanguageBlock(language)}`;
@@ -77,9 +75,9 @@ export function buildMilestoneUserPrompt(
   const constraintSection = buildConstraintSection(goal);
 
   const cappedNote = isCapped
-    ? ` The goal's full deadline is ${String(weeksUntilDeadline)} weeks away, but plan only the first ${String(milestoneCount)} weeks — the coach will extend the roadmap later. Treat milestone ${String(milestoneCount)} as a meaningful one-year checkpoint, not the final outcome.`
+    ? ` The goal's full deadline is ${String(weeksUntilDeadline)} weeks away, but plan only the first ${String(milestoneCount)} weeks; the coach will extend the roadmap later.`
     : "";
-  const requirementsSection = `Generate exactly ${String(milestoneCount)} weekly milestones grouped into ${String(monthCount)} months (~${String(WEEKS_PER_MONTH_GROUP)} weeks per month). Use backward planning from week ${String(milestoneCount)} to week 1. The last milestone in each month group must have is_monthly_checkpoint: true.${cappedNote}`;
+  const requirementsSection = `Generate exactly ${String(milestoneCount)} weekly milestones grouped into ${String(monthCount)} months (${String(WEEKS_PER_MONTH_GROUP)} weekly steps per month where possible). Arrange milestones chronologically from week 1 to week ${String(milestoneCount)}. Do not create monthly summary, checkpoint, destination, capstone, or otherwise specially labeled milestones; every milestone should be a peer weekly step.${cappedNote}`;
 
   return `## Goal
 Title: ${goal.title}

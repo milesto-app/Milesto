@@ -28,9 +28,35 @@ export class DebriefService {
     dto: SubmitDebriefDto,
   ): Promise<Debrief> {
     await this.validateGoalExists(goalId, userId);
+    await this.validateWeeklyPlan(goalId, userId, dto.weekly_plan_id);
     await this.checkDuplicateDebrief(goalId, userId, dto.weekly_plan_id);
     const today = new Date().toISOString().split("T")[0] ?? "";
     return this.insertDebrief(goalId, userId, today, dto);
+  }
+
+  private async validateWeeklyPlan(
+    goalId: string,
+    userId: string,
+    weeklyPlanId: string,
+  ): Promise<void> {
+    const supabase = this.supabaseService.getAdminClient();
+    const { data, error } = await supabase
+      .from("weekly_plans")
+      .select("id")
+      .eq("id", weeklyPlanId)
+      .eq("goal_id", goalId)
+      .eq("user_id", userId)
+      .maybeSingle();
+
+    if (error !== null) {
+      this.logger.error(
+        `Failed to validate weekly plan ${weeklyPlanId}: ${error.message}`,
+      );
+      throw new InternalServerErrorException("Failed to validate weekly plan");
+    }
+    if (data === null) {
+      throw new NotFoundException("Weekly plan not found");
+    }
   }
 
   private async validateGoalExists(
@@ -99,7 +125,11 @@ export class DebriefService {
       this.logger.error(`Failed to store debrief: ${error.message}`);
       throw new InternalServerErrorException("Failed to store debrief");
     }
-    const didCompletePlan = await this.completeWeeklyPlan(dto.weekly_plan_id);
+    const didCompletePlan = await this.completeWeeklyPlan(
+      dto.weekly_plan_id,
+      userId,
+      goalId,
+    );
     this.eventEmitter.emit("debrief.submitted", {
       debriefId: (data as Record<string, unknown>).id,
       goalId,
@@ -129,6 +159,8 @@ export class DebriefService {
       .from("weekly_plans")
       .select("milestone_id")
       .eq("id", weeklyPlanId)
+      .eq("user_id", userId)
+      .eq("goal_id", goalId)
       .maybeSingle();
     if (planErr !== null) {
       this.logger.warn(
@@ -144,6 +176,8 @@ export class DebriefService {
       .from("weekly_plans")
       .select("id", { count: "exact", head: true })
       .eq("milestone_id", plan.milestone_id)
+      .eq("user_id", userId)
+      .eq("goal_id", goalId)
       .neq("status", "completed");
     if (siblingErr !== null) {
       this.logger.warn(
@@ -160,6 +194,7 @@ export class DebriefService {
       .from("milestones")
       .update({ completed_at: completedAt })
       .eq("id", plan.milestone_id)
+      .eq("goal_id", goalId)
       .is("completed_at", null)
       .select("id")
       .maybeSingle();
@@ -184,12 +219,18 @@ export class DebriefService {
     );
   }
 
-  private async completeWeeklyPlan(weeklyPlanId: string): Promise<boolean> {
+  private async completeWeeklyPlan(
+    weeklyPlanId: string,
+    userId: string,
+    goalId: string,
+  ): Promise<boolean> {
     const supabase = this.supabaseService.getAdminClient();
     const { data, error } = await supabase
       .from("weekly_plans")
       .update({ status: "completed" })
       .eq("id", weeklyPlanId)
+      .eq("user_id", userId)
+      .eq("goal_id", goalId)
       .eq("status", "active")
       .select("id");
     if (error) {

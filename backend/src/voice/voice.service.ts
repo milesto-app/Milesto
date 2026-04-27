@@ -46,6 +46,10 @@ export class VoiceService {
     const language =
       requestedLanguage ?? (await this.resolveUserLanguage(userId));
     const voiceId = this.resolveVoiceId(coachId, language);
+    await this.usageService.reserveGeneration(
+      userId,
+      GenerationType.VOICE_SYNTHESIS,
+    );
     this.logger.log(`Synthesizing for coach ${String(coachId)} in ${language}`);
     return this.ttsService.synthesize(text, voiceId);
   }
