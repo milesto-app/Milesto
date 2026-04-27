@@ -9,7 +9,7 @@ Momentum is an AI-powered personal coaching app. Users set one big goal, and the
 The project has three codebases:
 
 - **`ios/`** — SwiftUI iOS app (Swift 6, SwiftData, iOS 26+, Xcode 26+)
-- **`backend/`** — NestJS + TypeScript API (Supabase Postgres, OpenRouter LLM, Cohere reranking)
+- **`api/`** — NestJS + TypeScript API (Supabase Postgres, OpenRouter LLM, Cohere reranking)
 - **`web/`** — Next.js admin dashboard and public pages (App Router, TypeScript, Tailwind v4, shadcn/ui)
 
 All three share a **Supabase** instance for auth, database, and edge functions. A Supabase MCP server is configured for direct database interaction.
@@ -19,7 +19,7 @@ All three share a **Supabase** instance for auth, database, and edge functions. 
 Each sub-project has its own `CLAUDE.md` with detailed conventions, patterns, and rules.
 
 - **Working on `ios/` only** → read `ios/CLAUDE.md`
-- **Working on `backend/` only** → read `backend/CLAUDE.md`
+- **Working on `api/` only** → read `api/CLAUDE.md`
 - **Working on `web/` only** → read `web/CLAUDE.md`
 - **Working on multiple** → read each relevant `CLAUDE.md`
 
@@ -27,7 +27,7 @@ These files are the source of truth for code style, architecture, components, an
 
 ## Root Task Runner
 
-A root `package.json` provides bun-based scripts that orchestrate common tasks across `ios/`, `backend/`, and `web/`. Run `bun run` (no args) to list them. Prefer these over `cd`-ing into sub-projects for setup, dev, build, lint, test, and dependency updates.
+A root `package.json` provides bun-based scripts that orchestrate common tasks across `ios/`, `api/`, and `web/`. Run `bun run` (no args) to list them. Prefer these over `cd`-ing into sub-projects for setup, dev, build, lint, test, and dependency updates.
 
 ## Shared Conventions
 

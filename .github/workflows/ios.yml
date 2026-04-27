@@ -1,0 +1,49 @@
+name: iOS
+
+on:
+  push:
+    branches: [main, dev]
+    paths:
+      - "ios/**"
+      - ".github/workflows/ios.yml"
+  pull_request:
+    paths:
+      - "ios/**"
+      - ".github/workflows/ios.yml"
+
+defaults:
+  run:
+    working-directory: ios
+
+jobs:
+  format:
+    name: Format
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install SwiftFormat
+        run: brew install swiftformat
+      - name: Run SwiftFormat (lint mode)
+        run: swiftformat --lint --quiet --swiftversion 5 --exclude Momentum/Sources/Shared/Components/TablerIcons.swift .
+
+  build:
+    name: Build
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Show Xcode version
+        run: xcodebuild -version
+      - name: Install xcbeautify
+        run: brew install xcbeautify
+      - name: Build
+        shell: bash
+        run: |
+          set -o pipefail
+          xcodebuild build \
+            -project Momentum.xcodeproj \
+            -scheme Momentum \
+            -destination 'generic/platform=iOS Simulator' \
+            -configuration Debug \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            | xcbeautify --renderer github-actions

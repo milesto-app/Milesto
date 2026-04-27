@@ -4,7 +4,7 @@ This document covers configuration required for the Momentum backend to verify A
 
 ## Apple Root CA certificates
 
-`@apple/app-store-server-library` does NOT ship Apple root certificates. Four DER-encoded `.cer` files must be present in the directory referenced by `APPLE_ROOT_CA_DIR` (default: `backend/resources/apple-root-certs/`):
+`@apple/app-store-server-library` does NOT ship Apple root certificates. Four DER-encoded `.cer` files must be present in the directory referenced by `APPLE_ROOT_CA_DIR` (default: `api/resources/apple-root-certs/`):
 
 - `AppleIncRootCertificate.cer` — https://www.apple.com/appleca/AppleIncRootCertificate.cer
 - `AppleRootCA-G2.cer` — https://www.apple.com/certificateauthority/AppleRootCA-G2.cer
@@ -88,9 +88,9 @@ Apple retries on 4xx and 5xx, so returning 200 on known-ignored conditions preve
 
 ## Local development
 
-1. Install deps: `cd backend && bun install`.
+1. Install deps: `cd api && bun install`.
 2. Create `.env` from `.env.example`. Set `APPLE_BUNDLE_ID=app.momentum-ai.auth.mobile` and `APPLE_ENVIRONMENT=Sandbox`.
-3. Ensure `backend/resources/apple-root-certs/` contains the four `.cer` files (already committed).
+3. Ensure `api/resources/apple-root-certs/` contains the four `.cer` files (already committed).
 4. Run `bun run test` to validate the wiring.
 5. To exercise the webhook end-to-end, use Apple Request Test Notification or expose your local server via a tunnel and point Sandbox URL at it.
 
