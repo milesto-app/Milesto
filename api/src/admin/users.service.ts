@@ -115,10 +115,14 @@ export class UsersService {
   public async getUserUsage(userId: string): Promise<AdminUserUsage> {
     const supabase = this.supabaseService.getAdminClient();
 
-    const [totalRes, recentRes] = await Promise.all([
+    const [totalRes, typesRes, recentRes] = await Promise.all([
       supabase
         .from("generation_usage")
         .select("*", { count: "exact", head: true })
+        .eq("user_id", userId),
+      supabase
+        .from("generation_usage")
+        .select("generation_type")
         .eq("user_id", userId),
       supabase
         .from("generation_usage")
@@ -135,6 +139,13 @@ export class UsersService {
       throw new InternalServerErrorException("Failed to load usage");
     }
 
+    if (typesRes.error !== null) {
+      this.logger.error(
+        `Failed to load usage types for ${userId}: ${typesRes.error.message}`,
+      );
+      throw new InternalServerErrorException("Failed to load usage");
+    }
+
     const recent: AdminUserUsageEntry[] = recentRes.data.map((entry) => ({
       id: entry.id,
       generationType: entry.generation_type,
@@ -143,8 +154,8 @@ export class UsersService {
     }));
 
     const byType: Record<string, number> = {};
-    for (const entry of recent) {
-      byType[entry.generationType] = (byType[entry.generationType] ?? 0) + 1;
+    for (const row of typesRes.data) {
+      byType[row.generation_type] = (byType[row.generation_type] ?? 0) + 1;
     }
 
     return {
