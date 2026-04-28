@@ -13,10 +13,10 @@ import {
   ApiTags,
 } from "@nestjs/swagger";
 
+import { AdminGuard } from "../common/guards/admin.guard.js";
 import { AuthGuard } from "../common/guards/auth.guard.js";
 import { DeviceTokensService } from "./device-tokens.service.js";
 import { SendNotificationDto } from "./dto/send-notification.dto.js";
-import { AdminGuard } from "./guards/admin.guard.js";
 import { NotificationsService } from "./notifications.service.js";
 
 @ApiTags("Notifications")
