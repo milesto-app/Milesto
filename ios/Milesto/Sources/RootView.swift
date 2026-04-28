@@ -12,6 +12,9 @@ struct RootView: View {
     @State private var selectedTab = 0
     @State private var isChatPresented = false
     @State private var retryId = 0
+    #if DEBUG
+        @State private var developerSettings = DeveloperSettings.shared
+    #endif
 
     private var localProfile: Profile? {
         guard case let .authenticated(userId) = authService.authState else { return nil }
@@ -29,72 +32,61 @@ struct RootView: View {
                 authenticatedBody(userId: userId)
             }
         }
+        #if DEBUG
+        .clearsDeveloperOverrideOnShake(developerSettings)
+        #endif
     }
 
     private func authenticatedBody(userId: String) -> some View {
         Group {
+            #if DEBUG
+                switch developerSettings.routeOverride {
+                case .profileOnboarding:
+                    ProfileOnboardingView(
+                        userId: userId,
+                        missingSteps: [.name, .birthdate, .coach],
+                        existingProfile: localProfile,
+                        onComplete: {
+                            developerSettings.clearRouteOverride()
+                        }
+                    )
+                    .transition(.opacity)
+                case .goalIntake:
+                    GoalIntakeFlowView(
+                        userId: userId,
+                        existingGoalId: nil,
+                        onClose: {
+                            developerSettings.clearRouteOverride()
+                        },
+                        onComplete: { goalId in
+                            gate.activeGoalId = goalId
+                            developerSettings.clearRouteOverride()
+                        }
+                    )
+                    .transition(.opacity)
+                case .roadmapGeneration:
+                    RoadmapGenerationView(goalId: gate.activeGoalId ?? "") {
+                        developerSettings.clearRouteOverride()
+                    }
+                    .transition(.opacity)
+                case .paywall, .none:
+                    standardAuthenticatedBody(userId: userId)
+                }
+            #else
+                standardAuthenticatedBody(userId: userId)
+            #endif
+        }
+        .task(id: retryId) {
+            guard !gate.hasSynced else { return }
+            await gate.sync(userId: userId, modelContext: modelContext, localProfile: localProfile, localGoals: localGoals)
+        }
+    }
+
+    private func standardAuthenticatedBody(userId: String) -> some View {
+        Group {
             if gate.goalComplete && gate.roadmapReady {
                 PaywallGateView {
-                    TabView(selection: $selectedTab) {
-                        Tab(value: 0) {
-                            HomeView(goalId: gate.activeGoalId ?? "", firstName: localProfile?.firstName ?? "")
-                        } label: {
-                            TablerTabLabel(.home, title: String(localized: "tabs.home", table: "Common"))
-                        }
-
-                        Tab(value: 1) {
-                            RoadmapView(goalId: gate.activeGoalId ?? "", onGoalChanged: { id in
-                                gate.handleGoalChanged(id, localGoals: localGoals)
-                            })
-                        } label: {
-                            TablerTabLabel(.map, title: String(localized: "tabs.roadmap", table: "Common"))
-                        }
-
-                        Tab(value: 2) {
-                            StatsView(goalId: gate.activeGoalId ?? "")
-                        } label: {
-                            TablerTabLabel(.chartBar, title: String(localized: "tabs.stats", table: "Common"))
-                        }
-
-                        Tab(value: 3) {
-                            SettingsView(onNewGoal: { goalId in
-                                gate.activeGoalId = goalId
-                                withAnimation(.easeInOut(duration: 0.4)) {
-                                    gate.goalComplete = true
-                                    gate.roadmapReady = false
-                                }
-                            }, onDeleteGoal: {
-                                gate.activeGoalId = nil
-                                withAnimation(.easeInOut(duration: 0.4)) {
-                                    gate.goalComplete = false
-                                    gate.roadmapReady = false
-                                }
-                            })
-                        } label: {
-                            TablerTabLabel(.settings, title: String(localized: "tabs.settings", table: "Common"))
-                        }
-
-                        Tab(value: 4, role: .search) {
-                            Color.clear
-                        } label: {
-                            TablerTabLabel(.brain, title: String(localized: "tabs.chat", table: "Common"))
-                        }
-                    }
-                    .labelStyle(.titleAndIcon)
-                    .overlay(alignment: .top) {
-                        ProgressiveBlur()
-                    }
-                    .onChange(of: selectedTab) { oldValue, newValue in
-                        if newValue == 4 {
-                            selectedTab = oldValue
-                            isChatPresented = true
-                        }
-                    }
-                    .fullScreenCover(isPresented: $isChatPresented) {
-                        ChatView(goalId: gate.activeGoalId ?? "", onClose: {
-                            isChatPresented = false
-                        })
-                    }
+                    mainAppContent()
                 }
                 .transition(.opacity)
             } else if gate.goalComplete && !gate.roadmapReady {
@@ -158,9 +150,68 @@ struct RootView: View {
                 Color("BackgroundBase").ignoresSafeArea()
             }
         }
-        .task(id: retryId) {
-            guard !gate.hasSynced else { return }
-            await gate.sync(userId: userId, modelContext: modelContext, localProfile: localProfile, localGoals: localGoals)
+    }
+
+    private func mainAppContent() -> some View {
+        TabView(selection: $selectedTab) {
+            Tab(value: 0) {
+                HomeView(goalId: gate.activeGoalId ?? "", firstName: localProfile?.firstName ?? "")
+            } label: {
+                TablerTabLabel(.home, title: String(localized: "tabs.home", table: "Common"))
+            }
+
+            Tab(value: 1) {
+                RoadmapView(goalId: gate.activeGoalId ?? "", onGoalChanged: { id in
+                    gate.handleGoalChanged(id, localGoals: localGoals)
+                })
+            } label: {
+                TablerTabLabel(.map, title: String(localized: "tabs.roadmap", table: "Common"))
+            }
+
+            Tab(value: 2) {
+                StatsView(goalId: gate.activeGoalId ?? "")
+            } label: {
+                TablerTabLabel(.chartBar, title: String(localized: "tabs.stats", table: "Common"))
+            }
+
+            Tab(value: 3) {
+                SettingsView(onNewGoal: { goalId in
+                    gate.activeGoalId = goalId
+                    withAnimation(.easeInOut(duration: 0.4)) {
+                        gate.goalComplete = true
+                        gate.roadmapReady = false
+                    }
+                }, onDeleteGoal: {
+                    gate.activeGoalId = nil
+                    withAnimation(.easeInOut(duration: 0.4)) {
+                        gate.goalComplete = false
+                        gate.roadmapReady = false
+                    }
+                })
+            } label: {
+                TablerTabLabel(.settings, title: String(localized: "tabs.settings", table: "Common"))
+            }
+
+            Tab(value: 4, role: .search) {
+                Color.clear
+            } label: {
+                TablerTabLabel(.brain, title: String(localized: "tabs.chat", table: "Common"))
+            }
+        }
+        .labelStyle(.titleAndIcon)
+        .overlay(alignment: .top) {
+            ProgressiveBlur()
+        }
+        .onChange(of: selectedTab) { oldValue, newValue in
+            if newValue == 4 {
+                selectedTab = oldValue
+                isChatPresented = true
+            }
+        }
+        .fullScreenCover(isPresented: $isChatPresented) {
+            ChatView(goalId: gate.activeGoalId ?? "", onClose: {
+                isChatPresented = false
+            })
         }
     }
 }

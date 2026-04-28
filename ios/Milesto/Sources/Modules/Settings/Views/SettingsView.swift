@@ -30,6 +30,9 @@ struct SettingsView: View {
     @State private var isSaving = false
     @State private var showError = false
     @State private var errorMessage = ""
+    #if DEBUG
+        @State private var developerSettings = DeveloperSettings.shared
+    #endif
 
     private var localProfile: Profile? {
         localProfiles.first { $0.userId == authService.currentUserId }
@@ -59,6 +62,9 @@ struct SettingsView: View {
                 SettingsDeleteGoalSection(isDeleting: isDeleting) {
                     showDeleteGoalAlert = true
                 }
+                #if DEBUG
+                    SettingsDeveloperSection(developerSettings: developerSettings)
+                #endif
                 SettingsSignOutSection {
                     showSignOutAlert = true
                 }

@@ -239,41 +239,41 @@
         }
       }
     },
-    "paywall.plan.quarterly.period" : {
+    "paywall.plan.annual.period" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "every 3 months"
+            "value" : "€7.50/month, billed annually"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "tous les 3 mois"
+            "value" : "7,50 €/mois, facturé annuellement"
           }
         }
       }
     },
-    "paywall.plan.quarterly.title" : {
+    "paywall.plan.annual.title" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "3 months"
+            "value" : "Annual"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "3 mois"
+            "value" : "Annuel"
           }
         }
       }
     },
-    "paywall.plan.quarterly.trial" : {
+    "paywall.plan.annual.trial" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
@@ -296,13 +296,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "SAVE 25%"
+            "value" : "SAVE 50%"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "-25 %"
+            "value" : "-50 %"
           }
         }
       }
@@ -313,13 +313,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "MILESTO PREMIUM"
+            "value" : "MILESTO PLUS"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "MILESTO PREMIUM"
+            "value" : "MILESTO PLUS"
           }
         }
       }
@@ -358,19 +358,19 @@
         }
       }
     },
-    "paywall.terms.trial.quarterly" : {
+    "paywall.terms.trial.annual" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Free for 7 days, then %@ every 3 months. Cancel anytime."
+            "value" : "Free for 7 days, then %@ per year. Cancel anytime."
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Gratuit pendant 7 jours, puis %@ tous les 3 mois. Annulable à tout moment."
+            "value" : "Gratuit pendant 7 jours, puis %@ par an. Annulable à tout moment."
           }
         }
       }
@@ -381,13 +381,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "You've used all your generations for today. Upgrade to Pro for more."
+            "value" : "You've used all your generations for today. Upgrade to Milesto Plus for more."
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Tu as utilisé toutes tes générations pour aujourd'hui. Passe à Pro pour en avoir plus."
+            "value" : "Tu as utilisé toutes tes générations pour aujourd'hui. Passe à Milesto Plus pour en avoir plus."
           }
         }
       }

@@ -3,7 +3,7 @@ import SwiftUI
 
 struct PaywallView: View {
     @State private var subscription = SubscriptionService.shared
-    @State private var selectedProductId: String = SubscriptionService.quarterlyProductId
+    @State private var selectedProductId: String = SubscriptionService.annualProductId
     @State private var heroVisible = false
     @State private var featuresVisible = false
     @State private var plansVisible = false
@@ -17,8 +17,8 @@ struct PaywallView: View {
         subscription.products.first { $0.id == selectedProductId }
     }
 
-    private var isQuarterlySelected: Bool {
-        selectedProductId == SubscriptionService.quarterlyProductId
+    private var isAnnualSelected: Bool {
+        selectedProductId == SubscriptionService.annualProductId
     }
 
     var body: some View {
@@ -113,13 +113,13 @@ struct PaywallView: View {
     private var planSelector: some View {
         HStack(spacing: 12) {
             PaywallPlanCard(
-                titleKey: "paywall.plan.quarterly.title",
-                price: subscription.quarterlyProduct?.displayPrice ?? "—",
-                periodKey: "paywall.plan.quarterly.period",
-                footnoteKey: "paywall.plan.quarterly.trial",
+                titleKey: "paywall.plan.annual.title",
+                price: subscription.annualProduct?.displayPrice ?? "—",
+                periodKey: "paywall.plan.annual.period",
+                footnoteKey: "paywall.plan.annual.trial",
                 badgeKey: "paywall.plan.save",
-                isSelected: selectedProductId == SubscriptionService.quarterlyProductId,
-                onSelect: { selectedProductId = SubscriptionService.quarterlyProductId }
+                isSelected: selectedProductId == SubscriptionService.annualProductId,
+                onSelect: { selectedProductId = SubscriptionService.annualProductId }
             )
 
             PaywallPlanCard(
@@ -137,7 +137,7 @@ struct PaywallView: View {
     private var ctaStack: some View {
         VStack(spacing: 14) {
             PaywallCTAButton(
-                titleKey: isQuarterlySelected ? "paywall.cta.trial" : "paywall.cta.subscribe",
+                titleKey: isAnnualSelected ? "paywall.cta.trial" : "paywall.cta.subscribe",
                 isLoading: subscription.isPurchasing,
                 isDisabled: selectedProduct == nil,
                 action: {
@@ -173,9 +173,9 @@ struct PaywallView: View {
     }
 
     private var termsLine: String {
-        if isQuarterlySelected {
-            guard let price = subscription.quarterlyProduct?.displayPrice else { return "" }
-            return String(format: String(localized: "paywall.terms.trial.quarterly", table: "Paywall"), price)
+        if isAnnualSelected {
+            guard let price = subscription.annualProduct?.displayPrice else { return "" }
+            return String(format: String(localized: "paywall.terms.trial.annual", table: "Paywall"), price)
         } else {
             guard let price = subscription.monthlyProduct?.displayPrice else { return "" }
             return String(format: String(localized: "paywall.terms.monthly", table: "Paywall"), price)

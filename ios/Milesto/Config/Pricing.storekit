@@ -39,11 +39,11 @@
       "localizations" : [
         {
           "description" : "",
-          "displayName" : "Milesto Premium",
+          "displayName" : "Milesto Plus",
           "locale" : "en_US"
         }
       ],
-      "name" : "Milesto Premium",
+      "name" : "Milesto Plus",
       "subscriptions" : [
         {
           "adHocOffers" : [
@@ -52,7 +52,7 @@
           "codeOffers" : [
 
           ],
-          "displayPrice" : "19.99",
+          "displayPrice" : "14.99",
           "familyShareable" : false,
           "groupNumber" : 2,
           "internalID" : "6759965329",
@@ -61,14 +61,19 @@
           ],
           "localizations" : [
             {
-              "description" : "AI coaching, personalized roadmaps, and daily check-ins",
-              "displayName" : "Milesto Premium",
+              "description" : "Accès mensuel complet à ton coach IA, ta roadmap personnalisée, tes plans hebdomadaires, tes tâches quotidiennes, tes bilans de progression et la replanification intelligente.",
+              "displayName" : "Milesto Plus Mensuel",
               "locale" : "fr"
+            },
+            {
+              "description" : "Full monthly access to your AI coach, personalized roadmap, weekly plans, daily tasks, progress insights, and smart replanning.",
+              "displayName" : "Milesto Plus Monthly",
+              "locale" : "en_US"
             }
           ],
-          "productID" : "milesto_monthly",
+          "productID" : "milesto_plus_monthly",
           "recurringSubscriptionPeriod" : "P1M",
-          "referenceName" : "Milesto Monthly",
+          "referenceName" : "Milesto Plus Monthly",
           "subscriptionGroupID" : "21958916",
           "type" : "RecurringSubscription",
           "winbackOffers" : [
@@ -82,7 +87,7 @@
           "codeOffers" : [
 
           ],
-          "displayPrice" : "44.99",
+          "displayPrice" : "89.99",
           "familyShareable" : false,
           "groupNumber" : 1,
           "internalID" : "6762512272",
@@ -91,14 +96,19 @@
           ],
           "localizations" : [
             {
-              "description" : "AI coaching, personalized roadmaps, and daily check-ins",
-              "displayName" : "Milesto Quarterly",
+              "description" : "Accès annuel complet à ton coach IA, ta roadmap personnalisée, tes plans hebdomadaires, tes tâches quotidiennes, tes bilans de progression et la replanification intelligente.",
+              "displayName" : "Milesto Plus Annuel",
               "locale" : "fr"
+            },
+            {
+              "description" : "Full annual access to your AI coach, personalized roadmap, weekly plans, daily tasks, progress insights, and smart replanning.",
+              "displayName" : "Milesto Plus Annual",
+              "locale" : "en_US"
             }
           ],
-          "productID" : "milesto_quarterly",
-          "recurringSubscriptionPeriod" : "P3M",
-          "referenceName" : "Milesto Quarterly",
+          "productID" : "milesto_plus_annual",
+          "recurringSubscriptionPeriod" : "P1Y",
+          "referenceName" : "Milesto Plus Annual",
           "subscriptionGroupID" : "21958916",
           "type" : "RecurringSubscription",
           "winbackOffers" : [

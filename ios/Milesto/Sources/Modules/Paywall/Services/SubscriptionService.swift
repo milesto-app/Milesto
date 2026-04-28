@@ -21,8 +21,10 @@ nonisolated struct SubscriptionStatusResponse: Decodable {
 final class SubscriptionService {
     static let shared = SubscriptionService()
 
-    static let monthlyProductId = "milesto_monthly"
-    static let quarterlyProductId = "milesto_quarterly"
+    static let monthlyProductId = "milesto_plus_monthly"
+    static let annualProductId = "milesto_plus_annual"
+
+    private static let productIds = [annualProductId, monthlyProductId]
 
     enum EntitlementState: Equatable {
         case unknown
@@ -55,8 +57,8 @@ final class SubscriptionService {
         products.first { $0.id == Self.monthlyProductId }
     }
 
-    var quarterlyProduct: Product? {
-        products.first { $0.id == Self.quarterlyProductId }
+    var annualProduct: Product? {
+        products.first { $0.id == Self.annualProductId }
     }
 
     private init() {
@@ -79,8 +81,8 @@ final class SubscriptionService {
 
     func loadProducts() async {
         do {
-            let fetched = try await Product.products(for: [Self.quarterlyProductId, Self.monthlyProductId])
-            products = fetched.sorted { lhs, _ in lhs.id == Self.quarterlyProductId }
+            let fetched = try await Product.products(for: Self.productIds)
+            products = fetched.sorted { lhs, _ in lhs.id == Self.annualProductId }
         } catch {
             products = []
         }
@@ -89,7 +91,7 @@ final class SubscriptionService {
     func refreshEntitlement() async {
         for await result in Transaction.currentEntitlements {
             guard case let .verified(tx) = result else { continue }
-            guard [Self.monthlyProductId, Self.quarterlyProductId].contains(tx.productID) else { continue }
+            guard Self.productIds.contains(tx.productID) else { continue }
             guard tx.revocationDate == nil, !tx.isUpgraded else { continue }
             entitlementState = .subscribed
             return
@@ -178,7 +180,7 @@ final class SubscriptionService {
     private func processUnfinishedTransactions() async {
         for await result in Transaction.unfinished {
             guard case let .verified(tx) = result else { continue }
-            guard [Self.monthlyProductId, Self.quarterlyProductId].contains(tx.productID) else {
+            guard Self.productIds.contains(tx.productID) else {
                 await tx.finish()
                 continue
             }
@@ -231,7 +233,7 @@ final class SubscriptionService {
     private func currentVerifiedEntitlement() async -> (transaction: Transaction, jws: String)? {
         for await result in Transaction.currentEntitlements {
             guard case let .verified(tx) = result else { continue }
-            guard [Self.monthlyProductId, Self.quarterlyProductId].contains(tx.productID) else { continue }
+            guard Self.productIds.contains(tx.productID) else { continue }
             guard tx.revocationDate == nil, !tx.isUpgraded else { continue }
             return (tx, result.jwsRepresentation)
         }
