@@ -1,6 +1,7 @@
 import { Injectable, Logger } from "@nestjs/common";
 
 import { SupabaseService } from "../supabase/supabase.service.js";
+import { PRO_SUBSCRIPTION_STATUSES } from "../usage/subscription-state.js";
 import type {
   ActivityTimelineEntry,
   OverviewStats,
@@ -9,7 +10,6 @@ import type {
 } from "./overview.types.js";
 
 const ACTIVE_GOAL_STATUS = "active";
-const ACTIVE_SUBSCRIPTION_STATUS = "active";
 const UNKNOWN_USER_NAME = "Unknown";
 const TIMELINE_ROW_LIMIT = 50_000;
 const ISO_DATE_LENGTH = 10;
@@ -36,7 +36,7 @@ export class OverviewService {
       supabase
         .from("profiles")
         .select("*", { count: "exact", head: true })
-        .eq("subscription_status", ACTIVE_SUBSCRIPTION_STATUS)
+        .in("subscription_status", PRO_SUBSCRIPTION_STATUSES)
         .gt("subscription_expires_at", nowIso),
       supabase
         .from("generation_usage")
