@@ -4,6 +4,7 @@ import { EventEmitterModule } from "@nestjs/event-emitter";
 import { ScheduleModule } from "@nestjs/schedule";
 import { ThrottlerGuard, ThrottlerModule } from "@nestjs/throttler";
 
+import { AdminModule } from "./admin/admin.module.js";
 import { AiModule } from "./ai/ai.module.js";
 import { ChatModule } from "./chat/chat.module.js";
 import { CoachModule } from "./coach/coach.module.js";
@@ -42,6 +43,7 @@ import { UsageModule } from "./usage/usage.module.js";
     TranscriptionModule,
     ChatModule,
     NotificationsModule,
+    AdminModule,
   ],
   providers: [
     {

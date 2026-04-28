@@ -9,6 +9,7 @@ import { HttpException } from "@nestjs/common";
 import { config } from "../config/app.config.js";
 import { SupabaseService } from "../supabase/supabase.service.js";
 import { SubscriptionRequiredException } from "./subscription-required.exception.js";
+import { isProSubscriptionStatus } from "./subscription-state.js";
 import type {
   GenerationType,
   ReservationResult,
@@ -85,9 +86,8 @@ export class UsageService {
       throw new InternalServerErrorException("Failed to fetch usage");
     }
 
-    const status = profileResult.data.subscription_status;
     const isPro =
-      (status === "active" || status === "grace_period") &&
+      isProSubscriptionStatus(profileResult.data.subscription_status) &&
       profileResult.data.subscription_expires_at !== null &&
       new Date(profileResult.data.subscription_expires_at) > new Date();
 
@@ -118,10 +118,9 @@ export class UsageService {
       throw new InternalServerErrorException("Usage check failed");
     }
 
-    const status = data?.subscription_status;
     const expiresAt = data?.subscription_expires_at;
     const isSubscribed =
-      (status === "active" || status === "grace_period") &&
+      isProSubscriptionStatus(data?.subscription_status) &&
       expiresAt !== null &&
       expiresAt !== undefined &&
       new Date(expiresAt) > new Date();
