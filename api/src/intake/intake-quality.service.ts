@@ -4,20 +4,18 @@ import { OnEvent } from "@nestjs/event-emitter";
 import { AiService } from "../ai/ai.service.js";
 import { config } from "../config/app.config.js";
 import { SupabaseService } from "../supabase/supabase.service.js";
-import {
-  validateGoalProfile,
-  validateSemantic,
-  validateStructural,
-} from "./intake-batch-validator.js";
-import type { QualityScores } from "./intake-quality-scoring.js";
-import {
-  buildQualityUserPrompt,
-  computeComposite,
-} from "./intake-quality-scoring.js";
+import { QUALITY_SCORE_DIMENSIONS } from "./constants/intake.constants.js";
 import { QUALITY_JUDGE_SYSTEM_PROMPT } from "./prompts/intake-quality-prompts.js";
 import type { BatchServedEvent } from "./types/intake.types.js";
 
 const SCORE_DECIMAL_PLACES = 2;
+
+interface QualityScores {
+  relevance: number;
+  depth_progression: number;
+  dimension_coverage: number;
+  redundancy_avoidance: number;
+}
 
 @Injectable()
 export class IntakeQualityService {
@@ -27,35 +25,6 @@ export class IntakeQualityService {
     private readonly aiService: AiService,
     private readonly supabaseService: SupabaseService,
   ) {}
-
-  public validateGoalProfile(profile: unknown): {
-    valid: boolean;
-    errors: string[];
-  } {
-    return validateGoalProfile(profile);
-  }
-
-  public validateBatch(questions: unknown[]): {
-    valid: boolean;
-    errors: string[];
-    layer: "structural" | "semantic";
-  } {
-    const structural = validateStructural(questions);
-    if (!structural.valid) {
-      return { valid: false, errors: structural.errors, layer: "structural" };
-    }
-    const semantic = validateSemantic(
-      questions as Array<{
-        question_text: string;
-        question_type: string;
-        config: Record<string, unknown> | null;
-      }>,
-    );
-    if (!semantic.valid) {
-      return { valid: false, errors: semantic.errors, layer: "semantic" };
-    }
-    return { valid: true, errors: [], layer: "semantic" };
-  }
 
   @OnEvent("batch.served")
   public async handleBatchServed(payload: BatchServedEvent): Promise<void> {
@@ -178,4 +147,43 @@ export class IntakeQualityService {
       );
     }
   }
+}
+
+function buildQualityUserPrompt(params: {
+  questions: Array<{ question_text: string; question_type: string }>;
+  goalDescription: string;
+  batchNumber: number;
+  priorQuestions: Array<{ question_text: string; batch_number: number }>;
+}): string {
+  const { questions, goalDescription, batchNumber, priorQuestions } = params;
+  const currentBatch = questions
+    .map((q, i) => `${String(i + 1)}. [${q.question_type}] ${q.question_text}`)
+    .join("\n");
+
+  const priorSection =
+    priorQuestions.length > 0
+      ? `## Prior Batch Questions\n${priorQuestions.map((q) => `- [Batch ${String(q.batch_number)}] ${q.question_text}`).join("\n")}`
+      : "## Prior Batch Questions\nNone (this is the first batch)";
+
+  return `## Goal Description\n${goalDescription}\n\n## Current Batch (Batch ${String(batchNumber)})\n${currentBatch}\n\n${priorSection}\n\nScore this batch.`;
+}
+
+function computeComposite(
+  scores: QualityScores,
+): QualityScores & { composite: number } {
+  const clamp = (v: number): number => Math.max(0, Math.min(1, v));
+  const relevance = clamp(scores.relevance);
+  const depthProgression = clamp(scores.depth_progression);
+  const dimensionCoverage = clamp(scores.dimension_coverage);
+  const redundancyAvoidance = clamp(scores.redundancy_avoidance);
+  const composite =
+    (relevance + depthProgression + dimensionCoverage + redundancyAvoidance) /
+    QUALITY_SCORE_DIMENSIONS;
+  return {
+    relevance,
+    depth_progression: depthProgression,
+    dimension_coverage: dimensionCoverage,
+    redundancy_avoidance: redundancyAvoidance,
+    composite,
+  };
 }

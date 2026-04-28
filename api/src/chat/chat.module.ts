@@ -1,6 +1,5 @@
 import { Module } from "@nestjs/common";
 
-import { CoachModule } from "../coach/coach.module.js";
 import { RoadmapModule } from "../roadmap/roadmap.module.js";
 import { ChatController } from "./chat.controller.js";
 import { ChatService } from "./chat.service.js";
@@ -13,7 +12,7 @@ import { ChatToolRegistryService } from "./chat-tool-registry.service.js";
 import { ChatToolsService } from "./chat-tools.service.js";
 
 @Module({
-  imports: [CoachModule, RoadmapModule],
+  imports: [RoadmapModule],
   controllers: [ChatController],
   providers: [
     ChatHistoryService,

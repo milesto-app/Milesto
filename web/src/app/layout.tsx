@@ -14,8 +14,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Momentum Admin",
-  description: "Admin dashboard for Momentum",
+  title: "Milesto Admin",
+  description: "Admin dashboard for Milesto",
 };
 
 export default function RootLayout({

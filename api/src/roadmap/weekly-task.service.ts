@@ -9,13 +9,13 @@ import { EventEmitter2 } from "@nestjs/event-emitter";
 import { UserLanguageService } from "../common/user-language.service.js";
 import { UsageService } from "../usage/usage.service.js";
 import { GenerationType } from "../usage/usage.types.js";
-import { ContextPipelineService } from "./context-pipeline.service.js";
-import { GenerationService } from "./generation.service.js";
+import { RoadmapContextService } from "./roadmap-context.service.js";
+import type { UpdateTaskParams } from "./roadmap-data.service.js";
+import { RoadmapDataService } from "./roadmap-data.service.js";
+import { RoadmapGenerationService } from "./roadmap-generation.service.js";
 import type { WeeklyPlan } from "./types/weekly-plan.types.js";
 import type { WeeklyTask } from "./types/weekly-task.types.js";
 import { WeeklyPlanService } from "./weekly-plan.service.js";
-import type { UpdateTaskParams } from "./weekly-task-storage.service.js";
-import { WeeklyTaskStorageService } from "./weekly-task-storage.service.js";
 
 interface GenerateParams {
   weeklyPlan: WeeklyPlan;
@@ -35,9 +35,9 @@ export class WeeklyTaskService {
   private readonly logger = new Logger(WeeklyTaskService.name);
 
   constructor(
-    private readonly contextPipeline: ContextPipelineService,
-    private readonly generation: GenerationService,
-    private readonly storage: WeeklyTaskStorageService,
+    private readonly contextPipeline: RoadmapContextService,
+    private readonly generation: RoadmapGenerationService,
+    private readonly storage: RoadmapDataService,
     private readonly events: EventEmitter2,
     private readonly weeklyPlan: WeeklyPlanService,
     private readonly languageService: UserLanguageService,
@@ -84,16 +84,7 @@ export class WeeklyTaskService {
   public async toggleTaskCompletion(
     params: UpdateTaskParams,
   ): Promise<WeeklyTask> {
-    const { task, didTransition } = await this.storage.updateTask(params);
-    if (didTransition && params.isCompleted) {
-      this.events.emit("task.completed", {
-        userId: params.userId,
-        taskId: task.id,
-        goalId: params.goalId,
-        weeklyPlanId: task.weekly_plan_id,
-        completedAt: task.completed_at,
-      });
-    }
+    const { task } = await this.storage.updateTask(params);
     return task;
   }
 

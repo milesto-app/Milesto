@@ -49,7 +49,7 @@
 }
 
 :root {
-  /* Momentum brand palette */
+  /* Milesto brand palette */
   --background: oklch(0.985 0.005 85);
   --foreground: oklch(0.22 0.02 50);
   --card: oklch(1 0 0);
@@ -133,7 +133,7 @@
 }
 
 /* Prose styling for public pages (privacy policy, etc.) */
-.prose-momentum {
+.prose-milesto {
   h2 {
     font-family: var(--font-fraunces);
     font-size: 1.5rem;

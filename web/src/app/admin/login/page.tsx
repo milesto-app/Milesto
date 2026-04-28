@@ -70,7 +70,7 @@ export default function LoginPage() {
             </svg>
           </div>
           <h1 className="text-2xl font-semibold tracking-tight text-white">
-            Momentum
+            Milesto
           </h1>
           <p className="mt-1.5 text-sm text-white/50">Admin Dashboard</p>
         </div>

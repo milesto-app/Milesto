@@ -26,7 +26,7 @@ export function buildNotificationSystemPrompt(
   const { maxTitleLength, maxBodyLength } = config.notifications;
 
   return `<identity>
-You are ${displayName}, the coach for the Momentum app. You write a single iOS push notification to nudge the user toward their goal right now.
+You are ${displayName}, the coach for the Milesto app. You write a single iOS push notification to nudge the user toward their goal right now.
 </identity>
 
 <personality>

@@ -1,4 +1,11 @@
-import { Controller, Logger, Param, Post, UseGuards } from "@nestjs/common";
+import {
+  Controller,
+  HttpStatus,
+  Logger,
+  Param,
+  Post,
+  UseGuards,
+} from "@nestjs/common";
 import {
   ApiBearerAuth,
   ApiOperation,
@@ -16,15 +23,6 @@ import type { Roadmap } from "./types/roadmap.types.js";
 import type { WeeklyPlan } from "./types/weekly-plan.types.js";
 import { WeeklyPlanService } from "./weekly-plan.service.js";
 
-const API_STATUS_OK = 200;
-const API_STATUS_BAD_REQUEST = 400;
-const API_STATUS_UNAUTHORIZED = 401;
-const API_STATUS_NOT_FOUND = 404;
-const API_STATUS_CONFLICT = 409;
-const API_STATUS_RATE_LIMIT = 429;
-const GENERATE_ROADMAP_LIMIT = 3;
-const GENERATE_WEEKLY_LIMIT = 5;
-
 @ApiTags("roadmap")
 @ApiBearerAuth()
 @Controller("goals/:goalId/roadmap")
@@ -41,25 +39,25 @@ export class RoadmapController {
   @ApiOperation({ summary: "Generate milestone roadmap for a goal" })
   @ApiParam({ name: "goalId", description: "Goal ID" })
   @ApiResponse({
-    status: API_STATUS_OK,
+    status: HttpStatus.OK,
     description: "Roadmap with milestones generated successfully",
   })
   @ApiResponse({
-    status: API_STATUS_BAD_REQUEST,
+    status: HttpStatus.BAD_REQUEST,
     description: "Goal not in valid status or max retries exceeded",
   })
-  @ApiResponse({ status: API_STATUS_UNAUTHORIZED, description: "Unauthorized" })
+  @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: "Unauthorized" })
   @ApiResponse({
-    status: API_STATUS_CONFLICT,
+    status: HttpStatus.CONFLICT,
     description: "Generation already in progress",
   })
   @ApiResponse({
-    status: API_STATUS_RATE_LIMIT,
+    status: HttpStatus.TOO_MANY_REQUESTS,
     description: "Rate limit exceeded",
   })
   @Throttle({
     default: {
-      limit: GENERATE_ROADMAP_LIMIT,
+      limit: config.throttle.roadmapGenerateLimit,
       ttl: config.throttle.aiEndpointTtlMs,
     },
   })
@@ -81,25 +79,25 @@ export class RoadmapController {
   @ApiOperation({ summary: "Explicitly generate a new weekly plan" })
   @ApiParam({ name: "goalId", description: "Goal ID" })
   @ApiResponse({
-    status: API_STATUS_OK,
+    status: HttpStatus.OK,
     description: "Newly generated weekly plan",
   })
   @ApiResponse({
-    status: API_STATUS_BAD_REQUEST,
+    status: HttpStatus.BAD_REQUEST,
     description: "Goal has no active roadmap",
   })
-  @ApiResponse({ status: API_STATUS_UNAUTHORIZED, description: "Unauthorized" })
+  @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: "Unauthorized" })
   @ApiResponse({
-    status: API_STATUS_NOT_FOUND,
+    status: HttpStatus.NOT_FOUND,
     description: "No roadmap found for this goal",
   })
   @ApiResponse({
-    status: API_STATUS_RATE_LIMIT,
+    status: HttpStatus.TOO_MANY_REQUESTS,
     description: "Rate limit exceeded",
   })
   @Throttle({
     default: {
-      limit: GENERATE_WEEKLY_LIMIT,
+      limit: config.throttle.weeklyPlanGenerateLimit,
       ttl: config.throttle.aiEndpointTtlMs,
     },
   })

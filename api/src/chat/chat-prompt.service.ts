@@ -1,6 +1,6 @@
-import { Injectable, Logger } from "@nestjs/common";
+import { Injectable, Logger, NotFoundException } from "@nestjs/common";
 
-import { CoachService } from "../coach/coach.service.js";
+import { COACH_BY_ID } from "../coach/coaches.config.js";
 import { config } from "../config/app.config.js";
 import { SupabaseService } from "../supabase/supabase.service.js";
 import type { PromptInput } from "./chat-prompt.builder.js";
@@ -18,10 +18,7 @@ type GoalContext = PromptInput["goalContext"];
 export class ChatPromptService {
   private readonly logger = new Logger(ChatPromptService.name);
 
-  constructor(
-    private readonly coachService: CoachService,
-    private readonly supabaseService: SupabaseService,
-  ) {}
+  constructor(private readonly supabaseService: SupabaseService) {}
 
   public async getUserProfile(
     userId: string,
@@ -92,7 +89,12 @@ export class ChatPromptService {
     language: string;
     memory: string;
   }): string {
-    const coach = this.coachService.getCoach(input.coachId);
+    const coach = COACH_BY_ID.get(input.coachId);
+    if (coach === undefined) {
+      throw new NotFoundException(
+        `Coach with id ${String(input.coachId)} not found`,
+      );
+    }
     return buildCoachPrompt({
       coach,
       goalContext: input.goalContext,

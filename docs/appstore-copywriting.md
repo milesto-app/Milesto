@@ -6,7 +6,7 @@ Set one big goal. Get an AI-generated roadmap with milestones, weekly plans, and
 
 ## Description (4000 characters max)
 
-Momentum is your AI-powered personal coaching app. Set one ambitious goal, and Momentum builds a complete roadmap to get you there — with milestones, weekly plans, and daily tasks tailored to who you are.
+Milesto is your AI-powered personal coaching app. Set one ambitious goal, and Milesto builds a complete roadmap to get you there — with milestones, weekly plans, and daily tasks tailored to who you are.
 
 **How it works**
 
@@ -32,9 +32,9 @@ Track your streaks, energy levels, weekly progress, and milestone completions �
 
 **Smart replanning**
 
-Life happens. Momentum adapts your roadmap when things change, so you never lose momentum.
+Life happens. Milesto adapts your roadmap when things change, so you never lose milesto.
 
-**Momentum Pro**
+**Milesto Pro**
 
 Unlock your full potential with unlimited access:
 
@@ -46,7 +46,7 @@ Unlock your full potential with unlimited access:
 
 Start with a 2-week free trial.
 
-Whether you're training for a marathon, launching a business, learning a new skill, or making a lifestyle change — Momentum gives you the structure, accountability, and AI intelligence to make it happen.
+Whether you're training for a marathon, launching a business, learning a new skill, or making a lifestyle change — Milesto gives you the structure, accountability, and AI intelligence to make it happen.
 
 ## Keywords (100 characters max)
 
@@ -54,8 +54,8 @@ goal,coach,AI,planner,habits,roadmap,milestones,productivity,motivation,tracker,
 
 ## Support URL
 
-https://getmomentum.app/support
+https://milesto.app/support
 
 ## Copyright
 
-Copyright 2025 Momentum. All rights reserved.
+Copyright 2025 Milesto. All rights reserved.

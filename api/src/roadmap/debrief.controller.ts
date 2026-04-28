@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   HttpCode,
+  HttpStatus,
   Param,
   Post,
   UseGuards,
@@ -22,13 +23,6 @@ import { DebriefService } from "./debrief.service.js";
 import { SubmitDebriefDto } from "./dto/submit-debrief.dto.js";
 import type { Debrief } from "./types/weekly-task.types.js";
 
-const HTTP_CREATED = 201;
-const API_STATUS_BAD_REQUEST = 400;
-const API_STATUS_UNAUTHORIZED = 401;
-const API_STATUS_CONFLICT = 409;
-const API_STATUS_RATE_LIMIT = 429;
-const AI_ENDPOINT_LIMIT = 10;
-
 @ApiTags("debrief")
 @ApiBearerAuth()
 @Controller("goals/:goalId/debrief")
@@ -37,27 +31,27 @@ export class DebriefController {
   constructor(private readonly debriefService: DebriefService) {}
 
   @Post()
-  @HttpCode(HTTP_CREATED)
+  @HttpCode(HttpStatus.CREATED)
   @Throttle({
     default: {
-      limit: AI_ENDPOINT_LIMIT,
+      limit: config.throttle.aiEndpointLimit,
       ttl: config.throttle.aiEndpointTtlMs,
     },
   })
   @ApiOperation({ summary: "Submit end-of-week debrief" })
   @ApiParam({ name: "goalId", description: "Goal ID" })
   @ApiResponse({
-    status: HTTP_CREATED,
+    status: HttpStatus.CREATED,
     description: "Debrief submitted successfully",
   })
-  @ApiResponse({ status: API_STATUS_BAD_REQUEST, description: "Invalid input" })
-  @ApiResponse({ status: API_STATUS_UNAUTHORIZED, description: "Unauthorized" })
+  @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: "Invalid input" })
+  @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: "Unauthorized" })
   @ApiResponse({
-    status: API_STATUS_CONFLICT,
+    status: HttpStatus.CONFLICT,
     description: "Debrief already submitted for this weekly plan",
   })
   @ApiResponse({
-    status: API_STATUS_RATE_LIMIT,
+    status: HttpStatus.TOO_MANY_REQUESTS,
     description: "Rate limit exceeded",
   })
   public async submitDebrief(

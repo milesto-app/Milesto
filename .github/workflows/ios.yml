@@ -20,30 +20,42 @@ jobs:
     name: Format
     runs-on: macos-26
     steps:
-      - uses: actions/checkout@v4
-      - name: Install SwiftFormat
-        run: brew install swiftformat
+      - uses: actions/checkout@v6
+      - name: Ensure SwiftFormat
+        run: command -v swiftformat >/dev/null || brew install swiftformat
       - name: Run SwiftFormat (lint mode)
-        run: swiftformat --lint --quiet --swiftversion 5 --exclude Momentum/Sources/Shared/Components/TablerIcons.swift .
+        run: swiftformat --lint --quiet --swiftversion 5 --exclude Milesto/Sources/Shared/Icons/TablerIcons.swift .
 
   build:
     name: Build
     runs-on: macos-26
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Show Xcode version
         run: xcodebuild -version
-      - name: Install xcbeautify
-        run: brew install xcbeautify
+      - name: Cache Xcode build data
+        uses: actions/cache@v5
+        with:
+          path: |
+            ios/.build/DerivedData
+            ios/.build/SourcePackages
+          key: ${{ runner.os }}-ios-xcode-${{ hashFiles('ios/Milesto.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved') }}-${{ hashFiles('ios/Milesto.xcodeproj/project.pbxproj', 'ios/Milesto/Sources/**/*.swift', 'ios/Milesto/Resources/Locales/**/*.xcstrings', 'ios/Milesto/Resources/Assets.xcassets/**', 'ios/Milesto/Config/**') }}
+          restore-keys: |
+            ${{ runner.os }}-ios-xcode-${{ hashFiles('ios/Milesto.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved') }}-
+            ${{ runner.os }}-ios-xcode-
       - name: Build
         shell: bash
         run: |
-          set -o pipefail
           xcodebuild build \
-            -project Momentum.xcodeproj \
-            -scheme Momentum \
+            -project Milesto.xcodeproj \
+            -scheme Milesto \
             -destination 'generic/platform=iOS Simulator' \
             -configuration Debug \
+            -derivedDataPath .build/DerivedData \
+            -clonedSourcePackagesDirPath .build/SourcePackages \
             CODE_SIGNING_ALLOWED=NO \
             CODE_SIGNING_REQUIRED=NO \
-            | xcbeautify --renderer github-actions
+            COMPILER_INDEX_STORE_ENABLE=NO \
+            ENABLE_PREVIEWS=NO \
+            ONLY_ACTIVE_ARCH=YES \
+            ARCHS="$(uname -m)"

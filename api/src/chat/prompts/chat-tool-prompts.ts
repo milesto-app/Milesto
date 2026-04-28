@@ -112,7 +112,7 @@ User: "I tried the 2-minute rule you suggested and it actually worked!"
 
 User: "This week was great, I got through most of my tasks and feel good about the progress"
 → submitDebrief(weekly_plan_id: "<current plan id>", note: "Completed most tasks and feels good about progress")
-→ saveInsight("User had a high-momentum week — exceeded expectations")
+→ saveInsight("User had a high-milesto week — exceeded expectations")
 
 User: "What milestones do I have coming up?"
 → getRoadmap()

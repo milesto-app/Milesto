@@ -2,13 +2,13 @@ import type { Metadata } from "next";
 
 export function generateMetadata(): Metadata {
   return {
-    title: "Privacy Policy - Momentum",
+    title: "Privacy Policy - Milesto",
     description:
-      "Learn how Momentum collects, uses, and protects your personal information.",
+      "Learn how Milesto collects, uses, and protects your personal information.",
     openGraph: {
-      title: "Privacy Policy - Momentum",
+      title: "Privacy Policy - Milesto",
       description:
-        "Learn how Momentum collects, uses, and protects your personal information.",
+        "Learn how Milesto collects, uses, and protects your personal information.",
       type: "website",
     },
   };
@@ -16,7 +16,7 @@ export function generateMetadata(): Metadata {
 
 export default function PrivacyPage() {
   return (
-    <div className="prose-momentum">
+    <div className="prose-milesto">
       <h1 className="font-(family-name:--font-fraunces) text-4xl font-semibold text-[#2D5016]">
         Privacy Policy
       </h1>
@@ -25,10 +25,10 @@ export default function PrivacyPage() {
       <section className="mt-12">
         <h2>Introduction</h2>
         <p>
-          Momentum is an AI-powered personal coaching app that helps you set a
+          Milesto is an AI-powered personal coaching app that helps you set a
           meaningful goal and build a clear path to achieve it. This policy
           explains how we collect, use, and protect your information when you
-          use Momentum.
+          use Milesto.
         </p>
       </section>
 
@@ -72,7 +72,7 @@ export default function PrivacyPage() {
       <section>
         <h2>Third-Party Services</h2>
         <p>
-          Momentum relies on trusted third-party services to deliver its core
+          Milesto relies on trusted third-party services to deliver its core
           functionality:
         </p>
         <ul>
@@ -125,10 +125,10 @@ export default function PrivacyPage() {
         <p>
           To exercise any of these rights, contact us at{" "}
           <a
-            href="mailto:support@momentum-ai.app"
+            href="mailto:support@milesto.app"
             className="text-[#2D5016] underline underline-offset-2"
           >
-            support@momentum-ai.app
+            support@milesto.app
           </a>
           .
         </p>
@@ -137,7 +137,7 @@ export default function PrivacyPage() {
       <section>
         <h2>Children&apos;s Privacy</h2>
         <p>
-          Momentum is not intended for users under the age of 13. We do not
+          Milesto is not intended for users under the age of 13. We do not
           knowingly collect personal information from children. If you believe a
           child has provided us with their data, please contact us so we can
           remove it.
@@ -148,7 +148,7 @@ export default function PrivacyPage() {
         <h2>Changes to This Policy</h2>
         <p>
           We may update this privacy policy from time to time. Changes will be
-          communicated through the app. Your continued use of Momentum after
+          communicated through the app. Your continued use of Milesto after
           changes are posted constitutes your acceptance of the updated policy.
         </p>
       </section>
@@ -159,10 +159,10 @@ export default function PrivacyPage() {
           If you have questions about this privacy policy or how we handle your
           data, reach out to us at{" "}
           <a
-            href="mailto:support@momentum-ai.app"
+            href="mailto:support@milesto.app"
             className="text-[#2D5016] underline underline-offset-2"
           >
-            support@momentum-ai.app
+            support@milesto.app
           </a>
           .
         </p>

@@ -29,7 +29,7 @@ Rules:
 - Generate 3-7 specific, achievable objectives
 - Objectives should be concrete daily or multi-day actions
 - Consider the user's recent progress, energy levels, and capacity
-- Build on previous week's momentum if summary data is available
+- Build on previous week's milesto if summary data is available
 - Adapt difficulty based on completion rates from previous weeks
 
 Return a JSON object with this exact field:

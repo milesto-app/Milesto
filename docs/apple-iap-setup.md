@@ -1,6 +1,6 @@
 # Apple In-App Purchase — Server-Side Setup
 
-This document covers configuration required for the Momentum backend to verify Apple StoreKit transactions and process Apple Server Notifications V2.
+This document covers configuration required for the Milesto backend to verify Apple StoreKit transactions and process Apple Server Notifications V2.
 
 ## Apple Root CA certificates
 
@@ -23,7 +23,7 @@ openssl x509 -inform DER -in resources/apple-root-certs/AppleIncRootCertificate.
 
 | Name                   | Required        | Description                                                                                                         |
 | ---------------------- | --------------- | ------------------------------------------------------------------------------------------------------------------- |
-| `APPLE_BUNDLE_ID`      | Always          | Must match Xcode `PRODUCT_BUNDLE_IDENTIFIER`. Current value: `app.momentum-ai.auth.mobile`.                         |
+| `APPLE_BUNDLE_ID`      | Always          | Must match Xcode `PRODUCT_BUNDLE_IDENTIFIER`. Current value: `app.milesto-ai.auth.mobile`.                          |
 | `APPLE_ENVIRONMENT`    | Always          | `Sandbox` (default) or `Production`.                                                                                |
 | `APPLE_APP_APPLE_ID`   | Production only | Numeric App Apple ID from App Store Connect. Required when `APPLE_ENVIRONMENT=Production`; startup fails otherwise. |
 | `APPLE_ROOT_CA_DIR`    | Optional        | Path to Apple root cert directory. Default `resources/apple-root-certs`.                                            |
@@ -43,7 +43,7 @@ The service constructs one `SignedDataVerifier` for the configured environment, 
 
 1. App Store Connect → your app → **App Information** → **App Store Server Notifications**.
 2. Set Version to **Version 2**.
-3. Production URL: `https://backend.momentum-ai.app/api/subscription/apple-webhook`.
+3. Production URL: `https://api.milesto.app/api/subscription/apple-webhook`.
 4. Sandbox URL: same path on your staging host.
 5. Save. Use the **Request Test Notification** button after every deploy to confirm the backend responds `200`.
 
@@ -51,8 +51,8 @@ The service constructs one `SignedDataVerifier` for the configured environment, 
 
 Ensure the following products exist and are **Approved** in App Store Connect:
 
-- `momentum_monthly`
-- `momentum_quarterly`
+- `milesto_plus_monthly`
+- `milesto_plus_annual`
 
 The product IDs are validated server-side in `subscription.service.ts` and must match `config.apple.productIds`.
 
@@ -89,7 +89,7 @@ Apple retries on 4xx and 5xx, so returning 200 on known-ignored conditions preve
 ## Local development
 
 1. Install deps: `cd api && bun install`.
-2. Create `.env` from `.env.example`. Set `APPLE_BUNDLE_ID=app.momentum-ai.auth.mobile` and `APPLE_ENVIRONMENT=Sandbox`.
+2. Create `.env` from `.env.example`. Set `APPLE_BUNDLE_ID=app.milesto-ai.auth.mobile` and `APPLE_ENVIRONMENT=Sandbox`.
 3. Ensure `api/resources/apple-root-certs/` contains the four `.cer` files (already committed).
 4. Run `bun run test` to validate the wiring.
 5. To exercise the webhook end-to-end, use Apple Request Test Notification or expose your local server via a tunnel and point Sandbox URL at it.
@@ -98,8 +98,8 @@ Apple retries on 4xx and 5xx, so returning 200 on known-ignored conditions preve
 
 1. Create a sandbox Apple ID in App Store Connect → **Users and Access** → **Sandbox Testers**.
 2. Sign the device into the sandbox account (`Settings` → `App Store` → sandbox account section).
-3. Launch the app, purchase `momentum_monthly`.
-4. Check `profiles` row for the user: `subscription_status = 'active'`, `subscription_product_id = 'momentum_monthly'`, `subscription_apple_signed_at` set, `subscription_environment = 'Sandbox'`.
+3. Launch the app, purchase `milesto_plus_monthly`.
+4. Check `profiles` row for the user: `subscription_status = 'active'`, `subscription_product_id = 'milesto_plus_monthly'`, `subscription_apple_signed_at` set, `subscription_environment = 'Sandbox'`.
 5. Accelerated renewal cycles (monthly → 5 min) allow observing `DID_RENEW`, `DID_FAIL_TO_RENEW`, `EXPIRED` webhook transitions in real time.
 6. Use App Store Connect's sandbox refund tool to exercise `REFUND` → `revoked`.
 

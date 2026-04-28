@@ -1,6 +1,4 @@
-# CLAUDE.md
-
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+# Agents context
 
 ## Build Commands
 
@@ -28,20 +26,20 @@ Available styles: `.largeTitle`, `.title`, `.headline`, `.body`, `.subheadline`,
 
 **AppTextField** (`Shared/Components/AppTextField.swift`) - Use for all text input fields. Accepts `icon: TablerIconOutline` parameter.
 
-**TablerIcon** (`Shared/Components/TablerIcons.swift`) - **Always use `TablerIcon` instead of SF Symbols.** Never use `Image(systemName:)` or `systemImage:` anywhere in the project.
+**TablerIcon** (`Shared/Icons/TablerIcons.swift`) - **Always use `TablerIcon` instead of SF Symbols.** Never use `Image(systemName:)` or `systemImage:` anywhere in the project.
 
 ```swift
 // Use this:
 TablerIcon(.home, size: 24)
-TablerIcon(.check, size: 20, color: Color("AccentColor"))
-TablerIcon.filled(.heart, size: 24, color: Color("StatusError"))
+TablerIcon(.check, size: 20, color: Color("Brand"))
+TablerIcon.filled(.heart, size: 24, color: Color("Error"))
 
 // NOT this:
 Image(systemName: "house.fill")
 Image(systemName: "checkmark")
 ```
 
-Icon names come from the `TablerIconOutline` and `TablerIconFilled` enums in `Shared/Components/TablerIcons.swift`. Use outline icons by default, filled via `TablerIcon.filled(...)`.
+Icon names come from the `TablerIconOutline` and `TablerIconFilled` enums in `Shared/Icons/TablerIcons.swift`. Use outline icons by default, filled via `TablerIcon.filled(...)`.
 
 **For tab bars**, use `TablerTabLabel` which converts the icon to an `Image` for tab bar compatibility:
 
@@ -64,14 +62,14 @@ AppButton("Label", table: "Common", action: doSomething)
 
 ```swift
 // Use this:
-.foregroundStyle(Color("AccentColor"))
+.foregroundStyle(Color("Brand"))
 .cornerRadius(12)
 
 // NOT this:
 .foregroundStyle(.orange)
 ```
 
-Available color assets: `AccentColor`, `AccentAmber`, `BgPrimary`, `BgSurface`, `StatusDisabled`, `StatusError`, `StatusSuccess`, `TextOnAccent`, `TextPrimary`, `TextSecondary`, `TintPrimary`
+Available color assets: `BackgroundBase`, `BackgroundElevated`, `Brand`, `Error`, `Success`, `TextOnBrand`, `TextPrimary`, `TextSecondary`, `Warning`
 
 ## Localization
 
@@ -92,7 +90,6 @@ Available color assets: `AccentColor`, `AccentAmber`, `BgPrimary`, `BgSurface`, 
 | `Roadmap`    | `Roadmap.xcstrings`    | Roadmap, milestones, weekly plans                      |
 | `Settings`   | `Settings.xcstrings`   | Settings screen (sign-out, version)                    |
 | `Stats`      | `Stats.xcstrings`      | Statistics screen                                      |
-| `Voice`      | `Voice.xcstrings`      | Voice dictation / TTS error messages                   |
 
 **In SwiftUI views** — always pass `table:` to `AppText`/`AppButton`/`AppTextField`:
 
@@ -103,7 +100,7 @@ AppButton("common.continue", table: "Common", action: onContinue)
 AppTextField(text: $email, label: "auth.form.email", table: "Auth")
 
 // NOT this:
-AppText("Bienvenue sur Momentum", style: .largeTitle)
+AppText("Bienvenue sur Milesto", style: .largeTitle)
 ```
 
 **For native SwiftUI APIs** (`alert`, `Button`, `Tab`, `navigationTitle`) — use `String(localized:table:)`:

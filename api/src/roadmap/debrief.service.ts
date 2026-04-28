@@ -138,11 +138,6 @@ export class DebriefService {
       note: dto.note,
     });
     if (didCompletePlan) {
-      this.eventEmitter.emit("weekly-plan.completed", {
-        userId,
-        goalId,
-        planId: dto.weekly_plan_id,
-      });
       await this.maybeCompleteMilestone(dto.weekly_plan_id, userId, goalId);
     }
     return data as unknown as Debrief;
@@ -208,12 +203,6 @@ export class DebriefService {
       return;
     }
 
-    this.eventEmitter.emit("milestone.completed", {
-      userId,
-      milestoneId: plan.milestone_id,
-      goalId,
-      completedAt,
-    });
     this.logger.log(
       `Auto-completed milestone ${plan.milestone_id} after final plan ${weeklyPlanId}`,
     );

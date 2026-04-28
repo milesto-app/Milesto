@@ -8,7 +8,7 @@ export function SiteHeader() {
           href="/"
           className="font-[family-name:var(--font-fraunces)] text-xl font-semibold text-[#2D5016]"
         >
-          Momentum
+          Milesto
         </Link>
         <nav className="flex gap-6">
           <Link

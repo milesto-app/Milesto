@@ -1,4 +1,7 @@
-const APPLE_PRODUCT_IDS = ["momentum_monthly", "momentum_quarterly"] as const;
+const APPLE_PRODUCT_IDS = [
+  "milesto_plus_monthly",
+  "milesto_plus_annual",
+] as const;
 
 const APPLE_DEFAULT_ENVIRONMENT = "Sandbox";
 const APPLE_DEFAULT_ROOT_CA_DIR = "resources/apple-root-certs";
@@ -34,7 +37,7 @@ function readAppleConfig(): AppleConfig {
 
   if (process.env.NODE_ENV !== "test" && bundleId === "") {
     throw new Error(
-      "APPLE_BUNDLE_ID must be set (got empty string). Set it in your environment (e.g. app.momentum-ai.auth.mobile).",
+      "APPLE_BUNDLE_ID must be set (got empty string). Set it in your environment (e.g. app.milesto-ai.auth.mobile).",
     );
   }
   if (
@@ -91,14 +94,17 @@ export const config = {
     globalTtlMs: 60_000,
     aiEndpointLimit: 10,
     aiEndpointTtlMs: 60_000,
+    roadmapGenerateLimit: 3,
+    weeklyPlanGenerateLimit: 5,
   },
   roadmap: {
     matchCount: 20,
     matchThreshold: 0.7,
     rerankTopN: 10,
-    milestoneModel: "openai/gpt-5.4",
-    weeklyModel: "openai/gpt-5.4",
-    weeklyTaskModel: "openai/gpt-5.4",
+    milestoneModel: "openai/gpt-5.5",
+    weeklyModel: "openai/gpt-5.5",
+    weeklyTaskModel: "openai/gpt-5.5",
+    reasoningEffort: "medium",
     maxGenerationAttempts: 3,
     callTimeoutMs: 240_000,
   },
@@ -106,10 +112,7 @@ export const config = {
     apiVersion: "2",
     model: "rerank-v3.5",
   },
-  voice: {
-    ttsModelId: "eleven_flash_v2_5",
-    outputFormat: "mp3_44100_128" as const,
-    callTimeoutMs: 30_000,
+  transcription: {
     maxAudioSizeBytes: 10_485_760,
     supportedInputFormats: [
       "audio/wav",
