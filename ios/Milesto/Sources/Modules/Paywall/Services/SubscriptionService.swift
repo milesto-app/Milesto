@@ -201,9 +201,7 @@ final class SubscriptionService {
             return
         }
 
-        let backendActive = response.status == "active" || response.status == "grace_period"
-
-        if backendActive {
+        if Self.isBackendActive(response) {
             entitlementState = .subscribed
             return
         }
@@ -220,12 +218,28 @@ final class SubscriptionService {
                 }
                 return
             }
-            let refetchedActive = refetched.status == "active" || refetched.status == "grace_period"
-            entitlementState = refetchedActive ? .subscribed : .notSubscribed
+            entitlementState = Self.isBackendActive(refetched) ? .subscribed : .notSubscribed
             return
         }
 
         entitlementState = .notSubscribed
+    }
+
+    /// Mirrors the API's `assertActiveSubscription` — status alone isn't enough,
+    /// an "active" row with a past `expiresAt` is still rejected by gated endpoints.
+    private static func isBackendActive(_ response: SubscriptionStatusResponse) -> Bool {
+        guard response.status == "active" || response.status == "grace_period" else { return false }
+        guard let expiresAtString = response.expiresAt,
+              let expiresAt = parseISO8601(expiresAtString)
+        else { return false }
+        return expiresAt > Date()
+    }
+
+    private static func parseISO8601(_ string: String) -> Date? {
+        let withFraction = ISO8601DateFormatter()
+        withFraction.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+        if let date = withFraction.date(from: string) { return date }
+        return ISO8601DateFormatter().date(from: string)
     }
 
     private func currentVerifiedEntitlement() async -> (transaction: Transaction, jws: String)? {

@@ -250,11 +250,34 @@ export class SubscriptionService {
     }
 
     return {
-      status: data.subscription_status,
+      status: this.deriveEffectiveStatus(
+        data.subscription_status,
+        data.subscription_expires_at,
+      ),
       expiresAt: data.subscription_expires_at,
       productId: data.subscription_product_id,
       autoRenew: data.subscription_auto_renew_status,
     };
+  }
+
+  // Mirrors `UsageService.assertActiveSubscription` — an "active"/"grace_period"
+  // row whose `expires_at` has passed must surface as expired so clients (and
+  // the gating endpoints) agree. The stored status can lag when Apple's
+  // EXPIRED notification is delayed or missed (common in Sandbox).
+  private deriveEffectiveStatus(
+    storedStatus: string,
+    expiresAt: string | null,
+  ): string {
+    const isPotentiallyActive =
+      storedStatus === SUBSCRIPTION_STATUS.ACTIVE ||
+      storedStatus === SUBSCRIPTION_STATUS.GRACE_PERIOD;
+    if (!isPotentiallyActive) {
+      return storedStatus;
+    }
+    if (expiresAt === null || new Date(expiresAt) <= new Date()) {
+      return SUBSCRIPTION_STATUS.EXPIRED;
+    }
+    return storedStatus;
   }
 
   private async applyWebhookUpdate(

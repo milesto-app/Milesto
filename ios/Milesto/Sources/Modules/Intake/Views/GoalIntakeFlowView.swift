@@ -107,6 +107,8 @@ struct GoalIntakeFlowView: View {
                 withAnimation(.easeInOut(duration: 0.3)) {
                     step = .motivation(goalId: goal.id)
                 }
+            } catch BackendError.subscriptionRequired {
+                // PaywallGateView will redirect to the paywall — no alert needed.
             } catch {
                 errorMessage = error.localizedDescription
                 showError = true
@@ -128,6 +130,8 @@ struct GoalIntakeFlowView: View {
             do {
                 try await GoalAPIService.shared.updateGoal(goalId: goalId, motivationQuote: trimmed)
                 advanceToIntake(goalId: goalId)
+            } catch BackendError.subscriptionRequired {
+                // PaywallGateView will redirect to the paywall — no alert needed.
             } catch {
                 errorMessage = error.localizedDescription
                 showError = true
