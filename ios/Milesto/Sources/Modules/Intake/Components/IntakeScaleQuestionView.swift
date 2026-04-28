@@ -39,12 +39,15 @@ struct IntakeScaleQuestionView: View {
             )
             .tint(Color("Brand"))
 
-            HStack {
-                AppText(verbatim: "\(minValue)", style: .caption)
+            HStack(alignment: .top, spacing: 16) {
+                AppText(verbatim: question.config?.minLabel ?? "\(minValue)", style: .caption)
                     .color(Color("TextSecondary"))
-                Spacer()
-                AppText(verbatim: "\(maxValue)", style: .caption)
+                    .alignment(.leading)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                AppText(verbatim: question.config?.maxLabel ?? "\(maxValue)", style: .caption)
                     .color(Color("TextSecondary"))
+                    .alignment(.trailing)
+                    .frame(maxWidth: .infinity, alignment: .trailing)
             }
         }
         .onAppear {

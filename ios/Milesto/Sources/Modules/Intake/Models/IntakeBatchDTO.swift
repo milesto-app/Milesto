@@ -16,8 +16,19 @@ enum QuestionType: String, Codable {
 struct QuestionConfig: Codable {
     let min: Int?
     let max: Int?
+    let minLabel: String?
+    let maxLabel: String?
     let options: [String]?
     let format: String?
+
+    enum CodingKeys: String, CodingKey {
+        case min
+        case max
+        case minLabel = "min_label"
+        case maxLabel = "max_label"
+        case options
+        case format
+    }
 }
 
 struct IntakeQuestion: Codable, Identifiable {
