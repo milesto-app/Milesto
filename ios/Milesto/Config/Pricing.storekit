@@ -71,7 +71,7 @@
               "locale" : "en_US"
             }
           ],
-          "productID" : "milesto_monthly",
+          "productID" : "milesto_plus_monthly",
           "recurringSubscriptionPeriod" : "P1M",
           "referenceName" : "Milesto Plus Monthly",
           "subscriptionGroupID" : "21958916",
@@ -106,7 +106,7 @@
               "locale" : "en_US"
             }
           ],
-          "productID" : "milesto_annual",
+          "productID" : "milesto_plus_annual",
           "recurringSubscriptionPeriod" : "P1Y",
           "referenceName" : "Milesto Plus Annual",
           "subscriptionGroupID" : "21958916",

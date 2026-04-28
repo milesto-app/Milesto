@@ -1,4 +1,7 @@
-const APPLE_PRODUCT_IDS = ["milesto_monthly", "milesto_annual"] as const;
+const APPLE_PRODUCT_IDS = [
+  "milesto_plus_monthly",
+  "milesto_plus_annual",
+] as const;
 
 const APPLE_DEFAULT_ENVIRONMENT = "Sandbox";
 const APPLE_DEFAULT_ROOT_CA_DIR = "resources/apple-root-certs";

@@ -21,8 +21,8 @@ nonisolated struct SubscriptionStatusResponse: Decodable {
 final class SubscriptionService {
     static let shared = SubscriptionService()
 
-    static let monthlyProductId = "milesto_monthly"
-    static let annualProductId = "milesto_annual"
+    static let monthlyProductId = "milesto_plus_monthly"
+    static let annualProductId = "milesto_plus_annual"
 
     private static let productIds = [annualProductId, monthlyProductId]
 

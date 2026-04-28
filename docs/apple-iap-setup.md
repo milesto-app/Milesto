@@ -51,8 +51,8 @@ The service constructs one `SignedDataVerifier` for the configured environment, 
 
 Ensure the following products exist and are **Approved** in App Store Connect:
 
-- `milesto_monthly`
-- `milesto_annual`
+- `milesto_plus_monthly`
+- `milesto_plus_annual`
 
 The product IDs are validated server-side in `subscription.service.ts` and must match `config.apple.productIds`.
 
@@ -98,8 +98,8 @@ Apple retries on 4xx and 5xx, so returning 200 on known-ignored conditions preve
 
 1. Create a sandbox Apple ID in App Store Connect → **Users and Access** → **Sandbox Testers**.
 2. Sign the device into the sandbox account (`Settings` → `App Store` → sandbox account section).
-3. Launch the app, purchase `milesto_monthly`.
-4. Check `profiles` row for the user: `subscription_status = 'active'`, `subscription_product_id = 'milesto_monthly'`, `subscription_apple_signed_at` set, `subscription_environment = 'Sandbox'`.
+3. Launch the app, purchase `milesto_plus_monthly`.
+4. Check `profiles` row for the user: `subscription_status = 'active'`, `subscription_product_id = 'milesto_plus_monthly'`, `subscription_apple_signed_at` set, `subscription_environment = 'Sandbox'`.
 5. Accelerated renewal cycles (monthly → 5 min) allow observing `DID_RENEW`, `DID_FAIL_TO_RENEW`, `EXPIRED` webhook transitions in real time.
 6. Use App Store Connect's sandbox refund tool to exercise `REFUND` → `revoked`.
 
