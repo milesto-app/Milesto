@@ -52,7 +52,7 @@ The service constructs one `SignedDataVerifier` for the configured environment, 
 Ensure the following products exist and are **Approved** in App Store Connect:
 
 - `milesto_monthly`
-- `milesto_quarterly`
+- `milesto_annual`
 
 The product IDs are validated server-side in `subscription.service.ts` and must match `config.apple.productIds`.
 
