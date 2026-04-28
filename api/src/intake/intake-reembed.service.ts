@@ -27,9 +27,35 @@ export class IntakeReembedService {
       .eq("profile_embedded", false)
       .not("narrative_summary", "is", null);
 
-    const batchResults = await this.reembedBatches(batches ?? []);
-    const profileResults = await this.reembedProfiles(profiles ?? []);
-    const processed = (batches?.length ?? 0) + (profiles?.length ?? 0);
+    return this.runReembed(batches ?? [], profiles ?? []);
+  }
+
+  public async reembedGoal(goalId: string): Promise<ReembedResult> {
+    const supabase = this.supabaseService.getAdminClient();
+
+    const { data: batches } = await supabase
+      .from("intake_batches")
+      .select("id, goal_id, batch_number, goals!inner(user_id)")
+      .eq("goal_id", goalId)
+      .eq("embedded", false);
+
+    const { data: profiles } = await supabase
+      .from("goals")
+      .select("id, user_id, narrative_summary")
+      .eq("id", goalId)
+      .eq("profile_embedded", false)
+      .not("narrative_summary", "is", null);
+
+    return this.runReembed(batches ?? [], profiles ?? []);
+  }
+
+  private async runReembed(
+    batches: Array<Record<string, unknown>>,
+    profiles: Array<Record<string, unknown>>,
+  ): Promise<ReembedResult> {
+    const batchResults = await this.reembedBatches(batches);
+    const profileResults = await this.reembedProfiles(profiles);
+    const processed = batches.length + profiles.length;
     const succeeded = batchResults.succeeded + profileResults.succeeded;
     const failed = batchResults.failed + profileResults.failed;
 

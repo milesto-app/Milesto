@@ -5,6 +5,15 @@ import {
   NotFoundException,
 } from "@nestjs/common";
 
+import { UserLanguageService } from "../common/user-language.service.js";
+import { IntakeProfileService } from "../intake/intake-profile.service.js";
+import { IntakeReembedService } from "../intake/intake-reembed.service.js";
+import type {
+  ProfileResult,
+  ReembedResult,
+} from "../intake/types/intake.types.js";
+import { RoadmapService } from "../roadmap/roadmap.service.js";
+import type { Roadmap } from "../roadmap/types/roadmap.types.js";
 import type { Database } from "../supabase/database.types.js";
 import { SupabaseService } from "../supabase/supabase.service.js";
 import type {
@@ -39,7 +48,13 @@ type ProfileRow = Database["public"]["Tables"]["profiles"]["Row"];
 export class GoalsService {
   private readonly logger = new Logger(GoalsService.name);
 
-  constructor(private readonly supabaseService: SupabaseService) {}
+  constructor(
+    private readonly supabaseService: SupabaseService,
+    private readonly intakeProfileService: IntakeProfileService,
+    private readonly intakeReembedService: IntakeReembedService,
+    private readonly roadmapService: RoadmapService,
+    private readonly languageService: UserLanguageService,
+  ) {}
 
   public async listGoals(
     page: number,
@@ -252,6 +267,71 @@ export class GoalsService {
     }
 
     return data.map(mapEmbedding);
+  }
+
+  public async regenerateProfile(goalId: string): Promise<ProfileResult> {
+    const goal = await this.requireGoalById(goalId);
+    const language = await this.languageService.getLanguage(goal.user_id);
+    return this.intakeProfileService.generateAndStoreProfile({
+      userId: goal.user_id,
+      goalId: goal.id,
+      goalDescription: goal.description,
+      language,
+    });
+  }
+
+  public async regenerateRoadmap(goalId: string): Promise<Roadmap> {
+    const goal = await this.requireGoalById(goalId);
+    await this.resetRoadmapState(goal.id);
+    return this.roadmapService.generateMilestones(goal.id, goal.user_id);
+  }
+
+  public async reembedGoal(goalId: string): Promise<ReembedResult> {
+    await this.requireGoalById(goalId);
+    return this.intakeReembedService.reembedGoal(goalId);
+  }
+
+  public async deleteGoal(goalId: string): Promise<void> {
+    await this.requireGoalById(goalId);
+    const supabase = this.supabaseService.getAdminClient();
+    const { error } = await supabase.from("goals").delete().eq("id", goalId);
+    if (error !== null) {
+      this.logger.error(`Failed to delete goal ${goalId}: ${error.message}`);
+      throw new InternalServerErrorException("Failed to delete goal");
+    }
+  }
+
+  private async resetRoadmapState(goalId: string): Promise<void> {
+    const supabase = this.supabaseService.getAdminClient();
+    const { error: milestonesError } = await supabase
+      .from("milestones")
+      .delete()
+      .eq("goal_id", goalId);
+    if (milestonesError !== null) {
+      this.logger.error(
+        `Failed to clear milestones for ${goalId}: ${milestonesError.message}`,
+      );
+      throw new InternalServerErrorException("Failed to reset roadmap");
+    }
+
+    const { error: goalError } = await supabase
+      .from("goals")
+      .update({
+        roadmap_status: null,
+        roadmap_generation_attempts: 0,
+        roadmap_model_used: null,
+        roadmap_generation_metadata: null,
+        roadmap_quality_scores: null,
+        roadmap_created_at: null,
+        roadmap_updated_at: null,
+      })
+      .eq("id", goalId);
+    if (goalError !== null) {
+      this.logger.error(
+        `Failed to reset roadmap fields for ${goalId}: ${goalError.message}`,
+      );
+      throw new InternalServerErrorException("Failed to reset roadmap");
+    }
   }
 
   private async requireGoalById(goalId: string): Promise<GoalRow> {
