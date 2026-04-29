@@ -77,6 +77,11 @@ export class RoadmapService {
         fullGoalData,
         language,
       );
+      await this.usageService.record(userId, GenerationType.MILESTONE_ROADMAP, {
+        promptTokens: metadata.prompt_tokens,
+        completionTokens: metadata.completion_tokens,
+        model: metadata.model_used,
+      });
 
       await this.roadmapStorage.storeMilestones(goalId, milestones);
       await this.roadmapStorage.updateRoadmapStatus(

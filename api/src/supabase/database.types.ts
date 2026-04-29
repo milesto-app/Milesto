@@ -209,23 +209,32 @@ export type Database = {
       };
       generation_usage: {
         Row: {
+          completion_tokens: number | null;
           created_at: string;
           generation_type: string;
           id: string;
+          model: string | null;
+          prompt_tokens: number | null;
           usage_date: string;
           user_id: string;
         };
         Insert: {
+          completion_tokens?: number | null;
           created_at?: string;
           generation_type: string;
           id?: string;
+          model?: string | null;
+          prompt_tokens?: number | null;
           usage_date?: string;
           user_id: string;
         };
         Update: {
+          completion_tokens?: number | null;
           created_at?: string;
           generation_type?: string;
           id?: string;
+          model?: string | null;
+          prompt_tokens?: number | null;
           usage_date?: string;
           user_id?: string;
         };
@@ -606,6 +615,36 @@ export type Database = {
           subscription_verified_at?: string | null;
           timezone?: string | null;
           updated_at?: string | null;
+        };
+        Relationships: [];
+      };
+      system_logs: {
+        Row: {
+          context: string | null;
+          id: string;
+          level: string;
+          logged_at: string;
+          message: string;
+          metadata: Json | null;
+          stack: string | null;
+        };
+        Insert: {
+          context?: string | null;
+          id?: string;
+          level: string;
+          logged_at?: string;
+          message: string;
+          metadata?: Json | null;
+          stack?: string | null;
+        };
+        Update: {
+          context?: string | null;
+          id?: string;
+          level?: string;
+          logged_at?: string;
+          message?: string;
+          metadata?: Json | null;
+          stack?: string | null;
         };
         Relationships: [];
       };

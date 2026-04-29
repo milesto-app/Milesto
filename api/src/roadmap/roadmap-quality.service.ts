@@ -452,11 +452,12 @@ export class RoadmapQualityService {
     systemPrompt: string;
   }): Promise<T> {
     const userPrompt = `## Content to Evaluate\n${params.content}\n\n## Context\n${params.context}`;
-    return this.aiService.generateJson<T>(
+    const { data } = await this.aiService.generateJson<T>(
       params.systemPrompt,
       userPrompt,
       config.eval.judgeModel,
     );
+    return data;
   }
 
   private checkWarnings(

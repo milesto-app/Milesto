@@ -85,11 +85,18 @@ export class GoalService {
     );
     try {
       const language = await this.languageService.getLanguage(userId);
-      const result = await this.aiService.generateJson<{ title: string }>(
+      const { data, usage } = await this.aiService.generateJson<{
+        title: string;
+      }>(
         buildGoalTitleSystemPrompt(language),
         buildGoalTitleUserPrompt(description),
       );
-      return result.title;
+      await this.usageService.record(userId, GenerationType.GOAL_TITLE, {
+        promptTokens: usage?.promptTokens,
+        completionTokens: usage?.completionTokens,
+        model: usage?.model,
+      });
+      return data.title;
     } catch (error) {
       this.logger.warn(
         `AI title generation failed, using fallback: ${error instanceof Error ? error.message : String(error)}`,

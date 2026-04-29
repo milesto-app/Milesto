@@ -48,6 +48,7 @@ export interface BatchParams {
 }
 
 export interface ProfileGenParams {
+  userId: string;
   goalId: string;
   goalDescription: string;
   priorBatches: PriorBatchContext[];

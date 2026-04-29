@@ -97,6 +97,7 @@ export class IntakeGenerationService {
     attempt: number,
   ): Promise<BatchGenerationResult | null> {
     const generated = await this.generateNextBatch({
+      userId: params.userId,
       goalDescription: params.goalDescription,
       priorBatches: params.priorBatches,
       batchNumber: params.nextBatchNumber,
@@ -123,6 +124,7 @@ export class IntakeGenerationService {
   }
 
   private async generateNextBatch(params: {
+    userId: string;
     goalDescription: string;
     priorBatches: PriorBatchContext[];
     batchNumber: number;
@@ -146,10 +148,16 @@ export class IntakeGenerationService {
       maxBatches: config.intake.maxBatches,
     });
 
-    return this.aiService.generateJson<{
+    const { data, usage } = await this.aiService.generateJson<{
       questions: GeneratedQuestion[];
       is_complete: boolean;
     }>(systemPrompt, userPrompt, config.intake.model);
+    await this.usageService.record(params.userId, GenerationType.INTAKE_BATCH, {
+      promptTokens: usage?.promptTokens,
+      completionTokens: usage?.completionTokens,
+      model: usage?.model,
+    });
+    return data;
   }
 
   private logValidationFailure(

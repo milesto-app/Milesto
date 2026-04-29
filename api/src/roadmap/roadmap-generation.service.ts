@@ -117,22 +117,26 @@ export class RoadmapGenerationService {
     let lastError: Error | undefined;
     for (let attempt = 0; attempt < MAX_GENERATION_ATTEMPTS; attempt++) {
       try {
-        const raw = await this.aiService.generateJson<unknown>(
+        const { data, usage } = await this.aiService.generateJson<unknown>(
           params.systemPrompt,
           params.userPrompt,
           params.model,
           config.roadmap.reasoningEffort,
           config.roadmap.callTimeoutMs,
         );
-        const validated = params.validate(raw);
+        const validated = params.validate(data);
         return {
           milestones: validated,
-          metadata: this.buildMetadata({
-            model: params.model,
-            startTime,
-            totalChunks: params.totalChunks,
-            attempt,
-          }),
+          metadata: {
+            ...this.buildMetadata({
+              model: params.model,
+              startTime,
+              totalChunks: params.totalChunks,
+              attempt,
+            }),
+            prompt_tokens: usage?.promptTokens,
+            completion_tokens: usage?.completionTokens,
+          },
         };
       } catch (error) {
         lastError = error as Error;

@@ -163,6 +163,11 @@ export class WeeklyPlanService {
         generationContext: params.generationContext,
         language: params.language,
       });
+    await this.usageService.record(params.userId, GenerationType.WEEKLY_PLAN, {
+      promptTokens: metadata.prompt_tokens,
+      completionTokens: metadata.completion_tokens,
+      model: metadata.model_used,
+    });
 
     const weeklyPlan = await this.storage.storeWeeklyPlan({
       milestone_id: params.milestone.id,
@@ -459,12 +464,10 @@ export class WeeklyPlanService {
       return undefined;
     }
     try {
-      const result = await this.aiService.generateJson<{ narrative: string }>(
-        params.systemPrompt,
-        params.userPrompt,
-        config.ai.defaultModel,
-      );
-      return result.narrative;
+      const { data } = await this.aiService.generateJson<{
+        narrative: string;
+      }>(params.systemPrompt, params.userPrompt, config.ai.defaultModel);
+      return data.narrative;
     } catch (error) {
       this.logger.warn(
         `${params.label} narrative generation failed: ${error instanceof Error ? error.message : String(error)}`,

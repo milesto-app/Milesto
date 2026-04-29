@@ -26,14 +26,16 @@ export class NotificationCopyService {
     const user = buildNotificationUserPrompt(input);
 
     try {
-      const raw = await this.aiService.generateJson<Partial<NotificationCopy>>(
+      const { data } = await this.aiService.generateJson<
+        Partial<NotificationCopy>
+      >(
         system,
         user,
         config.notifications.copyModel,
         undefined,
         config.notifications.copyCallTimeoutMs,
       );
-      return this.sanitize(raw);
+      return this.sanitize(data);
     } catch (error) {
       this.logger.error(
         "Notification copy generation failed",
