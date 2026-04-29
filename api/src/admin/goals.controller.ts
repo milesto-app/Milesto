@@ -1,8 +1,12 @@
 import {
   Controller,
+  Delete,
   Get,
+  HttpCode,
+  HttpStatus,
   Param,
   ParseUUIDPipe,
+  Post,
   Query,
   UseGuards,
 } from "@nestjs/common";
@@ -16,6 +20,11 @@ import {
 
 import { AdminGuard } from "../common/guards/admin.guard.js";
 import { AuthGuard } from "../common/guards/auth.guard.js";
+import type {
+  ProfileResult,
+  ReembedResult,
+} from "../intake/types/intake.types.js";
+import type { Roadmap } from "../roadmap/types/roadmap.types.js";
 import { ListEmbeddingsQueryDto } from "./dto/list-embeddings-query.dto.js";
 import { ListGoalsQueryDto } from "./dto/list-goals-query.dto.js";
 import { ListWeeklyTasksQueryDto } from "./dto/list-weekly-tasks-query.dto.js";
@@ -145,5 +154,63 @@ export class GoalsController {
     @Query() query: ListEmbeddingsQueryDto,
   ): Promise<AdminGoalEmbedding[]> {
     return this.goalsService.getEmbeddings(id, query.limit);
+  }
+
+  @Post(":id/regenerate-profile")
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: "Force-regenerate the goal profile (bypasses retry limits)",
+  })
+  @ApiParam({ name: "id", description: "Goal UUID" })
+  @ApiResponse({ status: 200, description: "Profile regeneration finished" })
+  @ApiResponse({ status: 404, description: "Goal not found" })
+  public async regenerateProfile(
+    @Param("id", ParseUUIDPipe) id: string,
+  ): Promise<ProfileResult> {
+    return this.goalsService.regenerateProfile(id);
+  }
+
+  @Post(":id/regenerate-roadmap")
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary:
+      "Force-regenerate the roadmap (deletes existing milestones, plans, tasks, debriefs)",
+  })
+  @ApiParam({ name: "id", description: "Goal UUID" })
+  @ApiResponse({ status: 200, description: "Roadmap generation triggered" })
+  @ApiResponse({ status: 404, description: "Goal not found" })
+  public async regenerateRoadmap(
+    @Param("id", ParseUUIDPipe) id: string,
+  ): Promise<Roadmap> {
+    return this.goalsService.regenerateRoadmap(id);
+  }
+
+  @Post(":id/reembed")
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: "Re-embed unembedded intake batches and profile for one goal",
+  })
+  @ApiParam({ name: "id", description: "Goal UUID" })
+  @ApiResponse({ status: 200, description: "Re-embed results returned" })
+  @ApiResponse({ status: 404, description: "Goal not found" })
+  public async reembedGoal(
+    @Param("id", ParseUUIDPipe) id: string,
+  ): Promise<ReembedResult> {
+    return this.goalsService.reembedGoal(id);
+  }
+
+  @Delete(":id")
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({
+    summary:
+      "Hard-delete a goal and all dependent rows (cascades intake, roadmap, debriefs, embeddings, conversations)",
+  })
+  @ApiParam({ name: "id", description: "Goal UUID" })
+  @ApiResponse({ status: 204, description: "Goal deleted" })
+  @ApiResponse({ status: 404, description: "Goal not found" })
+  public async deleteGoal(
+    @Param("id", ParseUUIDPipe) id: string,
+  ): Promise<void> {
+    await this.goalsService.deleteGoal(id);
   }
 }

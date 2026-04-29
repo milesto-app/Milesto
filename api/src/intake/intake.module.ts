@@ -23,6 +23,6 @@ import { IntakeReembedService } from "./intake-reembed.service.js";
     IntakeQualityService,
     IntakeReembedService,
   ],
-  exports: [IntakeBatchService, IntakeProfileService],
+  exports: [IntakeBatchService, IntakeProfileService, IntakeReembedService],
 })
 export class IntakeModule {}
