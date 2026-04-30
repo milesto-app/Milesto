@@ -16,7 +16,6 @@ final class AppDependencies {
     let settings: any SettingsRepository
     let roadmapRemote: any RoadmapRepository
     let roadmap: any RoadmapFeatureRepository
-    let home: any HomeRepository
     let chat: any ChatRepository
     let stats: any StatsRepository
     let transcription: any TranscriptionRepository
@@ -67,10 +66,6 @@ final class AppDependencies {
             remote: roadmapRemote,
             container: container
         )
-        let homeRepo = SyncingHomeRepository(
-            remote: RoadmapBackedHomeRemote(roadmapRemote),
-            container: container
-        )
         let remoteChat = SupabaseChatRepository()
         let chatRepo = SyncingChatRepository(
             remote: remoteChat,
@@ -100,7 +95,6 @@ final class AppDependencies {
         settings = settingsRepo
         self.roadmapRemote = roadmapRemote
         roadmap = roadmapRepo
-        home = homeRepo
         chat = chatRepo
         stats = statsRepo
         transcription = transcriptionRepo

@@ -24,7 +24,7 @@ struct WeeklyPlanGenerationView: View {
         }
         .task {
             if model == nil {
-                model = WeeklyPlanGenerationViewModel(repository: dependencies.home)
+                model = WeeklyPlanGenerationViewModel(repository: dependencies.roadmap)
             }
             await runGeneration()
         }

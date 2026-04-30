@@ -115,6 +115,203 @@ final class SyncingRoadmapFeatureRepository: RoadmapFeatureRepository {
         return dto.status
     }
 
+    func cachedWeeklyTasks(goalId: String) -> [WeeklyTask] {
+        let descriptor = FetchDescriptor<LocalWeeklyTask>(
+            predicate: #Predicate { $0.goalId == goalId },
+            sortBy: [SortDescriptor(\.orderIndex)]
+        )
+        guard let cached = try? context.fetch(descriptor) else { return [] }
+        return cached.map { local in
+            WeeklyTask(
+                id: local.id,
+                weeklyPlanId: local.weeklyPlanId,
+                goalId: local.goalId,
+                userId: local.userId,
+                title: local.title,
+                description: local.taskDescription,
+                difficultyRating: local.difficultyRating.flatMap { DifficultyRating(rawValue: $0) },
+                orderIndex: local.orderIndex,
+                isCompleted: local.isCompleted,
+                isFallback: local.isFallback,
+                createdAt: local.createdAt
+            )
+        }
+    }
+
+    func refreshWeeklyTasks(goalId: String) async throws -> [WeeklyTask] {
+        let fetched = try await remote.getWeeklyTasks(goalId: goalId)
+        syncTasksToCache(fetched, goalId: goalId)
+        try? context.save()
+        return fetched
+    }
+
+    func cachedWeeklyPlan(goalId: String) -> WeeklyPlan? {
+        let activeStatus = WeeklyPlanStatus.active.rawValue
+        let descriptor = FetchDescriptor<LocalWeeklyPlan>(
+            predicate: #Predicate { $0.goalId == goalId && $0.status == activeStatus }
+        )
+        guard let local = try? context.fetch(descriptor).first else { return nil }
+        return WeeklyPlan(
+            id: local.id,
+            milestoneId: local.milestoneId,
+            goalId: local.goalId,
+            userId: local.userId,
+            weekNumber: local.weekNumber,
+            weekStartDate: local.weekStartDate,
+            objectives: local.objectives,
+            summary: local.summary,
+            status: local.weeklyPlanStatus,
+            isFallback: local.isFallback,
+            createdAt: local.createdAt
+        )
+    }
+
+    func refreshWeeklyPlan(goalId: String) async -> WeeklyPlan? {
+        let plan: WeeklyPlan?
+        if let existing = try? await remote.getWeeklyPlan(goalId: goalId) {
+            plan = existing
+        } else {
+            plan = try? await remote.generateWeeklyPlan(goalId: goalId)
+        }
+        if let plan {
+            upsertWeeklyPlanToCache(plan)
+            try? context.save()
+        }
+        return plan
+    }
+
+    func cachedLatestDebrief(goalId: String) -> Debrief? {
+        let descriptor = FetchDescriptor<LocalDebrief>(
+            predicate: #Predicate { $0.goalId == goalId },
+            sortBy: [SortDescriptor(\.date, order: .reverse)]
+        )
+        guard let local = try? context.fetch(descriptor).first else { return nil }
+        let taskRatings: [TaskRating] = local.taskRatingsJSON
+            .flatMap { try? JSONDecoder().decode([TaskRating].self, from: $0) } ?? []
+        return Debrief(
+            id: local.id,
+            goalId: local.goalId,
+            userId: local.userId,
+            weeklyPlanId: local.weeklyPlanId,
+            date: local.date,
+            note: local.note,
+            taskRatings: taskRatings,
+            createdAt: local.createdAt
+        )
+    }
+
+    func refreshLatestDebrief(goalId: String) async -> Debrief? {
+        guard let history = try? await remote.getDebriefHistory(goalId: goalId),
+              let latest = history.first
+        else { return nil }
+        syncDebriefToCache(latest)
+        try? context.save()
+        return latest
+    }
+
+    func submitDebrief(goalId: String, weeklyPlanId: String, note: String, taskRatings: [TaskRating]?) async throws -> Debrief {
+        let dto = try await remote.submitDebrief(
+            goalId: goalId,
+            weeklyPlanId: weeklyPlanId,
+            note: note,
+            taskRatings: taskRatings
+        )
+        syncDebriefToCache(dto)
+        try? context.save()
+        return dto
+    }
+
+    func generateWeeklyPlan(goalId: String) async throws {
+        _ = try await remote.generateWeeklyPlan(goalId: goalId)
+    }
+
+    func waitForGeneratedTasks(goalId: String) async -> Bool {
+        for _ in 0 ..< 30 {
+            try? await Task.sleep(for: .seconds(2))
+            if let tasks = try? await remote.getWeeklyTasks(goalId: goalId), !tasks.isEmpty {
+                syncTasksToCache(tasks, goalId: goalId)
+                try? context.save()
+                return true
+            }
+        }
+        return false
+    }
+
+    func currentMilestoneTitle(goalId: String) -> String? {
+        let descriptor = FetchDescriptor<LocalRoadmap>(
+            predicate: #Predicate { $0.goalId == goalId }
+        )
+        guard let roadmap = try? context.fetch(descriptor).first,
+              let currentId = roadmap.currentMilestoneId,
+              let milestone = roadmap.milestones.first(where: { $0.id == currentId })
+        else { return nil }
+        return milestone.title
+    }
+
+    func goalTitle(goalId: String) -> String? {
+        fetchGoalTitle(goalId: goalId)
+    }
+
+    private func upsertWeeklyPlanToCache(_ dto: WeeklyPlan) {
+        let planId = dto.id
+        let descriptor = FetchDescriptor<LocalWeeklyPlan>(
+            predicate: #Predicate { $0.id == planId }
+        )
+        if let existing = try? context.fetch(descriptor).first {
+            existing.milestoneId = dto.milestoneId
+            existing.weekNumber = dto.weekNumber
+            existing.weekStartDate = dto.weekStartDate
+            existing.objectives = dto.objectives
+            existing.status = dto.status.rawValue
+            existing.isFallback = dto.isFallback
+            existing.summaryCompletionRate = dto.summary?.completionRate
+            existing.summaryTasksCompleted = dto.summary?.tasksCompleted
+            existing.summaryTasksTotal = dto.summary?.tasksTotal
+            existing.summaryDebriefCount = dto.summary?.debriefCount
+            existing.summaryNarrative = dto.summary?.narrative
+        } else {
+            context.insert(LocalWeeklyPlan(
+                id: dto.id,
+                milestoneId: dto.milestoneId,
+                goalId: dto.goalId,
+                userId: dto.userId,
+                weekNumber: dto.weekNumber,
+                weekStartDate: dto.weekStartDate,
+                objectives: dto.objectives,
+                status: dto.status.rawValue,
+                isFallback: dto.isFallback,
+                createdAt: dto.createdAt,
+                summary: dto.summary
+            ))
+        }
+    }
+
+    private func syncDebriefToCache(_ dto: Debrief) {
+        let debriefId = dto.id
+        let descriptor = FetchDescriptor<LocalDebrief>(
+            predicate: #Predicate { $0.id == debriefId }
+        )
+        let existing = try? context.fetch(descriptor).first
+        let ratingsData = try? JSONEncoder().encode(dto.taskRatings)
+
+        if let existing {
+            existing.note = dto.note
+            existing.weeklyPlanId = dto.weeklyPlanId
+            existing.taskRatingsJSON = ratingsData
+        } else {
+            context.insert(LocalDebrief(
+                id: dto.id,
+                goalId: dto.goalId,
+                userId: dto.userId,
+                weeklyPlanId: dto.weeklyPlanId,
+                date: dto.date,
+                note: dto.note,
+                taskRatingsJSON: ratingsData,
+                createdAt: dto.createdAt
+            ))
+        }
+    }
+
     private func refreshTasksForProgress(goalId: String) async {
         guard let fetched = try? await remote.getWeeklyTasks(goalId: goalId) else { return }
         syncTasksToCache(fetched, goalId: goalId)

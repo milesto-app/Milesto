@@ -2,30 +2,17 @@ import Foundation
 
 @MainActor
 @Observable
-final class HomeViewModel {
-    @ObservationIgnored private let repository: any HomeRepository
+final class WeeklyTasksViewModel {
+    @ObservationIgnored private let repository: any RoadmapFeatureRepository
+    @ObservationIgnored private var goalId: String = ""
 
-    private(set) var goalId: String = ""
-    private(set) var goalTitle: String = ""
-    private(set) var currentMilestoneTitle: String?
-    private(set) var weeklyPlan: WeeklyPlan?
     private(set) var tasks: [WeeklyTask] = []
-    private(set) var todayDebrief: Debrief?
+    private(set) var weekNumber: Int?
     private(set) var isLoading = true
-    private(set) var hasSyncError = false
+    private(set) var hasError = false
 
-    init(repository: any HomeRepository) {
+    init(repository: any RoadmapFeatureRepository) {
         self.repository = repository
-    }
-
-    var completedCount: Int {
-        tasks.filter(\.isCompleted).count
-    }
-
-    var goalProgress: Double {
-        guard !tasks.isEmpty else { return 0 }
-        let completed = tasks.filter(\.isCompleted).count
-        return Double(completed) / Double(tasks.count)
     }
 
     var sortedTasks: [WeeklyTask] {
@@ -38,32 +25,34 @@ final class HomeViewModel {
         }
     }
 
-    var heroTitle: String {
-        currentMilestoneTitle ?? goalTitle
+    var completedCount: Int {
+        tasks.filter(\.isCompleted).count
     }
 
     func configure(goalId: String) {
         self.goalId = goalId
-        applySnapshot(repository.loadCachedSnapshot(goalId: goalId))
+        let cached = repository.cachedWeeklyTasks(goalId: goalId)
+        if !cached.isEmpty {
+            tasks = cached
+            isLoading = false
+        }
+        weekNumber = repository.cachedWeeklyPlan(goalId: goalId)?.weekNumber
     }
 
-    func resetForGoalChange() {
-        tasks = []
-        weeklyPlan = nil
-        todayDebrief = nil
-        currentMilestoneTitle = nil
-        goalTitle = ""
-        isLoading = true
-        hasSyncError = false
+    func refresh() async {
+        defer { isLoading = false }
+        do {
+            tasks = try await repository.refreshWeeklyTasks(goalId: goalId)
+            hasError = false
+        } catch {
+            if tasks.isEmpty { hasError = true }
+        }
+        if let plan = await repository.refreshWeeklyPlan(goalId: goalId) {
+            weekNumber = plan.weekNumber
+        }
     }
 
-    func loadAllData() async {
-        let snapshot = await repository.refreshAll(goalId: goalId)
-        applySnapshot(snapshot)
-        isLoading = false
-    }
-
-    func toggleTask(_ task: WeeklyTask) {
+    func toggle(_ task: WeeklyTask) {
         guard let index = tasks.firstIndex(where: { $0.id == task.id }) else { return }
         let original = tasks[index]
         let newCompleted = !task.isCompleted
@@ -115,28 +104,6 @@ final class HomeViewModel {
                 repository.cacheTask(reverted)
             }
         }
-    }
-
-    func markRetryRequested() {
-        isLoading = true
-    }
-
-    private func applySnapshot(_ snapshot: HomeSnapshot) {
-        if let goalTitle = snapshot.goalTitle {
-            self.goalTitle = goalTitle
-        }
-        currentMilestoneTitle = snapshot.currentMilestoneTitle
-        if !snapshot.tasks.isEmpty {
-            tasks = snapshot.tasks
-            isLoading = false
-        }
-        if let plan = snapshot.weeklyPlan {
-            weeklyPlan = plan
-        }
-        if let debrief = snapshot.todayDebrief {
-            todayDebrief = debrief
-        }
-        hasSyncError = snapshot.hasSyncError
     }
 }
 

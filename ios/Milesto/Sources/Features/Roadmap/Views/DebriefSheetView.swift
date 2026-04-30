@@ -21,7 +21,7 @@ struct DebriefSheetView: View {
         .task {
             if model == nil {
                 model = DebriefSheetViewModel(
-                    repository: dependencies.home,
+                    repository: dependencies.roadmap,
                     goalId: goalId,
                     weeklyPlanId: weeklyPlanId
                 )

@@ -34,4 +34,16 @@ protocol RoadmapFeatureRepository: AnyObject {
     func cacheTask(_ task: WeeklyTask)
     func generateRoadmap(goalId: String) async throws
     func fetchRoadmapStatus(goalId: String) async throws -> RoadmapStatus
+
+    func cachedWeeklyTasks(goalId: String) -> [WeeklyTask]
+    func refreshWeeklyTasks(goalId: String) async throws -> [WeeklyTask]
+    func cachedWeeklyPlan(goalId: String) -> WeeklyPlan?
+    func refreshWeeklyPlan(goalId: String) async -> WeeklyPlan?
+    func cachedLatestDebrief(goalId: String) -> Debrief?
+    func refreshLatestDebrief(goalId: String) async -> Debrief?
+    func submitDebrief(goalId: String, weeklyPlanId: String, note: String, taskRatings: [TaskRating]?) async throws -> Debrief
+    func generateWeeklyPlan(goalId: String) async throws
+    func waitForGeneratedTasks(goalId: String) async -> Bool
+    func currentMilestoneTitle(goalId: String) -> String?
+    func goalTitle(goalId: String) -> String?
 }

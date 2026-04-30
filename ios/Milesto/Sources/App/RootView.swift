@@ -156,19 +156,7 @@ struct RootView: View {
     private func mainAppContent(routing: RootRoutingViewModel) -> some View {
         TabView(selection: $selectedTab) {
             Tab(value: 0) {
-                HomeView(
-                    goalId: routing.activeGoalId ?? "",
-                    firstName: routing.localProfile?.firstName ?? "",
-                    taskDetail: { context in
-                        WeeklyTaskDetailView(
-                            tasks: context.tasks,
-                            orderedIds: context.orderedIds,
-                            startIndex: context.startIndex,
-                            weekNumber: context.weekNumber,
-                            onToggle: context.onToggle
-                        )
-                    }
-                )
+                HomeView(goalId: routing.activeGoalId ?? "")
             } label: {
                 TablerTabLabel(.home, title: String(localized: "tabs.home", table: "Common"))
             }

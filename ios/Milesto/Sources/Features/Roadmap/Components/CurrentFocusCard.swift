@@ -1,9 +1,18 @@
 import SwiftUI
 
-struct HomeHeroSection: View {
-    let formattedDate: String
-    let title: String
-    let progress: Double
+struct CurrentFocusCard: View {
+    let goalId: String
+    let refreshToken: Int
+
+    @Environment(AppDependencies.self) private var dependencies
+    @State private var model: CurrentFocusViewModel?
+
+    private var formattedDate: String {
+        let formatter = DateFormatter()
+        formatter.locale = Locale.current
+        formatter.dateFormat = "EEEE d MMMM"
+        return formatter.string(from: Date()).capitalized
+    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
@@ -11,11 +20,12 @@ struct HomeHeroSection: View {
                 AppText(verbatim: formattedDate, style: .caption)
                     .color(Color("TextSecondary"))
 
-                AppText(verbatim: title, style: .title)
+                AppText(verbatim: model?.title ?? "", style: .title)
             }
 
             VStack(alignment: .leading, spacing: 8) {
                 GeometryReader { geometry in
+                    let progress = model?.progress ?? 0
                     ZStack(alignment: .leading) {
                         Capsule()
                             .fill(Color("TextSecondary").opacity(0.3))
@@ -33,13 +43,13 @@ struct HomeHeroSection: View {
 
                 HStack {
                     AppText(
-                        verbatim: "\(Int(progress * 100))%",
+                        verbatim: "\(Int((model?.progress ?? 0) * 100))%",
                         style: .subheadline
                     )
                     .weight(.semibold)
                     .color(Color("Brand"))
                     .contentTransition(.numericText())
-                    .animation(.easeInOut(duration: 0.3), value: progress)
+                    .animation(.easeInOut(duration: 0.3), value: model?.progress ?? 0)
                     Spacer()
                 }
             }
@@ -47,5 +57,18 @@ struct HomeHeroSection: View {
         .padding(.horizontal, 24)
         .padding(.top, 32)
         .padding(.bottom, 32)
+        .task {
+            if model == nil {
+                let vm = CurrentFocusViewModel(repository: dependencies.roadmap)
+                vm.configure(goalId: goalId)
+                model = vm
+            }
+        }
+        .task(id: "\(goalId)-\(refreshToken)") {
+            await model?.refresh()
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .weeklyTaskCompletionDidChange)) { _ in
+            model?.reactToTaskChange()
+        }
     }
 }
