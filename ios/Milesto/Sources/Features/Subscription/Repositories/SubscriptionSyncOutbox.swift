@@ -3,7 +3,7 @@ import Foundation
 import OSLog
 import SwiftData
 
-private nonisolated let outboxLogger = Logger(subsystem: Bundle.main.bundleIdentifier ?? "app.milesto-ai", category: "SubscriptionOutbox")
+private nonisolated let outboxLogger = Logger(subsystem: Bundle.main.bundleIdentifier ?? "app.milesto", category: "SubscriptionOutbox")
 
 private let maxDrainAttemptsPerEntry = 5
 

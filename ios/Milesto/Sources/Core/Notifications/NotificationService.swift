@@ -3,7 +3,7 @@ import UIKit
 import UserNotifications
 
 private let lastTokenKey = "lastAPNSToken"
-private let notificationLogger = Logger(subsystem: Bundle.main.bundleIdentifier ?? "app.milesto-ai", category: "Notifications")
+private let notificationLogger = Logger(subsystem: Bundle.main.bundleIdentifier ?? "app.milesto", category: "Notifications")
 
 final class NotificationService {
     static let shared = NotificationService()

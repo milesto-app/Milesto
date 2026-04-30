@@ -2,7 +2,7 @@ import Foundation
 import OSLog
 import SwiftData
 
-private let settingsLogger = Logger(subsystem: Bundle.main.bundleIdentifier ?? "app.milesto-ai", category: "Settings")
+private let settingsLogger = Logger(subsystem: Bundle.main.bundleIdentifier ?? "app.milesto", category: "Settings")
 
 enum SettingsRepositoryError: Error {
     case localPurgeFailed

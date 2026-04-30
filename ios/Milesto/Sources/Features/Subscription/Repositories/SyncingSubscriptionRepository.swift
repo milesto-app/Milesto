@@ -3,7 +3,7 @@ import OSLog
 import StoreKit
 import Supabase
 
-private let subscriptionLogger = Logger(subsystem: Bundle.main.bundleIdentifier ?? "app.milesto-ai", category: "Subscription")
+private let subscriptionLogger = Logger(subsystem: Bundle.main.bundleIdentifier ?? "app.milesto", category: "Subscription")
 
 nonisolated struct VerifySubscriptionBody: Encodable {
     let jwsTransaction: String

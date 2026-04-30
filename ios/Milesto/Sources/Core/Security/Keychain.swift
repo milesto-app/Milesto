@@ -7,7 +7,7 @@ nonisolated enum KeychainKey: String {
 }
 
 nonisolated enum Keychain {
-    private static let accessGroupSuffix = "app.milesto-ai.shared"
+    private static let accessGroupSuffix = "app.milesto.shared"
 
     private static var fullAccessGroup: String {
         guard let prefix = Bundle.main.object(forInfoDictionaryKey: "AppIdentifierPrefix") as? String,

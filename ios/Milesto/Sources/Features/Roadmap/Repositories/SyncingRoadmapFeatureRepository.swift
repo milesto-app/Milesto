@@ -2,7 +2,7 @@ import Foundation
 import OSLog
 import SwiftData
 
-private let roadmapLogger = Logger(subsystem: Bundle.main.bundleIdentifier ?? "app.milesto-ai", category: "Roadmap")
+private let roadmapLogger = Logger(subsystem: Bundle.main.bundleIdentifier ?? "app.milesto", category: "Roadmap")
 
 @MainActor
 final class SyncingRoadmapFeatureRepository: RoadmapFeatureRepository {
