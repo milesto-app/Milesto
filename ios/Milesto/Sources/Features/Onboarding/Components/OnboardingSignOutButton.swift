@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct OnboardingSignOutButton: View {
-    @Environment(AuthService.self) private var authService
+    @Environment(SupabaseAuthRepository.self) private var authService
     @State private var showConfirmation = false
 
     var body: some View {

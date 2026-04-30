@@ -9,9 +9,9 @@ private let storeResetGuardKey = "com.milesto.modelContainer.resetAttemptedAtBui
 @main
 struct MilestoApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
-    @State private var authService = AuthService.shared
+    @State private var authService = SupabaseAuthRepository.shared
     @State private var dependencies = AppDependencies(
-        auth: AuthService.shared,
+        auth: SupabaseAuthRepository.shared,
         entitlement: SyncingSubscriptionRepository.shared
     )
     @Environment(\.scenePhase) private var scenePhase

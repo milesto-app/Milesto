@@ -16,7 +16,7 @@ struct SettingsView: View {
     var onNewGoal: ((String) -> Void)?
     var onDeleteGoal: (() -> Void)?
 
-    @Environment(AuthService.self) private var authService
+    @Environment(SupabaseAuthRepository.self) private var authService
     @Environment(\.modelContext) private var modelContext
 
     @Query private var localProfiles: [Profile]
@@ -228,6 +228,6 @@ struct SettingsView: View {
 
 #Preview {
     SettingsView()
-        .environment(AuthService.shared)
+        .environment(SupabaseAuthRepository.shared)
         .modelContainer(for: Profile.self, inMemory: true)
 }

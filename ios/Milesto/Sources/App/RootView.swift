@@ -2,7 +2,7 @@ import SwiftData
 import SwiftUI
 
 struct RootView: View {
-    @Environment(AuthService.self) private var authService
+    @Environment(SupabaseAuthRepository.self) private var authService
     @Environment(\.modelContext) private var modelContext
 
     @Query private var localProfiles: [Profile]
@@ -219,6 +219,6 @@ struct RootView: View {
 
 #Preview {
     RootView()
-        .environment(AuthService.shared)
+        .environment(SupabaseAuthRepository.shared)
         .modelContainer(for: [Profile.self, Goal.self, LocalRoadmap.self, LocalMilestone.self, LocalWeeklyPlan.self, LocalWeeklyTask.self], inMemory: true)
 }

@@ -9,7 +9,7 @@ final class ProfileSyncService {
     private init() {}
 
     private func mergePendingAppleName(into fetchedProfile: Profile?) async -> Profile? {
-        let pending = AuthService.shared.consumePendingAppleName()
+        let pending = SupabaseAuthRepository.shared.consumePendingAppleName()
         guard pending.firstName != nil || pending.lastName != nil else { return fetchedProfile }
 
         let existingFirst = fetchedProfile?.firstName?.trimmingCharacters(in: .whitespaces) ?? ""

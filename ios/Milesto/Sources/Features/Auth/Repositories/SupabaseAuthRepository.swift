@@ -4,8 +4,8 @@ import Supabase
 
 @MainActor
 @Observable
-final class AuthService: AuthSessionProviding {
-    static let shared = AuthService()
+final class SupabaseAuthRepository: AuthRepository {
+    static let shared = SupabaseAuthRepository()
 
     private var client: SupabaseClient {
         Supabase.client
