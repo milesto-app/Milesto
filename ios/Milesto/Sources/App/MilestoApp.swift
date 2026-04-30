@@ -15,9 +15,9 @@ struct MilestoApp: App {
         _dependencies = State(initialValue: AppDependencies(container: container))
     }
 
-    private var isAuthenticated: Bool {
-        if case .authenticated = dependencies.auth.authState { return true }
-        return false
+    private var authenticatedSessionUserId: String? {
+        if case let .authenticated(userId) = dependencies.auth.authState { return userId }
+        return nil
     }
 
     var body: some Scene {
@@ -31,20 +31,27 @@ struct MilestoApp: App {
                         await dependencies.authRepository.handleDeepLink(url)
                     }
                 }
-                .task(id: isAuthenticated) {
-                    await SubscriptionSyncOutbox.shared.configure(container: sharedModelContainer)
-                    guard isAuthenticated else { return }
-                    await NotificationService.shared.requestPermissionAndRegister()
-                    await dependencies.subscription.reconcileWithBackend()
+                .task(id: authenticatedSessionUserId) {
+                    await prepareAuthenticatedAppSession()
                 }
                 .onChange(of: scenePhase) { _, newPhase in
-                    if newPhase == .active, isAuthenticated {
-                        Task {
-                            await NotificationService.shared.requestPermissionAndRegister()
-                        }
-                    }
+                    refreshActiveSceneServicesIfNeeded(phase: newPhase)
                 }
         }
         .modelContainer(sharedModelContainer)
+    }
+
+    private func prepareAuthenticatedAppSession() async {
+        await SubscriptionSyncOutbox.shared.configure(container: sharedModelContainer)
+        guard authenticatedSessionUserId != nil else { return }
+        await NotificationService.shared.requestPermissionAndRegister()
+        await dependencies.subscription.reconcileWithBackend()
+    }
+
+    private func refreshActiveSceneServicesIfNeeded(phase: ScenePhase) {
+        guard phase == .active, authenticatedSessionUserId != nil else { return }
+        Task {
+            await NotificationService.shared.requestPermissionAndRegister()
+        }
     }
 }
