@@ -29,7 +29,7 @@ struct RootView: View {
             }
         }
         #if DEBUG
-        .clearsDeveloperOverrideOnShake(dependencies.developerSettings)
+        .showsDeveloperRouteMenuOnShake(dependencies.developerSettings)
         #endif
     }
 
