@@ -36,7 +36,8 @@ final class AppDependencies {
         let syncingProfile = SyncingProfileRepository(
             remote: supabaseProfile,
             auth: authService,
-            container: container
+            container: container,
+            httpLoader: URLSessionDataLoader()
         )
         let supabaseGoal = SupabaseGoalRepository(client: SupabaseConfig.client, backend: .shared)
         let goalRoutingRepo = SyncingGoalRepository(remote: supabaseGoal, container: container)

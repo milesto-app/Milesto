@@ -1,13 +1,21 @@
 import SwiftUI
 
-struct HomeView: View {
+struct HomeTaskDetailContext {
+    let tasks: [WeeklyTask]
+    let orderedIds: [String]
+    let startIndex: Int
+    let weekNumber: Int?
+    let onToggle: (WeeklyTask) -> Void
+}
+
+struct HomeView<TaskDetailContent: View>: View {
     let goalId: String
     let firstName: String
+    let taskDetail: (HomeTaskDetailContext) -> TaskDetailContent
 
     @Environment(AppDependencies.self) private var dependencies
     @State private var model: HomeViewModel?
     @State private var showDebriefSheet = false
-    @State private var showWeeklyPlanDetail = false
     @State private var showWeeklyPlanGeneration = false
     @State private var selectedTaskId: String?
 
@@ -113,29 +121,16 @@ struct HomeView: View {
             )
         }
         .padding(.bottom, 40)
-        .navigationDestination(isPresented: $showWeeklyPlanDetail) {
-            if let weeklyPlan = model.weeklyPlan {
-                WeeklyPlanDetailView(
-                    weekNumber: weeklyPlan.weekNumber,
-                    weekStartDate: weeklyPlan.weekStartDate,
-                    objectives: weeklyPlan.objectives,
-                    summary: weeklyPlan.summary,
-                    status: weeklyPlan.status
-                )
-            }
-        }
         .navigationDestination(item: $selectedTaskId) { taskId in
             let ordered = model.sortedTasks.map(\.id)
             if let start = ordered.firstIndex(of: taskId) {
-                WeeklyTaskDetailView(
+                taskDetail(HomeTaskDetailContext(
                     tasks: model.tasks,
                     orderedIds: ordered,
                     startIndex: start,
                     weekNumber: model.weeklyPlan?.weekNumber,
-                    onToggle: { updated in
-                        model.applyRemoteToggle(updated)
-                    }
-                )
+                    onToggle: { updated in model.applyRemoteToggle(updated) }
+                ))
             }
         }
     }

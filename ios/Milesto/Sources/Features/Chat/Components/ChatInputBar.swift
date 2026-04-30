@@ -10,12 +10,14 @@ struct ChatInputBar: View {
 
     var body: some View {
         HStack(alignment: .bottom, spacing: 12) {
-            TextField(String(localized: "chat.input.placeholder", table: "Chat"), text: $text, axis: .vertical)
-                .textFieldStyle(.plain)
-                .lineLimit(1 ... 6)
-                .focused(isFocused)
-                .padding(.horizontal, 16)
-                .padding(.vertical, 16)
+            AppChatField(
+                text: $text,
+                placeholder: "chat.input.placeholder",
+                table: "Chat",
+                isFocused: isFocused
+            )
+            .padding(.horizontal, 16)
+            .padding(.vertical, 16)
 
             if hasText {
                 Button {

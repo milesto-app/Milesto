@@ -7,11 +7,18 @@ final class SyncingProfileRepository: ProfileRepository {
     private let remote: SupabaseProfileRepository
     private let auth: any AuthRepository
     private let container: ModelContainer
+    private let httpLoader: any HTTPDataLoading
 
-    init(remote: SupabaseProfileRepository, auth: any AuthRepository, container: ModelContainer) {
+    init(
+        remote: SupabaseProfileRepository,
+        auth: any AuthRepository,
+        container: ModelContainer,
+        httpLoader: any HTTPDataLoading
+    ) {
         self.remote = remote
         self.auth = auth
         self.container = container
+        self.httpLoader = httpLoader
     }
 
     private var context: ModelContext {
@@ -101,11 +108,6 @@ final class SyncingProfileRepository: ProfileRepository {
 
     private func downloadAvatarData(from urlString: String?) async -> Data? {
         guard let urlString, let url = URL(string: urlString) else { return nil }
-        do {
-            let (data, _) = try await URLSession.shared.data(from: url)
-            return data
-        } catch {
-            return nil
-        }
+        return try? await httpLoader.data(from: url)
     }
 }
