@@ -22,7 +22,7 @@ struct TranscriptionToggleButton: View {
     @Binding var transcribedText: String
     var size: Size = .regular
 
-    @Environment(AppDependencies.self) private var dependencies
+    @Environment(\.transcriptionRepository) private var repository
     @State private var model: TranscriptionToggleViewModel?
     @State private var pulseScale: CGFloat = 1.0
 
@@ -43,10 +43,11 @@ struct TranscriptionToggleButton: View {
         .padding(-6)
         .offset(x: -1)
         .task {
-            if model == nil {
-                model = TranscriptionToggleViewModel(repository: dependencies.transcription)
+            if model == nil, let repository {
+                model = TranscriptionToggleViewModel(repository: repository)
             }
         }
+        .disabled(model == nil)
         .onChange(of: model?.state) { _, newState in
             guard let newState else { return }
             withAnimation(pulseAnimation(for: newState)) {

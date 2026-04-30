@@ -28,7 +28,6 @@ struct IntakeContainerView: View {
         }
     }
 
-    @ViewBuilder
     private func content(model: IntakeContainerViewModel) -> some View {
         Group {
             switch model.phase {

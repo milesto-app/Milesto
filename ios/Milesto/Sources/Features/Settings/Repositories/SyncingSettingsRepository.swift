@@ -14,17 +14,20 @@ final class SyncingSettingsRepository: SettingsRepository {
     private let goals: any GoalRepository
     private let container: ModelContainer
     private let featurePurgers: [any LocalDataPurging]
+    private let purgeAdditionalLocalData: () async throws -> Void
 
     init(
         profile: any ProfileRepository,
         goals: any GoalRepository,
         container: ModelContainer,
-        featurePurgers: [any LocalDataPurging] = []
+        featurePurgers: [any LocalDataPurging] = [],
+        purgeAdditionalLocalData: @escaping () async throws -> Void = {}
     ) {
         self.profile = profile
         self.goals = goals
         self.container = container
         self.featurePurgers = featurePurgers
+        self.purgeAdditionalLocalData = purgeAdditionalLocalData
     }
 
     private var context: ModelContext {
@@ -73,7 +76,7 @@ final class SyncingSettingsRepository: SettingsRepository {
 
     func purgeLocalUserData() async throws {
         do {
-            try await SubscriptionSyncOutbox.shared.purgeAll()
+            try await purgeAdditionalLocalData()
             for purger in featurePurgers {
                 try purger.purgeLocalData()
             }

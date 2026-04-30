@@ -228,8 +228,6 @@ final class SyncingSubscriptionRepository: EntitlementProviding, SubscriptionRep
         entitlementState = .notSubscribed
     }
 
-    /// Mirrors the API's `assertActiveSubscription` — status alone isn't enough,
-    /// an "active" row with a past `expiresAt` is still rejected by gated endpoints.
     private static func isBackendActive(_ response: SubscriptionStatusResponse) -> Bool {
         guard response.status == "active" || response.status == "grace_period" else { return false }
         guard let expiresAtString = response.expiresAt,

@@ -58,9 +58,11 @@ struct ProfileOnboardingView: View {
             .id(model.currentStepIndex)
             .transition(.push(from: .trailing))
             .overlay(alignment: .topLeading) {
-                OnboardingSignOutButton()
-                    .padding(.top, 8)
-                    .padding(.leading, 16)
+                AppSignOutButton {
+                    try? await dependencies.authRepository.signOut()
+                }
+                .padding(.top, 8)
+                .padding(.leading, 16)
             }
             .overlay {
                 if model.isSaving {

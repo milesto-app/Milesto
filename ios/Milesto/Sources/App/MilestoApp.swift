@@ -30,6 +30,7 @@ struct MilestoApp: App {
             RootView()
                 .tint(Color("Brand"))
                 .environment(dependencies)
+                .environment(\.transcriptionRepository, dependencies.transcription)
                 .onOpenURL { url in
                     Task {
                         await dependencies.authRepository.handleDeepLink(url)

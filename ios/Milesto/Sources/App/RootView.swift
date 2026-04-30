@@ -125,7 +125,6 @@ struct RootView: View {
         }
     }
 
-    @ViewBuilder
     private func postProfileFlow(userId: String, routing: RootRoutingViewModel) -> some View {
         Group {
             if routing.goalComplete && routing.roadmapReady {

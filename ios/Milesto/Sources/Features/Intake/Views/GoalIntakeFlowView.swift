@@ -41,7 +41,7 @@ struct GoalIntakeFlowView: View {
                         }
                     )
                 case let .motivation(goalId):
-                    OnboardingMotivationView(
+                    IntakeMotivationView(
                         motivationQuote: $bindable.motivationQuote,
                         isSaving: model.isSavingMotivation,
                         onContinue: {
@@ -68,9 +68,11 @@ struct GoalIntakeFlowView: View {
                 }
             }
             .overlay(alignment: .topLeading) {
-                OnboardingSignOutButton()
-                    .padding(.top, 8)
-                    .padding(.leading, 16)
+                AppSignOutButton {
+                    try? await dependencies.authRepository.signOut()
+                }
+                .padding(.top, 8)
+                .padding(.leading, 16)
             }
         }
         .alert(String(localized: "intake.error.title", table: "Intake"), isPresented: $bindable.showError) {

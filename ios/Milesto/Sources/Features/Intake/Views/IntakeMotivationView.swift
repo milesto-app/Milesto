@@ -1,6 +1,6 @@
 import SwiftUI
 
-struct OnboardingMotivationView: View {
+struct IntakeMotivationView: View {
     @Binding var motivationQuote: String
     let isSaving: Bool
     let onContinue: () -> Void
@@ -19,10 +19,10 @@ struct OnboardingMotivationView: View {
     var body: some View {
         VStack(spacing: 24) {
             VStack(spacing: 8) {
-                AppText("onboarding.motivation.title", table: "Onboarding", style: .title)
+                AppText("intake.motivation.title", table: "Intake", style: .title)
                     .alignment(.center)
 
-                AppText("onboarding.motivation.subtitle", table: "Onboarding", style: .subheadline)
+                AppText("intake.motivation.subtitle", table: "Intake", style: .subheadline)
                     .alignment(.center)
             }
             .padding(.top, 40)
@@ -31,8 +31,8 @@ struct OnboardingMotivationView: View {
 
             AppTextField(
                 text: $motivationQuote,
-                label: "onboarding.motivation.placeholder",
-                table: "Onboarding",
+                label: "intake.motivation.placeholder",
+                table: "Intake",
                 multiline: true
             )
             .padding(.horizontal, 24)
@@ -44,7 +44,7 @@ struct OnboardingMotivationView: View {
                     .fullWidth()
                     .disabled(!canContinue || isSaving)
 
-                AppButton("onboarding.motivation.skip", table: "Onboarding", style: .text, action: onSkip)
+                AppButton("intake.motivation.skip", table: "Intake", style: .text, action: onSkip)
                     .fullWidth()
                     .disabled(isSaving)
             }
@@ -65,7 +65,7 @@ struct OnboardingMotivationView: View {
 }
 
 #Preview {
-    OnboardingMotivationView(
+    IntakeMotivationView(
         motivationQuote: .constant(""),
         isSaving: false,
         onContinue: {},
