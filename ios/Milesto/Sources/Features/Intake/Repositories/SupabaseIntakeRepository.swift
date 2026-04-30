@@ -10,8 +10,9 @@ struct RetryProfileResponse: Codable {
     }
 }
 
-final class IntakeAPIService {
-    static let shared = IntakeAPIService()
+@MainActor
+final class SupabaseIntakeRepository: IntakeRepository {
+    static let shared = SupabaseIntakeRepository()
 
     private init() {}
 

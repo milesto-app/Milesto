@@ -46,3 +46,5 @@ final class Goal: Decodable {
         self.init(id: id, userId: userId, title: title, goalDescription: goalDescription, status: status, createdAt: createdAt)
     }
 }
+
+typealias LocalGoal = Goal

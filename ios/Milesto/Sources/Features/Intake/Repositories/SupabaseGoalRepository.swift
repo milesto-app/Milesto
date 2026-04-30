@@ -1,8 +1,9 @@
 import Foundation
 import Supabase
 
-final class GoalAPIService {
-    static let shared = GoalAPIService()
+@MainActor
+final class SupabaseGoalRepository: GoalRepository {
+    static let shared = SupabaseGoalRepository()
 
     private init() {}
 

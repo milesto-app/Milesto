@@ -136,7 +136,7 @@ struct SettingsView: View {
             isDeleting = true
             defer { isDeleting = false }
             do {
-                try await GoalAPIService.shared.deleteGoal(goalId: goal.id)
+                try await SupabaseGoalRepository.shared.deleteGoal(goalId: goal.id)
                 modelContext.delete(goal)
                 onDeleteGoal?()
             } catch {

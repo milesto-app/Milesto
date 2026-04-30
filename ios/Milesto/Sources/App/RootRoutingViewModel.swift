@@ -114,7 +114,7 @@ final class RootRoutingViewModel {
     }
 
     private func syncGoals(userId: String, modelContext: ModelContext) async {
-        guard let goals = try? await GoalAPIService.shared.listGoals() else { return }
+        guard let goals = try? await SupabaseGoalRepository.shared.listGoals() else { return }
         let remoteIds = Set(goals.map { $0.id })
         for dto in goals {
             let dtoId = dto.id
