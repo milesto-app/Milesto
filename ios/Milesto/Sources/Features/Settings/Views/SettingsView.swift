@@ -52,9 +52,6 @@ struct SettingsView: View {
                 SettingsDeleteGoalSection(isDeleting: model.isDeleting) {
                     showDeleteGoalAlert = true
                 }
-                #if DEBUG
-                    SettingsDeveloperSection(developerSettings: dependencies.developerSettings)
-                #endif
                 SettingsSignOutSection {
                     showSignOutAlert = true
                 }
