@@ -69,12 +69,12 @@ struct RoadmapMilestoneRow: View {
             if isCurrent {
                 Circle()
                     .trim(from: 0, to: currentProgressRing)
-                    .stroke(Color("Brand"), style: StrokeStyle(lineWidth: 2, lineCap: .round))
+                    .stroke(Color("Brand"), style: StrokeStyle(lineWidth: 1, lineCap: .round))
                     .rotationEffect(.degrees(-90))
                     .frame(width: markerSize, height: markerSize)
             }
 
-            if !isCurrent {
+            if let markerIcon {
                 TablerIcons(markerIcon, size: markerIconSize, color: markerIconColor)
             }
         }
@@ -83,19 +83,7 @@ struct RoadmapMilestoneRow: View {
     }
 
     private var milestoneTypeBadge: some View {
-        HStack(spacing: 4) {
-            TablerIcons(typeIcon, size: 13, color: typeColor)
-            AppText(verbatim: typeLabel, style: .caption)
-                .weight(.semibold)
-                .color(typeColor)
-                .lineLimit(1)
-        }
-        .padding(.horizontal, 8)
-        .padding(.vertical, 4)
-        .background(
-            Capsule()
-                .fill(typeColor.opacity(0.08))
-        )
+        AppPill(verbatim: typeLabel, tint: typeColor, icon: typeIcon)
     }
 
     private var weekBadge: some View {
@@ -117,17 +105,15 @@ struct RoadmapMilestoneRow: View {
             .glassEffect(.regular.interactive(), in: shape)
     }
 
-    private var markerIcon: TablerIconOutline {
+    private var markerIcon: TablerIconOutline? {
         if milestone.status == .completed { return .check }
-        return .circle
+        return nil
     }
 
     private var markerFill: Color {
         switch milestone.status {
-        case .completed:
-            Color("Brand")
-        case .current, .upcoming:
-            Color("TextSecondary").opacity(0.08)
+        case .completed, .current, .upcoming:
+            .clear
         }
     }
 
@@ -136,12 +122,12 @@ struct RoadmapMilestoneRow: View {
         case .completed:
             Color("Brand")
         case .current, .upcoming:
-            Color("TextSecondary").opacity(0.18)
+            Color("TextSecondary").opacity(0.28)
         }
     }
 
     private var markerIconColor: Color {
-        milestone.status == .completed ? Color("TextOnBrand") : typeColor
+        milestone.status == .completed ? Color("Brand") : typeColor
     }
 
     private var typeIcon: TablerIconOutline {

@@ -49,8 +49,7 @@ struct RoadmapMonthSection: Identifiable {
     }
 
     func visibleMilestones(isExpanded: Bool) -> [DisplayMilestone] {
-        if isComplete, !isExpanded { return [] }
-        if isCurrent, !isExpanded { return milestones.filter { $0.status != .completed } }
+        if !isExpanded { return [] }
         return milestones
     }
 }
@@ -63,6 +62,7 @@ struct RoadmapView: View {
     @State private var model: RoadmapViewModel?
     @State private var selectedMilestone: DisplayMilestone?
     @State private var expandedPastSections: Set<Int> = []
+    @State private var collapsedSections: Set<Int> = []
 
     private var monthSections: [RoadmapMonthSection] {
         guard let model else { return [] }
@@ -105,6 +105,7 @@ struct RoadmapView: View {
             model.resetForGoalChange()
             model.configure(goalId: goalId)
             expandedPastSections = []
+            collapsedSections = []
             Task {
                 await model.loadMilestones()
                 if !model.appeared {
@@ -140,10 +141,10 @@ struct RoadmapView: View {
                                 ForEach(Array(monthSections.enumerated()), id: \.element.id) { sectionIndex, section in
                                     RoadmapPhaseSection(
                                         section: section,
-                                        isExpanded: expandedPastSections.contains(section.id),
+                                        isExpanded: isSectionExpanded(section),
                                         appeared: model.appeared,
                                         animationDelay: Double(sectionIndex) * 0.08 + 0.12,
-                                        onToggleExpanded: { togglePastSection(section.id) },
+                                        onToggleExpanded: { toggleSection(section) },
                                         onSelect: { selectedMilestone = $0 }
                                     )
                                 }
@@ -169,11 +170,26 @@ struct RoadmapView: View {
         }
     }
 
-    private func togglePastSection(_ sectionId: Int) {
-        if expandedPastSections.contains(sectionId) {
-            expandedPastSections.remove(sectionId)
+    private func isSectionExpanded(_ section: RoadmapMonthSection) -> Bool {
+        if section.isComplete {
+            return expandedPastSections.contains(section.id)
+        }
+        return !collapsedSections.contains(section.id)
+    }
+
+    private func toggleSection(_ section: RoadmapMonthSection) {
+        if isSectionExpanded(section) {
+            if section.isComplete {
+                expandedPastSections.remove(section.id)
+            } else {
+                collapsedSections.insert(section.id)
+            }
         } else {
-            expandedPastSections.insert(sectionId)
+            if section.isComplete {
+                expandedPastSections.insert(section.id)
+            } else {
+                collapsedSections.remove(section.id)
+            }
         }
     }
 }

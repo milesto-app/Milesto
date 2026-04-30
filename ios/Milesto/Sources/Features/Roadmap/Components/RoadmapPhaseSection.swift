@@ -12,8 +12,19 @@ struct RoadmapPhaseSection: View {
         section.visibleMilestones(isExpanded: isExpanded)
     }
 
-    private var hasCollapsedHistory: Bool {
-        visibleMilestones.count < section.milestones.count
+    private var collapseAnimation: Animation {
+        .spring(response: 0.42, dampingFraction: 0.78, blendDuration: 0.08)
+    }
+
+    private var bodyTransition: AnyTransition {
+        .asymmetric(
+            insertion: .opacity
+                .combined(with: .move(edge: .top))
+                .combined(with: .scale(scale: 0.98, anchor: .top))
+                .animation(.easeOut(duration: 0.16).delay(0.18)),
+            removal: .opacity
+                .animation(.easeOut(duration: 0.08))
+        )
     }
 
     var body: some View {
@@ -22,7 +33,7 @@ struct RoadmapPhaseSection: View {
 
             if !visibleMilestones.isEmpty {
                 GlassEffectContainer(spacing: 14) {
-                    VStack(spacing: 12) {
+                    LazyVStack(spacing: 12) {
                         ForEach(visibleMilestones, id: \.id) { milestone in
                             Button {
                                 onSelect(milestone)
@@ -37,19 +48,19 @@ struct RoadmapPhaseSection: View {
                         }
                     }
                 }
+                .transition(bodyTransition)
             }
         }
         .opacity(appeared ? 1 : 0)
         .offset(y: appeared ? 0 : 14)
         .animation(.easeOut(duration: 0.38).delay(animationDelay), value: appeared)
+        .animation(collapseAnimation, value: visibleMilestones.map(\.id))
     }
 
     private var phaseHeader: some View {
         Button {
-            if hasCollapsedHistory || isExpanded {
-                withAnimation(.easeInOut(duration: 0.22)) {
-                    onToggleExpanded()
-                }
+            withAnimation(collapseAnimation) {
+                onToggleExpanded()
             }
         } label: {
             HStack(alignment: .center, spacing: 12) {
@@ -59,12 +70,7 @@ struct RoadmapPhaseSection: View {
                             .weight(section.isCurrent ? .semibold : .medium)
 
                         if section.isCurrent {
-                            AppText("roadmap.phase.currentBadge", table: "Roadmap", style: .caption)
-                                .weight(.semibold)
-                                .color(Color("TextOnBrand"))
-                                .padding(.horizontal, 8)
-                                .padding(.vertical, 3)
-                                .background(Capsule().fill(Color("Brand")))
+                            AppPill("roadmap.phase.currentBadge", table: "Roadmap", tint: Color("Brand"))
                         }
                     }
 
@@ -79,12 +85,12 @@ struct RoadmapPhaseSection: View {
                     style: .caption
                 )
                 .weight(.semibold)
-                .color(section.isCurrent ? Color("Brand") : Color("TextSecondary"))
+                .color(Color("TextSecondary"))
 
-                if hasCollapsedHistory || isExpanded {
-                    TablerIcons(isExpanded ? .chevronUp : .chevronDown, size: 18, color: Color("TextSecondary"))
-                        .frame(width: 22, height: 22)
-                }
+                TablerIcons(.chevronDown, size: 18, color: Color("TextSecondary"))
+                    .frame(width: 22, height: 22)
+                    .rotationEffect(.degrees(isExpanded ? 180 : 0))
+                    .animation(collapseAnimation, value: isExpanded)
             }
             .padding(.horizontal, 4)
             .contentShape(Rectangle())

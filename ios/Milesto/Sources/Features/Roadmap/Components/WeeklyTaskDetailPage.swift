@@ -124,19 +124,7 @@ struct WeeklyTaskDetailPage: View {
     }
 
     private var difficultyBadge: some View {
-        AppText(verbatim: difficultyLabel, style: .caption)
-            .weight(.medium)
-            .color(accent)
-            .padding(.horizontal, 10)
-            .padding(.vertical, 4)
-            .background(
-                Capsule()
-                    .fill(accent.opacity(0.15))
-            )
-            .overlay(
-                Capsule()
-                    .stroke(accent.opacity(0.3), lineWidth: 1)
-            )
+        AppPill(verbatim: difficultyLabel, tint: accent)
     }
 
     private var eyebrowRow: some View {
