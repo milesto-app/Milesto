@@ -20,14 +20,23 @@ final class SyncingSettingsRepository: SettingsRepository {
     private let profile: any ProfileRepository
     private let goals: any GoalRepository
     private let container: ModelContainer
+    private let featurePurgers: [any LocalDataPurging]
 
-    init(profile: any ProfileRepository, goals: any GoalRepository, container: ModelContainer) {
+    init(
+        profile: any ProfileRepository,
+        goals: any GoalRepository,
+        container: ModelContainer,
+        featurePurgers: [any LocalDataPurging] = []
+    ) {
         self.profile = profile
         self.goals = goals
         self.container = container
+        self.featurePurgers = featurePurgers
     }
 
-    private var context: ModelContext { container.mainContext }
+    private var context: ModelContext {
+        container.mainContext
+    }
 
     func loadProfile(userId: String) -> Profile? {
         let descriptor = FetchDescriptor<Profile>(
@@ -72,14 +81,9 @@ final class SyncingSettingsRepository: SettingsRepository {
     func purgeLocalUserData() async throws {
         do {
             try await SubscriptionSyncOutbox.shared.purgeAll()
-            try deleteAll(LocalChatMessage.self)
-            try deleteAll(LocalConversation.self)
-            try deleteAll(LocalDebrief.self)
-            try deleteAll(LocalWeeklyTask.self)
-            try deleteAll(LocalWeeklyPlan.self)
-            try deleteAll(LocalMilestone.self)
-            try deleteAll(LocalRoadmap.self)
-            try deleteAll(LocalStats.self)
+            for purger in featurePurgers {
+                try purger.purgeLocalData()
+            }
             try deleteAll(Goal.self)
             try deleteAll(Profile.self)
             try context.save()

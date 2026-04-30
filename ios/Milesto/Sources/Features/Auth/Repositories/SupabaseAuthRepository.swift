@@ -5,16 +5,15 @@ import Supabase
 @MainActor
 @Observable
 final class SupabaseAuthRepository: AuthRepository {
-    static let shared = SupabaseAuthRepository()
-
-    private var client: SupabaseClient {
-        Supabase.client
-    }
+    private let client: SupabaseClient
+    private let oauth: OAuthClient
 
     private(set) var authState: AuthState = .authenticating
     private(set) var currentUserId: String?
 
-    private init() {
+    init(client: SupabaseClient, oauth: OAuthClient) {
+        self.client = client
+        self.oauth = oauth
         Task {
             await setupAuthStateListener()
         }
@@ -41,7 +40,7 @@ final class SupabaseAuthRepository: AuthRepository {
             case .signedOut:
                 authState = .unauthenticated
                 currentUserId = nil
-                OAuthClient.shared.clearPendingAppleName()
+                oauth.clearPendingAppleName()
                 Keychain.clearAll()
             case .tokenRefreshed:
                 if let session {
@@ -94,7 +93,7 @@ final class SupabaseAuthRepository: AuthRepository {
     }
 
     func signInWithApple() async throws -> String {
-        let credentials = try await OAuthClient.shared.performAppleSignIn()
+        let credentials = try await oauth.performAppleSignIn()
 
         do {
             let session = try await client.auth.signInWithIdToken(
@@ -131,11 +130,11 @@ final class SupabaseAuthRepository: AuthRepository {
         try await client.auth.signOut()
         authState = .unauthenticated
         currentUserId = nil
-        OAuthClient.shared.clearPendingAppleName()
+        oauth.clearPendingAppleName()
     }
 
     func consumePendingAppleName() -> (firstName: String?, lastName: String?) {
-        OAuthClient.shared.consumePendingAppleName()
+        oauth.consumePendingAppleName()
     }
 
     func handleDeepLink(_ url: URL) async {

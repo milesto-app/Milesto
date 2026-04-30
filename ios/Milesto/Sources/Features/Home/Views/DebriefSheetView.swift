@@ -3,7 +3,7 @@ import SwiftUI
 struct DebriefSheetView: View {
     let goalId: String
     let weeklyPlanId: String
-    let completedTasks: [WeeklyTaskDTO]
+    let completedTasks: [WeeklyTask]
     let onDebriefComplete: () -> Void
 
     @Environment(\.dismiss) private var dismiss
@@ -86,7 +86,7 @@ struct DebriefSheetView: View {
 
     private func ratingPill(_ rating: DifficultyRating, label: String, taskId: String, model: DebriefSheetViewModel) -> some View {
         let isSelected = model.ratings[taskId] == rating
-        let pillColor: Color = switch rating {
+        let pillColor = switch rating {
         case .easy: Color("Brand")
         case .moderate: Color("Warning")
         case .hard: Color("Error")

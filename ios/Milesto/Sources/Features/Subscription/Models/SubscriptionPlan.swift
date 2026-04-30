@@ -1,7 +1,7 @@
 import Foundation
 
-struct SubscriptionPlan: Identifiable, Equatable, Sendable {
-    enum Period: String, Equatable, Sendable {
+struct SubscriptionPlan: Identifiable, Equatable {
+    enum Period: String, Equatable {
         case monthly
         case annual
     }

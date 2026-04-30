@@ -11,7 +11,9 @@ final class SyncingStatsRepository: StatsRepository {
         self.container = container
     }
 
-    private var context: ModelContext { container.mainContext }
+    private var context: ModelContext {
+        container.mainContext
+    }
 
     func loadCachedStats(goalId: String) -> StatsDTO? {
         let descriptor = FetchDescriptor<LocalStats>(

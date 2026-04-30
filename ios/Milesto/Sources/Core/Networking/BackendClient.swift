@@ -9,17 +9,35 @@ final class BackendClient {
     #else
         let baseURLString = "https://api.milesto.app/api"
     #endif
-    private lazy var baseURL = URL(string: baseURLString)!
     private let decoder = JSONDecoder()
     private let encoder = JSONEncoder()
 
+    private var onSubscriptionRequired: (@MainActor () async -> Void)?
+    private let onSubscriptionRequiredLock = NSLock()
+
     private init() {}
+
+    func setSubscriptionRequiredHandler(_ handler: @escaping @MainActor () async -> Void) {
+        onSubscriptionRequiredLock.lock()
+        defer { onSubscriptionRequiredLock.unlock() }
+        onSubscriptionRequired = handler
+    }
+
+    func notifySubscriptionRequired() {
+        onSubscriptionRequiredLock.lock()
+        let handler = onSubscriptionRequired
+        onSubscriptionRequiredLock.unlock()
+        guard let handler else { return }
+        Task { @MainActor in
+            await handler()
+        }
+    }
 
     func request<T: Decodable>(method: String, path: String, body: (any Encodable)? = nil) async throws -> T {
         let encodedBody: Data? = if let body { try encoder.encode(body) } else { nil }
 
         func perform(token: String) async throws -> (Data, HTTPURLResponse) {
-            guard let url = URL(string: "\(baseURL.absoluteString)/\(path)") else {
+            guard let url = URL(string: "\(baseURLString)/\(path)") else {
                 throw BackendError.invalidResponse
             }
             var request = URLRequest(url: url)
@@ -34,11 +52,11 @@ final class BackendClient {
             return (data, httpResponse)
         }
 
-        let session = try await Supabase.client.auth.session
+        let session = try await SupabaseConfig.client.auth.session
         let (data, httpResponse) = try await perform(token: session.accessToken)
 
         if httpResponse.statusCode == 401 {
-            let refreshed = try await Supabase.client.auth.refreshSession()
+            let refreshed = try await SupabaseConfig.client.auth.refreshSession()
             let (retryData, retryResponse) = try await perform(token: refreshed.accessToken)
             if retryResponse.statusCode == 401 {
                 throw BackendError.unauthorized
@@ -60,7 +78,7 @@ final class BackendClient {
         let encodedBody: Data? = if let body { try encoder.encode(body) } else { nil }
 
         func perform(token: String) async throws -> HTTPURLResponse {
-            guard let url = URL(string: "\(baseURL.absoluteString)/\(path)") else {
+            guard let url = URL(string: "\(baseURLString)/\(path)") else {
                 throw BackendError.invalidResponse
             }
             var request = URLRequest(url: url)
@@ -75,11 +93,11 @@ final class BackendClient {
             return httpResponse
         }
 
-        let session = try await Supabase.client.auth.session
+        let session = try await SupabaseConfig.client.auth.session
         let httpResponse = try await perform(token: session.accessToken)
 
         if httpResponse.statusCode == 401 {
-            let refreshed = try await Supabase.client.auth.refreshSession()
+            let refreshed = try await SupabaseConfig.client.auth.refreshSession()
             let retryResponse = try await perform(token: refreshed.accessToken)
             if retryResponse.statusCode == 401 {
                 throw BackendError.unauthorized
@@ -97,7 +115,7 @@ final class BackendClient {
 
     func uploadAudio<T: Decodable>(path: String, audioData: Data, filename: String) async throws -> T {
         func perform(token: String) async throws -> (Data, HTTPURLResponse) {
-            guard let url = URL(string: "\(baseURL.absoluteString)/\(path)") else {
+            guard let url = URL(string: "\(baseURLString)/\(path)") else {
                 throw BackendError.invalidResponse
             }
             let boundary = UUID().uuidString
@@ -106,11 +124,11 @@ final class BackendClient {
             request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
             request.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
             var body = Data()
-            body.append("--\(boundary)\r\n".data(using: .utf8)!)
-            body.append("Content-Disposition: form-data; name=\"audio\"; filename=\"\(filename)\"\r\n".data(using: .utf8)!)
-            body.append("Content-Type: audio/wav\r\n\r\n".data(using: .utf8)!)
+            body.append(Data("--\(boundary)\r\n".utf8))
+            body.append(Data("Content-Disposition: form-data; name=\"audio\"; filename=\"\(filename)\"\r\n".utf8))
+            body.append(Data("Content-Type: audio/wav\r\n\r\n".utf8))
             body.append(audioData)
-            body.append("\r\n--\(boundary)--\r\n".data(using: .utf8)!)
+            body.append(Data("\r\n--\(boundary)--\r\n".utf8))
             request.httpBody = body
             let (data, response) = try await URLSession.shared.data(for: request)
             guard let httpResponse = response as? HTTPURLResponse else {
@@ -119,11 +137,11 @@ final class BackendClient {
             return (data, httpResponse)
         }
 
-        let session = try await Supabase.client.auth.session
+        let session = try await SupabaseConfig.client.auth.session
         let (data, httpResponse) = try await perform(token: session.accessToken)
 
         if httpResponse.statusCode == 401 {
-            let refreshed = try await Supabase.client.auth.refreshSession()
+            let refreshed = try await SupabaseConfig.client.auth.refreshSession()
             let (retryData, retryResponse) = try await perform(token: refreshed.accessToken)
             if retryResponse.statusCode == 401 {
                 throw BackendError.unauthorized

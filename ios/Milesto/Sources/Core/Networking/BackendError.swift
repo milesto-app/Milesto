@@ -36,9 +36,7 @@ enum BackendError: LocalizedError {
 
     static func from(statusCode: Int, data: Data) -> BackendError {
         if statusCode == 402 {
-            Task { @MainActor in
-                await EntitlementResolver.current?.handleBackendSubscriptionRequired()
-            }
+            BackendClient.shared.notifySubscriptionRequired()
             return .subscriptionRequired
         }
         if statusCode == 429 {

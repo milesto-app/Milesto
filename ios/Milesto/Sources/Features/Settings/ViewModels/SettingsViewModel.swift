@@ -42,7 +42,9 @@ final class SettingsViewModel {
         return locale.localizedString(forLanguageCode: code)?.capitalized ?? code
     }
 
-    var currentUserId: String? { auth.currentUserId }
+    var currentUserId: String? {
+        auth.currentUserId
+    }
 
     func loadCachedState() {
         guard let userId = auth.currentUserId else { return }

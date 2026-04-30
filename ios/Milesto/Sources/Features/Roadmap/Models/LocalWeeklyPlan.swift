@@ -23,11 +23,11 @@ final class LocalWeeklyPlan {
         WeeklyPlanStatus(rawValue: status) ?? .active
     }
 
-    var summary: WeeklySummaryDTO? {
+    var summary: WeeklySummary? {
         guard let completionRate = summaryCompletionRate,
               let tasksCompleted = summaryTasksCompleted,
               let tasksTotal = summaryTasksTotal else { return nil }
-        return WeeklySummaryDTO(
+        return WeeklySummary(
             completionRate: completionRate,
             tasksCompleted: tasksCompleted,
             tasksTotal: tasksTotal,
@@ -36,7 +36,7 @@ final class LocalWeeklyPlan {
         )
     }
 
-    init(id: String, milestoneId: String, goalId: String, userId: String, weekNumber: Int, weekStartDate: String, objectives: [String], status: String, isFallback: Bool, createdAt: String, summary: WeeklySummaryDTO? = nil) {
+    init(id: String, milestoneId: String, goalId: String, userId: String, weekNumber: Int, weekStartDate: String, objectives: [String], status: String, isFallback: Bool, createdAt: String, summary: WeeklySummary? = nil) {
         self.id = id
         self.milestoneId = milestoneId
         self.goalId = goalId

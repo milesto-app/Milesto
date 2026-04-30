@@ -1,6 +1,6 @@
 import Foundation
 
-enum EntitlementState: Equatable, Sendable {
+enum EntitlementState: Equatable {
     case unknown
     case subscribed
     case notSubscribed

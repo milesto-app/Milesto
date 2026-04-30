@@ -11,7 +11,9 @@ final class SyncingRoadmapFeatureRepository: RoadmapFeatureRepository {
         self.container = container
     }
 
-    private var context: ModelContext { container.mainContext }
+    private var context: ModelContext {
+        container.mainContext
+    }
 
     func loadCachedRoadmap(goalId: String) -> CachedRoadmap {
         CachedRoadmap(
@@ -51,17 +53,17 @@ final class SyncingRoadmapFeatureRepository: RoadmapFeatureRepository {
         return progress(of: tasks)
     }
 
-    func tasksForMilestone(milestoneId: String) async throws -> [WeeklyTaskDTO] {
+    func tasksForMilestone(milestoneId: String) async throws -> [WeeklyTask] {
         try await remote.getTasksForMilestone(milestoneId: milestoneId)
     }
 
-    func toggleTask(taskId: String, goalId: String, isCompleted: Bool) async throws -> WeeklyTaskDTO {
+    func toggleTask(taskId: String, goalId: String, isCompleted: Bool) async throws -> WeeklyTask {
         let updated = try await remote.toggleTask(goalId: goalId, taskId: taskId, isCompleted: isCompleted)
         cacheTask(updated)
         return updated
     }
 
-    func cacheTask(_ task: WeeklyTaskDTO) {
+    func cacheTask(_ task: WeeklyTask) {
         let id = task.id
         let descriptor = FetchDescriptor<LocalWeeklyTask>(
             predicate: #Predicate { $0.id == id }
@@ -216,7 +218,7 @@ final class SyncingRoadmapFeatureRepository: RoadmapFeatureRepository {
         }
     }
 
-    private func syncTasksToCache(_ dtos: [WeeklyTaskDTO], goalId: String) {
+    private func syncTasksToCache(_ dtos: [WeeklyTask], goalId: String) {
         let descriptor = FetchDescriptor<LocalWeeklyTask>(
             predicate: #Predicate { $0.goalId == goalId }
         )

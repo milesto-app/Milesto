@@ -17,7 +17,9 @@ final class AuthViewModel {
         self.auth = auth
     }
 
-    var authState: AuthState { auth.authState }
+    var authState: AuthState {
+        auth.authState
+    }
 
     var isEmailValid: Bool {
         AuthValidation.isValidEmail(email)

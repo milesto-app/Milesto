@@ -45,7 +45,7 @@ final class SupabaseChatRepository: RemoteChatRepository {
     }
 
     func listConversations(goalId: String) async throws -> [ConversationSummary] {
-        let rows: [ConversationWithMessages] = try await Supabase.client
+        let rows: [ConversationWithMessages] = try await SupabaseConfig.client
             .from("conversations")
             .select("*, messages(id, content, role, created_at)")
             .eq("goal_id", value: goalId)
@@ -73,7 +73,7 @@ final class SupabaseChatRepository: RemoteChatRepository {
     }
 
     func getConversationMessages(conversationId: String) async throws -> [ChatMessage] {
-        let rows: [MessageDTO] = try await Supabase.client
+        let rows: [MessageDTO] = try await SupabaseConfig.client
             .from("messages")
             .select()
             .eq("conversation_id", value: conversationId)
@@ -97,7 +97,7 @@ final class SupabaseChatRepository: RemoteChatRepository {
     }
 
     func deleteConversation(conversationId: String) async throws {
-        try await Supabase.client
+        try await SupabaseConfig.client
             .from("conversations")
             .delete()
             .eq("id", value: conversationId)
@@ -127,12 +127,12 @@ final class SupabaseChatRepository: RemoteChatRepository {
                         return request
                     }
 
-                    let session = try await Supabase.client.auth.session
+                    let session = try await SupabaseConfig.client.auth.session
                     var request = try buildRequest(token: session.accessToken)
                     var (bytes, response) = try await URLSession.shared.bytes(for: request)
 
                     if let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 401 {
-                        let refreshed = try await Supabase.client.auth.refreshSession()
+                        let refreshed = try await SupabaseConfig.client.auth.refreshSession()
                         request = try buildRequest(token: refreshed.accessToken)
                         (bytes, response) = try await URLSession.shared.bytes(for: request)
                     }

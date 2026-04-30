@@ -11,7 +11,9 @@ final class SyncingIntakeFlowRepository: IntakeFlowRepository {
         self.container = container
     }
 
-    private var context: ModelContext { container.mainContext }
+    private var context: ModelContext {
+        container.mainContext
+    }
 
     func createGoal(description: String) async throws -> Goal {
         let goal = try await goals.createGoal(description: description)

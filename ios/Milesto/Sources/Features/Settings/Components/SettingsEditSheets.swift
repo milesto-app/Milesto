@@ -1,17 +1,6 @@
 import SwiftUI
 import UIKit
 
-enum SettingsSheet: Identifiable {
-    case name
-    case birthdate
-    case coach
-    case language
-
-    var id: Self {
-        self
-    }
-}
-
 struct SettingsSheetContent: View {
     let sheet: SettingsSheet
     let profile: Profile?

@@ -61,7 +61,7 @@ private extension SupabaseStatsRepository {
     }
 
     func fetchTasks(goalId: String) async throws -> [TaskRow] {
-        try await Supabase.client
+        try await SupabaseConfig.client
             .from("weekly_tasks")
             .select("is_completed, weekly_plan_id, created_at, completed_at")
             .eq("goal_id", value: goalId)
@@ -70,7 +70,7 @@ private extension SupabaseStatsRepository {
     }
 
     func fetchWeeklyPlans(goalId: String) async throws -> [WeeklyPlanRow] {
-        try await Supabase.client
+        try await SupabaseConfig.client
             .from("weekly_plans")
             .select("id, week_number, milestone_id, status")
             .eq("goal_id", value: goalId)
@@ -80,7 +80,7 @@ private extension SupabaseStatsRepository {
     }
 
     func fetchMilestones(goalId: String) async throws -> [MilestoneRow] {
-        try await Supabase.client
+        try await SupabaseConfig.client
             .from("milestones")
             .select("id")
             .eq("goal_id", value: goalId)

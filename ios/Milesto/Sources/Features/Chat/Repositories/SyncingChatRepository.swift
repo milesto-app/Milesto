@@ -11,7 +11,9 @@ final class SyncingChatRepository: ChatRepository {
         self.container = container
     }
 
-    private var context: ModelContext { container.mainContext }
+    private var context: ModelContext {
+        container.mainContext
+    }
 
     func loadCachedConversations(goalId: String) -> [ConversationSummary] {
         let descriptor = FetchDescriptor<LocalConversation>(

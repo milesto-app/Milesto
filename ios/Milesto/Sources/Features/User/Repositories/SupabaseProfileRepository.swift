@@ -31,8 +31,8 @@ final class SupabaseProfileRepository {
     init() {}
 
     func updateProfile(_ fields: ProfileUpdateFields) async throws -> Profile {
-        let session = try await Supabase.client.auth.session
-        return try await Supabase.client
+        let session = try await SupabaseConfig.client.auth.session
+        return try await SupabaseConfig.client
             .from("profiles")
             .update(fields)
             .eq("id", value: session.user.id)
@@ -47,7 +47,7 @@ final class SupabaseProfileRepository {
             throw ProfileRepositoryError.invalidUserId
         }
 
-        let response: [Profile] = try await Supabase.client
+        let response: [Profile] = try await SupabaseConfig.client
             .from("profiles")
             .select()
             .eq("id", value: uuid)

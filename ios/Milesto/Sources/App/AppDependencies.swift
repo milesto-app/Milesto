@@ -9,6 +9,7 @@ final class AppDependencies {
     let subscription: any SubscriptionRepository
     let profile: any ProfileRepository
     let goals: any GoalRepository
+    let goalRouting: any GoalRoutingRepository
     let intake: any IntakeRepository
     let intakeFlow: any IntakeFlowRepository
     let onboarding: any OnboardingRepository
@@ -22,10 +23,15 @@ final class AppDependencies {
 
     let container: ModelContainer
 
+    #if DEBUG
+        let developerSettings = DeveloperSettings()
+    #endif
+
     init(container: ModelContainer) {
         self.container = container
 
-        let authService = SupabaseAuthRepository.shared
+        let oauth = OAuthClient()
+        let authService = SupabaseAuthRepository(client: SupabaseConfig.client, oauth: oauth)
         let supabaseProfile = SupabaseProfileRepository()
         let syncingProfile = SyncingProfileRepository(
             remote: supabaseProfile,
@@ -33,6 +39,7 @@ final class AppDependencies {
             container: container
         )
         let supabaseGoal = SupabaseGoalRepository()
+        let goalRoutingRepo = SyncingGoalRepository(remote: supabaseGoal, container: container)
         let supabaseIntake = SupabaseIntakeRepository()
         let intakeFlowRepo = SyncingIntakeFlowRepository(
             goals: supabaseGoal,
@@ -42,10 +49,14 @@ final class AppDependencies {
             profile: syncingProfile,
             container: container
         )
+        let chatPurger = ChatLocalDataPurger(container: container)
+        let roadmapPurger = RoadmapLocalDataPurger(container: container)
+        let statsPurger = StatsLocalDataPurger(container: container)
         let settingsRepo = SyncingSettingsRepository(
             profile: syncingProfile,
             goals: supabaseGoal,
-            container: container
+            container: container,
+            featurePurgers: [chatPurger, roadmapPurger, statsPurger]
         )
         let roadmapRemote = SupabaseRoadmapRepository()
         let roadmapRepo = SyncingRoadmapFeatureRepository(
@@ -67,15 +78,18 @@ final class AppDependencies {
             container: container
         )
         let transcriptionRepo = SupabaseTranscriptionRepository()
-        let subscriptionService = SyncingSubscriptionRepository.shared
+        let subscriptionService = SyncingSubscriptionRepository()
 
         auth = authService
         authRepository = authService
         entitlement = subscriptionService
         subscription = subscriptionService
-        EntitlementResolver.current = subscriptionService
+        BackendClient.shared.setSubscriptionRequiredHandler { [weak subscriptionService] in
+            await subscriptionService?.handleBackendSubscriptionRequired()
+        }
         profile = syncingProfile
         goals = supabaseGoal
+        goalRouting = goalRoutingRepo
         intake = supabaseIntake
         intakeFlow = intakeFlowRepo
         onboarding = onboardingRepo

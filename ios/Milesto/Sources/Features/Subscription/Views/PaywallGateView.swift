@@ -2,22 +2,15 @@ import SwiftUI
 
 struct PaywallGateView<Content: View>: View {
     @Environment(AppDependencies.self) private var dependencies
-    #if DEBUG
-        @State private var developerSettings = DeveloperSettings.shared
-    #endif
-    let content: () -> Content
-
-    init(@ViewBuilder content: @escaping () -> Content) {
-        self.content = content
-    }
+    @ViewBuilder let content: () -> Content
 
     var body: some View {
         Group {
             #if DEBUG
-                if developerSettings.forcesPaywall {
+                if dependencies.developerSettings.forcesPaywall {
                     PaywallView()
                         .transition(.opacity)
-                } else if developerSettings.bypassesPaywall {
+                } else if dependencies.developerSettings.bypassesPaywall {
                     content()
                         .transition(.opacity)
                 } else {
@@ -30,7 +23,7 @@ struct PaywallGateView<Content: View>: View {
         .animation(.easeInOut(duration: 0.4), value: dependencies.entitlement.entitlementState)
         .task {
             #if DEBUG
-                guard !developerSettings.forcesPaywall, !developerSettings.bypassesPaywall else { return }
+                guard !dependencies.developerSettings.forcesPaywall, !dependencies.developerSettings.bypassesPaywall else { return }
             #endif
             await dependencies.subscription.reconcileWithBackend()
         }

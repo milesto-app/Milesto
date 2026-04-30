@@ -11,7 +11,9 @@ final class SyncingHomeRepository: HomeRepository {
         self.container = container
     }
 
-    private var context: ModelContext { container.mainContext }
+    private var context: ModelContext {
+        container.mainContext
+    }
 
     func loadCachedSnapshot(goalId: String) -> HomeSnapshot {
         HomeSnapshot(
@@ -27,11 +29,11 @@ final class SyncingHomeRepository: HomeRepository {
     func refreshAll(goalId: String) async -> HomeSnapshot {
         var snapshot = loadCachedSnapshot(goalId: goalId)
 
-        async let plan: WeeklyPlanDTO? = loadOrGenerateWeeklyPlan(goalId: goalId)
-        async let tasks: [WeeklyTaskDTO]? = try? remote.getWeeklyTasks(goalId: goalId)
-        async let debriefs: [DebriefDTO]? = try? remote.getDebriefHistory(goalId: goalId)
+        async let plan: WeeklyPlan? = loadOrGenerateWeeklyPlan(goalId: goalId)
+        async let tasks: [WeeklyTask]? = try? remote.getWeeklyTasks(goalId: goalId)
+        async let debriefs: [Debrief]? = try? remote.getDebriefHistory(goalId: goalId)
 
-        let (fetchedPlan, fetchedTasks, fetchedDebriefs) = await (plan, tasks, debriefs)
+        let (fetchedPlan, fetchedTasks, fetchedDebriefs) = await(plan, tasks, debriefs)
 
         var didSync = false
 
@@ -59,13 +61,13 @@ final class SyncingHomeRepository: HomeRepository {
         return snapshot
     }
 
-    func toggleTask(taskId: String, goalId: String, isCompleted: Bool) async throws -> WeeklyTaskDTO {
+    func toggleTask(taskId: String, goalId: String, isCompleted: Bool) async throws -> WeeklyTask {
         let updated = try await remote.toggleTask(goalId: goalId, taskId: taskId, isCompleted: isCompleted)
         cacheTask(updated)
         return updated
     }
 
-    func cacheTask(_ task: WeeklyTaskDTO) {
+    func cacheTask(_ task: WeeklyTask) {
         let id = task.id
         let descriptor = FetchDescriptor<LocalWeeklyTask>(
             predicate: #Predicate { $0.id == id }
@@ -117,7 +119,7 @@ final class SyncingHomeRepository: HomeRepository {
         return false
     }
 
-    func submitDebrief(goalId: String, weeklyPlanId: String, note: String, taskRatings: [TaskRatingDTO]?) async throws -> DebriefDTO {
+    func submitDebrief(goalId: String, weeklyPlanId: String, note: String, taskRatings: [TaskRating]?) async throws -> Debrief {
         let dto = try await remote.submitDebrief(
             goalId: goalId,
             weeklyPlanId: weeklyPlanId,
@@ -129,7 +131,7 @@ final class SyncingHomeRepository: HomeRepository {
         return dto
     }
 
-    private func loadOrGenerateWeeklyPlan(goalId: String) async -> WeeklyPlanDTO? {
+    private func loadOrGenerateWeeklyPlan(goalId: String) async -> WeeklyPlan? {
         if let existing = try? await remote.getWeeklyPlan(goalId: goalId) {
             return existing
         }
@@ -154,13 +156,13 @@ final class SyncingHomeRepository: HomeRepository {
         return milestone.title
     }
 
-    private func fetchCachedWeeklyPlan(goalId: String) -> WeeklyPlanDTO? {
+    private func fetchCachedWeeklyPlan(goalId: String) -> WeeklyPlan? {
         let activeStatus = WeeklyPlanStatus.active.rawValue
         let descriptor = FetchDescriptor<LocalWeeklyPlan>(
             predicate: #Predicate { $0.goalId == goalId && $0.status == activeStatus }
         )
         guard let local = try? context.fetch(descriptor).first else { return nil }
-        return WeeklyPlanDTO(
+        return WeeklyPlan(
             id: local.id,
             milestoneId: local.milestoneId,
             goalId: local.goalId,
@@ -175,7 +177,7 @@ final class SyncingHomeRepository: HomeRepository {
         )
     }
 
-    private func upsertWeeklyPlanToCache(_ dto: WeeklyPlanDTO) {
+    private func upsertWeeklyPlanToCache(_ dto: WeeklyPlan) {
         let planId = dto.id
         let descriptor = FetchDescriptor<LocalWeeklyPlan>(
             predicate: #Predicate { $0.id == planId }
@@ -209,14 +211,14 @@ final class SyncingHomeRepository: HomeRepository {
         }
     }
 
-    private func fetchCachedTasks(goalId: String) -> [WeeklyTaskDTO] {
+    private func fetchCachedTasks(goalId: String) -> [WeeklyTask] {
         let descriptor = FetchDescriptor<LocalWeeklyTask>(
             predicate: #Predicate { $0.goalId == goalId },
             sortBy: [SortDescriptor(\.orderIndex)]
         )
         guard let cached = try? context.fetch(descriptor), !cached.isEmpty else { return [] }
         return cached.map { local in
-            WeeklyTaskDTO(
+            WeeklyTask(
                 id: local.id,
                 weeklyPlanId: local.weeklyPlanId,
                 goalId: local.goalId,
@@ -232,7 +234,7 @@ final class SyncingHomeRepository: HomeRepository {
         }
     }
 
-    private func syncTasksToCache(_ dtos: [WeeklyTaskDTO], goalId: String) {
+    private func syncTasksToCache(_ dtos: [WeeklyTask], goalId: String) {
         let descriptor = FetchDescriptor<LocalWeeklyTask>(
             predicate: #Predicate { $0.goalId == goalId }
         )
@@ -271,15 +273,15 @@ final class SyncingHomeRepository: HomeRepository {
         }
     }
 
-    private func fetchCachedDebrief(goalId: String) -> DebriefDTO? {
+    private func fetchCachedDebrief(goalId: String) -> Debrief? {
         let descriptor = FetchDescriptor<LocalDebrief>(
             predicate: #Predicate { $0.goalId == goalId },
             sortBy: [SortDescriptor(\.date, order: .reverse)]
         )
         guard let local = try? context.fetch(descriptor).first else { return nil }
-        let taskRatings: [TaskRatingDTO] = local.taskRatingsJSON
-            .flatMap { try? JSONDecoder().decode([TaskRatingDTO].self, from: $0) } ?? []
-        return DebriefDTO(
+        let taskRatings: [TaskRating] = local.taskRatingsJSON
+            .flatMap { try? JSONDecoder().decode([TaskRating].self, from: $0) } ?? []
+        return Debrief(
             id: local.id,
             goalId: local.goalId,
             userId: local.userId,
@@ -291,7 +293,7 @@ final class SyncingHomeRepository: HomeRepository {
         )
     }
 
-    private func syncDebriefToCache(_ dto: DebriefDTO) {
+    private func syncDebriefToCache(_ dto: Debrief) {
         let debriefId = dto.id
         let descriptor = FetchDescriptor<LocalDebrief>(
             predicate: #Predicate { $0.id == debriefId }

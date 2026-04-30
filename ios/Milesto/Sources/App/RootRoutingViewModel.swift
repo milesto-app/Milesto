@@ -1,5 +1,4 @@
 import Foundation
-import SwiftData
 import SwiftUI
 
 @MainActor
@@ -16,23 +15,18 @@ final class RootRoutingViewModel {
     private(set) var localGoals: [Goal] = []
 
     @ObservationIgnored private let profile: any ProfileRepository
-    @ObservationIgnored private let goals: any GoalRepository
+    @ObservationIgnored private let goals: any GoalRoutingRepository
     @ObservationIgnored private let roadmap: any RoadmapRepository
-    @ObservationIgnored private let container: ModelContainer
 
     init(
         profile: any ProfileRepository,
-        goals: any GoalRepository,
-        roadmap: any RoadmapRepository,
-        container: ModelContainer
+        goals: any GoalRoutingRepository,
+        roadmap: any RoadmapRepository
     ) {
         self.profile = profile
         self.goals = goals
         self.roadmap = roadmap
-        self.container = container
     }
-
-    private var context: ModelContext { container.mainContext }
 
     func resetForRetry() {
         hasSynced = false
@@ -45,7 +39,7 @@ final class RootRoutingViewModel {
         let locallyComplete = localProfile?.isProfileComplete == true
         if locallyComplete {
             profileComplete = true
-            resolveGoalState(userId: userId)
+            applyResolvedGoalState(userId: userId)
         }
 
         do {
@@ -55,7 +49,13 @@ final class RootRoutingViewModel {
             return
         }
 
-        await syncGoals(userId: userId)
+        do {
+            try await goals.syncFromRemote(userId: userId)
+        } catch {
+            connectionError = true
+            return
+        }
+
         refreshLocalSnapshots(userId: userId)
 
         let remoteComplete = localProfile?.isProfileComplete == true
@@ -66,14 +66,15 @@ final class RootRoutingViewModel {
             activeGoalId = nil
         } else if remoteComplete {
             profileComplete = true
-            resolveGoalState(userId: userId)
+            applyResolvedGoalState(userId: userId)
             if goalComplete,
-               let goal = localGoals.first(where: { $0.id == activeGoalId }),
-               goal.status == ProfileStatus.intakeCompleted.rawValue
+               let id = activeGoalId,
+               let descriptor = goals.resolveActiveGoal(userId: userId),
+               descriptor.goalId == id,
+               descriptor.phase == .intakeCompleted
             {
-                let checkedGoalId = goal.id
-                let hasRoadmap = await checkRoadmapStatus(goalId: checkedGoalId)
-                if activeGoalId == checkedGoalId {
+                let hasRoadmap = await roadmap.isRoadmapReady(goalId: id)
+                if activeGoalId == id {
                     roadmapReady = hasRoadmap
                 }
             }
@@ -85,10 +86,10 @@ final class RootRoutingViewModel {
         guard newGoalId != activeGoalId else { return }
         activeGoalId = newGoalId
 
-        let descriptor = FetchDescriptor<Goal>(predicate: #Predicate { $0.id == newGoalId })
-        guard let goal = try? context.fetch(descriptor).first else { return }
+        let goal = localGoals.first(where: { $0.id == newGoalId })
+        guard let status = goal?.status else { return }
 
-        switch goal.status {
+        switch status {
         case "active":
             withAnimation(.easeInOut(duration: 0.4)) {
                 goalComplete = true
@@ -99,11 +100,12 @@ final class RootRoutingViewModel {
                 goalComplete = true
                 roadmapReady = false
             }
-            Task {
-                let hasRoadmap = await checkRoadmapStatus(goalId: newGoalId)
-                guard activeGoalId == newGoalId else { return }
+            Task { [weak self] in
+                guard let self else { return }
+                let hasRoadmap = await roadmap.isRoadmapReady(goalId: newGoalId)
+                guard self.activeGoalId == newGoalId else { return }
                 withAnimation(.easeInOut(duration: 0.4)) {
-                    roadmapReady = hasRoadmap
+                    self.roadmapReady = hasRoadmap
                 }
             }
         default:
@@ -117,94 +119,32 @@ final class RootRoutingViewModel {
     func markRoadmapReady() {
         roadmapReady = true
         guard let activeGoalId else { return }
-        let descriptor = FetchDescriptor<Goal>(predicate: #Predicate { $0.id == activeGoalId })
-        if let goal = try? context.fetch(descriptor).first {
-            goal.status = "active"
-            try? context.save()
-        }
+        try? goals.markActive(goalId: activeGoalId)
     }
 
     private func refreshLocalSnapshots(userId: String) {
-        let profileDescriptor = FetchDescriptor<Profile>(
-            predicate: #Predicate { $0.userId == userId }
-        )
-        localProfile = (try? context.fetch(profileDescriptor))?.first
-
-        let goalDescriptor = FetchDescriptor<Goal>()
-        localGoals = (try? context.fetch(goalDescriptor)) ?? []
+        localProfile = profile.loadCachedProfile(userId: userId)
+        localGoals = goals.localGoals(userId: userId)
     }
 
-    private func syncGoals(userId: String) async {
-        guard let goals = try? await goals.listGoals() else { return }
-        let remoteIds = Set(goals.map { $0.id })
-        for dto in goals {
-            let dtoId = dto.id
-            let descriptor = FetchDescriptor<Goal>(predicate: #Predicate { goal in
-                goal.id == dtoId
-            })
-            let existing = try? context.fetch(descriptor).first
-            if let existing {
-                existing.status = dto.status
-                existing.title = dto.title
-                existing.goalDescription = dto.goalDescription
-            } else {
-                context.insert(Goal(
-                    id: dto.id,
-                    userId: dto.userId,
-                    title: dto.title,
-                    goalDescription: dto.goalDescription,
-                    status: dto.status,
-                    createdAt: Date()
-                ))
-            }
-        }
-        let stale = localGoals.filter {
-            $0.userId.caseInsensitiveCompare(userId) == .orderedSame && !remoteIds.contains($0.id)
-        }
-        for goal in stale {
-            context.delete(goal)
-        }
-        try? context.save()
-    }
-
-    private func resolveGoalState(userId: String) {
-        let userGoals = localGoals.filter { $0.userId.caseInsensitiveCompare(userId) == .orderedSame }
-        let statusPriority = ["active", "intake_completed", "profile_generating", "intake_in_progress"]
-        let matchingGoal = userGoals
-            .sorted { a, b in
-                let aIndex = statusPriority.firstIndex(of: a.status) ?? statusPriority.count
-                let bIndex = statusPriority.firstIndex(of: b.status) ?? statusPriority.count
-                return aIndex < bIndex
-            }
-            .first
-        activeGoalId = matchingGoal?.id
-
-        guard let status = matchingGoal?.status else {
+    private func applyResolvedGoalState(userId: String) {
+        guard let descriptor = goals.resolveActiveGoal(userId: userId) else {
+            activeGoalId = nil
             goalComplete = false
             roadmapReady = false
             return
         }
-
-        switch status {
-        case "active":
+        activeGoalId = descriptor.goalId
+        switch descriptor.phase {
+        case .active:
             goalComplete = true
             roadmapReady = true
-        case ProfileStatus.intakeCompleted.rawValue:
+        case .intakeCompleted:
             goalComplete = true
             roadmapReady = false
-        case "intake_in_progress", "profile_generating", ProfileStatus.generationFailed.rawValue:
-            goalComplete = false
-            roadmapReady = false
-        default:
+        case .intakeInProgress, .profileGenerating, .generationFailed, .other:
             goalComplete = false
             roadmapReady = false
         }
-    }
-
-    private func checkRoadmapStatus(goalId: String) async -> Bool {
-        guard let dto = try? await roadmap.getRoadmap(goalId: goalId) else {
-            return false
-        }
-        return dto.status == .complete
     }
 }

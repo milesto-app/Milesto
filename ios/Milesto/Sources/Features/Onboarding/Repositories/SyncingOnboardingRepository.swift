@@ -11,7 +11,9 @@ final class SyncingOnboardingRepository: OnboardingRepository {
         self.container = container
     }
 
-    private var context: ModelContext { container.mainContext }
+    private var context: ModelContext {
+        container.mainContext
+    }
 
     func saveProfile(userId: String, fields: ProfileUpdateFields, dateOfBirth: Date) async throws {
         _ = try await profile.updateProfile(fields)

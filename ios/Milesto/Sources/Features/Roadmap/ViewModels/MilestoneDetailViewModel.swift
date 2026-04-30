@@ -7,7 +7,7 @@ final class MilestoneDetailViewModel {
     @ObservationIgnored private let milestoneId: String
     @ObservationIgnored private let status: MilestoneStatus
 
-    private(set) var tasks: [WeeklyTaskDTO] = []
+    private(set) var tasks: [WeeklyTask] = []
     private(set) var isLoadingTasks = false
 
     init(repository: any RoadmapFeatureRepository, milestoneId: String, status: MilestoneStatus) {
@@ -16,7 +16,7 @@ final class MilestoneDetailViewModel {
         self.status = status
     }
 
-    var sortedTasks: [WeeklyTaskDTO] {
+    var sortedTasks: [WeeklyTask] {
         tasks.sorted {
             if $0.isCompleted != $1.isCompleted { return !$0.isCompleted }
             let p0 = $0.difficultyRating.priority
@@ -33,7 +33,7 @@ final class MilestoneDetailViewModel {
         tasks = (try? await repository.tasksForMilestone(milestoneId: milestoneId)) ?? []
     }
 
-    func toggleTask(_ task: WeeklyTaskDTO) {
+    func toggleTask(_ task: WeeklyTask) {
         guard status == .current,
               let index = tasks.firstIndex(where: { $0.id == task.id })
         else { return }
@@ -63,7 +63,7 @@ final class MilestoneDetailViewModel {
         }
     }
 
-    func applyRemoteToggle(_ updated: WeeklyTaskDTO) {
+    func applyRemoteToggle(_ updated: WeeklyTask) {
         if let idx = tasks.firstIndex(where: { $0.id == updated.id }) {
             tasks[idx] = updated
         }
@@ -83,9 +83,9 @@ final class MilestoneDetailViewModel {
     }
 }
 
-private extension WeeklyTaskDTO {
-    func with(isCompleted: Bool) -> WeeklyTaskDTO {
-        WeeklyTaskDTO(
+private extension WeeklyTask {
+    func with(isCompleted: Bool) -> WeeklyTask {
+        WeeklyTask(
             id: id,
             weeklyPlanId: weeklyPlanId,
             goalId: goalId,

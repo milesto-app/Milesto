@@ -32,8 +32,6 @@
     @MainActor
     @Observable
     final class DeveloperSettings {
-        static let shared = DeveloperSettings()
-
         private let routeOverrideKey = "developer.routeOverride"
 
         var routeOverride: DeveloperRouteOverride {
@@ -42,7 +40,7 @@
             }
         }
 
-        private init() {
+        init() {
             let rawValue = UserDefaults.standard.string(forKey: routeOverrideKey)
             routeOverride = rawValue.flatMap(DeveloperRouteOverride.init(rawValue:)) ?? .none
         }

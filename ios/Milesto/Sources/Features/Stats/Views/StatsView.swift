@@ -22,7 +22,6 @@ struct StatsView: View {
         }
     }
 
-    @ViewBuilder
     private func content(model: StatsViewModel) -> some View {
         NavigationStack {
             ZStack {

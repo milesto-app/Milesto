@@ -4,13 +4,15 @@ import Foundation
 
 @MainActor
 final class OAuthClient: NSObject {
-    static let shared = OAuthClient()
-
     private(set) var pendingAppleFirstName: String?
     private(set) var pendingAppleLastName: String?
 
+    override init() {
+        super.init()
+    }
+
     func performAppleSignIn() async throws -> (identityToken: String, nonce: String) {
-        let nonce = randomNonceString()
+        let nonce = try randomNonceString()
         let hashedNonce = sha256(nonce)
 
         let provider = ASAuthorizationAppleIDProvider()
@@ -63,12 +65,12 @@ final class OAuthClient: NSObject {
         }
     }
 
-    private func randomNonceString(length: Int = 32) -> String {
+    private func randomNonceString(length: Int = 32) throws -> String {
         precondition(length > 0)
         var randomBytes = [UInt8](repeating: 0, count: length)
         let errorCode = SecRandomCopyBytes(kSecRandomDefault, randomBytes.count, &randomBytes)
-        if errorCode != errSecSuccess {
-            fatalError("Unable to generate nonce. SecRandomCopyBytes failed with OSStatus \(errorCode)")
+        guard errorCode == errSecSuccess else {
+            throw AuthError.unknown("Unable to generate nonce")
         }
         let charset: [Character] = Array("0123456789ABCDEFGHIJKLMNOPQRSTUVXYZabcdefghijklmnopqrstuvwxyz-._")
         let nonce = randomBytes.map { byte in
@@ -87,12 +89,10 @@ final class OAuthClient: NSObject {
 extension OAuthClient: ASAuthorizationControllerPresentationContextProviding {
     nonisolated func presentationAnchor(for _: ASAuthorizationController) -> ASPresentationAnchor {
         DispatchQueue.main.sync {
-            guard let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-                  let window = scene.windows.first
-            else {
-                fatalError("No window found")
-            }
-            return window
+            let scene = UIApplication.shared.connectedScenes
+                .first(where: { $0.activationState == .foregroundActive }) as? UIWindowScene
+                ?? UIApplication.shared.connectedScenes.first as? UIWindowScene
+            return scene?.windows.first(where: \.isKeyWindow) ?? scene?.windows.first ?? UIWindow()
         }
     }
 }

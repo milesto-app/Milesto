@@ -41,7 +41,6 @@ struct HomeView: View {
         }
     }
 
-    @ViewBuilder
     private func content(model: HomeViewModel) -> some View {
         NavigationStack {
             ZStack(alignment: .top) {
@@ -93,7 +92,6 @@ struct HomeView: View {
         }
     }
 
-    @ViewBuilder
     private func contentSection(model: HomeViewModel) -> some View {
         VStack(spacing: 16) {
             if !model.tasks.isEmpty

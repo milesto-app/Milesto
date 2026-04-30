@@ -19,8 +19,6 @@ nonisolated struct SubscriptionStatusResponse: Decodable {
 @MainActor
 @Observable
 final class SyncingSubscriptionRepository: EntitlementProviding, SubscriptionRepository {
-    static let shared = SyncingSubscriptionRepository()
-
     static let monthlyProductId = "milesto_plus_monthly"
     static let annualProductId = "milesto_plus_annual"
 
@@ -58,7 +56,7 @@ final class SyncingSubscriptionRepository: EntitlementProviding, SubscriptionRep
         plans.first { $0.id == Self.annualProductId }
     }
 
-    private init() {
+    init() {
         updatesTask = observeTransactionUpdates()
         Task {
             await loadPlans()
@@ -123,7 +121,7 @@ final class SyncingSubscriptionRepository: EntitlementProviding, SubscriptionRep
 
         let userUUID: UUID
         do {
-            let session = try await Supabase.client.auth.session
+            let session = try await SupabaseConfig.client.auth.session
             userUUID = session.user.id
         } catch {
             purchaseError = PurchaseError.missingUser.errorDescription
@@ -181,7 +179,7 @@ final class SyncingSubscriptionRepository: EntitlementProviding, SubscriptionRep
 
     private func currentUserId() async -> String? {
         do {
-            let session = try await Supabase.client.auth.session
+            let session = try await SupabaseConfig.client.auth.session
             return session.user.id.uuidString
         } catch {
             return nil

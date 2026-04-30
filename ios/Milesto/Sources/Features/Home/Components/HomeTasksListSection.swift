@@ -1,10 +1,10 @@
 import SwiftUI
 
 struct HomeTasksListSection: View {
-    let tasks: [WeeklyTaskDTO]
-    let sortedTasks: [WeeklyTaskDTO]
+    let tasks: [WeeklyTask]
+    let sortedTasks: [WeeklyTask]
     let completedCount: Int
-    let onToggle: (WeeklyTaskDTO) -> Void
+    let onToggle: (WeeklyTask) -> Void
     let onOpen: (String) -> Void
 
     var body: some View {

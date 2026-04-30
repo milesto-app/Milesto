@@ -14,10 +14,19 @@ final class SyncingProfileRepository: ProfileRepository {
         self.container = container
     }
 
-    private var context: ModelContext { container.mainContext }
+    private var context: ModelContext {
+        container.mainContext
+    }
 
     func updateProfile(_ fields: ProfileUpdateFields) async throws -> Profile {
         try await remote.updateProfile(fields)
+    }
+
+    func loadCachedProfile(userId: String) -> Profile? {
+        let descriptor = FetchDescriptor<Profile>(
+            predicate: #Predicate { $0.userId == userId }
+        )
+        return (try? context.fetch(descriptor))?.first
     }
 
     func sync(userId: String) async throws {
@@ -27,7 +36,7 @@ final class SyncingProfileRepository: ProfileRepository {
         var fetchedEmail: String?
         var fetchedAvatarURL: String?
 
-        if let session = try? await Supabase.client.auth.session {
+        if let session = try? await SupabaseConfig.client.auth.session {
             fetchedEmail = session.user.email
             if case let .string(urlString) = session.user.userMetadata["avatar_url"] {
                 fetchedAvatarURL = urlString

@@ -31,8 +31,8 @@ final class DebriefSheetViewModel {
         errorMessage = nil
         defer { isSubmitting = false }
 
-        let taskRatings: [TaskRatingDTO]? = ratings.isEmpty ? nil : ratings.map { taskId, rating in
-            TaskRatingDTO(taskId: taskId, rating: rating)
+        let taskRatings: [TaskRating]? = ratings.isEmpty ? nil : ratings.map { taskId, rating in
+            TaskRating(taskId: taskId, rating: rating)
         }
 
         do {

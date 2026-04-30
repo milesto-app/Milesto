@@ -20,7 +20,7 @@ extension Optional where Wrapped == DifficultyRating {
     }
 }
 
-struct WeeklyTaskDTO: Codable, Identifiable {
+struct WeeklyTask: Codable, Identifiable {
     let id: String
     let weeklyPlanId: String
     let goalId: String

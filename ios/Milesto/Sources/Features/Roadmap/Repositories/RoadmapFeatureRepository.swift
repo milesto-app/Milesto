@@ -29,9 +29,9 @@ protocol RoadmapFeatureRepository: AnyObject {
     func loadCachedRoadmap(goalId: String) -> CachedRoadmap
     func refreshRoadmap(goalId: String) async -> CachedRoadmap
     func currentTaskProgress(goalId: String) -> Double
-    func tasksForMilestone(milestoneId: String) async throws -> [WeeklyTaskDTO]
-    func toggleTask(taskId: String, goalId: String, isCompleted: Bool) async throws -> WeeklyTaskDTO
-    func cacheTask(_ task: WeeklyTaskDTO)
+    func tasksForMilestone(milestoneId: String) async throws -> [WeeklyTask]
+    func toggleTask(taskId: String, goalId: String, isCompleted: Bool) async throws -> WeeklyTask
+    func cacheTask(_ task: WeeklyTask)
     func generateRoadmap(goalId: String) async throws
     func fetchRoadmapStatus(goalId: String) async throws -> RoadmapStatus
 }

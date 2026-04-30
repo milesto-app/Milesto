@@ -8,8 +8,3 @@ protocol EntitlementProviding: AnyObject {
     func reconcileWithBackend() async
     func handleBackendSubscriptionRequired() async
 }
-
-@MainActor
-enum EntitlementResolver {
-    static var current: (any EntitlementProviding)?
-}

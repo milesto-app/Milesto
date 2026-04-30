@@ -1,9 +1,9 @@
 import SwiftUI
 
 struct WeeklyTaskDetailView: View {
-    let tasks: [WeeklyTaskDTO]
+    let tasks: [WeeklyTask]
     let weekNumber: Int?
-    let onToggle: ((WeeklyTaskDTO) -> Void)?
+    let onToggle: ((WeeklyTask) -> Void)?
 
     @Environment(\.dismiss) private var dismiss
     @State private var orderedIds: [String]
@@ -11,11 +11,11 @@ struct WeeklyTaskDetailView: View {
     @State private var appeared = false
 
     init(
-        tasks: [WeeklyTaskDTO],
+        tasks: [WeeklyTask],
         orderedIds: [String],
         startIndex: Int = 0,
         weekNumber: Int? = nil,
-        onToggle: ((WeeklyTaskDTO) -> Void)? = nil
+        onToggle: ((WeeklyTask) -> Void)? = nil
     ) {
         self.tasks = tasks
         self.weekNumber = weekNumber
@@ -94,8 +94,8 @@ struct WeeklyTaskDetailView: View {
 }
 
 #Preview("Hard task") {
-    let tasks: [WeeklyTaskDTO] = [
-        WeeklyTaskDTO(
+    let tasks: [WeeklyTask] = [
+        WeeklyTask(
             id: "1",
             weeklyPlanId: "wp1",
             goalId: "g1",
@@ -108,7 +108,7 @@ struct WeeklyTaskDetailView: View {
             isFallback: false,
             createdAt: ""
         ),
-        WeeklyTaskDTO(
+        WeeklyTask(
             id: "2",
             weeklyPlanId: "wp1",
             goalId: "g1",
@@ -121,7 +121,7 @@ struct WeeklyTaskDetailView: View {
             isFallback: false,
             createdAt: ""
         ),
-        WeeklyTaskDTO(
+        WeeklyTask(
             id: "3",
             weeklyPlanId: "wp1",
             goalId: "g1",
@@ -147,7 +147,7 @@ struct WeeklyTaskDetailView: View {
 }
 
 #Preview("Single task") {
-    let task = WeeklyTaskDTO(
+    let task = WeeklyTask(
         id: "2",
         weeklyPlanId: "wp1",
         goalId: "g1",

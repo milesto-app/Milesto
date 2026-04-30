@@ -3,11 +3,17 @@ import Supabase
 
 @MainActor
 final class SupabaseGoalRepository: GoalRepository {
-    init() {}
+    private let client: SupabaseClient
+    private let backend: BackendClient
+
+    init(client: SupabaseClient = SupabaseConfig.client, backend: BackendClient = .shared) {
+        self.client = client
+        self.backend = backend
+    }
 
     func createGoal(description: String) async throws -> Goal {
         struct Body: Encodable { let description: String }
-        return try await BackendClient.shared.request(
+        return try await backend.request(
             method: "POST",
             path: "goals",
             body: Body(description: description)
@@ -22,7 +28,7 @@ final class SupabaseGoalRepository: GoalRepository {
                 case userMotivationQuote = "user_motivation_quote"
             }
         }
-        try await BackendClient.shared.requestVoid(
+        try await backend.requestVoid(
             method: "PATCH",
             path: "goals/\(goalId)",
             body: Body(userMotivationQuote: motivationQuote)
@@ -30,7 +36,7 @@ final class SupabaseGoalRepository: GoalRepository {
     }
 
     func getGoal(goalId: String) async throws -> Goal {
-        try await Supabase.client
+        try await client
             .from("goals")
             .select()
             .eq("id", value: goalId)
@@ -54,7 +60,7 @@ final class SupabaseGoalRepository: GoalRepository {
         let now = ISO8601DateFormatter().string(from: Date())
         let body = SoftDeleteBody(deletedAt: now, updatedAt: now)
 
-        try await Supabase.client
+        try await client
             .from("goals")
             .update(body)
             .eq("id", value: goalId)
@@ -62,7 +68,7 @@ final class SupabaseGoalRepository: GoalRepository {
     }
 
     func listGoals() async throws -> [Goal] {
-        try await Supabase.client
+        try await client
             .from("goals")
             .select()
             .is("deleted_at", value: nil)

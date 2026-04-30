@@ -1,6 +1,6 @@
 import Foundation
 
-struct TaskRatingDTO: Codable {
+struct TaskRating: Codable {
     let taskId: String
     let rating: DifficultyRating
 
@@ -10,14 +10,14 @@ struct TaskRatingDTO: Codable {
     }
 }
 
-struct DebriefDTO: Codable, Identifiable {
+struct Debrief: Codable, Identifiable {
     let id: String
     let goalId: String
     let userId: String
     let weeklyPlanId: String?
     let date: String
     let note: String
-    let taskRatings: [TaskRatingDTO]
+    let taskRatings: [TaskRating]
     let createdAt: String
 
     enum CodingKeys: String, CodingKey {
@@ -33,7 +33,7 @@ struct DebriefDTO: Codable, Identifiable {
 struct SubmitDebriefRequest: Encodable {
     let weeklyPlanId: String
     let note: String
-    let taskRatings: [TaskRatingDTO]?
+    let taskRatings: [TaskRating]?
 
     enum CodingKeys: String, CodingKey {
         case note

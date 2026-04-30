@@ -11,10 +11,21 @@ final class PaywallViewModel {
         self.subscription = subscription
     }
 
-    var plans: [SubscriptionPlan] { subscription.plans }
-    var monthlyPlan: SubscriptionPlan? { subscription.monthlyPlan }
-    var annualPlan: SubscriptionPlan? { subscription.annualPlan }
-    var isPurchasing: Bool { subscription.isPurchasing }
+    var plans: [SubscriptionPlan] {
+        subscription.plans
+    }
+
+    var monthlyPlan: SubscriptionPlan? {
+        subscription.monthlyPlan
+    }
+
+    var annualPlan: SubscriptionPlan? {
+        subscription.annualPlan
+    }
+
+    var isPurchasing: Bool {
+        subscription.isPurchasing
+    }
 
     var purchaseError: String? {
         get { subscription.purchaseError }

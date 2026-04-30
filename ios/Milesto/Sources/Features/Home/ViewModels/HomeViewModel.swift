@@ -8,9 +8,9 @@ final class HomeViewModel {
     private(set) var goalId: String = ""
     private(set) var goalTitle: String = ""
     private(set) var currentMilestoneTitle: String?
-    private(set) var weeklyPlan: WeeklyPlanDTO?
-    private(set) var tasks: [WeeklyTaskDTO] = []
-    private(set) var todayDebrief: DebriefDTO?
+    private(set) var weeklyPlan: WeeklyPlan?
+    private(set) var tasks: [WeeklyTask] = []
+    private(set) var todayDebrief: Debrief?
     private(set) var isLoading = true
     private(set) var hasSyncError = false
 
@@ -28,7 +28,7 @@ final class HomeViewModel {
         return Double(completed) / Double(tasks.count)
     }
 
-    var sortedTasks: [WeeklyTaskDTO] {
+    var sortedTasks: [WeeklyTask] {
         tasks.sorted {
             if $0.isCompleted != $1.isCompleted { return !$0.isCompleted }
             let p0 = $0.difficultyRating.priority
@@ -63,7 +63,7 @@ final class HomeViewModel {
         isLoading = false
     }
 
-    func toggleTask(_ task: WeeklyTaskDTO) {
+    func toggleTask(_ task: WeeklyTask) {
         guard let index = tasks.firstIndex(where: { $0.id == task.id }) else { return }
         let original = tasks[index]
         let newCompleted = !task.isCompleted
@@ -91,7 +91,7 @@ final class HomeViewModel {
         }
     }
 
-    func applyRemoteToggle(_ updated: WeeklyTaskDTO) {
+    func applyRemoteToggle(_ updated: WeeklyTask) {
         if let idx = tasks.firstIndex(where: { $0.id == updated.id }) {
             tasks[idx] = updated
         }
@@ -140,9 +140,9 @@ final class HomeViewModel {
     }
 }
 
-private extension WeeklyTaskDTO {
-    func with(isCompleted: Bool) -> WeeklyTaskDTO {
-        WeeklyTaskDTO(
+private extension WeeklyTask {
+    func with(isCompleted: Bool) -> WeeklyTask {
+        WeeklyTask(
             id: id,
             weeklyPlanId: weeklyPlanId,
             goalId: goalId,

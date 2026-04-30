@@ -62,7 +62,6 @@ struct WeeklyPlanGenerationView: View {
         .padding(.horizontal, 24)
     }
 
-    @ViewBuilder
     private func errorContent(model _: WeeklyPlanGenerationViewModel) -> some View {
         VStack(spacing: 24) {
             Spacer()

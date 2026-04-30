@@ -5,7 +5,7 @@ enum WeeklyPlanStatus: String, Codable {
     case completed
 }
 
-struct WeeklyPlanDTO: Codable {
+struct WeeklyPlan: Codable {
     let id: String
     let milestoneId: String
     let goalId: String
@@ -13,7 +13,7 @@ struct WeeklyPlanDTO: Codable {
     let weekNumber: Int
     let weekStartDate: String
     let objectives: [String]
-    let summary: WeeklySummaryDTO?
+    let summary: WeeklySummary?
     let status: WeeklyPlanStatus
     let isFallback: Bool
     let createdAt: String
@@ -30,7 +30,7 @@ struct WeeklyPlanDTO: Codable {
     }
 }
 
-struct WeeklySummaryDTO: Codable {
+struct WeeklySummary: Codable {
     let completionRate: Double
     let tasksCompleted: Int
     let tasksTotal: Int

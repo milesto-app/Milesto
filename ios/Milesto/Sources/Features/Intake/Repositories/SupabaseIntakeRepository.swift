@@ -14,7 +14,7 @@ struct RetryProfileResponse: Codable {
 final class SupabaseIntakeRepository: IntakeRepository {
     init() {}
 
-    func getNextBatch(goalId: String) async throws -> IntakeBatchResponse {
+    func getNextBatch(goalId: String) async throws -> IntakeBatch {
         return try await BackendClient.shared.request(
             method: "GET",
             path: "goals/\(goalId)/intake/next-batch"

@@ -4,7 +4,7 @@ struct WeeklyPlanDetailView: View {
     let weekNumber: Int
     let weekStartDate: String
     let objectives: [String]
-    let summary: WeeklySummaryDTO?
+    let summary: WeeklySummary?
     let status: WeeklyPlanStatus
 
     var body: some View {
@@ -54,7 +54,7 @@ struct WeeklyPlanDetailView: View {
         .glassEffect(.regular, in: RoundedRectangle(cornerRadius: 16))
     }
 
-    private func summaryCard(_ summary: WeeklySummaryDTO) -> some View {
+    private func summaryCard(_ summary: WeeklySummary) -> some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack(spacing: 8) {
                 TablerIcons(.chartBar, size: 20, color: Color("Brand"))
@@ -93,7 +93,7 @@ struct WeeklyPlanDetailView: View {
             "Faire 2 seances de renforcement musculaire",
             "Etirer apres chaque seance",
         ],
-        summary: WeeklySummaryDTO(
+        summary: WeeklySummary(
             completionRate: 0.66,
             tasksCompleted: 2,
             tasksTotal: 3,

@@ -30,7 +30,6 @@ struct PaywallView: View {
         }
     }
 
-    @ViewBuilder
     private func content(model: PaywallViewModel) -> some View {
         ZStack {
             Color("BackgroundBase").ignoresSafeArea()
@@ -115,7 +114,6 @@ struct PaywallView: View {
         }
     }
 
-    @ViewBuilder
     private func planSelector(model: PaywallViewModel) -> some View {
         HStack(spacing: 12) {
             PaywallPlanCard(
@@ -140,7 +138,6 @@ struct PaywallView: View {
         }
     }
 
-    @ViewBuilder
     private func ctaStack(model: PaywallViewModel) -> some View {
         VStack(spacing: 14) {
             PaywallCTAButton(

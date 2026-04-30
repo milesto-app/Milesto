@@ -7,9 +7,6 @@ struct RootView: View {
     @State private var selectedTab = 0
     @State private var isChatPresented = false
     @State private var retryId = 0
-    #if DEBUG
-        @State private var developerSettings = DeveloperSettings.shared
-    #endif
 
     var body: some View {
         Group {
@@ -26,14 +23,13 @@ struct RootView: View {
             if routing == nil {
                 routing = RootRoutingViewModel(
                     profile: dependencies.profile,
-                    goals: dependencies.goals,
-                    roadmap: dependencies.roadmapRemote,
-                    container: dependencies.container
+                    goals: dependencies.goalRouting,
+                    roadmap: dependencies.roadmapRemote
                 )
             }
         }
         #if DEBUG
-        .clearsDeveloperOverrideOnShake(developerSettings)
+        .clearsDeveloperOverrideOnShake(dependencies.developerSettings)
         #endif
     }
 
@@ -42,14 +38,14 @@ struct RootView: View {
         if let routing {
             Group {
                 #if DEBUG
-                    switch developerSettings.routeOverride {
+                    switch dependencies.developerSettings.routeOverride {
                     case .profileOnboarding:
                         ProfileOnboardingView(
                             userId: userId,
                             missingSteps: [.name, .birthdate, .coach],
                             existingProfile: routing.localProfile,
                             onComplete: {
-                                developerSettings.clearRouteOverride()
+                                dependencies.developerSettings.clearRouteOverride()
                             }
                         )
                         .transition(.opacity)
@@ -58,17 +54,17 @@ struct RootView: View {
                             userId: userId,
                             existingGoalId: nil,
                             onClose: {
-                                developerSettings.clearRouteOverride()
+                                dependencies.developerSettings.clearRouteOverride()
                             },
                             onComplete: { goalId in
                                 routing.activeGoalId = goalId
-                                developerSettings.clearRouteOverride()
+                                dependencies.developerSettings.clearRouteOverride()
                             }
                         )
                         .transition(.opacity)
                     case .roadmapGeneration:
                         RoadmapGenerationView(goalId: routing.activeGoalId ?? "") {
-                            developerSettings.clearRouteOverride()
+                            dependencies.developerSettings.clearRouteOverride()
                         }
                         .transition(.opacity)
                     case .paywall, .none:
@@ -87,7 +83,6 @@ struct RootView: View {
         }
     }
 
-    @ViewBuilder
     private func standardAuthenticatedBody(userId: String, routing: RootRoutingViewModel) -> some View {
         Group {
             if routing.profileComplete {
@@ -178,13 +173,7 @@ struct RootView: View {
             }
 
             Tab(value: 3) {
-                SettingsView(onNewGoal: { goalId in
-                    routing.activeGoalId = goalId
-                    withAnimation(.easeInOut(duration: 0.4)) {
-                        routing.goalComplete = true
-                        routing.roadmapReady = false
-                    }
-                }, onDeleteGoal: {
+                SettingsView(onDeleteGoal: {
                     routing.activeGoalId = nil
                     withAnimation(.easeInOut(duration: 0.4)) {
                         routing.goalComplete = false

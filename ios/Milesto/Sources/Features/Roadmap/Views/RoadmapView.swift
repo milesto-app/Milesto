@@ -17,7 +17,9 @@ struct RoadmapMonthSection: Identifiable {
     let targetMonth: Int
     let milestones: [DisplayMilestone]
 
-    var id: Int { targetMonth }
+    var id: Int {
+        targetMonth
+    }
 
     var title: String {
         String(format: String(localized: "roadmap.phase.month", table: "Roadmap"), targetMonth)
@@ -116,7 +118,6 @@ struct RoadmapView: View {
         }
     }
 
-    @ViewBuilder
     private func content(model: RoadmapViewModel) -> some View {
         NavigationStack {
             ZStack(alignment: .top) {

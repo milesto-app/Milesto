@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct IntakeBatchView: View {
-    let batch: IntakeBatchResponse
+    let batch: IntakeBatch
     let batchNumber: Int
     let totalBatches: Int
     @Binding var answers: [String: IntakeAnswerDTO]

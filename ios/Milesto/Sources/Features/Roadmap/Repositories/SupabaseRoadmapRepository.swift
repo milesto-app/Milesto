@@ -40,7 +40,7 @@ final class SupabaseRoadmapRepository: RoadmapRepository {
             }
         }
 
-        let row: GoalRoadmapRow = try await Supabase.client
+        let row: GoalRoadmapRow = try await SupabaseConfig.client
             .from("goals")
             .select("id, user_id, roadmap_status, roadmap_generation_attempts, roadmap_created_at, roadmap_updated_at, milestones (*)")
             .eq("id", value: goalId)
@@ -49,7 +49,7 @@ final class SupabaseRoadmapRepository: RoadmapRepository {
             .value
 
         var currentMilestoneId: String?
-        if let activePlan: ActiveWeeklyPlan = try? await Supabase.client
+        if let activePlan: ActiveWeeklyPlan = try? await SupabaseConfig.client
             .from("weekly_plans")
             .select("milestone_id")
             .eq("goal_id", value: goalId)
@@ -74,7 +74,7 @@ final class SupabaseRoadmapRepository: RoadmapRepository {
     }
 
     func getMilestones(goalId: String) async throws -> [MilestoneSummaryDTO] {
-        try await Supabase.client
+        try await SupabaseConfig.client
             .from("milestones")
             .select("id, title, description, expected_outcome, target_month, target_week, is_monthly_checkpoint, order_index")
             .eq("goal_id", value: goalId)
@@ -83,9 +83,9 @@ final class SupabaseRoadmapRepository: RoadmapRepository {
             .value
     }
 
-    func getWeeklyPlan(goalId: String) async throws -> WeeklyPlanDTO? {
+    func getWeeklyPlan(goalId: String) async throws -> WeeklyPlan? {
         do {
-            return try await Supabase.client
+            return try await SupabaseConfig.client
                 .from("weekly_plans")
                 .select()
                 .eq("goal_id", value: goalId)
@@ -98,21 +98,21 @@ final class SupabaseRoadmapRepository: RoadmapRepository {
         }
     }
 
-    func generateWeeklyPlan(goalId: String) async throws -> WeeklyPlanDTO {
+    func generateWeeklyPlan(goalId: String) async throws -> WeeklyPlan {
         return try await BackendClient.shared.request(
             method: "POST",
             path: "goals/\(goalId)/roadmap/weekly-plan/generate"
         )
     }
 
-    func getWeeklyTasks(goalId: String) async throws -> [WeeklyTaskDTO] {
+    func getWeeklyTasks(goalId: String) async throws -> [WeeklyTask] {
         return try await BackendClient.shared.request(
             method: "GET",
             path: "goals/\(goalId)/weekly-tasks"
         )
     }
 
-    func toggleTask(goalId: String, taskId: String, isCompleted: Bool) async throws -> WeeklyTaskDTO {
+    func toggleTask(goalId: String, taskId: String, isCompleted: Bool) async throws -> WeeklyTask {
         return try await BackendClient.shared.request(
             method: "PATCH",
             path: "goals/\(goalId)/weekly-tasks/\(taskId)",
@@ -120,7 +120,7 @@ final class SupabaseRoadmapRepository: RoadmapRepository {
         )
     }
 
-    func submitDebrief(goalId: String, weeklyPlanId: String, note: String, taskRatings: [TaskRatingDTO]?) async throws -> DebriefDTO {
+    func submitDebrief(goalId: String, weeklyPlanId: String, note: String, taskRatings: [TaskRating]?) async throws -> Debrief {
         return try await BackendClient.shared.request(
             method: "POST",
             path: "goals/\(goalId)/debrief",
@@ -128,9 +128,9 @@ final class SupabaseRoadmapRepository: RoadmapRepository {
         )
     }
 
-    func getTasksForMilestone(milestoneId: String) async throws -> [WeeklyTaskDTO] {
+    func getTasksForMilestone(milestoneId: String) async throws -> [WeeklyTask] {
         struct PlanRef: Decodable { let id: String }
-        let plans: [PlanRef] = try await Supabase.client
+        let plans: [PlanRef] = try await SupabaseConfig.client
             .from("weekly_plans")
             .select("id")
             .eq("milestone_id", value: milestoneId)
@@ -139,7 +139,7 @@ final class SupabaseRoadmapRepository: RoadmapRepository {
 
         guard !plans.isEmpty else { return [] }
 
-        return try await Supabase.client
+        return try await SupabaseConfig.client
             .from("weekly_tasks")
             .select()
             .in("weekly_plan_id", values: plans.map(\.id))
@@ -148,13 +148,20 @@ final class SupabaseRoadmapRepository: RoadmapRepository {
             .value
     }
 
-    func getDebriefHistory(goalId: String) async throws -> [DebriefDTO] {
-        try await Supabase.client
+    func getDebriefHistory(goalId: String) async throws -> [Debrief] {
+        try await SupabaseConfig.client
             .from("debriefs")
             .select()
             .eq("goal_id", value: goalId)
             .order("date", ascending: false)
             .execute()
             .value
+    }
+
+    func isRoadmapReady(goalId: String) async -> Bool {
+        guard let dto = try? await getRoadmap(goalId: goalId) else {
+            return false
+        }
+        return dto.status == .complete
     }
 }

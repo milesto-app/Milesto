@@ -1,12 +1,12 @@
 import SwiftUI
 
 struct WeeklyTaskDetailPage: View {
-    let task: WeeklyTaskDTO
+    let task: WeeklyTask
     let weekNumber: Int?
     let indexInWeek: Int
     let totalInWeek: Int
     let appeared: Bool
-    let onToggle: ((WeeklyTaskDTO) -> Void)?
+    let onToggle: ((WeeklyTask) -> Void)?
 
     private var accent: Color {
         switch task.difficultyRating {
@@ -217,7 +217,7 @@ struct WeeklyTaskDetailPage: View {
 
     private func performToggle() {
         let newCompleted = !task.isCompleted
-        let updated = WeeklyTaskDTO(
+        let updated = WeeklyTask(
             id: task.id,
             weeklyPlanId: task.weeklyPlanId,
             goalId: task.goalId,

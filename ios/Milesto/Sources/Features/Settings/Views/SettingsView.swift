@@ -1,18 +1,13 @@
 import SwiftUI
 
 struct SettingsView: View {
-    var onNewGoal: ((String) -> Void)?
     var onDeleteGoal: (() -> Void)?
 
     @Environment(AppDependencies.self) private var dependencies
     @State private var model: SettingsViewModel?
     @State private var showSignOutAlert = false
     @State private var showDeleteGoalAlert = false
-    @State private var showNewGoal = false
     @State private var activeSheet: SettingsSheet?
-    #if DEBUG
-        @State private var developerSettings = DeveloperSettings.shared
-    #endif
 
     var body: some View {
         Group {
@@ -58,7 +53,7 @@ struct SettingsView: View {
                     showDeleteGoalAlert = true
                 }
                 #if DEBUG
-                    SettingsDeveloperSection(developerSettings: developerSettings)
+                    SettingsDeveloperSection(developerSettings: dependencies.developerSettings)
                 #endif
                 SettingsSignOutSection {
                     showSignOutAlert = true
@@ -100,19 +95,6 @@ struct SettingsView: View {
                     Task { await model.saveProfileFields(fields) }
                 }
                 .presentationDetents(sheet == .coach || sheet == .language ? [.large] : [.medium, .large])
-            }
-            .fullScreenCover(isPresented: $showNewGoal) {
-                if let userId = model.currentUserId {
-                    GoalIntakeFlowView(
-                        userId: userId,
-                        existingGoalId: nil,
-                        onClose: { showNewGoal = false },
-                        onComplete: { goalId in
-                            showNewGoal = false
-                            onNewGoal?(goalId)
-                        }
-                    )
-                }
             }
         }
     }

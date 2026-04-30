@@ -47,7 +47,7 @@ struct IntakeQuestion: Codable, Identifiable {
     }
 }
 
-struct IntakeBatchResponse: Codable {
+struct IntakeBatch: Codable {
     let batchId: String?
     let batchNumber: Int?
     let questions: [IntakeQuestion]?
@@ -67,7 +67,7 @@ struct IntakeBatchResponse: Codable {
 
 struct SubmitBatchResponse: Codable {
     let submittedBatch: SubmittedBatchInfo?
-    let nextBatch: IntakeBatchResponse?
+    let nextBatch: IntakeBatch?
     let profileId: String?
     let profileStatus: String?
 
