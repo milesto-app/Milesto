@@ -4,7 +4,7 @@ import Foundation
 final class SupabaseTranscriptionRepository: TranscriptionRepository {
     private let recorder: AudioRecorderRepository
 
-    init(recorder: AudioRecorderRepository = AudioRecorderRepository()) {
+    init(recorder: AudioRecorderRepository) {
         self.recorder = recorder
     }
 

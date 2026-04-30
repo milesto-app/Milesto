@@ -6,7 +6,7 @@ final class SupabaseGoalRepository: GoalRepository {
     private let client: SupabaseClient
     private let backend: BackendClient
 
-    init(client: SupabaseClient = SupabaseConfig.client, backend: BackendClient = .shared) {
+    init(client: SupabaseClient, backend: BackendClient) {
         self.client = client
         self.backend = backend
     }

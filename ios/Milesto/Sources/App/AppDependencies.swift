@@ -38,7 +38,7 @@ final class AppDependencies {
             auth: authService,
             container: container
         )
-        let supabaseGoal = SupabaseGoalRepository()
+        let supabaseGoal = SupabaseGoalRepository(client: SupabaseConfig.client, backend: .shared)
         let goalRoutingRepo = SyncingGoalRepository(remote: supabaseGoal, container: container)
         let supabaseIntake = SupabaseIntakeRepository()
         let intakeFlowRepo = SyncingIntakeFlowRepository(
@@ -77,7 +77,7 @@ final class AppDependencies {
             remote: supabaseStats,
             container: container
         )
-        let transcriptionRepo = SupabaseTranscriptionRepository()
+        let transcriptionRepo = SupabaseTranscriptionRepository(recorder: AudioRecorderRepository())
         let subscriptionService = SyncingSubscriptionRepository()
 
         auth = authService

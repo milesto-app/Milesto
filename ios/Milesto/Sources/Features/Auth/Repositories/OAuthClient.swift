@@ -89,10 +89,15 @@ final class OAuthClient: NSObject {
 extension OAuthClient: ASAuthorizationControllerPresentationContextProviding {
     nonisolated func presentationAnchor(for _: ASAuthorizationController) -> ASPresentationAnchor {
         DispatchQueue.main.sync {
-            let scene = UIApplication.shared.connectedScenes
-                .first(where: { $0.activationState == .foregroundActive }) as? UIWindowScene
-                ?? UIApplication.shared.connectedScenes.first as? UIWindowScene
-            return scene?.windows.first(where: \.isKeyWindow) ?? scene?.windows.first ?? UIWindow()
+            let scenes = UIApplication.shared.connectedScenes
+            guard let windowScene = scenes.first(where: { $0.activationState == .foregroundActive }) as? UIWindowScene
+                ?? scenes.first as? UIWindowScene
+            else {
+                preconditionFailure("ASAuthorizationController requires an active UIWindowScene")
+            }
+            return windowScene.windows.first(where: \.isKeyWindow)
+                ?? windowScene.windows.first
+                ?? UIWindow(windowScene: windowScene)
         }
     }
 }
