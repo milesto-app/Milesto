@@ -1,6 +1,6 @@
 import SwiftUI
 
-struct PaywallGateView<Content: View>: View {
+struct SubscriptionGateView<Content: View>: View {
     @Environment(AppDependencies.self) private var dependencies
     @ViewBuilder let content: () -> Content
 

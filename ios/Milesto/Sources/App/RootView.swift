@@ -3,7 +3,7 @@ import SwiftUI
 struct RootView: View {
     @Environment(AppDependencies.self) private var dependencies
 
-    @State private var routing: RootRoutingViewModel?
+    @State private var routing: RootViewModel?
     @State private var selectedTab = 0
     @State private var isChatPresented = false
     @State private var retryId = 0
@@ -21,7 +21,7 @@ struct RootView: View {
         }
         .onAppear {
             if routing == nil {
-                routing = RootRoutingViewModel(
+                routing = RootViewModel(
                     profile: dependencies.profile,
                     goals: dependencies.goalRouting,
                     roadmap: dependencies.roadmapRemote
@@ -83,10 +83,10 @@ struct RootView: View {
         }
     }
 
-    private func standardAuthenticatedBody(userId: String, routing: RootRoutingViewModel) -> some View {
+    private func standardAuthenticatedBody(userId: String, routing: RootViewModel) -> some View {
         Group {
             if routing.profileComplete {
-                PaywallGateView {
+                SubscriptionGateView {
                     postProfileFlow(userId: userId, routing: routing)
                 }
                 .transition(.opacity)
@@ -125,7 +125,7 @@ struct RootView: View {
         }
     }
 
-    private func postProfileFlow(userId: String, routing: RootRoutingViewModel) -> some View {
+    private func postProfileFlow(userId: String, routing: RootViewModel) -> some View {
         Group {
             if routing.goalComplete && routing.roadmapReady {
                 mainAppContent(routing: routing)
@@ -153,7 +153,7 @@ struct RootView: View {
         .animation(.easeInOut(duration: 0.4), value: routing.roadmapReady)
     }
 
-    private func mainAppContent(routing: RootRoutingViewModel) -> some View {
+    private func mainAppContent(routing: RootViewModel) -> some View {
         TabView(selection: $selectedTab) {
             Tab(value: 0) {
                 HomeView(goalId: routing.activeGoalId ?? "")

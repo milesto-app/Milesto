@@ -2,7 +2,7 @@ import Foundation
 
 @MainActor
 @Observable
-final class RootRoutingViewModel {
+final class RootViewModel {
     private(set) var hasSynced = false
     var profileComplete = false
     var goalComplete = false
