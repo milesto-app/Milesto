@@ -84,19 +84,15 @@ struct ChatView: View {
         {
             Button(String(localized: "common.ok", table: "Common"), role: .cancel) {
                 model.isLimitReached = false
-                model.isSubscriptionRequired = false
             }
         } message: {
-            if model.isLimitReached || model.isSubscriptionRequired {
+            if model.isLimitReached {
                 Text(model.errorMessage)
             }
         }
     }
 
     private var chatErrorTitle: String {
-        if model.isSubscriptionRequired {
-            return String(localized: "paywall.error.title", table: "Paywall")
-        }
         if model.isLimitReached {
             return String(localized: "usage.limit.reached.title", table: "Paywall")
         }

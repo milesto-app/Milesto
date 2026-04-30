@@ -84,37 +84,9 @@ struct RootView: View {
 
     private func standardAuthenticatedBody(userId: String) -> some View {
         Group {
-            if gate.goalComplete && gate.roadmapReady {
+            if gate.profileComplete {
                 PaywallGateView {
-                    mainAppContent()
-                }
-                .transition(.opacity)
-            } else if gate.goalComplete && !gate.roadmapReady {
-                PaywallGateView {
-                    RoadmapGenerationView(goalId: gate.activeGoalId ?? "") {
-                        withAnimation(.easeInOut(duration: 0.4)) {
-                            gate.roadmapReady = true
-                            if let goal = localGoals.first(where: { $0.id == gate.activeGoalId }) {
-                                goal.status = "active"
-                            }
-                        }
-                    }
-                }
-                .transition(.opacity)
-            } else if gate.profileComplete {
-                PaywallGateView {
-                    GoalIntakeFlowView(
-                        userId: userId,
-                        existingGoalId: gate.activeGoalId,
-                        onClose: nil,
-                        onComplete: { goalId in
-                            gate.activeGoalId = goalId
-
-                            withAnimation(.easeInOut(duration: 0.4)) {
-                                gate.goalComplete = true
-                            }
-                        }
-                    )
+                    postProfileFlow(userId: userId)
                 }
                 .transition(.opacity)
             } else if gate.hasSynced {
@@ -149,6 +121,35 @@ struct RootView: View {
             } else {
                 Color("BackgroundBase").ignoresSafeArea()
             }
+        }
+    }
+
+    @ViewBuilder
+    private func postProfileFlow(userId: String) -> some View {
+        if gate.goalComplete && gate.roadmapReady {
+            mainAppContent()
+        } else if gate.goalComplete {
+            RoadmapGenerationView(goalId: gate.activeGoalId ?? "") {
+                withAnimation(.easeInOut(duration: 0.4)) {
+                    gate.roadmapReady = true
+                    if let goal = localGoals.first(where: { $0.id == gate.activeGoalId }) {
+                        goal.status = "active"
+                    }
+                }
+            }
+        } else {
+            GoalIntakeFlowView(
+                userId: userId,
+                existingGoalId: gate.activeGoalId,
+                onClose: nil,
+                onComplete: { goalId in
+                    gate.activeGoalId = goalId
+
+                    withAnimation(.easeInOut(duration: 0.4)) {
+                        gate.goalComplete = true
+                    }
+                }
+            )
         }
     }
 

@@ -14,7 +14,6 @@ final class ChatViewModel {
     var conversations: [ConversationSummary] = []
     var isLoadingHistory = false
     var isLimitReached = false
-    var isSubscriptionRequired = false
 
     var goalId: String = ""
     var modelContext: ModelContext?
@@ -107,21 +106,14 @@ final class ChatViewModel {
             } catch let error as BackendError {
                 if case .generationLimitReached = error {
                     isLimitReached = true
-                    isSubscriptionRequired = false
                     errorMessage = String(localized: "usage.limit.reached.message", table: "Paywall")
-                } else if case .subscriptionRequired = error {
-                    isLimitReached = false
-                    isSubscriptionRequired = true
-                    errorMessage = error.localizedDescription
                 } else {
                     isLimitReached = false
-                    isSubscriptionRequired = false
                     errorMessage = String(localized: "chat.error.generic", table: "Chat")
                 }
                 showError = true
             } catch {
                 isLimitReached = false
-                isSubscriptionRequired = false
                 errorMessage = String(localized: "chat.error.generic", table: "Chat")
                 showError = true
             }
