@@ -23,3 +23,5 @@ final class PendingSubscriptionSync {
         self.attemptCount = attemptCount
     }
 }
+
+typealias LocalPendingSubscriptionSync = PendingSubscriptionSync

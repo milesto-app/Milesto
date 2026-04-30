@@ -1,9 +1,7 @@
-import StoreKit
 import SwiftUI
 
 struct PaywallView: View {
-    @State private var subscription = SubscriptionService.shared
-    @State private var selectedProductId: String = SubscriptionService.annualProductId
+    @State private var model = PaywallViewModel(subscription: SyncingSubscriptionRepository.shared)
     @State private var heroVisible = false
     @State private var featuresVisible = false
     @State private var plansVisible = false
@@ -12,14 +10,6 @@ struct PaywallView: View {
     @State private var glowOpacity: Double = 0.55
     @State private var sparklePulse: Double = 0.7
     @State private var showError = false
-
-    private var selectedProduct: Product? {
-        subscription.products.first { $0.id == selectedProductId }
-    }
-
-    private var isAnnualSelected: Bool {
-        selectedProductId == SubscriptionService.annualProductId
-    }
 
     var body: some View {
         ZStack {
@@ -59,20 +49,20 @@ struct PaywallView: View {
         }
         .interactiveDismissDisabled(true)
         .task {
-            await subscription.loadProducts()
+            await model.loadPlans()
             startEntryAnimation()
             startAmbientAnimation()
         }
-        .onChange(of: subscription.purchaseError) { _, newValue in
+        .onChange(of: model.purchaseError) { _, newValue in
             showError = newValue != nil
         }
         .alert(
             String(localized: "paywall.error.title", table: "Paywall"),
             isPresented: $showError,
-            presenting: subscription.purchaseError
+            presenting: model.purchaseError
         ) { _ in
             Button(String(localized: "common.ok", table: "Common"), role: .cancel) {
-                subscription.purchaseError = nil
+                model.purchaseError = nil
             }
         } message: { message in
             Text(message)
@@ -114,22 +104,22 @@ struct PaywallView: View {
         HStack(spacing: 12) {
             PaywallPlanCard(
                 titleKey: "paywall.plan.annual.title",
-                price: subscription.annualProduct?.displayPrice ?? "—",
+                price: model.annualPlan?.displayPrice ?? "—",
                 periodKey: "paywall.plan.annual.period",
                 footnoteKey: "paywall.plan.annual.trial",
                 badgeKey: "paywall.plan.save",
-                isSelected: selectedProductId == SubscriptionService.annualProductId,
-                onSelect: { selectedProductId = SubscriptionService.annualProductId }
+                isSelected: model.isAnnualSelected,
+                onSelect: { model.selectAnnual() }
             )
 
             PaywallPlanCard(
                 titleKey: "paywall.plan.monthly.title",
-                price: subscription.monthlyProduct?.displayPrice ?? "—",
+                price: model.monthlyPlan?.displayPrice ?? "—",
                 periodKey: "paywall.plan.monthly.period",
                 footnoteKey: nil,
                 badgeKey: nil,
-                isSelected: selectedProductId == SubscriptionService.monthlyProductId,
-                onSelect: { selectedProductId = SubscriptionService.monthlyProductId }
+                isSelected: !model.isAnnualSelected && model.selectedPlan != nil,
+                onSelect: { model.selectMonthly() }
             )
         }
     }
@@ -137,13 +127,12 @@ struct PaywallView: View {
     private var ctaStack: some View {
         VStack(spacing: 14) {
             PaywallCTAButton(
-                titleKey: isAnnualSelected ? "paywall.cta.trial" : "paywall.cta.subscribe",
-                isLoading: subscription.isPurchasing,
-                isDisabled: selectedProduct == nil,
+                titleKey: model.isAnnualSelected ? "paywall.cta.trial" : "paywall.cta.subscribe",
+                isLoading: model.isPurchasing,
+                isDisabled: model.selectedPlan == nil,
                 action: {
                     Task {
-                        guard let product = selectedProduct else { return }
-                        await subscription.purchase(product)
+                        await model.purchaseSelected()
                     }
                 }
             )
@@ -157,7 +146,7 @@ struct PaywallView: View {
 
             HStack(spacing: 20) {
                 footerLink("paywall.footer.restore") {
-                    Task { await subscription.restore() }
+                    Task { await model.restore() }
                 }
                 Circle()
                     .fill(Color("TextSecondary").opacity(0.3))
@@ -173,11 +162,11 @@ struct PaywallView: View {
     }
 
     private var termsLine: String {
-        if isAnnualSelected {
-            guard let price = subscription.annualProduct?.displayPrice else { return "" }
+        if model.isAnnualSelected {
+            guard let price = model.annualPlan?.displayPrice else { return "" }
             return String(format: String(localized: "paywall.terms.trial.annual", table: "Paywall"), price)
         } else {
-            guard let price = subscription.monthlyProduct?.displayPrice else { return "" }
+            guard let price = model.monthlyPlan?.displayPrice else { return "" }
             return String(format: String(localized: "paywall.terms.monthly", table: "Paywall"), price)
         }
     }

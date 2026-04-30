@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct PaywallGateView<Content: View>: View {
-    @State private var subscription = SubscriptionService.shared
+    @State private var subscription = SyncingSubscriptionRepository.shared
     #if DEBUG
         @State private var developerSettings = DeveloperSettings.shared
     #endif

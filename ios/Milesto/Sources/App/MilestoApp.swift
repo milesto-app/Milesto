@@ -12,7 +12,7 @@ struct MilestoApp: App {
     @State private var authService = AuthService.shared
     @State private var dependencies = AppDependencies(
         auth: AuthService.shared,
-        entitlement: SubscriptionService.shared
+        entitlement: SyncingSubscriptionRepository.shared
     )
     @Environment(\.scenePhase) private var scenePhase
 
@@ -63,7 +63,7 @@ struct MilestoApp: App {
                     await SubscriptionSyncOutbox.shared.configure(container: sharedModelContainer)
                     guard isAuthenticated else { return }
                     await NotificationService.shared.requestPermissionAndRegister()
-                    await SubscriptionService.shared.onAppStart()
+                    await SyncingSubscriptionRepository.shared.onAppStart()
                 }
                 .onChange(of: scenePhase) { _, newPhase in
                     if newPhase == .active, isAuthenticated {

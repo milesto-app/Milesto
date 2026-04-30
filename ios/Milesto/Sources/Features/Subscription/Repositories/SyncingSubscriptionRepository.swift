@@ -18,8 +18,8 @@ nonisolated struct SubscriptionStatusResponse: Decodable {
 
 @MainActor
 @Observable
-final class SubscriptionService: EntitlementProviding {
-    static let shared = SubscriptionService()
+final class SyncingSubscriptionRepository: EntitlementProviding, SubscriptionRepository {
+    static let shared = SyncingSubscriptionRepository()
 
     static let monthlyProductId = "milesto_plus_monthly"
     static let annualProductId = "milesto_plus_annual"
@@ -46,19 +46,33 @@ final class SubscriptionService: EntitlementProviding {
         entitlementState == .subscribed
     }
 
-    var monthlyProduct: Product? {
-        products.first { $0.id == Self.monthlyProductId }
+    var plans: [SubscriptionPlan] {
+        products.map(makePlan)
     }
 
-    var annualProduct: Product? {
-        products.first { $0.id == Self.annualProductId }
+    var monthlyPlan: SubscriptionPlan? {
+        plans.first { $0.id == Self.monthlyProductId }
+    }
+
+    var annualPlan: SubscriptionPlan? {
+        plans.first { $0.id == Self.annualProductId }
     }
 
     private init() {
         updatesTask = observeTransactionUpdates()
         Task {
-            await loadProducts()
+            await loadPlans()
         }
+    }
+
+    private func makePlan(_ product: Product) -> SubscriptionPlan {
+        let period: SubscriptionPlan.Period = product.id == Self.annualProductId ? .annual : .monthly
+        return SubscriptionPlan(
+            id: product.id,
+            displayName: product.displayName,
+            displayPrice: product.displayPrice,
+            period: period
+        )
     }
 
     func onAppStart() async {
@@ -72,7 +86,7 @@ final class SubscriptionService: EntitlementProviding {
         await reconcileWithBackend()
     }
 
-    func loadProducts() async {
+    func loadPlans() async {
         do {
             let fetched = try await Product.products(for: Self.productIds)
             products = fetched.sorted { lhs, _ in lhs.id == Self.annualProductId }
@@ -97,8 +111,12 @@ final class SubscriptionService: EntitlementProviding {
         await reconcileWithBackend()
     }
 
-    func purchase(_ product: Product) async {
+    func purchase(planId: String) async {
         guard !isPurchasing else { return }
+        guard let product = products.first(where: { $0.id == planId }) else {
+            purchaseError = PurchaseError.missingUser.errorDescription
+            return
+        }
         isPurchasing = true
         purchaseError = nil
         defer { isPurchasing = false }
