@@ -26,8 +26,8 @@ struct ProfileUpdateFields: Encodable {
     }
 }
 
-final class ProfileService {
-    static let shared = ProfileService()
+final class SupabaseProfileRepository {
+    static let shared = SupabaseProfileRepository()
 
     private init() {}
 
@@ -45,7 +45,7 @@ final class ProfileService {
 
     func fetchProfile(userId: String) async throws -> Profile? {
         guard let uuid = UUID(uuidString: userId) else {
-            throw ProfileServiceError.invalidUserId
+            throw ProfileRepositoryError.invalidUserId
         }
 
         let response: [Profile] = try await Supabase.client
@@ -59,7 +59,7 @@ final class ProfileService {
     }
 }
 
-enum ProfileServiceError: LocalizedError {
+enum ProfileRepositoryError: LocalizedError {
     case invalidUserId
 
     var errorDescription: String? {

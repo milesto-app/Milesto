@@ -106,3 +106,5 @@ extension Profile {
         return steps
     }
 }
+
+typealias LocalProfile = Profile

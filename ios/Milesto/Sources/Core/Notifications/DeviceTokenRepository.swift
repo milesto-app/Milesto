@@ -9,8 +9,8 @@ private struct UnregisterTokenBody: Encodable {
     let token: String
 }
 
-final class DeviceTokenAPIService {
-    static let shared = DeviceTokenAPIService()
+final class DeviceTokenRepository {
+    static let shared = DeviceTokenRepository()
 
     private init() {}
 

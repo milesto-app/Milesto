@@ -5,21 +5,13 @@ struct RootView: View {
     @Environment(SupabaseAuthRepository.self) private var authService
     @Environment(\.modelContext) private var modelContext
 
-    @Query private var localProfiles: [Profile]
-    @Query private var localGoals: [Goal]
-
-    @State private var gate = ProfileGate()
+    @State private var routing = RootRoutingViewModel()
     @State private var selectedTab = 0
     @State private var isChatPresented = false
     @State private var retryId = 0
     #if DEBUG
         @State private var developerSettings = DeveloperSettings.shared
     #endif
-
-    private var localProfile: Profile? {
-        guard case let .authenticated(userId) = authService.authState else { return nil }
-        return localProfiles.first { $0.userId == userId }
-    }
 
     var body: some View {
         Group {
@@ -45,7 +37,7 @@ struct RootView: View {
                     ProfileOnboardingView(
                         userId: userId,
                         missingSteps: [.name, .birthdate, .coach],
-                        existingProfile: localProfile,
+                        existingProfile: routing.localProfile,
                         onComplete: {
                             developerSettings.clearRouteOverride()
                         }
@@ -59,13 +51,13 @@ struct RootView: View {
                             developerSettings.clearRouteOverride()
                         },
                         onComplete: { goalId in
-                            gate.activeGoalId = goalId
+                            routing.activeGoalId = goalId
                             developerSettings.clearRouteOverride()
                         }
                     )
                     .transition(.opacity)
                 case .roadmapGeneration:
-                    RoadmapGenerationView(goalId: gate.activeGoalId ?? "") {
+                    RoadmapGenerationView(goalId: routing.activeGoalId ?? "") {
                         developerSettings.clearRouteOverride()
                     }
                     .transition(.opacity)
@@ -77,31 +69,31 @@ struct RootView: View {
             #endif
         }
         .task(id: retryId) {
-            guard !gate.hasSynced else { return }
-            await gate.sync(userId: userId, modelContext: modelContext, localProfile: localProfile, localGoals: localGoals)
+            guard !routing.hasSynced else { return }
+            await routing.sync(userId: userId, modelContext: modelContext)
         }
     }
 
     private func standardAuthenticatedBody(userId: String) -> some View {
         Group {
-            if gate.profileComplete {
+            if routing.profileComplete {
                 PaywallGateView {
                     postProfileFlow(userId: userId)
                 }
                 .transition(.opacity)
-            } else if gate.hasSynced {
+            } else if routing.hasSynced {
                 ProfileOnboardingView(
                     userId: userId,
-                    missingSteps: localProfile?.missingOnboardingSteps ?? [.name, .birthdate, .coach],
-                    existingProfile: localProfile,
+                    missingSteps: routing.localProfile?.missingOnboardingSteps ?? [.name, .birthdate, .coach],
+                    existingProfile: routing.localProfile,
                     onComplete: {
                         withAnimation(.easeInOut(duration: 0.4)) {
-                            gate.profileComplete = true
+                            routing.profileComplete = true
                         }
                     }
                 )
                 .transition(.opacity)
-            } else if gate.connectionError {
+            } else if routing.connectionError {
                 VStack(spacing: 24) {
                     TablerIcons(.wifiOff, size: 48, color: Color("TextSecondary"))
 
@@ -113,7 +105,7 @@ struct RootView: View {
                         .alignment(.center)
 
                     AppButton("common.retry", table: "Common") {
-                        gate.resetForRetry()
+                        routing.resetForRetry()
                         retryId += 1
                     }
                 }
@@ -126,27 +118,24 @@ struct RootView: View {
 
     @ViewBuilder
     private func postProfileFlow(userId: String) -> some View {
-        if gate.goalComplete && gate.roadmapReady {
+        if routing.goalComplete && routing.roadmapReady {
             mainAppContent()
-        } else if gate.goalComplete {
-            RoadmapGenerationView(goalId: gate.activeGoalId ?? "") {
+        } else if routing.goalComplete {
+            RoadmapGenerationView(goalId: routing.activeGoalId ?? "") {
                 withAnimation(.easeInOut(duration: 0.4)) {
-                    gate.roadmapReady = true
-                    if let goal = localGoals.first(where: { $0.id == gate.activeGoalId }) {
-                        goal.status = "active"
-                    }
+                    routing.markRoadmapReady(in: modelContext)
                 }
             }
         } else {
             GoalIntakeFlowView(
                 userId: userId,
-                existingGoalId: gate.activeGoalId,
+                existingGoalId: routing.activeGoalId,
                 onClose: nil,
                 onComplete: { goalId in
-                    gate.activeGoalId = goalId
+                    routing.activeGoalId = goalId
 
                     withAnimation(.easeInOut(duration: 0.4)) {
-                        gate.goalComplete = true
+                        routing.goalComplete = true
                     }
                 }
             )
@@ -156,37 +145,37 @@ struct RootView: View {
     private func mainAppContent() -> some View {
         TabView(selection: $selectedTab) {
             Tab(value: 0) {
-                HomeView(goalId: gate.activeGoalId ?? "", firstName: localProfile?.firstName ?? "")
+                HomeView(goalId: routing.activeGoalId ?? "", firstName: routing.localProfile?.firstName ?? "")
             } label: {
                 TablerTabLabel(.home, title: String(localized: "tabs.home", table: "Common"))
             }
 
             Tab(value: 1) {
-                RoadmapView(goalId: gate.activeGoalId ?? "", onGoalChanged: { id in
-                    gate.handleGoalChanged(id, localGoals: localGoals)
+                RoadmapView(goalId: routing.activeGoalId ?? "", onGoalChanged: { id in
+                    routing.handleGoalChanged(id, in: modelContext)
                 })
             } label: {
                 TablerTabLabel(.map, title: String(localized: "tabs.roadmap", table: "Common"))
             }
 
             Tab(value: 2) {
-                StatsView(goalId: gate.activeGoalId ?? "")
+                StatsView(goalId: routing.activeGoalId ?? "")
             } label: {
                 TablerTabLabel(.chartBar, title: String(localized: "tabs.stats", table: "Common"))
             }
 
             Tab(value: 3) {
                 SettingsView(onNewGoal: { goalId in
-                    gate.activeGoalId = goalId
+                    routing.activeGoalId = goalId
                     withAnimation(.easeInOut(duration: 0.4)) {
-                        gate.goalComplete = true
-                        gate.roadmapReady = false
+                        routing.goalComplete = true
+                        routing.roadmapReady = false
                     }
                 }, onDeleteGoal: {
-                    gate.activeGoalId = nil
+                    routing.activeGoalId = nil
                     withAnimation(.easeInOut(duration: 0.4)) {
-                        gate.goalComplete = false
-                        gate.roadmapReady = false
+                        routing.goalComplete = false
+                        routing.roadmapReady = false
                     }
                 })
             } label: {
@@ -210,7 +199,7 @@ struct RootView: View {
             }
         }
         .fullScreenCover(isPresented: $isChatPresented) {
-            ChatView(goalId: gate.activeGoalId ?? "", onClose: {
+            ChatView(goalId: routing.activeGoalId ?? "", onClose: {
                 isChatPresented = false
             })
         }

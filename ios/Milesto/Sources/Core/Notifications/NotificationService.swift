@@ -37,7 +37,7 @@ final class NotificationService {
         #endif
 
         do {
-            try await DeviceTokenAPIService.shared.register(token: token, environment: environment)
+            try await DeviceTokenRepository.shared.register(token: token, environment: environment)
             UserDefaults.standard.set(token, forKey: lastTokenKey)
         } catch {}
     }
@@ -45,7 +45,7 @@ final class NotificationService {
     func unregisterCurrentToken() async {
         guard let token = UserDefaults.standard.string(forKey: lastTokenKey) else { return }
         do {
-            try await DeviceTokenAPIService.shared.unregister(token: token)
+            try await DeviceTokenRepository.shared.unregister(token: token)
             UserDefaults.standard.removeObject(forKey: lastTokenKey)
         } catch {}
     }

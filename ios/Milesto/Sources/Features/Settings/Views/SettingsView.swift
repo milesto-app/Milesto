@@ -180,7 +180,7 @@ struct SettingsView: View {
             defer { isSaving = false }
 
             do {
-                let updated = try await ProfileService.shared.updateProfile(fields)
+                let updated = try await SupabaseProfileRepository.shared.updateProfile(fields)
 
                 if let profile = localProfile {
                     if let v = updated.firstName { profile.firstName = v }
@@ -198,7 +198,7 @@ struct SettingsView: View {
 
     private func syncProfileData() async {
         guard let userId = authService.currentUserId else { return }
-        try? await ProfileSyncService.shared.sync(userId: userId, in: modelContext)
+        try? await SyncingProfileRepository.shared.sync(userId: userId, in: modelContext)
     }
 
     private var fullName: String {

@@ -123,7 +123,7 @@ struct ProfileOnboardingView: View {
             )
 
             do {
-                _ = try await ProfileService.shared.updateProfile(fields)
+                _ = try await SupabaseProfileRepository.shared.updateProfile(fields)
 
                 onComplete()
 

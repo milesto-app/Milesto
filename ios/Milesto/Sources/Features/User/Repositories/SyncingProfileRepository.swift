@@ -3,10 +3,14 @@ import Supabase
 import SwiftData
 
 @MainActor
-final class ProfileSyncService {
-    static let shared = ProfileSyncService()
+final class SyncingProfileRepository: ProfileRepository {
+    static let shared = SyncingProfileRepository()
 
     private init() {}
+
+    func updateProfile(_ fields: ProfileUpdateFields) async throws -> Profile {
+        try await SupabaseProfileRepository.shared.updateProfile(fields)
+    }
 
     private func mergePendingAppleName(into fetchedProfile: Profile?) async -> Profile? {
         let pending = SupabaseAuthRepository.shared.consumePendingAppleName()
@@ -17,7 +21,7 @@ final class ProfileSyncService {
         guard existingFirst.isEmpty, existingLast.isEmpty else { return fetchedProfile }
 
         do {
-            return try await ProfileService.shared.updateProfile(
+            return try await SupabaseProfileRepository.shared.updateProfile(
                 ProfileUpdateFields(
                     firstName: pending.firstName,
                     lastName: pending.lastName
@@ -39,7 +43,7 @@ final class ProfileSyncService {
     }
 
     func sync(userId: String, in modelContext: ModelContext) async throws {
-        var fetchedProfile = try await ProfileService.shared.fetchProfile(userId: userId)
+        var fetchedProfile = try await SupabaseProfileRepository.shared.fetchProfile(userId: userId)
         fetchedProfile = await mergePendingAppleName(into: fetchedProfile)
 
         var fetchedEmail: String?
