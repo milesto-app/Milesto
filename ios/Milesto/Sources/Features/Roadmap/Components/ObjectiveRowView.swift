@@ -53,15 +53,7 @@ struct ObjectiveRowView: View {
             Spacer()
 
             if task.difficultyRating != nil {
-                AppText(verbatim: difficultyLabel, style: .caption)
-                    .weight(.medium)
-                    .color(difficultyColor)
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 4)
-                    .background(
-                        Capsule()
-                            .fill(difficultyColor.opacity(0.15))
-                    )
+                AppPill(verbatim: difficultyLabel, tint: difficultyColor)
             }
         }
         .contentShape(Rectangle())

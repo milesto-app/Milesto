@@ -38,7 +38,6 @@ struct WeeklyTasksCard: View {
                     verbatim: "\(model.completedCount)/\(model.tasks.count)",
                     style: .subheadline
                 )
-                .color(Color("Brand"))
             }
             .padding(.horizontal, 24)
             .padding(.top, 12)

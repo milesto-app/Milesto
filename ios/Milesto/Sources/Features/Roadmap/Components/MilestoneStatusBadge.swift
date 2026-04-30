@@ -11,37 +11,30 @@ struct MilestoneStatusBadge: View {
         }
     }
 
-    private var label: String {
+    private var labelKey: LocalizedStringKey {
         switch status {
-        case .completed: return String(localized: "roadmap.milestone.status.completed", table: "Roadmap")
-        case .current: return String(localized: "roadmap.milestone.status.current", table: "Roadmap")
-        case .upcoming: return String(localized: "roadmap.milestone.status.upcoming", table: "Roadmap")
+        case .completed: return "roadmap.milestone.status.completed"
+        case .current: return "roadmap.milestone.status.current"
+        case .upcoming: return "roadmap.milestone.status.upcoming"
         }
     }
 
-    private var isAccented: Bool {
-        status == .completed || status == .current
+    private var tint: Color {
+        switch status {
+        case .completed, .current:
+            Color("Brand")
+        case .upcoming:
+            Color("TextSecondary")
+        }
     }
 
     var body: some View {
-        HStack(spacing: 4) {
-            if let icon {
-                TablerIcons(icon, size: 14, color: isAccented ? Color("TextOnBrand") : Color("TextSecondary"))
-            }
-
-            AppText(verbatim: label, style: .caption)
-                .weight(.semibold)
-                .color(isAccented ? Color("TextOnBrand") : Color("TextSecondary"))
-        }
-        .padding(.horizontal, 12)
-        .padding(.vertical, 4)
-        .background {
-            if isAccented {
-                Capsule().fill(Color("Brand"))
-            } else {
-                Capsule().stroke(Color("TextSecondary"), lineWidth: 1)
-            }
-        }
+        AppPill(
+            labelKey,
+            table: "Roadmap",
+            tint: tint,
+            icon: icon
+        )
     }
 }
 

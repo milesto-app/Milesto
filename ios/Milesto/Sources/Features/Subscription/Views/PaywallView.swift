@@ -9,7 +9,6 @@ struct PaywallView: View {
     @State private var ctaVisible = false
     @State private var glowScale: CGFloat = 0.9
     @State private var glowOpacity: Double = 0.55
-    @State private var sparklePulse: Double = 0.7
     @State private var showError = false
 
     var body: some View {
@@ -85,14 +84,7 @@ struct PaywallView: View {
 
     private var hero: some View {
         VStack(alignment: .leading, spacing: 20) {
-            HStack(spacing: 8) {
-                TablerIcons(.sparkles2, size: 16, color: Color("Brand"))
-                    .opacity(sparklePulse)
-
-                AppText("paywall.premium.tag", table: "Paywall", style: .caption)
-                    .color(Color("Brand"))
-                    .weight(.semibold)
-            }
+            AppPill("paywall.premium.tag", table: "Paywall", tint: Color("Brand"), icon: .sparkles2)
 
             AppText("paywall.headline", table: "Paywall", style: .largeTitle)
                 .weight(.semibold)
@@ -210,9 +202,6 @@ struct PaywallView: View {
         withAnimation(.easeInOut(duration: 5).repeatForever(autoreverses: true)) {
             glowScale = 1.25
             glowOpacity = 0.8
-        }
-        withAnimation(.easeInOut(duration: 2.4).repeatForever(autoreverses: true)) {
-            sparklePulse = 1.0
         }
     }
 }
