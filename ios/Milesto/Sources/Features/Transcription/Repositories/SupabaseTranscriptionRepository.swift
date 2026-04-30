@@ -1,7 +1,7 @@
 import Foundation
 
-final class TranscriptionAPIService {
-    static let shared = TranscriptionAPIService()
+final class SupabaseTranscriptionRepository {
+    static let shared = SupabaseTranscriptionRepository()
 
     private init() {}
 

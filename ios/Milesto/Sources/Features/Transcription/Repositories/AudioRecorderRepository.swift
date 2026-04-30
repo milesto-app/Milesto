@@ -2,7 +2,7 @@ import AVFoundation
 import Observation
 
 @Observable
-final class AudioRecorderService {
+final class AudioRecorderRepository {
     private(set) var isRecording = false
 
     private var audioRecorder: AVAudioRecorder?

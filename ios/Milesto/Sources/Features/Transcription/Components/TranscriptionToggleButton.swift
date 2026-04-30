@@ -23,7 +23,7 @@ struct TranscriptionToggleButton: View {
     var size: Size = .regular
 
     @State private var state: TranscriptionState = .idle
-    @State private var recorder = AudioRecorderService()
+    @State private var recorder = AudioRecorderRepository()
     @State private var pulseScale: CGFloat = 1.0
 
     var body: some View {
@@ -123,7 +123,7 @@ struct TranscriptionToggleButton: View {
         state = .transcribing
         Task {
             do {
-                let result = try await TranscriptionAPIService.shared.transcribe(audioData: audioData)
+                let result = try await SupabaseTranscriptionRepository.shared.transcribe(audioData: audioData)
                 transcribedText = result.text
                 state = .idle
             } catch {
