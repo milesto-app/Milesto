@@ -54,54 +54,32 @@ final class WeeklyTasksViewModel {
 
     func toggle(_ task: WeeklyTask) {
         guard let index = tasks.firstIndex(where: { $0.id == task.id }) else { return }
-        let original = tasks[index]
-        let newCompleted = !task.isCompleted
+        setTaskCompletion(tasks[index], isCompleted: !tasks[index].isCompleted)
+    }
 
-        let optimistic = original.with(isCompleted: newCompleted)
+    private func setTaskCompletion(_ task: WeeklyTask, isCompleted: Bool) {
+        guard let index = tasks.firstIndex(where: { $0.id == task.id }) else { return }
+        let original = tasks[index]
+        let optimistic = original.with(isCompleted: isCompleted)
+
         tasks[index] = optimistic
         repository.saveTask(optimistic)
 
         Task {
             do {
-                let updated = try await repository.toggleTask(
-                    taskId: task.id,
-                    goalId: task.goalId,
-                    isCompleted: newCompleted
+                let confirmed = try await repository.toggleTask(
+                    taskId: original.id,
+                    goalId: original.goalId,
+                    isCompleted: isCompleted
                 )
-                if let idx = tasks.firstIndex(where: { $0.id == updated.id }) {
-                    tasks[idx] = updated
+                if let idx = tasks.firstIndex(where: { $0.id == confirmed.id }) {
+                    tasks[idx] = confirmed
                 }
             } catch {
                 if let idx = tasks.firstIndex(where: { $0.id == original.id }) {
                     tasks[idx] = original
                 }
                 repository.saveTask(original)
-            }
-        }
-    }
-
-    func applyRemoteToggle(_ updated: WeeklyTask) {
-        if let idx = tasks.firstIndex(where: { $0.id == updated.id }) {
-            tasks[idx] = updated
-        }
-        repository.saveTask(updated)
-
-        Task {
-            do {
-                let confirmed = try await repository.toggleTask(
-                    taskId: updated.id,
-                    goalId: updated.goalId,
-                    isCompleted: updated.isCompleted
-                )
-                if let idx = tasks.firstIndex(where: { $0.id == confirmed.id }) {
-                    tasks[idx] = confirmed
-                }
-            } catch {
-                let reverted = updated.with(isCompleted: !updated.isCompleted)
-                if let idx = tasks.firstIndex(where: { $0.id == reverted.id }) {
-                    tasks[idx] = reverted
-                }
-                repository.saveTask(reverted)
             }
         }
     }

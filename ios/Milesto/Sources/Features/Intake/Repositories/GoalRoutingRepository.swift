@@ -16,8 +16,8 @@ struct ActiveGoalDescriptor {
 
 @MainActor
 protocol GoalRoutingRepository: AnyObject {
-    func localGoals(userId: String) -> [Goal]
     func syncFromRemote(userId: String) async throws
     func resolveActiveGoal(userId: String) -> ActiveGoalDescriptor?
-    func markActive(goalId: String) throws
+    func resolveGoal(userId: String, goalId: String) -> ActiveGoalDescriptor?
+    func activateGeneratedRoadmap(goalId: String) throws
 }

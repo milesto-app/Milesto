@@ -50,7 +50,7 @@ struct MilestoneDetailView: View {
                 let ordered = model.sortedTasks.map(\.id)
                 if let start = ordered.firstIndex(of: taskId) {
                     let toggleHandler: ((WeeklyTask) -> Void)? =
-                        status == .current ? { updated in model.applyRemoteToggle(updated) } : nil
+                        status == .current ? { task in model.toggleTask(task) } : nil
                     WeeklyTaskDetailView(
                         tasks: model.tasks,
                         orderedIds: ordered,

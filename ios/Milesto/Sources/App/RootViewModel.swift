@@ -11,7 +11,6 @@ final class RootViewModel {
     var connectionError = false
 
     private(set) var localProfile: Profile?
-    private(set) var localGoals: [Goal] = []
 
     @ObservationIgnored private let profile: any ProfileRepository
     @ObservationIgnored private let goals: any GoalRoutingRepository
@@ -68,7 +67,7 @@ final class RootViewModel {
             applyResolvedGoalState(userId: userId)
             if goalComplete,
                let id = activeGoalId,
-               let descriptor = goals.resolveActiveGoal(userId: userId),
+               let descriptor = goals.resolveGoal(userId: userId, goalId: id),
                descriptor.goalId == id,
                descriptor.phase == .intakeCompleted
             {
@@ -81,41 +80,21 @@ final class RootViewModel {
         hasSynced = true
     }
 
-    func handleGoalChanged(_ newGoalId: String) {
+    func handleGoalChanged(userId: String, goalId newGoalId: String) {
         guard newGoalId != activeGoalId else { return }
-        activeGoalId = newGoalId
-
-        let goal = localGoals.first(where: { $0.id == newGoalId })
-        guard let status = goal?.status else { return }
-
-        switch status {
-        case "active":
-            goalComplete = true
-            roadmapReady = true
-        case ProfileStatus.intakeCompleted.rawValue:
-            goalComplete = true
-            roadmapReady = false
-            Task { [weak self] in
-                guard let self else { return }
-                let hasRoadmap = await roadmap.isRoadmapReady(goalId: newGoalId)
-                guard self.activeGoalId == newGoalId else { return }
-                self.roadmapReady = hasRoadmap
-            }
-        default:
-            goalComplete = false
-            roadmapReady = false
-        }
+        guard let descriptor = goals.resolveGoal(userId: userId, goalId: newGoalId) else { return }
+        applyGoalState(descriptor)
+        refreshRoadmapReadinessIfNeeded(for: descriptor)
     }
 
     func markRoadmapReady() {
         roadmapReady = true
         guard let activeGoalId else { return }
-        try? goals.markActive(goalId: activeGoalId)
+        try? goals.activateGeneratedRoadmap(goalId: activeGoalId)
     }
 
     private func refreshLocalSnapshots(userId: String) {
         localProfile = profile.loadProfile(userId: userId)
-        localGoals = goals.localGoals(userId: userId)
     }
 
     private func applyResolvedGoalState(userId: String) {
@@ -125,6 +104,10 @@ final class RootViewModel {
             roadmapReady = false
             return
         }
+        applyGoalState(descriptor)
+    }
+
+    private func applyGoalState(_ descriptor: ActiveGoalDescriptor) {
         activeGoalId = descriptor.goalId
         switch descriptor.phase {
         case .active:
@@ -136,6 +119,17 @@ final class RootViewModel {
         case .intakeInProgress, .profileGenerating, .generationFailed, .other:
             goalComplete = false
             roadmapReady = false
+        }
+    }
+
+    private func refreshRoadmapReadinessIfNeeded(for descriptor: ActiveGoalDescriptor) {
+        guard descriptor.phase == .intakeCompleted else { return }
+        let goalId = descriptor.goalId
+        Task { [weak self] in
+            guard let self else { return }
+            let hasRoadmap = await roadmap.isRoadmapReady(goalId: goalId)
+            guard self.activeGoalId == goalId else { return }
+            self.roadmapReady = hasRoadmap
         }
     }
 }

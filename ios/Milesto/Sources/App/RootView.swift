@@ -128,7 +128,7 @@ struct RootView: View {
     private func postProfileFlow(userId: String, routing: RootViewModel) -> some View {
         Group {
             if routing.goalComplete && routing.roadmapReady {
-                mainAppContent(routing: routing)
+                mainAppContent(userId: userId, routing: routing)
             } else if routing.goalComplete {
                 RoadmapGenerationView(goalId: routing.activeGoalId ?? "") {
                     withAnimation(.easeInOut(duration: 0.4)) {
@@ -153,7 +153,7 @@ struct RootView: View {
         .animation(.easeInOut(duration: 0.4), value: routing.roadmapReady)
     }
 
-    private func mainAppContent(routing: RootViewModel) -> some View {
+    private func mainAppContent(userId: String, routing: RootViewModel) -> some View {
         TabView(selection: $selectedTab) {
             Tab(value: 0) {
                 HomeView(goalId: routing.activeGoalId ?? "")
@@ -164,7 +164,7 @@ struct RootView: View {
             Tab(value: 1) {
                 RoadmapView(goalId: routing.activeGoalId ?? "", onGoalChanged: { id in
                     withAnimation(.easeInOut(duration: 0.4)) {
-                        routing.handleGoalChanged(id)
+                        routing.handleGoalChanged(userId: userId, goalId: id)
                     }
                 })
             } label: {

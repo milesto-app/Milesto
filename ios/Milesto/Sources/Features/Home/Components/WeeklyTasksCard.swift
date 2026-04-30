@@ -80,7 +80,7 @@ struct WeeklyTasksCard: View {
                     orderedIds: ordered,
                     startIndex: start,
                     weekNumber: model.weekNumber,
-                    onToggle: { updated in model.applyRemoteToggle(updated) }
+                    onToggle: { task in model.toggle(task) }
                 )
             }
         }

@@ -214,20 +214,6 @@ struct WeeklyTaskDetailPage: View {
     }
 
     private func performToggle() {
-        let newCompleted = !task.isCompleted
-        let updated = WeeklyTask(
-            id: task.id,
-            weeklyPlanId: task.weeklyPlanId,
-            goalId: task.goalId,
-            userId: task.userId,
-            title: task.title,
-            description: task.description,
-            difficultyRating: task.difficultyRating,
-            orderIndex: task.orderIndex,
-            isCompleted: newCompleted,
-            isFallback: task.isFallback,
-            createdAt: task.createdAt
-        )
-        onToggle?(updated)
+        onToggle?(task)
     }
 }

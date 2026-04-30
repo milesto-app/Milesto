@@ -15,7 +15,7 @@ final class SyncingGoalRepository: GoalRoutingRepository {
         container.mainContext
     }
 
-    func localGoals(userId: String) -> [Goal] {
+    private func localGoals(userId: String) -> [Goal] {
         let descriptor = FetchDescriptor<Goal>()
         let all = (try? context.fetch(descriptor)) ?? []
         return all.filter { $0.userId.caseInsensitiveCompare(userId) == .orderedSame }
@@ -68,7 +68,14 @@ final class SyncingGoalRepository: GoalRoutingRepository {
         return ActiveGoalDescriptor(goalId: goal.id, phase: phase(for: goal.status))
     }
 
-    func markActive(goalId: String) throws {
+    func resolveGoal(userId: String, goalId: String) -> ActiveGoalDescriptor? {
+        guard let goal = localGoals(userId: userId).first(where: { $0.id == goalId }) else {
+            return nil
+        }
+        return ActiveGoalDescriptor(goalId: goal.id, phase: phase(for: goal.status))
+    }
+
+    func activateGeneratedRoadmap(goalId: String) throws {
         let descriptor = FetchDescriptor<Goal>(predicate: #Predicate { $0.id == goalId })
         guard let goal = try context.fetch(descriptor).first else { return }
         goal.status = "active"
