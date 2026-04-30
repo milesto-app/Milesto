@@ -1,8 +1,9 @@
 import Foundation
 import Supabase
 
-final class RoadmapAPIService {
-    static let shared = RoadmapAPIService()
+@MainActor
+final class SupabaseRoadmapRepository: RoadmapRepository {
+    static let shared = SupabaseRoadmapRepository()
 
     private init() {}
 

@@ -121,7 +121,7 @@ struct DebriefSheetView: View {
         }
 
         do {
-            _ = try await RoadmapAPIService.shared.submitDebrief(
+            _ = try await SupabaseRoadmapRepository.shared.submitDebrief(
                 goalId: goalId,
                 weeklyPlanId: weeklyPlanId,
                 note: reflectionNote,

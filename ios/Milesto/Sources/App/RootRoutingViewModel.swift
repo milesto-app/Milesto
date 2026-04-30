@@ -181,7 +181,7 @@ final class RootRoutingViewModel {
     }
 
     private func checkRoadmapStatus(goalId: String) async -> Bool {
-        guard let roadmap = try? await RoadmapAPIService.shared.getRoadmap(goalId: goalId) else {
+        guard let roadmap = try? await SupabaseRoadmapRepository.shared.getRoadmap(goalId: goalId) else {
             return false
         }
         return roadmap.status == .complete

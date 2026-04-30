@@ -42,7 +42,7 @@ struct MilestoneDetailView: View {
         .task {
             guard status != .upcoming else { return }
             isLoadingTasks = true
-            tasks = (try? await RoadmapAPIService.shared.getTasksForMilestone(milestoneId: milestoneId)) ?? []
+            tasks = (try? await SupabaseRoadmapRepository.shared.getTasksForMilestone(milestoneId: milestoneId)) ?? []
             isLoadingTasks = false
         }
         .navigationDestination(item: $selectedTaskId) { taskId in
@@ -67,7 +67,7 @@ struct MilestoneDetailView: View {
         }
         upsertCachedTask(updated)
         Task {
-            if let remote = try? await RoadmapAPIService.shared.toggleTask(
+            if let remote = try? await SupabaseRoadmapRepository.shared.toggleTask(
                 goalId: updated.goalId,
                 taskId: updated.id,
                 isCompleted: updated.isCompleted
@@ -158,7 +158,7 @@ struct MilestoneDetailView: View {
         )
         upsertCachedTask(tasks[index])
         Task {
-            if let updated = try? await RoadmapAPIService.shared.toggleTask(goalId: task.goalId, taskId: task.id, isCompleted: newCompleted) {
+            if let updated = try? await SupabaseRoadmapRepository.shared.toggleTask(goalId: task.goalId, taskId: task.id, isCompleted: newCompleted) {
                 upsertCachedTask(updated)
             }
         }

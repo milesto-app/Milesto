@@ -46,7 +46,7 @@ final class RoadmapViewModel {
         }
 
         do {
-            let roadmap = try await RoadmapAPIService.shared.getRoadmap(goalId: goalId)
+            let roadmap = try await SupabaseRoadmapRepository.shared.getRoadmap(goalId: goalId)
             guard let dtos = roadmap.milestones else { return }
 
             syncRoadmapToCache(roadmap)
@@ -107,7 +107,7 @@ final class RoadmapViewModel {
     }
 
     func refreshCurrentTasksForProgress() async {
-        guard let fetched = try? await RoadmapAPIService.shared.getWeeklyTasks(goalId: goalId) else { return }
+        guard let fetched = try? await SupabaseRoadmapRepository.shared.getWeeklyTasks(goalId: goalId) else { return }
         syncTasksToCache(fetched)
     }
 }

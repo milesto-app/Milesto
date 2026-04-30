@@ -53,7 +53,7 @@ final class HomeViewModel {
 
         Task {
             do {
-                let remote = try await RoadmapAPIService.shared.toggleTask(
+                let remote = try await SupabaseRoadmapRepository.shared.toggleTask(
                     goalId: updated.goalId,
                     taskId: updated.id,
                     isCompleted: updated.isCompleted
@@ -108,7 +108,7 @@ final class HomeViewModel {
 
         Task {
             do {
-                let updated = try await RoadmapAPIService.shared.toggleTask(
+                let updated = try await SupabaseRoadmapRepository.shared.toggleTask(
                     goalId: task.goalId,
                     taskId: task.id,
                     isCompleted: newCompleted
@@ -170,7 +170,7 @@ final class HomeViewModel {
         _ = await(fetchPlan, fetchTasks)
         didSync = !tasks.isEmpty || weeklyPlan != nil
 
-        if let debriefs = try? await RoadmapAPIService.shared.getDebriefHistory(goalId: goalId) {
+        if let debriefs = try? await SupabaseRoadmapRepository.shared.getDebriefHistory(goalId: goalId) {
             let latestDebrief = debriefs.first
             todayDebrief = latestDebrief
             syncDebriefToCache(latestDebrief)
@@ -188,12 +188,12 @@ final class HomeViewModel {
             weeklyPlan = fetchCachedWeeklyPlan()
         }
 
-        if let existing = try? await RoadmapAPIService.shared.getWeeklyPlan(goalId: goalId) {
+        if let existing = try? await SupabaseRoadmapRepository.shared.getWeeklyPlan(goalId: goalId) {
             weeklyPlan = existing
             upsertWeeklyPlanToCache(existing)
             return
         }
-        if let generated = try? await RoadmapAPIService.shared.generateWeeklyPlan(goalId: goalId) {
+        if let generated = try? await SupabaseRoadmapRepository.shared.generateWeeklyPlan(goalId: goalId) {
             weeklyPlan = generated
             upsertWeeklyPlanToCache(generated)
         }
@@ -205,7 +205,7 @@ final class HomeViewModel {
             tasks = cachedTasks
         }
 
-        if let fetched = try? await RoadmapAPIService.shared.getWeeklyTasks(goalId: goalId) {
+        if let fetched = try? await SupabaseRoadmapRepository.shared.getWeeklyTasks(goalId: goalId) {
             tasks = fetched
             syncTasksToCache(fetched)
         }

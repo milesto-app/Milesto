@@ -106,7 +106,7 @@ struct RoadmapGenerationView: View {
         isGenerating = true
 
         do {
-            _ = try await RoadmapAPIService.shared.generateRoadmap(goalId: goalId)
+            _ = try await SupabaseRoadmapRepository.shared.generateRoadmap(goalId: goalId)
         } catch {
             if let backendError = error as? BackendError,
                case .httpError(statusCode: 409, _) = backendError
@@ -125,7 +125,7 @@ struct RoadmapGenerationView: View {
             try? await Task.sleep(for: .seconds(3))
 
             do {
-                let roadmap = try await RoadmapAPIService.shared.getRoadmap(goalId: goalId)
+                let roadmap = try await SupabaseRoadmapRepository.shared.getRoadmap(goalId: goalId)
                 if roadmap.status == .complete {
                     isGenerating = false
                     onComplete()

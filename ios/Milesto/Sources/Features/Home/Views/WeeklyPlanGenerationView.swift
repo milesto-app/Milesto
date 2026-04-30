@@ -86,7 +86,7 @@ struct WeeklyPlanGenerationView: View {
         isGenerating = true
 
         do {
-            _ = try await RoadmapAPIService.shared.generateWeeklyPlan(goalId: goalId)
+            _ = try await SupabaseRoadmapRepository.shared.generateWeeklyPlan(goalId: goalId)
             await waitForTasks()
             isGenerating = false
             onComplete()
@@ -99,7 +99,7 @@ struct WeeklyPlanGenerationView: View {
     private func waitForTasks() async {
         for _ in 0 ..< 30 {
             try? await Task.sleep(for: .seconds(2))
-            if let tasks = try? await RoadmapAPIService.shared.getWeeklyTasks(goalId: goalId),
+            if let tasks = try? await SupabaseRoadmapRepository.shared.getWeeklyTasks(goalId: goalId),
                !tasks.isEmpty
             {
                 return
