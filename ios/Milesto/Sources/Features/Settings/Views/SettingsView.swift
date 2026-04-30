@@ -1,0 +1,101 @@
+import SwiftUI
+
+struct SettingsView: View {
+    var onDeleteGoal: (() -> Void)?
+
+    @Environment(AppDependencies.self) private var dependencies
+    @State private var model: SettingsViewModel?
+    @State private var showSignOutAlert = false
+    @State private var showDeleteGoalAlert = false
+    @State private var activeSheet: SettingsSheet?
+
+    var body: some View {
+        Group {
+            if let model {
+                content(model: model)
+            } else {
+                Color("BackgroundBase").ignoresSafeArea()
+            }
+        }
+        .task {
+            if model == nil {
+                let vm = SettingsViewModel(
+                    repository: dependencies.settings,
+                    auth: dependencies.authRepository
+                )
+                vm.loadLocalState()
+                model = vm
+            }
+            await model?.syncProfile()
+        }
+    }
+
+    @ViewBuilder
+    private func content(model: SettingsViewModel) -> some View {
+        @Bindable var bindable = model
+        NavigationStack {
+            List {
+                SettingsProfileHeaderSection(
+                    profile: model.profile,
+                    fullName: model.fullName,
+                    initials: model.initials,
+                    onEdit: { activeSheet = .name }
+                )
+                SettingsProfileDetailsSection(
+                    profile: model.profile,
+                    coach: model.coach,
+                    currentAppLanguage: model.currentAppLanguage,
+                    onEditBirthdate: { activeSheet = .birthdate },
+                    onEditCoach: { activeSheet = .coach },
+                    onEditLanguage: { activeSheet = .language }
+                )
+                SettingsDeleteGoalSection(isDeleting: model.isDeleting) {
+                    showDeleteGoalAlert = true
+                }
+                #if DEBUG
+                    SettingsDeveloperSection(developerSettings: dependencies.developerSettings)
+                #endif
+                SettingsSignOutSection {
+                    showSignOutAlert = true
+                }
+            }
+            .contentMargins(.bottom, 80, for: .scrollContent)
+            .hapticRefreshable {
+                await model.syncProfile()
+            }
+            .navigationTitle("")
+            .navigationBarHidden(true)
+            .alert(String(localized: "settings.deleteGoal.alert.title", table: "Settings"), isPresented: $showDeleteGoalAlert) {
+                Button(String(localized: "settings.signOut.alert.cancel", table: "Settings"), role: .cancel) {}
+                Button(String(localized: "settings.deleteGoal.alert.confirm", table: "Settings"), role: .destructive) {
+                    Task {
+                        if await model.deleteActiveGoal() {
+                            onDeleteGoal?()
+                        }
+                    }
+                }
+            } message: {
+                AppText("settings.deleteGoal.alert.message", table: "Settings", style: .body)
+            }
+            .alert(String(localized: "settings.signOut.alert.title", table: "Settings"), isPresented: $showSignOutAlert) {
+                Button(String(localized: "settings.signOut.alert.cancel", table: "Settings"), role: .cancel) {}
+                Button(String(localized: "settings.signOut.alert.confirm", table: "Settings"), role: .destructive) {
+                    Task { await model.signOut() }
+                }
+            } message: {
+                AppText("settings.signOut.alert.message", table: "Settings", style: .body)
+            }
+            .alert(String(localized: "settings.error.title", table: "Settings"), isPresented: $bindable.showError) {
+                Button(String(localized: "common.ok", table: "Common"), role: .cancel) {}
+            } message: {
+                AppText(verbatim: model.errorMessage ?? "", style: .body)
+            }
+            .sheet(item: $activeSheet) { sheet in
+                SettingsSheetContent(sheet: sheet, profile: model.profile) { fields in
+                    Task { await model.saveProfileFields(fields) }
+                }
+                .presentationDetents(sheet == .coach || sheet == .language ? [.large] : [.medium, .large])
+            }
+        }
+    }
+}

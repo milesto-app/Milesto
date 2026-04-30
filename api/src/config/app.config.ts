@@ -37,7 +37,7 @@ function readAppleConfig(): AppleConfig {
 
   if (process.env.NODE_ENV !== "test" && bundleId === "") {
     throw new Error(
-      "APPLE_BUNDLE_ID must be set (got empty string). Set it in your environment (e.g. app.milesto-ai.auth.mobile).",
+      "APPLE_BUNDLE_ID must be set (got empty string). Set it in your environment (e.g. app.milesto.auth.mobile).",
     );
   }
   if (

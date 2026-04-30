@@ -1,482 +1,414 @@
 {
-  "sourceLanguage" : "en",
-  "strings" : {
-    "onboarding.birthdate.subtitle" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "To help your coach understand you better."
+  "sourceLanguage": "en",
+  "strings": {
+    "onboarding.birthdate.subtitle": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "To help your coach understand you better."
           }
         },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Pour aider votre coach à mieux vous comprendre."
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pour aider votre coach à mieux vous comprendre."
           }
         }
       }
     },
-    "onboarding.birthdate.title" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "What's your date of birth?"
+    "onboarding.birthdate.title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "What's your date of birth?"
           }
         },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Quelle est votre date de naissance ?"
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quelle est votre date de naissance ?"
           }
         }
       }
     },
-    "onboarding.coach.subtitle" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Which personality suits you best?"
+    "onboarding.coach.subtitle": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Which personality suits you best?"
           }
         },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Quelle personnalité vous correspond le mieux ?"
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quelle personnalité vous correspond le mieux ?"
           }
         }
       }
     },
-    "onboarding.coach.title" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Choose your coach"
+    "onboarding.coach.title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choose your coach"
           }
         },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Choisissez votre coach"
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choisissez votre coach"
           }
         }
       }
     },
-    "onboarding.complete.action" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Let's go!"
+    "onboarding.complete.action": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Let's go!"
           }
         },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "C'est parti !"
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "C'est parti !"
           }
         }
       }
     },
-    "onboarding.complete.subtitle" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Your profile is ready. Welcome to Milesto!"
+    "onboarding.complete.subtitle": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your profile is ready. Welcome to Milesto!"
           }
         },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Votre profil est prêt. Bienvenue sur Milesto !"
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Votre profil est prêt. Bienvenue sur Milesto !"
           }
         }
       }
     },
-    "onboarding.complete.title" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Perfect, %@!"
+    "onboarding.complete.title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Perfect, %@!"
           }
         },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Parfait, %@ !"
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Parfait, %@ !"
           }
         }
       }
     },
-    "onboarding.deadline.subtitle" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Set a deadline for your goal."
+    "onboarding.deadline.subtitle": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Set a deadline for your goal."
           }
         },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Fixez une date limite pour votre objectif."
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fixez une date limite pour votre objectif."
           }
         }
       }
     },
-    "onboarding.deadline.title" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "When do you want to achieve it?"
+    "onboarding.deadline.title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "When do you want to achieve it?"
           }
         },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Quand voulez-vous l'atteindre ?"
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quand voulez-vous l'atteindre ?"
           }
         }
       }
     },
-    "onboarding.error.title" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Error"
+    "onboarding.error.title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Error"
           }
         },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Erreur"
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Erreur"
           }
         }
       }
     },
-    "onboarding.editLater" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "You can change this later."
+    "onboarding.editLater": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "You can change this later."
           }
         },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Vous pourrez modifier cela plus tard."
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vous pourrez modifier cela plus tard."
           }
         }
       }
     },
-    "onboarding.goal.placeholder" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "E.g., Run a marathon in 6 months..."
+    "onboarding.goal.placeholder": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "E.g., Run a marathon in 6 months..."
           }
         },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ex: Courir un marathon dans 6 mois..."
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ex: Courir un marathon dans 6 mois..."
           }
         }
       }
     },
-    "onboarding.goal.subtitle" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Describe what you want to achieve."
+    "onboarding.goal.subtitle": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Describe what you want to achieve."
           }
         },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Décrivez ce que vous voulez accomplir."
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Décrivez ce que vous voulez accomplir."
           }
         }
       }
     },
-    "onboarding.goal.title" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "What's your goal?"
+    "onboarding.goal.title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "What's your goal?"
           }
         },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Quel est votre objectif ?"
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quel est votre objectif ?"
           }
         }
       }
     },
-    "onboarding.motivation.placeholder" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "What will change once you reach it?"
+    "onboarding.name.firstName": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "First Name"
           }
         },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Qu'est-ce qui changera une fois atteint ?"
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prénom"
           }
         }
       }
     },
-    "onboarding.motivation.skip" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Skip for now"
+    "onboarding.name.lastName": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Last Name"
           }
         },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Passer pour l'instant"
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nom"
           }
         }
       }
     },
-    "onboarding.motivation.subtitle" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Your coach will reference this when it matters most."
+    "onboarding.name.subtitle": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "To get to know you better."
           }
         },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Votre coach s'y référera quand ça comptera vraiment."
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pour mieux vous connaître."
           }
         }
       }
     },
-    "onboarding.motivation.title" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Why does this goal matter to you?"
+    "onboarding.name.title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "What's your name?"
           }
         },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Pourquoi cet objectif compte-t-il pour vous ?"
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Comment vous appelez-vous ?"
           }
         }
       }
     },
-    "onboarding.name.firstName" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "First Name"
+    "onboarding.restart.confirm": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Start over"
           }
         },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Prénom"
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Recommencer"
           }
         }
       }
     },
-    "onboarding.name.lastName" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Last Name"
+    "onboarding.restart.message": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "You'll lose your progress."
           }
         },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Nom"
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vous perdrez votre progression."
           }
         }
       }
     },
-    "onboarding.name.subtitle" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "To get to know you better."
+    "onboarding.restart.title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Start over?"
           }
         },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Pour mieux vous connaître."
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Recommencer ?"
           }
         }
       }
     },
-    "onboarding.name.title" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "What's your name?"
+    "onboarding.welcome.continue": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Get Started"
           }
         },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Comment vous appelez-vous ?"
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Commencer"
           }
         }
       }
     },
-    "onboarding.restart.confirm" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Start over"
+    "onboarding.welcome.subtitle": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Let's set up your profile to get started."
           }
         },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Recommencer"
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Configurons votre profil pour commencer."
           }
         }
       }
     },
-    "onboarding.restart.message" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "You'll lose your progress."
+    "onboarding.welcome.title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Welcome to Milesto"
           }
         },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Vous perdrez votre progression."
-          }
-        }
-      }
-    },
-    "onboarding.restart.title" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Start over?"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Recommencer ?"
-          }
-        }
-      }
-    },
-    "onboarding.welcome.continue" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Get Started"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Commencer"
-          }
-        }
-      }
-    },
-    "onboarding.welcome.subtitle" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Let's set up your profile to get started."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Configurons votre profil pour commencer."
-          }
-        }
-      }
-    },
-    "onboarding.welcome.title" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Welcome to Milesto"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Bienvenue sur Milesto"
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bienvenue sur Milesto"
           }
         }
       }
     }
   },
-  "version" : "1.0"
+  "version": "1.0"
 }

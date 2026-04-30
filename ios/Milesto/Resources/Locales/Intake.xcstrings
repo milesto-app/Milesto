@@ -1,295 +1,363 @@
 {
-  "sourceLanguage" : "en",
-  "strings" : {
-    "intake.complete.action" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Let's go!"
+  "sourceLanguage": "en",
+  "strings": {
+    "intake.complete.action": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Let's go!"
           }
         },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "C'est parti !"
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "C'est parti !"
           }
         }
       }
     },
-    "intake.complete.subtitle" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Your personalized profile is ready. Your coach can now guide you."
+    "intake.complete.subtitle": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your personalized profile is ready. Your coach can now guide you."
           }
         },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Votre profil personnalis\u00e9 est pr\u00eat. Votre coach va pouvoir vous accompagner."
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Votre profil personnalisé est prêt. Votre coach va pouvoir vous accompagner."
           }
         }
       }
     },
-    "intake.complete.title" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Profile created!"
+    "intake.complete.title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Profile created!"
           }
         },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Profil cr\u00e9\u00e9 !"
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Profil créé !"
           }
         }
       }
     },
-    "intake.error.network" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Connection error"
+    "intake.error.network": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connection error"
           }
         },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Erreur de connexion"
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Erreur de connexion"
           }
         }
       }
     },
-    "intake.error.profileFailed" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Profile generation failed. Please try again."
+    "intake.error.profileFailed": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Profile generation failed. Please try again."
           }
         },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "La g\u00e9n\u00e9ration du profil a \u00e9chou\u00e9. Veuillez r\u00e9essayer."
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La génération du profil a échoué. Veuillez réessayer."
           }
         }
       }
     },
-    "intake.error.retry" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Retry"
+    "intake.error.retry": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Retry"
           }
         },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "R\u00e9essayer"
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Réessayer"
           }
         }
       }
     },
-    "intake.error.server" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Server error"
+    "intake.error.server": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Server error"
           }
         },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Erreur serveur"
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Erreur serveur"
           }
         }
       }
     },
-    "intake.error.title" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Error"
+    "intake.error.title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Error"
           }
         },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Erreur"
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Erreur"
           }
         }
       }
     },
-    "intake.goal.descriptionPlaceholder" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Describe your goal in detail..."
+    "intake.goal.descriptionPlaceholder": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Describe your goal in detail..."
           }
         },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "D\u00e9crivez votre objectif en d\u00e9tail..."
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Décrivez votre objectif en détail..."
           }
         }
       }
     },
-    "intake.goal.subtitle" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Describe what you want to achieve."
+    "intake.goal.subtitle": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Describe what you want to achieve."
           }
         },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "D\u00e9crivez ce que vous souhaitez accomplir."
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Décrivez ce que vous souhaitez accomplir."
           }
         }
       }
     },
-    "intake.goal.title" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "What's your goal?"
+    "intake.goal.title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "What's your goal?"
           }
         },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Quel est votre objectif ?"
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quel est votre objectif ?"
           }
         }
       }
     },
-    "intake.goal.titleField" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Title"
+    "intake.goal.titleField": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Title"
           }
         },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Titre"
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Titre"
           }
         }
       }
     },
-    "intake.loading.profile" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Generating your profile..."
+    "intake.loading.profile": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Generating your profile..."
           }
         },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "G\u00e9n\u00e9ration de votre profil..."
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Génération de votre profil..."
           }
         }
       }
     },
-    "intake.loading.questions" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Preparing questions..."
+    "intake.loading.questions": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Preparing questions..."
           }
         },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Pr\u00e9paration des questions..."
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Préparation des questions..."
           }
         }
       }
     },
-    "intake.question.datePlaceholder" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Select a date"
+    "intake.question.datePlaceholder": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Select a date"
           }
         },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "S\u00e9lectionnez une date"
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sélectionnez une date"
           }
         }
       }
     },
-    "intake.question.placeholder" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Type your answer here..."
+    "intake.question.placeholder": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Type your answer here..."
           }
         },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Saisissez votre r\u00e9ponse ici..."
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Saisissez votre réponse ici..."
           }
         }
       }
     },
-    "intake.submit" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Continue"
+    "intake.submit": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Continue"
           }
         },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Continuer"
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Continuer"
+          }
+        }
+      }
+    },
+    "intake.motivation.placeholder": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "What will change once you reach it?"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Qu'est-ce qui changera une fois atteint ?"
+          }
+        }
+      }
+    },
+    "intake.motivation.skip": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Skip for now"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Passer pour l'instant"
+          }
+        }
+      }
+    },
+    "intake.motivation.subtitle": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your coach will reference this when it matters most."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Votre coach s'y référera quand ça comptera vraiment."
+          }
+        }
+      }
+    },
+    "intake.motivation.title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Why does this goal matter to you?"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pourquoi cet objectif compte-t-il pour vous ?"
           }
         }
       }
     }
   },
-  "version" : "1.0"
+  "version": "1.0"
 }
