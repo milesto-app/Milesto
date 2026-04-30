@@ -10,6 +10,10 @@ private let storeResetGuardKey = "com.milesto.modelContainer.resetAttemptedAtBui
 struct MilestoApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
     @State private var authService = AuthService.shared
+    @State private var dependencies = AppDependencies(
+        auth: AuthService.shared,
+        entitlement: SubscriptionService.shared
+    )
     @Environment(\.scenePhase) private var scenePhase
 
     private var isAuthenticated: Bool {
@@ -49,6 +53,7 @@ struct MilestoApp: App {
             RootView()
                 .tint(Color("Brand"))
                 .environment(authService)
+                .environment(dependencies)
                 .onOpenURL { url in
                     Task {
                         await authService.handleDeepLink(url)

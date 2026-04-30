@@ -18,20 +18,13 @@ nonisolated struct SubscriptionStatusResponse: Decodable {
 
 @MainActor
 @Observable
-final class SubscriptionService {
+final class SubscriptionService: EntitlementProviding {
     static let shared = SubscriptionService()
 
     static let monthlyProductId = "milesto_plus_monthly"
     static let annualProductId = "milesto_plus_annual"
 
     private static let productIds = [annualProductId, monthlyProductId]
-
-    enum EntitlementState: Equatable {
-        case unknown
-        case subscribed
-        case notSubscribed
-        case connectionError
-    }
 
     enum PurchaseError: LocalizedError {
         case missingUser
