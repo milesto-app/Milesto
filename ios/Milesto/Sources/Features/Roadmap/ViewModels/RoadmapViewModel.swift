@@ -27,7 +27,7 @@ final class RoadmapViewModel {
 
     func configure(goalId: String) {
         self.goalId = goalId
-        applySnapshot(repository.loadCachedRoadmap(goalId: goalId))
+        applySnapshot(repository.loadRoadmapSnapshot(goalId: goalId))
     }
 
     func resetForGoalChange() {
@@ -65,7 +65,7 @@ final class RoadmapViewModel {
         }
     }
 
-    private func applySnapshot(_ snapshot: CachedRoadmap) {
+    private func applySnapshot(_ snapshot: RoadmapSnapshot) {
         if let goalTitle = snapshot.goalTitle {
             self.goalTitle = goalTitle
         }

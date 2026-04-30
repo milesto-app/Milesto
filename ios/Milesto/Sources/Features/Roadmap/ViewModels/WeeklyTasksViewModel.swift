@@ -31,12 +31,12 @@ final class WeeklyTasksViewModel {
 
     func configure(goalId: String) {
         self.goalId = goalId
-        let cached = repository.cachedWeeklyTasks(goalId: goalId)
-        if !cached.isEmpty {
-            tasks = cached
+        let localTasks = repository.loadWeeklyTasks(goalId: goalId)
+        if !localTasks.isEmpty {
+            tasks = localTasks
             isLoading = false
         }
-        weekNumber = repository.cachedWeeklyPlan(goalId: goalId)?.weekNumber
+        weekNumber = repository.loadWeeklyPlan(goalId: goalId)?.weekNumber
     }
 
     func refresh() async {
@@ -59,7 +59,7 @@ final class WeeklyTasksViewModel {
 
         let optimistic = original.with(isCompleted: newCompleted)
         tasks[index] = optimistic
-        repository.cacheTask(optimistic)
+        repository.saveTask(optimistic)
 
         Task {
             do {
@@ -75,7 +75,7 @@ final class WeeklyTasksViewModel {
                 if let idx = tasks.firstIndex(where: { $0.id == original.id }) {
                     tasks[idx] = original
                 }
-                repository.cacheTask(original)
+                repository.saveTask(original)
             }
         }
     }
@@ -84,7 +84,7 @@ final class WeeklyTasksViewModel {
         if let idx = tasks.firstIndex(where: { $0.id == updated.id }) {
             tasks[idx] = updated
         }
-        repository.cacheTask(updated)
+        repository.saveTask(updated)
 
         Task {
             do {
@@ -101,7 +101,7 @@ final class WeeklyTasksViewModel {
                 if let idx = tasks.firstIndex(where: { $0.id == reverted.id }) {
                     tasks[idx] = reverted
                 }
-                repository.cacheTask(reverted)
+                repository.saveTask(reverted)
             }
         }
     }

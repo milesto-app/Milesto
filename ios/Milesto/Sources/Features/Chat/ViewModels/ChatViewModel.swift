@@ -100,9 +100,9 @@ final class ChatViewModel {
         guard !isLoadingHistory else { return }
         isLoadingHistory = true
 
-        let cached = repository.loadCachedConversations(goalId: goalId)
-        if !cached.isEmpty {
-            conversations = cached
+        let localConversations = repository.loadConversations(goalId: goalId)
+        if !localConversations.isEmpty {
+            conversations = localConversations
         }
 
         Task {
@@ -133,10 +133,10 @@ final class ChatViewModel {
     func loadConversation(_ id: String) {
         guard id != conversationId else { return }
 
-        let cached = repository.loadCachedMessages(conversationId: id)
-        if !cached.isEmpty {
+        let localMessages = repository.loadMessages(conversationId: id)
+        if !localMessages.isEmpty {
             conversationId = id
-            messages = cached
+            messages = localMessages
         }
 
         Task {

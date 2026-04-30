@@ -42,7 +42,7 @@ final class MilestoneDetailViewModel {
         let newCompleted = !task.isCompleted
         let optimistic = original.with(isCompleted: newCompleted)
         tasks[index] = optimistic
-        repository.cacheTask(optimistic)
+        repository.saveTask(optimistic)
 
         Task {
             do {
@@ -58,7 +58,7 @@ final class MilestoneDetailViewModel {
                 if let idx = tasks.firstIndex(where: { $0.id == original.id }) {
                     tasks[idx] = original
                 }
-                repository.cacheTask(original)
+                repository.saveTask(original)
             }
         }
     }
@@ -67,7 +67,7 @@ final class MilestoneDetailViewModel {
         if let idx = tasks.firstIndex(where: { $0.id == updated.id }) {
             tasks[idx] = updated
         }
-        repository.cacheTask(updated)
+        repository.saveTask(updated)
 
         Task {
             if let confirmed = try? await repository.toggleTask(

@@ -114,7 +114,7 @@ final class RootRoutingViewModel {
     }
 
     private func refreshLocalSnapshots(userId: String) {
-        localProfile = profile.loadCachedProfile(userId: userId)
+        localProfile = profile.loadProfile(userId: userId)
         localGoals = goals.localGoals(userId: userId)
     }
 

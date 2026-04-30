@@ -16,7 +16,7 @@ final class CurrentFocusViewModel {
 
     func configure(goalId: String) {
         self.goalId = goalId
-        applyCached()
+        applyLocalSnapshot()
     }
 
     func refresh() async {
@@ -36,13 +36,13 @@ final class CurrentFocusViewModel {
         progress = repository.currentTaskProgress(goalId: goalId)
     }
 
-    private func applyCached() {
-        let cached = repository.loadCachedRoadmap(goalId: goalId)
-        if let milestoneId = cached.currentMilestoneId,
-           let milestone = cached.milestones.first(where: { $0.id == milestoneId })
+    private func applyLocalSnapshot() {
+        let snapshot = repository.loadRoadmapSnapshot(goalId: goalId)
+        if let milestoneId = snapshot.currentMilestoneId,
+           let milestone = snapshot.milestones.first(where: { $0.id == milestoneId })
         {
             title = milestone.title
-        } else if let goalTitle = cached.goalTitle {
+        } else if let goalTitle = snapshot.goalTitle {
             title = goalTitle
         }
         progress = repository.currentTaskProgress(goalId: goalId)

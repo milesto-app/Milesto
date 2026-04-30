@@ -18,20 +18,20 @@ final class SyncingRoadmapFeatureRepository: RoadmapFeatureRepository {
         container.mainContext
     }
 
-    func loadCachedRoadmap(goalId: String) -> CachedRoadmap {
-        CachedRoadmap(
+    func loadRoadmapSnapshot(goalId: String) -> RoadmapSnapshot {
+        RoadmapSnapshot(
             goalTitle: fetchGoalTitle(goalId: goalId),
             switchableGoals: fetchSwitchableGoals(),
-            currentMilestoneId: fetchCachedRoadmap(goalId: goalId)?.currentMilestoneId,
-            milestones: fetchCachedMilestoneRecords(goalId: goalId)
+            currentMilestoneId: fetchRoadmap(goalId: goalId)?.currentMilestoneId,
+            milestones: fetchMilestoneRecords(goalId: goalId)
         )
     }
 
-    func refreshRoadmap(goalId: String) async -> CachedRoadmap {
-        var snapshot = loadCachedRoadmap(goalId: goalId)
+    func refreshRoadmap(goalId: String) async -> RoadmapSnapshot {
+        var snapshot = loadRoadmapSnapshot(goalId: goalId)
         do {
             let dto = try await remote.getRoadmap(goalId: goalId)
-            syncRoadmapToCache(dto)
+            saveRoadmap(dto)
             try? context.save()
             await refreshTasksForProgress(goalId: goalId)
 
@@ -42,7 +42,7 @@ final class SyncingRoadmapFeatureRepository: RoadmapFeatureRepository {
             snapshot.goalTitle = fetchGoalTitle(goalId: goalId)
             snapshot.switchableGoals = fetchSwitchableGoals()
         } catch {
-            roadmapLogger.error("refreshRoadmap remote fetch failed; serving cached snapshot: \(String(describing: error), privacy: .public)")
+            roadmapLogger.error("refreshRoadmap remote fetch failed; serving local SwiftData snapshot: \(String(describing: error), privacy: .public)")
         }
         return snapshot
     }
@@ -64,11 +64,11 @@ final class SyncingRoadmapFeatureRepository: RoadmapFeatureRepository {
 
     func toggleTask(taskId: String, goalId: String, isCompleted: Bool) async throws -> WeeklyTask {
         let updated = try await remote.toggleTask(goalId: goalId, taskId: taskId, isCompleted: isCompleted)
-        cacheTask(updated)
+        saveTask(updated)
         return updated
     }
 
-    func cacheTask(_ task: WeeklyTask) {
+    func saveTask(_ task: WeeklyTask) {
         let id = task.id
         let descriptor = FetchDescriptor<LocalWeeklyTask>(
             predicate: #Predicate { $0.id == id }
@@ -110,18 +110,18 @@ final class SyncingRoadmapFeatureRepository: RoadmapFeatureRepository {
 
     func fetchRoadmapStatus(goalId: String) async throws -> RoadmapStatus {
         let dto = try await remote.getRoadmap(goalId: goalId)
-        syncRoadmapToCache(dto)
+        saveRoadmap(dto)
         try? context.save()
         return dto.status
     }
 
-    func cachedWeeklyTasks(goalId: String) -> [WeeklyTask] {
+    func loadWeeklyTasks(goalId: String) -> [WeeklyTask] {
         let descriptor = FetchDescriptor<LocalWeeklyTask>(
             predicate: #Predicate { $0.goalId == goalId },
             sortBy: [SortDescriptor(\.orderIndex)]
         )
-        guard let cached = try? context.fetch(descriptor) else { return [] }
-        return cached.map { local in
+        guard let localTasks = try? context.fetch(descriptor) else { return [] }
+        return localTasks.map { local in
             WeeklyTask(
                 id: local.id,
                 weeklyPlanId: local.weeklyPlanId,
@@ -140,12 +140,12 @@ final class SyncingRoadmapFeatureRepository: RoadmapFeatureRepository {
 
     func refreshWeeklyTasks(goalId: String) async throws -> [WeeklyTask] {
         let fetched = try await remote.getWeeklyTasks(goalId: goalId)
-        syncTasksToCache(fetched, goalId: goalId)
+        replaceWeeklyTasks(fetched, goalId: goalId)
         try? context.save()
         return fetched
     }
 
-    func cachedWeeklyPlan(goalId: String) -> WeeklyPlan? {
+    func loadWeeklyPlan(goalId: String) -> WeeklyPlan? {
         let activeStatus = WeeklyPlanStatus.active.rawValue
         let descriptor = FetchDescriptor<LocalWeeklyPlan>(
             predicate: #Predicate { $0.goalId == goalId && $0.status == activeStatus }
@@ -174,20 +174,18 @@ final class SyncingRoadmapFeatureRepository: RoadmapFeatureRepository {
             plan = try? await remote.generateWeeklyPlan(goalId: goalId)
         }
         if let plan {
-            upsertWeeklyPlanToCache(plan)
+            saveWeeklyPlan(plan)
             try? context.save()
         }
         return plan
     }
 
-    func cachedLatestDebrief(goalId: String) -> Debrief? {
+    func loadLatestDebrief(goalId: String) -> Debrief? {
         let descriptor = FetchDescriptor<LocalDebrief>(
             predicate: #Predicate { $0.goalId == goalId },
             sortBy: [SortDescriptor(\.date, order: .reverse)]
         )
         guard let local = try? context.fetch(descriptor).first else { return nil }
-        let taskRatings: [TaskRating] = local.taskRatingsJSON
-            .flatMap { try? JSONDecoder().decode([TaskRating].self, from: $0) } ?? []
         return Debrief(
             id: local.id,
             goalId: local.goalId,
@@ -195,7 +193,7 @@ final class SyncingRoadmapFeatureRepository: RoadmapFeatureRepository {
             weeklyPlanId: local.weeklyPlanId,
             date: local.date,
             note: local.note,
-            taskRatings: taskRatings,
+            taskRatings: local.taskRatings,
             createdAt: local.createdAt
         )
     }
@@ -204,7 +202,7 @@ final class SyncingRoadmapFeatureRepository: RoadmapFeatureRepository {
         guard let history = try? await remote.getDebriefHistory(goalId: goalId),
               let latest = history.first
         else { return nil }
-        syncDebriefToCache(latest)
+        saveDebrief(latest)
         try? context.save()
         return latest
     }
@@ -216,7 +214,7 @@ final class SyncingRoadmapFeatureRepository: RoadmapFeatureRepository {
             note: note,
             taskRatings: taskRatings
         )
-        syncDebriefToCache(dto)
+        saveDebrief(dto)
         try? context.save()
         return dto
     }
@@ -229,7 +227,7 @@ final class SyncingRoadmapFeatureRepository: RoadmapFeatureRepository {
         for _ in 0 ..< 30 {
             try? await Task.sleep(for: .seconds(2))
             if let tasks = try? await remote.getWeeklyTasks(goalId: goalId), !tasks.isEmpty {
-                syncTasksToCache(tasks, goalId: goalId)
+                replaceWeeklyTasks(tasks, goalId: goalId)
                 try? context.save()
                 return true
             }
@@ -252,7 +250,7 @@ final class SyncingRoadmapFeatureRepository: RoadmapFeatureRepository {
         fetchGoalTitle(goalId: goalId)
     }
 
-    private func upsertWeeklyPlanToCache(_ dto: WeeklyPlan) {
+    private func saveWeeklyPlan(_ dto: WeeklyPlan) {
         let planId = dto.id
         let descriptor = FetchDescriptor<LocalWeeklyPlan>(
             predicate: #Predicate { $0.id == planId }
@@ -286,18 +284,15 @@ final class SyncingRoadmapFeatureRepository: RoadmapFeatureRepository {
         }
     }
 
-    private func syncDebriefToCache(_ dto: Debrief) {
+    private func saveDebrief(_ dto: Debrief) {
         let debriefId = dto.id
         let descriptor = FetchDescriptor<LocalDebrief>(
             predicate: #Predicate { $0.id == debriefId }
         )
         let existing = try? context.fetch(descriptor).first
-        let ratingsData = try? JSONEncoder().encode(dto.taskRatings)
 
         if let existing {
-            existing.note = dto.note
-            existing.weeklyPlanId = dto.weeklyPlanId
-            existing.taskRatingsJSON = ratingsData
+            existing.update(with: dto)
         } else {
             context.insert(LocalDebrief(
                 id: dto.id,
@@ -306,7 +301,7 @@ final class SyncingRoadmapFeatureRepository: RoadmapFeatureRepository {
                 weeklyPlanId: dto.weeklyPlanId,
                 date: dto.date,
                 note: dto.note,
-                taskRatingsJSON: ratingsData,
+                taskRatings: dto.taskRatings,
                 createdAt: dto.createdAt
             ))
         }
@@ -314,7 +309,7 @@ final class SyncingRoadmapFeatureRepository: RoadmapFeatureRepository {
 
     private func refreshTasksForProgress(goalId: String) async {
         guard let fetched = try? await remote.getWeeklyTasks(goalId: goalId) else { return }
-        syncTasksToCache(fetched, goalId: goalId)
+        replaceWeeklyTasks(fetched, goalId: goalId)
         try? context.save()
     }
 
@@ -334,21 +329,21 @@ final class SyncingRoadmapFeatureRepository: RoadmapFeatureRepository {
             .map { GoalSummary(id: $0.id, title: $0.title, status: $0.status) }
     }
 
-    private func fetchCachedRoadmap(goalId: String) -> LocalRoadmap? {
+    private func fetchRoadmap(goalId: String) -> LocalRoadmap? {
         let descriptor = FetchDescriptor<LocalRoadmap>(
             predicate: #Predicate { $0.goalId == goalId }
         )
         return try? context.fetch(descriptor).first
     }
 
-    private func fetchCachedMilestoneRecords(goalId: String) -> [MilestoneRecord] {
-        guard let roadmap = fetchCachedRoadmap(goalId: goalId), !roadmap.milestones.isEmpty else { return [] }
+    private func fetchMilestoneRecords(goalId: String) -> [MilestoneRecord] {
+        guard let roadmap = fetchRoadmap(goalId: goalId), !roadmap.milestones.isEmpty else { return [] }
         return roadmap.milestones
             .sorted { $0.orderIndex < $1.orderIndex }
             .map { MilestoneRecord(local: $0) }
     }
 
-    private func syncRoadmapToCache(_ dto: RoadmapDTO) {
+    private func saveRoadmap(_ dto: RoadmapDTO) {
         let goalId = dto.goalId
         let descriptor = FetchDescriptor<LocalRoadmap>(
             predicate: #Predicate { $0.goalId == goalId }
@@ -420,7 +415,7 @@ final class SyncingRoadmapFeatureRepository: RoadmapFeatureRepository {
         }
     }
 
-    private func syncTasksToCache(_ dtos: [WeeklyTask], goalId: String) {
+    private func replaceWeeklyTasks(_ dtos: [WeeklyTask], goalId: String) {
         let descriptor = FetchDescriptor<LocalWeeklyTask>(
             predicate: #Predicate { $0.goalId == goalId }
         )

@@ -10,9 +10,9 @@ protocol RemoteChatRepository: AnyObject {
 
 @MainActor
 protocol ChatRepository: AnyObject {
-    func loadCachedConversations(goalId: String) -> [ConversationSummary]
+    func loadConversations(goalId: String) -> [ConversationSummary]
     func refreshConversations(goalId: String) async throws -> [ConversationSummary]
-    func loadCachedMessages(conversationId: String) -> [ChatMessage]
+    func loadMessages(conversationId: String) -> [ChatMessage]
     func refreshMessages(conversationId: String) async throws -> [ChatMessage]
     func deleteConversation(conversationId: String) async throws
     func sendMessage(conversationId: String?, goalId: String, content: String) -> AsyncThrowingStream<ChatStreamEvent, Error>

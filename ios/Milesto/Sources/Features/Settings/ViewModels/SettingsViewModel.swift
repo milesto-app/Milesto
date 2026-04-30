@@ -46,7 +46,7 @@ final class SettingsViewModel {
         auth.currentUserId
     }
 
-    func loadCachedState() {
+    func loadLocalState() {
         guard let userId = auth.currentUserId else { return }
         profile = repository.loadProfile(userId: userId)
         activeGoal = repository.loadActiveGoal(userId: userId)
@@ -55,7 +55,7 @@ final class SettingsViewModel {
     func syncProfile() async {
         guard let userId = auth.currentUserId else { return }
         try? await repository.syncProfile(userId: userId)
-        loadCachedState()
+        loadLocalState()
     }
 
     func saveProfileFields(_ fields: ProfileUpdateFields) async {
@@ -63,7 +63,7 @@ final class SettingsViewModel {
         defer { isSaving = false }
         do {
             try await repository.updateProfile(fields)
-            loadCachedState()
+            loadLocalState()
         } catch {
             errorMessage = error.localizedDescription
             showError = true

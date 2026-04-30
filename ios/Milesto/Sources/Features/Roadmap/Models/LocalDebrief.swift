@@ -9,17 +9,33 @@ final class LocalDebrief {
     var weeklyPlanId: String?
     var date: String
     var note: String
-    var taskRatingsJSON: Data?
+    var taskRatingTaskIds: [String]
+    var taskRatingValues: [String]
     var createdAt: String
 
-    init(id: String, goalId: String, userId: String, weeklyPlanId: String? = nil, date: String, note: String, taskRatingsJSON: Data?, createdAt: String) {
+    init(id: String, goalId: String, userId: String, weeklyPlanId: String? = nil, date: String, note: String, taskRatings: [TaskRating], createdAt: String) {
         self.id = id
         self.goalId = goalId
         self.userId = userId
         self.weeklyPlanId = weeklyPlanId
         self.date = date
         self.note = note
-        self.taskRatingsJSON = taskRatingsJSON
+        taskRatingTaskIds = taskRatings.map(\.taskId)
+        taskRatingValues = taskRatings.map(\.rating.rawValue)
         self.createdAt = createdAt
+    }
+
+    var taskRatings: [TaskRating] {
+        zip(taskRatingTaskIds, taskRatingValues).compactMap { taskId, rawValue in
+            guard let rating = DifficultyRating(rawValue: rawValue) else { return nil }
+            return TaskRating(taskId: taskId, rating: rating)
+        }
+    }
+
+    func update(with debrief: Debrief) {
+        note = debrief.note
+        weeklyPlanId = debrief.weeklyPlanId
+        taskRatingTaskIds = debrief.taskRatings.map(\.taskId)
+        taskRatingValues = debrief.taskRatings.map(\.rating.rawValue)
     }
 }

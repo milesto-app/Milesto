@@ -7,6 +7,6 @@ protocol RemoteStatsRepository: AnyObject {
 
 @MainActor
 protocol StatsRepository: AnyObject {
-    func loadCachedStats(goalId: String) -> StatsDTO?
+    func loadStats(goalId: String) -> StatsDTO?
     func refreshStats(goalId: String) async throws -> StatsDTO
 }

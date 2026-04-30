@@ -23,7 +23,7 @@ struct SettingsView: View {
                     repository: dependencies.settings,
                     auth: dependencies.authRepository
                 )
-                vm.loadCachedState()
+                vm.loadLocalState()
                 model = vm
             }
             await model?.syncProfile()

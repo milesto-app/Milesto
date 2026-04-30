@@ -15,15 +15,15 @@ final class SyncingChatRepository: ChatRepository {
         container.mainContext
     }
 
-    func loadCachedConversations(goalId: String) -> [ConversationSummary] {
+    func loadConversations(goalId: String) -> [ConversationSummary] {
         let descriptor = FetchDescriptor<LocalConversation>(
             predicate: #Predicate { $0.goalId == goalId },
             sortBy: [SortDescriptor(\.updatedAt, order: .reverse)]
         )
-        guard let cached = try? context.fetch(descriptor), !cached.isEmpty else { return [] }
+        guard let localConversations = try? context.fetch(descriptor), !localConversations.isEmpty else { return [] }
         let formatter = ISO8601DateFormatter()
         formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
-        return cached.map { local in
+        return localConversations.map { local in
             ConversationSummary(
                 id: local.id,
                 goalId: local.goalId,
@@ -36,18 +36,18 @@ final class SyncingChatRepository: ChatRepository {
 
     func refreshConversations(goalId: String) async throws -> [ConversationSummary] {
         let summaries = try await remote.listConversations(goalId: goalId)
-        syncConversationsToCache(summaries, goalId: goalId)
+        replaceConversations(summaries, goalId: goalId)
         try? context.save()
         return summaries
     }
 
-    func loadCachedMessages(conversationId: String) -> [ChatMessage] {
+    func loadMessages(conversationId: String) -> [ChatMessage] {
         let descriptor = FetchDescriptor<LocalChatMessage>(
             predicate: #Predicate { $0.conversationId == conversationId },
             sortBy: [SortDescriptor(\.createdAt)]
         )
-        guard let cached = try? context.fetch(descriptor), !cached.isEmpty else { return [] }
-        return cached.compactMap { local in
+        guard let localMessages = try? context.fetch(descriptor), !localMessages.isEmpty else { return [] }
+        return localMessages.compactMap { local in
             guard local.role == "user" || local.role == "assistant" else { return nil }
             return ChatMessage(
                 id: local.id,
@@ -60,7 +60,7 @@ final class SyncingChatRepository: ChatRepository {
 
     func refreshMessages(conversationId: String) async throws -> [ChatMessage] {
         let messages = try await remote.getConversationMessages(conversationId: conversationId)
-        syncMessagesToCache(messages, conversationId: conversationId)
+        replaceMessages(messages, conversationId: conversationId)
         try? context.save()
         return messages
     }
@@ -99,11 +99,11 @@ final class SyncingChatRepository: ChatRepository {
             ))
         }
 
-        syncMessagesToCache(messages, conversationId: conversationId)
+        replaceMessages(messages, conversationId: conversationId)
         try? context.save()
     }
 
-    private func syncConversationsToCache(_ summaries: [ConversationSummary], goalId: String) {
+    private func replaceConversations(_ summaries: [ConversationSummary], goalId: String) {
         let descriptor = FetchDescriptor<LocalConversation>(
             predicate: #Predicate { $0.goalId == goalId }
         )
@@ -138,7 +138,7 @@ final class SyncingChatRepository: ChatRepository {
         }
     }
 
-    private func syncMessagesToCache(_ messages: [ChatMessage], conversationId: String) {
+    private func replaceMessages(_ messages: [ChatMessage], conversationId: String) {
         let descriptor = FetchDescriptor<LocalChatMessage>(
             predicate: #Predicate { $0.conversationId == conversationId }
         )

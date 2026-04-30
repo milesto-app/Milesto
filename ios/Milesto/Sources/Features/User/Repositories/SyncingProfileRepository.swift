@@ -29,7 +29,7 @@ final class SyncingProfileRepository: ProfileRepository {
         try await remote.updateProfile(fields)
     }
 
-    func loadCachedProfile(userId: String) -> Profile? {
+    func loadProfile(userId: String) -> Profile? {
         let descriptor = FetchDescriptor<Profile>(
             predicate: #Predicate { $0.userId == userId }
         )

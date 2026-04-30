@@ -16,7 +16,7 @@ final class DebriefBannerViewModel {
 
     func configure(goalId: String) {
         self.goalId = goalId
-        recomputeFromCache()
+        recomputeFromLocalState()
     }
 
     func refresh() async {
@@ -26,17 +26,17 @@ final class DebriefBannerViewModel {
         _ = try? await tasks
         _ = await plan
         _ = await debrief
-        recomputeFromCache()
+        recomputeFromLocalState()
     }
 
     func reactToTaskChange() {
-        recomputeFromCache()
+        recomputeFromLocalState()
     }
 
-    private func recomputeFromCache() {
-        let tasks = repository.cachedWeeklyTasks(goalId: goalId)
-        let plan = repository.cachedWeeklyPlan(goalId: goalId)
-        let latest = repository.cachedLatestDebrief(goalId: goalId)
+    private func recomputeFromLocalState() {
+        let tasks = repository.loadWeeklyTasks(goalId: goalId)
+        let plan = repository.loadWeeklyPlan(goalId: goalId)
+        let latest = repository.loadLatestDebrief(goalId: goalId)
 
         weeklyPlanId = plan?.id
         completedTasks = tasks.filter(\.isCompleted)

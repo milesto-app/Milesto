@@ -6,7 +6,7 @@ struct GoalSummary: Identifiable, Hashable {
     let status: String
 }
 
-struct CachedRoadmap {
+struct RoadmapSnapshot {
     var goalTitle: String?
     var switchableGoals: [GoalSummary]
     var currentMilestoneId: String?
@@ -26,20 +26,20 @@ struct MilestoneRecord: Identifiable, Hashable {
 
 @MainActor
 protocol RoadmapFeatureRepository: AnyObject {
-    func loadCachedRoadmap(goalId: String) -> CachedRoadmap
-    func refreshRoadmap(goalId: String) async -> CachedRoadmap
+    func loadRoadmapSnapshot(goalId: String) -> RoadmapSnapshot
+    func refreshRoadmap(goalId: String) async -> RoadmapSnapshot
     func currentTaskProgress(goalId: String) -> Double
     func tasksForMilestone(milestoneId: String) async throws -> [WeeklyTask]
     func toggleTask(taskId: String, goalId: String, isCompleted: Bool) async throws -> WeeklyTask
-    func cacheTask(_ task: WeeklyTask)
+    func saveTask(_ task: WeeklyTask)
     func generateRoadmap(goalId: String) async throws
     func fetchRoadmapStatus(goalId: String) async throws -> RoadmapStatus
 
-    func cachedWeeklyTasks(goalId: String) -> [WeeklyTask]
+    func loadWeeklyTasks(goalId: String) -> [WeeklyTask]
     func refreshWeeklyTasks(goalId: String) async throws -> [WeeklyTask]
-    func cachedWeeklyPlan(goalId: String) -> WeeklyPlan?
+    func loadWeeklyPlan(goalId: String) -> WeeklyPlan?
     func refreshWeeklyPlan(goalId: String) async -> WeeklyPlan?
-    func cachedLatestDebrief(goalId: String) -> Debrief?
+    func loadLatestDebrief(goalId: String) -> Debrief?
     func refreshLatestDebrief(goalId: String) async -> Debrief?
     func submitDebrief(goalId: String, weeklyPlanId: String, note: String, taskRatings: [TaskRating]?) async throws -> Debrief
     func generateWeeklyPlan(goalId: String) async throws

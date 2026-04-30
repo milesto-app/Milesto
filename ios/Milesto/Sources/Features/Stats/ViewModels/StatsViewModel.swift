@@ -17,8 +17,8 @@ final class StatsViewModel {
     func load(goalId: String) async {
         loadError = nil
 
-        if statsDTO == nil, let cached = repository.loadCachedStats(goalId: goalId) {
-            statsDTO = cached
+        if statsDTO == nil, let local = repository.loadStats(goalId: goalId) {
+            statsDTO = local
             isLoading = false
             hasAppeared = true
         }
