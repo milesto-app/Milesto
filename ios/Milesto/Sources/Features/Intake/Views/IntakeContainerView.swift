@@ -30,7 +30,6 @@ struct IntakeContainerView: View {
 
     @ViewBuilder
     private func content(model: IntakeContainerViewModel) -> some View {
-        @Bindable var bindable = model
         Group {
             switch model.phase {
             case .loading:
@@ -41,7 +40,8 @@ struct IntakeContainerView: View {
                     batch: batch,
                     batchNumber: model.currentBatchNumber,
                     totalBatches: model.totalBatches,
-                    answers: $bindable.answers,
+                    answers: model.answers,
+                    setAnswer: { questionId, answer in model.setAnswer(answer, for: questionId) },
                     onSubmit: {
                         Task { await model.submitCurrentBatch() }
                     }

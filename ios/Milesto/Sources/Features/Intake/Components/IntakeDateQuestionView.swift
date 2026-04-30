@@ -2,7 +2,8 @@ import SwiftUI
 
 struct IntakeDateQuestionView: View {
     let question: IntakeQuestion
-    @Binding var answers: [String: IntakeAnswerDTO]
+    let answers: [String: IntakeAnswerDTO]
+    let setAnswer: (String, IntakeAnswerDTO) -> Void
 
     @State private var selectedDate = Date()
     @State private var hasSelected = false
@@ -35,12 +36,12 @@ struct IntakeDateQuestionView: View {
             .labelsHidden()
             .onChange(of: selectedDate) {
                 hasSelected = true
-                answers[question.id] = IntakeAnswerDTO(
+                setAnswer(question.id, IntakeAnswerDTO(
                     questionId: question.id,
                     answerText: Self.isoFormatter.string(from: selectedDate),
                     answerNumeric: nil,
                     selectedOptions: nil
-                )
+                ))
             }
         }
     }

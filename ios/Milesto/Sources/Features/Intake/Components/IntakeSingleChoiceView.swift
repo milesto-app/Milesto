@@ -2,7 +2,8 @@ import SwiftUI
 
 struct IntakeSingleChoiceView: View {
     let question: IntakeQuestion
-    @Binding var answers: [String: IntakeAnswerDTO]
+    let answers: [String: IntakeAnswerDTO]
+    let setAnswer: (String, IntakeAnswerDTO) -> Void
 
     private var options: [String] {
         question.config?.options ?? []
@@ -16,12 +17,12 @@ struct IntakeSingleChoiceView: View {
         VStack(spacing: 8) {
             ForEach(options, id: \.self) { option in
                 Button {
-                    answers[question.id] = IntakeAnswerDTO(
+                    setAnswer(question.id, IntakeAnswerDTO(
                         questionId: question.id,
                         answerText: nil,
                         answerNumeric: nil,
                         selectedOptions: [option]
-                    )
+                    ))
                 } label: {
                     HStack {
                         AppText(verbatim: option, style: .body)

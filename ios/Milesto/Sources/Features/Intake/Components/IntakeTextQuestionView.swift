@@ -2,7 +2,8 @@ import SwiftUI
 
 struct IntakeTextQuestionView: View {
     let question: IntakeQuestion
-    @Binding var answers: [String: IntakeAnswerDTO]
+    let answers: [String: IntakeAnswerDTO]
+    let setAnswer: (String, IntakeAnswerDTO) -> Void
 
     @FocusState private var isFocused: Bool
 
@@ -10,12 +11,12 @@ struct IntakeTextQuestionView: View {
         Binding(
             get: { answers[question.id]?.answerText ?? "" },
             set: { newValue in
-                answers[question.id] = IntakeAnswerDTO(
+                setAnswer(question.id, IntakeAnswerDTO(
                     questionId: question.id,
                     answerText: newValue,
                     answerNumeric: nil,
                     selectedOptions: nil
-                )
+                ))
             }
         )
     }

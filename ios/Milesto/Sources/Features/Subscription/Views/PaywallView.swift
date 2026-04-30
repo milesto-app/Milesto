@@ -67,16 +67,16 @@ struct PaywallView: View {
             }
         }
         .interactiveDismissDisabled(true)
-        .onChange(of: model.purchaseError) { _, newValue in
+        .onChange(of: model.purchaseErrorMessage) { _, newValue in
             showError = newValue != nil
         }
         .alert(
             String(localized: "paywall.error.title", table: "Paywall"),
             isPresented: $showError,
-            presenting: model.purchaseError
+            presenting: model.purchaseErrorMessage
         ) { _ in
             Button(String(localized: "common.ok", table: "Common"), role: .cancel) {
-                model.purchaseError = nil
+                model.dismissPurchaseError()
             }
         } message: { message in
             AppText(verbatim: message, style: .body)

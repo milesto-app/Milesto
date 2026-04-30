@@ -2,7 +2,8 @@ import SwiftUI
 
 struct IntakeScaleQuestionView: View {
     let question: IntakeQuestion
-    @Binding var answers: [String: IntakeAnswerDTO]
+    let answers: [String: IntakeAnswerDTO]
+    let setAnswer: (String, IntakeAnswerDTO) -> Void
 
     private var minValue: Int {
         question.config?.min ?? 1
@@ -26,12 +27,12 @@ struct IntakeScaleQuestionView: View {
                 value: Binding(
                     get: { currentValue },
                     set: { newValue in
-                        answers[question.id] = IntakeAnswerDTO(
+                        setAnswer(question.id, IntakeAnswerDTO(
                             questionId: question.id,
                             answerText: nil,
                             answerNumeric: Int(newValue),
                             selectedOptions: nil
-                        )
+                        ))
                     }
                 ),
                 in: Double(minValue) ... Double(maxValue),
@@ -52,12 +53,12 @@ struct IntakeScaleQuestionView: View {
         }
         .onAppear {
             if answers[question.id] == nil {
-                answers[question.id] = IntakeAnswerDTO(
+                setAnswer(question.id, IntakeAnswerDTO(
                     questionId: question.id,
                     answerText: nil,
                     answerNumeric: minValue,
                     selectedOptions: nil
-                )
+                ))
             }
         }
     }

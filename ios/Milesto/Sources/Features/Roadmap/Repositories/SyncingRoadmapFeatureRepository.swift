@@ -1,5 +1,8 @@
 import Foundation
+import OSLog
 import SwiftData
+
+private let roadmapLogger = Logger(subsystem: Bundle.main.bundleIdentifier ?? "app.milesto-ai", category: "Roadmap")
 
 @MainActor
 final class SyncingRoadmapFeatureRepository: RoadmapFeatureRepository {
@@ -38,7 +41,9 @@ final class SyncingRoadmapFeatureRepository: RoadmapFeatureRepository {
                 .map(MilestoneRecord.init(dto:))
             snapshot.goalTitle = fetchGoalTitle(goalId: goalId)
             snapshot.switchableGoals = fetchSwitchableGoals()
-        } catch {}
+        } catch {
+            roadmapLogger.error("refreshRoadmap remote fetch failed; serving cached snapshot: \(String(describing: error), privacy: .public)")
+        }
         return snapshot
     }
 

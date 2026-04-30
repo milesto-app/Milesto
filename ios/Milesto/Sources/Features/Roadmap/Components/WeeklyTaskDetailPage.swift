@@ -81,10 +81,8 @@ struct WeeklyTaskDetailPage: View {
                         .frame(width: 600, height: 600)
                         .position(x: geo.size.width - 40, y: 0)
 
-                    Text(verbatim: String(format: "%02d", indexInWeek + 1))
-                        .font(.custom("Geist-Bold", size: 108))
-                        .tracking(-4)
-                        .foregroundStyle(accent.opacity(0.18))
+                    AppText(verbatim: String(format: "%02d", indexInWeek + 1), style: .largeTitle)
+                        .color(accent.opacity(0.18))
                         .position(x: geo.size.width - 64, y: 68)
                 }
             }

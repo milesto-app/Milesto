@@ -4,7 +4,8 @@ struct IntakeBatchView: View {
     let batch: IntakeBatch
     let batchNumber: Int
     let totalBatches: Int
-    @Binding var answers: [String: IntakeAnswerDTO]
+    let answers: [String: IntakeAnswerDTO]
+    let setAnswer: (String, IntakeAnswerDTO) -> Void
     let onSubmit: () -> Void
 
     @State private var currentQuestionIndex = 0
@@ -45,7 +46,7 @@ struct IntakeBatchView: View {
                 .padding(.bottom, 12)
 
             if let question = currentQuestion {
-                IntakeQuestionCard(question: question, answers: $answers)
+                IntakeQuestionCard(question: question, answers: answers, setAnswer: setAnswer)
                     .id(question.id)
                     .transition(.push(from: .trailing))
                     .padding(.horizontal, 24)

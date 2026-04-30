@@ -7,8 +7,8 @@ final class DebriefSheetViewModel {
     @ObservationIgnored private let goalId: String
     @ObservationIgnored private let weeklyPlanId: String
 
-    var ratings: [String: DifficultyRating] = [:]
-    var reflectionNote: String = ""
+    private(set) var ratings: [String: DifficultyRating] = [:]
+    private(set) var reflectionNote: String = ""
     private(set) var isSubmitting = false
     private(set) var errorMessage: String?
 
@@ -24,6 +24,10 @@ final class DebriefSheetViewModel {
 
     func setRating(_ rating: DifficultyRating, for taskId: String) {
         ratings[taskId] = rating
+    }
+
+    func updateReflectionNote(_ newValue: String) {
+        reflectionNote = newValue
     }
 
     func submit() async -> Bool {

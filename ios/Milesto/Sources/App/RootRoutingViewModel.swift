@@ -1,5 +1,4 @@
 import Foundation
-import SwiftUI
 
 @MainActor
 @Observable
@@ -91,28 +90,20 @@ final class RootRoutingViewModel {
 
         switch status {
         case "active":
-            withAnimation(.easeInOut(duration: 0.4)) {
-                goalComplete = true
-                roadmapReady = true
-            }
+            goalComplete = true
+            roadmapReady = true
         case ProfileStatus.intakeCompleted.rawValue:
-            withAnimation(.easeInOut(duration: 0.4)) {
-                goalComplete = true
-                roadmapReady = false
-            }
+            goalComplete = true
+            roadmapReady = false
             Task { [weak self] in
                 guard let self else { return }
                 let hasRoadmap = await roadmap.isRoadmapReady(goalId: newGoalId)
                 guard self.activeGoalId == newGoalId else { return }
-                withAnimation(.easeInOut(duration: 0.4)) {
-                    self.roadmapReady = hasRoadmap
-                }
+                self.roadmapReady = hasRoadmap
             }
         default:
-            withAnimation(.easeInOut(duration: 0.4)) {
-                goalComplete = false
-                roadmapReady = false
-            }
+            goalComplete = false
+            roadmapReady = false
         }
     }
 

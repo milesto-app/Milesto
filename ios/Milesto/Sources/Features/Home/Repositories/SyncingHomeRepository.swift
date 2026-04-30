@@ -3,10 +3,10 @@ import SwiftData
 
 @MainActor
 final class SyncingHomeRepository: HomeRepository {
-    private let remote: any RoadmapRepository
+    private let remote: any HomeRemoteRepository
     private let container: ModelContainer
 
-    init(remote: any RoadmapRepository, container: ModelContainer) {
+    init(remote: any HomeRemoteRepository, container: ModelContainer) {
         self.remote = remote
         self.container = container
     }

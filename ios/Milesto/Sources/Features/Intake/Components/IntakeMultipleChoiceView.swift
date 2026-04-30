@@ -2,7 +2,8 @@ import SwiftUI
 
 struct IntakeMultipleChoiceView: View {
     let question: IntakeQuestion
-    @Binding var answers: [String: IntakeAnswerDTO]
+    let answers: [String: IntakeAnswerDTO]
+    let setAnswer: (String, IntakeAnswerDTO) -> Void
 
     private var options: [String] {
         question.config?.options ?? []
@@ -51,11 +52,11 @@ struct IntakeMultipleChoiceView: View {
         } else {
             current.insert(option)
         }
-        answers[question.id] = IntakeAnswerDTO(
+        setAnswer(question.id, IntakeAnswerDTO(
             questionId: question.id,
             answerText: nil,
             answerNumeric: nil,
             selectedOptions: Array(current)
-        )
+        ))
     }
 }

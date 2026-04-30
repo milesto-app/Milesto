@@ -2,7 +2,8 @@ import SwiftUI
 
 struct IntakeQuestionCard: View {
     let question: IntakeQuestion
-    @Binding var answers: [String: IntakeAnswerDTO]
+    let answers: [String: IntakeAnswerDTO]
+    let setAnswer: (String, IntakeAnswerDTO) -> Void
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
@@ -11,16 +12,16 @@ struct IntakeQuestionCard: View {
             switch question.questionType {
             case .text:
                 if question.config?.format == "date" {
-                    IntakeDateQuestionView(question: question, answers: $answers)
+                    IntakeDateQuestionView(question: question, answers: answers, setAnswer: setAnswer)
                 } else {
-                    IntakeTextQuestionView(question: question, answers: $answers)
+                    IntakeTextQuestionView(question: question, answers: answers, setAnswer: setAnswer)
                 }
             case .scale:
-                IntakeScaleQuestionView(question: question, answers: $answers)
+                IntakeScaleQuestionView(question: question, answers: answers, setAnswer: setAnswer)
             case .singleChoice:
-                IntakeSingleChoiceView(question: question, answers: $answers)
+                IntakeSingleChoiceView(question: question, answers: answers, setAnswer: setAnswer)
             case .multipleChoice:
-                IntakeMultipleChoiceView(question: question, answers: $answers)
+                IntakeMultipleChoiceView(question: question, answers: answers, setAnswer: setAnswer)
             }
         }
         .padding(.vertical, 16)

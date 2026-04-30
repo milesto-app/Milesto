@@ -127,27 +127,31 @@ struct RootView: View {
 
     @ViewBuilder
     private func postProfileFlow(userId: String, routing: RootRoutingViewModel) -> some View {
-        if routing.goalComplete && routing.roadmapReady {
-            mainAppContent(routing: routing)
-        } else if routing.goalComplete {
-            RoadmapGenerationView(goalId: routing.activeGoalId ?? "") {
-                withAnimation(.easeInOut(duration: 0.4)) {
-                    routing.markRoadmapReady()
-                }
-            }
-        } else {
-            GoalIntakeFlowView(
-                userId: userId,
-                existingGoalId: routing.activeGoalId,
-                onClose: nil,
-                onComplete: { goalId in
-                    routing.activeGoalId = goalId
+        Group {
+            if routing.goalComplete && routing.roadmapReady {
+                mainAppContent(routing: routing)
+            } else if routing.goalComplete {
+                RoadmapGenerationView(goalId: routing.activeGoalId ?? "") {
                     withAnimation(.easeInOut(duration: 0.4)) {
-                        routing.goalComplete = true
+                        routing.markRoadmapReady()
                     }
                 }
-            )
+            } else {
+                GoalIntakeFlowView(
+                    userId: userId,
+                    existingGoalId: routing.activeGoalId,
+                    onClose: nil,
+                    onComplete: { goalId in
+                        routing.activeGoalId = goalId
+                        withAnimation(.easeInOut(duration: 0.4)) {
+                            routing.goalComplete = true
+                        }
+                    }
+                )
+            }
         }
+        .animation(.easeInOut(duration: 0.4), value: routing.goalComplete)
+        .animation(.easeInOut(duration: 0.4), value: routing.roadmapReady)
     }
 
     private func mainAppContent(routing: RootRoutingViewModel) -> some View {
@@ -160,7 +164,9 @@ struct RootView: View {
 
             Tab(value: 1) {
                 RoadmapView(goalId: routing.activeGoalId ?? "", onGoalChanged: { id in
-                    routing.handleGoalChanged(id)
+                    withAnimation(.easeInOut(duration: 0.4)) {
+                        routing.handleGoalChanged(id)
+                    }
                 })
             } label: {
                 TablerTabLabel(.map, title: String(localized: "tabs.roadmap", table: "Common"))

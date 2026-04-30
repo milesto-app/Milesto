@@ -6,7 +6,7 @@ protocol SubscriptionRepository: AnyObject {
     var monthlyPlan: SubscriptionPlan? { get }
     var annualPlan: SubscriptionPlan? { get }
     var isPurchasing: Bool { get }
-    var purchaseError: String? { get set }
+    var purchaseError: PurchaseError? { get set }
 
     func loadPlans() async
     func purchase(planId: String) async

@@ -24,18 +24,10 @@ final class SyncingSubscriptionRepository: EntitlementProviding, SubscriptionRep
 
     private static let productIds = [annualProductId, monthlyProductId]
 
-    enum PurchaseError: LocalizedError {
-        case missingUser
-
-        var errorDescription: String? {
-            String(localized: "paywall.error.generic", table: "Paywall")
-        }
-    }
-
     private(set) var products: [Product] = []
     private(set) var entitlementState: EntitlementState = .unknown
     private(set) var isPurchasing = false
-    var purchaseError: String?
+    var purchaseError: PurchaseError?
 
     private var updatesTask: Task<Void, Never>?
     private var onAppStartInFlight = false
@@ -112,7 +104,7 @@ final class SyncingSubscriptionRepository: EntitlementProviding, SubscriptionRep
     func purchase(planId: String) async {
         guard !isPurchasing else { return }
         guard let product = products.first(where: { $0.id == planId }) else {
-            purchaseError = PurchaseError.missingUser.errorDescription
+            purchaseError = .missingUser
             return
         }
         isPurchasing = true
@@ -124,7 +116,7 @@ final class SyncingSubscriptionRepository: EntitlementProviding, SubscriptionRep
             let session = try await SupabaseConfig.client.auth.session
             userUUID = session.user.id
         } catch {
-            purchaseError = PurchaseError.missingUser.errorDescription
+            purchaseError = .missingUser
             return
         }
 
@@ -143,7 +135,7 @@ final class SyncingSubscriptionRepository: EntitlementProviding, SubscriptionRep
                 break
             }
         } catch {
-            purchaseError = error.localizedDescription
+            purchaseError = .storeFailure(error.localizedDescription)
         }
     }
 

@@ -4,15 +4,8 @@ import SwiftData
 
 private let settingsLogger = Logger(subsystem: Bundle.main.bundleIdentifier ?? "app.milesto-ai", category: "Settings")
 
-enum SettingsRepositoryError: LocalizedError {
+enum SettingsRepositoryError: Error {
     case localPurgeFailed
-
-    var errorDescription: String? {
-        switch self {
-        case .localPurgeFailed:
-            String(localized: "settings.signOut.purge.error", table: "Settings")
-        }
-    }
 }
 
 @MainActor

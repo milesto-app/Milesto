@@ -27,9 +27,18 @@ final class PaywallViewModel {
         subscription.isPurchasing
     }
 
-    var purchaseError: String? {
-        get { subscription.purchaseError }
-        set { subscription.purchaseError = newValue }
+    var purchaseErrorMessage: String? {
+        guard let error = subscription.purchaseError else { return nil }
+        switch error {
+        case .missingUser:
+            return String(localized: "paywall.error.generic", table: "Paywall")
+        case let .storeFailure(detail):
+            return detail
+        }
+    }
+
+    func dismissPurchaseError() {
+        subscription.purchaseError = nil
     }
 
     var isAnnualSelected: Bool {

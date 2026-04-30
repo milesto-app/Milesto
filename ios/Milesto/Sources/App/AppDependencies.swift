@@ -64,7 +64,7 @@ final class AppDependencies {
             container: container
         )
         let homeRepo = SyncingHomeRepository(
-            remote: roadmapRemote,
+            remote: RoadmapBackedHomeRemote(roadmapRemote),
             container: container
         )
         let remoteChat = SupabaseChatRepository()

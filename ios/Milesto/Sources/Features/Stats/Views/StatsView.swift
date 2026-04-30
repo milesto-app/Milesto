@@ -34,7 +34,7 @@ struct StatsView: View {
                             VStack(spacing: 12) {
                                 statsContent(model: model, stats: stats)
                             }
-                            .frame(width: proxy.size.width - 40)
+                            .frame(width: max(0, proxy.size.width - 40))
                             .padding(.horizontal, 20)
                             .padding(.top, 16)
                             .padding(.bottom, 100)

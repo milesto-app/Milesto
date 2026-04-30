@@ -11,7 +11,7 @@
                     set: { developerSettings.routeOverride = $0 }
                 )) {
                     ForEach(DeveloperRouteOverride.allCases) { route in
-                        Text(verbatim: route.title).tag(route)
+                        AppText(verbatim: route.title, style: .body).tag(route)
                     }
                 }
                 .pickerStyle(.menu)
@@ -29,9 +29,9 @@
                     .buttonStyle(.plain)
                 }
             } header: {
-                Text(verbatim: "Developer")
+                AppText(verbatim: "Developer", style: .caption)
             } footer: {
-                Text(verbatim: "Overrides only change local routing in debug builds.")
+                AppText(verbatim: "Overrides only change local routing in debug builds.", style: .caption)
             }
         }
     }

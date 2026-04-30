@@ -90,6 +90,9 @@ final class SettingsViewModel {
         do {
             try await repository.purgeLocalUserData()
             try await auth.signOut()
+        } catch SettingsRepositoryError.localPurgeFailed {
+            errorMessage = String(localized: "settings.signOut.purge.error", table: "Settings")
+            showError = true
         } catch {
             errorMessage = error.localizedDescription
             showError = true

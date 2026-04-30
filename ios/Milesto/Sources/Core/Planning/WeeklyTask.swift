@@ -45,11 +45,3 @@ struct WeeklyTask: Codable, Identifiable {
         case createdAt = "created_at"
     }
 }
-
-struct UpdateTaskRequest: Encodable {
-    let isCompleted: Bool
-
-    enum CodingKeys: String, CodingKey {
-        case isCompleted = "is_completed"
-    }
-}

@@ -38,7 +38,7 @@ final class IntakeContainerViewModel {
     private(set) var goalId: String = ""
     private(set) var phase: IntakePhase = .loading
     private(set) var currentBatchNumber = 0
-    var answers: [String: IntakeAnswerDTO] = [:]
+    private(set) var answers: [String: IntakeAnswerDTO] = [:]
 
     init(intake: any IntakeRepository) {
         self.intake = intake
@@ -54,6 +54,14 @@ final class IntakeContainerViewModel {
 
     func cancelPolling() {
         pollingTask?.cancel()
+    }
+
+    func answer(for questionId: String) -> IntakeAnswerDTO? {
+        answers[questionId]
+    }
+
+    func setAnswer(_ answer: IntakeAnswerDTO, for questionId: String) {
+        answers[questionId] = answer
     }
 
     func loadNextBatch() async {

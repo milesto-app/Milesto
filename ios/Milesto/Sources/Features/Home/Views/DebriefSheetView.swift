@@ -31,7 +31,10 @@ struct DebriefSheetView: View {
 
     @ViewBuilder
     private func content(model: DebriefSheetViewModel) -> some View {
-        @Bindable var bindable = model
+        let reflectionBinding = Binding<String>(
+            get: { model.reflectionNote },
+            set: { model.updateReflectionNote($0) }
+        )
         NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: 24) {
@@ -42,7 +45,7 @@ struct DebriefSheetView: View {
                         ratingsSection(model: model)
                     }
 
-                    reflectionSection(text: $bindable.reflectionNote)
+                    reflectionSection(text: reflectionBinding)
 
                     if let error = model.errorMessage {
                         AppText(verbatim: error, style: .caption)
