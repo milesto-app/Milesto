@@ -1,33 +1,30 @@
 import Foundation
-import SwiftData
 
 @MainActor
 @Observable
 final class StatsViewModel {
-    @ObservationIgnored private let stats: any StatsRepository
+    @ObservationIgnored private let repository: any StatsRepository
 
-    var statsDTO: StatsDTO?
-    var isLoading = true
-    var hasAppeared = false
-    var loadError: Error?
+    private(set) var statsDTO: StatsDTO?
+    private(set) var isLoading = true
+    private(set) var hasAppeared = false
+    private(set) var loadError: Error?
 
-    init(stats: any StatsRepository = SupabaseStatsRepository.shared) {
-        self.stats = stats
+    init(repository: any StatsRepository) {
+        self.repository = repository
     }
 
-    func load(goalId: String, in modelContext: ModelContext) async {
+    func load(goalId: String) async {
         loadError = nil
 
-        if statsDTO == nil, let cached = fetchCachedStats(goalId: goalId, in: modelContext) {
+        if statsDTO == nil, let cached = repository.loadCachedStats(goalId: goalId) {
             statsDTO = cached
             isLoading = false
             hasAppeared = true
         }
 
         do {
-            let result = try await stats.getStats(goalId: goalId)
-            statsDTO = result
-            syncStatsToCache(result, goalId: goalId, in: modelContext)
+            statsDTO = try await repository.refreshStats(goalId: goalId)
             isLoading = false
             hasAppeared = true
         } catch {
@@ -35,29 +32,6 @@ final class StatsViewModel {
                 loadError = error
             }
             isLoading = false
-        }
-    }
-
-    private func fetchCachedStats(goalId: String, in modelContext: ModelContext) -> StatsDTO? {
-        let descriptor = FetchDescriptor<LocalStats>(
-            predicate: #Predicate { $0.goalId == goalId }
-        )
-        guard let local = try? modelContext.fetch(descriptor).first,
-              let data = local.statsJSON else { return nil }
-        return try? JSONDecoder().decode(StatsDTO.self, from: data)
-    }
-
-    private func syncStatsToCache(_ dto: StatsDTO, goalId: String, in modelContext: ModelContext) {
-        let descriptor = FetchDescriptor<LocalStats>(
-            predicate: #Predicate { $0.goalId == goalId }
-        )
-        let data = try? JSONEncoder().encode(dto)
-
-        if let existing = try? modelContext.fetch(descriptor).first {
-            existing.statsJSON = data
-            existing.updatedAt = Date()
-        } else {
-            modelContext.insert(LocalStats(goalId: goalId, statsJSON: data))
         }
     }
 }

@@ -4,22 +4,29 @@ struct WeeklyPlanGenerationView: View {
     let goalId: String
     let onComplete: () -> Void
 
-    @State private var isGenerating = false
-    @State private var hasFailed = false
+    @Environment(AppDependencies.self) private var dependencies
+    @State private var model: WeeklyPlanGenerationViewModel?
     @State private var pulseScale: CGFloat = 1.0
 
     var body: some View {
         ZStack {
             Color("BackgroundBase").ignoresSafeArea()
 
-            if hasFailed {
-                errorContent
+            if let model {
+                if model.hasFailed {
+                    errorContent(model: model)
+                } else {
+                    loadingContent
+                }
             } else {
                 loadingContent
             }
         }
         .task {
-            await generate()
+            if model == nil {
+                model = WeeklyPlanGenerationViewModel(repository: dependencies.home)
+            }
+            await runGeneration()
         }
     }
 
@@ -55,7 +62,8 @@ struct WeeklyPlanGenerationView: View {
         .padding(.horizontal, 24)
     }
 
-    private var errorContent: some View {
+    @ViewBuilder
+    private func errorContent(model _: WeeklyPlanGenerationViewModel) -> some View {
         VStack(spacing: 24) {
             Spacer()
 
@@ -71,9 +79,7 @@ struct WeeklyPlanGenerationView: View {
             Spacer()
 
             AppButton("home.weeklyGeneration.retry", table: "Home") {
-                Task {
-                    await generate()
-                }
+                Task { await runGeneration() }
             }
             .fullWidth()
             .padding(.bottom, 24)
@@ -81,29 +87,11 @@ struct WeeklyPlanGenerationView: View {
         .padding(.horizontal, 24)
     }
 
-    private func generate() async {
-        hasFailed = false
-        isGenerating = true
-
-        do {
-            _ = try await SupabaseRoadmapRepository.shared.generateWeeklyPlan(goalId: goalId)
-            await waitForTasks()
-            isGenerating = false
+    private func runGeneration() async {
+        guard let model else { return }
+        let success = await model.generate(goalId: goalId)
+        if success {
             onComplete()
-        } catch {
-            hasFailed = true
-            isGenerating = false
-        }
-    }
-
-    private func waitForTasks() async {
-        for _ in 0 ..< 30 {
-            try? await Task.sleep(for: .seconds(2))
-            if let tasks = try? await SupabaseRoadmapRepository.shared.getWeeklyTasks(goalId: goalId),
-               !tasks.isEmpty
-            {
-                return
-            }
         }
     }
 }

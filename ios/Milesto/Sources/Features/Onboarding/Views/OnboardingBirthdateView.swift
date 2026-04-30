@@ -7,8 +7,8 @@ struct OnboardingBirthdateView: View {
     private var dateRange: ClosedRange<Date> {
         let calendar = Calendar.current
         let now = Date()
-        let minDate = calendar.date(byAdding: .year, value: -120, to: now)!
-        let maxDate = calendar.date(byAdding: .year, value: -13, to: now)!
+        let minDate = calendar.date(byAdding: .year, value: -120, to: now) ?? now
+        let maxDate = calendar.date(byAdding: .year, value: -13, to: now) ?? now
         return minDate ... maxDate
     }
 

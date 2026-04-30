@@ -1,7 +1,8 @@
 import SwiftUI
 
 struct PaywallView: View {
-    @State private var model = PaywallViewModel(subscription: SyncingSubscriptionRepository.shared)
+    @Environment(AppDependencies.self) private var dependencies
+    @State private var model: PaywallViewModel?
     @State private var heroVisible = false
     @State private var featuresVisible = false
     @State private var plansVisible = false
@@ -12,6 +13,25 @@ struct PaywallView: View {
     @State private var showError = false
 
     var body: some View {
+        Group {
+            if let model {
+                content(model: model)
+            } else {
+                Color("BackgroundBase").ignoresSafeArea()
+            }
+        }
+        .task {
+            if model == nil {
+                model = PaywallViewModel(subscription: dependencies.subscription)
+            }
+            await model?.loadPlans()
+            startEntryAnimation()
+            startAmbientAnimation()
+        }
+    }
+
+    @ViewBuilder
+    private func content(model: PaywallViewModel) -> some View {
         ZStack {
             Color("BackgroundBase").ignoresSafeArea()
 
@@ -29,7 +49,7 @@ struct PaywallView: View {
                             .opacity(featuresVisible ? 1 : 0)
                             .offset(y: featuresVisible ? 0 : 24)
 
-                        planSelector
+                        planSelector(model: model)
                             .opacity(plansVisible ? 1 : 0)
                             .offset(y: plansVisible ? 0 : 24)
                     }
@@ -39,7 +59,7 @@ struct PaywallView: View {
                 }
                 .scrollBounceBehavior(.basedOnSize)
 
-                ctaStack
+                ctaStack(model: model)
                     .opacity(ctaVisible ? 1 : 0)
                     .offset(y: ctaVisible ? 0 : 24)
                     .padding(.horizontal, 24)
@@ -48,11 +68,6 @@ struct PaywallView: View {
             }
         }
         .interactiveDismissDisabled(true)
-        .task {
-            await model.loadPlans()
-            startEntryAnimation()
-            startAmbientAnimation()
-        }
         .onChange(of: model.purchaseError) { _, newValue in
             showError = newValue != nil
         }
@@ -65,7 +80,7 @@ struct PaywallView: View {
                 model.purchaseError = nil
             }
         } message: { message in
-            Text(message)
+            AppText(verbatim: message, style: .body)
         }
     }
 
@@ -100,7 +115,8 @@ struct PaywallView: View {
         }
     }
 
-    private var planSelector: some View {
+    @ViewBuilder
+    private func planSelector(model: PaywallViewModel) -> some View {
         HStack(spacing: 12) {
             PaywallPlanCard(
                 titleKey: "paywall.plan.annual.title",
@@ -124,21 +140,20 @@ struct PaywallView: View {
         }
     }
 
-    private var ctaStack: some View {
+    @ViewBuilder
+    private func ctaStack(model: PaywallViewModel) -> some View {
         VStack(spacing: 14) {
             PaywallCTAButton(
                 titleKey: model.isAnnualSelected ? "paywall.cta.trial" : "paywall.cta.subscribe",
                 isLoading: model.isPurchasing,
                 isDisabled: model.selectedPlan == nil,
                 action: {
-                    Task {
-                        await model.purchaseSelected()
-                    }
+                    Task { await model.purchaseSelected() }
                 }
             )
 
             AppText(
-                verbatim: termsLine,
+                verbatim: termsLine(model: model),
                 style: .caption
             )
             .color(Color("TextSecondary"))
@@ -161,7 +176,7 @@ struct PaywallView: View {
         }
     }
 
-    private var termsLine: String {
+    private func termsLine(model: PaywallViewModel) -> String {
         if model.isAnnualSelected {
             guard let price = model.annualPlan?.displayPrice else { return "" }
             return String(format: String(localized: "paywall.terms.trial.annual", table: "Paywall"), price)
@@ -173,9 +188,9 @@ struct PaywallView: View {
 
     private func footerLink(_ key: LocalizedStringKey, action: @escaping () -> Void) -> some View {
         Button(action: action) {
-            Text(key, tableName: "Paywall")
-                .font(Fonts.ui(size: 12, relativeTo: .caption, weight: .medium))
-                .foregroundStyle(Color("TextSecondary"))
+            AppText(key, table: "Paywall", style: .caption)
+                .color(Color("TextSecondary"))
+                .weight(.medium)
         }
     }
 
@@ -203,8 +218,4 @@ struct PaywallView: View {
             sparklePulse = 1.0
         }
     }
-}
-
-#Preview {
-    PaywallView()
 }

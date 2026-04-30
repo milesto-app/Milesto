@@ -1,95 +1,54 @@
-import SwiftData
-import SwiftUI
+import Foundation
 
+@MainActor
 @Observable
 final class RoadmapViewModel {
-    var milestones: [DisplayMilestone] = []
-    var isLoading = true
+    @ObservationIgnored private let repository: any RoadmapFeatureRepository
+
+    private(set) var goalId: String = ""
+    private(set) var goalTitle: String = ""
+    private(set) var switchableGoals: [GoalSummary] = []
+    private(set) var milestones: [DisplayMilestone] = []
+    private(set) var isLoading = true
     var appeared = false
 
-    var goalId: String = ""
-    var modelContext: ModelContext?
+    init(repository: any RoadmapFeatureRepository) {
+        self.repository = repository
+    }
 
-    func configure(goalId: String, modelContext: ModelContext) {
+    var completionProgress: Double {
+        guard !milestones.isEmpty else { return 0 }
+        let completed = Double(milestones.filter { $0.status == .completed }.count)
+        let currentProgress = milestones.contains(where: { $0.status == .current })
+            ? repository.currentTaskProgress(goalId: goalId)
+            : 0
+        return (completed + currentProgress) / Double(milestones.count)
+    }
+
+    func configure(goalId: String) {
         self.goalId = goalId
-        self.modelContext = modelContext
+        applySnapshot(repository.loadCachedRoadmap(goalId: goalId))
     }
 
     func resetForGoalChange() {
         milestones = []
+        goalTitle = ""
+        switchableGoals = []
         isLoading = true
         appeared = false
     }
 
-    func currentTaskProgress() -> Double {
-        guard let modelContext else { return 0 }
-        let goalId = goalId
-        if let activePlan = fetchActiveWeeklyPlan() {
-            return taskProgress(weeklyPlanId: activePlan.id)
-        }
-
-        let descriptor = FetchDescriptor<LocalWeeklyTask>(
-            predicate: #Predicate { $0.goalId == goalId }
-        )
-        guard let tasks = try? modelContext.fetch(descriptor), !tasks.isEmpty else { return 0 }
-        return taskProgress(tasks)
-    }
-
     func loadMilestones() async {
-        let cached = fetchCachedMilestones()
-        if !cached.isEmpty {
-            milestones = cached
-            isLoading = false
-            if !appeared {
-                appeared = true
-            }
-        }
-
-        do {
-            let roadmap = try await SupabaseRoadmapRepository.shared.getRoadmap(goalId: goalId)
-            guard let dtos = roadmap.milestones else { return }
-
-            syncRoadmapToCache(roadmap)
-            await refreshCurrentTasksForProgress()
-
-            let sorted = dtos.sorted { $0.orderIndex < $1.orderIndex }
-            let currentMilestoneId = roadmap.currentMilestoneId
-            var foundCurrent = false
-
-            milestones = sorted.enumerated().map { index, dto in
-                let status: MilestoneStatus
-                if let currentId = currentMilestoneId {
-                    if dto.id == currentId {
-                        status = .current
-                        foundCurrent = true
-                    } else if !foundCurrent {
-                        status = .completed
-                    } else {
-                        status = .upcoming
-                    }
-                } else {
-                    status = index == 0 ? .current : .upcoming
-                }
-
-                return DisplayMilestone(
-                    id: dto.id,
-                    title: dto.title,
-                    description: dto.description,
-                    targetMonth: dto.targetMonth,
-                    targetWeek: dto.targetWeek,
-                    isMonthlyCheckpoint: dto.isMonthlyCheckpoint,
-                    orderIndex: dto.orderIndex,
-                    expectedOutcome: dto.expectedOutcome,
-                    status: status,
-                    progress: status == .current ? currentTaskProgress() : (status == .completed ? 1.0 : 0.0)
-                )
-            }
-        } catch {}
+        let snapshot = await repository.refreshRoadmap(goalId: goalId)
+        applySnapshot(snapshot)
         isLoading = false
+        if !appeared {
+            appeared = true
+        }
     }
 
     func refreshDisplayedProgress() {
-        let progress = currentTaskProgress()
+        let progress = repository.currentTaskProgress(goalId: goalId)
         milestones = milestones.map { milestone in
             DisplayMilestone(
                 id: milestone.id,
@@ -106,8 +65,56 @@ final class RoadmapViewModel {
         }
     }
 
-    func refreshCurrentTasksForProgress() async {
-        guard let fetched = try? await SupabaseRoadmapRepository.shared.getWeeklyTasks(goalId: goalId) else { return }
-        syncTasksToCache(fetched)
+    private func applySnapshot(_ snapshot: CachedRoadmap) {
+        if let goalTitle = snapshot.goalTitle {
+            self.goalTitle = goalTitle
+        }
+        switchableGoals = snapshot.switchableGoals
+
+        let records = snapshot.milestones
+        guard !records.isEmpty else {
+            milestones = []
+            return
+        }
+
+        var foundCurrent = false
+        let currentMilestoneId = snapshot.currentMilestoneId
+        let progress = repository.currentTaskProgress(goalId: goalId)
+
+        milestones = records.enumerated().map { index, record in
+            let status: MilestoneStatus
+            if let currentMilestoneId {
+                if record.id == currentMilestoneId {
+                    status = .current
+                    foundCurrent = true
+                } else if !foundCurrent {
+                    status = .completed
+                } else {
+                    status = .upcoming
+                }
+            } else {
+                status = index == 0 ? .current : .upcoming
+            }
+
+            return DisplayMilestone(
+                id: record.id,
+                title: record.title,
+                description: record.description,
+                targetMonth: record.targetMonth,
+                targetWeek: record.targetWeek,
+                isMonthlyCheckpoint: record.isMonthlyCheckpoint,
+                orderIndex: record.orderIndex,
+                expectedOutcome: record.expectedOutcome,
+                status: status,
+                progress: status == .current ? progress : (status == .completed ? 1.0 : 0.0)
+            )
+        }
+
+        if !milestones.isEmpty {
+            isLoading = false
+            if !appeared {
+                appeared = true
+            }
+        }
     }
 }

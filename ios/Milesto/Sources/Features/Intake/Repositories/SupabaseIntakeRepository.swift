@@ -12,9 +12,7 @@ struct RetryProfileResponse: Codable {
 
 @MainActor
 final class SupabaseIntakeRepository: IntakeRepository {
-    static let shared = SupabaseIntakeRepository()
-
-    private init() {}
+    init() {}
 
     func getNextBatch(goalId: String) async throws -> IntakeBatchResponse {
         return try await BackendClient.shared.request(

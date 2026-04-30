@@ -7,10 +7,10 @@ final class AuthViewModel {
 
     var email = ""
     var password = ""
-    var isLoading = false
-    var isAppleLoading = false
-    var isGoogleLoading = false
-    var errorMessage: String?
+    private(set) var isLoading = false
+    private(set) var isAppleLoading = false
+    private(set) var isGoogleLoading = false
+    private(set) var errorMessage: String?
     var showErrorAlert = false
 
     init(auth: any AuthRepository) {

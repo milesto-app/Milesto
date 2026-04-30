@@ -35,12 +35,12 @@ final class IntakeContainerViewModel {
     @ObservationIgnored private let maxPollingAttempts = 60
     @ObservationIgnored private var pollingTask: Task<Void, Never>?
 
-    var goalId: String = ""
-    var phase: IntakePhase = .loading
-    var currentBatchNumber = 0
+    private(set) var goalId: String = ""
+    private(set) var phase: IntakePhase = .loading
+    private(set) var currentBatchNumber = 0
     var answers: [String: IntakeAnswerDTO] = [:]
 
-    init(intake: any IntakeRepository = SupabaseIntakeRepository.shared) {
+    init(intake: any IntakeRepository) {
         self.intake = intake
     }
 

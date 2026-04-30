@@ -6,4 +6,10 @@ protocol EntitlementProviding: AnyObject {
     var isSubscribed: Bool { get }
     func refreshEntitlement() async
     func reconcileWithBackend() async
+    func handleBackendSubscriptionRequired() async
+}
+
+@MainActor
+enum EntitlementResolver {
+    static var current: (any EntitlementProviding)?
 }

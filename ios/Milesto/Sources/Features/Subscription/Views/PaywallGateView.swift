@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct PaywallGateView<Content: View>: View {
-    @State private var subscription = SyncingSubscriptionRepository.shared
+    @Environment(AppDependencies.self) private var dependencies
     #if DEBUG
         @State private var developerSettings = DeveloperSettings.shared
     #endif
@@ -27,18 +27,18 @@ struct PaywallGateView<Content: View>: View {
                 subscriptionGate
             #endif
         }
-        .animation(.easeInOut(duration: 0.4), value: subscription.entitlementState)
+        .animation(.easeInOut(duration: 0.4), value: dependencies.entitlement.entitlementState)
         .task {
             #if DEBUG
                 guard !developerSettings.forcesPaywall, !developerSettings.bypassesPaywall else { return }
             #endif
-            await subscription.reconcileWithBackend()
+            await dependencies.subscription.reconcileWithBackend()
         }
     }
 
     private var subscriptionGate: some View {
         Group {
-            switch subscription.entitlementState {
+            switch dependencies.entitlement.entitlementState {
             case .unknown:
                 Color("BackgroundBase").ignoresSafeArea()
             case .subscribed:
@@ -49,7 +49,7 @@ struct PaywallGateView<Content: View>: View {
                     .transition(.opacity)
             case .connectionError:
                 PaywallConnectionErrorView {
-                    await subscription.reconcileWithBackend()
+                    await dependencies.subscription.reconcileWithBackend()
                 }
                 .transition(.opacity)
             }

@@ -3,10 +3,27 @@ import SwiftUI
 struct StatsView: View {
     let goalId: String
 
-    @Environment(\.modelContext) private var modelContext
-    @State private var model = StatsViewModel()
+    @Environment(AppDependencies.self) private var dependencies
+    @State private var model: StatsViewModel?
 
     var body: some View {
+        Group {
+            if let model {
+                content(model: model)
+            } else {
+                Color("BackgroundBase").ignoresSafeArea()
+            }
+        }
+        .task {
+            if model == nil {
+                model = StatsViewModel(repository: dependencies.stats)
+            }
+            await model?.load(goalId: goalId)
+        }
+    }
+
+    @ViewBuilder
+    private func content(model: StatsViewModel) -> some View {
         NavigationStack {
             ZStack {
                 if model.isLoading && model.statsDTO == nil {
@@ -16,7 +33,7 @@ struct StatsView: View {
                     GeometryReader { proxy in
                         ScrollView(.vertical, showsIndicators: false) {
                             VStack(spacing: 12) {
-                                statsContent(stats)
+                                statsContent(model: model, stats: stats)
                             }
                             .frame(width: proxy.size.width - 40)
                             .padding(.horizontal, 20)
@@ -24,7 +41,7 @@ struct StatsView: View {
                             .padding(.bottom, 100)
                         }
                         .hapticRefreshable {
-                            await model.load(goalId: goalId, in: modelContext)
+                            await model.load(goalId: goalId)
                         }
                     }
                 } else if model.loadError != nil {
@@ -39,7 +56,7 @@ struct StatsView: View {
                             .alignment(.center)
 
                         AppButton("stats.error.retry", table: "Stats") {
-                            Task { await model.load(goalId: goalId, in: modelContext) }
+                            Task { await model.load(goalId: goalId) }
                         }
                     }
                     .padding(32)
@@ -49,14 +66,11 @@ struct StatsView: View {
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
                 }
             }
-            .task {
-                await model.load(goalId: goalId, in: modelContext)
-            }
         }
     }
 
     @ViewBuilder
-    private func statsContent(_ stats: StatsDTO) -> some View {
+    private func statsContent(model: StatsViewModel, stats: StatsDTO) -> some View {
         StatsHeroCard(
             completedCount: stats.completion.totalCompleted,
             totalCount: stats.completion.totalObjectives,
@@ -116,8 +130,4 @@ struct StatsView: View {
         }
         return current.objectivesTotal
     }
-}
-
-#Preview {
-    StatsView(goalId: "preview-goal")
 }

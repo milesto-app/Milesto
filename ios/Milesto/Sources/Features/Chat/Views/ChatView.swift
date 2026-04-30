@@ -1,16 +1,35 @@
-import SwiftData
 import SwiftUI
 
 struct ChatView: View {
     let goalId: String
     var onClose: (() -> Void)?
 
-    @Environment(\.modelContext) private var modelContext
-    @State private var model = ChatViewModel()
+    @Environment(AppDependencies.self) private var dependencies
+    @State private var model: ChatViewModel?
     @FocusState private var isInputFocused: Bool
     @State private var isSidebarOpen = false
 
     var body: some View {
+        Group {
+            if let model {
+                content(model: model)
+            } else {
+                Color("BackgroundBase").ignoresSafeArea()
+            }
+        }
+        .task {
+            if model == nil {
+                let vm = ChatViewModel(repository: dependencies.chat)
+                vm.configure(goalId: goalId)
+                model = vm
+            }
+            isInputFocused = true
+        }
+    }
+
+    @ViewBuilder
+    private func content(model: ChatViewModel) -> some View {
+        @Bindable var bindable = model
         ChatMessageList(
             messages: model.messages,
             isStreaming: model.isStreaming,
@@ -29,7 +48,7 @@ struct ChatView: View {
                     )
                 }
 
-                ChatInputBar(text: $model.inputText, isDisabled: model.isStreaming, isFocused: $isInputFocused) {
+                ChatInputBar(text: $bindable.inputText, isDisabled: model.isStreaming, isFocused: $isInputFocused) {
                     model.sendMessage()
                 }
             }
@@ -56,17 +75,11 @@ struct ChatView: View {
                 isOpen: $isSidebarOpen,
                 conversations: model.conversations,
                 activeConversationId: model.conversationId,
-                onSelectConversation: { id in
-                    model.loadConversation(id)
-                },
+                onSelectConversation: { id in model.loadConversation(id) },
                 onNewConversation: {
-                    withAnimation {
-                        model.startNewConversation()
-                    }
+                    withAnimation { model.startNewConversation() }
                 },
-                onDeleteConversation: { id in
-                    model.deleteConversation(id)
-                }
+                onDeleteConversation: { id in model.deleteConversation(id) }
             )
             .ignoresSafeArea()
         }
@@ -75,24 +88,18 @@ struct ChatView: View {
                 model.fetchConversations()
             }
         }
-        .onAppear {
-            model.configure(goalId: goalId, modelContext: modelContext)
-            isInputFocused = true
-        }
-        .alert(chatErrorTitle,
-               isPresented: $model.showError)
-        {
+        .alert(chatErrorTitle(model: model), isPresented: $bindable.showError) {
             Button(String(localized: "common.ok", table: "Common"), role: .cancel) {
                 model.isLimitReached = false
             }
         } message: {
             if model.isLimitReached {
-                Text(model.errorMessage)
+                AppText(verbatim: model.errorMessage, style: .body)
             }
         }
     }
 
-    private var chatErrorTitle: String {
+    private func chatErrorTitle(model: ChatViewModel) -> String {
         if model.isLimitReached {
             return String(localized: "usage.limit.reached.title", table: "Paywall")
         }

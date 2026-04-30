@@ -1,7 +1,8 @@
 import SwiftUI
 
 struct AuthContainerView: View {
-    @State private var model = AuthViewModel(auth: SupabaseAuthRepository.shared)
+    @Environment(AppDependencies.self) private var dependencies
+    @State private var model: AuthViewModel?
 
     private enum AuthRoute: Hashable {
         case emailAuth
@@ -10,6 +11,23 @@ struct AuthContainerView: View {
     @State private var path: [AuthRoute] = []
 
     var body: some View {
+        Group {
+            if let model {
+                content(model: model)
+            } else {
+                Color("BackgroundBase").ignoresSafeArea()
+            }
+        }
+        .task {
+            if model == nil {
+                model = AuthViewModel(auth: dependencies.authRepository)
+            }
+        }
+    }
+
+    @ViewBuilder
+    private func content(model: AuthViewModel) -> some View {
+        @Bindable var bindable = model
         NavigationStack(path: $path) {
             AuthView(
                 onSignInWithApple: { Task { await model.signInWithApple() } },
@@ -22,8 +40,8 @@ struct AuthContainerView: View {
                 switch route {
                 case .emailAuth:
                     AuthEmailView(
-                        email: $model.email,
-                        password: $model.password,
+                        email: $bindable.email,
+                        password: $bindable.password,
                         isLoading: model.isLoading,
                         onSignUp: { Task { await model.signUp() } },
                         onSignIn: { Task { await model.signIn() } }
@@ -31,17 +49,13 @@ struct AuthContainerView: View {
                 }
             }
         }
-        .alert(String(localized: "auth.error.title", table: "Auth"), isPresented: $model.showErrorAlert) {
+        .alert(String(localized: "auth.error.title", table: "Auth"), isPresented: $bindable.showErrorAlert) {
             Button(String(localized: "common.ok", table: "Common"), role: .cancel) {}
         } message: {
-            Text(model.errorMessage ?? "")
+            AppText(verbatim: model.errorMessage ?? "", style: .body)
         }
         .onChange(of: model.authState) { _, newState in
             model.handleAuthStateChange(newState)
         }
     }
-}
-
-#Preview {
-    AuthContainerView()
 }

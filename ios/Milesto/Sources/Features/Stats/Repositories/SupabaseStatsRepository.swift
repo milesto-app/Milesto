@@ -2,10 +2,8 @@ import Foundation
 import Supabase
 
 @MainActor
-final class SupabaseStatsRepository: StatsRepository {
-    static let shared = SupabaseStatsRepository()
-
-    private init() {}
+final class SupabaseStatsRepository: RemoteStatsRepository {
+    init() {}
 
     func getStats(goalId: String) async throws -> StatsDTO {
         async let tasksResult = fetchTasks(goalId: goalId)
@@ -117,7 +115,7 @@ private extension SupabaseStatsRepository {
         var last7Days: [DayActivityDTO] = []
         var maxDailyInWindow = 0
         for offset in (0 ..< 7).reversed() {
-            let day = calendar.date(byAdding: .day, value: -offset, to: today)!
+            guard let day = calendar.date(byAdding: .day, value: -offset, to: today) else { continue }
             let count = completionsByDay[day] ?? 0
             maxDailyInWindow = max(maxDailyInWindow, count)
             last7Days.append(DayActivityDTO(
@@ -140,7 +138,8 @@ private extension SupabaseStatsRepository {
         var cursor = today
         while uniqueDays.contains(cursor) {
             currentStreak += 1
-            cursor = calendar.date(byAdding: .day, value: -1, to: cursor)!
+            guard let prev = calendar.date(byAdding: .day, value: -1, to: cursor) else { break }
+            cursor = prev
         }
 
         var bestStreak = 0
@@ -173,7 +172,7 @@ private extension SupabaseStatsRepository {
         let today = Date()
         let weekday = calendar.component(.weekday, from: today)
         let daysFromMonday = (weekday + 5) % 7
-        let mondayOfWeek = calendar.date(byAdding: .day, value: -daysFromMonday, to: calendar.startOfDay(for: today))!
+        let mondayOfWeek = calendar.date(byAdding: .day, value: -daysFromMonday, to: calendar.startOfDay(for: today)) ?? calendar.startOfDay(for: today)
 
         let thisWeekTasks = tasks.filter {
             guard let date = isoFormatter.date(from: $0.createdAt) else { return false }

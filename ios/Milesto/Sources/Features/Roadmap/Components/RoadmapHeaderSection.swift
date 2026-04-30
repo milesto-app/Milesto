@@ -3,7 +3,7 @@ import SwiftUI
 struct RoadmapHeaderSection: View {
     let goalTitle: String
     let goalId: String
-    let switchableGoals: [Goal]
+    let switchableGoals: [GoalSummary]
     let completionProgress: Double
     let appeared: Bool
     let onGoalChanged: ((String) -> Void)?

@@ -22,8 +22,8 @@ struct TranscriptionToggleButton: View {
     @Binding var transcribedText: String
     var size: Size = .regular
 
-    @State private var state: TranscriptionState = .idle
-    @State private var recorder = AudioRecorderRepository()
+    @Environment(AppDependencies.self) private var dependencies
+    @State private var model: TranscriptionToggleViewModel?
     @State private var pulseScale: CGFloat = 1.0
 
     var body: some View {
@@ -42,7 +42,13 @@ struct TranscriptionToggleButton: View {
         .buttonStyle(.plain)
         .padding(-6)
         .offset(x: -1)
-        .onChange(of: state) { _, newState in
+        .task {
+            if model == nil {
+                model = TranscriptionToggleViewModel(repository: dependencies.transcription)
+            }
+        }
+        .onChange(of: model?.state) { _, newState in
+            guard let newState else { return }
             withAnimation(pulseAnimation(for: newState)) {
                 pulseScale = newState.isRecording ? 1.12 : 1.0
             }
@@ -51,7 +57,7 @@ struct TranscriptionToggleButton: View {
 
     @ViewBuilder
     private var content: some View {
-        switch state {
+        switch model?.state ?? .idle {
         case .idle:
             TablerIcons(.microphone, size: size.iconSize, color: iconColor)
         case .recording:
@@ -65,17 +71,14 @@ struct TranscriptionToggleButton: View {
     }
 
     private var iconColor: Color {
-        state == .idle ? Color("TextSecondary") : Color("TextOnBrand")
+        (model?.state ?? .idle) == .idle ? Color("TextSecondary") : Color("TextOnBrand")
     }
 
     private var backgroundFill: Color {
-        switch state {
-        case .recording:
-            return Color("Error")
-        case .error:
-            return Color("Warning")
-        default:
-            return .clear
+        switch model?.state ?? .idle {
+        case .recording: Color("Error")
+        case .error: Color("Warning")
+        default: .clear
         }
     }
 
@@ -87,56 +90,18 @@ struct TranscriptionToggleButton: View {
     }
 
     private func handleTap() {
-        switch state {
+        guard let model else { return }
+        switch model.state {
         case .idle:
-            startRecording()
+            Task { await model.startRecording() }
         case .recording:
-            stopAndTranscribe()
+            Task {
+                if let transcript = await model.stopAndTranscribe() {
+                    transcribedText = transcript
+                }
+            }
         default:
             break
-        }
-    }
-
-    private func startRecording() {
-        Task {
-            let granted = await recorder.requestPermission()
-            guard granted else {
-                showError()
-                return
-            }
-            do {
-                try recorder.startRecording()
-                withAnimation(.spring(duration: 0.35, bounce: 0.3)) {
-                    state = .recording
-                }
-            } catch {
-                showError()
-            }
-        }
-    }
-
-    private func stopAndTranscribe() {
-        guard let audioData = recorder.stopRecording() else {
-            showError()
-            return
-        }
-        state = .transcribing
-        Task {
-            do {
-                let result = try await SupabaseTranscriptionRepository.shared.transcribe(audioData: audioData)
-                transcribedText = result.text
-                state = .idle
-            } catch {
-                showError()
-            }
-        }
-    }
-
-    private func showError() {
-        state = .error("")
-        Task {
-            try? await Task.sleep(for: .seconds(2))
-            state = .idle
         }
     }
 }

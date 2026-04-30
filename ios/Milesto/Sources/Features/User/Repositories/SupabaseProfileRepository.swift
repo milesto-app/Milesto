@@ -26,10 +26,9 @@ struct ProfileUpdateFields: Encodable {
     }
 }
 
+@MainActor
 final class SupabaseProfileRepository {
-    static let shared = SupabaseProfileRepository()
-
-    private init() {}
+    init() {}
 
     func updateProfile(_ fields: ProfileUpdateFields) async throws -> Profile {
         let session = try await Supabase.client.auth.session

@@ -51,12 +51,9 @@ struct PaywallPlanCard: View {
             )
             .overlay(alignment: .topTrailing) {
                 if let badgeKey {
-                    Text(badgeKey, tableName: "Paywall")
-                        .font(Fonts.ui(size: 10, relativeTo: .caption, weight: .bold))
-                        .tracking(0.8)
-                        .lineLimit(1)
-                        .fixedSize(horizontal: true, vertical: false)
-                        .foregroundStyle(Color("TextOnBrand"))
+                    AppText(badgeKey, table: "Paywall", style: .caption)
+                        .weight(.bold)
+                        .color(Color("TextOnBrand"))
                         .padding(.horizontal, 10)
                         .padding(.vertical, 5)
                         .background(

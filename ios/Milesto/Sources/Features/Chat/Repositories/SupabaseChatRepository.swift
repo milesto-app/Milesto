@@ -32,14 +32,17 @@ private struct ConversationWithMessages: Decodable {
 }
 
 @MainActor
-final class SupabaseChatRepository: ChatRepository {
-    static let shared = SupabaseChatRepository()
-
-    private let baseURL = URL(string: BackendClient.shared.baseURLString)!
+final class SupabaseChatRepository: RemoteChatRepository {
+    private let baseURL: URL
     private let encoder = JSONEncoder()
     private let decoder = JSONDecoder()
 
-    private init() {}
+    init() {
+        guard let url = URL(string: BackendClient.shared.baseURLString) else {
+            preconditionFailure("Invalid backend base URL")
+        }
+        baseURL = url
+    }
 
     func listConversations(goalId: String) async throws -> [ConversationSummary] {
         let rows: [ConversationWithMessages] = try await Supabase.client

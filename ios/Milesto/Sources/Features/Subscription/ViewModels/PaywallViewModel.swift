@@ -5,7 +5,7 @@ import Foundation
 final class PaywallViewModel {
     @ObservationIgnored private let subscription: any SubscriptionRepository
 
-    var selectedPlanId: String?
+    private(set) var selectedPlanId: String?
 
     init(subscription: any SubscriptionRepository) {
         self.subscription = subscription

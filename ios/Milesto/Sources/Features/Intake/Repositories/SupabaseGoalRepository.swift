@@ -3,9 +3,7 @@ import Supabase
 
 @MainActor
 final class SupabaseGoalRepository: GoalRepository {
-    static let shared = SupabaseGoalRepository()
-
-    private init() {}
+    init() {}
 
     func createGoal(description: String) async throws -> Goal {
         struct Body: Encodable { let description: String }

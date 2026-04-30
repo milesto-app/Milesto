@@ -8,3 +8,10 @@ protocol GoalRepository: AnyObject {
     func deleteGoal(goalId: String) async throws
     func listGoals() async throws -> [Goal]
 }
+
+@MainActor
+protocol IntakeFlowRepository: AnyObject {
+    func createGoal(description: String) async throws -> Goal
+    func saveMotivation(goalId: String, quote: String) async throws
+    func markIntakeCompleted(goalId: String)
+}

@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct OnboardingSignOutButton: View {
-    @Environment(SupabaseAuthRepository.self) private var authService
+    @Environment(AppDependencies.self) private var dependencies
     @State private var showConfirmation = false
 
     var body: some View {
@@ -18,10 +18,10 @@ struct OnboardingSignOutButton: View {
         ) {
             Button(String(localized: "settings.signOut.alert.cancel", table: "Settings"), role: .cancel) {}
             Button(String(localized: "settings.signOut.alert.confirm", table: "Settings"), role: .destructive) {
-                Task { try? await authService.signOut() }
+                Task { try? await dependencies.authRepository.signOut() }
             }
         } message: {
-            Text("settings.signOut.alert.message", tableName: "Settings")
+            AppText("settings.signOut.alert.message", table: "Settings", style: .body)
         }
     }
 }

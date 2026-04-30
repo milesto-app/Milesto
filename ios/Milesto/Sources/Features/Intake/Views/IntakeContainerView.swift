@@ -4,9 +4,33 @@ struct IntakeContainerView: View {
     let goalId: String
     let onComplete: () -> Void
 
-    @State private var model = IntakeContainerViewModel()
+    @Environment(AppDependencies.self) private var dependencies
+    @State private var model: IntakeContainerViewModel?
 
     var body: some View {
+        Group {
+            if let model {
+                content(model: model)
+            } else {
+                IntakeLoadingView()
+            }
+        }
+        .task {
+            if model == nil {
+                let vm = IntakeContainerViewModel(intake: dependencies.intake)
+                vm.configure(goalId: goalId)
+                model = vm
+            }
+            await model?.loadNextBatch()
+        }
+        .onDisappear {
+            model?.cancelPolling()
+        }
+    }
+
+    @ViewBuilder
+    private func content(model: IntakeContainerViewModel) -> some View {
+        @Bindable var bindable = model
         Group {
             switch model.phase {
             case .loading:
@@ -17,7 +41,7 @@ struct IntakeContainerView: View {
                     batch: batch,
                     batchNumber: model.currentBatchNumber,
                     totalBatches: model.totalBatches,
-                    answers: $model.answers,
+                    answers: $bindable.answers,
                     onSubmit: {
                         Task { await model.submitCurrentBatch() }
                     }
@@ -49,14 +73,5 @@ struct IntakeContainerView: View {
             }
         }
         .animation(.easeInOut(duration: 0.3), value: model.phase)
-        .onAppear {
-            model.configure(goalId: goalId)
-        }
-        .task {
-            await model.loadNextBatch()
-        }
-        .onDisappear {
-            model.cancelPolling()
-        }
     }
 }

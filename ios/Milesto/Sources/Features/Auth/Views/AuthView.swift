@@ -40,8 +40,8 @@ struct AuthView: View {
                                     .scaledToFit()
                                     .frame(width: 18, height: 18)
 
-                                Text("auth.welcome.apple", tableName: "Auth")
-                                    .font(Fonts.ui(size: 17, relativeTo: .headline, weight: .semibold))
+                                AppText("auth.welcome.apple", table: "Auth", style: .headline)
+                                    .weight(.semibold)
                             }
                         }
                     }
@@ -65,8 +65,8 @@ struct AuthView: View {
                                     .scaledToFit()
                                     .frame(width: 18, height: 18)
 
-                                Text("auth.welcome.google", tableName: "Auth")
-                                    .font(Fonts.ui(size: 17, relativeTo: .headline, weight: .semibold))
+                                AppText("auth.welcome.google", table: "Auth", style: .headline)
+                                    .weight(.semibold)
                             }
                         }
                     }

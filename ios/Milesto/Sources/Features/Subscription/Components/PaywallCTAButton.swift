@@ -13,8 +13,8 @@ struct PaywallCTAButton: View {
                     ProgressView()
                         .tint(Color("TextOnBrand"))
                 } else {
-                    Text(titleKey, tableName: "Paywall")
-                        .font(Fonts.ui(size: 17, relativeTo: .headline, weight: .semibold))
+                    AppText(titleKey, table: "Paywall", style: .headline)
+                        .weight(.semibold)
 
                     TablerIcons(.arrowRight, size: 18, color: Color("TextOnBrand"))
                 }

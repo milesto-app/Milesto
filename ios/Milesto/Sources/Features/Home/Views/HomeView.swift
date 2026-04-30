@@ -1,33 +1,15 @@
-import SwiftData
 import SwiftUI
 
 struct HomeView: View {
     let goalId: String
     let firstName: String
 
-    @Environment(\.modelContext) private var modelContext
-    @Query private var localGoals: [Goal]
-    @State private var model = HomeViewModel()
+    @Environment(AppDependencies.self) private var dependencies
+    @State private var model: HomeViewModel?
     @State private var showDebriefSheet = false
     @State private var showWeeklyPlanDetail = false
     @State private var showWeeklyPlanGeneration = false
     @State private var selectedTaskId: String?
-
-    private var currentGoal: Goal? {
-        localGoals.first { $0.id == goalId }
-    }
-
-    private var currentMilestoneTitle: String? {
-        let goalId = goalId
-        let descriptor = FetchDescriptor<LocalRoadmap>(
-            predicate: #Predicate { $0.goalId == goalId }
-        )
-        guard let roadmap = try? modelContext.fetch(descriptor).first,
-              let currentId = roadmap.currentMilestoneId,
-              let milestone = roadmap.milestones.first(where: { $0.id == currentId })
-        else { return nil }
-        return milestone.title
-    }
 
     private var formattedDate: String {
         let formatter = DateFormatter()
@@ -37,13 +19,37 @@ struct HomeView: View {
     }
 
     var body: some View {
+        Group {
+            if let model {
+                content(model: model)
+            } else {
+                Color("BackgroundBase").ignoresSafeArea()
+            }
+        }
+        .task {
+            if model == nil {
+                let vm = HomeViewModel(repository: dependencies.home)
+                vm.configure(goalId: goalId)
+                model = vm
+            }
+            await model?.loadAllData()
+        }
+        .onChange(of: goalId) {
+            model?.resetForGoalChange()
+            model?.configure(goalId: goalId)
+            Task { await model?.loadAllData() }
+        }
+    }
+
+    @ViewBuilder
+    private func content(model: HomeViewModel) -> some View {
         NavigationStack {
             ZStack(alignment: .top) {
                 ScrollView(showsIndicators: false) {
                     VStack(spacing: 0) {
                         HomeHeroSection(
                             formattedDate: formattedDate,
-                            title: currentMilestoneTitle ?? currentGoal?.title ?? "",
+                            title: model.heroTitle,
                             progress: model.goalProgress
                         )
 
@@ -52,28 +58,17 @@ struct HomeView: View {
                                 .padding(.top, 40)
                         } else if model.hasSyncError && model.tasks.isEmpty && model.weeklyPlan == nil {
                             HomeSyncErrorSection {
-                                model.isLoading = true
+                                model.markRetryRequested()
                                 Task { await model.loadAllData() }
                             }
                         } else {
-                            contentSection
+                            contentSection(model: model)
                         }
                     }
                 }
                 .hapticRefreshable {
                     await model.loadAllData()
                 }
-            }
-        }
-        .task {
-            model.configure(goalId: goalId, modelContext: modelContext)
-            await model.loadAllData()
-        }
-        .onChange(of: goalId) {
-            model.configure(goalId: goalId, modelContext: modelContext)
-            model.resetForGoalChange()
-            Task {
-                await model.loadAllData()
             }
         }
         .sheet(isPresented: $showDebriefSheet) {
@@ -90,9 +85,7 @@ struct HomeView: View {
         }
         .fullScreenCover(isPresented: $showWeeklyPlanGeneration, onDismiss: {
             model.resetForGoalChange()
-            Task {
-                await model.loadAllData()
-            }
+            Task { await model.loadAllData() }
         }) {
             WeeklyPlanGenerationView(goalId: goalId) {
                 showWeeklyPlanGeneration = false
@@ -100,9 +93,13 @@ struct HomeView: View {
         }
     }
 
-    private var contentSection: some View {
+    @ViewBuilder
+    private func contentSection(model: HomeViewModel) -> some View {
         VStack(spacing: 16) {
-            if !model.tasks.isEmpty && model.tasks.allSatisfy(\.isCompleted) && model.todayDebrief?.weeklyPlanId != model.weeklyPlan?.id {
+            if !model.tasks.isEmpty
+                && model.tasks.allSatisfy(\.isCompleted)
+                && model.todayDebrief?.weeklyPlanId != model.weeklyPlan?.id
+            {
                 DebriefPromptCard {
                     showDebriefSheet = true
                 }
@@ -113,12 +110,8 @@ struct HomeView: View {
                 tasks: model.tasks,
                 sortedTasks: model.sortedTasks,
                 completedCount: model.completedCount,
-                onToggle: { task in
-                    model.toggleTask(task)
-                },
-                onOpen: { taskId in
-                    selectedTaskId = taskId
-                }
+                onToggle: { task in model.toggleTask(task) },
+                onOpen: { taskId in selectedTaskId = taskId }
             )
         }
         .padding(.bottom, 40)
@@ -148,9 +141,4 @@ struct HomeView: View {
             }
         }
     }
-}
-
-#Preview {
-    HomeView(goalId: "preview-goal", firstName: "Maty")
-        .modelContainer(for: [Goal.self, LocalWeeklyTask.self, LocalWeeklyPlan.self, LocalDebrief.self], inMemory: true)
 }

@@ -1,16 +1,22 @@
-import SwiftData
-import SwiftUI
+import Foundation
 
+@MainActor
 @Observable
 final class HomeViewModel {
-    var weeklyPlan: WeeklyPlanDTO?
-    var tasks: [WeeklyTaskDTO] = []
-    var todayDebrief: DebriefDTO?
-    var isLoading = true
-    var hasSyncError = false
+    @ObservationIgnored private let repository: any HomeRepository
 
-    var goalId: String = ""
-    var modelContext: ModelContext?
+    private(set) var goalId: String = ""
+    private(set) var goalTitle: String = ""
+    private(set) var currentMilestoneTitle: String?
+    private(set) var weeklyPlan: WeeklyPlanDTO?
+    private(set) var tasks: [WeeklyTaskDTO] = []
+    private(set) var todayDebrief: DebriefDTO?
+    private(set) var isLoading = true
+    private(set) var hasSyncError = false
+
+    init(repository: any HomeRepository) {
+        self.repository = repository
+    }
 
     var completedCount: Int {
         tasks.filter(\.isCompleted).count
@@ -18,9 +24,8 @@ final class HomeViewModel {
 
     var goalProgress: Double {
         guard !tasks.isEmpty else { return 0 }
-        let total = tasks.count
         let completed = tasks.filter(\.isCompleted).count
-        return total > 0 ? Double(completed) / Double(total) : 0
+        return Double(completed) / Double(tasks.count)
     }
 
     var sortedTasks: [WeeklyTaskDTO] {
@@ -33,181 +38,122 @@ final class HomeViewModel {
         }
     }
 
-    func configure(goalId: String, modelContext: ModelContext) {
+    var heroTitle: String {
+        currentMilestoneTitle ?? goalTitle
+    }
+
+    func configure(goalId: String) {
         self.goalId = goalId
-        self.modelContext = modelContext
+        applySnapshot(repository.loadCachedSnapshot(goalId: goalId))
     }
 
     func resetForGoalChange() {
         tasks = []
         weeklyPlan = nil
         todayDebrief = nil
+        currentMilestoneTitle = nil
+        goalTitle = ""
         isLoading = true
+        hasSyncError = false
+    }
+
+    func loadAllData() async {
+        let snapshot = await repository.refreshAll(goalId: goalId)
+        applySnapshot(snapshot)
+        isLoading = false
+    }
+
+    func toggleTask(_ task: WeeklyTaskDTO) {
+        guard let index = tasks.firstIndex(where: { $0.id == task.id }) else { return }
+        let original = tasks[index]
+        let newCompleted = !task.isCompleted
+
+        let optimistic = original.with(isCompleted: newCompleted)
+        tasks[index] = optimistic
+        repository.cacheTask(optimistic)
+
+        Task {
+            do {
+                let updated = try await repository.toggleTask(
+                    taskId: task.id,
+                    goalId: task.goalId,
+                    isCompleted: newCompleted
+                )
+                if let idx = tasks.firstIndex(where: { $0.id == updated.id }) {
+                    tasks[idx] = updated
+                }
+            } catch {
+                if let idx = tasks.firstIndex(where: { $0.id == original.id }) {
+                    tasks[idx] = original
+                }
+                repository.cacheTask(original)
+            }
+        }
     }
 
     func applyRemoteToggle(_ updated: WeeklyTaskDTO) {
         if let idx = tasks.firstIndex(where: { $0.id == updated.id }) {
             tasks[idx] = updated
         }
-        updateCachedTask(id: updated.id, isCompleted: updated.isCompleted)
+        repository.cacheTask(updated)
 
         Task {
             do {
-                let remote = try await SupabaseRoadmapRepository.shared.toggleTask(
-                    goalId: updated.goalId,
+                let confirmed = try await repository.toggleTask(
                     taskId: updated.id,
+                    goalId: updated.goalId,
                     isCompleted: updated.isCompleted
                 )
-                if let idx = tasks.firstIndex(where: { $0.id == remote.id }) {
-                    tasks[idx] = remote
+                if let idx = tasks.firstIndex(where: { $0.id == confirmed.id }) {
+                    tasks[idx] = confirmed
                 }
-                updateCachedTask(id: remote.id, isCompleted: remote.isCompleted)
             } catch {
-                let reverted = !updated.isCompleted
-                if let idx = tasks.firstIndex(where: { $0.id == updated.id }) {
-                    let original = tasks[idx]
-                    tasks[idx] = WeeklyTaskDTO(
-                        id: original.id,
-                        weeklyPlanId: original.weeklyPlanId,
-                        goalId: original.goalId,
-                        userId: original.userId,
-                        title: original.title,
-                        description: original.description,
-                        difficultyRating: original.difficultyRating,
-                        orderIndex: original.orderIndex,
-                        isCompleted: reverted,
-                        isFallback: original.isFallback,
-                        createdAt: original.createdAt
-                    )
+                let reverted = updated.with(isCompleted: !updated.isCompleted)
+                if let idx = tasks.firstIndex(where: { $0.id == reverted.id }) {
+                    tasks[idx] = reverted
                 }
-                updateCachedTask(id: updated.id, isCompleted: reverted)
+                repository.cacheTask(reverted)
             }
         }
     }
 
-    func toggleTask(_ task: WeeklyTaskDTO) {
-        guard let index = tasks.firstIndex(where: { $0.id == task.id }) else { return }
-        let newCompleted = !task.isCompleted
-        let original = tasks[index]
+    func markRetryRequested() {
+        isLoading = true
+    }
 
-        tasks[index] = WeeklyTaskDTO(
-            id: original.id,
-            weeklyPlanId: original.weeklyPlanId,
-            goalId: original.goalId,
-            userId: original.userId,
-            title: original.title,
-            description: original.description,
-            difficultyRating: original.difficultyRating,
-            orderIndex: original.orderIndex,
-            isCompleted: newCompleted,
-            isFallback: original.isFallback,
-            createdAt: original.createdAt
-        )
-
-        updateCachedTask(id: task.id, isCompleted: newCompleted)
-
-        Task {
-            do {
-                let updated = try await SupabaseRoadmapRepository.shared.toggleTask(
-                    goalId: task.goalId,
-                    taskId: task.id,
-                    isCompleted: newCompleted
-                )
-                if let idx = tasks.firstIndex(where: { $0.id == updated.id }) {
-                    tasks[idx] = updated
-                }
-                updateCachedTask(id: updated.id, isCompleted: updated.isCompleted)
-            } catch {
-                if let idx = tasks.firstIndex(where: { $0.id == original.id }) {
-                    tasks[idx] = original
-                }
-                updateCachedTask(id: original.id, isCompleted: original.isCompleted)
-            }
+    private func applySnapshot(_ snapshot: HomeSnapshot) {
+        if let goalTitle = snapshot.goalTitle {
+            self.goalTitle = goalTitle
         }
-    }
-
-    func updateCachedTask(id: String, isCompleted: Bool) {
-        guard let modelContext else { return }
-        let descriptor = FetchDescriptor<LocalWeeklyTask>(
-            predicate: #Predicate { $0.id == id }
-        )
-        if let local = try? modelContext.fetch(descriptor).first {
-            local.isCompleted = isCompleted
-            try? modelContext.save()
-        }
-        notifyTaskCompletionChanged()
-    }
-
-    func notifyTaskCompletionChanged() {
-        NotificationCenter.default.post(
-            name: .weeklyTaskCompletionDidChange,
-            object: nil,
-            userInfo: ["goalId": goalId]
-        )
-    }
-
-    func loadAllData() async {
-        hasSyncError = false
-
-        let cachedTasks = fetchCachedTasks()
-        if !cachedTasks.isEmpty {
-            tasks = cachedTasks
+        currentMilestoneTitle = snapshot.currentMilestoneTitle
+        if !snapshot.tasks.isEmpty {
+            tasks = snapshot.tasks
             isLoading = false
         }
-
-        if weeklyPlan == nil {
-            weeklyPlan = fetchCachedWeeklyPlan()
+        if let plan = snapshot.weeklyPlan {
+            weeklyPlan = plan
         }
-
-        if let cached = fetchCachedDebrief() {
-            todayDebrief = cached
+        if let debrief = snapshot.todayDebrief {
+            todayDebrief = debrief
         }
-
-        var didSync = false
-
-        async let fetchPlan: () = loadWeeklyPlan()
-        async let fetchTasks: () = loadTasks()
-        _ = await(fetchPlan, fetchTasks)
-        didSync = !tasks.isEmpty || weeklyPlan != nil
-
-        if let debriefs = try? await SupabaseRoadmapRepository.shared.getDebriefHistory(goalId: goalId) {
-            let latestDebrief = debriefs.first
-            todayDebrief = latestDebrief
-            syncDebriefToCache(latestDebrief)
-        }
-
-        if !didSync, tasks.isEmpty, weeklyPlan == nil {
-            hasSyncError = true
-        }
-
-        isLoading = false
+        hasSyncError = snapshot.hasSyncError
     }
+}
 
-    func loadWeeklyPlan() async {
-        if weeklyPlan == nil {
-            weeklyPlan = fetchCachedWeeklyPlan()
-        }
-
-        if let existing = try? await SupabaseRoadmapRepository.shared.getWeeklyPlan(goalId: goalId) {
-            weeklyPlan = existing
-            upsertWeeklyPlanToCache(existing)
-            return
-        }
-        if let generated = try? await SupabaseRoadmapRepository.shared.generateWeeklyPlan(goalId: goalId) {
-            weeklyPlan = generated
-            upsertWeeklyPlanToCache(generated)
-        }
-    }
-
-    func loadTasks() async {
-        let cachedTasks = fetchCachedTasks()
-        if !cachedTasks.isEmpty {
-            tasks = cachedTasks
-        }
-
-        if let fetched = try? await SupabaseRoadmapRepository.shared.getWeeklyTasks(goalId: goalId) {
-            tasks = fetched
-            syncTasksToCache(fetched)
-        }
+private extension WeeklyTaskDTO {
+    func with(isCompleted: Bool) -> WeeklyTaskDTO {
+        WeeklyTaskDTO(
+            id: id,
+            weeklyPlanId: weeklyPlanId,
+            goalId: goalId,
+            userId: userId,
+            title: title,
+            description: description,
+            difficultyRating: difficultyRating,
+            orderIndex: orderIndex,
+            isCompleted: isCompleted,
+            isFallback: isFallback,
+            createdAt: createdAt
+        )
     }
 }

@@ -4,46 +4,24 @@ import SwiftData
 
 @MainActor
 final class SyncingProfileRepository: ProfileRepository {
-    static let shared = SyncingProfileRepository()
+    private let remote: SupabaseProfileRepository
+    private let auth: any AuthRepository
+    private let container: ModelContainer
 
-    private init() {}
+    init(remote: SupabaseProfileRepository, auth: any AuthRepository, container: ModelContainer) {
+        self.remote = remote
+        self.auth = auth
+        self.container = container
+    }
+
+    private var context: ModelContext { container.mainContext }
 
     func updateProfile(_ fields: ProfileUpdateFields) async throws -> Profile {
-        try await SupabaseProfileRepository.shared.updateProfile(fields)
+        try await remote.updateProfile(fields)
     }
 
-    private func mergePendingAppleName(into fetchedProfile: Profile?) async -> Profile? {
-        let pending = SupabaseAuthRepository.shared.consumePendingAppleName()
-        guard pending.firstName != nil || pending.lastName != nil else { return fetchedProfile }
-
-        let existingFirst = fetchedProfile?.firstName?.trimmingCharacters(in: .whitespaces) ?? ""
-        let existingLast = fetchedProfile?.lastName?.trimmingCharacters(in: .whitespaces) ?? ""
-        guard existingFirst.isEmpty, existingLast.isEmpty else { return fetchedProfile }
-
-        do {
-            return try await SupabaseProfileRepository.shared.updateProfile(
-                ProfileUpdateFields(
-                    firstName: pending.firstName,
-                    lastName: pending.lastName
-                )
-            )
-        } catch {
-            return fetchedProfile
-        }
-    }
-
-    private func downloadAvatarData(from urlString: String?) async -> Data? {
-        guard let urlString, let url = URL(string: urlString) else { return nil }
-        do {
-            let (data, _) = try await URLSession.shared.data(from: url)
-            return data
-        } catch {
-            return nil
-        }
-    }
-
-    func sync(userId: String, in modelContext: ModelContext) async throws {
-        var fetchedProfile = try await SupabaseProfileRepository.shared.fetchProfile(userId: userId)
+    func sync(userId: String) async throws {
+        var fetchedProfile = try await remote.fetchProfile(userId: userId)
         fetchedProfile = await mergePendingAppleName(into: fetchedProfile)
 
         var fetchedEmail: String?
@@ -59,7 +37,7 @@ final class SyncingProfileRepository: ProfileRepository {
         let descriptor = FetchDescriptor<Profile>(
             predicate: #Predicate { $0.userId == userId }
         )
-        let existing = (try? modelContext.fetch(descriptor))?.first
+        let existing = (try? context.fetch(descriptor))?.first
 
         let needsDownload = existing?.avatarURL != fetchedAvatarURL || existing?.avatarData == nil
         let avatarData: Data? = if needsDownload {
@@ -79,7 +57,7 @@ final class SyncingProfileRepository: ProfileRepository {
             existing.language = fetchedProfile?.language
             existing.createdAt = fetchedProfile?.createdAt
         } else {
-            let newProfile = Profile(
+            context.insert(Profile(
                 userId: userId,
                 firstName: fetchedProfile?.firstName,
                 lastName: fetchedProfile?.lastName,
@@ -90,8 +68,35 @@ final class SyncingProfileRepository: ProfileRepository {
                 dateOfBirth: fetchedProfile?.dateOfBirth,
                 language: fetchedProfile?.language,
                 createdAt: fetchedProfile?.createdAt
+            ))
+        }
+        try? context.save()
+    }
+
+    private func mergePendingAppleName(into fetchedProfile: Profile?) async -> Profile? {
+        let pending = auth.consumePendingAppleName()
+        guard pending.firstName != nil || pending.lastName != nil else { return fetchedProfile }
+
+        let existingFirst = fetchedProfile?.firstName?.trimmingCharacters(in: .whitespaces) ?? ""
+        let existingLast = fetchedProfile?.lastName?.trimmingCharacters(in: .whitespaces) ?? ""
+        guard existingFirst.isEmpty, existingLast.isEmpty else { return fetchedProfile }
+
+        do {
+            return try await remote.updateProfile(
+                ProfileUpdateFields(firstName: pending.firstName, lastName: pending.lastName)
             )
-            modelContext.insert(newProfile)
+        } catch {
+            return fetchedProfile
+        }
+    }
+
+    private func downloadAvatarData(from urlString: String?) async -> Data? {
+        guard let urlString, let url = URL(string: urlString) else { return nil }
+        do {
+            let (data, _) = try await URLSession.shared.data(from: url)
+            return data
+        } catch {
+            return nil
         }
     }
 }

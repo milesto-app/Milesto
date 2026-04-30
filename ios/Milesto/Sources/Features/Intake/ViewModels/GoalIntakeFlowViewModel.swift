@@ -1,5 +1,4 @@
 import Foundation
-import SwiftData
 
 enum GoalIntakeStep {
     case goalSetup
@@ -10,18 +9,18 @@ enum GoalIntakeStep {
 @MainActor
 @Observable
 final class GoalIntakeFlowViewModel {
-    @ObservationIgnored private let goals: any GoalRepository
+    @ObservationIgnored private let repository: any IntakeFlowRepository
 
-    var step: GoalIntakeStep = .goalSetup
+    private(set) var step: GoalIntakeStep = .goalSetup
     var goalDescription = ""
     var motivationQuote = ""
-    var isCreatingGoal = false
-    var isSavingMotivation = false
+    private(set) var isCreatingGoal = false
+    private(set) var isSavingMotivation = false
     var showError = false
-    var errorMessage = ""
+    private(set) var errorMessage = ""
 
-    init(goals: any GoalRepository = SupabaseGoalRepository.shared) {
-        self.goals = goals
+    init(repository: any IntakeFlowRepository) {
+        self.repository = repository
     }
 
     func startWithExistingGoalId(_ goalId: String?) {
@@ -30,28 +29,16 @@ final class GoalIntakeFlowViewModel {
         }
     }
 
-    func createGoal(in modelContext: ModelContext) async {
+    func createGoal() async {
         isCreatingGoal = true
         defer { isCreatingGoal = false }
 
         do {
-            let goal = try await goals.createGoal(
+            let goal = try await repository.createGoal(
                 description: goalDescription.trimmingCharacters(in: .whitespacesAndNewlines)
             )
-
-            let localGoal = Goal(
-                id: goal.id,
-                userId: goal.userId,
-                title: goal.title,
-                goalDescription: goal.goalDescription,
-                status: goal.status,
-                createdAt: Date()
-            )
-            modelContext.insert(localGoal)
-
             step = .motivation(goalId: goal.id)
         } catch BackendError.subscriptionRequired {
-            // PaywallGateView routes the user to the paywall.
         } catch {
             errorMessage = error.localizedDescription
             showError = true
@@ -69,10 +56,9 @@ final class GoalIntakeFlowViewModel {
         }
 
         do {
-            try await goals.updateGoal(goalId: goalId, motivationQuote: trimmed)
+            try await repository.saveMotivation(goalId: goalId, quote: trimmed)
             advanceToIntake(goalId: goalId)
         } catch BackendError.subscriptionRequired {
-            // PaywallGateView routes the user to the paywall.
         } catch {
             errorMessage = error.localizedDescription
             showError = true
@@ -83,12 +69,7 @@ final class GoalIntakeFlowViewModel {
         step = .intake(goalId: goalId)
     }
 
-    func markGoalCompleted(goalId: String, in modelContext: ModelContext) {
-        let descriptor = FetchDescriptor<Goal>(predicate: #Predicate { goal in
-            goal.id == goalId
-        })
-        if let goal = try? modelContext.fetch(descriptor).first {
-            goal.status = ProfileStatus.intakeCompleted.rawValue
-        }
+    func markGoalCompleted(goalId: String) {
+        repository.markIntakeCompleted(goalId: goalId)
     }
 }

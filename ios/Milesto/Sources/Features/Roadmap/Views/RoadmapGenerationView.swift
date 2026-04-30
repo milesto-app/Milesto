@@ -1,17 +1,15 @@
-import OSLog
 import SwiftUI
-
-private let logger = Logger(subsystem: "app.milesto", category: "RoadmapGeneration")
 
 struct RoadmapGenerationView: View {
     let goalId: String
     let onComplete: () -> Void
 
-    @State private var isGenerating = false
-    @State private var hasFailed = false
+    @Environment(AppDependencies.self) private var dependencies
+    @State private var model: RoadmapGenerationViewModel?
     @State private var currentTipIndex = 0
     @State private var tipOpacity: Double = 1
     @State private var pulseScale: CGFloat = 1.0
+    @State private var tipTask: Task<Void, Never>?
 
     private let tips = [
         String(localized: "roadmap.generation.tip1", table: "Roadmap"),
@@ -21,7 +19,7 @@ struct RoadmapGenerationView: View {
 
     var body: some View {
         ZStack {
-            if hasFailed {
+            if let model, model.hasFailed {
                 errorContent
             } else {
                 loadingContent
@@ -33,7 +31,13 @@ struct RoadmapGenerationView: View {
                 .padding(.leading, 16)
         }
         .task {
-            await startGeneration()
+            if model == nil {
+                model = RoadmapGenerationViewModel(repository: dependencies.roadmap)
+            }
+            await runGeneration()
+        }
+        .onDisappear {
+            tipTask?.cancel()
         }
     }
 
@@ -91,9 +95,7 @@ struct RoadmapGenerationView: View {
             Spacer()
 
             AppButton("roadmap.generation.retry", table: "Roadmap") {
-                Task {
-                    await startGeneration()
-                }
+                Task { await runGeneration() }
             }
             .fullWidth()
             .padding(.bottom, 24)
@@ -101,52 +103,19 @@ struct RoadmapGenerationView: View {
         .padding(.horizontal, 24)
     }
 
-    private func startGeneration() async {
-        hasFailed = false
-        isGenerating = true
-
-        do {
-            _ = try await SupabaseRoadmapRepository.shared.generateRoadmap(goalId: goalId)
-        } catch {
-            if let backendError = error as? BackendError,
-               case .httpError(statusCode: 409, _) = backendError
-            {
-            } else {
-                logger.error("Generate roadmap call failed: \(error)")
-                hasFailed = true
-                isGenerating = false
-                return
-            }
+    private func runGeneration() async {
+        guard let model else { return }
+        startTipRotation(model: model)
+        let success = await model.generate(goalId: goalId)
+        if success {
+            onComplete()
         }
-
-        startTipRotation()
-
-        for _ in 0 ..< 60 {
-            try? await Task.sleep(for: .seconds(3))
-
-            do {
-                let roadmap = try await SupabaseRoadmapRepository.shared.getRoadmap(goalId: goalId)
-                if roadmap.status == .complete {
-                    isGenerating = false
-                    onComplete()
-                    return
-                } else if roadmap.status == .failed {
-                    hasFailed = true
-                    isGenerating = false
-                    return
-                }
-            } catch {
-                logger.error("Roadmap poll failed: \(error)")
-            }
-        }
-
-        hasFailed = true
-        isGenerating = false
     }
 
-    private func startTipRotation() {
-        Task {
-            while isGenerating {
+    private func startTipRotation(model: RoadmapGenerationViewModel) {
+        tipTask?.cancel()
+        tipTask = Task {
+            while model.isGenerating {
                 try? await Task.sleep(for: .seconds(4))
                 withAnimation(.easeInOut(duration: 0.3)) {
                     tipOpacity = 0
@@ -159,8 +128,4 @@ struct RoadmapGenerationView: View {
             }
         }
     }
-}
-
-#Preview {
-    RoadmapGenerationView(goalId: "preview-goal-id", onComplete: {})
 }

@@ -1,10 +1,11 @@
+import Foundation
 import SwiftData
 import SwiftUI
 
 @MainActor
 @Observable
 final class RootRoutingViewModel {
-    var hasSynced = false
+    private(set) var hasSynced = false
     var profileComplete = false
     var goalComplete = false
     var roadmapReady = false
@@ -14,13 +15,32 @@ final class RootRoutingViewModel {
     private(set) var localProfile: Profile?
     private(set) var localGoals: [Goal] = []
 
+    @ObservationIgnored private let profile: any ProfileRepository
+    @ObservationIgnored private let goals: any GoalRepository
+    @ObservationIgnored private let roadmap: any RoadmapRepository
+    @ObservationIgnored private let container: ModelContainer
+
+    init(
+        profile: any ProfileRepository,
+        goals: any GoalRepository,
+        roadmap: any RoadmapRepository,
+        container: ModelContainer
+    ) {
+        self.profile = profile
+        self.goals = goals
+        self.roadmap = roadmap
+        self.container = container
+    }
+
+    private var context: ModelContext { container.mainContext }
+
     func resetForRetry() {
         hasSynced = false
     }
 
-    func sync(userId: String, modelContext: ModelContext) async {
+    func sync(userId: String) async {
         connectionError = false
-        refreshLocalSnapshots(userId: userId, in: modelContext)
+        refreshLocalSnapshots(userId: userId)
 
         let locallyComplete = localProfile?.isProfileComplete == true
         if locallyComplete {
@@ -29,14 +49,14 @@ final class RootRoutingViewModel {
         }
 
         do {
-            try await SyncingProfileRepository.shared.sync(userId: userId, in: modelContext)
+            try await profile.sync(userId: userId)
         } catch {
             connectionError = true
             return
         }
 
-        await syncGoals(userId: userId, modelContext: modelContext)
-        refreshLocalSnapshots(userId: userId, in: modelContext)
+        await syncGoals(userId: userId)
+        refreshLocalSnapshots(userId: userId)
 
         let remoteComplete = localProfile?.isProfileComplete == true
         if locallyComplete, !remoteComplete {
@@ -61,12 +81,12 @@ final class RootRoutingViewModel {
         hasSynced = true
     }
 
-    func handleGoalChanged(_ newGoalId: String, in modelContext: ModelContext) {
+    func handleGoalChanged(_ newGoalId: String) {
         guard newGoalId != activeGoalId else { return }
         activeGoalId = newGoalId
 
         let descriptor = FetchDescriptor<Goal>(predicate: #Predicate { $0.id == newGoalId })
-        guard let goal = try? modelContext.fetch(descriptor).first else { return }
+        guard let goal = try? context.fetch(descriptor).first else { return }
 
         switch goal.status {
         case "active":
@@ -94,56 +114,57 @@ final class RootRoutingViewModel {
         }
     }
 
-    func markRoadmapReady(in modelContext: ModelContext) {
+    func markRoadmapReady() {
         roadmapReady = true
         guard let activeGoalId else { return }
         let descriptor = FetchDescriptor<Goal>(predicate: #Predicate { $0.id == activeGoalId })
-        if let goal = try? modelContext.fetch(descriptor).first {
+        if let goal = try? context.fetch(descriptor).first {
             goal.status = "active"
+            try? context.save()
         }
     }
 
-    private func refreshLocalSnapshots(userId: String, in modelContext: ModelContext) {
+    private func refreshLocalSnapshots(userId: String) {
         let profileDescriptor = FetchDescriptor<Profile>(
             predicate: #Predicate { $0.userId == userId }
         )
-        localProfile = (try? modelContext.fetch(profileDescriptor))?.first
+        localProfile = (try? context.fetch(profileDescriptor))?.first
 
         let goalDescriptor = FetchDescriptor<Goal>()
-        localGoals = (try? modelContext.fetch(goalDescriptor)) ?? []
+        localGoals = (try? context.fetch(goalDescriptor)) ?? []
     }
 
-    private func syncGoals(userId: String, modelContext: ModelContext) async {
-        guard let goals = try? await SupabaseGoalRepository.shared.listGoals() else { return }
+    private func syncGoals(userId: String) async {
+        guard let goals = try? await goals.listGoals() else { return }
         let remoteIds = Set(goals.map { $0.id })
         for dto in goals {
             let dtoId = dto.id
             let descriptor = FetchDescriptor<Goal>(predicate: #Predicate { goal in
                 goal.id == dtoId
             })
-            let existing = try? modelContext.fetch(descriptor).first
+            let existing = try? context.fetch(descriptor).first
             if let existing {
                 existing.status = dto.status
                 existing.title = dto.title
                 existing.goalDescription = dto.goalDescription
             } else {
-                let localGoal = Goal(
+                context.insert(Goal(
                     id: dto.id,
                     userId: dto.userId,
                     title: dto.title,
                     goalDescription: dto.goalDescription,
                     status: dto.status,
                     createdAt: Date()
-                )
-                modelContext.insert(localGoal)
+                ))
             }
         }
         let stale = localGoals.filter {
             $0.userId.caseInsensitiveCompare(userId) == .orderedSame && !remoteIds.contains($0.id)
         }
         for goal in stale {
-            modelContext.delete(goal)
+            context.delete(goal)
         }
+        try? context.save()
     }
 
     private func resolveGoalState(userId: String) {
@@ -181,9 +202,9 @@ final class RootRoutingViewModel {
     }
 
     private func checkRoadmapStatus(goalId: String) async -> Bool {
-        guard let roadmap = try? await SupabaseRoadmapRepository.shared.getRoadmap(goalId: goalId) else {
+        guard let dto = try? await roadmap.getRoadmap(goalId: goalId) else {
             return false
         }
-        return roadmap.status == .complete
+        return dto.status == .complete
     }
 }

@@ -3,9 +3,7 @@ import Supabase
 
 @MainActor
 final class SupabaseRoadmapRepository: RoadmapRepository {
-    static let shared = SupabaseRoadmapRepository()
-
-    private init() {}
+    init() {}
 
     func generateRoadmap(goalId: String) async throws -> RoadmapDTO {
         return try await BackendClient.shared.request(

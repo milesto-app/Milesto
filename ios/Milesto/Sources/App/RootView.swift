@@ -1,11 +1,9 @@
-import SwiftData
 import SwiftUI
 
 struct RootView: View {
-    @Environment(SupabaseAuthRepository.self) private var authService
-    @Environment(\.modelContext) private var modelContext
+    @Environment(AppDependencies.self) private var dependencies
 
-    @State private var routing = RootRoutingViewModel()
+    @State private var routing: RootRoutingViewModel?
     @State private var selectedTab = 0
     @State private var isChatPresented = false
     @State private var retryId = 0
@@ -15,7 +13,7 @@ struct RootView: View {
 
     var body: some View {
         Group {
-            switch authService.authState {
+            switch dependencies.auth.authState {
             case .unauthenticated, .error:
                 AuthContainerView()
             case .authenticating:
@@ -24,61 +22,77 @@ struct RootView: View {
                 authenticatedBody(userId: userId)
             }
         }
+        .onAppear {
+            if routing == nil {
+                routing = RootRoutingViewModel(
+                    profile: dependencies.profile,
+                    goals: dependencies.goals,
+                    roadmap: dependencies.roadmapRemote,
+                    container: dependencies.container
+                )
+            }
+        }
         #if DEBUG
         .clearsDeveloperOverrideOnShake(developerSettings)
         #endif
     }
 
+    @ViewBuilder
     private func authenticatedBody(userId: String) -> some View {
-        Group {
-            #if DEBUG
-                switch developerSettings.routeOverride {
-                case .profileOnboarding:
-                    ProfileOnboardingView(
-                        userId: userId,
-                        missingSteps: [.name, .birthdate, .coach],
-                        existingProfile: routing.localProfile,
-                        onComplete: {
+        if let routing {
+            Group {
+                #if DEBUG
+                    switch developerSettings.routeOverride {
+                    case .profileOnboarding:
+                        ProfileOnboardingView(
+                            userId: userId,
+                            missingSteps: [.name, .birthdate, .coach],
+                            existingProfile: routing.localProfile,
+                            onComplete: {
+                                developerSettings.clearRouteOverride()
+                            }
+                        )
+                        .transition(.opacity)
+                    case .goalIntake:
+                        GoalIntakeFlowView(
+                            userId: userId,
+                            existingGoalId: nil,
+                            onClose: {
+                                developerSettings.clearRouteOverride()
+                            },
+                            onComplete: { goalId in
+                                routing.activeGoalId = goalId
+                                developerSettings.clearRouteOverride()
+                            }
+                        )
+                        .transition(.opacity)
+                    case .roadmapGeneration:
+                        RoadmapGenerationView(goalId: routing.activeGoalId ?? "") {
                             developerSettings.clearRouteOverride()
                         }
-                    )
-                    .transition(.opacity)
-                case .goalIntake:
-                    GoalIntakeFlowView(
-                        userId: userId,
-                        existingGoalId: nil,
-                        onClose: {
-                            developerSettings.clearRouteOverride()
-                        },
-                        onComplete: { goalId in
-                            routing.activeGoalId = goalId
-                            developerSettings.clearRouteOverride()
-                        }
-                    )
-                    .transition(.opacity)
-                case .roadmapGeneration:
-                    RoadmapGenerationView(goalId: routing.activeGoalId ?? "") {
-                        developerSettings.clearRouteOverride()
+                        .transition(.opacity)
+                    case .paywall, .none:
+                        standardAuthenticatedBody(userId: userId, routing: routing)
                     }
-                    .transition(.opacity)
-                case .paywall, .none:
-                    standardAuthenticatedBody(userId: userId)
-                }
-            #else
-                standardAuthenticatedBody(userId: userId)
-            #endif
-        }
-        .task(id: retryId) {
-            guard !routing.hasSynced else { return }
-            await routing.sync(userId: userId, modelContext: modelContext)
+                #else
+                    standardAuthenticatedBody(userId: userId, routing: routing)
+                #endif
+            }
+            .task(id: retryId) {
+                guard !routing.hasSynced else { return }
+                await routing.sync(userId: userId)
+            }
+        } else {
+            Color("BackgroundBase").ignoresSafeArea()
         }
     }
 
-    private func standardAuthenticatedBody(userId: String) -> some View {
+    @ViewBuilder
+    private func standardAuthenticatedBody(userId: String, routing: RootRoutingViewModel) -> some View {
         Group {
             if routing.profileComplete {
                 PaywallGateView {
-                    postProfileFlow(userId: userId)
+                    postProfileFlow(userId: userId, routing: routing)
                 }
                 .transition(.opacity)
             } else if routing.hasSynced {
@@ -117,13 +131,13 @@ struct RootView: View {
     }
 
     @ViewBuilder
-    private func postProfileFlow(userId: String) -> some View {
+    private func postProfileFlow(userId: String, routing: RootRoutingViewModel) -> some View {
         if routing.goalComplete && routing.roadmapReady {
-            mainAppContent()
+            mainAppContent(routing: routing)
         } else if routing.goalComplete {
             RoadmapGenerationView(goalId: routing.activeGoalId ?? "") {
                 withAnimation(.easeInOut(duration: 0.4)) {
-                    routing.markRoadmapReady(in: modelContext)
+                    routing.markRoadmapReady()
                 }
             }
         } else {
@@ -133,7 +147,6 @@ struct RootView: View {
                 onClose: nil,
                 onComplete: { goalId in
                     routing.activeGoalId = goalId
-
                     withAnimation(.easeInOut(duration: 0.4)) {
                         routing.goalComplete = true
                     }
@@ -142,7 +155,7 @@ struct RootView: View {
         }
     }
 
-    private func mainAppContent() -> some View {
+    private func mainAppContent(routing: RootRoutingViewModel) -> some View {
         TabView(selection: $selectedTab) {
             Tab(value: 0) {
                 HomeView(goalId: routing.activeGoalId ?? "", firstName: routing.localProfile?.firstName ?? "")
@@ -152,7 +165,7 @@ struct RootView: View {
 
             Tab(value: 1) {
                 RoadmapView(goalId: routing.activeGoalId ?? "", onGoalChanged: { id in
-                    routing.handleGoalChanged(id, in: modelContext)
+                    routing.handleGoalChanged(id)
                 })
             } label: {
                 TablerTabLabel(.map, title: String(localized: "tabs.roadmap", table: "Common"))
@@ -204,10 +217,4 @@ struct RootView: View {
             })
         }
     }
-}
-
-#Preview {
-    RootView()
-        .environment(SupabaseAuthRepository.shared)
-        .modelContainer(for: [Profile.self, Goal.self, LocalRoadmap.self, LocalMilestone.self, LocalWeeklyPlan.self, LocalWeeklyTask.self], inMemory: true)
 }

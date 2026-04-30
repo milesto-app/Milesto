@@ -7,16 +7,31 @@ struct DebriefSheetView: View {
     let onDebriefComplete: () -> Void
 
     @Environment(\.dismiss) private var dismiss
-    @State private var ratings: [String: DifficultyRating] = [:]
-    @State private var reflectionNote: String = ""
-    @State private var isSubmitting = false
-    @State private var error: String?
-
-    private var canSubmit: Bool {
-        reflectionNote.count >= 10 && !isSubmitting
-    }
+    @Environment(AppDependencies.self) private var dependencies
+    @State private var model: DebriefSheetViewModel?
 
     var body: some View {
+        Group {
+            if let model {
+                content(model: model)
+            } else {
+                Color("BackgroundBase").ignoresSafeArea()
+            }
+        }
+        .task {
+            if model == nil {
+                model = DebriefSheetViewModel(
+                    repository: dependencies.home,
+                    goalId: goalId,
+                    weeklyPlanId: weeklyPlanId
+                )
+            }
+        }
+    }
+
+    @ViewBuilder
+    private func content(model: DebriefSheetViewModel) -> some View {
+        @Bindable var bindable = model
         NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: 24) {
@@ -24,21 +39,26 @@ struct DebriefSheetView: View {
                         .padding(.bottom, 8)
 
                     if !completedTasks.isEmpty {
-                        ratingsSection
+                        ratingsSection(model: model)
                     }
 
-                    reflectionSection
+                    reflectionSection(text: $bindable.reflectionNote)
 
-                    if let error {
+                    if let error = model.errorMessage {
                         AppText(verbatim: error, style: .caption)
                             .color(Color("Error"))
                     }
 
                     AppButton("home.debrief.submit", table: "Home", style: .primary) {
-                        Task { await submit() }
+                        Task {
+                            if await model.submit() {
+                                dismiss()
+                                onDebriefComplete()
+                            }
+                        }
                     }
                     .fullWidth()
-                    .disabled(!canSubmit)
+                    .disabled(!model.canSubmit)
                 }
                 .padding(24)
             }
@@ -46,7 +66,7 @@ struct DebriefSheetView: View {
         .presentationDetents([.large])
     }
 
-    private var ratingsSection: some View {
+    private func ratingsSection(model: DebriefSheetViewModel) -> some View {
         VStack(alignment: .leading, spacing: 16) {
             AppText("home.debrief.ratings.title", table: "Home", style: .headline)
 
@@ -55,18 +75,18 @@ struct DebriefSheetView: View {
                     AppText(verbatim: task.title, style: .body)
 
                     HStack(spacing: 8) {
-                        ratingPill(.easy, label: String(localized: "home.debrief.ratings.easy", table: "Home"), taskId: task.id)
-                        ratingPill(.moderate, label: String(localized: "home.debrief.ratings.moderate", table: "Home"), taskId: task.id)
-                        ratingPill(.hard, label: String(localized: "home.debrief.ratings.hard", table: "Home"), taskId: task.id)
+                        ratingPill(.easy, label: String(localized: "home.debrief.ratings.easy", table: "Home"), taskId: task.id, model: model)
+                        ratingPill(.moderate, label: String(localized: "home.debrief.ratings.moderate", table: "Home"), taskId: task.id, model: model)
+                        ratingPill(.hard, label: String(localized: "home.debrief.ratings.hard", table: "Home"), taskId: task.id, model: model)
                     }
                 }
             }
         }
     }
 
-    private func ratingPill(_ rating: DifficultyRating, label: String, taskId: String) -> some View {
-        let isSelected = ratings[taskId] == rating
-        let pillColor = switch rating {
+    private func ratingPill(_ rating: DifficultyRating, label: String, taskId: String, model: DebriefSheetViewModel) -> some View {
+        let isSelected = model.ratings[taskId] == rating
+        let pillColor: Color = switch rating {
         case .easy: Color("Brand")
         case .moderate: Color("Warning")
         case .hard: Color("Error")
@@ -74,7 +94,7 @@ struct DebriefSheetView: View {
 
         return Button {
             withAnimation(.easeOut(duration: 0.15)) {
-                ratings[taskId] = rating
+                model.setRating(rating, for: taskId)
             }
         } label: {
             AppText(verbatim: label, style: .caption)
@@ -94,12 +114,12 @@ struct DebriefSheetView: View {
         .buttonStyle(.plain)
     }
 
-    private var reflectionSection: some View {
+    private func reflectionSection(text: Binding<String>) -> some View {
         VStack(alignment: .leading, spacing: 12) {
             AppText("home.debrief.reflection.title", table: "Home", style: .headline)
 
             AppTextField(
-                text: $reflectionNote,
+                text: text,
                 placeholder: "home.debrief.reflection.placeholder",
                 table: "Home",
                 multiline: true
@@ -107,31 +127,8 @@ struct DebriefSheetView: View {
 
             HStack {
                 Spacer()
-                TranscriptionToggleButton(transcribedText: $reflectionNote)
+                TranscriptionToggleButton(transcribedText: text)
             }
         }
-    }
-
-    private func submit() async {
-        isSubmitting = true
-        error = nil
-
-        let taskRatings: [TaskRatingDTO]? = ratings.isEmpty ? nil : ratings.map { taskId, rating in
-            TaskRatingDTO(taskId: taskId, rating: rating)
-        }
-
-        do {
-            _ = try await SupabaseRoadmapRepository.shared.submitDebrief(
-                goalId: goalId,
-                weeklyPlanId: weeklyPlanId,
-                note: reflectionNote,
-                taskRatings: taskRatings
-            )
-            dismiss()
-            onDebriefComplete()
-        } catch {
-            self.error = error.localizedDescription
-        }
-        isSubmitting = false
     }
 }

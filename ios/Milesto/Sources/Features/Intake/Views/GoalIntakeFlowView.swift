@@ -6,24 +6,43 @@ struct GoalIntakeFlowView: View {
     let onClose: (() -> Void)?
     let onComplete: (String) -> Void
 
-    @Environment(\.modelContext) private var modelContext
-    @State private var model = GoalIntakeFlowViewModel()
+    @Environment(AppDependencies.self) private var dependencies
+    @State private var model: GoalIntakeFlowViewModel?
 
     var body: some View {
+        Group {
+            if let model {
+                content(model: model)
+            } else {
+                Color("BackgroundBase").ignoresSafeArea()
+            }
+        }
+        .task {
+            if model == nil {
+                let vm = GoalIntakeFlowViewModel(repository: dependencies.intakeFlow)
+                vm.startWithExistingGoalId(existingGoalId)
+                model = vm
+            }
+        }
+    }
+
+    @ViewBuilder
+    private func content(model: GoalIntakeFlowViewModel) -> some View {
+        @Bindable var bindable = model
         NavigationStack {
             Group {
                 switch model.step {
                 case .goalSetup:
                     GoalSetupView(
-                        goalDescription: $model.goalDescription,
+                        goalDescription: $bindable.goalDescription,
                         isLoading: model.isCreatingGoal,
                         onContinue: {
-                            Task { await model.createGoal(in: modelContext) }
+                            Task { await model.createGoal() }
                         }
                     )
                 case let .motivation(goalId):
                     OnboardingMotivationView(
-                        motivationQuote: $model.motivationQuote,
+                        motivationQuote: $bindable.motivationQuote,
                         isSaving: model.isSavingMotivation,
                         onContinue: {
                             Task { await model.saveMotivation(goalId: goalId) }
@@ -32,7 +51,7 @@ struct GoalIntakeFlowView: View {
                     )
                 case let .intake(goalId):
                     IntakeContainerView(goalId: goalId, onComplete: {
-                        model.markGoalCompleted(goalId: goalId, in: modelContext)
+                        model.markGoalCompleted(goalId: goalId)
                         onComplete(goalId)
                     })
                 }
@@ -54,13 +73,10 @@ struct GoalIntakeFlowView: View {
                     .padding(.leading, 16)
             }
         }
-        .onAppear {
-            model.startWithExistingGoalId(existingGoalId)
-        }
-        .alert(String(localized: "intake.error.title", table: "Intake"), isPresented: $model.showError) {
+        .alert(String(localized: "intake.error.title", table: "Intake"), isPresented: $bindable.showError) {
             Button(String(localized: "common.ok", table: "Common"), role: .cancel) {}
         } message: {
-            Text(model.errorMessage)
+            AppText(verbatim: model.errorMessage, style: .body)
         }
     }
 }
