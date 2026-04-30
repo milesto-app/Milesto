@@ -209,9 +209,9 @@ Never run xcodebuild or other build/run commands. The user handles all builds th
 
 ## Components
 
-**Before making any frontend/UI changes, always check `Shared/Components/` and feature-specific `Components/` folders for existing reusable components.** Use existing components instead of creating new ones or using raw SwiftUI views.
+**Before making any frontend/UI changes, always check `Core/Components/` and feature-specific `Components/` folders for existing reusable components.** Use existing components instead of creating new ones or using raw SwiftUI views.
 
-**AppText** (`Shared/Components/AppText.swift`) - Always use `AppText` instead of `Text` for displaying text. This ensures consistent typography across the app.
+**AppText** (`Core/Components/AppText.swift`) - Always use `AppText` instead of `Text` for displaying text. This ensures consistent typography across the app.
 
 ```swift
 // Use this:
@@ -225,9 +225,9 @@ Text("Hello")
     .font(.title)
 ```
 
-**AppTextField** (`Shared/Components/AppTextField.swift`) - Use for all text input fields. Accepts `icon: TablerIconOutline` parameter.
+**AppTextField** (`Core/Components/AppTextField.swift`) - Use for all text input fields. Accepts `icon: TablerIconOutline` parameter.
 
-**TablerIcon** (`Shared/Icons/TablerIcons.swift`) - **Always use `TablerIcon` instead of SF Symbols.** Never use `Image(systemName:)` or `systemImage:` anywhere in the project.
+**TablerIcon** (`Core/Icons/TablerIcons.swift`) - **Always use `TablerIcon` instead of SF Symbols.** Never use `Image(systemName:)` or `systemImage:` anywhere in the project.
 
 ```swift
 // Use this:
@@ -240,7 +240,7 @@ Image(systemName: "house.fill")
 Image(systemName: "checkmark")
 ```
 
-Icon names come from the `TablerIconOutline` and `TablerIconFilled` enums in `Shared/Icons/TablerIcons.swift`. Use outline icons by default, filled via `TablerIcon.filled(...)`.
+Icon names come from the `TablerIconOutline` and `TablerIconFilled` enums in `Core/Icons/TablerIcons.swift`. Use outline icons by default, filled via `TablerIcon.filled(...)`.
 
 **For tab bars**, use `TablerTabLabel` which converts the icon to an `Image` for tab bar compatibility:
 
