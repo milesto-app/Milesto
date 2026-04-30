@@ -31,8 +31,9 @@ private struct ConversationWithMessages: Decodable {
     }
 }
 
-final class ChatAPIService {
-    static let shared = ChatAPIService()
+@MainActor
+final class SupabaseChatRepository: ChatRepository {
+    static let shared = SupabaseChatRepository()
 
     private let baseURL = URL(string: BackendClient.shared.baseURLString)!
     private let encoder = JSONEncoder()
