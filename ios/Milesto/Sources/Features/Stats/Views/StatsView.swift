@@ -1,22 +1,18 @@
-import SwiftData
 import SwiftUI
 
 struct StatsView: View {
     let goalId: String
 
     @Environment(\.modelContext) private var modelContext
-    @State private var stats: StatsDTO?
-    @State private var isLoading = true
-    @State private var hasAppeared = false
-    @State private var loadError: Error?
+    @State private var model = StatsViewModel()
 
     var body: some View {
         NavigationStack {
             ZStack {
-                if isLoading && stats == nil {
+                if model.isLoading && model.statsDTO == nil {
                     ProgressView()
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
-                } else if let stats {
+                } else if let stats = model.statsDTO {
                     GeometryReader { proxy in
                         ScrollView(.vertical, showsIndicators: false) {
                             VStack(spacing: 12) {
@@ -28,22 +24,22 @@ struct StatsView: View {
                             .padding(.bottom, 100)
                         }
                         .hapticRefreshable {
-                            await loadStats()
+                            await model.load(goalId: goalId, in: modelContext)
                         }
                     }
-                } else if loadError != nil {
+                } else if model.loadError != nil {
                     VStack(spacing: 24) {
                         TablerIcons(.wifiOff, size: 48, color: Color("TextSecondary"))
 
                         AppText("stats.error.title", table: "Stats", style: .title)
                             .alignment(.center)
 
-                        AppText(verbatim: loadError?.localizedDescription ?? "", style: .caption)
+                        AppText(verbatim: model.loadError?.localizedDescription ?? "", style: .caption)
                             .color(Color("TextSecondary"))
                             .alignment(.center)
 
                         AppButton("stats.error.retry", table: "Stats") {
-                            Task { await loadStats() }
+                            Task { await model.load(goalId: goalId, in: modelContext) }
                         }
                     }
                     .padding(32)
@@ -54,7 +50,7 @@ struct StatsView: View {
                 }
             }
             .task {
-                await loadStats()
+                await model.load(goalId: goalId, in: modelContext)
             }
         }
     }
@@ -66,21 +62,21 @@ struct StatsView: View {
             totalCount: stats.completion.totalObjectives,
             rate: stats.completion.overallRate
         )
-        .opacity(hasAppeared ? 1 : 0)
-        .offset(y: hasAppeared ? 0 : 12)
+        .opacity(model.hasAppeared ? 1 : 0)
+        .offset(y: model.hasAppeared ? 0 : 12)
         .padding(.bottom, 12)
 
         StatsWeeklyChart(days: stats.streak.last7Days)
-            .opacity(hasAppeared ? 1 : 0)
-            .offset(y: hasAppeared ? 0 : 12)
+            .opacity(model.hasAppeared ? 1 : 0)
+            .offset(y: model.hasAppeared ? 0 : 12)
 
         StatsProgressRing(
             rate: stats.completion.thisWeekRate,
             completed: thisWeekCompleted(stats),
             total: thisWeekTotal(stats)
         )
-        .opacity(hasAppeared ? 1 : 0)
-        .offset(y: hasAppeared ? 0 : 12)
+        .opacity(model.hasAppeared ? 1 : 0)
+        .offset(y: model.hasAppeared ? 0 : 12)
 
         HStack(spacing: 12) {
             StatsMetricCard(
@@ -96,15 +92,15 @@ struct StatsView: View {
                 table: "Stats"
             )
         }
-        .opacity(hasAppeared ? 1 : 0)
-        .offset(y: hasAppeared ? 0 : 12)
+        .opacity(model.hasAppeared ? 1 : 0)
+        .offset(y: model.hasAppeared ? 0 : 12)
 
         StatsMilestoneCard(
             completed: stats.milestones.completed,
             total: stats.milestones.total
         )
-        .opacity(hasAppeared ? 1 : 0)
-        .offset(y: hasAppeared ? 0 : 12)
+        .opacity(model.hasAppeared ? 1 : 0)
+        .offset(y: model.hasAppeared ? 0 : 12)
     }
 
     private func thisWeekCompleted(_ stats: StatsDTO) -> Int {
@@ -119,62 +115,6 @@ struct StatsView: View {
             return stats.completion.totalObjectives
         }
         return current.objectivesTotal
-    }
-
-    private func loadStats() async {
-        loadError = nil
-
-        if stats == nil, let cached = fetchCachedStats() {
-            stats = cached
-            isLoading = false
-            if !hasAppeared {
-                withAnimation(.easeOut(duration: 0.5)) {
-                    hasAppeared = true
-                }
-            }
-        }
-
-        do {
-            let result = try await StatsAPIService.shared.getStats(goalId: goalId)
-            stats = result
-            syncStatsToCache(result)
-            isLoading = false
-            if !hasAppeared {
-                withAnimation(.easeOut(duration: 0.5)) {
-                    hasAppeared = true
-                }
-            }
-        } catch {
-            if stats == nil {
-                loadError = error
-            }
-            isLoading = false
-        }
-    }
-
-    private func fetchCachedStats() -> StatsDTO? {
-        let goalId = goalId
-        let descriptor = FetchDescriptor<LocalStats>(
-            predicate: #Predicate { $0.goalId == goalId }
-        )
-        guard let local = try? modelContext.fetch(descriptor).first,
-              let data = local.statsJSON else { return nil }
-        return try? JSONDecoder().decode(StatsDTO.self, from: data)
-    }
-
-    private func syncStatsToCache(_ dto: StatsDTO) {
-        let goalId = goalId
-        let descriptor = FetchDescriptor<LocalStats>(
-            predicate: #Predicate { $0.goalId == goalId }
-        )
-        let data = try? JSONEncoder().encode(dto)
-
-        if let existing = try? modelContext.fetch(descriptor).first {
-            existing.statsJSON = data
-            existing.updatedAt = Date()
-        } else {
-            modelContext.insert(LocalStats(goalId: goalId, statsJSON: data))
-        }
     }
 }
 

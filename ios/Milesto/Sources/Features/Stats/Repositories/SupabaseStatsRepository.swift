@@ -1,8 +1,9 @@
 import Foundation
 import Supabase
 
-final class StatsAPIService {
-    static let shared = StatsAPIService()
+@MainActor
+final class SupabaseStatsRepository: StatsRepository {
+    static let shared = SupabaseStatsRepository()
 
     private init() {}
 
@@ -29,7 +30,7 @@ final class StatsAPIService {
     }
 }
 
-private extension StatsAPIService {
+private extension SupabaseStatsRepository {
     struct TaskRow: Decodable {
         let isCompleted: Bool
         let weeklyPlanId: String
