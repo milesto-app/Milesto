@@ -52,8 +52,3 @@ struct StatsMilestoneCard: View {
         }
     }
 }
-
-#Preview {
-    StatsMilestoneCard(completed: 3, total: 7)
-        .padding(16)
-}

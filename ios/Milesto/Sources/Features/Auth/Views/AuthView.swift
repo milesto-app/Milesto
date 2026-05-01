@@ -104,11 +104,3 @@ struct AuthView: View {
         }
     }
 }
-
-#Preview {
-    AuthView(
-        onSignInWithApple: {},
-        onSignInWithGoogle: {},
-        onContinueWithEmail: {}
-    )
-}

@@ -98,24 +98,3 @@ struct AppText: View {
         return copy
     }
 }
-
-#Preview {
-    VStack(spacing: 16) {
-        AppText("Large Title", style: .largeTitle)
-        AppText("Title", style: .title)
-        AppText("Headline", style: .headline)
-        AppText("Body text", style: .body)
-        AppText("Subheadline", style: .subheadline)
-        AppText("Caption", style: .caption)
-
-        Divider()
-
-        AppText("Custom color", style: .body)
-            .color(.red)
-        AppText("Custom weight", style: .body)
-            .weight(.semibold)
-        AppText("Centered text", style: .body)
-            .alignment(.center)
-    }
-    .padding()
-}

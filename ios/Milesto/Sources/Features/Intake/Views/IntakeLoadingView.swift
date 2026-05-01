@@ -24,11 +24,3 @@ struct IntakeLoadingView: View {
         .padding(.horizontal, 24)
     }
 }
-
-#Preview("Loading Questions") {
-    IntakeLoadingView()
-}
-
-#Preview("Generating Profile") {
-    IntakeLoadingView(isGeneratingProfile: true)
-}

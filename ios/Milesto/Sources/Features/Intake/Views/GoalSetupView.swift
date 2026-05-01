@@ -47,11 +47,3 @@ struct GoalSetupView: View {
         }
     }
 }
-
-#Preview {
-    GoalSetupView(
-        goalDescription: .constant(""),
-        isLoading: false,
-        onContinue: {}
-    )
-}

@@ -63,12 +63,3 @@ struct IntakeMotivationView: View {
         }
     }
 }
-
-#Preview {
-    IntakeMotivationView(
-        motivationQuote: .constant(""),
-        isSaving: false,
-        onContinue: {},
-        onSkip: {}
-    )
-}

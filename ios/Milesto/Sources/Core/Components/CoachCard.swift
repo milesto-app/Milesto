@@ -50,21 +50,3 @@ struct CoachCard: View {
         .buttonStyle(PressableCardStyle())
     }
 }
-
-#Preview {
-    VStack(spacing: 16) {
-        CoachCard(
-            personality: .motivateur,
-            isSelected: true,
-            onSelect: {}
-        )
-
-        CoachCard(
-            personality: .zen,
-            isSelected: false,
-            onSelect: {}
-        )
-    }
-    .padding()
-    .background(Color("BackgroundBase"))
-}

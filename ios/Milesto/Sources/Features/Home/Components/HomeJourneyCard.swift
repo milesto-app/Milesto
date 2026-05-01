@@ -79,11 +79,3 @@ struct HomeJourneyCard: View {
         .frame(width: 72, height: 72)
     }
 }
-
-#Preview {
-    ZStack {
-        Color("BackgroundBase").ignoresSafeArea()
-
-        HomeJourneyCard(goalId: "goal-1", refreshToken: 0)
-    }
-}

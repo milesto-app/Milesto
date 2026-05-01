@@ -47,12 +47,3 @@ struct OnboardingGoalDeadlineView: View {
         }
     }
 }
-
-#Preview {
-    NavigationStack {
-        OnboardingGoalDeadlineView(
-            deadline: .constant(Calendar.current.date(byAdding: .month, value: 1, to: Date()) ?? Date()),
-            onContinue: {}
-        )
-    }
-}

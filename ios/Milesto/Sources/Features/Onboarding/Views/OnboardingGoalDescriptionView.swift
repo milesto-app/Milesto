@@ -61,12 +61,3 @@ struct OnboardingGoalDescriptionView: View {
         }
     }
 }
-
-#Preview {
-    NavigationStack {
-        OnboardingGoalDescriptionView(
-            goalDescription: .constant(""),
-            onContinue: {}
-        )
-    }
-}

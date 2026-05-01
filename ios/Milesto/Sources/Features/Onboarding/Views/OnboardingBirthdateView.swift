@@ -47,12 +47,3 @@ struct OnboardingBirthdateView: View {
         }
     }
 }
-
-#Preview {
-    NavigationStack {
-        OnboardingBirthdateView(
-            dateOfBirth: .constant(Date()),
-            onContinue: {}
-        )
-    }
-}

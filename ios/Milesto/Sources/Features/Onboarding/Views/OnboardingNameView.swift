@@ -54,13 +54,3 @@ struct OnboardingNameView: View {
         }
     }
 }
-
-#Preview {
-    NavigationStack {
-        OnboardingNameView(
-            firstName: .constant(""),
-            lastName: .constant(""),
-            onContinue: {}
-        )
-    }
-}

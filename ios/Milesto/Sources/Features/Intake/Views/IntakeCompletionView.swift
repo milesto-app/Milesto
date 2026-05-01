@@ -25,7 +25,3 @@ struct IntakeCompletionView: View {
         .padding(.horizontal, 24)
     }
 }
-
-#Preview {
-    IntakeCompletionView(onContinue: {})
-}

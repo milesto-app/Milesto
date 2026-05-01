@@ -161,30 +161,3 @@ struct MarkdownText: View {
         return blocks
     }
 }
-
-#Preview {
-    ScrollView {
-        MarkdownText(content: """
-        ## Getting Started
-
-        Here's a **bold** and *italic* example with `inline code`.
-
-        ### Steps to follow
-
-        1. First step
-        2. Second step
-        3. Third step
-
-        - Bullet point one
-        - Bullet point two
-
-        ```swift
-        let x = 42
-        print("Hello world")
-        ```
-
-        Visit [Apple](https://apple.com) for more info.
-        """)
-        .padding()
-    }
-}

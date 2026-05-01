@@ -42,12 +42,3 @@ struct OnboardingCoachView: View {
         }
     }
 }
-
-#Preview {
-    NavigationStack {
-        OnboardingCoachView(
-            selectedCoach: .constant(nil),
-            onContinue: {}
-        )
-    }
-}
