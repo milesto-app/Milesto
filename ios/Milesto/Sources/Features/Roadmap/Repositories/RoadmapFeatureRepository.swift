@@ -1,5 +1,6 @@
 import Foundation
 
+/// Intentionally exposed Roadmap API for feature collaboration.
 struct GoalSummary: Identifiable, Hashable {
     let id: String
     let title: String

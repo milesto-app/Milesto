@@ -16,7 +16,8 @@ This project enforces strict Feature MVVM architecture. Every code change must p
 
 - The app is organized by feature under `<AppName>/Features/<FeatureName>/`.
 - Each feature must own its own `Models`, `Views`, `ViewModels`, and feature-local `Repositories` or services when needed.
-- Feature code must not reach sideways into another feature's implementation. Share only through `<AppName>/Core` abstractions or intentionally public models.
+- Feature code may use another feature's intentionally public interface, but it must not depend on that feature's internal implementation details.
+- Feature code must not reach sideways into another feature's implementation. Share only through `<AppName>/Core` abstractions or intentionally exposed feature entry views, protocols, and domain models.
 - `<AppName>/App` is for composition, app entry points, navigation roots, and dependency assembly. It must not contain feature business rules.
 - `<AppName>/Core` is for cross-feature infrastructure, reusable protocols, persistence setup, and shared primitives. Do not put feature-specific behavior in `Core`.
 - Remote services, authentication providers, and sync infrastructure must preserve the same boundaries. Adding an online backend is not a reason for Views or ViewModels to bypass repositories.
@@ -38,6 +39,7 @@ Every feature must follow this shape unless there is a documented reason not to:
 - `Views` contain SwiftUI layout, presentation state, and user interaction wiring only.
 - `ViewModels` contain presentation logic, feature state, validation, formatting decisions, and orchestration.
 - `Repositories` contain persistence, network, cache, or external data access behind protocols.
+- A feature's intentionally public interface is the small set of types other features are allowed to reference: feature entry views, repository protocols designed for cross-feature collaboration, and domain/read models. Keep these APIs stable and free of persistence, remote DTO, sync, or storage details.
 
 ## MVVM Rules
 
@@ -58,13 +60,15 @@ Allowed dependencies:
 - `Features/<Feature>/Views` may depend on that feature's `ViewModels` and `Models`.
 - `Features/<Feature>/ViewModels` may depend on that feature's `Models`, feature repository protocols, and `Core` abstractions.
 - `Features/<Feature>/Repositories` may depend on that feature's `Models` and `Core` infrastructure.
+- A feature may depend on another feature's intentionally exposed entry views, repository protocols, and domain/read models only when that cross-feature collaboration is deliberate.
 - Feature repositories may use feature-local remote repositories, local SwiftData repositories, and sync adapters behind feature-owned protocols.
 - `Core` may contain generic auth/session, entitlement, backend client setup, reachability, sync primitives, payment client setup, secure storage, and persistence infrastructure only when they are truly cross-feature.
 - `Core` must not depend on any feature.
 
 Forbidden dependencies:
 
-- A feature importing or directly referencing another feature's `Views`, `ViewModels`, or repositories.
+- A feature importing or directly referencing another feature's non-entry `Views`, `ViewModels`, or repositories.
+- A feature importing or directly referencing another feature's ViewModels, concrete repositories, DTOs, local persistence types, sync adapters, table mappings, feature-private components, or private services.
 - A View creating concrete infrastructure dependencies when those can be injected from `App`.
 - A ViewModel directly creating persistence containers, network clients, or concrete repositories.
 - A View or ViewModel directly importing or using remote SDK clients, including Supabase clients.
