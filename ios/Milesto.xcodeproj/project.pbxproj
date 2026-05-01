@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 100;
+	objectVersion = 90;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -113,7 +113,7 @@
 			packageReferences = (
 				4C824F2B2F33E27800056D79 /* XCRemoteSwiftPackageReference "supabase-swift" */,
 			);
-			preferredProjectObjectVersion = 100;
+			preferredProjectObjectVersion = 90;
 			productRefGroup = 4C824E7E2F30B07D00056D79 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
