@@ -2,7 +2,6 @@ import SwiftUI
 
 struct DebriefBannerCard: View {
     let goalId: String
-    let refreshToken: Int
 
     @Environment(AppDependencies.self) private var dependencies
     @State private var model: DebriefBannerViewModel?
@@ -18,14 +17,12 @@ struct DebriefBannerCard: View {
                 .padding(.horizontal, 16)
             }
         }
-        .task {
+        .task(id: goalId) {
             if model == nil {
                 let vm = DebriefBannerViewModel(repository: dependencies.roadmap)
                 vm.configure(goalId: goalId)
                 model = vm
             }
-        }
-        .task(id: "\(goalId)-\(refreshToken)") {
             await model?.refresh()
         }
         .onReceive(NotificationCenter.default.publisher(for: .weeklyTaskCompletionDidChange)) { _ in

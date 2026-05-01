@@ -58,9 +58,6 @@ struct SettingsView: View {
             .appScrollBackground()
             .background(Color("BackgroundBase"))
             .contentMargins(.bottom, 80, for: .scrollContent)
-            .hapticRefreshable {
-                await model.syncProfile()
-            }
             .navigationTitle("")
             .navigationBarHidden(true)
             .alert(String(localized: "settings.deleteGoal.alert.title", table: "Settings"), isPresented: $showDeleteGoalAlert) {

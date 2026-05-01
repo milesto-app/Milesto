@@ -2,7 +2,6 @@ import SwiftUI
 
 struct WeeklyTasksCard: View {
     let goalId: String
-    let refreshToken: Int
 
     @Environment(AppDependencies.self) private var dependencies
     @State private var model: WeeklyTasksViewModel?
@@ -17,14 +16,12 @@ struct WeeklyTasksCard: View {
                     .padding(.top, 40)
             }
         }
-        .task {
+        .task(id: goalId) {
             if model == nil {
                 let vm = WeeklyTasksViewModel(repository: dependencies.roadmap)
                 vm.configure(goalId: goalId)
                 model = vm
             }
-        }
-        .task(id: "\(goalId)-\(refreshToken)") {
             await model?.refresh()
         }
     }

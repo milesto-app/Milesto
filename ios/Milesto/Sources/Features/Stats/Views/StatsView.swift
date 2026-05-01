@@ -39,9 +39,6 @@ struct StatsView: View {
                             .padding(.top, 16)
                             .padding(.bottom, 100)
                         }
-                        .hapticRefreshable {
-                            await model.load(goalId: goalId)
-                        }
                     }
                 } else if model.loadError != nil {
                     VStack(spacing: 24) {
