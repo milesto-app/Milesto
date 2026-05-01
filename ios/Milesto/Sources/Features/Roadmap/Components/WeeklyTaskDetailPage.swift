@@ -49,6 +49,7 @@ struct WeeklyTaskDetailPage: View {
             }
             .padding(.bottom, 40)
         }
+        .background(Color("BackgroundBase"))
         .contentMargins(.top, 96)
     }
 

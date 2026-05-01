@@ -34,7 +34,9 @@ struct MilestoneDetailView: View {
                 .padding(.top, 24)
                 .padding(.bottom, 40)
             }
+            .background(Color("BackgroundBase"))
         }
+        .appBackground()
         .task {
             if model == nil {
                 model = MilestoneDetailViewModel(

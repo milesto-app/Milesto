@@ -22,6 +22,7 @@ struct IntakeCompletionView: View {
                 .fullWidth()
                 .padding(.bottom, 24)
         }
+        .appBackground()
         .padding(.horizontal, 24)
     }
 }

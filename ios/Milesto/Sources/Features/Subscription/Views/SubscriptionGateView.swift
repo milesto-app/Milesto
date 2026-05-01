@@ -20,6 +20,7 @@ struct SubscriptionGateView<Content: View>: View {
                 subscriptionGate
             #endif
         }
+        .appBackground()
         .animation(.easeInOut(duration: 0.4), value: dependencies.entitlement.entitlementState)
         .task {
             #if DEBUG

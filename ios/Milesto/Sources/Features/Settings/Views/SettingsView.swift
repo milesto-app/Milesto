@@ -55,6 +55,8 @@ struct SettingsView: View {
                     onSignOut: { showSignOutAlert = true }
                 )
             }
+            .appScrollBackground()
+            .background(Color("BackgroundBase"))
             .contentMargins(.bottom, 80, for: .scrollContent)
             .hapticRefreshable {
                 await model.syncProfile()
@@ -90,8 +92,10 @@ struct SettingsView: View {
                 SettingsSheetContent(sheet: sheet, profile: model.profile) { fields in
                     Task { await model.saveProfileFields(fields) }
                 }
+                .appPresentationBackground()
                 .presentationDetents(sheet == .coach || sheet == .language ? [.large] : [.medium, .large])
             }
         }
+        .appBackground()
     }
 }

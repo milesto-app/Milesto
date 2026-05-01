@@ -15,6 +15,7 @@ struct IntakeContainerView: View {
                 IntakeLoadingView()
             }
         }
+        .appBackground()
         .task {
             if model == nil {
                 let vm = IntakeContainerViewModel(intake: dependencies.intake)
@@ -71,6 +72,7 @@ struct IntakeContainerView: View {
                 )
             }
         }
+        .appBackground()
         .animation(.easeInOut(duration: 0.3), value: model.phase)
     }
 }

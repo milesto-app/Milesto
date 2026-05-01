@@ -35,7 +35,9 @@ struct WeeklyPlanDetailView: View {
                 .padding(.top, 24)
                 .padding(.bottom, 40)
             }
+            .background(Color("BackgroundBase"))
         }
+        .appBackground()
     }
 
     private var tasksCard: some View {

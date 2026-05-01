@@ -6,7 +6,6 @@ struct PaywallConnectionErrorView: View {
 
     var body: some View {
         ZStack {
-            Color("BackgroundBase").ignoresSafeArea()
             VStack(spacing: 16) {
                 TablerIcons(.cloudOff, size: 48, color: Color("TextSecondary"))
                 AppText("paywall.connection.error.title", table: "Paywall", style: .title)
@@ -27,5 +26,6 @@ struct PaywallConnectionErrorView: View {
             }
             .padding(.horizontal, 32)
         }
+        .appBackground()
     }
 }

@@ -114,5 +114,6 @@ struct AuthEmailView: View {
 
             Spacer()
         }
+        .appBackground()
     }
 }

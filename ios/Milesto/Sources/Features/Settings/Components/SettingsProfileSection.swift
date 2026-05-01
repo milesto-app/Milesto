@@ -48,6 +48,7 @@ struct SettingsProfileHeaderSection: View {
                 .listRowInsets(EdgeInsets())
             }
         }
+        .listRowBackground(Color("BackgroundBase"))
     }
 }
 
@@ -94,6 +95,7 @@ struct SettingsProfileDetailsSection: View {
                 )
             }
         }
+        .listRowBackground(Color("BackgroundElevated"))
     }
 
     static func formattedDate(_ date: Date) -> String {
@@ -170,6 +172,7 @@ struct SettingsDangerSection: View {
             }
             .padding(.top, 24)
         }
+        .listRowBackground(Color("BackgroundElevated"))
     }
 
     private func dangerButton(

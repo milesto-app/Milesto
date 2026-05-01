@@ -51,6 +51,7 @@ struct IntakeMotivationView: View {
             .padding(.horizontal, 24)
             .padding(.bottom, 24)
         }
+        .appBackground()
         .overlay {
             if isSaving {
                 ZStack {

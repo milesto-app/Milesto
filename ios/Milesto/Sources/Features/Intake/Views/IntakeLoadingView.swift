@@ -21,6 +21,7 @@ struct IntakeLoadingView: View {
 
             Spacer()
         }
+        .appBackground()
         .padding(.horizontal, 24)
     }
 }

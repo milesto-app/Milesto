@@ -19,6 +19,7 @@ struct RootView: View {
                 authenticatedBody(userId: userId)
             }
         }
+        .appBackground()
         .onAppear {
             if routing == nil {
                 routing = RootViewModel(
@@ -209,6 +210,7 @@ struct RootView: View {
             ChatView(goalId: routing.activeGoalId ?? "", onClose: {
                 isChatPresented = false
             })
+            .appPresentationBackground()
         }
     }
 }

@@ -54,6 +54,7 @@ struct ChatHistorySidebar: View {
                     conversationList
                 }
             }
+            .background(Color("BackgroundBase").opacity(0.88))
             .safeAreaPadding(.top)
             .frame(width: geometry.size.width * 0.8 + 8, height: geometry.size.height + 8)
             .glassEffect(.regular, in: .rect)
@@ -108,12 +109,10 @@ struct ChatHistorySidebar: View {
                     }
                     .buttonStyle(.plain)
                     .contextMenu {
-                        Button(
-                            String(localized: "chat.history.delete", table: "Chat"),
-                            systemImage: "trash",
-                            role: .destructive
-                        ) {
+                        Button(role: .destructive) {
                             onDeleteConversation(conversation.id)
+                        } label: {
+                            AppText("chat.history.delete", table: "Chat", style: .body)
                         }
                         .tint(.red)
                     }
@@ -121,6 +120,7 @@ struct ChatHistorySidebar: View {
             }
             .padding(.bottom, 16)
         }
+        .background(Color("BackgroundBase"))
     }
 
     private func dismiss() {

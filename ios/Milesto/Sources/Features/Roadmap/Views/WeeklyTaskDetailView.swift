@@ -52,6 +52,7 @@ struct WeeklyTaskDetailView: View {
                 .tabViewStyle(.page(indexDisplayMode: .never))
             }
         }
+        .appBackground()
         .overlay(alignment: .top) {
             ProgressiveBlur()
                 .allowsHitTesting(false)

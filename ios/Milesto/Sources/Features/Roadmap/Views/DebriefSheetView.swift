@@ -65,7 +65,10 @@ struct DebriefSheetView: View {
                 }
                 .padding(24)
             }
+            .background(Color("BackgroundBase"))
         }
+        .appBackground()
+        .appPresentationBackground()
         .presentationDetents([.large])
     }
 

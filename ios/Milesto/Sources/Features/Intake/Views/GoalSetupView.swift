@@ -45,5 +45,6 @@ struct GoalSetupView: View {
                 }
             }
         }
+        .appBackground()
     }
 }

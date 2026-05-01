@@ -151,6 +151,7 @@ struct RoadmapView: View {
                     }
                 }
             }
+            .appBackground()
             .navigationDestination(item: $selectedMilestone) { milestone in
                 MilestoneDetailView(
                     milestoneId: milestone.id,
@@ -161,6 +162,7 @@ struct RoadmapView: View {
                 )
             }
         }
+        .appBackground()
     }
 
     private var roadmapTitle: some View {

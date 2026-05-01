@@ -61,6 +61,7 @@ struct IntakeBatchView: View {
                 .padding(.bottom, 24)
                 .padding(.top, 12)
         }
+        .appBackground()
         .animation(.easeInOut(duration: 0.3), value: currentQuestionIndex)
     }
 

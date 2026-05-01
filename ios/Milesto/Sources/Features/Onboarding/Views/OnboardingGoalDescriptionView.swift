@@ -59,5 +59,6 @@ struct OnboardingGoalDescriptionView: View {
             .padding(.horizontal, 24)
             .padding(.bottom, 24)
         }
+        .appBackground()
     }
 }

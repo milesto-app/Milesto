@@ -18,6 +18,8 @@ struct HomeView: View {
             .hapticRefreshable {
                 refreshToken += 1
             }
+            .background(Color("BackgroundBase"))
         }
+        .appBackground()
     }
 }

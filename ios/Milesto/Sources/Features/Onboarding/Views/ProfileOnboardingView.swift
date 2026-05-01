@@ -72,6 +72,7 @@ struct ProfileOnboardingView: View {
                 }
             }
         }
+        .appBackground()
         .alert(String(localized: "onboarding.error.title", table: "Onboarding"), isPresented: $bindable.showError) {
             Button(String(localized: "common.ok", table: "Common"), role: .cancel) {}
         } message: {

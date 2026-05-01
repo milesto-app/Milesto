@@ -7,26 +7,29 @@ struct SettingsSheetContent: View {
     let onSave: (ProfileUpdateFields) -> Void
 
     var body: some View {
-        switch sheet {
-        case .name:
-            EditNameSheet(
-                firstName: profile?.firstName ?? "",
-                lastName: profile?.lastName ?? "",
-                onSave: onSave
-            )
-        case .birthdate:
-            EditBirthdateSheet(
-                dateOfBirth: profile?.dateOfBirth ?? Date(),
-                onSave: onSave
-            )
-        case .coach:
-            EditCoachSheet(
-                selectedCoach: profile?.coachId.flatMap { CoachPersonality.from(databaseId: $0) },
-                onSave: onSave
-            )
-        case .language:
-            LanguageInfoSheet()
+        Group {
+            switch sheet {
+            case .name:
+                EditNameSheet(
+                    firstName: profile?.firstName ?? "",
+                    lastName: profile?.lastName ?? "",
+                    onSave: onSave
+                )
+            case .birthdate:
+                EditBirthdateSheet(
+                    dateOfBirth: profile?.dateOfBirth ?? Date(),
+                    onSave: onSave
+                )
+            case .coach:
+                EditCoachSheet(
+                    selectedCoach: profile?.coachId.flatMap { CoachPersonality.from(databaseId: $0) },
+                    onSave: onSave
+                )
+            case .language:
+                LanguageInfoSheet()
+            }
         }
+        .appBackground()
     }
 }
 
@@ -77,6 +80,7 @@ struct EditNameSheet: View {
             .navigationTitle(String(localized: "settings.edit.name.title", table: "Settings"))
             .navigationBarTitleDisplayMode(.inline)
         }
+        .appBackground()
     }
 }
 
@@ -114,6 +118,7 @@ struct EditBirthdateSheet: View {
             .navigationTitle(String(localized: "settings.edit.birthdate.title", table: "Settings"))
             .navigationBarTitleDisplayMode(.inline)
         }
+        .appBackground()
     }
 }
 
@@ -151,6 +156,7 @@ struct EditCoachSheet: View {
             .navigationTitle(String(localized: "settings.edit.coach.title", table: "Settings"))
             .navigationBarTitleDisplayMode(.inline)
         }
+        .appBackground()
     }
 }
 
@@ -203,6 +209,7 @@ struct LanguageInfoSheet: View {
             .navigationTitle(String(localized: "settings.language.info.title", table: "Settings"))
             .navigationBarTitleDisplayMode(.inline)
         }
+        .appBackground()
     }
 
     private func stepRow(number: Int, textKey: String) -> some View {

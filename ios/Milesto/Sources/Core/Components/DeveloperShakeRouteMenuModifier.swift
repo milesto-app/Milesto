@@ -19,6 +19,7 @@
                     DeveloperRouteMenu(developerSettings: developerSettings) {
                         isRouteMenuPresented = false
                     }
+                    .appPresentationBackground()
                     .presentationDetents([.medium])
                     .presentationDragIndicator(.visible)
                 }
@@ -38,7 +39,7 @@
                             onSelect()
                         } label: {
                             HStack {
-                                Text(route.title)
+                                AppText(verbatim: route.title, style: .body)
                                 Spacer()
 
                                 if route == developerSettings.routeOverride {
@@ -49,9 +50,11 @@
                         .foregroundStyle(Color("TextPrimary"))
                     }
                 }
+                .appScrollBackground()
                 .navigationTitle("Routes")
                 .navigationBarTitleDisplayMode(.inline)
             }
+            .appBackground()
         }
     }
 

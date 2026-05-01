@@ -41,6 +41,7 @@ struct DebriefBannerCard: View {
                         showWeeklyPlanGeneration = true
                     }
                 )
+                .appPresentationBackground()
             }
         }
         .fullScreenCover(isPresented: $showWeeklyPlanGeneration, onDismiss: {
@@ -49,6 +50,7 @@ struct DebriefBannerCard: View {
             WeeklyPlanGenerationView(goalId: goalId) {
                 showWeeklyPlanGeneration = false
             }
+            .appPresentationBackground()
         }
     }
 }
