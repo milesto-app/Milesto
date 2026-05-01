@@ -108,14 +108,14 @@ struct ChatHistorySidebar: View {
                     }
                     .buttonStyle(.plain)
                     .contextMenu {
-                        Button(role: .destructive) {
+                        Button(
+                            String(localized: "chat.history.delete", table: "Chat"),
+                            systemImage: "trash",
+                            role: .destructive
+                        ) {
                             onDeleteConversation(conversation.id)
-                        } label: {
-                            HStack(spacing: 8) {
-                                TablerIcons(.trash, size: 16, color: Color("Error"))
-                                AppText("chat.history.delete", table: "Chat", style: .body)
-                            }
                         }
+                        .tint(.red)
                     }
                 }
             }
