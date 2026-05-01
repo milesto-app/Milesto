@@ -23,13 +23,7 @@ struct IntakeErrorView: View {
                 .fullWidth()
                 .padding(.bottom, 24)
         }
+        .appBackground()
         .padding(.horizontal, 24)
     }
-}
-
-#Preview {
-    IntakeErrorView(
-        message: "Something went wrong. Please try again.",
-        onRetry: {}
-    )
 }

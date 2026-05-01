@@ -81,8 +81,3 @@ struct StatsWeeklyChart: View {
         return Self.dayNameFormatter.string(from: date).uppercased()
     }
 }
-
-#Preview {
-    StatsWeeklyChart(days: StatsPreviewData.stats.streak.last7Days)
-        .padding(16)
-}

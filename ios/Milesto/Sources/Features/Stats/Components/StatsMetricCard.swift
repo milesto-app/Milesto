@@ -21,21 +21,3 @@ struct StatsMetricCard: View {
         .glassEffect(.regular.interactive(), in: RoundedRectangle(cornerRadius: 16))
     }
 }
-
-#Preview {
-    HStack(spacing: 12) {
-        StatsMetricCard(
-            icon: .flame,
-            value: "12",
-            label: "stats.metrics.streak",
-            table: "Stats"
-        )
-        StatsMetricCard(
-            icon: .trophy,
-            value: "18",
-            label: "stats.streak.best",
-            table: "Stats"
-        )
-    }
-    .padding(16)
-}

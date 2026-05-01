@@ -128,14 +128,7 @@ struct RoadmapView: View {
                 } else {
                     ScrollView(showsIndicators: false) {
                         VStack(spacing: 0) {
-                            RoadmapHeaderSection(
-                                goalTitle: model.goalTitle,
-                                goalId: goalId,
-                                switchableGoals: model.switchableGoals,
-                                completionProgress: model.completionProgress,
-                                appeared: model.appeared,
-                                onGoalChanged: onGoalChanged
-                            )
+                            roadmapTitle
 
                             LazyVStack(spacing: 22) {
                                 ForEach(Array(monthSections.enumerated()), id: \.element.id) { sectionIndex, section in
@@ -158,6 +151,7 @@ struct RoadmapView: View {
                     }
                 }
             }
+            .appBackground()
             .navigationDestination(item: $selectedMilestone) { milestone in
                 MilestoneDetailView(
                     milestoneId: milestone.id,
@@ -168,6 +162,15 @@ struct RoadmapView: View {
                 )
             }
         }
+        .appBackground()
+    }
+
+    private var roadmapTitle: some View {
+        AppText("roadmap.title", table: "Roadmap", style: .largeTitle)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.horizontal, 24)
+            .padding(.top, 32)
+            .padding(.bottom, 24)
     }
 
     private func isSectionExpanded(_ section: RoadmapMonthSection) -> Bool {

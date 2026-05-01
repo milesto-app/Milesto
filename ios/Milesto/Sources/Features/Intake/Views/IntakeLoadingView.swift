@@ -21,14 +21,7 @@ struct IntakeLoadingView: View {
 
             Spacer()
         }
+        .appBackground()
         .padding(.horizontal, 24)
     }
-}
-
-#Preview("Loading Questions") {
-    IntakeLoadingView()
-}
-
-#Preview("Generating Profile") {
-    IntakeLoadingView(isGeneratingProfile: true)
 }

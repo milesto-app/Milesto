@@ -43,8 +43,3 @@ struct StatsHeroCard: View {
         }
     }
 }
-
-#Preview {
-    StatsHeroCard(completedCount: 86, totalCount: 120, rate: 0.72)
-        .padding(16)
-}

@@ -114,17 +114,6 @@ struct AuthEmailView: View {
 
             Spacer()
         }
-    }
-}
-
-#Preview {
-    NavigationStack {
-        AuthEmailView(
-            email: .constant(""),
-            password: .constant(""),
-            isLoading: false,
-            onSignUp: {},
-            onSignIn: {}
-        )
+        .appBackground()
     }
 }

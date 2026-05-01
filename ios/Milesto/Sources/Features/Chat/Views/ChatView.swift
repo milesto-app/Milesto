@@ -53,6 +53,7 @@ struct ChatView: View {
                 }
             }
         }
+        .appBackground()
         .overlay(alignment: .top) {
             ProgressiveBlur()
                 .allowsHitTesting(false)

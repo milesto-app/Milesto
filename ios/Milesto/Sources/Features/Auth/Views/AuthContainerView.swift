@@ -49,6 +49,7 @@ struct AuthContainerView: View {
                 }
             }
         }
+        .appBackground()
         .alert(String(localized: "auth.error.title", table: "Auth"), isPresented: $bindable.showErrorAlert) {
             Button(String(localized: "common.ok", table: "Common"), role: .cancel) {}
         } message: {

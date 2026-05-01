@@ -45,14 +45,6 @@ struct OnboardingGoalDeadlineView: View {
             .padding(.horizontal, 24)
             .padding(.bottom, 24)
         }
-    }
-}
-
-#Preview {
-    NavigationStack {
-        OnboardingGoalDeadlineView(
-            deadline: .constant(Calendar.current.date(byAdding: .month, value: 1, to: Date()) ?? Date()),
-            onContinue: {}
-        )
+        .appBackground()
     }
 }

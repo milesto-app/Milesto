@@ -45,13 +45,6 @@ struct GoalSetupView: View {
                 }
             }
         }
+        .appBackground()
     }
-}
-
-#Preview {
-    GoalSetupView(
-        goalDescription: .constant(""),
-        isLoading: false,
-        onContinue: {}
-    )
 }

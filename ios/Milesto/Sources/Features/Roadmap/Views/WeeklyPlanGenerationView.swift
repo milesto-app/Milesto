@@ -10,8 +10,6 @@ struct WeeklyPlanGenerationView: View {
 
     var body: some View {
         ZStack {
-            Color("BackgroundBase").ignoresSafeArea()
-
             if let model {
                 if model.hasFailed {
                     errorContent(model: model)
@@ -22,6 +20,7 @@ struct WeeklyPlanGenerationView: View {
                 loadingContent
             }
         }
+        .appBackground()
         .task {
             if model == nil {
                 model = WeeklyPlanGenerationViewModel(repository: dependencies.roadmap)

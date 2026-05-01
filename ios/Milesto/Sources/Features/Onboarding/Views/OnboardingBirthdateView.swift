@@ -45,14 +45,6 @@ struct OnboardingBirthdateView: View {
             .padding(.horizontal, 24)
             .padding(.bottom, 24)
         }
-    }
-}
-
-#Preview {
-    NavigationStack {
-        OnboardingBirthdateView(
-            dateOfBirth: .constant(Date()),
-            onContinue: {}
-        )
+        .appBackground()
     }
 }

@@ -23,7 +23,8 @@ final class SyncingIntakeFlowRepository: IntakeFlowRepository {
             title: goal.title,
             goalDescription: goal.goalDescription,
             status: goal.status,
-            createdAt: Date()
+            targetDate: goal.targetDate,
+            createdAt: goal.createdAt
         ))
         try? context.save()
         return goal

@@ -21,6 +21,7 @@ final class SyncingRoadmapFeatureRepository: RoadmapFeatureRepository {
     func loadRoadmapSnapshot(goalId: String) -> RoadmapSnapshot {
         RoadmapSnapshot(
             goalTitle: fetchGoalTitle(goalId: goalId),
+            goalTargetDate: fetchGoalTargetDate(goalId: goalId),
             switchableGoals: fetchSwitchableGoals(),
             currentMilestoneId: fetchRoadmap(goalId: goalId)?.currentMilestoneId,
             milestones: fetchMilestoneRecords(goalId: goalId)
@@ -40,6 +41,7 @@ final class SyncingRoadmapFeatureRepository: RoadmapFeatureRepository {
                 .sorted { $0.orderIndex < $1.orderIndex }
                 .map(MilestoneRecord.init(dto:))
             snapshot.goalTitle = fetchGoalTitle(goalId: goalId)
+            snapshot.goalTargetDate = fetchGoalTargetDate(goalId: goalId)
             snapshot.switchableGoals = fetchSwitchableGoals()
         } catch {
             roadmapLogger.error("refreshRoadmap remote fetch failed; serving local SwiftData snapshot: \(String(describing: error), privacy: .public)")
@@ -318,6 +320,13 @@ final class SyncingRoadmapFeatureRepository: RoadmapFeatureRepository {
             predicate: #Predicate { $0.id == goalId }
         )
         return try? context.fetch(descriptor).first?.title
+    }
+
+    private func fetchGoalTargetDate(goalId: String) -> Date? {
+        let descriptor = FetchDescriptor<Goal>(
+            predicate: #Predicate { $0.id == goalId }
+        )
+        return try? context.fetch(descriptor).first?.targetDate
     }
 
     private func fetchSwitchableGoals() -> [GoalSummary] {

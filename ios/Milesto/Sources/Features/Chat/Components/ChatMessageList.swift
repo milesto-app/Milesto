@@ -43,6 +43,7 @@ struct ChatMessageList: View {
                     }
                 }
             }
+            .background(Color("BackgroundBase"))
         }
     }
 }

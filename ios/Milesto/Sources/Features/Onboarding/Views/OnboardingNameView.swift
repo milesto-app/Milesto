@@ -52,15 +52,6 @@ struct OnboardingNameView: View {
             .padding(.horizontal, 24)
             .padding(.bottom, 24)
         }
-    }
-}
-
-#Preview {
-    NavigationStack {
-        OnboardingNameView(
-            firstName: .constant(""),
-            lastName: .constant(""),
-            onContinue: {}
-        )
+        .appBackground()
     }
 }

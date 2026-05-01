@@ -52,6 +52,7 @@ struct WeeklyTaskDetailView: View {
                 .tabViewStyle(.page(indexDisplayMode: .never))
             }
         }
+        .appBackground()
         .overlay(alignment: .top) {
             ProgressiveBlur()
                 .allowsHitTesting(false)
@@ -90,83 +91,5 @@ struct WeeklyTaskDetailView: View {
                 currentIndex = reconciled.firstIndex(of: visibleId) ?? 0
             }
         }
-    }
-}
-
-#Preview("Hard task") {
-    let tasks: [WeeklyTask] = [
-        WeeklyTask(
-            id: "1",
-            weeklyPlanId: "wp1",
-            goalId: "g1",
-            userId: "u1",
-            title: "Run 8 km without stopping",
-            description: "Keep a steady pace around 6:30/km. Finish the block on a tree-lined route so the last kilometre feels like a reward instead of a grind.",
-            difficultyRating: .hard,
-            orderIndex: 1,
-            isCompleted: false,
-            isFallback: false,
-            createdAt: ""
-        ),
-        WeeklyTask(
-            id: "2",
-            weeklyPlanId: "wp1",
-            goalId: "g1",
-            userId: "u1",
-            title: "Stretch for 10 minutes",
-            description: "Focus on hamstrings and calves right after breakfast.",
-            difficultyRating: .easy,
-            orderIndex: 0,
-            isCompleted: true,
-            isFallback: false,
-            createdAt: ""
-        ),
-        WeeklyTask(
-            id: "3",
-            weeklyPlanId: "wp1",
-            goalId: "g1",
-            userId: "u1",
-            title: "Hydrate and recover",
-            description: "Drink at least 2L of water today and foam-roll after your run.",
-            difficultyRating: .moderate,
-            orderIndex: 2,
-            isCompleted: false,
-            isFallback: false,
-            createdAt: ""
-        ),
-    ]
-    return NavigationStack {
-        WeeklyTaskDetailView(
-            tasks: tasks,
-            orderedIds: tasks.map(\.id),
-            startIndex: 0,
-            weekNumber: 3,
-            onToggle: { _ in }
-        )
-    }
-}
-
-#Preview("Single task") {
-    let task = WeeklyTask(
-        id: "2",
-        weeklyPlanId: "wp1",
-        goalId: "g1",
-        userId: "u1",
-        title: "Stretch for 10 minutes",
-        description: "Focus on hamstrings and calves right after breakfast.",
-        difficultyRating: .easy,
-        orderIndex: 0,
-        isCompleted: true,
-        isFallback: false,
-        createdAt: ""
-    )
-    return NavigationStack {
-        WeeklyTaskDetailView(
-            tasks: [task],
-            orderedIds: [task.id],
-            startIndex: 0,
-            weekNumber: 3,
-            onToggle: { _ in }
-        )
     }
 }

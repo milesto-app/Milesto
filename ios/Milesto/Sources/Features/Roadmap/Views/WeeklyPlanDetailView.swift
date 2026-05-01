@@ -35,7 +35,9 @@ struct WeeklyPlanDetailView: View {
                 .padding(.top, 24)
                 .padding(.bottom, 40)
             }
+            .background(Color("BackgroundBase"))
         }
+        .appBackground()
     }
 
     private var tasksCard: some View {
@@ -82,24 +84,4 @@ struct WeeklyPlanDetailView: View {
         .padding(16)
         .glassEffect(.regular, in: RoundedRectangle(cornerRadius: 16))
     }
-}
-
-#Preview {
-    WeeklyPlanDetailView(
-        weekNumber: 3,
-        weekStartDate: "24 fev 2026",
-        objectives: [
-            "Courir 8 km sans pause",
-            "Faire 2 seances de renforcement musculaire",
-            "Etirer apres chaque seance",
-        ],
-        summary: WeeklySummary(
-            completionRate: 0.66,
-            tasksCompleted: 2,
-            tasksTotal: 3,
-            debriefCount: nil,
-            narrative: "Bonne progression cette semaine, l'endurance s'ameliore."
-        ),
-        status: .completed
-    )
 }

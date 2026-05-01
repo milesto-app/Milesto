@@ -25,6 +25,7 @@ struct RoadmapGenerationView: View {
                 loadingContent
             }
         }
+        .appBackground()
         .overlay(alignment: .topLeading) {
             AppSignOutButton {
                 try? await dependencies.authRepository.signOut()

@@ -31,8 +31,6 @@ struct PaywallView: View {
 
     private func content(model: PaywallViewModel) -> some View {
         ZStack {
-            Color("BackgroundBase").ignoresSafeArea()
-
             PaywallAmbientGlow(scale: glowScale, opacity: glowOpacity)
                 .ignoresSafeArea()
 
@@ -65,6 +63,7 @@ struct PaywallView: View {
                     .padding(.bottom, 8)
             }
         }
+        .appBackground()
         .interactiveDismissDisabled(true)
         .onChange(of: model.purchaseErrorMessage) { _, newValue in
             showError = newValue != nil

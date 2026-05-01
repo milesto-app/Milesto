@@ -8,6 +8,7 @@ struct GoalSummary: Identifiable, Hashable {
 
 struct RoadmapSnapshot {
     var goalTitle: String?
+    var goalTargetDate: Date?
     var switchableGoals: [GoalSummary]
     var currentMilestoneId: String?
     var milestones: [MilestoneRecord]

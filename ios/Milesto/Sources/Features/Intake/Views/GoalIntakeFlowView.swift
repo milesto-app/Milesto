@@ -75,6 +75,7 @@ struct GoalIntakeFlowView: View {
                 .padding(.leading, 16)
             }
         }
+        .appBackground()
         .alert(String(localized: "intake.error.title", table: "Intake"), isPresented: $bindable.showError) {
             Button(String(localized: "common.ok", table: "Common"), role: .cancel) {}
         } message: {

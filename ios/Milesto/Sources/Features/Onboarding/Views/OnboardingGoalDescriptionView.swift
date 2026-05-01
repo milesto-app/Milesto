@@ -59,14 +59,6 @@ struct OnboardingGoalDescriptionView: View {
             .padding(.horizontal, 24)
             .padding(.bottom, 24)
         }
-    }
-}
-
-#Preview {
-    NavigationStack {
-        OnboardingGoalDescriptionView(
-            goalDescription: .constant(""),
-            onContinue: {}
-        )
+        .appBackground()
     }
 }

@@ -19,15 +19,3 @@ struct AppChatField: View {
         .focused(isFocused)
     }
 }
-
-#Preview {
-    @Previewable @State var text = ""
-    @Previewable @FocusState var focused: Bool
-    AppChatField(
-        text: $text,
-        placeholder: "chat.input.placeholder",
-        table: "Chat",
-        isFocused: $focused
-    )
-    .padding()
-}

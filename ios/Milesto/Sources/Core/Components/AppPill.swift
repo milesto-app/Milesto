@@ -86,13 +86,3 @@ struct AppPill: View {
         4
     }
 }
-
-#Preview {
-    VStack(spacing: 12) {
-        AppPill("Premium", icon: .sparkles2)
-        AppPill("Current")
-        AppPill("Upcoming", tint: Color("TextSecondary"))
-        AppPill(verbatim: "Hard", tint: Color("Error"))
-    }
-    .padding()
-}

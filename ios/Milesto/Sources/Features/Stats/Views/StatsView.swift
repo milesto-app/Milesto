@@ -65,7 +65,9 @@ struct StatsView: View {
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
                 }
             }
+            .appBackground()
         }
+        .appBackground()
     }
 
     @ViewBuilder

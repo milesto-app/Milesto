@@ -15,7 +15,3 @@ struct StatsEmptyState: View {
         .padding(32)
     }
 }
-
-#Preview {
-    StatsEmptyState()
-}

@@ -35,6 +35,7 @@ final class SyncingGoalRepository: GoalRoutingRepository {
                 existing.status = dto.status
                 existing.title = dto.title
                 existing.goalDescription = dto.goalDescription
+                existing.targetDate = dto.targetDate
             } else {
                 context.insert(Goal(
                     id: dto.id,
@@ -42,7 +43,8 @@ final class SyncingGoalRepository: GoalRoutingRepository {
                     title: dto.title,
                     goalDescription: dto.goalDescription,
                     status: dto.status,
-                    createdAt: Date()
+                    targetDate: dto.targetDate,
+                    createdAt: dto.createdAt
                 ))
             }
         }

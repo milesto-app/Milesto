@@ -69,8 +69,3 @@ struct StatsProgressRing: View {
         }
     }
 }
-
-#Preview {
-    StatsProgressRing(rate: 0.85, completed: 17, total: 20)
-        .padding(16)
-}

@@ -49,13 +49,14 @@ struct SettingsView: View {
                     onEditCoach: { activeSheet = .coach },
                     onEditLanguage: { activeSheet = .language }
                 )
-                SettingsDeleteGoalSection(isDeleting: model.isDeleting) {
-                    showDeleteGoalAlert = true
-                }
-                SettingsSignOutSection {
-                    showSignOutAlert = true
-                }
+                SettingsDangerSection(
+                    isDeleting: model.isDeleting,
+                    onDeleteGoal: { showDeleteGoalAlert = true },
+                    onSignOut: { showSignOutAlert = true }
+                )
             }
+            .appScrollBackground()
+            .background(Color("BackgroundBase"))
             .contentMargins(.bottom, 80, for: .scrollContent)
             .hapticRefreshable {
                 await model.syncProfile()
@@ -91,8 +92,10 @@ struct SettingsView: View {
                 SettingsSheetContent(sheet: sheet, profile: model.profile) { fields in
                     Task { await model.saveProfileFields(fields) }
                 }
+                .appPresentationBackground()
                 .presentationDetents(sheet == .coach || sheet == .language ? [.large] : [.medium, .large])
             }
         }
+        .appBackground()
     }
 }

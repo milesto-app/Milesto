@@ -35,6 +35,40 @@
         }
       }
     },
+    "home.journey.deadline" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Deadline %@"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Échéance %@"
+          }
+        }
+      }
+    },
+    "home.journey.subtitle" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your journey"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Votre parcours"
+          }
+        }
+      }
+    },
     "home.debrief.done" : {
       "extractionState" : "manual",
       "localizations" : {

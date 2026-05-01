@@ -55,7 +55,3 @@ struct ThinkingIndicator: View {
         )
     }
 }
-
-#Preview {
-    ThinkingIndicator()
-}

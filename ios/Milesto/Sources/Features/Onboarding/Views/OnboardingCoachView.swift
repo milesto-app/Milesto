@@ -40,14 +40,6 @@ struct OnboardingCoachView: View {
             .padding(.horizontal, 24)
             .padding(.bottom, 24)
         }
-    }
-}
-
-#Preview {
-    NavigationStack {
-        OnboardingCoachView(
-            selectedCoach: .constant(nil),
-            onContinue: {}
-        )
+        .appBackground()
     }
 }

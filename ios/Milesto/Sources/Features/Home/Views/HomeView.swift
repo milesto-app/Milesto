@@ -9,7 +9,7 @@ struct HomeView: View {
         NavigationStack {
             ScrollView(showsIndicators: false) {
                 VStack(spacing: 16) {
-                    CurrentFocusCard(goalId: goalId, refreshToken: refreshToken)
+                    HomeJourneyCard(goalId: goalId, refreshToken: refreshToken)
                     DebriefBannerCard(goalId: goalId, refreshToken: refreshToken)
                     WeeklyTasksCard(goalId: goalId, refreshToken: refreshToken)
                 }
@@ -18,6 +18,8 @@ struct HomeView: View {
             .hapticRefreshable {
                 refreshToken += 1
             }
+            .background(Color("BackgroundBase"))
         }
+        .appBackground()
     }
 }

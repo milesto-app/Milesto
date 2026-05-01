@@ -37,12 +37,3 @@ struct MilestoneStatusBadge: View {
         )
     }
 }
-
-#Preview {
-    VStack(spacing: 16) {
-        MilestoneStatusBadge(status: .completed)
-        MilestoneStatusBadge(status: .current)
-        MilestoneStatusBadge(status: .upcoming)
-    }
-    .padding()
-}
