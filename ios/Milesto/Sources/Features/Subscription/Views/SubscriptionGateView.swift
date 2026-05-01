@@ -22,10 +22,14 @@ struct SubscriptionGateView<Content: View>: View {
         }
         .appBackground()
         .animation(.easeInOut(duration: 0.4), value: dependencies.entitlement.entitlementState)
+        .animation(.easeInOut(duration: 0.4), value: dependencies.entitlement.isReconcilingEntitlement)
         .task {
             #if DEBUG
                 guard !dependencies.developerSettings.forcesPaywall, !dependencies.developerSettings.bypassesPaywall else { return }
             #endif
+            guard dependencies.entitlement.entitlementState == .unknown ||
+                dependencies.entitlement.entitlementState == .connectionError
+            else { return }
             await dependencies.subscription.reconcileWithBackend()
         }
     }
@@ -42,10 +46,14 @@ struct SubscriptionGateView<Content: View>: View {
                 PaywallView()
                     .transition(.opacity)
             case .connectionError:
-                PaywallConnectionErrorView {
-                    await dependencies.subscription.reconcileWithBackend()
+                if dependencies.entitlement.isReconcilingEntitlement {
+                    Color("BackgroundBase").ignoresSafeArea()
+                } else {
+                    PaywallConnectionErrorView {
+                        await dependencies.subscription.reconcileWithBackend()
+                    }
+                    .transition(.opacity)
                 }
-                .transition(.opacity)
             }
         }
     }

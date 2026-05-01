@@ -26,11 +26,13 @@ final class SyncingSubscriptionRepository: EntitlementProviding, SubscriptionRep
 
     private(set) var products: [Product] = []
     private(set) var entitlementState: EntitlementState = .unknown
+    private(set) var isReconcilingEntitlement = false
     private(set) var isPurchasing = false
     var purchaseError: PurchaseError?
 
     private var updatesTask: Task<Void, Never>?
     private var onAppStartInFlight = false
+    private var reconcileTask: Task<Void, Never>?
 
     var isSubscribed: Bool {
         entitlementState == .subscribed
@@ -191,6 +193,26 @@ final class SyncingSubscriptionRepository: EntitlementProviding, SubscriptionRep
     }
 
     func reconcileWithBackend() async {
+        if let reconcileTask {
+            await reconcileTask.value
+            return
+        }
+
+        isReconcilingEntitlement = true
+        let task = Task { @MainActor [weak self] in
+            guard let self else { return }
+            await self.performBackendReconciliation()
+        }
+        reconcileTask = task
+        await task.value
+    }
+
+    private func performBackendReconciliation() async {
+        defer {
+            isReconcilingEntitlement = false
+            reconcileTask = nil
+        }
+
         let response: SubscriptionStatusResponse
         do {
             response = try await BackendClient.shared.request(method: "GET", path: "subscription/status")
