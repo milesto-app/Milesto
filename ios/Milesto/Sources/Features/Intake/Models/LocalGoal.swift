@@ -8,14 +8,16 @@ final class Goal: Decodable {
     var title: String
     var goalDescription: String
     var status: String
+    var targetDate: Date?
     var createdAt: Date?
 
-    init(id: String, userId: String, title: String, goalDescription: String, status: String, createdAt: Date? = nil) {
+    init(id: String, userId: String, title: String, goalDescription: String, status: String, targetDate: Date? = nil, createdAt: Date? = nil) {
         self.id = id
         self.userId = userId
         self.title = title
         self.goalDescription = goalDescription
         self.status = status
+        self.targetDate = targetDate
         self.createdAt = createdAt
     }
 
@@ -25,6 +27,7 @@ final class Goal: Decodable {
         case status
         case userId = "user_id"
         case goalDescription = "description"
+        case targetDate = "target_date"
         case createdAt = "created_at"
     }
 
@@ -35,6 +38,7 @@ final class Goal: Decodable {
         let title = try container.decode(String.self, forKey: .title)
         let goalDescription = try container.decode(String.self, forKey: .goalDescription)
         let status = try container.decode(String.self, forKey: .status)
+        let targetDate = try Self.parseDate(container.decodeIfPresent(String.self, forKey: .targetDate))
 
         var createdAt: Date?
         if let createdAtString = try container.decodeIfPresent(String.self, forKey: .createdAt) {
@@ -43,7 +47,21 @@ final class Goal: Decodable {
             createdAt = isoFormatter.date(from: createdAtString) ?? ISO8601DateFormatter().date(from: createdAtString)
         }
 
-        self.init(id: id, userId: userId, title: title, goalDescription: goalDescription, status: status, createdAt: createdAt)
+        self.init(id: id, userId: userId, title: title, goalDescription: goalDescription, status: status, targetDate: targetDate, createdAt: createdAt)
+    }
+
+    private static func parseDate(_ value: String?) -> Date? {
+        guard let value else { return nil }
+        if let date = ISO8601DateFormatter().date(from: value) {
+            return date
+        }
+
+        let formatter = DateFormatter()
+        formatter.calendar = Calendar(identifier: .gregorian)
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        formatter.timeZone = TimeZone(secondsFromGMT: 0)
+        formatter.dateFormat = "yyyy-MM-dd"
+        return formatter.date(from: value)
     }
 }
 

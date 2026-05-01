@@ -142,38 +142,25 @@ struct SettingsDetailRow: View {
     }
 }
 
-struct SettingsDeleteGoalSection: View {
+struct SettingsDangerSection: View {
     let isDeleting: Bool
-    let onTap: () -> Void
+    let onDeleteGoal: () -> Void
+    let onSignOut: () -> Void
 
     var body: some View {
         Section {
-            Button(role: .destructive, action: onTap) {
-                HStack(spacing: 12) {
-                    TablerIcons(.trash, size: 24, color: Color("Error"))
-                    AppText("settings.deleteGoal", table: "Settings", style: .body)
-                        .color(Color("Error"))
-                }
-                .contentShape(Rectangle())
-            }
+            dangerButton(
+                icon: .trash,
+                label: "settings.deleteGoal",
+                action: onDeleteGoal
+            )
             .disabled(isDeleting)
-        }
-    }
-}
 
-struct SettingsSignOutSection: View {
-    let onTap: () -> Void
-
-    var body: some View {
-        Section {
-            Button(role: .destructive, action: onTap) {
-                HStack(spacing: 12) {
-                    TablerIcons(.logout, size: 24, color: Color("Error"))
-                    AppText("settings.signOut", table: "Settings", style: .body)
-                        .color(Color("Error"))
-                }
-                .contentShape(Rectangle())
-            }
+            dangerButton(
+                icon: .logout,
+                label: "settings.signOut",
+                action: onSignOut
+            )
         } footer: {
             HStack {
                 Spacer()
@@ -182,6 +169,21 @@ struct SettingsSignOutSection: View {
                 Spacer()
             }
             .padding(.top, 24)
+        }
+    }
+
+    private func dangerButton(
+        icon: TablerIconOutline,
+        label: LocalizedStringKey,
+        action: @escaping () -> Void
+    ) -> some View {
+        Button(role: .destructive, action: action) {
+            HStack(spacing: 12) {
+                TablerIcons(icon, size: 24, color: Color("Error"))
+                AppText(label, table: "Settings", style: .body)
+                    .color(Color("Error"))
+            }
+            .contentShape(Rectangle())
         }
     }
 }

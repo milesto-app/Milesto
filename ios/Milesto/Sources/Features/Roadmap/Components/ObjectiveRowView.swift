@@ -44,6 +44,8 @@ struct ObjectiveRowView: View {
             VStack(alignment: .leading, spacing: 4) {
                 AppText(verbatim: task.title, style: .body)
                     .color(task.isCompleted ? Color("TextSecondary") : Color("TextPrimary"))
+                    .lineLimit(1)
+                    .truncationMode(.tail)
 
                 AppText(verbatim: task.description, style: .caption)
                     .color(Color("TextSecondary"))

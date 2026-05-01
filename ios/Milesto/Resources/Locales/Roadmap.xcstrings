@@ -273,6 +273,23 @@
         }
       }
     },
+    "roadmap.journey.deadline" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Deadline %@"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Échéance %@"
+          }
+        }
+      }
+    },
     "roadmap.ofTotal" : {
       "extractionState" : "manual",
       "localizations" : {

@@ -49,12 +49,11 @@ struct SettingsView: View {
                     onEditCoach: { activeSheet = .coach },
                     onEditLanguage: { activeSheet = .language }
                 )
-                SettingsDeleteGoalSection(isDeleting: model.isDeleting) {
-                    showDeleteGoalAlert = true
-                }
-                SettingsSignOutSection {
-                    showSignOutAlert = true
-                }
+                SettingsDangerSection(
+                    isDeleting: model.isDeleting,
+                    onDeleteGoal: { showDeleteGoalAlert = true },
+                    onSignOut: { showSignOutAlert = true }
+                )
             }
             .contentMargins(.bottom, 80, for: .scrollContent)
             .hapticRefreshable {
