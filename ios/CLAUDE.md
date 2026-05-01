@@ -17,9 +17,9 @@ This project enforces strict Feature MVVM architecture. Every code change must p
 - The app is organized by feature under `<AppName>/Features/<FeatureName>/`.
 - Each feature must own its own `Models`, `Views`, `ViewModels`, and feature-local `Repositories` or services when needed.
 - Feature code may use another feature's intentionally public interface, but it must not depend on that feature's internal implementation details.
-- Feature code must not reach sideways into another feature's implementation. Share only through `<AppName>/Core` abstractions or intentionally exposed feature entry views, protocols, and domain models.
+- Feature code must not reach sideways into another feature's implementation. Share only through `<AppName>/Shared` abstractions or intentionally exposed feature entry views, protocols, and domain models.
 - `<AppName>/App` is for composition, app entry points, navigation roots, and dependency assembly. It must not contain feature business rules.
-- `<AppName>/Core` is for cross-feature infrastructure, reusable protocols, persistence setup, and shared primitives. Do not put feature-specific behavior in `Core`.
+- `<AppName>/Shared` is for cross-feature infrastructure, reusable protocols, persistence setup, and shared primitives. Do not put feature-specific behavior in `Shared`.
 - Remote services, authentication providers, and sync infrastructure must preserve the same boundaries. Adding an online backend is not a reason for Views or ViewModels to bypass repositories.
 - Payments, subscriptions, and entitlement checks must preserve the same boundaries. Paid access is an app-level routing concern, not logic scattered across feature Views.
 
@@ -56,14 +56,14 @@ Every feature must follow this shape unless there is a documented reason not to:
 
 Allowed dependencies:
 
-- `App` may depend on `Core` and feature entry views.
+- `App` may depend on `Shared` and feature entry views.
 - `Features/<Feature>/Views` may depend on that feature's `ViewModels` and `Models`.
-- `Features/<Feature>/ViewModels` may depend on that feature's `Models`, feature repository protocols, and `Core` abstractions.
-- `Features/<Feature>/Repositories` may depend on that feature's `Models` and `Core` infrastructure.
+- `Features/<Feature>/ViewModels` may depend on that feature's `Models`, feature repository protocols, and `Shared` abstractions.
+- `Features/<Feature>/Repositories` may depend on that feature's `Models` and `Shared` infrastructure.
 - A feature may depend on another feature's intentionally exposed entry views, repository protocols, and domain/read models only when that cross-feature collaboration is deliberate.
 - Feature repositories may use feature-local remote repositories, local SwiftData repositories, and sync adapters behind feature-owned protocols.
-- `Core` may contain generic auth/session, entitlement, backend client setup, reachability, sync primitives, payment client setup, secure storage, and persistence infrastructure only when they are truly cross-feature.
-- `Core` must not depend on any feature.
+- `Shared` may contain generic auth/session, entitlement, backend client setup, reachability, sync primitives, payment client setup, secure storage, and persistence infrastructure only when they are truly cross-feature.
+- `Shared` must not depend on any feature.
 
 Forbidden dependencies:
 
@@ -115,10 +115,10 @@ Forbidden dependencies:
 - SwiftData is the local source of truth for user-facing feature state unless a feature explicitly documents another local store.
 - Views must render ViewModel-provided state and must not perform remote fetches, remote mutations, auth calls, sync orchestration, or SwiftData queries.
 - ViewModels may request feature-level actions such as `load`, `refresh`, `save`, `delete`, `signIn`, or `signOut` through protocols, but must not know whether the result came from SwiftData, Supabase, cache, or a sync queue.
-- Supabase and any future backend SDK access belongs in concrete repositories or `Core` infrastructure. SDK clients must be injected, not created inside Views or ViewModels.
-- Authentication UI belongs in an `Authentication` feature. Auth session primitives that multiple features need may live in `Core/Auth`.
-- Supabase client construction, configuration, token storage adapters, and generic backend plumbing may live in `Core/Supabase` or another clearly named `Core` infrastructure folder.
-- Generic sync infrastructure may live in `Core/Sync`, but feature-specific sync policy, table names, DTOs, mapping, conflict decisions, and remote repository methods belong inside the owning feature.
+- Supabase and any future backend SDK access belongs in concrete repositories or `Shared` infrastructure. SDK clients must be injected, not created inside Views or ViewModels.
+- Authentication UI belongs in an `Authentication` feature. Auth session primitives that multiple features need may live in `Shared/Auth`.
+- Supabase client construction, configuration, token storage adapters, and generic backend plumbing may live in `Shared/Supabase` or another clearly named `Shared` infrastructure folder.
+- Generic sync infrastructure may live in `Shared/Sync`, but feature-specific sync policy, table names, DTOs, mapping, conflict decisions, and remote repository methods belong inside the owning feature.
 - Each synced feature should keep local and remote concerns explicit, for example:
 
 ```text
@@ -148,8 +148,8 @@ Forbidden dependencies:
 - The root flow should be explicit: unauthenticated users see authentication, authenticated users without an active entitlement see the subscription flow, and authenticated users with an active entitlement see the main app.
 - Subscription entitlement checks belong near `AppRootView` or app-level composition through injected abstractions, not inside individual feature screens.
 - Feature screens should assume access has already been granted unless they are part of the `Subscription` or `Authentication` feature.
-- Entitlement state that multiple features need may live in `Core/Entitlements` behind protocols such as `EntitlementProviding`.
-- Generic payment provider setup may live in `Core/Payments`, but product-specific subscription screens, purchase presentation, pricing display, and restore flows belong in a `Subscription` feature.
+- Entitlement state that multiple features need may live in `Shared/Entitlements` behind protocols such as `EntitlementProviding`.
+- Generic payment provider setup may live in `Shared/Payments`, but product-specific subscription screens, purchase presentation, pricing display, and restore flows belong in a `Subscription` feature.
 - Payment provider SDKs and backend billing APIs must be isolated behind concrete repositories or service implementations. Views and ViewModels must depend on protocols.
 - Do not check Stripe, StoreKit, RevenueCat, Supabase functions, or any payment backend directly from Views to decide app access.
 - Prefer backend-verified entitlement state for app access. Client-side payment callbacks may start refreshes, but the app should rely on a trusted entitlement source before unlocking paid functionality.
@@ -159,7 +159,7 @@ Forbidden dependencies:
 
 ```text
 <AppName>/
-  Core/
+  Shared/
     Entitlements/
       EntitlementState.swift
       EntitlementProviding.swift
@@ -189,13 +189,13 @@ Forbidden dependencies:
 
 Before any change is considered complete, verify:
 
-- The change lives in the correct feature, `App`, or `Core` location.
+- The change lives in the correct feature, `App`, or `Shared` location.
 - Dependency direction still flows inward through protocols and shared abstractions.
 - Views remain free of business logic and data access.
 - ViewModels remain free of concrete infrastructure setup.
 - Repositories remain free of presentation logic.
-- Remote SDK usage is isolated to concrete repositories or `Core` infrastructure.
-- Payment SDK usage is isolated to concrete repositories or `Core` infrastructure.
+- Remote SDK usage is isolated to concrete repositories or `Shared` infrastructure.
+- Payment SDK usage is isolated to concrete repositories or `Shared` infrastructure.
 - SwiftData remains behind repository boundaries for feature UI state.
 - Remote DTOs, table mappings, and sync policies are owned by the correct feature.
 - Auth state flows through explicit auth/session abstractions, not globals or direct SDK calls in UI.
@@ -213,9 +213,9 @@ Never run xcodebuild or other build/run commands. The user handles all builds th
 
 ## Components
 
-**Before making any frontend/UI changes, always check `Core/Components/` and feature-specific `Components/` folders for existing reusable components.** Use existing components instead of creating new ones or using raw SwiftUI views.
+**Before making any frontend/UI changes, always check `Shared/Components/` and feature-specific `Components/` folders for existing reusable components.** Use existing components instead of creating new ones or using raw SwiftUI views.
 
-**AppText** (`Core/Components/AppText.swift`) - Always use `AppText` instead of `Text` for displaying text. This ensures consistent typography across the app.
+**AppText** (`Shared/Components/AppText.swift`) - Always use `AppText` instead of `Text` for displaying text. This ensures consistent typography across the app.
 
 ```swift
 // Use this:
@@ -229,9 +229,9 @@ Text("Hello")
     .font(.title)
 ```
 
-**AppTextField** (`Core/Components/AppTextField.swift`) - Use for all text input fields. Accepts `icon: TablerIconOutline` parameter.
+**AppTextField** (`Shared/Components/AppTextField.swift`) - Use for all text input fields. Accepts `icon: TablerIconOutline` parameter.
 
-**TablerIcon** (`Core/Icons/TablerIcons.swift`) - **Always use `TablerIcon` instead of SF Symbols.** Never use `Image(systemName:)` or `systemImage:` anywhere in the project.
+**TablerIcon** (`Shared/Icons/TablerIcons.swift`) - **Always use `TablerIcon` instead of SF Symbols.** Never use `Image(systemName:)` or `systemImage:` anywhere in the project.
 
 ```swift
 // Use this:
@@ -244,7 +244,7 @@ Image(systemName: "house.fill")
 Image(systemName: "checkmark")
 ```
 
-Icon names come from the `TablerIconOutline` and `TablerIconFilled` enums in `Core/Icons/TablerIcons.swift`. Use outline icons by default, filled via `TablerIcon.filled(...)`.
+Icon names come from the `TablerIconOutline` and `TablerIconFilled` enums in `Shared/Icons/TablerIcons.swift`. Use outline icons by default, filled via `TablerIcon.filled(...)`.
 
 **For tab bars**, use `TablerTabLabel` which converts the icon to an `Image` for tab bar compatibility:
 
