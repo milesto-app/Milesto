@@ -3,20 +3,16 @@ import SwiftUI
 struct HomeView: View {
     let goalId: String
 
-    @State private var refreshToken = 0
-
     var body: some View {
         NavigationStack {
             ScrollView(showsIndicators: false) {
                 VStack(spacing: 16) {
-                    HomeJourneyCard(goalId: goalId, refreshToken: refreshToken)
-                    DebriefBannerCard(goalId: goalId, refreshToken: refreshToken)
-                    WeeklyTasksCard(goalId: goalId, refreshToken: refreshToken)
+                    HomeJourneyCard(goalId: goalId)
+                    DebriefBannerCard(goalId: goalId)
+                    WeeklyTasksCard(goalId: goalId)
+                        .padding(.top, 16)
                 }
                 .padding(.bottom, 40)
-            }
-            .hapticRefreshable {
-                refreshToken += 1
             }
             .background(Color("BackgroundBase"))
         }

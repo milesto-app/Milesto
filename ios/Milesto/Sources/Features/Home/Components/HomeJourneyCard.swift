@@ -2,25 +2,20 @@ import SwiftUI
 
 struct HomeJourneyCard: View {
     let goalId: String
-    let refreshToken: Int
 
     @Environment(AppDependencies.self) private var dependencies
     @State private var model: HomeJourneyViewModel?
 
     var body: some View {
         journeyContent
-            .padding(24)
-            .glassEffect(.regular, in: RoundedRectangle(cornerRadius: 28, style: .continuous))
-            .padding(.horizontal, 20)
+            .padding(.horizontal, 24)
             .padding(.top, 32)
-            .task {
+            .task(id: goalId) {
                 if model == nil {
                     let vm = HomeJourneyViewModel(repository: dependencies.roadmap)
                     vm.configure(goalId: goalId)
                     model = vm
                 }
-            }
-            .task(id: "\(goalId)-\(refreshToken)") {
                 await model?.refresh()
             }
             .onReceive(NotificationCenter.default.publisher(for: .weeklyTaskCompletionDidChange)) { _ in

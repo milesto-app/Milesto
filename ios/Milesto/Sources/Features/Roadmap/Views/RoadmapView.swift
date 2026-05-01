@@ -146,9 +146,6 @@ struct RoadmapView: View {
                         }
                         .padding(.bottom, 80)
                     }
-                    .hapticRefreshable {
-                        await model.loadMilestones()
-                    }
                 }
             }
             .appBackground()
