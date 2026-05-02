@@ -22,8 +22,8 @@ enum MilestoModelContainer {
     }
 
     private static let schema = Schema([
-        Profile.self,
-        Goal.self,
+        LocalProfile.self,
+        LocalGoal.self,
         LocalRoadmap.self,
         LocalMilestone.self,
         LocalWeeklyPlan.self,

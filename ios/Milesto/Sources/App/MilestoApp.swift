@@ -7,11 +7,10 @@ struct MilestoApp: App {
     @State private var dependencies: AppDependencies
     @Environment(\.scenePhase) private var scenePhase
 
-    let sharedModelContainer: ModelContainer
+    let container: ModelContainer
 
     init() {
-        let container = MilestoModelContainer.make()
-        sharedModelContainer = container
+        container = MilestoModelContainer.make()
         _dependencies = State(initialValue: AppDependencies(container: container))
     }
 
@@ -23,14 +22,8 @@ struct MilestoApp: App {
     var body: some Scene {
         WindowGroup {
             RootView()
-                .tint(Color("Brand"))
                 .environment(dependencies)
                 .environment(\.transcriptionRepository, dependencies.transcription)
-                .onOpenURL { url in
-                    Task {
-                        await dependencies.authRepository.handleDeepLink(url)
-                    }
-                }
                 .task(id: authenticatedSessionUserId) {
                     await prepareAuthenticatedAppSession()
                 }
@@ -38,11 +31,11 @@ struct MilestoApp: App {
                     refreshActiveSceneServicesIfNeeded(phase: newPhase)
                 }
         }
-        .modelContainer(sharedModelContainer)
+        .modelContainer(container)
     }
 
     private func prepareAuthenticatedAppSession() async {
-        await SubscriptionSyncOutbox.shared.configure(container: sharedModelContainer)
+        await SubscriptionSyncOutbox.shared.configure(container: container)
         guard authenticatedSessionUserId != nil else { return }
         await NotificationService.shared.requestPermissionAndRegister()
         await dependencies.subscription.reconcileWithBackend()

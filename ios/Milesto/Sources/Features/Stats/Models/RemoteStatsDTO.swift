@@ -1,32 +1,32 @@
 import Foundation
 
-struct StatsDTO: Codable {
+struct StatsDTO: nonisolated Codable {
     let streak: StreakStatsDTO
     let completion: CompletionStatsDTO
     let weeklyProgress: [WeeklyProgressDTO]
     let milestones: MilestoneProgressDTO
 }
 
-struct StreakStatsDTO: Codable {
+struct StreakStatsDTO: nonisolated Codable {
     let current: Int
     let best: Int
     let last7Days: [DayActivityDTO]
 }
 
-struct DayActivityDTO: Codable {
+struct DayActivityDTO: nonisolated Codable {
     let date: String
     let objectivesCompleted: Int
     let objectivesTotal: Int
 }
 
-struct CompletionStatsDTO: Codable {
+struct CompletionStatsDTO: nonisolated Codable {
     let overallRate: Double
     let thisWeekRate: Double
     let totalCompleted: Int
     let totalObjectives: Int
 }
 
-struct WeeklyProgressDTO: Codable, Identifiable {
+struct WeeklyProgressDTO: nonisolated Codable, Identifiable {
     var id: Int {
         weekNumber
     }
@@ -37,7 +37,7 @@ struct WeeklyProgressDTO: Codable, Identifiable {
     let objectivesTotal: Int
 }
 
-struct MilestoneProgressDTO: Codable {
+struct MilestoneProgressDTO: nonisolated Codable {
     let completed: Int
     let total: Int
 }

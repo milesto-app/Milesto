@@ -1,12 +1,5 @@
 import Foundation
 
-/// Intentionally exposed Roadmap API for feature collaboration.
-struct GoalSummary: Identifiable, Hashable {
-    let id: String
-    let title: String
-    let status: String
-}
-
 struct RoadmapSnapshot {
     var goalTitle: String?
     var goalTargetDate: Date?
@@ -27,25 +20,53 @@ struct MilestoneRecord: Identifiable, Hashable {
 }
 
 @MainActor
-protocol RoadmapFeatureRepository: AnyObject {
+protocol RoadmapSummaryRepository: AnyObject {
     func loadRoadmapSnapshot(goalId: String) -> RoadmapSnapshot
     func refreshRoadmap(goalId: String) async -> RoadmapSnapshot
     func currentTaskProgress(goalId: String) -> Double
-    func tasksForMilestone(milestoneId: String) async throws -> [WeeklyTask]
-    func toggleTask(taskId: String, goalId: String, isCompleted: Bool) async throws -> WeeklyTask
-    func saveTask(_ task: WeeklyTask)
     func generateRoadmap(goalId: String) async throws
     func fetchRoadmapStatus(goalId: String) async throws -> RoadmapStatus
-
-    func loadWeeklyTasks(goalId: String) -> [WeeklyTask]
-    func refreshWeeklyTasks(goalId: String) async throws -> [WeeklyTask]
-    func loadWeeklyPlan(goalId: String) -> WeeklyPlan?
-    func refreshWeeklyPlan(goalId: String) async -> WeeklyPlan?
-    func loadLatestDebrief(goalId: String) -> Debrief?
-    func refreshLatestDebrief(goalId: String) async -> Debrief?
-    func submitDebrief(goalId: String, weeklyPlanId: String, note: String, taskRatings: [TaskRating]?) async throws -> Debrief
-    func generateWeeklyPlan(goalId: String) async throws
-    func waitForGeneratedTasks(goalId: String) async -> Bool
+    func isRoadmapReady(goalId: String) async -> Bool
     func currentMilestoneTitle(goalId: String) -> String?
     func goalTitle(goalId: String) -> String?
 }
+
+@MainActor
+protocol WeeklyTaskRepository: AnyObject {
+    func tasksForMilestone(milestoneId: String) async throws -> [WeeklyTask]
+    func toggleTask(taskId: String, goalId: String, isCompleted: Bool) async throws -> WeeklyTask
+    func saveTask(_ task: WeeklyTask)
+    func sortedTasks(_ tasks: [WeeklyTask]) -> [WeeklyTask]
+    func applyOptimisticCompletion(
+        task: WeeklyTask,
+        isCompleted: Bool,
+        in tasks: inout [WeeklyTask]
+    ) -> WeeklyTask?
+    func loadWeeklyTasks(goalId: String) -> [WeeklyTask]
+    func refreshWeeklyTasks(goalId: String) async throws -> [WeeklyTask]
+}
+
+@MainActor
+protocol WeeklyPlanRepository: AnyObject {
+    func loadWeeklyPlan(goalId: String) -> WeeklyPlan?
+    func refreshWeeklyPlan(goalId: String) async -> WeeklyPlan?
+    func generateWeeklyPlan(goalId: String) async throws
+    func waitForGeneratedTasks(goalId: String) async -> Bool
+}
+
+struct DebriefPromptState {
+    let weeklyPlanId: String?
+    let completedTasks: [WeeklyTask]
+    let shouldDisplay: Bool
+}
+
+@MainActor
+protocol DebriefRepository: AnyObject {
+    func loadLatestDebrief(goalId: String) -> Debrief?
+    func refreshLatestDebrief(goalId: String) async -> Debrief?
+    func submitDebrief(goalId: String, weeklyPlanId: String, note: String, taskRatings: [TaskRating]?) async throws -> Debrief
+    func loadDebriefPromptState(goalId: String) -> DebriefPromptState
+    func refreshDebriefPromptState(goalId: String) async -> DebriefPromptState
+}
+
+typealias MilestoneRepository = WeeklyTaskRepository

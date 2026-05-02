@@ -3,7 +3,7 @@ import Foundation
 @MainActor
 @Observable
 final class RoadmapViewModel {
-    @ObservationIgnored private let repository: any RoadmapFeatureRepository
+    @ObservationIgnored private let repository: any RoadmapSummaryRepository
 
     private(set) var goalId: String = ""
     private(set) var goalTitle: String = ""
@@ -12,7 +12,7 @@ final class RoadmapViewModel {
     private(set) var isLoading = true
     var appeared = false
 
-    init(repository: any RoadmapFeatureRepository) {
+    init(repository: any RoadmapSummaryRepository) {
         self.repository = repository
     }
 

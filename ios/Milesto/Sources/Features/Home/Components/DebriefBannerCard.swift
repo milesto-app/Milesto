@@ -19,7 +19,7 @@ struct DebriefBannerCard: View {
         }
         .task(id: goalId) {
             if model == nil {
-                let vm = DebriefBannerViewModel(repository: dependencies.roadmap)
+                let vm = DebriefBannerViewModel(repository: dependencies.debriefs)
                 vm.configure(goalId: goalId)
                 model = vm
             }

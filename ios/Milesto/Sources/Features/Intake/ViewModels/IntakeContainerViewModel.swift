@@ -90,17 +90,17 @@ final class IntakeContainerViewModel {
                 return
             }
 
-            if response.profileStatus == ProfileStatus.intakeCompleted.rawValue {
+            if response.profileStatus == GoalStatus.intakeCompleted.rawValue {
                 phase = .completed
                 return
             }
 
-            if response.profileStatus == ProfileStatus.generationFailed.rawValue {
+            if response.profileStatus == GoalStatus.generationFailed.rawValue {
                 phase = .profileFailed
                 return
             }
 
-            if response.profileStatus == ProfileStatus.profileGenerating.rawValue {
+            if response.profileStatus == GoalStatus.profileGenerating.rawValue {
                 phase = .generatingProfile
                 pollForProfileCompletion()
                 return
@@ -117,9 +117,9 @@ final class IntakeContainerViewModel {
         phase = .generatingProfile
         do {
             let response = try await intake.retryProfile(goalId: goalId)
-            if response.profileStatus == ProfileStatus.intakeCompleted.rawValue {
+            if response.profileStatus == GoalStatus.intakeCompleted.rawValue {
                 phase = .completed
-            } else if response.profileStatus == ProfileStatus.generationFailed.rawValue {
+            } else if response.profileStatus == GoalStatus.generationFailed.rawValue {
                 phase = .profileFailed
             } else {
                 pollForProfileCompletion()
@@ -138,10 +138,10 @@ final class IntakeContainerViewModel {
                 do {
                     try await Task.sleep(for: .seconds(3))
                     let response = try await intake.getNextBatch(goalId: goalId)
-                    if response.profileStatus == ProfileStatus.intakeCompleted.rawValue {
+                    if response.profileStatus == GoalStatus.intakeCompleted.rawValue {
                         phase = .completed
                         return
-                    } else if response.profileStatus == ProfileStatus.generationFailed.rawValue {
+                    } else if response.profileStatus == GoalStatus.generationFailed.rawValue {
                         phase = .profileFailed
                         return
                     }
@@ -167,17 +167,17 @@ final class IntakeContainerViewModel {
             return
         }
 
-        if response.profileStatus == ProfileStatus.intakeCompleted.rawValue {
+        if response.profileStatus == GoalStatus.intakeCompleted.rawValue {
             phase = .completed
             return
         }
 
-        if response.profileStatus == ProfileStatus.generationFailed.rawValue {
+        if response.profileStatus == GoalStatus.generationFailed.rawValue {
             phase = .profileFailed
             return
         }
 
-        if response.profileStatus == ProfileStatus.profileGenerating.rawValue {
+        if response.profileStatus == GoalStatus.profileGenerating.rawValue {
             phase = .generatingProfile
             pollForProfileCompletion()
             return

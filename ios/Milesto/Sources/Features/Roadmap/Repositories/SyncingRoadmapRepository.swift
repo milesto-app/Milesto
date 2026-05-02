@@ -5,12 +5,14 @@ import SwiftData
 private let roadmapLogger = Logger(subsystem: Bundle.main.bundleIdentifier ?? "app.milesto", category: "Roadmap")
 
 @MainActor
-final class SyncingRoadmapFeatureRepository: RoadmapFeatureRepository {
+final class SyncingRoadmapRepository: RoadmapSummaryRepository, WeeklyTaskRepository, WeeklyPlanRepository, DebriefRepository {
     private let remote: any RoadmapRepository
+    private let goals: any GoalRepository
     private let container: ModelContainer
 
-    init(remote: any RoadmapRepository, container: ModelContainer) {
+    init(remote: any RoadmapRepository, goals: any GoalRepository, container: ModelContainer) {
         self.remote = remote
+        self.goals = goals
         self.container = container
     }
 
@@ -115,6 +117,10 @@ final class SyncingRoadmapFeatureRepository: RoadmapFeatureRepository {
         saveRoadmap(dto)
         try? context.save()
         return dto.status
+    }
+
+    func isRoadmapReady(goalId: String) async -> Bool {
+        (try? await fetchRoadmapStatus(goalId: goalId)) == .complete
     }
 
     func loadWeeklyTasks(goalId: String) -> [WeeklyTask] {
@@ -252,6 +258,50 @@ final class SyncingRoadmapFeatureRepository: RoadmapFeatureRepository {
         fetchGoalTitle(goalId: goalId)
     }
 
+    func sortedTasks(_ tasks: [WeeklyTask]) -> [WeeklyTask] {
+        tasks.sorted {
+            if $0.isCompleted != $1.isCompleted { return !$0.isCompleted }
+            let p0 = $0.difficultyRating.priority
+            let p1 = $1.difficultyRating.priority
+            if p0 != p1 { return p0 < p1 }
+            return $0.orderIndex < $1.orderIndex
+        }
+    }
+
+    func applyOptimisticCompletion(
+        task: WeeklyTask,
+        isCompleted: Bool,
+        in tasks: inout [WeeklyTask]
+    ) -> WeeklyTask? {
+        guard let index = tasks.firstIndex(where: { $0.id == task.id }) else { return nil }
+        let original = tasks[index]
+        let optimistic = original.with(isCompleted: isCompleted)
+        tasks[index] = optimistic
+        saveTask(optimistic)
+        return original
+    }
+
+    func loadDebriefPromptState(goalId: String) -> DebriefPromptState {
+        let tasks = loadWeeklyTasks(goalId: goalId)
+        let plan = loadWeeklyPlan(goalId: goalId)
+        let latest = loadLatestDebrief(goalId: goalId)
+        return debriefPromptState(tasks: tasks, plan: plan, latest: latest)
+    }
+
+    func refreshDebriefPromptState(goalId: String) async -> DebriefPromptState {
+        async let tasks = refreshWeeklyTasks(goalId: goalId)
+        async let plan = refreshWeeklyPlan(goalId: goalId)
+        async let debrief = refreshLatestDebrief(goalId: goalId)
+        _ = try? await tasks
+        let refreshedPlan = await plan
+        let refreshedDebrief = await debrief
+        return debriefPromptState(
+            tasks: loadWeeklyTasks(goalId: goalId),
+            plan: refreshedPlan ?? loadWeeklyPlan(goalId: goalId),
+            latest: refreshedDebrief ?? loadLatestDebrief(goalId: goalId)
+        )
+    }
+
     private func saveWeeklyPlan(_ dto: WeeklyPlan) {
         let planId = dto.id
         let descriptor = FetchDescriptor<LocalWeeklyPlan>(
@@ -316,26 +366,15 @@ final class SyncingRoadmapFeatureRepository: RoadmapFeatureRepository {
     }
 
     private func fetchGoalTitle(goalId: String) -> String? {
-        let descriptor = FetchDescriptor<Goal>(
-            predicate: #Predicate { $0.id == goalId }
-        )
-        return try? context.fetch(descriptor).first?.title
+        goals.loadGoal(goalId: goalId)?.title
     }
 
     private func fetchGoalTargetDate(goalId: String) -> Date? {
-        let descriptor = FetchDescriptor<Goal>(
-            predicate: #Predicate { $0.id == goalId }
-        )
-        return try? context.fetch(descriptor).first?.targetDate
+        goals.loadGoal(goalId: goalId)?.targetDate
     }
 
     private func fetchSwitchableGoals() -> [GoalSummary] {
-        let descriptor = FetchDescriptor<Goal>()
-        guard let goals = try? context.fetch(descriptor) else { return [] }
-        let intakeStatus = ProfileStatus.intakeCompleted.rawValue
-        return goals
-            .filter { $0.status == "active" || $0.status == intakeStatus }
-            .map { GoalSummary(id: $0.id, title: $0.title, status: $0.status) }
+        goals.loadSwitchableGoals()
     }
 
     private func fetchRoadmap(goalId: String) -> LocalRoadmap? {
@@ -482,6 +521,35 @@ final class SyncingRoadmapFeatureRepository: RoadmapFeatureRepository {
     private func progress(of tasks: [LocalWeeklyTask]) -> Double {
         let completed = tasks.filter(\.isCompleted).count
         return Double(completed) / Double(tasks.count)
+    }
+
+    private func debriefPromptState(tasks: [WeeklyTask], plan: WeeklyPlan?, latest: Debrief?) -> DebriefPromptState {
+        let completedTasks = tasks.filter(\.isCompleted)
+        let allComplete = !tasks.isEmpty && tasks.allSatisfy(\.isCompleted)
+        let debriefMissingForCurrentPlan = latest?.weeklyPlanId != plan?.id
+        return DebriefPromptState(
+            weeklyPlanId: plan?.id,
+            completedTasks: completedTasks,
+            shouldDisplay: allComplete && debriefMissingForCurrentPlan && plan != nil
+        )
+    }
+}
+
+extension WeeklyTask {
+    func with(isCompleted: Bool) -> WeeklyTask {
+        WeeklyTask(
+            id: id,
+            weeklyPlanId: weeklyPlanId,
+            goalId: goalId,
+            userId: userId,
+            title: title,
+            description: description,
+            difficultyRating: difficultyRating,
+            orderIndex: orderIndex,
+            isCompleted: isCompleted,
+            isFallback: isFallback,
+            createdAt: createdAt
+        )
     }
 }
 

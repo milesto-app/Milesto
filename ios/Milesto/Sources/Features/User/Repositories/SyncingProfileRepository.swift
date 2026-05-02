@@ -1,5 +1,4 @@
 import Foundation
-import Supabase
 import SwiftData
 
 @MainActor
@@ -25,15 +24,18 @@ final class SyncingProfileRepository: ProfileRepository {
         container.mainContext
     }
 
-    func updateProfile(_ fields: ProfileUpdateFields) async throws -> Profile {
-        try await remote.updateProfile(fields)
+    func updateProfile(_ fields: ProfileUpdateFields) async throws -> ProfileSnapshot {
+        let dto = try await remote.updateProfile(fields)
+        let snapshot = mergeLocalSnapshot(with: dto)
+        save(snapshot)
+        return snapshot
     }
 
-    func loadProfile(userId: String) -> Profile? {
-        let descriptor = FetchDescriptor<Profile>(
+    func loadProfile(userId: String) -> ProfileSnapshot? {
+        let descriptor = FetchDescriptor<LocalProfile>(
             predicate: #Predicate { $0.userId == userId }
         )
-        return (try? context.fetch(descriptor))?.first
+        return (try? context.fetch(descriptor))?.first?.snapshot
     }
 
     func sync(userId: String) async throws {
@@ -43,14 +45,12 @@ final class SyncingProfileRepository: ProfileRepository {
         var fetchedEmail: String?
         var fetchedAvatarURL: String?
 
-        if let session = try? await SupabaseConfig.client.auth.session {
-            fetchedEmail = session.user.email
-            if case let .string(urlString) = session.user.userMetadata["avatar_url"] {
-                fetchedAvatarURL = urlString
-            }
+        if let authSnapshot = try? await remote.fetchAuthSnapshot() {
+            fetchedEmail = authSnapshot.email
+            fetchedAvatarURL = authSnapshot.avatarURL
         }
 
-        let descriptor = FetchDescriptor<Profile>(
+        let descriptor = FetchDescriptor<LocalProfile>(
             predicate: #Predicate { $0.userId == userId }
         )
         let existing = (try? context.fetch(descriptor))?.first
@@ -63,33 +63,14 @@ final class SyncingProfileRepository: ProfileRepository {
         }
 
         if let existing {
-            existing.firstName = fetchedProfile?.firstName
-            existing.lastName = fetchedProfile?.lastName
-            existing.email = fetchedEmail
-            existing.avatarURL = fetchedAvatarURL
-            existing.avatarData = avatarData
-            existing.coachId = fetchedProfile?.coachId
-            existing.dateOfBirth = fetchedProfile?.dateOfBirth
-            existing.language = fetchedProfile?.language
-            existing.createdAt = fetchedProfile?.createdAt
+            existing.update(dto: fetchedProfile, email: fetchedEmail, avatarURL: fetchedAvatarURL, avatarData: avatarData)
         } else {
-            context.insert(Profile(
-                userId: userId,
-                firstName: fetchedProfile?.firstName,
-                lastName: fetchedProfile?.lastName,
-                email: fetchedEmail,
-                avatarURL: fetchedAvatarURL,
-                avatarData: avatarData,
-                coachId: fetchedProfile?.coachId,
-                dateOfBirth: fetchedProfile?.dateOfBirth,
-                language: fetchedProfile?.language,
-                createdAt: fetchedProfile?.createdAt
-            ))
+            context.insert(LocalProfile(dto: fetchedProfile, userId: userId, email: fetchedEmail, avatarURL: fetchedAvatarURL, avatarData: avatarData))
         }
         try? context.save()
     }
 
-    private func mergePendingAppleName(into fetchedProfile: Profile?) async -> Profile? {
+    private func mergePendingAppleName(into fetchedProfile: ProfileDTO?) async -> ProfileDTO? {
         let pending = auth.consumePendingAppleName()
         guard pending.firstName != nil || pending.lastName != nil else { return fetchedProfile }
 
@@ -109,5 +90,43 @@ final class SyncingProfileRepository: ProfileRepository {
     private func downloadAvatarData(from urlString: String?) async -> Data? {
         guard let urlString, let url = URL(string: urlString) else { return nil }
         return try? await httpLoader.data(from: url)
+    }
+
+    private func mergeLocalSnapshot(with dto: ProfileDTO) -> ProfileSnapshot {
+        let existing = loadProfile(userId: dto.userId)
+        return ProfileSnapshot(
+            userId: dto.userId,
+            firstName: dto.firstName,
+            lastName: dto.lastName,
+            email: existing?.email,
+            avatarData: existing?.avatarData,
+            coachId: dto.coachId,
+            dateOfBirth: dto.dateOfBirth,
+            language: dto.language,
+            createdAt: dto.createdAt
+        )
+    }
+
+    private func save(_ snapshot: ProfileSnapshot) {
+        let userId = snapshot.userId
+        let descriptor = FetchDescriptor<LocalProfile>(
+            predicate: #Predicate { $0.userId == userId }
+        )
+        if let existing = try? context.fetch(descriptor).first {
+            existing.apply(snapshot)
+        } else {
+            context.insert(LocalProfile(
+                userId: snapshot.userId,
+                firstName: snapshot.firstName,
+                lastName: snapshot.lastName,
+                email: snapshot.email,
+                avatarData: snapshot.avatarData,
+                coachId: snapshot.coachId,
+                dateOfBirth: snapshot.dateOfBirth,
+                language: snapshot.language,
+                createdAt: snapshot.createdAt
+            ))
+        }
+        try? context.save()
     }
 }

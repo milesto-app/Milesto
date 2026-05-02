@@ -18,7 +18,10 @@ struct WeeklyTasksCard: View {
         }
         .task(id: goalId) {
             if model == nil {
-                let vm = WeeklyTasksViewModel(repository: dependencies.roadmap)
+                let vm = WeeklyTasksViewModel(
+                    repository: dependencies.weeklyTasks,
+                    planRepository: dependencies.weeklyPlans
+                )
                 vm.configure(goalId: goalId)
                 model = vm
             }

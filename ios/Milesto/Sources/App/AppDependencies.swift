@@ -14,8 +14,10 @@ final class AppDependencies {
     let intakeFlow: any IntakeFlowRepository
     let onboarding: any OnboardingRepository
     let settings: any SettingsRepository
-    let roadmapRemote: any RoadmapRepository
-    let roadmap: any RoadmapFeatureRepository
+    let roadmap: any RoadmapSummaryRepository
+    let weeklyTasks: any WeeklyTaskRepository
+    let weeklyPlans: any WeeklyPlanRepository
+    let debriefs: any DebriefRepository
     let chat: any ChatRepository
     let stats: any StatsRepository
     let transcription: any TranscriptionRepository
@@ -39,22 +41,20 @@ final class AppDependencies {
             httpLoader: URLSessionDataLoader()
         )
         let supabaseGoal = SupabaseGoalRepository(client: SupabaseConfig.client, backend: .shared)
-        let goalRoutingRepo = SyncingGoalRepository(remote: supabaseGoal, container: container)
+        let goalRepo = SyncingGoalRepository(remote: supabaseGoal, container: container)
         let supabaseIntake = SupabaseIntakeRepository()
         let intakeFlowRepo = SyncingIntakeFlowRepository(
-            goals: supabaseGoal,
-            container: container
+            goals: goalRepo
         )
         let onboardingRepo = SyncingOnboardingRepository(
-            profile: syncingProfile,
-            container: container
+            profile: syncingProfile
         )
         let chatPurger = ChatLocalDataPurger(container: container)
         let roadmapPurger = RoadmapLocalDataPurger(container: container)
         let statsPurger = StatsLocalDataPurger(container: container)
         let settingsRepo = SyncingSettingsRepository(
             profile: syncingProfile,
-            goals: supabaseGoal,
+            goals: goalRepo,
             container: container,
             featurePurgers: [chatPurger, roadmapPurger, statsPurger],
             purgeAdditionalLocalData: {
@@ -62,8 +62,9 @@ final class AppDependencies {
             }
         )
         let roadmapRemote = SupabaseRoadmapRepository()
-        let roadmapRepo = SyncingRoadmapFeatureRepository(
+        let roadmapRepo = SyncingRoadmapRepository(
             remote: roadmapRemote,
+            goals: goalRepo,
             container: container
         )
         let remoteChat = SupabaseChatRepository()
@@ -87,14 +88,16 @@ final class AppDependencies {
             await subscriptionService?.handleBackendSubscriptionRequired()
         }
         profile = syncingProfile
-        goals = supabaseGoal
-        goalRouting = goalRoutingRepo
+        goals = goalRepo
+        goalRouting = goalRepo
         intake = supabaseIntake
         intakeFlow = intakeFlowRepo
         onboarding = onboardingRepo
         settings = settingsRepo
-        self.roadmapRemote = roadmapRemote
         roadmap = roadmapRepo
+        weeklyTasks = roadmapRepo
+        weeklyPlans = roadmapRepo
+        debriefs = roadmapRepo
         chat = chatRepo
         stats = statsRepo
         transcription = transcriptionRepo

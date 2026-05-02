@@ -25,7 +25,7 @@ struct RootView: View {
                 routing = RootViewModel(
                     profile: dependencies.profile,
                     goals: dependencies.goalRouting,
-                    roadmap: dependencies.roadmapRemote
+                    roadmap: dependencies.roadmap
                 )
             }
         }

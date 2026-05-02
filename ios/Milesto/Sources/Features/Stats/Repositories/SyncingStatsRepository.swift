@@ -15,18 +15,18 @@ final class SyncingStatsRepository: StatsRepository {
         container.mainContext
     }
 
-    func loadStats(goalId: String) -> StatsDTO? {
+    func loadStats(goalId: String) -> StatsSnapshot? {
         let descriptor = FetchDescriptor<LocalStats>(
             predicate: #Predicate { $0.goalId == goalId }
         )
-        return try? context.fetch(descriptor).first?.stats
+        return try? context.fetch(descriptor).first?.stats?.snapshot
     }
 
-    func refreshStats(goalId: String) async throws -> StatsDTO {
+    func refreshStats(goalId: String) async throws -> StatsSnapshot {
         let dto = try await remote.getStats(goalId: goalId)
         saveStats(dto, goalId: goalId)
         try? context.save()
-        return dto
+        return dto.snapshot
     }
 
     private func saveStats(_ dto: StatsDTO, goalId: String) {

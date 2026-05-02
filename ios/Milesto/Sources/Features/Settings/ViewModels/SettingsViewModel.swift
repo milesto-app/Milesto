@@ -6,8 +6,8 @@ final class SettingsViewModel {
     @ObservationIgnored private let repository: any SettingsRepository
     @ObservationIgnored private let auth: any AuthSessionProviding
 
-    private(set) var profile: Profile?
-    private(set) var activeGoal: Goal?
+    private(set) var profile: ProfileSnapshot?
+    private(set) var activeGoal: GoalSnapshot?
     private(set) var isDeleting = false
     private(set) var isSaving = false
     private(set) var errorMessage: String?

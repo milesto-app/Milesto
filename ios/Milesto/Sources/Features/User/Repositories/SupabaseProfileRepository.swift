@@ -26,11 +26,16 @@ struct ProfileUpdateFields: Encodable {
     }
 }
 
+struct ProfileAuthSnapshot {
+    let email: String?
+    let avatarURL: String?
+}
+
 @MainActor
 final class SupabaseProfileRepository {
     init() {}
 
-    func updateProfile(_ fields: ProfileUpdateFields) async throws -> Profile {
+    func updateProfile(_ fields: ProfileUpdateFields) async throws -> ProfileDTO {
         let session = try await SupabaseConfig.client.auth.session
         return try await SupabaseConfig.client
             .from("profiles")
@@ -42,12 +47,12 @@ final class SupabaseProfileRepository {
             .value
     }
 
-    func fetchProfile(userId: String) async throws -> Profile? {
+    func fetchProfile(userId: String) async throws -> ProfileDTO? {
         guard let uuid = UUID(uuidString: userId) else {
             throw ProfileRepositoryError.invalidUserId
         }
 
-        let response: [Profile] = try await SupabaseConfig.client
+        let response: [ProfileDTO] = try await SupabaseConfig.client
             .from("profiles")
             .select()
             .eq("id", value: uuid)
@@ -55,6 +60,12 @@ final class SupabaseProfileRepository {
             .value
 
         return response.first
+    }
+
+    func fetchAuthSnapshot() async throws -> ProfileAuthSnapshot {
+        let session = try await SupabaseConfig.client.auth.session
+        let avatarURL = session.user.userMetadata["avatar_url"]?.stringValue
+        return ProfileAuthSnapshot(email: session.user.email, avatarURL: avatarURL)
     }
 }
 

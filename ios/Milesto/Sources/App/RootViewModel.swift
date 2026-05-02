@@ -10,16 +10,16 @@ final class RootViewModel {
     var activeGoalId: String?
     var connectionError = false
 
-    private(set) var localProfile: Profile?
+    private(set) var localProfile: ProfileSnapshot?
 
     @ObservationIgnored private let profile: any ProfileRepository
     @ObservationIgnored private let goals: any GoalRoutingRepository
-    @ObservationIgnored private let roadmap: any RoadmapRepository
+    @ObservationIgnored private let roadmap: any RoadmapSummaryRepository
 
     init(
         profile: any ProfileRepository,
         goals: any GoalRoutingRepository,
-        roadmap: any RoadmapRepository
+        roadmap: any RoadmapSummaryRepository
     ) {
         self.profile = profile
         self.goals = goals

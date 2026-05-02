@@ -3,7 +3,7 @@ import SwiftUI
 struct ProfileOnboardingView: View {
     let userId: String
     let missingSteps: [OnboardingStep]
-    let existingProfile: Profile?
+    let existingProfile: ProfileSnapshot?
     let onComplete: () -> Void
 
     @Environment(AppDependencies.self) private var dependencies
@@ -23,7 +23,7 @@ struct ProfileOnboardingView: View {
                     repository: dependencies.onboarding,
                     userId: userId,
                     missingSteps: missingSteps,
-                    existingProfile: ProfileSnapshot(profile: existingProfile)
+                    existingProfile: existingProfile
                 )
             }
         }

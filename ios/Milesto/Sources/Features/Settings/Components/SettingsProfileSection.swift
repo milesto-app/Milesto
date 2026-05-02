@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct SettingsProfileHeaderSection: View {
-    let profile: Profile?
+    let profile: ProfileSnapshot?
     let fullName: String
     let initials: String
     let onEdit: () -> Void
@@ -53,7 +53,7 @@ struct SettingsProfileHeaderSection: View {
 }
 
 struct SettingsProfileDetailsSection: View {
-    let profile: Profile?
+    let profile: ProfileSnapshot?
     let coach: CoachPersonality?
     let currentAppLanguage: String
     let onEditBirthdate: () -> Void
