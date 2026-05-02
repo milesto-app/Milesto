@@ -29,34 +29,9 @@ struct StatsView: View {
                     ProgressView()
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
                 } else if let stats = model.stats {
-                    GeometryReader { proxy in
-                        ScrollView(.vertical, showsIndicators: false) {
-                            VStack(spacing: 12) {
-                                statsContent(model: model, stats: stats)
-                            }
-                            .frame(width: max(0, proxy.size.width - 40))
-                            .padding(.horizontal, 20)
-                            .padding(.top, 16)
-                            .padding(.bottom, 100)
-                        }
-                    }
+                    loadedContent(model: model, stats: stats)
                 } else if model.loadError != nil {
-                    VStack(spacing: 24) {
-                        TablerIcons(.wifiOff, size: 48, color: Color("TextSecondary"))
-
-                        AppText("stats.error.title", table: "Stats", style: .title)
-                            .alignment(.center)
-
-                        AppText(verbatim: model.loadError?.localizedDescription ?? "", style: .caption)
-                            .color(Color("TextSecondary"))
-                            .alignment(.center)
-
-                        AppButton("stats.error.retry", table: "Stats") {
-                            Task { await model.load(goalId: goalId) }
-                        }
-                    }
-                    .padding(32)
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    errorView(model: model)
                 } else {
                     StatsEmptyState()
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -67,51 +42,69 @@ struct StatsView: View {
         .appBackground()
     }
 
-    @ViewBuilder
-    private func statsContent(model: StatsViewModel, stats: StatsSnapshot) -> some View {
-        StatsHeroCard(
-            completedCount: stats.overallCompleted,
-            totalCount: stats.overallTotal,
-            rate: stats.overallRate
-        )
-        .opacity(model.hasAppeared ? 1 : 0)
-        .offset(y: model.hasAppeared ? 0 : 12)
-        .padding(.bottom, 12)
+    private func loadedContent(model: StatsViewModel, stats: StatsSnapshot) -> some View {
+        ScrollView(showsIndicators: false) {
+            VStack(spacing: 0) {
+                statsTitle
 
-        StatsWeeklyChart(days: stats.last7Days)
-            .opacity(model.hasAppeared ? 1 : 0)
-            .offset(y: model.hasAppeared ? 0 : 12)
+                VStack(alignment: .leading, spacing: 36) {
+                    StatsHeroSection(
+                        completed: stats.overallCompleted,
+                        total: stats.overallTotal,
+                        rate: stats.overallRate
+                    )
 
-        StatsProgressRing(
-            rate: stats.thisWeekRate,
-            completed: stats.thisWeekCompleted,
-            total: stats.thisWeekTotal
-        )
-        .opacity(model.hasAppeared ? 1 : 0)
-        .offset(y: model.hasAppeared ? 0 : 12)
+                    StatsThisWeekSection(
+                        completed: stats.thisWeekCompleted,
+                        total: stats.thisWeekTotal,
+                        rate: stats.thisWeekRate
+                    )
 
-        HStack(spacing: 12) {
-            StatsMetricCard(
-                icon: .flame,
-                value: "\(stats.streakCurrent)",
-                label: "stats.metrics.streak",
-                table: "Stats"
-            )
-            StatsMetricCard(
-                icon: .trophy,
-                value: "\(stats.streakBest)",
-                label: "stats.streak.best",
-                table: "Stats"
-            )
+                    StatsStreakSection(
+                        current: stats.streakCurrent,
+                        best: stats.streakBest
+                    )
+
+                    StatsActivitySection(days: stats.last7Days)
+
+                    StatsMilestonesSection(
+                        completed: stats.milestoneCompleted,
+                        total: stats.milestoneTotal
+                    )
+                }
+                .padding(.horizontal, 24)
+                .padding(.bottom, 100)
+                .opacity(model.hasAppeared ? 1 : 0)
+                .offset(y: model.hasAppeared ? 0 : 12)
+                .animation(.easeOut(duration: 0.4), value: model.hasAppeared)
+            }
         }
-        .opacity(model.hasAppeared ? 1 : 0)
-        .offset(y: model.hasAppeared ? 0 : 12)
+    }
 
-        StatsMilestoneCard(
-            completed: stats.milestoneCompleted,
-            total: stats.milestoneTotal
-        )
-        .opacity(model.hasAppeared ? 1 : 0)
-        .offset(y: model.hasAppeared ? 0 : 12)
+    private var statsTitle: some View {
+        AppText("stats.title", table: "Stats", style: .largeTitle)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.horizontal, 24)
+            .padding(.top, 32)
+            .padding(.bottom, 28)
+    }
+
+    private func errorView(model: StatsViewModel) -> some View {
+        VStack(spacing: 24) {
+            TablerIcons(.wifiOff, size: 48, color: Color("TextSecondary"))
+
+            AppText("stats.error.title", table: "Stats", style: .title)
+                .alignment(.center)
+
+            AppText(verbatim: model.loadError?.localizedDescription ?? "", style: .caption)
+                .color(Color("TextSecondary"))
+                .alignment(.center)
+
+            AppButton("stats.error.retry", table: "Stats") {
+                Task { await model.load(goalId: goalId) }
+            }
+        }
+        .padding(32)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 }

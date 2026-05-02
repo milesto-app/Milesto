@@ -1,6 +1,23 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
+    "stats.activity.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Last 7 days"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "7 derniers jours"
+          }
+        }
+      }
+    },
     "stats.empty.message" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -75,64 +92,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Overall Progress"
+            "value" : "Overall progress"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Progression globale"
-          }
-        }
-      }
-    },
-    "stats.metrics.streak" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "day streak"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "jours cons\u00e9cutifs"
-          }
-        }
-      }
-    },
-    "stats.metrics.tasksDone" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "tasks completed"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "t\u00e2ches compl\u00e9t\u00e9es"
-          }
-        }
-      }
-    },
-    "stats.metrics.thisWeek" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "this week"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "cette semaine"
           }
         }
       }
@@ -154,87 +120,70 @@
         }
       }
     },
-    "stats.ring.completed" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Completed"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Terminées"
-          }
-        }
-      }
-    },
-    "stats.ring.remaining" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Remaining"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Restantes"
-          }
-        }
-      }
-    },
-    "stats.placeholder" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Coming soon"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Bient\u00f4t disponible"
-          }
-        }
-      }
-    },
     "stats.streak.best" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Best streak"
+            "value" : "Best"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Meilleure s\u00e9rie"
+            "value" : "Meilleure"
           }
         }
       }
     },
-    "stats.streak.days" : {
+    "stats.streak.current" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "days"
+            "value" : "Current"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "jours"
+            "value" : "Actuelle"
+          }
+        }
+      }
+    },
+    "stats.streak.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Streak"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Série"
+          }
+        }
+      }
+    },
+    "stats.thisWeek.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This week"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cette semaine"
           }
         }
       }
@@ -252,23 +201,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Statistiques"
-          }
-        }
-      }
-    },
-    "stats.weeklyChart.title" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Weekly Progress"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Progr\u00e8s hebdomadaire"
           }
         }
       }
