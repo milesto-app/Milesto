@@ -491,7 +491,6 @@ function groupBatchesWithQuestions(
     id: batch.id,
     batchNumber: batch.batch_number,
     isAnswered: batch.is_answered,
-    isFallback: batch.is_fallback,
     embedded: batch.embedded,
     qualityScore: batch.quality_score,
     createdAt: batch.created_at,
