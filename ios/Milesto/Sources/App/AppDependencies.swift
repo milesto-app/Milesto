@@ -22,15 +22,11 @@ final class AppDependencies {
     let stats: any StatsRepository
     let transcription: any TranscriptionRepository
 
-    let container: ModelContainer
-
     #if DEBUG
         let developerSettings = DeveloperSettings()
     #endif
 
     init(container: ModelContainer) {
-        self.container = container
-
         let oauth = OAuthClient()
         let authService = SupabaseAuthRepository(client: SupabaseConfig.client, oauth: oauth)
         let supabaseProfile = SupabaseProfileRepository()
