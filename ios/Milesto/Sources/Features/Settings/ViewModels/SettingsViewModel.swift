@@ -42,10 +42,6 @@ final class SettingsViewModel {
         return locale.localizedString(forLanguageCode: code)?.capitalized ?? code
     }
 
-    var currentUserId: String? {
-        auth.currentUserId
-    }
-
     func loadLocalState() {
         guard let userId = auth.currentUserId else { return }
         profile = repository.loadProfile(userId: userId)

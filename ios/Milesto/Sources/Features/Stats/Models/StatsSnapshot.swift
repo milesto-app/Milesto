@@ -37,7 +37,6 @@ struct WeeklyProgressSnapshot: Identifiable {
     }
 
     let weekNumber: Int
-    let completionRate: Double
     let objectivesCompleted: Int
     let objectivesTotal: Int
 }
@@ -61,7 +60,6 @@ extension RemoteStats {
             weeklyProgress: weeklyProgress.map {
                 WeeklyProgressSnapshot(
                     weekNumber: $0.weekNumber,
-                    completionRate: $0.completionRate,
                     objectivesCompleted: $0.objectivesCompleted,
                     objectivesTotal: $0.objectivesTotal
                 )

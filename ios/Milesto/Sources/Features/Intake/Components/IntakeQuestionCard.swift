@@ -12,7 +12,7 @@ struct IntakeQuestionCard: View {
             switch question.questionType {
             case .text:
                 if question.config?.format == "date" {
-                    IntakeDateQuestionView(question: question, answers: answers, setAnswer: setAnswer)
+                    IntakeDateQuestionView(question: question, setAnswer: setAnswer)
                 } else {
                     IntakeTextQuestionView(question: question, answers: answers, setAnswer: setAnswer)
                 }

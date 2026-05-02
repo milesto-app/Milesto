@@ -31,7 +31,6 @@ enum IntakePhase: Equatable {
 @Observable
 final class IntakeContainerViewModel {
     @ObservationIgnored private let intake: any IntakeRepository
-    @ObservationIgnored private let totalEstimatedBatches = 5
     @ObservationIgnored private let maxPollingAttempts = 60
     @ObservationIgnored private var pollingTask: Task<Void, Never>?
 
@@ -44,20 +43,12 @@ final class IntakeContainerViewModel {
         self.intake = intake
     }
 
-    var totalBatches: Int {
-        totalEstimatedBatches
-    }
-
     func configure(goalId: String) {
         self.goalId = goalId
     }
 
     func cancelPolling() {
         pollingTask?.cancel()
-    }
-
-    func answer(for questionId: String) -> IntakeAnswerDTO? {
-        answers[questionId]
     }
 
     func setAnswer(_ answer: IntakeAnswerDTO, for questionId: String) {

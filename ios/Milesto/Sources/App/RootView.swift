@@ -52,7 +52,6 @@ struct RootView: View {
                         .transition(.opacity)
                     case .goalIntake:
                         GoalIntakeFlowView(
-                            userId: userId,
                             existingGoalId: nil,
                             onClose: {
                                 dependencies.developerSettings.clearRouteOverride()
@@ -88,7 +87,7 @@ struct RootView: View {
         Group {
             if routing.profileComplete {
                 SubscriptionGateView {
-                    postProfileFlow(userId: userId, routing: routing)
+                    postProfileFlow(routing: routing)
                 }
                 .transition(.opacity)
             } else if routing.hasSynced {
@@ -126,10 +125,10 @@ struct RootView: View {
         }
     }
 
-    private func postProfileFlow(userId: String, routing: RootViewModel) -> some View {
+    private func postProfileFlow(routing: RootViewModel) -> some View {
         Group {
             if routing.goalComplete && routing.roadmapReady {
-                mainAppContent(userId: userId, routing: routing)
+                mainAppContent(routing: routing)
             } else if routing.goalComplete {
                 RoadmapGenerationView(goalId: routing.activeGoalId ?? "") {
                     withAnimation(.easeInOut(duration: 0.4)) {
@@ -138,7 +137,6 @@ struct RootView: View {
                 }
             } else {
                 GoalIntakeFlowView(
-                    userId: userId,
                     existingGoalId: routing.activeGoalId,
                     onClose: nil,
                     onComplete: { goalId in
@@ -154,7 +152,7 @@ struct RootView: View {
         .animation(.easeInOut(duration: 0.4), value: routing.roadmapReady)
     }
 
-    private func mainAppContent(userId: String, routing: RootViewModel) -> some View {
+    private func mainAppContent(routing: RootViewModel) -> some View {
         TabView(selection: $selectedTab) {
             Tab(value: 0) {
                 HomeView(goalId: routing.activeGoalId ?? "")
@@ -163,11 +161,7 @@ struct RootView: View {
             }
 
             Tab(value: 1) {
-                RoadmapView(goalId: routing.activeGoalId ?? "", onGoalChanged: { id in
-                    withAnimation(.easeInOut(duration: 0.4)) {
-                        routing.handleGoalChanged(userId: userId, goalId: id)
-                    }
-                })
+                RoadmapView(goalId: routing.activeGoalId ?? "")
             } label: {
                 TablerTabLabel(.map, title: String(localized: "tabs.roadmap", table: "Common"))
             }

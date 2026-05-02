@@ -4,7 +4,6 @@ import Foundation
 protocol RemoteRoadmapRepository: AnyObject {
     func generateRoadmap(goalId: String) async throws -> RemoteRoadmap
     func getRoadmap(goalId: String) async throws -> RemoteRoadmap
-    func getMilestones(goalId: String) async throws -> [RemoteMilestoneSummary]
     func getWeeklyPlan(goalId: String) async throws -> WeeklyPlan?
     func generateWeeklyPlan(goalId: String) async throws -> WeeklyPlan
     func getWeeklyTasks(goalId: String) async throws -> [WeeklyTask]
@@ -12,5 +11,4 @@ protocol RemoteRoadmapRepository: AnyObject {
     func submitDebrief(goalId: String, weeklyPlanId: String, note: String, taskRatings: [TaskRating]?) async throws -> Debrief
     func getTasksForMilestone(milestoneId: String) async throws -> [WeeklyTask]
     func getDebriefHistory(goalId: String) async throws -> [Debrief]
-    func isRoadmapReady(goalId: String) async -> Bool
 }

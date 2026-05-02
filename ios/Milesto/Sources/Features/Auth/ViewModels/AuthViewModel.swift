@@ -21,18 +21,6 @@ final class AuthViewModel {
         auth.authState
     }
 
-    var isEmailValid: Bool {
-        AuthValidation.isValidEmail(email)
-    }
-
-    var isPasswordValid: Bool {
-        password.count >= 8
-    }
-
-    var canSubmit: Bool {
-        isEmailValid && isPasswordValid && !isLoading
-    }
-
     func signUp() async {
         isLoading = true
         defer { isLoading = false }

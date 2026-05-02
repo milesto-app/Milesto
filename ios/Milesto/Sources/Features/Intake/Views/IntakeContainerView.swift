@@ -38,8 +38,6 @@ struct IntakeContainerView: View {
             case let .answering(batch):
                 IntakeBatchView(
                     batch: batch,
-                    batchNumber: model.currentBatchNumber,
-                    totalBatches: model.totalBatches,
                     answers: model.answers,
                     setAnswer: { questionId, answer in model.setAnswer(answer, for: questionId) },
                     onSubmit: {

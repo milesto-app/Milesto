@@ -32,13 +32,6 @@ final class SyncingGoalRepository: GoalRepository, GoalRoutingRepository {
         try await remote.updateGoal(goalId: goalId, motivationQuote: motivationQuote)
     }
 
-    func getGoal(goalId: String) async throws -> GoalSnapshot {
-        let remote = try await remote.getGoal(goalId: goalId)
-        upsert(remote)
-        try? context.save()
-        return remote.snapshot
-    }
-
     func deleteGoal(goalId: String) async throws {
         try await remote.deleteGoal(goalId: goalId)
         let descriptor = FetchDescriptor<LocalGoal>(
@@ -93,7 +86,7 @@ final class SyncingGoalRepository: GoalRepository, GoalRoutingRepository {
                 $0.status == GoalStatus.active.rawValue
                     || $0.status == GoalStatus.intakeCompleted.rawValue
             }
-            .map { GoalSummary(id: $0.id, title: $0.title, status: $0.status) }
+            .map { GoalSummary(id: $0.id) }
     }
 
     func resolveActiveGoal(userId: String) -> ActiveGoalDescriptor? {
@@ -173,12 +166,8 @@ private extension RemoteGoal {
     var snapshot: GoalSnapshot {
         GoalSnapshot(
             id: id,
-            userId: userId,
             title: title,
-            description: description,
-            status: status,
-            targetDate: targetDate,
-            createdAt: createdAt
+            targetDate: targetDate
         )
     }
 }

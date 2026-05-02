@@ -73,16 +73,6 @@ final class SupabaseRoadmapRepository: RemoteRoadmapRepository {
         )
     }
 
-    func getMilestones(goalId: String) async throws -> [RemoteMilestoneSummary] {
-        try await SupabaseConfig.client
-            .from("milestones")
-            .select("id, title, description, expected_outcome, target_month, target_week, is_monthly_checkpoint, order_index")
-            .eq("goal_id", value: goalId)
-            .order("order_index")
-            .execute()
-            .value
-    }
-
     func getWeeklyPlan(goalId: String) async throws -> WeeklyPlan? {
         do {
             return try await SupabaseConfig.client
@@ -156,12 +146,5 @@ final class SupabaseRoadmapRepository: RemoteRoadmapRepository {
             .order("date", ascending: false)
             .execute()
             .value
-    }
-
-    func isRoadmapReady(goalId: String) async -> Bool {
-        guard let remote = try? await getRoadmap(goalId: goalId) else {
-            return false
-        }
-        return remote.status == .complete
     }
 }

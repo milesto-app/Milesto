@@ -1,7 +1,6 @@
 import SwiftUI
 
 struct GoalIntakeFlowView: View {
-    let userId: String
     let existingGoalId: String?
     let onClose: (() -> Void)?
     let onComplete: (String) -> Void

@@ -26,9 +26,6 @@ protocol RoadmapSummaryRepository: AnyObject {
     func currentTaskProgress(goalId: String) -> Double
     func generateRoadmap(goalId: String) async throws
     func fetchRoadmapStatus(goalId: String) async throws -> RoadmapStatus
-    func isRoadmapReady(goalId: String) async -> Bool
-    func currentMilestoneTitle(goalId: String) -> String?
-    func goalTitle(goalId: String) -> String?
 }
 
 @MainActor
@@ -62,11 +59,7 @@ struct DebriefPromptState {
 
 @MainActor
 protocol DebriefRepository: AnyObject {
-    func loadLatestDebrief(goalId: String) -> Debrief?
-    func refreshLatestDebrief(goalId: String) async -> Debrief?
     func submitDebrief(goalId: String, weeklyPlanId: String, note: String, taskRatings: [TaskRating]?) async throws -> Debrief
     func loadDebriefPromptState(goalId: String) -> DebriefPromptState
     func refreshDebriefPromptState(goalId: String) async -> DebriefPromptState
 }
-
-typealias MilestoneRepository = WeeklyTaskRepository

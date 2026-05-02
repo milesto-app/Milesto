@@ -16,15 +16,6 @@ final class RoadmapViewModel {
         self.repository = repository
     }
 
-    var completionProgress: Double {
-        guard !milestones.isEmpty else { return 0 }
-        let completed = Double(milestones.filter { $0.status == .completed }.count)
-        let currentProgress = milestones.contains(where: { $0.status == .current })
-            ? repository.currentTaskProgress(goalId: goalId)
-            : 0
-        return (completed + currentProgress) / Double(milestones.count)
-    }
-
     func configure(goalId: String) {
         self.goalId = goalId
         applySnapshot(repository.loadRoadmapSnapshot(goalId: goalId))

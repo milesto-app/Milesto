@@ -45,24 +45,6 @@ nonisolated enum Keychain {
         }
     }
 
-    private static func string(account: String) -> String? {
-        let query: [String: Any] = [
-            kSecClass as String: kSecClassGenericPassword,
-            kSecAttrAccount as String: account,
-            kSecAttrAccessGroup as String: fullAccessGroup,
-            kSecReturnData as String: true,
-            kSecMatchLimit as String: kSecMatchLimitOne,
-        ]
-
-        var result: AnyObject?
-        let status = SecItemCopyMatching(query as CFDictionary, &result)
-        guard status == errSecSuccess,
-              let data = result as? Data,
-              let value = String(data: data, encoding: .utf8)
-        else { return nil }
-        return value
-    }
-
     private static func remove(account: String) {
         let query: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
@@ -74,10 +56,6 @@ nonisolated enum Keychain {
 
     static func set(_ key: KeychainKey, value: String?) {
         set(account: key.rawValue, value: value)
-    }
-
-    static func string(_ key: KeychainKey) -> String? {
-        string(account: key.rawValue)
     }
 
     static func remove(_ key: KeychainKey) {
@@ -98,20 +76,8 @@ nonisolated enum Keychain {
         }
     }
 
-    static func supabaseAccessToken() -> (token: String, expiresAt: Date)? {
-        guard let token = string(.supabaseAccessToken),
-              let expiryString = string(.supabaseAccessTokenExpiresAt),
-              let expiry = TimeInterval(expiryString)
-        else { return nil }
-        return (token, Date(timeIntervalSince1970: expiry))
-    }
-
     static func setPendingSubscriptionJWS(_ jws: String, key: String) {
         set(account: key, value: jws)
-    }
-
-    static func pendingSubscriptionJWS(key: String) -> String? {
-        string(account: key)
     }
 
     static func removePendingSubscriptionJWS(key: String) {

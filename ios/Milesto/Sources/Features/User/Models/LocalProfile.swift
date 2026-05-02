@@ -72,24 +72,6 @@ struct RemoteProfile: Codable {
         case createdAt = "created_at"
     }
 
-    init(
-        userId: String,
-        firstName: String? = nil,
-        lastName: String? = nil,
-        coachId: Int? = nil,
-        dateOfBirth: Date? = nil,
-        language: String? = nil,
-        createdAt: Date? = nil
-    ) {
-        self.userId = userId
-        self.firstName = firstName
-        self.lastName = lastName
-        self.coachId = coachId
-        self.dateOfBirth = dateOfBirth
-        self.language = language
-        self.createdAt = createdAt
-    }
-
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         let id = try container.decode(UUID.self, forKey: .userId)

@@ -80,13 +80,6 @@ final class RootViewModel {
         hasSynced = true
     }
 
-    func handleGoalChanged(userId: String, goalId newGoalId: String) {
-        guard newGoalId != activeGoalId else { return }
-        guard let descriptor = goals.resolveGoal(userId: userId, goalId: newGoalId) else { return }
-        applyGoalState(descriptor)
-        refreshRoadmapReadinessIfNeeded(for: descriptor)
-    }
-
     func markRoadmapReady() {
         roadmapReady = true
         guard let activeGoalId else { return }
@@ -119,17 +112,6 @@ final class RootViewModel {
         case .intakeInProgress, .profileGenerating, .generationFailed, .other:
             goalComplete = false
             roadmapReady = false
-        }
-    }
-
-    private func refreshRoadmapReadinessIfNeeded(for descriptor: ActiveGoalDescriptor) {
-        guard descriptor.phase == .intakeCompleted else { return }
-        let goalId = descriptor.goalId
-        Task { [weak self] in
-            guard let self else { return }
-            let hasRoadmap = await roadmap.isRoadmapReady(goalId: goalId)
-            guard self.activeGoalId == goalId else { return }
-            self.roadmapReady = hasRoadmap
         }
     }
 }

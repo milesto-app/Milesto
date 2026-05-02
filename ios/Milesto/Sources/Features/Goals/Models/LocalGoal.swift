@@ -24,12 +24,8 @@ final class LocalGoal {
     var snapshot: GoalSnapshot {
         GoalSnapshot(
             id: id,
-            userId: userId,
             title: title,
-            description: goalDescription,
-            status: GoalStatus.from(status),
-            targetDate: targetDate,
-            createdAt: createdAt
+            targetDate: targetDate
         )
     }
 }
@@ -51,24 +47,6 @@ struct RemoteGoal: Codable {
         case description
         case targetDate = "target_date"
         case createdAt = "created_at"
-    }
-
-    init(
-        id: String,
-        userId: String,
-        title: String,
-        description: String,
-        status: GoalStatus,
-        targetDate: Date? = nil,
-        createdAt: Date? = nil
-    ) {
-        self.id = id
-        self.userId = userId
-        self.title = title
-        self.description = description
-        self.status = status
-        self.targetDate = targetDate
-        self.createdAt = createdAt
     }
 
     init(from decoder: Decoder) throws {
@@ -107,18 +85,12 @@ struct RemoteGoal: Codable {
 
 struct GoalSnapshot: Identifiable, Hashable {
     let id: String
-    let userId: String
     let title: String
-    let description: String
-    let status: GoalStatus
     let targetDate: Date?
-    let createdAt: Date?
 }
 
 struct GoalSummary: Identifiable, Hashable {
     let id: String
-    let title: String
-    let status: String
 }
 
 extension LocalGoal {

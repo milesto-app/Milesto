@@ -35,17 +35,6 @@ final class SupabaseGoalRepository: RemoteGoalRepository {
         )
     }
 
-    func getGoal(goalId: String) async throws -> RemoteGoal {
-        try await client
-            .from("goals")
-            .select()
-            .eq("id", value: goalId)
-            .is("deleted_at", value: nil)
-            .single()
-            .execute()
-            .value
-    }
-
     func deleteGoal(goalId: String) async throws {
         struct SoftDeleteBody: Encodable {
             let deletedAt: String

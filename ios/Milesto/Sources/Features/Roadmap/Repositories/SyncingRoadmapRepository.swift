@@ -119,10 +119,6 @@ final class SyncingRoadmapRepository: RoadmapSummaryRepository, WeeklyTaskReposi
         return remote.status
     }
 
-    func isRoadmapReady(goalId: String) async -> Bool {
-        (try? await fetchRoadmapStatus(goalId: goalId)) == .complete
-    }
-
     func loadWeeklyTasks(goalId: String) -> [WeeklyTask] {
         let descriptor = FetchDescriptor<LocalWeeklyTask>(
             predicate: #Predicate { $0.goalId == goalId },
@@ -241,21 +237,6 @@ final class SyncingRoadmapRepository: RoadmapSummaryRepository, WeeklyTaskReposi
             }
         }
         return false
-    }
-
-    func currentMilestoneTitle(goalId: String) -> String? {
-        let descriptor = FetchDescriptor<LocalRoadmap>(
-            predicate: #Predicate { $0.goalId == goalId }
-        )
-        guard let roadmap = try? context.fetch(descriptor).first,
-              let currentId = roadmap.currentMilestoneId,
-              let milestone = roadmap.milestones.first(where: { $0.id == currentId })
-        else { return nil }
-        return milestone.title
-    }
-
-    func goalTitle(goalId: String) -> String? {
-        fetchGoalTitle(goalId: goalId)
     }
 
     func sortedTasks(_ tasks: [WeeklyTask]) -> [WeeklyTask] {

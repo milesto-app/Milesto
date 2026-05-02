@@ -8,7 +8,6 @@ final class AppDependencies {
     let entitlement: any EntitlementProviding
     let subscription: any SubscriptionRepository
     let profile: any ProfileRepository
-    let goals: any GoalRepository
     let goalRouting: any GoalRoutingRepository
     let intake: any IntakeRepository
     let intakeFlow: any IntakeFlowRepository
@@ -20,7 +19,6 @@ final class AppDependencies {
     let debriefs: any DebriefRepository
     let chat: any ChatRepository
     let stats: any StatsRepository
-    let transcription: any TranscriptionRepository
 
     #if DEBUG
         let developerSettings = DeveloperSettings()
@@ -73,7 +71,6 @@ final class AppDependencies {
             remote: supabaseStats,
             container: container
         )
-        let transcriptionRepo = SupabaseTranscriptionRepository(recorder: AudioRecorderRepository())
         let subscriptionService = SyncingSubscriptionRepository()
         Task { await SubscriptionSyncOutbox.shared.configure(container: container) }
 
@@ -85,7 +82,6 @@ final class AppDependencies {
             await subscriptionService?.handleBackendSubscriptionRequired()
         }
         profile = syncingProfile
-        goals = goalRepo
         goalRouting = goalRepo
         intake = supabaseIntake
         intakeFlow = intakeFlowRepo
@@ -97,6 +93,5 @@ final class AppDependencies {
         debriefs = roadmapRepo
         chat = chatRepo
         stats = statsRepo
-        transcription = transcriptionRepo
     }
 }

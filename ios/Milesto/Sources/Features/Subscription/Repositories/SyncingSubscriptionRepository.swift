@@ -31,12 +31,7 @@ final class SyncingSubscriptionRepository: EntitlementProviding, SubscriptionRep
     var purchaseError: PurchaseError?
 
     private var updatesTask: Task<Void, Never>?
-    private var onAppStartInFlight = false
     private var reconcileTask: Task<Void, Never>?
-
-    var isSubscribed: Bool {
-        entitlementState == .subscribed
-    }
 
     var plans: [SubscriptionPlan] {
         products.map(makePlan)
@@ -58,24 +53,10 @@ final class SyncingSubscriptionRepository: EntitlementProviding, SubscriptionRep
     }
 
     private func makePlan(_ product: Product) -> SubscriptionPlan {
-        let period: SubscriptionPlan.Period = product.id == Self.annualProductId ? .annual : .monthly
-        return SubscriptionPlan(
+        SubscriptionPlan(
             id: product.id,
-            displayName: product.displayName,
-            displayPrice: product.displayPrice,
-            period: period
+            displayPrice: product.displayPrice
         )
-    }
-
-    func onAppStart() async {
-        guard !onAppStartInFlight else { return }
-        onAppStartInFlight = true
-        defer { onAppStartInFlight = false }
-        let userId = await currentUserId()
-        await processUnfinishedTransactions()
-        await SubscriptionSyncOutbox.shared.drainAll(currentUserId: userId)
-        await SubscriptionSyncOutbox.shared.purgeOlderThan(days: 7)
-        await reconcileWithBackend()
     }
 
     func loadPlans() async {
