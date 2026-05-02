@@ -50,7 +50,7 @@ struct WeeklyTasksCard: View {
                     .padding(.horizontal, 24)
                     .padding(.vertical, 16)
             } else {
-                VStack(spacing: 4) {
+                VStack(spacing: 8) {
                     ForEach(model.sortedTasks) { task in
                         ObjectiveRowView(
                             task: task,
@@ -63,8 +63,10 @@ struct WeeklyTasksCard: View {
                                 selectedTaskId = task.id
                             }
                         )
-                        .padding(.horizontal, 24)
-                        .padding(.vertical, 12)
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 14)
+                        .glassEffect(.regular.interactive(), in: RoundedRectangle(cornerRadius: 16))
+                        .padding(.horizontal, 16)
                         .transition(.move(edge: .bottom).combined(with: .opacity))
                     }
                 }

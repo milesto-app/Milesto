@@ -12,13 +12,13 @@ struct ObjectiveRowView: View {
     private var checkbox: some View {
         TablerIcons(
             task.isCompleted ? .circleCheck : .circle,
-            size: 22,
+            size: 28,
             color: task.isCompleted ? Color("Brand") : Color("TextSecondary")
         )
     }
 
     private var rowBody: some View {
-        HStack(spacing: 12) {
+        HStack(spacing: 2) {
             VStack(alignment: .leading, spacing: 4) {
                 AppText(verbatim: task.title, style: .body)
                     .color(task.isCompleted ? Color("TextSecondary") : Color("TextPrimary"))

@@ -96,21 +96,21 @@ struct MilestoneDetailView: View {
                     AppText("roadmap.milestone.tasks.empty", table: "Roadmap", style: .subheadline)
                         .color(Color("TextSecondary"))
                 } else {
-                    VStack(spacing: 4) {
+                    VStack(spacing: 8) {
                         ForEach(model.sortedTasks) { task in
                             ObjectiveRowView(
                                 task: task,
                                 onToggle: { model.toggleTask(task) },
                                 onOpen: { selectedTaskId = task.id }
                             )
-                            .padding(.vertical, 4)
+                            .padding(.horizontal, 16)
+                            .padding(.vertical, 14)
+                            .glassEffect(.regular.interactive(), in: RoundedRectangle(cornerRadius: 16))
                         }
                     }
                 }
             }
             .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(16)
-            .glassEffect(.regular, in: RoundedRectangle(cornerRadius: 16))
         }
     }
 
