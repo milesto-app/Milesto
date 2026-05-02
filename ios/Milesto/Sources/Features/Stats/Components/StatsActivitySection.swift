@@ -36,7 +36,6 @@ struct StatsActivitySection: View {
         let ratio = day.objectivesTotal > 0
             ? Double(day.objectivesCompleted) / Double(day.objectivesTotal)
             : 0
-        let hasActivity = day.objectivesCompleted > 0 || day.objectivesTotal > 0
 
         return VStack(spacing: 8) {
             ZStack(alignment: .bottom) {
@@ -45,8 +44,8 @@ struct StatsActivitySection: View {
                     .frame(height: 96)
 
                 RoundedRectangle(cornerRadius: 6)
-                    .fill(barColor(ratio: ratio, hasActivity: hasActivity))
-                    .frame(height: isAnimated ? max(4, 96 * ratio) : 4)
+                    .fill(Color("Brand"))
+                    .frame(height: isAnimated ? 96 * ratio : 0)
                     .animation(
                         .spring(duration: 0.6, bounce: 0.2).delay(Double(index) * 0.06),
                         value: isAnimated
@@ -58,15 +57,6 @@ struct StatsActivitySection: View {
                 .color(isToday ? Color("Brand") : Color("TextSecondary"))
                 .weight(isToday ? .semibold : .regular)
         }
-    }
-
-    private func barColor(ratio: Double, hasActivity: Bool) -> Color {
-        if !hasActivity, ratio == 0 {
-            return Color("TextSecondary").opacity(0.25)
-        }
-        if ratio >= 0.7 { return Color("Brand") }
-        if ratio >= 0.3 { return Color("Warning") }
-        return Color("Error").opacity(0.7)
     }
 
     private func dayName(from dateString: String) -> String {

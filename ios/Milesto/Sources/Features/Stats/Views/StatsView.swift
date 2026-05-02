@@ -47,17 +47,15 @@ struct StatsView: View {
             VStack(spacing: 0) {
                 statsTitle
 
-                VStack(alignment: .leading, spacing: 36) {
+                VStack(alignment: .leading, spacing: 28) {
                     StatsHeroSection(
                         completed: stats.overallCompleted,
-                        total: stats.overallTotal,
-                        rate: stats.overallRate
+                        total: stats.overallTotal
                     )
 
                     StatsThisWeekSection(
                         completed: stats.thisWeekCompleted,
-                        total: stats.thisWeekTotal,
-                        rate: stats.thisWeekRate
+                        total: stats.thisWeekTotal
                     )
 
                     StatsStreakSection(

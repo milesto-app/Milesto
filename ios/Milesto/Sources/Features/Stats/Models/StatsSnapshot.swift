@@ -6,7 +6,6 @@ struct StatsSnapshot {
     let last7Days: [DayActivitySnapshot]
     let overallCompleted: Int
     let overallTotal: Int
-    let overallRate: Double
     let thisWeekRate: Double
     let weeklyProgress: [WeeklyProgressSnapshot]
     let milestoneCompleted: Int
@@ -55,7 +54,6 @@ extension RemoteStats {
             },
             overallCompleted: completion.totalCompleted,
             overallTotal: completion.totalObjectives,
-            overallRate: completion.overallRate,
             thisWeekRate: completion.thisWeekRate,
             weeklyProgress: weeklyProgress.map {
                 WeeklyProgressSnapshot(

@@ -3,9 +3,12 @@ import SwiftUI
 struct StatsThisWeekSection: View {
     let completed: Int
     let total: Int
-    let rate: Double
 
     @State private var animatedRate: Double = 0
+
+    private var rate: Double {
+        total > 0 ? Double(completed) / Double(total) : 0
+    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {

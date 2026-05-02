@@ -8,10 +8,11 @@ struct StatsStreakSection: View {
         VStack(alignment: .leading, spacing: 14) {
             AppText("stats.streak.title", table: "Stats", style: .headline)
 
-            HStack(spacing: 32) {
+            HStack(spacing: 16) {
                 streakItem(icon: .flame, value: current, label: "stats.streak.current")
+                    .frame(maxWidth: .infinity, alignment: .leading)
                 streakItem(icon: .trophy, value: best, label: "stats.streak.best")
-                Spacer(minLength: 0)
+                    .frame(maxWidth: .infinity, alignment: .leading)
             }
         }
     }
