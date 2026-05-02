@@ -137,74 +137,6 @@
         }
       }
     },
-    "home.debrief.ratings.easy" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Easy"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Facile"
-          }
-        }
-      }
-    },
-    "home.debrief.ratings.hard" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Hard"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Difficile"
-          }
-        }
-      }
-    },
-    "home.debrief.ratings.moderate" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Moderate"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Moyen"
-          }
-        }
-      }
-    },
-    "home.debrief.ratings.title" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "How did you find these tasks?"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Comment as-tu trouvé ces tâches ?"
-          }
-        }
-      }
-    },
     "home.debrief.reflection.placeholder" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -443,53 +375,53 @@
         }
       }
     },
-    "home.tasks.difficulty.easy" : {
+    "home.tasks.duration.hours" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Easy"
+            "value" : "%lld h"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Facile"
+            "value" : "%lld h"
           }
         }
       }
     },
-    "home.tasks.difficulty.hard" : {
+    "home.tasks.duration.hoursMinutes" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Hard"
+            "value" : "%lld h %lld min"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Difficile"
+            "value" : "%lld h %lld min"
           }
         }
       }
     },
-    "home.tasks.difficulty.moderate" : {
+    "home.tasks.duration.minutes" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Moderate"
+            "value" : "%lld min"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Moyen"
+            "value" : "%lld min"
           }
         }
       }

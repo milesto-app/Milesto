@@ -1,25 +1,5 @@
 import Foundation
 
-enum DifficultyRating: String, Codable {
-    case easy
-    case moderate
-    case hard
-
-    var priority: Int {
-        switch self {
-        case .hard: return 0
-        case .moderate: return 1
-        case .easy: return 2
-        }
-    }
-}
-
-extension Optional where Wrapped == DifficultyRating {
-    var priority: Int {
-        self?.priority ?? 3
-    }
-}
-
 struct WeeklyTask: Codable, Identifiable {
     let id: String
     let weeklyPlanId: String
@@ -27,7 +7,7 @@ struct WeeklyTask: Codable, Identifiable {
     let userId: String
     let title: String
     let description: String
-    let difficultyRating: DifficultyRating?
+    let estimatedMinutes: Int?
     let orderIndex: Int
     let isCompleted: Bool
     let isFallback: Bool
@@ -38,10 +18,23 @@ struct WeeklyTask: Codable, Identifiable {
         case weeklyPlanId = "weekly_plan_id"
         case goalId = "goal_id"
         case userId = "user_id"
-        case difficultyRating = "difficulty_rating"
+        case estimatedMinutes = "estimated_minutes"
         case orderIndex = "order_index"
         case isCompleted = "is_completed"
         case isFallback = "is_fallback"
         case createdAt = "created_at"
     }
+}
+
+func formatDuration(_ minutes: Int?) -> String? {
+    guard let minutes, minutes > 0 else { return nil }
+    if minutes < 60 {
+        return String(format: String(localized: "home.tasks.duration.minutes", table: "Home"), minutes)
+    }
+    let hours = minutes / 60
+    let remainder = minutes % 60
+    if remainder == 0 {
+        return String(format: String(localized: "home.tasks.duration.hours", table: "Home"), hours)
+    }
+    return String(format: String(localized: "home.tasks.duration.hoursMinutes", table: "Home"), hours, remainder)
 }

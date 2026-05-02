@@ -5,30 +5,8 @@ struct ObjectiveRowView: View {
     let onToggle: () -> Void
     var onOpen: (() -> Void)?
 
-    private var difficultyColor: Color {
-        switch task.difficultyRating {
-        case .easy:
-            return Color("Success")
-        case .moderate:
-            return Color("Warning")
-        case .hard:
-            return Color("Error")
-        case nil:
-            return Color("TextSecondary")
-        }
-    }
-
-    private var difficultyLabel: String {
-        switch task.difficultyRating {
-        case .easy:
-            return String(localized: "home.tasks.difficulty.easy", table: "Home")
-        case .moderate:
-            return String(localized: "home.tasks.difficulty.moderate", table: "Home")
-        case .hard:
-            return String(localized: "home.tasks.difficulty.hard", table: "Home")
-        case nil:
-            return ""
-        }
+    private var durationLabel: String? {
+        formatDuration(task.estimatedMinutes)
     }
 
     private var checkbox: some View {
@@ -54,8 +32,8 @@ struct ObjectiveRowView: View {
 
             Spacer()
 
-            if task.difficultyRating != nil {
-                AppPill(verbatim: difficultyLabel, tint: difficultyColor)
+            if let durationLabel {
+                AppPill(verbatim: durationLabel, tint: Color("TextSecondary"))
             }
         }
         .contentShape(Rectangle())

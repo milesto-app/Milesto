@@ -9,21 +9,11 @@ struct WeeklyTaskDetailPage: View {
     let onToggle: ((WeeklyTask) -> Void)?
 
     private var accent: Color {
-        switch task.difficultyRating {
-        case .easy: return Color("Success")
-        case .moderate: return Color("Warning")
-        case .hard: return Color("Error")
-        case nil: return Color("Brand")
-        }
+        Color("Brand")
     }
 
-    private var difficultyLabel: String {
-        switch task.difficultyRating {
-        case .easy: return String(localized: "home.tasks.difficulty.easy", table: "Home")
-        case .moderate: return String(localized: "home.tasks.difficulty.moderate", table: "Home")
-        case .hard: return String(localized: "home.tasks.difficulty.hard", table: "Home")
-        case nil: return ""
-        }
+    private var durationLabel: String? {
+        formatDuration(task.estimatedMinutes)
     }
 
     var body: some View {
@@ -115,17 +105,13 @@ struct WeeklyTaskDetailPage: View {
 
                     Spacer(minLength: 0)
 
-                    if task.difficultyRating != nil {
-                        difficultyBadge
+                    if let durationLabel {
+                        AppPill(verbatim: durationLabel, tint: accent)
                     }
                 }
             }
             .padding(24)
         }
-    }
-
-    private var difficultyBadge: some View {
-        AppPill(verbatim: difficultyLabel, tint: accent)
     }
 
     private var eyebrowRow: some View {

@@ -7,7 +7,6 @@ final class DebriefBannerViewModel {
     @ObservationIgnored private var goalId: String = ""
 
     private(set) var weeklyPlanId: String?
-    private(set) var completedTasks: [WeeklyTask] = []
     private(set) var shouldDisplay = false
 
     init(repository: any DebriefRepository) {
@@ -29,7 +28,6 @@ final class DebriefBannerViewModel {
 
     private func apply(_ state: DebriefPromptState) {
         weeklyPlanId = state.weeklyPlanId
-        completedTasks = state.completedTasks
         shouldDisplay = state.shouldDisplay
     }
 }

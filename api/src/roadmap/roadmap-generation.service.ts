@@ -258,7 +258,10 @@ function repairWeeklyTasks(items: unknown[]): GeneratedWeeklyTask[] {
       title: typeof rec.title === "string" ? rec.title : "",
       description: typeof rec.description === "string" ? rec.description : "",
       order_index: Number(rec.order_index) || idx + FIRST_ORDER_INDEX,
-      difficulty_rating: rec.difficulty_rating,
+      estimated_minutes:
+        typeof rec.estimated_minutes === "number"
+          ? rec.estimated_minutes
+          : undefined,
     };
   });
   const repairedInstances = plainToInstance(GeneratedWeeklyTask, cleaned);

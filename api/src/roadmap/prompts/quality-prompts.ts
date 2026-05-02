@@ -7,7 +7,7 @@ Score the milestones on four dimensions from 0 to 5 (integers only):
 
 2. **personalization** — Do the milestones reflect the user's constraints, experience level, and preferences? Score 5 if milestones are clearly tailored to this specific user. Score 0 if milestones are generic and could apply to anyone.
 
-3. **progression** — Does the difficulty/complexity increase appropriately across milestones? Score 5 if early milestones are achievable foundations and later ones build toward the full goal. Score 0 if difficulty is flat or randomly ordered.
+3. **progression** — Does the scope/complexity increase appropriately across milestones? Score 5 if early milestones are achievable foundations and later ones build toward the full goal. Score 0 if scope is flat or randomly ordered.
 
 4. **deadline_alignment** — Does milestone timing align with the user's target deadline? Score 5 if the pacing fits the available time. Score 0 if milestones ignore the deadline entirely.
 

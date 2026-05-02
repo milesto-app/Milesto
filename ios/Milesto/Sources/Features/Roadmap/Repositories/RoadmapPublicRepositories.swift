@@ -53,13 +53,12 @@ protocol WeeklyPlanRepository: AnyObject {
 
 struct DebriefPromptState {
     let weeklyPlanId: String?
-    let completedTasks: [WeeklyTask]
     let shouldDisplay: Bool
 }
 
 @MainActor
 protocol DebriefRepository: AnyObject {
-    func submitDebrief(goalId: String, weeklyPlanId: String, note: String, taskRatings: [TaskRating]?) async throws -> Debrief
+    func submitDebrief(goalId: String, weeklyPlanId: String, note: String) async throws -> Debrief
     func loadDebriefPromptState(goalId: String) -> DebriefPromptState
     func refreshDebriefPromptState(goalId: String) async -> DebriefPromptState
 }
