@@ -43,17 +43,10 @@ final class AppDependencies {
         let onboardingRepo = SyncingOnboardingRepository(
             profile: syncingProfile
         )
-        let chatPurger = ChatLocalDataPurger(container: container)
-        let roadmapPurger = RoadmapLocalDataPurger(container: container)
-        let statsPurger = StatsLocalDataPurger(container: container)
         let settingsRepo = SyncingSettingsRepository(
             profile: syncingProfile,
             goals: goalRepo,
-            container: container,
-            featurePurgers: [chatPurger, roadmapPurger, statsPurger],
-            purgeAdditionalLocalData: {
-                try await SubscriptionSyncOutbox.shared.purgeAll()
-            }
+            container: container
         )
         let roadmapRemote = SupabaseRoadmapRepository()
         let roadmapRepo = SyncingRoadmapRepository(
