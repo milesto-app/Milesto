@@ -2,7 +2,6 @@ import SwiftUI
 
 struct IntakeDateQuestionView: View {
     let question: IntakeQuestion
-    let answers: [String: IntakeAnswerDTO]
     let setAnswer: (String, IntakeAnswerDTO) -> Void
 
     @State private var selectedDate = Date()

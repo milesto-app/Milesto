@@ -72,7 +72,7 @@ final class ChatViewModel {
                 for try await event in stream {
                     handle(event: event)
                 }
-            } catch let error as BackendError {
+            } catch let error as ApiError {
                 if case .generationLimitReached = error {
                     isLimitReached = true
                     errorMessage = String(localized: "usage.limit.reached.message", table: "Paywall")

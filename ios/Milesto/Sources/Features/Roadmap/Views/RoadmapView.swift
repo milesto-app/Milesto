@@ -56,7 +56,6 @@ struct RoadmapMonthSection: Identifiable {
 
 struct RoadmapView: View {
     let goalId: String
-    var onGoalChanged: ((String) -> Void)?
 
     @Environment(AppDependencies.self) private var dependencies
     @State private var model: RoadmapViewModel?

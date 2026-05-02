@@ -92,27 +92,3 @@ final class ProfileOnboardingViewModel {
         Calendar.current.date(byAdding: .year, value: -20, to: Date()) ?? Date()
     }
 }
-
-struct ProfileSnapshot {
-    let firstName: String?
-    let lastName: String?
-    let dateOfBirth: Date?
-    let coachId: Int?
-
-    init(firstName: String? = nil, lastName: String? = nil, dateOfBirth: Date? = nil, coachId: Int? = nil) {
-        self.firstName = firstName
-        self.lastName = lastName
-        self.dateOfBirth = dateOfBirth
-        self.coachId = coachId
-    }
-
-    init?(profile: Profile?) {
-        guard let profile else { return nil }
-        self.init(
-            firstName: profile.firstName,
-            lastName: profile.lastName,
-            dateOfBirth: profile.dateOfBirth,
-            coachId: profile.coachId
-        )
-    }
-}

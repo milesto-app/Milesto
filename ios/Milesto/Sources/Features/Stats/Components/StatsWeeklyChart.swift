@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct StatsWeeklyChart: View {
-    let days: [DayActivityDTO]
+    let days: [DayActivitySnapshot]
     @State private var isAnimated = false
 
     private static let dayFormatter: DateFormatter = {

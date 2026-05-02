@@ -13,38 +13,27 @@ final class SyncingSettingsRepository: SettingsRepository {
     private let profile: any ProfileRepository
     private let goals: any GoalRepository
     private let container: ModelContainer
-    private let featurePurgers: [any LocalDataPurging]
-    private let purgeAdditionalLocalData: () async throws -> Void
 
     init(
         profile: any ProfileRepository,
         goals: any GoalRepository,
-        container: ModelContainer,
-        featurePurgers: [any LocalDataPurging] = [],
-        purgeAdditionalLocalData: @escaping () async throws -> Void = {}
+        container: ModelContainer
     ) {
         self.profile = profile
         self.goals = goals
         self.container = container
-        self.featurePurgers = featurePurgers
-        self.purgeAdditionalLocalData = purgeAdditionalLocalData
     }
 
     private var context: ModelContext {
         container.mainContext
     }
 
-    func loadProfile(userId: String) -> Profile? {
-        let descriptor = FetchDescriptor<Profile>(
-            predicate: #Predicate { $0.userId == userId }
-        )
-        return try? context.fetch(descriptor).first
+    func loadProfile(userId: String) -> ProfileSnapshot? {
+        profile.loadProfile(userId: userId)
     }
 
-    func loadActiveGoal(userId: String) -> Goal? {
-        let descriptor = FetchDescriptor<Goal>()
-        let goals = (try? context.fetch(descriptor)) ?? []
-        return goals.first { $0.userId.caseInsensitiveCompare(userId) == .orderedSame }
+    func loadActiveGoal(userId: String) -> GoalSnapshot? {
+        goals.loadActiveGoal(userId: userId)
     }
 
     func syncProfile(userId: String) async throws {
@@ -52,36 +41,17 @@ final class SyncingSettingsRepository: SettingsRepository {
     }
 
     func updateProfile(_ fields: ProfileUpdateFields) async throws {
-        let updated = try await profile.updateProfile(fields)
-        if let local = loadProfile(userId: updated.userId) {
-            if let v = updated.firstName { local.firstName = v }
-            if let v = updated.lastName { local.lastName = v }
-            if let v = updated.dateOfBirth { local.dateOfBirth = v }
-            if let v = updated.coachId { local.coachId = v }
-            if let v = updated.language { local.language = v }
-            try? context.save()
-        }
+        _ = try await profile.updateProfile(fields)
     }
 
     func deleteGoal(goalId: String) async throws {
         try await goals.deleteGoal(goalId: goalId)
-        let descriptor = FetchDescriptor<Goal>(
-            predicate: #Predicate { $0.id == goalId }
-        )
-        if let local = try? context.fetch(descriptor).first {
-            context.delete(local)
-            try? context.save()
-        }
     }
 
     func purgeLocalUserData() async throws {
         do {
-            try await purgeAdditionalLocalData()
-            for purger in featurePurgers {
-                try purger.purgeLocalData()
-            }
-            try deleteAll(Goal.self)
-            try deleteAll(Profile.self)
+            try deleteAll(LocalGoal.self)
+            try deleteAll(LocalProfile.self)
             try context.save()
         } catch {
             settingsLogger.error("Failed to purge local user data before sign-out")

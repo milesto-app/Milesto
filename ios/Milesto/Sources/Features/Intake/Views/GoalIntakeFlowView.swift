@@ -1,7 +1,6 @@
 import SwiftUI
 
 struct GoalIntakeFlowView: View {
-    let userId: String
     let existingGoalId: String?
     let onClose: (() -> Void)?
     let onComplete: (String) -> Void
@@ -66,13 +65,6 @@ struct GoalIntakeFlowView: View {
                     .padding(.top, 8)
                     .padding(.trailing, 16)
                 }
-            }
-            .overlay(alignment: .topLeading) {
-                AppSignOutButton {
-                    try? await dependencies.authRepository.signOut()
-                }
-                .padding(.top, 8)
-                .padding(.leading, 16)
             }
         }
         .appBackground()

@@ -3,7 +3,7 @@ import Foundation
 @MainActor
 @Observable
 final class RoadmapViewModel {
-    @ObservationIgnored private let repository: any RoadmapFeatureRepository
+    @ObservationIgnored private let repository: any RoadmapSummaryRepository
 
     private(set) var goalId: String = ""
     private(set) var goalTitle: String = ""
@@ -12,17 +12,8 @@ final class RoadmapViewModel {
     private(set) var isLoading = true
     var appeared = false
 
-    init(repository: any RoadmapFeatureRepository) {
+    init(repository: any RoadmapSummaryRepository) {
         self.repository = repository
-    }
-
-    var completionProgress: Double {
-        guard !milestones.isEmpty else { return 0 }
-        let completed = Double(milestones.filter { $0.status == .completed }.count)
-        let currentProgress = milestones.contains(where: { $0.status == .current })
-            ? repository.currentTaskProgress(goalId: goalId)
-            : 0
-        return (completed + currentProgress) / Double(milestones.count)
     }
 
     func configure(goalId: String) {

@@ -38,7 +38,7 @@ final class GoalIntakeFlowViewModel {
                 description: goalDescription.trimmingCharacters(in: .whitespacesAndNewlines)
             )
             step = .motivation(goalId: goal.id)
-        } catch BackendError.subscriptionRequired {
+        } catch ApiError.subscriptionRequired {
         } catch {
             errorMessage = error.localizedDescription
             showError = true
@@ -58,7 +58,7 @@ final class GoalIntakeFlowViewModel {
         do {
             try await repository.saveMotivation(goalId: goalId, quote: trimmed)
             advanceToIntake(goalId: goalId)
-        } catch BackendError.subscriptionRequired {
+        } catch ApiError.subscriptionRequired {
         } catch {
             errorMessage = error.localizedDescription
             showError = true

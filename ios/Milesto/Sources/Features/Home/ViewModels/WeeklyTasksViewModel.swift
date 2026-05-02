@@ -3,7 +3,8 @@ import Foundation
 @MainActor
 @Observable
 final class WeeklyTasksViewModel {
-    @ObservationIgnored private let repository: any RoadmapFeatureRepository
+    @ObservationIgnored private let repository: any WeeklyTaskRepository
+    @ObservationIgnored private let planRepository: any WeeklyPlanRepository
     @ObservationIgnored private var goalId: String = ""
 
     private(set) var tasks: [WeeklyTask] = []
@@ -11,18 +12,13 @@ final class WeeklyTasksViewModel {
     private(set) var isLoading = true
     private(set) var hasError = false
 
-    init(repository: any RoadmapFeatureRepository) {
+    init(repository: any WeeklyTaskRepository, planRepository: any WeeklyPlanRepository) {
         self.repository = repository
+        self.planRepository = planRepository
     }
 
     var sortedTasks: [WeeklyTask] {
-        tasks.sorted {
-            if $0.isCompleted != $1.isCompleted { return !$0.isCompleted }
-            let p0 = $0.difficultyRating.priority
-            let p1 = $1.difficultyRating.priority
-            if p0 != p1 { return p0 < p1 }
-            return $0.orderIndex < $1.orderIndex
-        }
+        repository.sortedTasks(tasks)
     }
 
     var completedCount: Int {
@@ -36,7 +32,7 @@ final class WeeklyTasksViewModel {
             tasks = localTasks
             isLoading = false
         }
-        weekNumber = repository.loadWeeklyPlan(goalId: goalId)?.weekNumber
+        weekNumber = planRepository.loadWeeklyPlan(goalId: goalId)?.weekNumber
     }
 
     func refresh() async {
@@ -47,23 +43,18 @@ final class WeeklyTasksViewModel {
         } catch {
             if tasks.isEmpty { hasError = true }
         }
-        if let plan = await repository.refreshWeeklyPlan(goalId: goalId) {
+        if let plan = await planRepository.refreshWeeklyPlan(goalId: goalId) {
             weekNumber = plan.weekNumber
         }
     }
 
     func toggle(_ task: WeeklyTask) {
-        guard let index = tasks.firstIndex(where: { $0.id == task.id }) else { return }
-        setTaskCompletion(tasks[index], isCompleted: !tasks[index].isCompleted)
+        guard let current = tasks.first(where: { $0.id == task.id }) else { return }
+        setTaskCompletion(current, isCompleted: !current.isCompleted)
     }
 
     private func setTaskCompletion(_ task: WeeklyTask, isCompleted: Bool) {
-        guard let index = tasks.firstIndex(where: { $0.id == task.id }) else { return }
-        let original = tasks[index]
-        let optimistic = original.with(isCompleted: isCompleted)
-
-        tasks[index] = optimistic
-        repository.saveTask(optimistic)
+        guard let original = repository.applyOptimisticCompletion(task: task, isCompleted: isCompleted, in: &tasks) else { return }
 
         Task {
             do {
@@ -82,23 +73,5 @@ final class WeeklyTasksViewModel {
                 repository.saveTask(original)
             }
         }
-    }
-}
-
-private extension WeeklyTask {
-    func with(isCompleted: Bool) -> WeeklyTask {
-        WeeklyTask(
-            id: id,
-            weeklyPlanId: weeklyPlanId,
-            goalId: goalId,
-            userId: userId,
-            title: title,
-            description: description,
-            difficultyRating: difficultyRating,
-            orderIndex: orderIndex,
-            isCompleted: isCompleted,
-            isFallback: isFallback,
-            createdAt: createdAt
-        )
     }
 }

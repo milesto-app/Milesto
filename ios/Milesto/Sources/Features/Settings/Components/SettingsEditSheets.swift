@@ -3,7 +3,7 @@ import UIKit
 
 struct SettingsSheetContent: View {
     let sheet: SettingsSheet
-    let profile: Profile?
+    let profile: ProfileSnapshot?
     let onSave: (ProfileUpdateFields) -> Void
 
     var body: some View {

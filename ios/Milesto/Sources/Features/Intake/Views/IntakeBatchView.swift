@@ -2,8 +2,6 @@ import SwiftUI
 
 struct IntakeBatchView: View {
     let batch: IntakeBatch
-    let batchNumber: Int
-    let totalBatches: Int
     let answers: [String: IntakeAnswerDTO]
     let setAnswer: (String, IntakeAnswerDTO) -> Void
     let onSubmit: () -> Void

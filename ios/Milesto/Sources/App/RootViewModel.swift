@@ -10,16 +10,16 @@ final class RootViewModel {
     var activeGoalId: String?
     var connectionError = false
 
-    private(set) var localProfile: Profile?
+    private(set) var localProfile: ProfileSnapshot?
 
     @ObservationIgnored private let profile: any ProfileRepository
     @ObservationIgnored private let goals: any GoalRoutingRepository
-    @ObservationIgnored private let roadmap: any RoadmapRepository
+    @ObservationIgnored private let roadmap: any RoadmapSummaryRepository
 
     init(
         profile: any ProfileRepository,
         goals: any GoalRoutingRepository,
-        roadmap: any RoadmapRepository
+        roadmap: any RoadmapSummaryRepository
     ) {
         self.profile = profile
         self.goals = goals
@@ -71,20 +71,13 @@ final class RootViewModel {
                descriptor.goalId == id,
                descriptor.phase == .intakeCompleted
             {
-                let hasRoadmap = await roadmap.isRoadmapReady(goalId: id)
+                let status = try? await roadmap.fetchRoadmapStatus(goalId: id)
                 if activeGoalId == id {
-                    roadmapReady = hasRoadmap
+                    roadmapReady = status == .complete
                 }
             }
         }
         hasSynced = true
-    }
-
-    func handleGoalChanged(userId: String, goalId newGoalId: String) {
-        guard newGoalId != activeGoalId else { return }
-        guard let descriptor = goals.resolveGoal(userId: userId, goalId: newGoalId) else { return }
-        applyGoalState(descriptor)
-        refreshRoadmapReadinessIfNeeded(for: descriptor)
     }
 
     func markRoadmapReady() {
@@ -119,17 +112,6 @@ final class RootViewModel {
         case .intakeInProgress, .profileGenerating, .generationFailed, .other:
             goalComplete = false
             roadmapReady = false
-        }
-    }
-
-    private func refreshRoadmapReadinessIfNeeded(for descriptor: ActiveGoalDescriptor) {
-        guard descriptor.phase == .intakeCompleted else { return }
-        let goalId = descriptor.goalId
-        Task { [weak self] in
-            guard let self else { return }
-            let hasRoadmap = await roadmap.isRoadmapReady(goalId: goalId)
-            guard self.activeGoalId == goalId else { return }
-            self.roadmapReady = hasRoadmap
         }
     }
 }

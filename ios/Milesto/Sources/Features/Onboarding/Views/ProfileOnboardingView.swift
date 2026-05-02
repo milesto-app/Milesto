@@ -3,7 +3,7 @@ import SwiftUI
 struct ProfileOnboardingView: View {
     let userId: String
     let missingSteps: [OnboardingStep]
-    let existingProfile: Profile?
+    let existingProfile: ProfileSnapshot?
     let onComplete: () -> Void
 
     @Environment(AppDependencies.self) private var dependencies
@@ -23,7 +23,7 @@ struct ProfileOnboardingView: View {
                     repository: dependencies.onboarding,
                     userId: userId,
                     missingSteps: missingSteps,
-                    existingProfile: ProfileSnapshot(profile: existingProfile)
+                    existingProfile: existingProfile
                 )
             }
         }
@@ -57,13 +57,6 @@ struct ProfileOnboardingView: View {
             }
             .id(model.currentStepIndex)
             .transition(.push(from: .trailing))
-            .overlay(alignment: .topLeading) {
-                AppSignOutButton {
-                    try? await dependencies.authRepository.signOut()
-                }
-                .padding(.top, 8)
-                .padding(.leading, 16)
-            }
             .overlay {
                 if model.isSaving {
                     Color("TextPrimary").opacity(0.3)

@@ -23,7 +23,7 @@ struct WeeklyPlanGenerationView: View {
         .appBackground()
         .task {
             if model == nil {
-                model = WeeklyPlanGenerationViewModel(repository: dependencies.roadmap)
+                model = WeeklyPlanGenerationViewModel(repository: dependencies.weeklyPlans)
             }
             await runGeneration()
         }

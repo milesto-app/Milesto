@@ -2,17 +2,17 @@ import Foundation
 import Supabase
 
 @MainActor
-final class SupabaseRoadmapRepository: RoadmapRepository {
+final class SupabaseRoadmapRepository: RemoteRoadmapRepository {
     init() {}
 
-    func generateRoadmap(goalId: String) async throws -> RoadmapDTO {
-        return try await BackendClient.shared.request(
+    func generateRoadmap(goalId: String) async throws -> RemoteRoadmap {
+        return try await ApiClient.shared.request(
             method: "POST",
             path: "goals/\(goalId)/roadmap/generate"
         )
     }
 
-    func getRoadmap(goalId: String) async throws -> RoadmapDTO {
+    func getRoadmap(goalId: String) async throws -> RemoteRoadmap {
         struct GoalRoadmapRow: Decodable {
             let id: String
             let userId: String
@@ -20,7 +20,7 @@ final class SupabaseRoadmapRepository: RoadmapRepository {
             let roadmapGenerationAttempts: Int
             let roadmapCreatedAt: String?
             let roadmapUpdatedAt: String?
-            let milestones: [MilestoneDTO]?
+            let milestones: [RemoteMilestone]?
 
             enum CodingKeys: String, CodingKey {
                 case id, milestones
@@ -61,7 +61,7 @@ final class SupabaseRoadmapRepository: RoadmapRepository {
             currentMilestoneId = activePlan.milestoneId
         }
 
-        return RoadmapDTO(
+        return RemoteRoadmap(
             goalId: row.id,
             userId: row.userId,
             status: row.roadmapStatus ?? .generating,
@@ -71,16 +71,6 @@ final class SupabaseRoadmapRepository: RoadmapRepository {
             milestones: row.milestones,
             currentMilestoneId: currentMilestoneId
         )
-    }
-
-    func getMilestones(goalId: String) async throws -> [MilestoneSummaryDTO] {
-        try await SupabaseConfig.client
-            .from("milestones")
-            .select("id, title, description, expected_outcome, target_month, target_week, is_monthly_checkpoint, order_index")
-            .eq("goal_id", value: goalId)
-            .order("order_index")
-            .execute()
-            .value
     }
 
     func getWeeklyPlan(goalId: String) async throws -> WeeklyPlan? {
@@ -99,21 +89,21 @@ final class SupabaseRoadmapRepository: RoadmapRepository {
     }
 
     func generateWeeklyPlan(goalId: String) async throws -> WeeklyPlan {
-        return try await BackendClient.shared.request(
+        return try await ApiClient.shared.request(
             method: "POST",
             path: "goals/\(goalId)/roadmap/weekly-plan/generate"
         )
     }
 
     func getWeeklyTasks(goalId: String) async throws -> [WeeklyTask] {
-        return try await BackendClient.shared.request(
+        return try await ApiClient.shared.request(
             method: "GET",
             path: "goals/\(goalId)/weekly-tasks"
         )
     }
 
     func toggleTask(goalId: String, taskId: String, isCompleted: Bool) async throws -> WeeklyTask {
-        return try await BackendClient.shared.request(
+        return try await ApiClient.shared.request(
             method: "PATCH",
             path: "goals/\(goalId)/weekly-tasks/\(taskId)",
             body: UpdateTaskRequest(isCompleted: isCompleted)
@@ -121,7 +111,7 @@ final class SupabaseRoadmapRepository: RoadmapRepository {
     }
 
     func submitDebrief(goalId: String, weeklyPlanId: String, note: String, taskRatings: [TaskRating]?) async throws -> Debrief {
-        return try await BackendClient.shared.request(
+        return try await ApiClient.shared.request(
             method: "POST",
             path: "goals/\(goalId)/debrief",
             body: SubmitDebriefRequest(weeklyPlanId: weeklyPlanId, note: note, taskRatings: taskRatings)
@@ -156,12 +146,5 @@ final class SupabaseRoadmapRepository: RoadmapRepository {
             .order("date", ascending: false)
             .execute()
             .value
-    }
-
-    func isRoadmapReady(goalId: String) async -> Bool {
-        guard let dto = try? await getRoadmap(goalId: goalId) else {
-            return false
-        }
-        return dto.status == .complete
     }
 }

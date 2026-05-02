@@ -6,12 +6,12 @@ private let logger = Logger(subsystem: "app.milesto", category: "RoadmapGenerati
 @MainActor
 @Observable
 final class RoadmapGenerationViewModel {
-    @ObservationIgnored private let repository: any RoadmapFeatureRepository
+    @ObservationIgnored private let repository: any RoadmapSummaryRepository
 
     private(set) var isGenerating = false
     private(set) var hasFailed = false
 
-    init(repository: any RoadmapFeatureRepository) {
+    init(repository: any RoadmapSummaryRepository) {
         self.repository = repository
     }
 
@@ -22,8 +22,8 @@ final class RoadmapGenerationViewModel {
         do {
             try await repository.generateRoadmap(goalId: goalId)
         } catch {
-            if let backendError = error as? BackendError,
-               case .httpError(statusCode: 409, _) = backendError
+            if let apiError = error as? ApiError,
+               case .httpError(statusCode: 409, _) = apiError
             {
             } else {
                 logger.error("Generate roadmap call failed: \(error)")

@@ -40,7 +40,7 @@ struct MilestoneDetailView: View {
         .task {
             if model == nil {
                 model = MilestoneDetailViewModel(
-                    repository: dependencies.roadmap,
+                    repository: dependencies.weeklyTasks,
                     milestoneId: milestoneId,
                     status: status
                 )

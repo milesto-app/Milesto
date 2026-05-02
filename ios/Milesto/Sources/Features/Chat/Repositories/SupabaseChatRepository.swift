@@ -1,7 +1,7 @@
 import Foundation
 import Supabase
 
-private struct MessageDTO: Decodable {
+private struct RemoteMessage: Decodable {
     let id: String
     let role: String
     let content: String?
@@ -20,7 +20,7 @@ private struct ConversationWithMessages: Decodable {
     let goalId: String
     let updatedAt: String
     let createdAt: String
-    let messages: [MessageDTO]
+    let messages: [RemoteMessage]
 
     private enum CodingKeys: String, CodingKey {
         case id
@@ -38,8 +38,8 @@ final class SupabaseChatRepository: RemoteChatRepository {
     private let decoder = JSONDecoder()
 
     init() {
-        guard let url = URL(string: BackendClient.shared.baseURLString) else {
-            preconditionFailure("Invalid backend base URL")
+        guard let url = URL(string: ApiClient.shared.baseURLString) else {
+            preconditionFailure("Invalid api base URL")
         }
         baseURL = url
     }
@@ -73,7 +73,7 @@ final class SupabaseChatRepository: RemoteChatRepository {
     }
 
     func getConversationMessages(conversationId: String) async throws -> [ChatMessage] {
-        let rows: [MessageDTO] = try await SupabaseConfig.client
+        let rows: [RemoteMessage] = try await SupabaseConfig.client
             .from("messages")
             .select()
             .eq("conversation_id", value: conversationId)
@@ -86,12 +86,12 @@ final class SupabaseChatRepository: RemoteChatRepository {
 
         return rows
             .filter { ($0.role == "user" || $0.role == "assistant") && $0.content != nil }
-            .map { dto in
+            .map { remote in
                 ChatMessage(
-                    id: dto.id,
-                    role: dto.role == "user" ? .user : .assistant,
-                    content: dto.content ?? "",
-                    createdAt: dateFormatter.date(from: dto.createdAt) ?? Date()
+                    id: remote.id,
+                    role: remote.role == "user" ? .user : .assistant,
+                    content: remote.content ?? "",
+                    createdAt: dateFormatter.date(from: remote.createdAt) ?? Date()
                 )
             }
     }
@@ -110,7 +110,7 @@ final class SupabaseChatRepository: RemoteChatRepository {
                 do {
                     func buildRequest(token: String) throws -> URLRequest {
                         guard let url = URL(string: "\(baseURL.absoluteString)/chat/messages") else {
-                            throw BackendError.invalidResponse
+                            throw ApiError.invalidResponse
                         }
                         var request = URLRequest(url: url)
                         request.httpMethod = "POST"
@@ -138,12 +138,12 @@ final class SupabaseChatRepository: RemoteChatRepository {
                     }
 
                     guard let httpResponse = response as? HTTPURLResponse else {
-                        continuation.finish(throwing: BackendError.invalidResponse)
+                        continuation.finish(throwing: ApiError.invalidResponse)
                         return
                     }
 
                     if httpResponse.statusCode == 401 {
-                        continuation.finish(throwing: BackendError.unauthorized)
+                        continuation.finish(throwing: ApiError.unauthorized)
                         return
                     }
 
@@ -156,7 +156,7 @@ final class SupabaseChatRepository: RemoteChatRepository {
                                 }
                             }
                         }
-                        continuation.finish(throwing: BackendError.from(statusCode: httpResponse.statusCode, data: errorData))
+                        continuation.finish(throwing: ApiError.from(statusCode: httpResponse.statusCode, data: errorData))
                         return
                     }
 

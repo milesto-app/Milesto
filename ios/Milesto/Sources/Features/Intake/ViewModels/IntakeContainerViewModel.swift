@@ -31,7 +31,6 @@ enum IntakePhase: Equatable {
 @Observable
 final class IntakeContainerViewModel {
     @ObservationIgnored private let intake: any IntakeRepository
-    @ObservationIgnored private let totalEstimatedBatches = 5
     @ObservationIgnored private let maxPollingAttempts = 60
     @ObservationIgnored private var pollingTask: Task<Void, Never>?
 
@@ -44,20 +43,12 @@ final class IntakeContainerViewModel {
         self.intake = intake
     }
 
-    var totalBatches: Int {
-        totalEstimatedBatches
-    }
-
     func configure(goalId: String) {
         self.goalId = goalId
     }
 
     func cancelPolling() {
         pollingTask?.cancel()
-    }
-
-    func answer(for questionId: String) -> IntakeAnswerDTO? {
-        answers[questionId]
     }
 
     func setAnswer(_ answer: IntakeAnswerDTO, for questionId: String) {
@@ -90,17 +81,17 @@ final class IntakeContainerViewModel {
                 return
             }
 
-            if response.profileStatus == ProfileStatus.intakeCompleted.rawValue {
+            if response.profileStatus == GoalStatus.intakeCompleted.rawValue {
                 phase = .completed
                 return
             }
 
-            if response.profileStatus == ProfileStatus.generationFailed.rawValue {
+            if response.profileStatus == GoalStatus.generationFailed.rawValue {
                 phase = .profileFailed
                 return
             }
 
-            if response.profileStatus == ProfileStatus.profileGenerating.rawValue {
+            if response.profileStatus == GoalStatus.profileGenerating.rawValue {
                 phase = .generatingProfile
                 pollForProfileCompletion()
                 return
@@ -117,9 +108,9 @@ final class IntakeContainerViewModel {
         phase = .generatingProfile
         do {
             let response = try await intake.retryProfile(goalId: goalId)
-            if response.profileStatus == ProfileStatus.intakeCompleted.rawValue {
+            if response.profileStatus == GoalStatus.intakeCompleted.rawValue {
                 phase = .completed
-            } else if response.profileStatus == ProfileStatus.generationFailed.rawValue {
+            } else if response.profileStatus == GoalStatus.generationFailed.rawValue {
                 phase = .profileFailed
             } else {
                 pollForProfileCompletion()
@@ -138,10 +129,10 @@ final class IntakeContainerViewModel {
                 do {
                     try await Task.sleep(for: .seconds(3))
                     let response = try await intake.getNextBatch(goalId: goalId)
-                    if response.profileStatus == ProfileStatus.intakeCompleted.rawValue {
+                    if response.profileStatus == GoalStatus.intakeCompleted.rawValue {
                         phase = .completed
                         return
-                    } else if response.profileStatus == ProfileStatus.generationFailed.rawValue {
+                    } else if response.profileStatus == GoalStatus.generationFailed.rawValue {
                         phase = .profileFailed
                         return
                     }
@@ -167,17 +158,17 @@ final class IntakeContainerViewModel {
             return
         }
 
-        if response.profileStatus == ProfileStatus.intakeCompleted.rawValue {
+        if response.profileStatus == GoalStatus.intakeCompleted.rawValue {
             phase = .completed
             return
         }
 
-        if response.profileStatus == ProfileStatus.generationFailed.rawValue {
+        if response.profileStatus == GoalStatus.generationFailed.rawValue {
             phase = .profileFailed
             return
         }
 
-        if response.profileStatus == ProfileStatus.profileGenerating.rawValue {
+        if response.profileStatus == GoalStatus.profileGenerating.rawValue {
             phase = .generatingProfile
             pollForProfileCompletion()
             return

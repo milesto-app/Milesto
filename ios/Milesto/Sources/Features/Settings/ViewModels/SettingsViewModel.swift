@@ -6,8 +6,8 @@ final class SettingsViewModel {
     @ObservationIgnored private let repository: any SettingsRepository
     @ObservationIgnored private let auth: any AuthSessionProviding
 
-    private(set) var profile: Profile?
-    private(set) var activeGoal: Goal?
+    private(set) var profile: ProfileSnapshot?
+    private(set) var activeGoal: GoalSnapshot?
     private(set) var isDeleting = false
     private(set) var isSaving = false
     private(set) var errorMessage: String?
@@ -40,10 +40,6 @@ final class SettingsViewModel {
         let code = Bundle.main.preferredLocalizations.first ?? "en"
         let locale = Locale(identifier: code)
         return locale.localizedString(forLanguageCode: code)?.capitalized ?? code
-    }
-
-    var currentUserId: String? {
-        auth.currentUserId
     }
 
     func loadLocalState() {

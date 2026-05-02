@@ -137,16 +137,6 @@ final class SupabaseAuthRepository: AuthRepository {
         oauth.consumePendingAppleName()
     }
 
-    func handleDeepLink(_ url: URL) async {
-        do {
-            let session = try await client.auth.session(from: url)
-            authState = .authenticated(userId: session.user.id.uuidString)
-            currentUserId = session.user.id.uuidString
-        } catch {
-            authState = .error(error.localizedDescription)
-        }
-    }
-
     private func mapAuthError(_ error: Error) -> AuthError {
         let errorString = error.localizedDescription.lowercased()
         if errorString.contains("invalid") || errorString.contains("credentials") {
