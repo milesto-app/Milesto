@@ -75,6 +75,7 @@ final class AppDependencies {
         )
         let transcriptionRepo = SupabaseTranscriptionRepository(recorder: AudioRecorderRepository())
         let subscriptionService = SyncingSubscriptionRepository()
+        Task { await SubscriptionSyncOutbox.shared.configure(container: container) }
 
         auth = authService
         authRepository = authService
