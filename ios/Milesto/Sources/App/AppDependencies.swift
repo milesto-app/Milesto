@@ -33,7 +33,7 @@ final class AppDependencies {
             auth: authService,
             container: container
         )
-        let supabaseGoal = SupabaseGoalRepository(client: SupabaseConfig.client, backend: .shared)
+        let supabaseGoal = SupabaseGoalRepository(client: SupabaseConfig.client, api: .shared)
         let goalRepo = SyncingGoalRepository(remote: supabaseGoal, container: container)
         let supabaseIntake = SupabaseIntakeRepository()
         let intakeFlowRepo = SyncingIntakeFlowRepository(
@@ -70,8 +70,8 @@ final class AppDependencies {
         authRepository = authService
         entitlement = subscriptionService
         subscription = subscriptionService
-        BackendClient.shared.setSubscriptionRequiredHandler { [weak subscriptionService] in
-            await subscriptionService?.handleBackendSubscriptionRequired()
+        ApiClient.shared.setSubscriptionRequiredHandler { [weak subscriptionService] in
+            await subscriptionService?.handleApiSubscriptionRequired()
         }
         profile = syncingProfile
         goalRouting = goalRepo

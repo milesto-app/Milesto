@@ -10,7 +10,7 @@ final class DeviceTokenRepository {
     private init() {}
 
     func unregister(token: String) async throws {
-        try await BackendClient.shared.requestVoid(
+        try await ApiClient.shared.requestVoid(
             method: "DELETE",
             path: "notifications/tokens",
             body: UnregisterTokenBody(token: token)

@@ -22,8 +22,8 @@ final class RoadmapGenerationViewModel {
         do {
             try await repository.generateRoadmap(goalId: goalId)
         } catch {
-            if let backendError = error as? BackendError,
-               case .httpError(statusCode: 409, _) = backendError
+            if let apiError = error as? ApiError,
+               case .httpError(statusCode: 409, _) = apiError
             {
             } else {
                 logger.error("Generate roadmap call failed: \(error)")

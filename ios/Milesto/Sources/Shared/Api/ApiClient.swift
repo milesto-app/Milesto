@@ -1,8 +1,8 @@
 import Foundation
 import Supabase
 
-final class BackendClient {
-    static let shared = BackendClient()
+final class ApiClient {
+    static let shared = ApiClient()
 
     #if targetEnvironment(simulator)
         let baseURLString = "http://localhost:3000/api"
@@ -38,7 +38,7 @@ final class BackendClient {
 
         func perform(token: String) async throws -> (Data, HTTPURLResponse) {
             guard let url = URL(string: "\(baseURLString)/\(path)") else {
-                throw BackendError.invalidResponse
+                throw ApiError.invalidResponse
             }
             var request = URLRequest(url: url)
             request.httpMethod = method
@@ -47,7 +47,7 @@ final class BackendClient {
             request.httpBody = encodedBody
             let (data, response) = try await URLSession.shared.data(for: request)
             guard let httpResponse = response as? HTTPURLResponse else {
-                throw BackendError.invalidResponse
+                throw ApiError.invalidResponse
             }
             return (data, httpResponse)
         }
@@ -59,16 +59,16 @@ final class BackendClient {
             let refreshed = try await SupabaseConfig.client.auth.refreshSession()
             let (retryData, retryResponse) = try await perform(token: refreshed.accessToken)
             if retryResponse.statusCode == 401 {
-                throw BackendError.unauthorized
+                throw ApiError.unauthorized
             }
             guard (200 ... 299).contains(retryResponse.statusCode) else {
-                throw BackendError.from(statusCode: retryResponse.statusCode, data: retryData)
+                throw ApiError.from(statusCode: retryResponse.statusCode, data: retryData)
             }
             return try decoder.decode(T.self, from: retryData)
         }
 
         guard (200 ... 299).contains(httpResponse.statusCode) else {
-            throw BackendError.from(statusCode: httpResponse.statusCode, data: data)
+            throw ApiError.from(statusCode: httpResponse.statusCode, data: data)
         }
 
         return try decoder.decode(T.self, from: data)
@@ -79,7 +79,7 @@ final class BackendClient {
 
         func perform(token: String) async throws -> HTTPURLResponse {
             guard let url = URL(string: "\(baseURLString)/\(path)") else {
-                throw BackendError.invalidResponse
+                throw ApiError.invalidResponse
             }
             var request = URLRequest(url: url)
             request.httpMethod = method
@@ -88,7 +88,7 @@ final class BackendClient {
             request.httpBody = encodedBody
             let (_, response) = try await URLSession.shared.data(for: request)
             guard let httpResponse = response as? HTTPURLResponse else {
-                throw BackendError.invalidResponse
+                throw ApiError.invalidResponse
             }
             return httpResponse
         }
@@ -100,16 +100,16 @@ final class BackendClient {
             let refreshed = try await SupabaseConfig.client.auth.refreshSession()
             let retryResponse = try await perform(token: refreshed.accessToken)
             if retryResponse.statusCode == 401 {
-                throw BackendError.unauthorized
+                throw ApiError.unauthorized
             }
             guard (200 ... 299).contains(retryResponse.statusCode) else {
-                throw BackendError.httpError(statusCode: retryResponse.statusCode, data: Data())
+                throw ApiError.httpError(statusCode: retryResponse.statusCode, data: Data())
             }
             return
         }
 
         guard (200 ... 299).contains(httpResponse.statusCode) else {
-            throw BackendError.httpError(statusCode: httpResponse.statusCode, data: Data())
+            throw ApiError.httpError(statusCode: httpResponse.statusCode, data: Data())
         }
     }
 }

@@ -79,9 +79,9 @@ final class SyncingSubscriptionRepository: EntitlementProviding, SubscriptionRep
         entitlementState = .notSubscribed
     }
 
-    func handleBackendSubscriptionRequired() async {
+    func handleApiSubscriptionRequired() async {
         entitlementState = .notSubscribed
-        await reconcileWithBackend()
+        await reconcileWithApi()
     }
 
     func purchase(planId: String) async {
@@ -128,7 +128,7 @@ final class SyncingSubscriptionRepository: EntitlementProviding, SubscriptionRep
         defer { isPurchasing = false }
         try? await AppStore.sync()
         await processUnfinishedTransactions()
-        await reconcileWithBackend()
+        await reconcileWithApi()
     }
 
     private func syncTransactionWithRetry(jws: String) async {
@@ -138,7 +138,7 @@ final class SyncingSubscriptionRepository: EntitlementProviding, SubscriptionRep
         for (index, delay) in delaysNanos.enumerated() {
             if Task.isCancelled { return }
             do {
-                try await BackendClient.shared.requestVoid(method: "POST", path: "subscription/verify", body: body)
+                try await ApiClient.shared.requestVoid(method: "POST", path: "subscription/verify", body: body)
                 return
             } catch {
                 subscriptionLogger.debug("verify attempt \(index + 1, privacy: .public) failed")
@@ -173,7 +173,7 @@ final class SyncingSubscriptionRepository: EntitlementProviding, SubscriptionRep
         }
     }
 
-    func reconcileWithBackend() async {
+    func reconcileWithApi() async {
         if let reconcileTask {
             await reconcileTask.value
             return
@@ -182,13 +182,13 @@ final class SyncingSubscriptionRepository: EntitlementProviding, SubscriptionRep
         isReconcilingEntitlement = true
         let task = Task { @MainActor [weak self] in
             guard let self else { return }
-            await self.performBackendReconciliation()
+            await self.performApiReconciliation()
         }
         reconcileTask = task
         await task.value
     }
 
-    private func performBackendReconciliation() async {
+    private func performApiReconciliation() async {
         defer {
             isReconcilingEntitlement = false
             reconcileTask = nil
@@ -196,7 +196,7 @@ final class SyncingSubscriptionRepository: EntitlementProviding, SubscriptionRep
 
         let response: SubscriptionStatusResponse
         do {
-            response = try await BackendClient.shared.request(method: "GET", path: "subscription/status")
+            response = try await ApiClient.shared.request(method: "GET", path: "subscription/status")
         } catch {
             subscriptionLogger.debug("reconcile status fetch failed")
             if await currentVerifiedEntitlement() != nil {
@@ -207,7 +207,7 @@ final class SyncingSubscriptionRepository: EntitlementProviding, SubscriptionRep
             return
         }
 
-        if Self.isBackendActive(response) {
+        if Self.isApiActive(response) {
             entitlementState = .subscribed
             return
         }
@@ -216,7 +216,7 @@ final class SyncingSubscriptionRepository: EntitlementProviding, SubscriptionRep
             await syncTransactionWithRetry(jws: entitlement.jws)
             let refetched: SubscriptionStatusResponse
             do {
-                refetched = try await BackendClient.shared.request(method: "GET", path: "subscription/status")
+                refetched = try await ApiClient.shared.request(method: "GET", path: "subscription/status")
             } catch {
                 subscriptionLogger.debug("reconcile refetch failed — preserving current entitlement state")
                 if entitlementState != .subscribed {
@@ -224,14 +224,14 @@ final class SyncingSubscriptionRepository: EntitlementProviding, SubscriptionRep
                 }
                 return
             }
-            entitlementState = Self.isBackendActive(refetched) ? .subscribed : .notSubscribed
+            entitlementState = Self.isApiActive(refetched) ? .subscribed : .notSubscribed
             return
         }
 
         entitlementState = .notSubscribed
     }
 
-    private static func isBackendActive(_ response: SubscriptionStatusResponse) -> Bool {
+    private static func isApiActive(_ response: SubscriptionStatusResponse) -> Bool {
         guard response.status == "active" || response.status == "grace_period" else { return false }
         guard let expiresAtString = response.expiresAt,
               let expiresAt = parseISO8601(expiresAtString)

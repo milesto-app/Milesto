@@ -30,7 +30,7 @@ struct SubscriptionGateView<Content: View>: View {
             guard dependencies.entitlement.entitlementState == .unknown ||
                 dependencies.entitlement.entitlementState == .connectionError
             else { return }
-            await dependencies.subscription.reconcileWithBackend()
+            await dependencies.subscription.reconcileWithApi()
         }
     }
 
@@ -50,7 +50,7 @@ struct SubscriptionGateView<Content: View>: View {
                     Color("BackgroundBase").ignoresSafeArea()
                 } else {
                     PaywallConnectionErrorView {
-                        await dependencies.subscription.reconcileWithBackend()
+                        await dependencies.subscription.reconcileWithApi()
                     }
                     .transition(.opacity)
                 }

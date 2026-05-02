@@ -12,7 +12,7 @@ private nonisolated struct LimitErrorBody: Decodable {
     let usage: GenerationLimitUsage?
 }
 
-enum BackendError: LocalizedError {
+enum ApiError: LocalizedError {
     case invalidResponse
     case httpError(statusCode: Int, data: Data)
     case unauthorized
@@ -34,9 +34,9 @@ enum BackendError: LocalizedError {
         }
     }
 
-    static func from(statusCode: Int, data: Data) -> BackendError {
+    static func from(statusCode: Int, data: Data) -> ApiError {
         if statusCode == 402 {
-            BackendClient.shared.notifySubscriptionRequired()
+            ApiClient.shared.notifySubscriptionRequired()
             return .subscriptionRequired
         }
         if statusCode == 429 {

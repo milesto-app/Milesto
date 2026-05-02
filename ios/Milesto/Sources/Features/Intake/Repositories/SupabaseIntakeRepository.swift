@@ -15,14 +15,14 @@ final class SupabaseIntakeRepository: IntakeRepository {
     init() {}
 
     func getNextBatch(goalId: String) async throws -> IntakeBatch {
-        return try await BackendClient.shared.request(
+        return try await ApiClient.shared.request(
             method: "GET",
             path: "goals/\(goalId)/intake/next-batch"
         )
     }
 
     func submitBatch(goalId: String, answers: [IntakeAnswerDTO]) async throws -> SubmitBatchResponse {
-        return try await BackendClient.shared.request(
+        return try await ApiClient.shared.request(
             method: "POST",
             path: "goals/\(goalId)/intake/submit-batch",
             body: SubmitAnswersRequest(answers: answers)
@@ -30,7 +30,7 @@ final class SupabaseIntakeRepository: IntakeRepository {
     }
 
     func retryProfile(goalId: String) async throws -> RetryProfileResponse {
-        return try await BackendClient.shared.request(
+        return try await ApiClient.shared.request(
             method: "POST",
             path: "goals/\(goalId)/intake/retry-profile"
         )

@@ -4,16 +4,16 @@ import Supabase
 @MainActor
 final class SupabaseGoalRepository: RemoteGoalRepository {
     private let client: SupabaseClient
-    private let backend: BackendClient
+    private let api: ApiClient
 
-    init(client: SupabaseClient, backend: BackendClient) {
+    init(client: SupabaseClient, api: ApiClient) {
         self.client = client
-        self.backend = backend
+        self.api = api
     }
 
     func createGoal(description: String) async throws -> RemoteGoal {
         struct Body: Encodable { let description: String }
-        return try await backend.request(
+        return try await api.request(
             method: "POST",
             path: "goals",
             body: Body(description: description)
@@ -28,7 +28,7 @@ final class SupabaseGoalRepository: RemoteGoalRepository {
                 case userMotivationQuote = "user_motivation_quote"
             }
         }
-        try await backend.requestVoid(
+        try await api.requestVoid(
             method: "PATCH",
             path: "goals/\(goalId)",
             body: Body(userMotivationQuote: motivationQuote)

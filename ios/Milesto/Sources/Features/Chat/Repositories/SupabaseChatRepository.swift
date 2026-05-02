@@ -38,8 +38,8 @@ final class SupabaseChatRepository: RemoteChatRepository {
     private let decoder = JSONDecoder()
 
     init() {
-        guard let url = URL(string: BackendClient.shared.baseURLString) else {
-            preconditionFailure("Invalid backend base URL")
+        guard let url = URL(string: ApiClient.shared.baseURLString) else {
+            preconditionFailure("Invalid api base URL")
         }
         baseURL = url
     }
@@ -110,7 +110,7 @@ final class SupabaseChatRepository: RemoteChatRepository {
                 do {
                     func buildRequest(token: String) throws -> URLRequest {
                         guard let url = URL(string: "\(baseURL.absoluteString)/chat/messages") else {
-                            throw BackendError.invalidResponse
+                            throw ApiError.invalidResponse
                         }
                         var request = URLRequest(url: url)
                         request.httpMethod = "POST"
@@ -138,12 +138,12 @@ final class SupabaseChatRepository: RemoteChatRepository {
                     }
 
                     guard let httpResponse = response as? HTTPURLResponse else {
-                        continuation.finish(throwing: BackendError.invalidResponse)
+                        continuation.finish(throwing: ApiError.invalidResponse)
                         return
                     }
 
                     if httpResponse.statusCode == 401 {
-                        continuation.finish(throwing: BackendError.unauthorized)
+                        continuation.finish(throwing: ApiError.unauthorized)
                         return
                     }
 
@@ -156,7 +156,7 @@ final class SupabaseChatRepository: RemoteChatRepository {
                                 }
                             }
                         }
-                        continuation.finish(throwing: BackendError.from(statusCode: httpResponse.statusCode, data: errorData))
+                        continuation.finish(throwing: ApiError.from(statusCode: httpResponse.statusCode, data: errorData))
                         return
                     }
 

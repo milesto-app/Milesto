@@ -6,7 +6,7 @@ final class SupabaseRoadmapRepository: RemoteRoadmapRepository {
     init() {}
 
     func generateRoadmap(goalId: String) async throws -> RemoteRoadmap {
-        return try await BackendClient.shared.request(
+        return try await ApiClient.shared.request(
             method: "POST",
             path: "goals/\(goalId)/roadmap/generate"
         )
@@ -89,21 +89,21 @@ final class SupabaseRoadmapRepository: RemoteRoadmapRepository {
     }
 
     func generateWeeklyPlan(goalId: String) async throws -> WeeklyPlan {
-        return try await BackendClient.shared.request(
+        return try await ApiClient.shared.request(
             method: "POST",
             path: "goals/\(goalId)/roadmap/weekly-plan/generate"
         )
     }
 
     func getWeeklyTasks(goalId: String) async throws -> [WeeklyTask] {
-        return try await BackendClient.shared.request(
+        return try await ApiClient.shared.request(
             method: "GET",
             path: "goals/\(goalId)/weekly-tasks"
         )
     }
 
     func toggleTask(goalId: String, taskId: String, isCompleted: Bool) async throws -> WeeklyTask {
-        return try await BackendClient.shared.request(
+        return try await ApiClient.shared.request(
             method: "PATCH",
             path: "goals/\(goalId)/weekly-tasks/\(taskId)",
             body: UpdateTaskRequest(isCompleted: isCompleted)
@@ -111,7 +111,7 @@ final class SupabaseRoadmapRepository: RemoteRoadmapRepository {
     }
 
     func submitDebrief(goalId: String, weeklyPlanId: String, note: String, taskRatings: [TaskRating]?) async throws -> Debrief {
-        return try await BackendClient.shared.request(
+        return try await ApiClient.shared.request(
             method: "POST",
             path: "goals/\(goalId)/debrief",
             body: SubmitDebriefRequest(weeklyPlanId: weeklyPlanId, note: note, taskRatings: taskRatings)
