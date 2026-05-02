@@ -9,4 +9,4 @@ retain_objc_accessible: true
 retain_codable_properties: true
 disable_unused_import_analysis: false
 report_exclude:
-  - "Milesto/Sources/Shared/Icons/TablerIcons.swift"
+  - "Milesto/Sources/Shared/Components/TablerIcons.swift"

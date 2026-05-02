@@ -24,7 +24,7 @@ jobs:
       - name: Ensure SwiftFormat
         run: command -v swiftformat >/dev/null || brew install swiftformat
       - name: Run SwiftFormat (lint mode)
-        run: swiftformat --lint --quiet --swiftversion 5 --exclude Milesto/Sources/Shared/Icons/TablerIcons.swift .
+        run: swiftformat --lint --quiet --swiftversion 5 --exclude Milesto/Sources/Shared/Components/TablerIcons.swift .
 
   build:
     name: Build

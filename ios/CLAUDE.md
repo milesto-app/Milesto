@@ -161,7 +161,7 @@ Text("Hello")
 
 **AppTextField** (`Shared/Components/AppTextField.swift`) - Use for all text input fields. Accepts `icon: TablerIconOutline` parameter.
 
-**TablerIcon** (`Shared/Icons/TablerIcons.swift`) - **Always use `TablerIcon` instead of SF Symbols.** Never use `Image(systemName:)` or `systemImage:` anywhere in the project.
+**TablerIcon** (`Shared/Components/TablerIcons.swift`) - **Always use `TablerIcon` instead of SF Symbols.** Never use `Image(systemName:)` or `systemImage:` anywhere in the project.
 
 ```swift
 // Use this:
@@ -174,7 +174,7 @@ Image(systemName: "house.fill")
 Image(systemName: "checkmark")
 ```
 
-Icon names come from the `TablerIconOutline` and `TablerIconFilled` enums in `Shared/Icons/TablerIcons.swift`. Use outline icons by default, filled via `TablerIcon.filled(...)`.
+Icon names come from the `TablerIconOutline` and `TablerIconFilled` enums in `Shared/Components/TablerIcons.swift`. Use outline icons by default, filled via `TablerIcon.filled(...)`.
 
 **For tab bars**, use `TablerTabLabel` which converts the icon to an `Image` for tab bar compatibility:
 
