@@ -3,14 +3,7 @@ import SwiftUI
 
 @main
 struct MilestoApp: App {
-    @State private var dependencies: AppDependencies
-
-    let container: ModelContainer
-
-    init() {
-        container = MilestoModelContainer.make()
-        _dependencies = State(initialValue: AppDependencies(container: container))
-    }
+    @State private var dependencies = AppDependencies(container: Self.container)
 
     private var authenticatedSessionUserId: String? {
         if case let .authenticated(userId) = dependencies.auth.authState { return userId }
@@ -26,12 +19,26 @@ struct MilestoApp: App {
                     await prepareAuthenticatedAppSession()
                 }
         }
-        .modelContainer(container)
+        .modelContainer(Self.container)
     }
 
     private func prepareAuthenticatedAppSession() async {
-        await SubscriptionSyncOutbox.shared.configure(container: container)
+        await SubscriptionSyncOutbox.shared.configure(container: Self.container)
         guard authenticatedSessionUserId != nil else { return }
         await dependencies.subscription.reconcileWithBackend()
     }
+
+    private static let container = try! ModelContainer(for: Schema([
+        LocalProfile.self,
+        LocalGoal.self,
+        LocalRoadmap.self,
+        LocalMilestone.self,
+        LocalWeeklyPlan.self,
+        LocalWeeklyTask.self,
+        LocalDebrief.self,
+        LocalConversation.self,
+        LocalChatMessage.self,
+        LocalStats.self,
+        PendingSubscriptionSync.self,
+    ]))
 }
