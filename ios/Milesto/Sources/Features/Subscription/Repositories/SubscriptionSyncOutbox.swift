@@ -42,28 +42,9 @@ actor SubscriptionSyncOutbox {
         }
     }
 
-    func purgeAll() async throws {
-        guard let context = makeContext() else { return }
-        let descriptor = FetchDescriptor<LocalPendingSubscriptionSync>()
-        let entries = try context.fetch(descriptor)
-        guard !entries.isEmpty else { return }
-        for entry in entries {
-            Self.removeJWS(for: entry)
-            context.delete(entry)
-        }
-        try context.save()
-        outboxLogger.debug("purged all pending subscription sync entries")
-    }
-
     private static func key(for jws: String) -> String {
         let digest = SHA256.hash(data: Data(jws.utf8))
         let hash = digest.map { String(format: "%02x", $0) }.joined()
         return "subscription_jws_\(hash)"
-    }
-
-    private static func removeJWS(for entry: LocalPendingSubscriptionSync) {
-        if entry.jwsRepresentation.hasPrefix("subscription_jws_") {
-            Keychain.removePendingSubscriptionJWS(key: entry.jwsRepresentation)
-        }
     }
 }

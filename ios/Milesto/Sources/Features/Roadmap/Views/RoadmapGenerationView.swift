@@ -26,13 +26,6 @@ struct RoadmapGenerationView: View {
             }
         }
         .appBackground()
-        .overlay(alignment: .topLeading) {
-            AppSignOutButton {
-                try? await dependencies.authRepository.signOut()
-            }
-            .padding(.top, 8)
-            .padding(.leading, 16)
-        }
         .task {
             if model == nil {
                 model = RoadmapGenerationViewModel(repository: dependencies.roadmap)

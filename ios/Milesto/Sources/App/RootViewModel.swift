@@ -71,9 +71,9 @@ final class RootViewModel {
                descriptor.goalId == id,
                descriptor.phase == .intakeCompleted
             {
-                let hasRoadmap = await roadmap.isRoadmapReady(goalId: id)
+                let status = try? await roadmap.fetchRoadmapStatus(goalId: id)
                 if activeGoalId == id {
-                    roadmapReady = hasRoadmap
+                    roadmapReady = status == .complete
                 }
             }
         }

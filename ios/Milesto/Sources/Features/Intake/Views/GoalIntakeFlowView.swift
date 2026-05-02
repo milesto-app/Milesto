@@ -66,13 +66,6 @@ struct GoalIntakeFlowView: View {
                     .padding(.trailing, 16)
                 }
             }
-            .overlay(alignment: .topLeading) {
-                AppSignOutButton {
-                    try? await dependencies.authRepository.signOut()
-                }
-                .padding(.top, 8)
-                .padding(.leading, 16)
-            }
         }
         .appBackground()
         .alert(String(localized: "intake.error.title", table: "Intake"), isPresented: $bindable.showError) {

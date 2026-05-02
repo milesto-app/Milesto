@@ -79,8 +79,4 @@ nonisolated enum Keychain {
     static func setPendingSubscriptionJWS(_ jws: String, key: String) {
         set(account: key, value: jws)
     }
-
-    static func removePendingSubscriptionJWS(key: String) {
-        remove(account: key)
-    }
 }

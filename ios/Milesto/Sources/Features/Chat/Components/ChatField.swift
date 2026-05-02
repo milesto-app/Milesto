@@ -1,6 +1,6 @@
 import SwiftUI
 
-struct AppChatField: View {
+struct ChatField: View {
     @Binding var text: String
     let placeholder: LocalizedStringKey
     let table: String

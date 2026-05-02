@@ -10,7 +10,7 @@ struct ChatInputBar: View {
 
     var body: some View {
         HStack(alignment: .bottom, spacing: 12) {
-            AppChatField(
+            ChatField(
                 text: $text,
                 placeholder: "chat.input.placeholder",
                 table: "Chat",

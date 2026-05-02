@@ -2,7 +2,7 @@
     import SwiftUI
     import UIKit
 
-    struct DeveloperShakeRouteMenuModifier: ViewModifier {
+    struct ShakeRouteMenuModifier: ViewModifier {
         let developerSettings: DeveloperSettings
 
         @State private var isRouteMenuPresented = false
@@ -101,7 +101,7 @@
 
     extension View {
         func showsDeveloperRouteMenuOnShake(_ developerSettings: DeveloperSettings) -> some View {
-            modifier(DeveloperShakeRouteMenuModifier(developerSettings: developerSettings))
+            modifier(ShakeRouteMenuModifier(developerSettings: developerSettings))
         }
     }
 
