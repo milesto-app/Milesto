@@ -314,7 +314,6 @@ export type Database = {
           goal_id: string;
           id: string;
           is_answered: boolean;
-          is_fallback: boolean;
           quality_score: number | null;
         };
         Insert: {
@@ -324,7 +323,6 @@ export type Database = {
           goal_id: string;
           id?: string;
           is_answered?: boolean;
-          is_fallback?: boolean;
           quality_score?: number | null;
         };
         Update: {
@@ -334,7 +332,6 @@ export type Database = {
           goal_id?: string;
           id?: string;
           is_answered?: boolean;
-          is_fallback?: boolean;
           quality_score?: number | null;
         };
         Relationships: [

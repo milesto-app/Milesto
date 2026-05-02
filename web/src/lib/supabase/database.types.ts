@@ -314,7 +314,6 @@ export type Database = {
           goal_id: string;
           id: string;
           is_answered: boolean;
-          is_fallback: boolean;
           quality_score: number | null;
         };
         Insert: {
@@ -324,7 +323,6 @@ export type Database = {
           goal_id: string;
           id?: string;
           is_answered?: boolean;
-          is_fallback?: boolean;
           quality_score?: number | null;
         };
         Update: {
@@ -334,7 +332,6 @@ export type Database = {
           goal_id?: string;
           id?: string;
           is_answered?: boolean;
-          is_fallback?: boolean;
           quality_score?: number | null;
         };
         Relationships: [
@@ -503,6 +500,30 @@ export type Database = {
             referencedColumns: ["id"];
           },
         ];
+      };
+      notification_sends: {
+        Row: {
+          body: string;
+          id: string;
+          sent_at: string;
+          title: string;
+          user_id: string;
+        };
+        Insert: {
+          body: string;
+          id?: string;
+          sent_at?: string;
+          title: string;
+          user_id: string;
+        };
+        Update: {
+          body?: string;
+          id?: string;
+          sent_at?: string;
+          title?: string;
+          user_id?: string;
+        };
+        Relationships: [];
       };
       processed_notifications: {
         Row: {
@@ -740,6 +761,29 @@ export type Database = {
           id: string;
           metadata: Json;
           similarity: number;
+        }[];
+      };
+      pick_notification_candidates: {
+        Args: {
+          p_window_start_hour: number;
+          p_window_end_hour: number;
+          p_max_per_day: number;
+          p_min_minutes_between: number;
+        };
+        Returns: {
+          user_id: string;
+          language: string;
+          coach_id: number;
+          timezone: string;
+          local_hour: number;
+          goal_id: string;
+          goal_title: string;
+          user_motivation_quote: string | null;
+          weekly_objectives: Json | null;
+          weekly_task_total: number | null;
+          weekly_task_completed: number | null;
+          recent_completed_titles: string[] | null;
+          next_task_title: string | null;
         }[];
       };
       reserve_generation: {

@@ -58,7 +58,6 @@ export interface AdminIntakeBatch {
   id: string;
   batchNumber: number;
   isAnswered: boolean;
-  isFallback: boolean;
   embedded: boolean;
   qualityScore: number | null;
   createdAt: string;
