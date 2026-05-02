@@ -34,7 +34,7 @@ final class LocalGoal {
     }
 }
 
-struct GoalDTO: Codable {
+struct RemoteGoal: Codable {
     let id: String
     let userId: String
     let title: String
@@ -122,23 +122,23 @@ struct GoalSummary: Identifiable, Hashable {
 }
 
 extension LocalGoal {
-    convenience init(dto: GoalDTO) {
+    convenience init(remote: RemoteGoal) {
         self.init(
-            id: dto.id,
-            userId: dto.userId,
-            title: dto.title,
-            goalDescription: dto.description,
-            status: dto.status.rawValue,
-            targetDate: dto.targetDate,
-            createdAt: dto.createdAt
+            id: remote.id,
+            userId: remote.userId,
+            title: remote.title,
+            goalDescription: remote.description,
+            status: remote.status.rawValue,
+            targetDate: remote.targetDate,
+            createdAt: remote.createdAt
         )
     }
 
-    func update(with dto: GoalDTO) {
-        title = dto.title
-        goalDescription = dto.description
-        status = dto.status.rawValue
-        targetDate = dto.targetDate
-        createdAt = dto.createdAt
+    func update(with remote: RemoteGoal) {
+        title = remote.title
+        goalDescription = remote.description
+        status = remote.status.rawValue
+        targetDate = remote.targetDate
+        createdAt = remote.createdAt
     }
 }

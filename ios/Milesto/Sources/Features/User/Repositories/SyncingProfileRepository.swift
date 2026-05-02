@@ -25,8 +25,8 @@ final class SyncingProfileRepository: ProfileRepository {
     }
 
     func updateProfile(_ fields: ProfileUpdateFields) async throws -> ProfileSnapshot {
-        let dto = try await remote.updateProfile(fields)
-        let snapshot = mergeLocalSnapshot(with: dto)
+        let remote = try await remote.updateProfile(fields)
+        let snapshot = mergeLocalSnapshot(with: remote)
         save(snapshot)
         return snapshot
     }
@@ -63,14 +63,14 @@ final class SyncingProfileRepository: ProfileRepository {
         }
 
         if let existing {
-            existing.update(dto: fetchedProfile, email: fetchedEmail, avatarURL: fetchedAvatarURL, avatarData: avatarData)
+            existing.update(remote: fetchedProfile, email: fetchedEmail, avatarURL: fetchedAvatarURL, avatarData: avatarData)
         } else {
-            context.insert(LocalProfile(dto: fetchedProfile, userId: userId, email: fetchedEmail, avatarURL: fetchedAvatarURL, avatarData: avatarData))
+            context.insert(LocalProfile(remote: fetchedProfile, userId: userId, email: fetchedEmail, avatarURL: fetchedAvatarURL, avatarData: avatarData))
         }
         try? context.save()
     }
 
-    private func mergePendingAppleName(into fetchedProfile: ProfileDTO?) async -> ProfileDTO? {
+    private func mergePendingAppleName(into fetchedProfile: RemoteProfile?) async -> RemoteProfile? {
         let pending = auth.consumePendingAppleName()
         guard pending.firstName != nil || pending.lastName != nil else { return fetchedProfile }
 
@@ -92,18 +92,18 @@ final class SyncingProfileRepository: ProfileRepository {
         return try? await httpLoader.data(from: url)
     }
 
-    private func mergeLocalSnapshot(with dto: ProfileDTO) -> ProfileSnapshot {
-        let existing = loadProfile(userId: dto.userId)
+    private func mergeLocalSnapshot(with remote: RemoteProfile) -> ProfileSnapshot {
+        let existing = loadProfile(userId: remote.userId)
         return ProfileSnapshot(
-            userId: dto.userId,
-            firstName: dto.firstName,
-            lastName: dto.lastName,
+            userId: remote.userId,
+            firstName: remote.firstName,
+            lastName: remote.lastName,
             email: existing?.email,
             avatarData: existing?.avatarData,
-            coachId: dto.coachId,
-            dateOfBirth: dto.dateOfBirth,
-            language: dto.language,
-            createdAt: dto.createdAt
+            coachId: remote.coachId,
+            dateOfBirth: remote.dateOfBirth,
+            language: remote.language,
+            createdAt: remote.createdAt
         )
     }
 

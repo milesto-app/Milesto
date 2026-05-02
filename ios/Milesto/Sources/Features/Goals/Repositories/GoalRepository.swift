@@ -2,11 +2,11 @@ import Foundation
 
 @MainActor
 protocol RemoteGoalRepository: AnyObject {
-    func createGoal(description: String) async throws -> GoalDTO
+    func createGoal(description: String) async throws -> RemoteGoal
     func updateGoal(goalId: String, motivationQuote: String?) async throws
-    func getGoal(goalId: String) async throws -> GoalDTO
+    func getGoal(goalId: String) async throws -> RemoteGoal
     func deleteGoal(goalId: String) async throws
-    func listGoals() async throws -> [GoalDTO]
+    func listGoals() async throws -> [RemoteGoal]
 }
 
 @MainActor

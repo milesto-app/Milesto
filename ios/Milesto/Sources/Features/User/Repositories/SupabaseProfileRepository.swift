@@ -35,7 +35,7 @@ struct ProfileAuthSnapshot {
 final class SupabaseProfileRepository {
     init() {}
 
-    func updateProfile(_ fields: ProfileUpdateFields) async throws -> ProfileDTO {
+    func updateProfile(_ fields: ProfileUpdateFields) async throws -> RemoteProfile {
         let session = try await SupabaseConfig.client.auth.session
         return try await SupabaseConfig.client
             .from("profiles")
@@ -47,12 +47,12 @@ final class SupabaseProfileRepository {
             .value
     }
 
-    func fetchProfile(userId: String) async throws -> ProfileDTO? {
+    func fetchProfile(userId: String) async throws -> RemoteProfile? {
         guard let uuid = UUID(uuidString: userId) else {
             throw ProfileRepositoryError.invalidUserId
         }
 
-        let response: [ProfileDTO] = try await SupabaseConfig.client
+        let response: [RemoteProfile] = try await SupabaseConfig.client
             .from("profiles")
             .select()
             .eq("id", value: uuid)

@@ -6,11 +6,11 @@ private let roadmapLogger = Logger(subsystem: Bundle.main.bundleIdentifier ?? "a
 
 @MainActor
 final class SyncingRoadmapRepository: RoadmapSummaryRepository, WeeklyTaskRepository, WeeklyPlanRepository, DebriefRepository {
-    private let remote: any RoadmapRepository
+    private let remote: any RemoteRoadmapRepository
     private let goals: any GoalRepository
     private let container: ModelContainer
 
-    init(remote: any RoadmapRepository, goals: any GoalRepository, container: ModelContainer) {
+    init(remote: any RemoteRoadmapRepository, goals: any GoalRepository, container: ModelContainer) {
         self.remote = remote
         self.goals = goals
         self.container = container
@@ -33,15 +33,15 @@ final class SyncingRoadmapRepository: RoadmapSummaryRepository, WeeklyTaskReposi
     func refreshRoadmap(goalId: String) async -> RoadmapSnapshot {
         var snapshot = loadRoadmapSnapshot(goalId: goalId)
         do {
-            let dto = try await remote.getRoadmap(goalId: goalId)
-            saveRoadmap(dto)
+            let remote = try await remote.getRoadmap(goalId: goalId)
+            saveRoadmap(remote)
             try? context.save()
             await refreshTasksForProgress(goalId: goalId)
 
-            snapshot.currentMilestoneId = dto.currentMilestoneId
-            snapshot.milestones = (dto.milestones ?? [])
+            snapshot.currentMilestoneId = remote.currentMilestoneId
+            snapshot.milestones = (remote.milestones ?? [])
                 .sorted { $0.orderIndex < $1.orderIndex }
-                .map(MilestoneRecord.init(dto:))
+                .map(MilestoneRecord.init(remote:))
             snapshot.goalTitle = fetchGoalTitle(goalId: goalId)
             snapshot.goalTargetDate = fetchGoalTargetDate(goalId: goalId)
             snapshot.switchableGoals = fetchSwitchableGoals()
@@ -113,10 +113,10 @@ final class SyncingRoadmapRepository: RoadmapSummaryRepository, WeeklyTaskReposi
     }
 
     func fetchRoadmapStatus(goalId: String) async throws -> RoadmapStatus {
-        let dto = try await remote.getRoadmap(goalId: goalId)
-        saveRoadmap(dto)
+        let remote = try await remote.getRoadmap(goalId: goalId)
+        saveRoadmap(remote)
         try? context.save()
-        return dto.status
+        return remote.status
     }
 
     func isRoadmapReady(goalId: String) async -> Bool {
@@ -216,15 +216,15 @@ final class SyncingRoadmapRepository: RoadmapSummaryRepository, WeeklyTaskReposi
     }
 
     func submitDebrief(goalId: String, weeklyPlanId: String, note: String, taskRatings: [TaskRating]?) async throws -> Debrief {
-        let dto = try await remote.submitDebrief(
+        let remote = try await remote.submitDebrief(
             goalId: goalId,
             weeklyPlanId: weeklyPlanId,
             note: note,
             taskRatings: taskRatings
         )
-        saveDebrief(dto)
+        saveDebrief(remote)
         try? context.save()
-        return dto
+        return remote
     }
 
     func generateWeeklyPlan(goalId: String) async throws {
@@ -302,59 +302,59 @@ final class SyncingRoadmapRepository: RoadmapSummaryRepository, WeeklyTaskReposi
         )
     }
 
-    private func saveWeeklyPlan(_ dto: WeeklyPlan) {
-        let planId = dto.id
+    private func saveWeeklyPlan(_ remote: WeeklyPlan) {
+        let planId = remote.id
         let descriptor = FetchDescriptor<LocalWeeklyPlan>(
             predicate: #Predicate { $0.id == planId }
         )
         if let existing = try? context.fetch(descriptor).first {
-            existing.milestoneId = dto.milestoneId
-            existing.weekNumber = dto.weekNumber
-            existing.weekStartDate = dto.weekStartDate
-            existing.objectives = dto.objectives
-            existing.status = dto.status.rawValue
-            existing.isFallback = dto.isFallback
-            existing.summaryCompletionRate = dto.summary?.completionRate
-            existing.summaryTasksCompleted = dto.summary?.tasksCompleted
-            existing.summaryTasksTotal = dto.summary?.tasksTotal
-            existing.summaryDebriefCount = dto.summary?.debriefCount
-            existing.summaryNarrative = dto.summary?.narrative
+            existing.milestoneId = remote.milestoneId
+            existing.weekNumber = remote.weekNumber
+            existing.weekStartDate = remote.weekStartDate
+            existing.objectives = remote.objectives
+            existing.status = remote.status.rawValue
+            existing.isFallback = remote.isFallback
+            existing.summaryCompletionRate = remote.summary?.completionRate
+            existing.summaryTasksCompleted = remote.summary?.tasksCompleted
+            existing.summaryTasksTotal = remote.summary?.tasksTotal
+            existing.summaryDebriefCount = remote.summary?.debriefCount
+            existing.summaryNarrative = remote.summary?.narrative
         } else {
             context.insert(LocalWeeklyPlan(
-                id: dto.id,
-                milestoneId: dto.milestoneId,
-                goalId: dto.goalId,
-                userId: dto.userId,
-                weekNumber: dto.weekNumber,
-                weekStartDate: dto.weekStartDate,
-                objectives: dto.objectives,
-                status: dto.status.rawValue,
-                isFallback: dto.isFallback,
-                createdAt: dto.createdAt,
-                summary: dto.summary
+                id: remote.id,
+                milestoneId: remote.milestoneId,
+                goalId: remote.goalId,
+                userId: remote.userId,
+                weekNumber: remote.weekNumber,
+                weekStartDate: remote.weekStartDate,
+                objectives: remote.objectives,
+                status: remote.status.rawValue,
+                isFallback: remote.isFallback,
+                createdAt: remote.createdAt,
+                summary: remote.summary
             ))
         }
     }
 
-    private func saveDebrief(_ dto: Debrief) {
-        let debriefId = dto.id
+    private func saveDebrief(_ remote: Debrief) {
+        let debriefId = remote.id
         let descriptor = FetchDescriptor<LocalDebrief>(
             predicate: #Predicate { $0.id == debriefId }
         )
         let existing = try? context.fetch(descriptor).first
 
         if let existing {
-            existing.update(with: dto)
+            existing.update(with: remote)
         } else {
             context.insert(LocalDebrief(
-                id: dto.id,
-                goalId: dto.goalId,
-                userId: dto.userId,
-                weeklyPlanId: dto.weeklyPlanId,
-                date: dto.date,
-                note: dto.note,
-                taskRatings: dto.taskRatings,
-                createdAt: dto.createdAt
+                id: remote.id,
+                goalId: remote.goalId,
+                userId: remote.userId,
+                weeklyPlanId: remote.weeklyPlanId,
+                date: remote.date,
+                note: remote.note,
+                taskRatings: remote.taskRatings,
+                createdAt: remote.createdAt
             ))
         }
     }
@@ -391,41 +391,41 @@ final class SyncingRoadmapRepository: RoadmapSummaryRepository, WeeklyTaskReposi
             .map { MilestoneRecord(local: $0) }
     }
 
-    private func saveRoadmap(_ dto: RoadmapDTO) {
-        let goalId = dto.goalId
+    private func saveRoadmap(_ remote: RemoteRoadmap) {
+        let goalId = remote.goalId
         let descriptor = FetchDescriptor<LocalRoadmap>(
             predicate: #Predicate { $0.goalId == goalId }
         )
         if let existing = try? context.fetch(descriptor).first {
-            existing.status = dto.status.rawValue
-            existing.updatedAt = dto.updatedAt
-            existing.currentMilestoneId = dto.currentMilestoneId
+            existing.status = remote.status.rawValue
+            existing.updatedAt = remote.updatedAt
+            existing.currentMilestoneId = remote.currentMilestoneId
 
-            if let dtos = dto.milestones {
+            if let remotes = remote.milestones {
                 let existingById = Dictionary(uniqueKeysWithValues: existing.milestones.map { ($0.id, $0) })
-                let remoteIds = Set(dtos.map(\.id))
+                let remoteIds = Set(remotes.map(\.id))
 
-                for milestoneDTO in dtos {
-                    if let local = existingById[milestoneDTO.id] {
-                        local.title = milestoneDTO.title
-                        local.milestoneDescription = milestoneDTO.description
-                        local.expectedOutcome = milestoneDTO.expectedOutcome
-                        local.targetMonth = milestoneDTO.targetMonth
-                        local.targetWeek = milestoneDTO.targetWeek
-                        local.isMonthlyCheckpoint = milestoneDTO.isMonthlyCheckpoint
-                        local.orderIndex = milestoneDTO.orderIndex
+                for remoteMilestone in remotes {
+                    if let local = existingById[remoteMilestone.id] {
+                        local.title = remoteMilestone.title
+                        local.milestoneDescription = remoteMilestone.description
+                        local.expectedOutcome = remoteMilestone.expectedOutcome
+                        local.targetMonth = remoteMilestone.targetMonth
+                        local.targetWeek = remoteMilestone.targetWeek
+                        local.isMonthlyCheckpoint = remoteMilestone.isMonthlyCheckpoint
+                        local.orderIndex = remoteMilestone.orderIndex
                     } else {
                         let local = LocalMilestone(
-                            id: milestoneDTO.id,
-                            goalId: milestoneDTO.goalId,
-                            orderIndex: milestoneDTO.orderIndex,
-                            title: milestoneDTO.title,
-                            milestoneDescription: milestoneDTO.description,
-                            expectedOutcome: milestoneDTO.expectedOutcome,
-                            targetMonth: milestoneDTO.targetMonth,
-                            targetWeek: milestoneDTO.targetWeek,
-                            isMonthlyCheckpoint: milestoneDTO.isMonthlyCheckpoint,
-                            createdAt: milestoneDTO.createdAt
+                            id: remoteMilestone.id,
+                            goalId: remoteMilestone.goalId,
+                            orderIndex: remoteMilestone.orderIndex,
+                            title: remoteMilestone.title,
+                            milestoneDescription: remoteMilestone.description,
+                            expectedOutcome: remoteMilestone.expectedOutcome,
+                            targetMonth: remoteMilestone.targetMonth,
+                            targetWeek: remoteMilestone.targetWeek,
+                            isMonthlyCheckpoint: remoteMilestone.isMonthlyCheckpoint,
+                            createdAt: remoteMilestone.createdAt
                         )
                         local.roadmap = existing
                         existing.milestones.append(local)
@@ -437,62 +437,62 @@ final class SyncingRoadmapRepository: RoadmapSummaryRepository, WeeklyTaskReposi
                 }
             }
         } else {
-            let localMilestones = (dto.milestones ?? []).map { milestoneDTO in
+            let localMilestones = (remote.milestones ?? []).map { remoteMilestone in
                 LocalMilestone(
-                    id: milestoneDTO.id,
-                    goalId: milestoneDTO.goalId,
-                    orderIndex: milestoneDTO.orderIndex,
-                    title: milestoneDTO.title,
-                    milestoneDescription: milestoneDTO.description,
-                    expectedOutcome: milestoneDTO.expectedOutcome,
-                    targetMonth: milestoneDTO.targetMonth,
-                    targetWeek: milestoneDTO.targetWeek,
-                    isMonthlyCheckpoint: milestoneDTO.isMonthlyCheckpoint,
-                    createdAt: milestoneDTO.createdAt
+                    id: remoteMilestone.id,
+                    goalId: remoteMilestone.goalId,
+                    orderIndex: remoteMilestone.orderIndex,
+                    title: remoteMilestone.title,
+                    milestoneDescription: remoteMilestone.description,
+                    expectedOutcome: remoteMilestone.expectedOutcome,
+                    targetMonth: remoteMilestone.targetMonth,
+                    targetWeek: remoteMilestone.targetWeek,
+                    isMonthlyCheckpoint: remoteMilestone.isMonthlyCheckpoint,
+                    createdAt: remoteMilestone.createdAt
                 )
             }
             context.insert(LocalRoadmap(
-                goalId: dto.goalId,
-                userId: dto.userId,
-                status: dto.status.rawValue,
-                createdAt: dto.createdAt,
-                updatedAt: dto.updatedAt,
-                currentMilestoneId: dto.currentMilestoneId,
+                goalId: remote.goalId,
+                userId: remote.userId,
+                status: remote.status.rawValue,
+                createdAt: remote.createdAt,
+                updatedAt: remote.updatedAt,
+                currentMilestoneId: remote.currentMilestoneId,
                 milestones: localMilestones
             ))
         }
     }
 
-    private func replaceWeeklyTasks(_ dtos: [WeeklyTask], goalId: String) {
+    private func replaceWeeklyTasks(_ remotes: [WeeklyTask], goalId: String) {
         let descriptor = FetchDescriptor<LocalWeeklyTask>(
             predicate: #Predicate { $0.goalId == goalId }
         )
         let existing = (try? context.fetch(descriptor)) ?? []
         let existingById = Dictionary(uniqueKeysWithValues: existing.map { ($0.id, $0) })
-        let remoteIds = Set(dtos.map(\.id))
+        let remoteIds = Set(remotes.map(\.id))
 
-        for dto in dtos {
-            if let local = existingById[dto.id] {
-                local.weeklyPlanId = dto.weeklyPlanId
-                local.title = dto.title
-                local.taskDescription = dto.description
-                local.difficultyRating = dto.difficultyRating?.rawValue
-                local.orderIndex = dto.orderIndex
-                local.isCompleted = dto.isCompleted
-                local.isFallback = dto.isFallback
+        for remote in remotes {
+            if let local = existingById[remote.id] {
+                local.weeklyPlanId = remote.weeklyPlanId
+                local.title = remote.title
+                local.taskDescription = remote.description
+                local.difficultyRating = remote.difficultyRating?.rawValue
+                local.orderIndex = remote.orderIndex
+                local.isCompleted = remote.isCompleted
+                local.isFallback = remote.isFallback
             } else {
                 context.insert(LocalWeeklyTask(
-                    id: dto.id,
-                    weeklyPlanId: dto.weeklyPlanId,
-                    goalId: dto.goalId,
-                    userId: dto.userId,
-                    title: dto.title,
-                    taskDescription: dto.description,
-                    difficultyRating: dto.difficultyRating?.rawValue,
-                    orderIndex: dto.orderIndex,
-                    isCompleted: dto.isCompleted,
-                    isFallback: dto.isFallback,
-                    createdAt: dto.createdAt
+                    id: remote.id,
+                    weeklyPlanId: remote.weeklyPlanId,
+                    goalId: remote.goalId,
+                    userId: remote.userId,
+                    title: remote.title,
+                    taskDescription: remote.description,
+                    difficultyRating: remote.difficultyRating?.rawValue,
+                    orderIndex: remote.orderIndex,
+                    isCompleted: remote.isCompleted,
+                    isFallback: remote.isFallback,
+                    createdAt: remote.createdAt
                 ))
             }
         }
@@ -554,16 +554,16 @@ extension WeeklyTask {
 }
 
 extension MilestoneRecord {
-    init(dto: MilestoneDTO) {
+    init(remote: RemoteMilestone) {
         self.init(
-            id: dto.id,
-            title: dto.title,
-            description: dto.description,
-            expectedOutcome: dto.expectedOutcome,
-            targetMonth: dto.targetMonth,
-            targetWeek: dto.targetWeek,
-            isMonthlyCheckpoint: dto.isMonthlyCheckpoint,
-            orderIndex: dto.orderIndex
+            id: remote.id,
+            title: remote.title,
+            description: remote.description,
+            expectedOutcome: remote.expectedOutcome,
+            targetMonth: remote.targetMonth,
+            targetWeek: remote.targetWeek,
+            isMonthlyCheckpoint: remote.isMonthlyCheckpoint,
+            orderIndex: remote.orderIndex
         )
     }
 

@@ -53,7 +53,7 @@ final class LocalProfile {
     }
 }
 
-struct ProfileDTO: Codable {
+struct RemoteProfile: Codable {
     let userId: String
     let firstName: String?
     let lastName: String?
@@ -153,31 +153,31 @@ struct ProfileSnapshot {
 }
 
 extension LocalProfile {
-    convenience init(dto: ProfileDTO?, userId: String, email: String?, avatarURL: String?, avatarData: Data?) {
+    convenience init(remote: RemoteProfile?, userId: String, email: String?, avatarURL: String?, avatarData: Data?) {
         self.init(
             userId: userId,
-            firstName: dto?.firstName,
-            lastName: dto?.lastName,
+            firstName: remote?.firstName,
+            lastName: remote?.lastName,
             email: email,
             avatarURL: avatarURL,
             avatarData: avatarData,
-            coachId: dto?.coachId,
-            dateOfBirth: dto?.dateOfBirth,
-            language: dto?.language,
-            createdAt: dto?.createdAt
+            coachId: remote?.coachId,
+            dateOfBirth: remote?.dateOfBirth,
+            language: remote?.language,
+            createdAt: remote?.createdAt
         )
     }
 
-    func update(dto: ProfileDTO?, email: String?, avatarURL: String?, avatarData: Data?) {
-        firstName = dto?.firstName
-        lastName = dto?.lastName
+    func update(remote: RemoteProfile?, email: String?, avatarURL: String?, avatarData: Data?) {
+        firstName = remote?.firstName
+        lastName = remote?.lastName
         self.email = email
         self.avatarURL = avatarURL
         self.avatarData = avatarData
-        coachId = dto?.coachId
-        dateOfBirth = dto?.dateOfBirth
-        language = dto?.language
-        createdAt = dto?.createdAt
+        coachId = remote?.coachId
+        dateOfBirth = remote?.dateOfBirth
+        language = remote?.language
+        createdAt = remote?.createdAt
     }
 
     func apply(_ snapshot: ProfileSnapshot) {

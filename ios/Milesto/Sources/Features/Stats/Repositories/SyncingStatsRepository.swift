@@ -23,21 +23,21 @@ final class SyncingStatsRepository: StatsRepository {
     }
 
     func refreshStats(goalId: String) async throws -> StatsSnapshot {
-        let dto = try await remote.getStats(goalId: goalId)
-        saveStats(dto, goalId: goalId)
+        let remote = try await remote.getStats(goalId: goalId)
+        saveStats(remote, goalId: goalId)
         try? context.save()
-        return dto.snapshot
+        return remote.snapshot
     }
 
-    private func saveStats(_ dto: StatsDTO, goalId: String) {
+    private func saveStats(_ remote: RemoteStats, goalId: String) {
         let descriptor = FetchDescriptor<LocalStats>(
             predicate: #Predicate { $0.goalId == goalId }
         )
 
         if let existing = try? context.fetch(descriptor).first {
-            existing.update(with: dto)
+            existing.update(with: remote)
         } else {
-            context.insert(LocalStats(goalId: goalId, stats: dto))
+            context.insert(LocalStats(goalId: goalId, stats: remote))
         }
     }
 }

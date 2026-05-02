@@ -7,17 +7,17 @@ final class LocalStats {
     var payload: Data
     var updatedAt: Date
 
-    init(goalId: String, stats: StatsDTO, updatedAt: Date = Date()) {
+    init(goalId: String, stats: RemoteStats, updatedAt: Date = Date()) {
         self.goalId = goalId
         payload = (try? JSONEncoder().encode(stats)) ?? Data()
         self.updatedAt = updatedAt
     }
 
-    var stats: StatsDTO? {
-        try? JSONDecoder().decode(StatsDTO.self, from: payload)
+    var stats: RemoteStats? {
+        try? JSONDecoder().decode(RemoteStats.self, from: payload)
     }
 
-    func update(with stats: StatsDTO) {
+    func update(with stats: RemoteStats) {
         payload = (try? JSONEncoder().encode(stats)) ?? payload
         updatedAt = Date()
     }

@@ -1,7 +1,7 @@
 import Foundation
 import Supabase
 
-private struct MessageDTO: Decodable {
+private struct RemoteMessage: Decodable {
     let id: String
     let role: String
     let content: String?
@@ -20,7 +20,7 @@ private struct ConversationWithMessages: Decodable {
     let goalId: String
     let updatedAt: String
     let createdAt: String
-    let messages: [MessageDTO]
+    let messages: [RemoteMessage]
 
     private enum CodingKeys: String, CodingKey {
         case id
@@ -73,7 +73,7 @@ final class SupabaseChatRepository: RemoteChatRepository {
     }
 
     func getConversationMessages(conversationId: String) async throws -> [ChatMessage] {
-        let rows: [MessageDTO] = try await SupabaseConfig.client
+        let rows: [RemoteMessage] = try await SupabaseConfig.client
             .from("messages")
             .select()
             .eq("conversation_id", value: conversationId)
@@ -86,12 +86,12 @@ final class SupabaseChatRepository: RemoteChatRepository {
 
         return rows
             .filter { ($0.role == "user" || $0.role == "assistant") && $0.content != nil }
-            .map { dto in
+            .map { remote in
                 ChatMessage(
-                    id: dto.id,
-                    role: dto.role == "user" ? .user : .assistant,
-                    content: dto.content ?? "",
-                    createdAt: dateFormatter.date(from: dto.createdAt) ?? Date()
+                    id: remote.id,
+                    role: remote.role == "user" ? .user : .assistant,
+                    content: remote.content ?? "",
+                    createdAt: dateFormatter.date(from: remote.createdAt) ?? Date()
                 )
             }
     }

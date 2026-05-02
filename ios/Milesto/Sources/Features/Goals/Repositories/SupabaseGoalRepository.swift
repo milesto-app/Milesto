@@ -11,7 +11,7 @@ final class SupabaseGoalRepository: RemoteGoalRepository {
         self.backend = backend
     }
 
-    func createGoal(description: String) async throws -> GoalDTO {
+    func createGoal(description: String) async throws -> RemoteGoal {
         struct Body: Encodable { let description: String }
         return try await backend.request(
             method: "POST",
@@ -35,7 +35,7 @@ final class SupabaseGoalRepository: RemoteGoalRepository {
         )
     }
 
-    func getGoal(goalId: String) async throws -> GoalDTO {
+    func getGoal(goalId: String) async throws -> RemoteGoal {
         try await client
             .from("goals")
             .select()
@@ -67,7 +67,7 @@ final class SupabaseGoalRepository: RemoteGoalRepository {
             .execute()
     }
 
-    func listGoals() async throws -> [GoalDTO] {
+    func listGoals() async throws -> [RemoteGoal] {
         try await client
             .from("goals")
             .select()

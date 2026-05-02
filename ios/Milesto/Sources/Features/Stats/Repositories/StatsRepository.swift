@@ -2,7 +2,7 @@ import Foundation
 
 @MainActor
 protocol RemoteStatsRepository: AnyObject {
-    func getStats(goalId: String) async throws -> StatsDTO
+    func getStats(goalId: String) async throws -> RemoteStats
 }
 
 @MainActor

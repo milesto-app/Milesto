@@ -26,7 +26,7 @@ actor SubscriptionSyncOutbox {
     func enqueue(jws: String, userId: String?) {
         guard let context = makeContext() else { return }
         let jwsKey = Self.key(for: jws)
-        let descriptor = FetchDescriptor<PendingSubscriptionSync>(
+        let descriptor = FetchDescriptor<LocalPendingSubscriptionSync>(
             predicate: #Predicate { $0.jwsRepresentation == jwsKey }
         )
         if let existing = try? context.fetch(descriptor), !existing.isEmpty {
@@ -34,7 +34,7 @@ actor SubscriptionSyncOutbox {
             return
         }
         Keychain.setPendingSubscriptionJWS(jws, key: jwsKey)
-        let pending = PendingSubscriptionSync(jwsRepresentation: jwsKey, userId: userId)
+        let pending = LocalPendingSubscriptionSync(jwsRepresentation: jwsKey, userId: userId)
         context.insert(pending)
         do {
             try context.save()
@@ -46,13 +46,13 @@ actor SubscriptionSyncOutbox {
 
     func pendingCount() -> Int {
         guard let context = makeContext() else { return 0 }
-        let descriptor = FetchDescriptor<PendingSubscriptionSync>()
+        let descriptor = FetchDescriptor<LocalPendingSubscriptionSync>()
         return (try? context.fetchCount(descriptor)) ?? 0
     }
 
     func drainAll(currentUserId: String?) async {
         guard let context = makeContext() else { return }
-        let descriptor = FetchDescriptor<PendingSubscriptionSync>(
+        let descriptor = FetchDescriptor<LocalPendingSubscriptionSync>(
             sortBy: [SortDescriptor(\.createdAt, order: .forward)]
         )
         guard let pending = try? context.fetch(descriptor), !pending.isEmpty else { return }
@@ -93,7 +93,7 @@ actor SubscriptionSyncOutbox {
     func purgeOlderThan(days: Int) async {
         guard let context = makeContext() else { return }
         let cutoff = Calendar.current.date(byAdding: .day, value: -days, to: Date()) ?? Date()
-        let descriptor = FetchDescriptor<PendingSubscriptionSync>(
+        let descriptor = FetchDescriptor<LocalPendingSubscriptionSync>(
             predicate: #Predicate { $0.createdAt < cutoff }
         )
         guard let stale = try? context.fetch(descriptor), !stale.isEmpty else { return }
@@ -107,7 +107,7 @@ actor SubscriptionSyncOutbox {
 
     func purgeForUser(userId: String) async {
         guard let context = makeContext() else { return }
-        let descriptor = FetchDescriptor<PendingSubscriptionSync>(
+        let descriptor = FetchDescriptor<LocalPendingSubscriptionSync>(
             predicate: #Predicate { $0.userId == userId }
         )
         guard let entries = try? context.fetch(descriptor), !entries.isEmpty else { return }
@@ -121,7 +121,7 @@ actor SubscriptionSyncOutbox {
 
     func purgeAll() async throws {
         guard let context = makeContext() else { return }
-        let descriptor = FetchDescriptor<PendingSubscriptionSync>()
+        let descriptor = FetchDescriptor<LocalPendingSubscriptionSync>()
         let entries = try context.fetch(descriptor)
         guard !entries.isEmpty else { return }
         for entry in entries {
@@ -138,14 +138,14 @@ actor SubscriptionSyncOutbox {
         return "subscription_jws_\(hash)"
     }
 
-    private static func jws(for entry: PendingSubscriptionSync) -> String? {
+    private static func jws(for entry: LocalPendingSubscriptionSync) -> String? {
         if entry.jwsRepresentation.hasPrefix("subscription_jws_") {
             return Keychain.pendingSubscriptionJWS(key: entry.jwsRepresentation)
         }
         return entry.jwsRepresentation
     }
 
-    private static func removeJWS(for entry: PendingSubscriptionSync) {
+    private static func removeJWS(for entry: LocalPendingSubscriptionSync) {
         if entry.jwsRepresentation.hasPrefix("subscription_jws_") {
             Keychain.removePendingSubscriptionJWS(key: entry.jwsRepresentation)
         }

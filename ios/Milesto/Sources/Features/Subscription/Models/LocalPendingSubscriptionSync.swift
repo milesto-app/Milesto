@@ -2,7 +2,7 @@ import Foundation
 import SwiftData
 
 @Model
-final class PendingSubscriptionSync {
+final class LocalPendingSubscriptionSync {
     @Attribute(.unique) var id: UUID
     var jwsRepresentation: String
     var createdAt: Date
@@ -23,5 +23,3 @@ final class PendingSubscriptionSync {
         self.attemptCount = attemptCount
     }
 }
-
-typealias LocalPendingSubscriptionSync = PendingSubscriptionSync

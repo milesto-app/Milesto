@@ -2,17 +2,17 @@ import Foundation
 import Supabase
 
 @MainActor
-final class SupabaseRoadmapRepository: RoadmapRepository {
+final class SupabaseRoadmapRepository: RemoteRoadmapRepository {
     init() {}
 
-    func generateRoadmap(goalId: String) async throws -> RoadmapDTO {
+    func generateRoadmap(goalId: String) async throws -> RemoteRoadmap {
         return try await BackendClient.shared.request(
             method: "POST",
             path: "goals/\(goalId)/roadmap/generate"
         )
     }
 
-    func getRoadmap(goalId: String) async throws -> RoadmapDTO {
+    func getRoadmap(goalId: String) async throws -> RemoteRoadmap {
         struct GoalRoadmapRow: Decodable {
             let id: String
             let userId: String
@@ -20,7 +20,7 @@ final class SupabaseRoadmapRepository: RoadmapRepository {
             let roadmapGenerationAttempts: Int
             let roadmapCreatedAt: String?
             let roadmapUpdatedAt: String?
-            let milestones: [MilestoneDTO]?
+            let milestones: [RemoteMilestone]?
 
             enum CodingKeys: String, CodingKey {
                 case id, milestones
@@ -61,7 +61,7 @@ final class SupabaseRoadmapRepository: RoadmapRepository {
             currentMilestoneId = activePlan.milestoneId
         }
 
-        return RoadmapDTO(
+        return RemoteRoadmap(
             goalId: row.id,
             userId: row.userId,
             status: row.roadmapStatus ?? .generating,
@@ -73,7 +73,7 @@ final class SupabaseRoadmapRepository: RoadmapRepository {
         )
     }
 
-    func getMilestones(goalId: String) async throws -> [MilestoneSummaryDTO] {
+    func getMilestones(goalId: String) async throws -> [RemoteMilestoneSummary] {
         try await SupabaseConfig.client
             .from("milestones")
             .select("id, title, description, expected_outcome, target_month, target_week, is_monthly_checkpoint, order_index")
@@ -159,9 +159,9 @@ final class SupabaseRoadmapRepository: RoadmapRepository {
     }
 
     func isRoadmapReady(goalId: String) async -> Bool {
-        guard let dto = try? await getRoadmap(goalId: goalId) else {
+        guard let remote = try? await getRoadmap(goalId: goalId) else {
             return false
         }
-        return dto.status == .complete
+        return remote.status == .complete
     }
 }

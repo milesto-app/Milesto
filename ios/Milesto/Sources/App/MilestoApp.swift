@@ -39,6 +39,6 @@ struct MilestoApp: App {
         LocalConversation.self,
         LocalChatMessage.self,
         LocalStats.self,
-        PendingSubscriptionSync.self,
+        LocalPendingSubscriptionSync.self,
     ]))
 }

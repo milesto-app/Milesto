@@ -22,10 +22,10 @@ final class SyncingGoalRepository: GoalRepository, GoalRoutingRepository {
     }
 
     func createGoal(description: String) async throws -> GoalSnapshot {
-        let dto = try await remote.createGoal(description: description)
-        upsert(dto)
+        let remote = try await remote.createGoal(description: description)
+        upsert(remote)
         try? context.save()
-        return dto.snapshot
+        return remote.snapshot
     }
 
     func updateGoal(goalId: String, motivationQuote: String?) async throws {
@@ -33,10 +33,10 @@ final class SyncingGoalRepository: GoalRepository, GoalRoutingRepository {
     }
 
     func getGoal(goalId: String) async throws -> GoalSnapshot {
-        let dto = try await remote.getGoal(goalId: goalId)
-        upsert(dto)
+        let remote = try await remote.getGoal(goalId: goalId)
+        upsert(remote)
         try? context.save()
-        return dto.snapshot
+        return remote.snapshot
     }
 
     func deleteGoal(goalId: String) async throws {
@@ -54,16 +54,16 @@ final class SyncingGoalRepository: GoalRepository, GoalRoutingRepository {
         let remoteGoals = try await remote.listGoals()
         let remoteIds = Set(remoteGoals.map { $0.id })
 
-        for dto in remoteGoals {
-            let dtoId = dto.id
+        for remote in remoteGoals {
+            let dtoId = remote.id
             let descriptor = FetchDescriptor<LocalGoal>(predicate: #Predicate { goal in
                 goal.id == dtoId
             })
             let existing = try? context.fetch(descriptor).first
             if let existing {
-                existing.update(with: dto)
+                existing.update(with: remote)
             } else {
-                context.insert(LocalGoal(dto: dto))
+                context.insert(LocalGoal(remote: remote))
             }
         }
 
@@ -156,20 +156,20 @@ final class SyncingGoalRepository: GoalRepository, GoalRoutingRepository {
         }
     }
 
-    private func upsert(_ dto: GoalDTO) {
-        let dtoId = dto.id
+    private func upsert(_ remote: RemoteGoal) {
+        let dtoId = remote.id
         let descriptor = FetchDescriptor<LocalGoal>(
             predicate: #Predicate { $0.id == dtoId }
         )
         if let existing = try? context.fetch(descriptor).first {
-            existing.update(with: dto)
+            existing.update(with: remote)
         } else {
-            context.insert(LocalGoal(dto: dto))
+            context.insert(LocalGoal(remote: remote))
         }
     }
 }
 
-private extension GoalDTO {
+private extension RemoteGoal {
     var snapshot: GoalSnapshot {
         GoalSnapshot(
             id: id,
