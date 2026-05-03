@@ -137,24 +137,24 @@ export function CommandPalette() {
           <DialogDescription className="sr-only">
             Search admin routes and key actions
           </DialogDescription>
-          <div className="flex items-center gap-2 border-b border-border/60 px-3 py-2">
-            <Search className="h-4 w-4 text-muted-foreground" aria-hidden />
+          <div className="flex items-center gap-2 border-b border-border-subtle px-3 py-2">
+            <Search className="h-4 w-4 text-text-secondary" aria-hidden />
             <input
               ref={inputRef}
               value={query}
               onChange={(e) => handleQueryChange(e.target.value)}
               onKeyDown={onKeyDown}
               placeholder="Jump to a page…"
-              className="h-8 flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
+              className="h-8 flex-1 bg-transparent text-sm outline-none placeholder:text-text-tertiary"
               aria-label="Search admin routes"
             />
-            <kbd className="rounded border border-border/60 px-1.5 py-0.5 font-mono text-[10px] text-muted-foreground">
+            <kbd className="rounded border border-border-default px-1.5 py-0.5 font-mono text-[10px] text-text-secondary">
               esc
             </kbd>
           </div>
           <div className="max-h-80 overflow-auto py-1">
             {results.length === 0 ? (
-              <div className="px-4 py-8 text-center text-xs text-muted-foreground">
+              <div className="px-4 py-8 text-center text-xs text-text-secondary">
                 No matches
               </div>
             ) : (
@@ -170,21 +170,21 @@ export function CommandPalette() {
                     className={cn(
                       "flex w-full items-center gap-3 px-3 py-2 text-left text-sm transition-colors",
                       active
-                        ? "bg-accent text-accent-foreground"
-                        : "text-foreground/80 hover:bg-accent/50",
+                        ? "bg-surface-3 text-text-primary"
+                        : "text-text-secondary hover:bg-surface-3",
                     )}
                   >
                     <Icon
-                      className="h-4 w-4 text-muted-foreground"
+                      className="h-4 w-4 text-text-secondary"
                       aria-hidden
                     />
                     <span className="flex-1">{entry.title}</span>
-                    <span className="text-[10px] uppercase tracking-wider text-muted-foreground">
+                    <span className="text-[10px] uppercase tracking-wider text-text-secondary">
                       {entry.group}
                     </span>
                     {active ? (
                       <CornerDownLeft
-                        className="h-3.5 w-3.5 text-muted-foreground"
+                        className="h-3.5 w-3.5 text-text-secondary"
                         aria-hidden
                       />
                     ) : null}
