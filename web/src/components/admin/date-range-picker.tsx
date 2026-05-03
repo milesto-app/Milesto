@@ -28,10 +28,7 @@ export function DateRangePicker({ className }: { className?: string }) {
         className,
       )}
     >
-      <CalendarRange
-        className="size-3.5 text-muted-foreground"
-        aria-hidden
-      />
+      <CalendarRange className="size-3.5 text-muted-foreground" aria-hidden />
       <label className="sr-only" htmlFor="date-range-from">
         From
       </label>

@@ -129,14 +129,8 @@ function OverviewTab({ goal }: { goal: AdminGoalDetail }) {
           <Field label="Target date" value={formatDate(goal.targetDate)} />
           <Field label="Created" value={formatDate(goal.createdAt)} />
           <Field label="Updated" value={formatDate(goal.updatedAt)} />
-          <Field
-            label="Roadmap status"
-            value={goal.roadmapStatus ?? "—"}
-          />
-          <Field
-            label="Roadmap model"
-            value={goal.roadmapModelUsed ?? "—"}
-          />
+          <Field label="Roadmap status" value={goal.roadmapStatus ?? "—"} />
+          <Field label="Roadmap model" value={goal.roadmapModelUsed ?? "—"} />
           <Field
             label="Roadmap attempts"
             value={String(goal.roadmapGenerationAttempts)}
@@ -187,13 +181,7 @@ function OverviewTab({ goal }: { goal: AdminGoalDetail }) {
   );
 }
 
-function Field({
-  label,
-  value,
-}: {
-  label: string;
-  value: React.ReactNode;
-}) {
+function Field({ label, value }: { label: string; value: React.ReactNode }) {
   return (
     <div className="space-y-0.5">
       <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
@@ -342,7 +330,9 @@ function WeeklyTasksTab({ tasks }: { tasks: AdminGoalWeeklyTask[] }) {
                 ) : null}
               </div>
               <p className="text-sm font-medium">{task.title}</p>
-              <p className="text-sm text-muted-foreground">{task.description}</p>
+              <p className="text-sm text-muted-foreground">
+                {task.description}
+              </p>
             </div>
             <StatusBadge
               variant={task.isCompleted ? "active" : "pending"}

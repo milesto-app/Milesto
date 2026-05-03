@@ -7,10 +7,7 @@ import {
   broadcastNotification,
   type BroadcastBody,
 } from "@/lib/admin-api/resources/notifications";
-import {
-  normalizeError,
-  type ActionResult,
-} from "@/lib/admin-api/errors";
+import { normalizeError, type ActionResult } from "@/lib/admin-api/errors";
 import type { AdminBroadcastResult } from "@/lib/admin-api/types";
 
 export async function broadcastAction(

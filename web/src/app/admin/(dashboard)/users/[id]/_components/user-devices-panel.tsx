@@ -9,11 +9,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-export function UserDevicesPanel({
-  devices,
-}: {
-  devices: AdminUserDevice[];
-}) {
+export function UserDevicesPanel({ devices }: { devices: AdminUserDevice[] }) {
   if (devices.length === 0) {
     return (
       <div className="rounded-xl border border-border/50 bg-card px-5 py-12 text-center text-sm text-muted-foreground">

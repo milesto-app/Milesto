@@ -81,9 +81,7 @@ export async function getGoalWeeklyTasks(
   });
 }
 
-export async function getGoalDebriefs(
-  id: string,
-): Promise<AdminGoalDebrief[]> {
+export async function getGoalDebriefs(id: string): Promise<AdminGoalDebrief[]> {
   return apiFetch<AdminGoalDebrief[]>(`/admin/goals/${id}/debriefs`, {
     next: detailNext(id),
   });

@@ -7,10 +7,7 @@ import {
   demoteAdmin,
   promoteAdmin,
 } from "@/lib/admin-api/resources/meta";
-import {
-  normalizeError,
-  type ActionResult,
-} from "@/lib/admin-api/errors";
+import { normalizeError, type ActionResult } from "@/lib/admin-api/errors";
 import type { AdminRoleUpdate } from "@/lib/admin-api/types";
 
 export async function promoteAdminAction(

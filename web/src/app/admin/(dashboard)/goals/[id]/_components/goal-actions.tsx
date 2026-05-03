@@ -18,7 +18,10 @@ import {
 export function GoalToolbar({ id }: { id: string }) {
   const [isPending, startTransition] = useTransition();
 
-  function run(label: string, action: () => Promise<{ ok: boolean; error?: { message: string } }>) {
+  function run(
+    label: string,
+    action: () => Promise<{ ok: boolean; error?: { message: string } }>,
+  ) {
     startTransition(() => {
       void action().then((result) => {
         if (result.ok) {
@@ -37,7 +40,9 @@ export function GoalToolbar({ id }: { id: string }) {
         size="sm"
         variant="outline"
         disabled={isPending}
-        onClick={() => run("Profile regenerated", () => regenerateProfileAction(id))}
+        onClick={() =>
+          run("Profile regenerated", () => regenerateProfileAction(id))
+        }
       >
         <Sparkles className="h-3.5 w-3.5" />
         Regenerate profile
@@ -54,7 +59,12 @@ export function GoalToolbar({ id }: { id: string }) {
       </Button>
       <ConfirmDestructiveDialog
         trigger={
-          <Button type="button" size="sm" variant="outline" disabled={isPending}>
+          <Button
+            type="button"
+            size="sm"
+            variant="outline"
+            disabled={isPending}
+          >
             <Wand2 className="h-3.5 w-3.5" />
             Regenerate roadmap
           </Button>
@@ -63,8 +73,8 @@ export function GoalToolbar({ id }: { id: string }) {
         description={
           <>
             Regenerating the roadmap deletes existing milestones, weekly plans,
-            tasks, and debriefs for this goal. The user will see a fresh
-            roadmap on next sync.
+            tasks, and debriefs for this goal. The user will see a fresh roadmap
+            on next sync.
           </>
         }
         confirmString="REGENERATE"
@@ -76,21 +86,14 @@ export function GoalToolbar({ id }: { id: string }) {
   );
 }
 
-export function GoalDangerZone({
-  id,
-  title,
-}: {
-  id: string;
-  title: string;
-}) {
+export function GoalDangerZone({ id, title }: { id: string; title: string }) {
   const router = useRouter();
   return (
     <div className="rounded-xl border border-destructive/30 bg-destructive/5 p-5">
       <h3 className="text-sm font-semibold text-destructive">Danger zone</h3>
       <p className="mt-1 text-sm text-muted-foreground">
         Hard-deletes this goal and every dependent row (intake, roadmap,
-        debriefs, embeddings, conversations). The user cannot recover this
-        data.
+        debriefs, embeddings, conversations). The user cannot recover this data.
       </p>
       <div className="mt-3">
         <ConfirmDestructiveDialog

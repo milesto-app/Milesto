@@ -95,7 +95,10 @@ export function LogsTable({ logs }: { logs: AdminSystemLog[] }) {
         onRowClick={(row) => setActive(row)}
         emptyState={{ title: "No logs in this window" }}
       />
-      <Sheet open={active !== null} onOpenChange={(open) => !open && setActive(null)}>
+      <Sheet
+        open={active !== null}
+        onOpenChange={(open) => !open && setActive(null)}
+      >
         <SheetContent>
           <SheetHeader>
             <SheetTitle>Log entry</SheetTitle>

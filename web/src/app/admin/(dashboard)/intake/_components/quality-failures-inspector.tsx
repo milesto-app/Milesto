@@ -66,7 +66,9 @@ export function QualityFailuresInspector({
                   </span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="font-medium">Batch #{batch.batchNumber}</span>
+                  <span className="font-medium">
+                    Batch #{batch.batchNumber}
+                  </span>
                   <span className="text-xs text-muted-foreground">
                     {formatDate(batch.createdAt)}
                   </span>

@@ -31,10 +31,7 @@ export default async function DevicesPage({
         title="Devices"
         description="Registered APNs tokens, with platform and environment."
       />
-      <FilterBar
-        searchPlaceholder="Filter by userId via the URL"
-        facets={[]}
-      />
+      <FilterBar searchPlaceholder="Filter by userId via the URL" facets={[]} />
       <DevicesTable
         devices={data.devices}
         total={data.total}

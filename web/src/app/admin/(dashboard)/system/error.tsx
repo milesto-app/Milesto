@@ -9,5 +9,7 @@ export default function SystemError({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
-  return <RouteError resourceLabel="system status" error={error} reset={reset} />;
+  return (
+    <RouteError resourceLabel="system status" error={error} reset={reset} />
+  );
 }

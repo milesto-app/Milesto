@@ -35,8 +35,11 @@ export async function listIntakeBatches(
 export async function getIntakeQualityFailures(
   days?: number,
 ): Promise<AdminIntakeQualityFailures> {
-  return apiFetch<AdminIntakeQualityFailures>("/admin/intake/quality-failures", {
-    next: next(),
-    query: { days },
-  });
+  return apiFetch<AdminIntakeQualityFailures>(
+    "/admin/intake/quality-failures",
+    {
+      next: next(),
+      query: { days },
+    },
+  );
 }

@@ -33,7 +33,12 @@ export function RouteError({
         </p>
       </div>
       <div className="mt-2 flex items-center gap-2">
-        <Button type="button" variant="outline" size="sm" onClick={() => reset()}>
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          onClick={() => reset()}
+        >
           Retry
         </Button>
         {error.digest ? (

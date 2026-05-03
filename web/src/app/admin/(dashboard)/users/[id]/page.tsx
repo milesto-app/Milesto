@@ -128,10 +128,7 @@ export default async function UserDetailPage({
               label="Date of birth"
               value={user.dateOfBirth ? formatDate(user.dateOfBirth) : null}
             />
-            <Field
-              label="Subscription"
-              value={user.subscriptionStatus}
-            />
+            <Field label="Subscription" value={user.subscriptionStatus} />
           </div>
         </CardContent>
       </Card>

@@ -56,9 +56,7 @@ export default async function AdminsPage() {
                   </TableCell>
                   <TableCell className="text-right">
                     {entry.id === me.id ? (
-                      <span className="text-xs text-muted-foreground">
-                        You
-                      </span>
+                      <span className="text-xs text-muted-foreground">You</span>
                     ) : (
                       <DemoteAdminButton
                         userId={entry.id}

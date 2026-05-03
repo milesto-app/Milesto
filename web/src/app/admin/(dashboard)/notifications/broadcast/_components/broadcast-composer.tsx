@@ -18,9 +18,17 @@ const SEGMENTS: {
   label: string;
   hint: string;
 }[] = [
-  { value: "all", label: "All users", hint: "Everyone with a registered device" },
+  {
+    value: "all",
+    label: "All users",
+    hint: "Everyone with a registered device",
+  },
   { value: "pro", label: "Pro", hint: "Active paid subscribers only" },
-  { value: "free", label: "Free", hint: "Users without an active subscription" },
+  {
+    value: "free",
+    label: "Free",
+    hint: "Users without an active subscription",
+  },
 ];
 
 const TITLE_LIMIT = 50;
@@ -124,7 +132,12 @@ export function BroadcastComposer({
 
         <ConfirmDestructiveDialog
           trigger={
-            <Button type="button" disabled={!valid} className="w-full" size="sm">
+            <Button
+              type="button"
+              disabled={!valid}
+              className="w-full"
+              size="sm"
+            >
               <Megaphone className="h-3.5 w-3.5" />
               Send broadcast
             </Button>
@@ -133,8 +146,8 @@ export function BroadcastComposer({
           description={
             <>
               You&apos;re about to push <strong>{title || "(no title)"}</strong>{" "}
-              to <strong>~{audienceEstimate.toLocaleString()}</strong>{" "}
-              recipient{audienceEstimate === 1 ? "" : "s"} in the{" "}
+              to <strong>~{audienceEstimate.toLocaleString()}</strong> recipient
+              {audienceEstimate === 1 ? "" : "s"} in the{" "}
               <strong>{segment}</strong> segment. This cannot be undone.
             </>
           }

@@ -23,7 +23,9 @@ function parseDate(value: string | Date | null | undefined): Date | null {
   return Number.isNaN(date.getTime()) ? null : date;
 }
 
-export function formatDateTime(value: string | Date | null | undefined): string {
+export function formatDateTime(
+  value: string | Date | null | undefined,
+): string {
   const date = parseDate(value);
   if (!date) return "—";
   return format(date, "MMM d, yyyy h:mm a");
@@ -35,7 +37,9 @@ export function formatDate(value: string | Date | null | undefined): string {
   return format(date, "MMM d, yyyy");
 }
 
-export function formatShortDate(value: string | Date | null | undefined): string {
+export function formatShortDate(
+  value: string | Date | null | undefined,
+): string {
   const date = parseDate(value);
   if (!date) return "—";
   return format(date, "M/d");

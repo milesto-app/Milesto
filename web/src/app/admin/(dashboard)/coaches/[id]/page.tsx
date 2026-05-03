@@ -3,10 +3,7 @@ import { notFound } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 
 import { ApiError } from "@/lib/admin-api/errors";
-import {
-  listCoachUsers,
-  listCoaches,
-} from "@/lib/admin-api/resources/coaches";
+import { listCoachUsers, listCoaches } from "@/lib/admin-api/resources/coaches";
 import { readPage, readPerPage } from "@/lib/admin-api/search-params";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";

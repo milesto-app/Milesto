@@ -12,7 +12,10 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
-import { StatusBadge, type StatusVariant } from "@/components/admin/status-badge";
+import {
+  StatusBadge,
+  type StatusVariant,
+} from "@/components/admin/status-badge";
 
 const DENSITY_KEY = "admin:subscriptions:density";
 
@@ -115,7 +118,10 @@ export function SubscriptionsTable({
           description: "Adjust the filters to widen the search.",
         }}
       />
-      <Sheet open={active !== null} onOpenChange={(open) => !open && setActive(null)}>
+      <Sheet
+        open={active !== null}
+        onOpenChange={(open) => !open && setActive(null)}
+      >
         <SheetContent>
           <SheetHeader>
             <SheetTitle>Subscription detail</SheetTitle>

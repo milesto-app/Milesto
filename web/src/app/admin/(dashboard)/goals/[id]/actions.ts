@@ -9,10 +9,7 @@ import {
   regenerateGoalProfile,
   regenerateGoalRoadmap,
 } from "@/lib/admin-api/resources/goals";
-import {
-  normalizeError,
-  type ActionResult,
-} from "@/lib/admin-api/errors";
+import { normalizeError, type ActionResult } from "@/lib/admin-api/errors";
 
 function revalidateGoal(id: string) {
   updateTag(GOALS_CACHE_TAGS.list);

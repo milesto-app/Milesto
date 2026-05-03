@@ -1,4 +1,7 @@
-import type { AdminLlmHealthReport, AdminLlmProbe } from "@/lib/admin-api/types";
+import type {
+  AdminLlmHealthReport,
+  AdminLlmProbe,
+} from "@/lib/admin-api/types";
 import { Card, CardContent } from "@/components/ui/card";
 import { StatusBadge } from "@/components/admin/status-badge";
 

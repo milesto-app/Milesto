@@ -11,10 +11,7 @@ import {
   type UpdateUserBody,
 } from "@/lib/admin-api/resources/users";
 import { refreshSubscription } from "@/lib/admin-api/resources/subscriptions";
-import {
-  normalizeError,
-  type ActionResult,
-} from "@/lib/admin-api/errors";
+import { normalizeError, type ActionResult } from "@/lib/admin-api/errors";
 import type {
   AdminUserDetail,
   AdminUserSubscription,

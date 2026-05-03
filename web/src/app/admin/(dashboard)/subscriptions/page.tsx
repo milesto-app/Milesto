@@ -147,7 +147,9 @@ function MrrArrPanel({ data }: { data: AdminSubscriptionMrrArr }) {
               ) : (
                 Object.entries(data.byProduct).map(([product, breakdown]) => (
                   <TableRow key={product}>
-                    <TableCell className="font-mono text-xs">{product}</TableCell>
+                    <TableCell className="font-mono text-xs">
+                      {product}
+                    </TableCell>
                     <TableCell className="text-right tabular-nums">
                       {breakdown.count}
                     </TableCell>

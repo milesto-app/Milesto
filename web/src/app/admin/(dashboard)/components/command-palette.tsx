@@ -12,7 +12,11 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 
-import { ADMIN_NAV_GROUPS, ADMIN_SETTINGS_ITEMS, type AdminNavItem } from "./nav-config";
+import {
+  ADMIN_NAV_GROUPS,
+  ADMIN_SETTINGS_ITEMS,
+  type AdminNavItem,
+} from "./nav-config";
 
 type PaletteEntry = AdminNavItem & { group: string };
 
@@ -51,7 +55,11 @@ export function CommandPalette() {
 
   const results = useMemo(() => {
     if (!query) return ENTRIES.map((entry, i) => ({ entry, rank: 0, key: i }));
-    return ENTRIES.map((entry, i) => ({ entry, rank: score(entry, query), key: i }))
+    return ENTRIES.map((entry, i) => ({
+      entry,
+      rank: score(entry, query),
+      key: i,
+    }))
       .filter((r) => r.rank > 0)
       .sort((a, b) => b.rank - a.rank);
   }, [query]);
@@ -166,7 +174,10 @@ export function CommandPalette() {
                         : "text-foreground/80 hover:bg-accent/50",
                     )}
                   >
-                    <Icon className="h-4 w-4 text-muted-foreground" aria-hidden />
+                    <Icon
+                      className="h-4 w-4 text-muted-foreground"
+                      aria-hidden
+                    />
                     <span className="flex-1">{entry.title}</span>
                     <span className="text-[10px] uppercase tracking-wider text-muted-foreground">
                       {entry.group}

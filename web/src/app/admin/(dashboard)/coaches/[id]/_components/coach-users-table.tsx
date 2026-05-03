@@ -5,7 +5,10 @@ import { useRouter } from "next/navigation";
 import type { AdminCoachUserSummary } from "@/lib/admin-api/types";
 import { defineColumns } from "@/components/admin/data-table/column-helpers";
 import { DataTable } from "@/components/admin/data-table/data-table";
-import { StatusBadge, type StatusVariant } from "@/components/admin/status-badge";
+import {
+  StatusBadge,
+  type StatusVariant,
+} from "@/components/admin/status-badge";
 
 const DENSITY_KEY = "admin:coach-users:density";
 
