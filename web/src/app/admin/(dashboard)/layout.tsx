@@ -10,6 +10,7 @@ import {
 import { TooltipProvider } from "@/components/ui/tooltip";
 
 import { KeyboardScopeProvider } from "@/components/admin/keyboard-scope";
+import { InspectorRailProvider } from "@/components/admin/inspector-rail";
 
 import { AppSidebar } from "./components/app-sidebar";
 import { RouteTransition } from "./route-transition";
@@ -37,9 +38,11 @@ export default async function DashboardLayout({
                 </span>
               </header>
               <KeyboardScopeProvider>
-                <main className="flex-1 px-6 py-6">
-                  <RouteTransition>{children}</RouteTransition>
-                </main>
+                <InspectorRailProvider>
+                  <main className="flex-1 px-6 py-6">
+                    <RouteTransition>{children}</RouteTransition>
+                  </main>
+                </InspectorRailProvider>
               </KeyboardScopeProvider>
             </SidebarInset>
             <Toaster

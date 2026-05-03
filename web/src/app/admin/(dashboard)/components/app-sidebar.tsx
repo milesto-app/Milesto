@@ -128,7 +128,6 @@ function NavItem({
   return (
     <SidebarMenuItem>
       <SidebarMenuButton
-        {...({ nativeButton: false } as { nativeButton?: boolean })}
         render={<a href={href} />}
         isActive={active}
         className="h-9 gap-2.5 rounded-lg text-[13px] font-medium text-sidebar-foreground/70 transition-colors hover:text-sidebar-foreground data-[active=true]:bg-brand-bg-soft data-[active=true]:text-text-brand"

@@ -138,3 +138,10 @@
     transform: translateY(0);
   }
 }
+
+.admin-shell main {
+  transition: padding-right 220ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.admin-shell:has(aside[data-rail-open="true"]) main {
+  padding-right: calc(var(--page-gutter) + 360px);
+}
