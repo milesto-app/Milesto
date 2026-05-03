@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useEffect } from "react";
+import { createContext, useContext, useEffect, useRef } from "react";
 
 export type HotkeyScope = "global" | "list" | "detail" | "dialog";
 
@@ -29,7 +29,21 @@ export function useHotkeyContext(): HotkeyContextValue {
 
 export function useHotkeys(binding: HotkeyBinding): void {
   const { register } = useHotkeyContext();
-  useEffect(() => register(binding), [register, binding]);
+  const ref = useRef(binding);
+
+  useEffect(() => {
+    ref.current = binding;
+  });
+
+  const { keys, scope, description } = binding;
+  useEffect(() => {
+    return register({
+      keys,
+      scope,
+      description,
+      handler: (event) => ref.current.handler(event),
+    });
+  }, [register, keys, scope, description]);
 }
 
 export function useScope(scope: HotkeyScope): void {
