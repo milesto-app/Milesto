@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useSyncExternalStore } from "react";
+import { useCallback, useEffect, useSyncExternalStore } from "react";
 
 const KEY = "admin:density";
 type Density = "comfortable" | "compact";
@@ -35,16 +35,14 @@ export function useDensity(): [Density, (next: Density) => void] {
     notify();
   }, []);
 
-  function set(next: Density) {
+  const set = useCallback((next: Density) => {
     cached = next;
     if (typeof window !== "undefined") {
       window.localStorage.setItem(KEY, next);
-      document.documentElement
-        .querySelector(".admin-shell")
-        ?.setAttribute("data-density", next);
+      document.querySelector(".admin-shell")?.setAttribute("data-density", next);
     }
     notify();
-  }
+  }, []);
 
   return [value, set];
 }
