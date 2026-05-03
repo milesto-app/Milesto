@@ -91,12 +91,22 @@ export class ChatService {
 
   private async runAgentLoop(opts: AgentLoopOptions): Promise<void> {
     for (let round = 0; round < config.chat.maxToolRounds; round++) {
-      const stream = await this.ai.generateStream(
+      const { stream, usagePromise, model } = await this.ai.generateStream(
         opts.messages,
         opts.tools,
         config.chat.reasoningEffort,
       );
       const { content, toolCalls } = await consumeStream(stream, opts.onEvent);
+      const usage = await usagePromise;
+      await this.usageService.record(
+        opts.ctx.userId,
+        GenerationType.CHAT_MESSAGE,
+        {
+          promptTokens: usage?.promptTokens,
+          completionTokens: usage?.completionTokens,
+          model: usage?.model ?? model,
+        },
+      );
 
       if (toolCalls.length === 0) {
         await this.history.storeMessage(opts.conversationId, {

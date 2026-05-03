@@ -138,12 +138,21 @@ export class WeeklyTaskService {
       params.userId,
     );
 
-    const { tasks } = await this.generation.generateWeeklyTasks({
+    const { tasks, metadata } = await this.generation.generateWeeklyTasks({
       weeklyPlan: params.weeklyPlan,
       context,
       weekData,
       language: params.language,
     });
+    await this.usageService.record(
+      params.userId,
+      GenerationType.DAILY_OBJECTIVES,
+      {
+        promptTokens: metadata.prompt_tokens,
+        completionTokens: metadata.completion_tokens,
+        model: metadata.model_used,
+      },
+    );
 
     const stored = await this.storage.storeTasks({
       tasks: tasks.map((task) => ({
