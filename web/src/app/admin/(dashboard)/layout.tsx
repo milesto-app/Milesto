@@ -1,3 +1,5 @@
+import { Toaster } from "sonner";
+
 import { requireAdmin } from "@/lib/supabase/require-admin";
 import {
   SidebarInset,
@@ -27,6 +29,7 @@ export default async function DashboardLayout({
         </header>
         <main className="flex-1 px-6 py-6">{children}</main>
       </SidebarInset>
+      <Toaster position="bottom-right" richColors closeButton />
     </SidebarProvider>
   );
 }
