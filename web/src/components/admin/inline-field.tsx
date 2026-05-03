@@ -53,17 +53,16 @@ export function InlineField({
   >(null);
 
   useEffect(() => {
-    if (!editing) {
-      setDraft(value ?? "");
-    }
-  }, [editing, value]);
-
-  useEffect(() => {
     if (editing && inputRef.current) {
       inputRef.current.focus();
       if ("select" in inputRef.current) inputRef.current.select();
     }
   }, [editing]);
+
+  function startEdit() {
+    setDraft(value ?? "");
+    setEditing(true);
+  }
 
   function commit() {
     const next = draft.trim();
@@ -167,7 +166,7 @@ export function InlineField({
         <button
           type="button"
           disabled={disabled}
-          onClick={() => setEditing(true)}
+          onClick={startEdit}
           className="group inline-flex items-center justify-between rounded-md px-1 py-0.5 text-left text-sm text-text-primary hover:bg-surface-3 disabled:cursor-not-allowed disabled:opacity-60"
         >
           <span className="truncate">
