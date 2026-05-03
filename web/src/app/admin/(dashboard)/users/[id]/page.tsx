@@ -2,7 +2,8 @@ import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { notFound } from "next/navigation";
 
-import { getUserDetail } from "@/lib/supabase/queries/users";
+import { getUser, getUserGoals } from "@/lib/admin-api/resources/users";
+import { ApiError } from "@/lib/admin-api/errors";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -14,9 +15,17 @@ export default async function UserDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const user = await getUserDetail(id);
 
-  if (!user) notFound();
+  let user;
+  let goals;
+  try {
+    [user, goals] = await Promise.all([getUser(id), getUserGoals(id)]);
+  } catch (error) {
+    if (error instanceof ApiError && error.status === 404) {
+      notFound();
+    }
+    throw error;
+  }
 
   const isProActive =
     user.subscriptionStatus === "active" &&
@@ -100,7 +109,7 @@ export default async function UserDetailPage({
               <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
                 Goals
               </p>
-              <p className="mt-0.5 text-sm font-medium">{user.goals.length}</p>
+              <p className="mt-0.5 text-sm font-medium">{user.goalCount}</p>
             </div>
           </div>
         </CardContent>
@@ -110,11 +119,11 @@ export default async function UserDetailPage({
         <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
           Goals
         </h2>
-        {user.goals.length === 0 ? (
+        {goals.length === 0 ? (
           <p className="mt-3 text-sm text-muted-foreground">No goals yet</p>
         ) : (
           <div className="mt-3 space-y-3">
-            {user.goals.map((goal) => (
+            {goals.map((goal) => (
               <GoalDetailCard key={goal.id} goal={goal} />
             ))}
           </div>

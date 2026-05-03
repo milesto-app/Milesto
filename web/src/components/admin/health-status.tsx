@@ -2,12 +2,16 @@
 
 import { useEffect, useState } from "react";
 
-import type { HealthResult } from "@/lib/supabase/queries/health";
+import type { AdminHealthReport } from "@/lib/admin-api/types";
 import { refreshHealth } from "@/app/admin/(dashboard)/health/actions";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 
-export function HealthStatus({ initialData }: { initialData: HealthResult }) {
+export function HealthStatus({
+  initialData,
+}: {
+  initialData: AdminHealthReport;
+}) {
   const [data, setData] = useState(initialData);
   const [lastChecked, setLastChecked] = useState<Date | null>(null);
 
