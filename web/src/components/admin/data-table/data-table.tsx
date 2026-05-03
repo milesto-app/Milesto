@@ -1,4 +1,5 @@
 "use client";
+"use no memo";
 
 import {
   useCallback,
@@ -107,6 +108,7 @@ export function DataTable<TData>({
 
   const sort = useMemo<SortState>(() => parseSort(sortParam), [sortParam]);
 
+  // eslint-disable-next-line react-hooks/incompatible-library -- TanStack Table is incompatible with React Compiler; "use no memo" directive at top of file opts this component out.
   const table = useReactTable({
     data,
     columns,
