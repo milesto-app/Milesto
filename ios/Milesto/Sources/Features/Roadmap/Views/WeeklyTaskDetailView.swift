@@ -61,15 +61,13 @@ struct WeeklyTaskDetailView: View {
             Button {
                 dismiss()
             } label: {
-                TablerIcons(.chevronLeft, size: 24, color: Color("TextPrimary"))
+                TablerIcons(.x, size: 24, color: Color("TextPrimary"))
                     .frame(width: 44, height: 44)
                     .glassEffect(.regular.interactive(), in: .circle)
             }
             .padding(.horizontal, 16)
             .padding(.top, 8)
         }
-        .navigationBarBackButtonHidden(true)
-        .toolbar(.hidden, for: .navigationBar)
         .animation(.easeOut(duration: 0.45), value: appeared)
         .onAppear { appeared = true }
         .onChange(of: tasks.map(\.id)) { _, liveIds in

@@ -74,9 +74,16 @@ struct WeeklyTasksCard: View {
                 .animation(.easeInOut(duration: 0.3), value: model.tasks.map(\.isCompleted))
             }
         }
-        .navigationDestination(item: $selectedTaskId) { taskId in
+        .popover(
+            isPresented: Binding(
+                get: { selectedTaskId != nil },
+                set: { if !$0 { selectedTaskId = nil } }
+            )
+        ) {
             let ordered = model.sortedTasks.map(\.id)
-            if let start = ordered.firstIndex(of: taskId) {
+            if let taskId = selectedTaskId,
+               let start = ordered.firstIndex(of: taskId)
+            {
                 WeeklyTaskDetailView(
                     tasks: model.tasks,
                     orderedIds: ordered,

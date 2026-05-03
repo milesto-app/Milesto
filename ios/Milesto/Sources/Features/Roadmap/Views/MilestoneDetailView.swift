@@ -47,10 +47,17 @@ struct MilestoneDetailView: View {
             }
             await model?.loadTasks()
         }
-        .navigationDestination(item: $selectedTaskId) { taskId in
+        .popover(
+            isPresented: Binding(
+                get: { selectedTaskId != nil },
+                set: { if !$0 { selectedTaskId = nil } }
+            )
+        ) {
             if let model {
                 let ordered = model.sortedTasks.map(\.id)
-                if let start = ordered.firstIndex(of: taskId) {
+                if let taskId = selectedTaskId,
+                   let start = ordered.firstIndex(of: taskId)
+                {
                     let toggleHandler: ((WeeklyTask) -> Void)? =
                         status == .current ? { task in model.toggleTask(task) } : nil
                     WeeklyTaskDetailView(
