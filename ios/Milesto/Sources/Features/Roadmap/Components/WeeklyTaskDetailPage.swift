@@ -3,8 +3,6 @@ import SwiftUI
 struct WeeklyTaskDetailPage: View {
     let task: WeeklyTask
     let weekNumber: Int?
-    let indexInWeek: Int
-    let totalInWeek: Int
     let appeared: Bool
     let onToggle: ((WeeklyTask) -> Void)?
 
@@ -71,10 +69,6 @@ struct WeeklyTaskDetailPage: View {
                         .stroke(accent.opacity(0.08), lineWidth: 1)
                         .frame(width: 600, height: 600)
                         .position(x: geo.size.width - 40, y: 0)
-
-                    AppText(verbatim: String(format: "%02d", indexInWeek + 1), style: .largeTitle)
-                        .color(accent.opacity(0.18))
-                        .position(x: geo.size.width - 64, y: 68)
                 }
             }
             .clipShape(RoundedRectangle(cornerRadius: 28, style: .continuous))
@@ -89,24 +83,10 @@ struct WeeklyTaskDetailPage: View {
                         width * 0.7
                     }
 
-                HStack(alignment: .center, spacing: 12) {
-                    if totalInWeek > 1 {
-                        HStack(spacing: 6) {
-                            ForEach(0 ..< totalInWeek, id: \.self) { i in
-                                Capsule()
-                                    .fill(i == indexInWeek ? accent : accent.opacity(0.22))
-                                    .frame(
-                                        width: i == indexInWeek ? 20 : 6,
-                                        height: 4
-                                    )
-                            }
-                        }
-                    }
-
-                    Spacer(minLength: 0)
-
-                    if let durationLabel {
+                if let durationLabel {
+                    HStack {
                         AppPill(verbatim: durationLabel, tint: accent)
+                        Spacer(minLength: 0)
                     }
                 }
             }

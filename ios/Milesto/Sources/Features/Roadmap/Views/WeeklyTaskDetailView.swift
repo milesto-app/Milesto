@@ -2,8 +2,6 @@ import SwiftUI
 
 struct WeeklyTaskDetailView: View {
     let task: WeeklyTask
-    let indexInWeek: Int
-    let totalInWeek: Int
     let weekNumber: Int?
     let onToggle: ((WeeklyTask) -> Void)?
 
@@ -12,14 +10,10 @@ struct WeeklyTaskDetailView: View {
 
     init(
         task: WeeklyTask,
-        indexInWeek: Int,
-        totalInWeek: Int,
         weekNumber: Int? = nil,
         onToggle: ((WeeklyTask) -> Void)? = nil
     ) {
         self.task = task
-        self.indexInWeek = indexInWeek
-        self.totalInWeek = totalInWeek
         self.weekNumber = weekNumber
         self.onToggle = onToggle
     }
@@ -28,8 +22,6 @@ struct WeeklyTaskDetailView: View {
         WeeklyTaskDetailPage(
             task: task,
             weekNumber: weekNumber,
-            indexInWeek: indexInWeek,
-            totalInWeek: totalInWeek,
             appeared: appeared,
             onToggle: onToggle
         )

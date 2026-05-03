@@ -54,16 +54,13 @@ struct MilestoneDetailView: View {
             )
         ) {
             if let model {
-                let ordered = model.sortedTasks
                 if let taskId = selectedTaskId,
-                   let index = ordered.firstIndex(where: { $0.id == taskId })
+                   let task = model.sortedTasks.first(where: { $0.id == taskId })
                 {
                     let toggleHandler: ((WeeklyTask) -> Void)? =
                         status == .current ? { task in model.toggleTask(task) } : nil
                     WeeklyTaskDetailView(
-                        task: ordered[index],
-                        indexInWeek: index,
-                        totalInWeek: ordered.count,
+                        task: task,
                         weekNumber: nil,
                         onToggle: toggleHandler
                     )
