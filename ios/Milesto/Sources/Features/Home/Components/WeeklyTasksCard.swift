@@ -80,17 +80,22 @@ struct WeeklyTasksCard: View {
                 set: { if !$0 { selectedTaskId = nil } }
             )
         ) {
-            let ordered = model.sortedTasks.map(\.id)
+            let ordered = model.sortedTasks
             if let taskId = selectedTaskId,
-               let start = ordered.firstIndex(of: taskId)
+               let index = ordered.firstIndex(where: { $0.id == taskId })
             {
                 WeeklyTaskDetailView(
-                    tasks: model.tasks,
-                    orderedIds: ordered,
-                    startIndex: start,
+                    task: ordered[index],
+                    indexInWeek: index,
+                    totalInWeek: ordered.count,
                     weekNumber: model.weekNumber,
                     onToggle: { task in model.toggle(task) }
                 )
+            }
+        }
+        .onChange(of: model.tasks.map(\.id)) { _, ids in
+            if let id = selectedTaskId, !ids.contains(id) {
+                selectedTaskId = nil
             }
         }
     }
