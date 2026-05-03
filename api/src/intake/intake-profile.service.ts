@@ -164,12 +164,18 @@ export class IntakeProfileService {
       goalDescription: params.goalDescription,
       priorBatches: params.priorBatches,
     });
-    return this.aiService.generateJson<GoalProfile>(
+    const { data, usage } = await this.aiService.generateJson<GoalProfile>(
       systemPrompt,
       userPrompt,
       config.intake.model,
       "high",
     );
+    await this.usageService.record(params.userId, GenerationType.GOAL_PROFILE, {
+      promptTokens: usage?.promptTokens,
+      completionTokens: usage?.completionTokens,
+      model: usage?.model,
+    });
+    return data;
   }
 
   private async storeProfile(

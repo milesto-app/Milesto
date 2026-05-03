@@ -277,7 +277,7 @@ export class RoadmapQualityService {
       tasks.map((t) => ({
         title: t.title,
         description: t.description,
-        difficulty_rating: t.difficulty_rating,
+        estimated_minutes: t.estimated_minutes,
         is_fallback: t.is_fallback,
       })),
       null,
@@ -355,12 +355,12 @@ export class RoadmapQualityService {
     id: string;
     title: string;
     description: string;
-    difficulty_rating: string | null;
+    estimated_minutes: number | null;
     is_fallback: boolean;
   }> | null> {
     const { data, error } = await supabase
       .from("weekly_tasks")
-      .select("id, title, description, difficulty_rating, is_fallback")
+      .select("id, title, description, estimated_minutes, is_fallback")
       .eq("goal_id", payload.goalId)
       .eq("weekly_plan_id", payload.weeklyPlanId);
     // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
@@ -452,11 +452,12 @@ export class RoadmapQualityService {
     systemPrompt: string;
   }): Promise<T> {
     const userPrompt = `## Content to Evaluate\n${params.content}\n\n## Context\n${params.context}`;
-    return this.aiService.generateJson<T>(
+    const { data } = await this.aiService.generateJson<T>(
       params.systemPrompt,
       userPrompt,
       config.eval.judgeModel,
     );
+    return data;
   }
 
   private checkWarnings(

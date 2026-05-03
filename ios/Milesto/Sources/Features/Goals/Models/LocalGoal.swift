@@ -1,0 +1,116 @@
+import Foundation
+import SwiftData
+
+@Model
+final class LocalGoal {
+    @Attribute(.unique) var id: String
+    var userId: String
+    var title: String
+    var goalDescription: String
+    var status: String
+    var targetDate: Date?
+    var createdAt: Date?
+
+    init(id: String, userId: String, title: String, goalDescription: String, status: String, targetDate: Date? = nil, createdAt: Date? = nil) {
+        self.id = id
+        self.userId = userId
+        self.title = title
+        self.goalDescription = goalDescription
+        self.status = status
+        self.targetDate = targetDate
+        self.createdAt = createdAt
+    }
+
+    var snapshot: GoalSnapshot {
+        GoalSnapshot(
+            id: id,
+            title: title,
+            targetDate: targetDate
+        )
+    }
+}
+
+struct RemoteGoal: Codable {
+    let id: String
+    let userId: String
+    let title: String
+    let description: String
+    let status: GoalStatus
+    let targetDate: Date?
+    let createdAt: Date?
+
+    enum CodingKeys: String, CodingKey {
+        case id
+        case title
+        case status
+        case userId = "user_id"
+        case description
+        case targetDate = "target_date"
+        case createdAt = "created_at"
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        id = try container.decode(String.self, forKey: .id)
+        userId = try container.decode(String.self, forKey: .userId)
+        title = try container.decode(String.self, forKey: .title)
+        description = try container.decode(String.self, forKey: .description)
+        let statusValue = try container.decode(String.self, forKey: .status)
+        status = GoalStatus.from(statusValue)
+        targetDate = try Self.parseDate(container.decodeIfPresent(String.self, forKey: .targetDate))
+
+        if let createdAtString = try container.decodeIfPresent(String.self, forKey: .createdAt) {
+            let isoFormatter = ISO8601DateFormatter()
+            isoFormatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+            createdAt = isoFormatter.date(from: createdAtString) ?? ISO8601DateFormatter().date(from: createdAtString)
+        } else {
+            createdAt = nil
+        }
+    }
+
+    private static func parseDate(_ value: String?) -> Date? {
+        guard let value else { return nil }
+        if let date = ISO8601DateFormatter().date(from: value) {
+            return date
+        }
+
+        let formatter = DateFormatter()
+        formatter.calendar = Calendar(identifier: .gregorian)
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        formatter.timeZone = TimeZone(secondsFromGMT: 0)
+        formatter.dateFormat = "yyyy-MM-dd"
+        return formatter.date(from: value)
+    }
+}
+
+struct GoalSnapshot: Identifiable, Hashable {
+    let id: String
+    let title: String
+    let targetDate: Date?
+}
+
+struct GoalSummary: Identifiable, Hashable {
+    let id: String
+}
+
+extension LocalGoal {
+    convenience init(remote: RemoteGoal) {
+        self.init(
+            id: remote.id,
+            userId: remote.userId,
+            title: remote.title,
+            goalDescription: remote.description,
+            status: remote.status.rawValue,
+            targetDate: remote.targetDate,
+            createdAt: remote.createdAt
+        )
+    }
+
+    func update(with remote: RemoteGoal) {
+        title = remote.title
+        goalDescription = remote.description
+        status = remote.status.rawValue
+        targetDate = remote.targetDate
+        createdAt = remote.createdAt
+    }
+}

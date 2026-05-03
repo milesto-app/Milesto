@@ -5,11 +5,16 @@ import { NestFactory } from "@nestjs/core";
 import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
 
 import { AppModule } from "./app.module.js";
+import { DatabaseLogger } from "./common/loggers/database-logger.service.js";
+import { SupabaseService } from "./supabase/supabase.service.js";
 
 const DEFAULT_PORT = 3000;
 
 async function bootstrap(): Promise<void> {
   const app = await NestFactory.create(AppModule);
+
+  const supabaseService = app.get(SupabaseService);
+  app.useLogger(new DatabaseLogger(supabaseService));
 
   app.setGlobalPrefix("api");
   app.enableCors({

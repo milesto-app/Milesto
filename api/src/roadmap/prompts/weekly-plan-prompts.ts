@@ -30,7 +30,7 @@ Rules:
 - Objectives should be concrete daily or multi-day actions
 - Consider the user's recent progress, energy levels, and capacity
 - Build on previous week's milesto if summary data is available
-- Adapt difficulty based on completion rates from previous weeks
+- Adapt scope based on completion rates from previous weeks (lighter weeks if recent completion is low, more ambitious if high)
 
 Return a JSON object with this exact field:
 - "objectives": An array of specific, actionable objective strings

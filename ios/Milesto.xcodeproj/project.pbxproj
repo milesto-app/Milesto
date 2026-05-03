@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 77;
+	objectVersion = 90;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -39,11 +39,9 @@
 /* Begin PBXFrameworksBuildPhase section */
 		4C824E7A2F30B07D00056D79 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
 			files = (
 				4C824F382F33E35000056D79 /* Supabase in Frameworks */,
 			);
-			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
@@ -76,8 +74,6 @@
 				4C824E7B2F30B07D00056D79 /* Resources */,
 			);
 			buildRules = (
-			);
-			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
 				4C824E7F2F30B07D00056D79 /* Milesto */,
@@ -117,7 +113,7 @@
 			packageReferences = (
 				4C824F2B2F33E27800056D79 /* XCRemoteSwiftPackageReference "supabase-swift" */,
 			);
-			preferredProjectObjectVersion = 77;
+			preferredProjectObjectVersion = 90;
 			productRefGroup = 4C824E7E2F30B07D00056D79 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -130,25 +126,21 @@
 /* Begin PBXResourcesBuildPhase section */
 		4C824E7B2F30B07D00056D79 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
 			files = (
 			);
-			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		4C824E792F30B07D00056D79 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
 			files = (
 			);
-			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin XCBuildConfiguration section */
-		4C824E882F30B07F00056D79 /* Debug */ = {
+		4C824E882F30B07F00056D79 /* Debug configuration for PBXProject "Milesto" */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -213,7 +205,7 @@
 			};
 			name = Debug;
 		};
-		4C824E892F30B07F00056D79 /* Release */ = {
+		4C824E892F30B07F00056D79 /* Release configuration for PBXProject "Milesto" */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -271,7 +263,7 @@
 			};
 			name = Release;
 		};
-		4C824E8B2F30B07F00056D79 /* Debug */ = {
+		4C824E8B2F30B07F00056D79 /* Debug configuration for PBXNativeTarget "Milesto" */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
@@ -282,7 +274,6 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = "";
 				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = 6W6LHS996D;
-				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Milesto/Config/Info.plist;
@@ -300,7 +291,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.12.3;
+				MARKETING_VERSION = 1.15.0;
 				PRODUCT_BUNDLE_IDENTIFIER = app.milesto.Milesto;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -319,7 +310,7 @@
 			};
 			name = Debug;
 		};
-		4C824E8C2F30B07F00056D79 /* Release */ = {
+		4C824E8C2F30B07F00056D79 /* Release configuration for PBXNativeTarget "Milesto" */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
@@ -330,7 +321,6 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = "";
 				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = 6W6LHS996D;
-				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Milesto/Config/Info.plist;
@@ -348,7 +338,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.12.3;
+				MARKETING_VERSION = 1.15.0;
 				PRODUCT_BUNDLE_IDENTIFIER = app.milesto.Milesto;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -373,19 +363,17 @@
 		4C824E782F30B07D00056D79 /* Build configuration list for PBXProject "Milesto" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				4C824E882F30B07F00056D79 /* Debug */,
-				4C824E892F30B07F00056D79 /* Release */,
+				4C824E882F30B07F00056D79 /* Debug configuration for PBXProject "Milesto" */,
+				4C824E892F30B07F00056D79 /* Release configuration for PBXProject "Milesto" */,
 			);
-			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
 		4C824E8A2F30B07F00056D79 /* Build configuration list for PBXNativeTarget "Milesto" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				4C824E8B2F30B07F00056D79 /* Debug */,
-				4C824E8C2F30B07F00056D79 /* Release */,
+				4C824E8B2F30B07F00056D79 /* Debug configuration for PBXNativeTarget "Milesto" */,
+				4C824E8C2F30B07F00056D79 /* Release configuration for PBXNativeTarget "Milesto" */,
 			);
-			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */

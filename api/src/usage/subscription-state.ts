@@ -14,6 +14,21 @@ export const SUBSCRIPTION_STATUS = {
 export type SubscriptionStatus =
   (typeof SUBSCRIPTION_STATUS)[keyof typeof SUBSCRIPTION_STATUS];
 
+export const PRO_SUBSCRIPTION_STATUSES = [
+  SUBSCRIPTION_STATUS.ACTIVE,
+  SUBSCRIPTION_STATUS.GRACE_PERIOD,
+] as const;
+
+export type ProSubscriptionStatus = (typeof PRO_SUBSCRIPTION_STATUSES)[number];
+
+export function isProSubscriptionStatus(
+  status: string | null | undefined,
+): status is ProSubscriptionStatus {
+  return (PRO_SUBSCRIPTION_STATUSES as readonly string[]).includes(
+    status ?? "",
+  );
+}
+
 export interface SubscriptionUpdate {
   status?: SubscriptionStatus;
   autoRenewStatus?: boolean | null;

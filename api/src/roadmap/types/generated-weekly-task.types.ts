@@ -1,11 +1,13 @@
 import {
-  IsIn,
   IsInt,
   IsNotEmpty,
   IsOptional,
   IsPositive,
   IsString,
+  Max,
 } from "class-validator";
+
+const ESTIMATED_MINUTES_MAX = 600;
 
 export class GeneratedWeeklyTask {
   @IsString()
@@ -21,6 +23,8 @@ export class GeneratedWeeklyTask {
   public order_index!: number;
 
   @IsOptional()
-  @IsIn(["easy", "moderate", "hard"])
-  public difficulty_rating?: string;
+  @IsInt()
+  @IsPositive()
+  @Max(ESTIMATED_MINUTES_MAX)
+  public estimated_minutes?: number;
 }

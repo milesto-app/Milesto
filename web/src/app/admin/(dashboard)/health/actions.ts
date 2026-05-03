@@ -1,7 +1,8 @@
 "use server";
 
-import { checkHealth, type HealthResult } from "@/lib/supabase/queries/health";
+import { getHealth } from "@/lib/admin-api/resources/system";
+import type { AdminHealthReport } from "@/lib/admin-api/types";
 
-export async function refreshHealth(): Promise<HealthResult> {
-  return checkHealth();
+export async function refreshHealth(): Promise<AdminHealthReport> {
+  return getHealth();
 }

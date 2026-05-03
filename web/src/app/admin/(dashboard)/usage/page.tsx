@@ -1,8 +1,25 @@
+import Link from "next/link";
+
 import {
-  getSubscriptionDistribution,
+  getCostEstimate,
+  getDailyUsage,
   getTopUsers,
-  getUsageStats,
-} from "@/lib/supabase/queries/usage";
+  getUsageByType,
+  getUsageTotals,
+} from "@/lib/admin-api/resources/usage";
+import { formatCurrency, formatNumber } from "@/lib/format";
+import {
+  dateRangeToDays,
+  readDateRange,
+  readString,
+} from "@/lib/admin-api/search-params";
+import type {
+  AdminUsageByTypeEntry,
+  AdminUsageCostEstimate,
+  AdminUsageDaily,
+  AdminUsageTopUser,
+  AdminUsageTotals,
+} from "@/lib/admin-api/types";
 import { Card, CardContent } from "@/components/ui/card";
 import {
   Table,
@@ -12,142 +29,278 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { StatsCard } from "@/components/admin/stats-card";
-import { UsageChart } from "@/components/admin/usage-chart";
+import { DateRangePicker } from "@/components/admin/date-range-picker";
+import { EmptyState } from "@/components/admin/empty-state";
+import { PageHeader } from "@/components/admin/page-header";
 
-export default async function UsagePage() {
-  const [usage, subscriptions, topUsers] = await Promise.all([
-    getUsageStats(),
-    getSubscriptionDistribution(),
-    getTopUsers(),
+import { UsageTabs } from "./_components/usage-tabs";
+
+const NUMBER = new Intl.NumberFormat("en-US");
+
+function formatType(type: string): string {
+  return type
+    .replace(/_/g, " ")
+    .toLowerCase()
+    .replace(/\b\w/g, (c) => c.toUpperCase());
+}
+
+export default async function UsagePage({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
+  const sp = await searchParams;
+  const range = readDateRange(sp);
+  const days = dateRangeToDays(range);
+  const type = readString(sp, "type");
+
+  const [daily, totals, byType, topUsers, cost] = await Promise.all([
+    getDailyUsage(days, type),
+    getUsageTotals(days),
+    getUsageByType(days),
+    getTopUsers(20, days),
+    getCostEstimate(days),
   ]);
 
-  const typeEntries = Object.entries(usage.totalsByType).sort(
-    (a, b) => b[1] - a[1],
-  );
-
   return (
-    <div className="space-y-8">
-      <div>
-        <h1 className="text-xl font-semibold tracking-tight text-foreground">
-          Usage
-        </h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          AI generation stats and subscription analytics
-        </p>
-      </div>
+    <div className="space-y-4">
+      <PageHeader
+        title="Usage"
+        description="AI generation activity in the selected window."
+        actions={<DateRangePicker />}
+      />
+      <UsageTabs
+        daily={<DailyPanel data={daily} />}
+        totals={<TotalsPanel data={totals} />}
+        byType={<ByTypePanel data={byType} />}
+        topUsers={<TopUsersPanel data={topUsers} />}
+        cost={<CostPanel data={cost} />}
+      />
+    </div>
+  );
+}
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {typeEntries.map(([type, count]) => (
-          <StatsCard
-            key={type}
-            title={type
-              .replace(/_/g, " ")
-              .toLowerCase()
-              .replace(/\b\w/g, (c) => c.toUpperCase())}
-            value={count}
-          />
-        ))}
-      </div>
+function DailyPanel({ data }: { data: AdminUsageDaily }) {
+  if (data.days.length === 0) {
+    return <EmptyState title="No usage in this window" />;
+  }
+  const allKeys = new Set<string>();
+  for (const day of data.days) {
+    for (const key of Object.keys(day.counts)) allKeys.add(key);
+  }
+  const types = Array.from(allKeys).sort();
+  return (
+    <Card className="border-border/60 shadow-none">
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>Date</TableHead>
+            {types.map((type) => (
+              <TableHead key={type} className="text-right">
+                {formatType(type)}
+              </TableHead>
+            ))}
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {data.days.map((day) => (
+            <TableRow key={day.date}>
+              <TableCell className="font-mono text-xs tabular-nums">
+                {day.date}
+              </TableCell>
+              {types.map((type) => (
+                <TableCell key={type} className="text-right tabular-nums">
+                  {NUMBER.format(day.counts[type] ?? 0)}
+                </TableCell>
+              ))}
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </Card>
+  );
+}
 
-      <div>
-        <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
-          Daily Usage (30 days)
-        </h2>
-        <Card className="mt-3 border-border/50 shadow-none">
-          <CardContent className="p-5">
-            <UsageChart data={usage.dailyData} />
+function TotalsPanel({ data }: { data: AdminUsageTotals }) {
+  const entries = Object.entries(data).sort((a, b) => b[1] - a[1]);
+  if (entries.length === 0) {
+    return <EmptyState title="No totals in this window" />;
+  }
+  return (
+    <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+      {entries.map(([type, count]) => (
+        <Card key={type} className="border-border/60 shadow-none">
+          <CardContent className="space-y-1 p-5">
+            <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
+              {formatType(type)}
+            </p>
+            <p className="text-2xl font-semibold tabular-nums text-foreground">
+              {NUMBER.format(count)}
+            </p>
+          </CardContent>
+        </Card>
+      ))}
+    </div>
+  );
+}
+
+function ByTypePanel({ data }: { data: AdminUsageByTypeEntry[] }) {
+  if (data.length === 0) {
+    return <EmptyState title="No usage in this window" />;
+  }
+  const sorted = [...data].sort((a, b) => b.count - a.count);
+  return (
+    <Card className="border-border/60 shadow-none">
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>Type</TableHead>
+            <TableHead className="text-right">Count</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {sorted.map((entry) => (
+            <TableRow key={entry.type}>
+              <TableCell>{formatType(entry.type)}</TableCell>
+              <TableCell className="text-right tabular-nums">
+                {NUMBER.format(entry.count)}
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </Card>
+  );
+}
+
+function TopUsersPanel({ data }: { data: AdminUsageTopUser[] }) {
+  if (data.length === 0) {
+    return <EmptyState title="No users in this window" />;
+  }
+  return (
+    <Card className="border-border/60 shadow-none">
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>User</TableHead>
+            <TableHead className="text-right">Generations</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {data.map((user) => (
+            <TableRow key={user.userId}>
+              <TableCell>
+                <Link
+                  href={`/admin/users/${user.userId}`}
+                  className="text-sm text-primary hover:underline"
+                >
+                  {user.name}
+                </Link>
+              </TableCell>
+              <TableCell className="text-right tabular-nums">
+                {NUMBER.format(user.count)}
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </Card>
+  );
+}
+
+function CostPanel({ data }: { data: AdminUsageCostEstimate }) {
+  const models = Object.entries(data.byModel).sort(
+    ([, a], [, b]) => b.costUsd - a.costUsd,
+  );
+  if (models.length === 0) {
+    return (
+      <EmptyState
+        title="No priced generations in this window"
+        description="The cost endpoint only counts rows with token totals and a known model."
+      />
+    );
+  }
+  const max = models[0]?.[1].costUsd ?? 0;
+  const coveragePct = Math.round(data.coverageRatio * 100);
+  return (
+    <div className="space-y-4">
+      <div className="grid gap-3 sm:grid-cols-3">
+        <Card className="border-border/60 shadow-none">
+          <CardContent className="space-y-1 p-5">
+            <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
+              Total cost
+            </p>
+            <p className="text-2xl font-semibold tabular-nums text-foreground">
+              {formatCurrency(data.totalCostUsd)}
+            </p>
+          </CardContent>
+        </Card>
+        <Card className="border-border/60 shadow-none">
+          <CardContent className="space-y-1 p-5">
+            <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
+              Coverage
+            </p>
+            <p className="text-2xl font-semibold tabular-nums text-foreground">
+              {coveragePct}%
+            </p>
+            {data.coverageRatio < 1 ? (
+              <p className="text-xs text-amber-600">
+                Some rows lack token data and were excluded.
+              </p>
+            ) : null}
+          </CardContent>
+        </Card>
+        <Card className="border-border/60 shadow-none">
+          <CardContent className="space-y-1 p-5">
+            <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
+              Models
+            </p>
+            <p className="text-2xl font-semibold tabular-nums text-foreground">
+              {models.length}
+            </p>
           </CardContent>
         </Card>
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-2">
-        <div>
-          <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
-            Subscriptions
-          </h2>
-          <Card className="mt-3 border-border/50 shadow-none">
-            <CardContent className="p-5">
-              {Object.entries(subscriptions).length === 0 ? (
-                <p className="text-sm text-muted-foreground">No data</p>
-              ) : (
-                <div className="space-y-3">
-                  {Object.entries(subscriptions).map(([status, count]) => (
+      <Card className="border-border/60 shadow-none">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Model</TableHead>
+              <TableHead className="text-right">Prompt tokens</TableHead>
+              <TableHead className="text-right">Completion tokens</TableHead>
+              <TableHead className="text-right">Cost</TableHead>
+              <TableHead className="w-40">Share</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {models.map(([model, row]) => (
+              <TableRow key={model}>
+                <TableCell className="font-mono text-xs">{model}</TableCell>
+                <TableCell className="text-right tabular-nums">
+                  {formatNumber(row.promptTokens)}
+                </TableCell>
+                <TableCell className="text-right tabular-nums">
+                  {formatNumber(row.completionTokens)}
+                </TableCell>
+                <TableCell className="text-right tabular-nums font-medium">
+                  {formatCurrency(row.costUsd)}
+                </TableCell>
+                <TableCell>
+                  <div className="h-1.5 w-full overflow-hidden rounded-full bg-muted">
                     <div
-                      key={status}
-                      className="flex items-center justify-between"
-                    >
-                      <div className="flex items-center gap-2.5">
-                        <div
-                          className={`h-2 w-2 rounded-full ${
-                            status === "active"
-                              ? "bg-primary"
-                              : status === "expired"
-                                ? "bg-destructive"
-                                : "bg-muted-foreground/40"
-                          }`}
-                        />
-                        <span className="text-sm capitalize text-foreground">
-                          {status}
-                        </span>
-                      </div>
-                      <span className="font-mono text-sm font-semibold tabular-nums">
-                        {count}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        </div>
-
-        <div>
-          <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
-            Top Users
-          </h2>
-          <Card className="mt-3 border-border/50 shadow-none overflow-hidden">
-            <Table>
-              <TableHeader>
-                <TableRow className="hover:bg-transparent">
-                  <TableHead className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                    User
-                  </TableHead>
-                  <TableHead className="text-right text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                    Generations
-                  </TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {topUsers.length === 0 ? (
-                  <TableRow>
-                    <TableCell
-                      colSpan={2}
-                      className="py-8 text-center text-sm text-muted-foreground"
-                    >
-                      No data
-                    </TableCell>
-                  </TableRow>
-                ) : (
-                  topUsers.map((u, i) => (
-                    <TableRow key={u.userId}>
-                      <TableCell className="text-sm">
-                        <span className="mr-2 inline-flex h-5 w-5 items-center justify-center rounded-full bg-muted text-[10px] font-medium text-muted-foreground">
-                          {i + 1}
-                        </span>
-                        {u.name}
-                      </TableCell>
-                      <TableCell className="text-right font-mono text-sm font-medium tabular-nums">
-                        {u.count.toLocaleString()}
-                      </TableCell>
-                    </TableRow>
-                  ))
-                )}
-              </TableBody>
-            </Table>
-          </Card>
-        </div>
-      </div>
+                      className="h-full bg-primary"
+                      style={{
+                        width: max > 0 ? `${(row.costUsd / max) * 100}%` : "0%",
+                      }}
+                    />
+                  </div>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </Card>
     </div>
   );
 }

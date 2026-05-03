@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-import type { AdminUser } from "@/lib/supabase/queries/users";
+import type { AdminUserSummary } from "@/lib/admin-api/types";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -43,7 +43,7 @@ export function UserTable({
   currentPage,
   totalPages,
 }: {
-  users: AdminUser[];
+  users: AdminUserSummary[];
   currentPage?: number;
   totalPages?: number;
 }) {

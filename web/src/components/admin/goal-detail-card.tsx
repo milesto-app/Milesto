@@ -1,4 +1,4 @@
-import type { UserGoal } from "@/lib/supabase/queries/users";
+import type { AdminUserGoal } from "@/lib/admin-api/types";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 
@@ -52,7 +52,7 @@ function statusBadge(status: string) {
   }
 }
 
-export function GoalDetailCard({ goal }: { goal: UserGoal }) {
+export function GoalDetailCard({ goal }: { goal: AdminUserGoal }) {
   const completionPercent =
     goal.totalTasks > 0
       ? Math.round((goal.completedTasks / goal.totalTasks) * 100)

@@ -17,6 +17,10 @@ import { NotificationsService } from "./notifications.service.js";
     NotificationSchedulerService,
     NotificationSendsService,
   ],
-  exports: [DeviceTokensService, NotificationsService],
+  exports: [
+    DeviceTokensService,
+    NotificationsService,
+    NotificationSchedulerService,
+  ],
 })
 export class NotificationsModule {}

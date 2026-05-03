@@ -2,20 +2,20 @@ import SwiftUI
 
 enum AppButtonStyle {
     case primary
+    case neutral
     case secondary
     case text
 
     var backgroundColor: Color {
         switch self {
-        case .primary: return .clear
-        case .secondary: return Color.clear
-        case .text: return Color.clear
+        case .primary, .neutral, .secondary, .text: return Color.clear
         }
     }
 
     var foregroundColor: Color {
         switch self {
         case .primary: return Color("TextOnBrand")
+        case .neutral: return Color("TextPrimary")
         case .secondary: return Color("Brand")
         case .text: return Color("Brand")
         }
@@ -23,24 +23,30 @@ enum AppButtonStyle {
 
     var usesGlass: Bool {
         switch self {
-        case .primary: return true
+        case .primary, .neutral: return true
         case .secondary, .text: return false
+        }
+    }
+
+    var glassTint: Color {
+        switch self {
+        case .primary: return Color("BrandDeep")
+        case .neutral: return Color("BackgroundElevated")
+        case .secondary, .text: return Color.clear
         }
     }
 
     var borderColor: Color {
         switch self {
-        case .primary: return Color.clear
+        case .primary, .neutral, .text: return Color.clear
         case .secondary: return Color("Brand")
-        case .text: return Color.clear
         }
     }
 
     var borderWidth: CGFloat {
         switch self {
-        case .primary: return 0
+        case .primary, .neutral, .text: return 0
         case .secondary: return 2
-        case .text: return 0
         }
     }
 }
@@ -94,7 +100,7 @@ struct AppButton: View {
         Button(action: action) {
             if style.usesGlass {
                 buttonContent
-                    .glassEffect(.regular.interactive().tint(Color("Brand")), in: RoundedRectangle(cornerRadius: 12))
+                    .glassEffect(.regular.interactive().tint(style.glassTint), in: RoundedRectangle(cornerRadius: 12))
             } else {
                 buttonContent
                     .cornerRadius(12)
@@ -126,52 +132,4 @@ struct AppButton: View {
         copy.isDisabled = isDisabled
         return copy
     }
-}
-
-#Preview("Primary Buttons") {
-    VStack(spacing: 16) {
-        AppButton("Primary Button", style: .primary) {}
-
-        AppButton("Full Width", style: .primary) {}
-            .fullWidth()
-
-        AppButton("Disabled", style: .primary) {}
-            .fullWidth()
-            .disabled(true)
-
-        AppButton("With Icon", style: .primary) {}
-            .icon(.arrowRight, position: .trailing)
-            .fullWidth()
-    }
-    .padding()
-}
-
-#Preview("Secondary Buttons") {
-    VStack(spacing: 16) {
-        AppButton("Secondary", style: .secondary) {}
-
-        AppButton("Full Width", style: .secondary) {}
-            .fullWidth()
-
-        AppButton("Disabled", style: .secondary) {}
-            .fullWidth()
-            .disabled(true)
-
-        AppButton("With Icon", style: .secondary) {}
-            .icon(.plus, position: .leading)
-    }
-    .padding()
-}
-
-#Preview("Text Buttons") {
-    VStack(spacing: 16) {
-        AppButton("Text Button", style: .text) {}
-
-        AppButton("Disabled", style: .text) {}
-            .disabled(true)
-
-        AppButton("Skip", style: .text) {}
-            .icon(.chevronRight, position: .trailing)
-    }
-    .padding()
 }

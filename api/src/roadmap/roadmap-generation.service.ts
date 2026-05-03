@@ -117,22 +117,26 @@ export class RoadmapGenerationService {
     let lastError: Error | undefined;
     for (let attempt = 0; attempt < MAX_GENERATION_ATTEMPTS; attempt++) {
       try {
-        const raw = await this.aiService.generateJson<unknown>(
+        const { data, usage } = await this.aiService.generateJson<unknown>(
           params.systemPrompt,
           params.userPrompt,
           params.model,
           config.roadmap.reasoningEffort,
           config.roadmap.callTimeoutMs,
         );
-        const validated = params.validate(raw);
+        const validated = params.validate(data);
         return {
           milestones: validated,
-          metadata: this.buildMetadata({
-            model: params.model,
-            startTime,
-            totalChunks: params.totalChunks,
-            attempt,
-          }),
+          metadata: {
+            ...this.buildMetadata({
+              model: params.model,
+              startTime,
+              totalChunks: params.totalChunks,
+              attempt,
+            }),
+            prompt_tokens: usage?.promptTokens,
+            completion_tokens: usage?.completionTokens,
+          },
         };
       } catch (error) {
         lastError = error as Error;
@@ -258,7 +262,10 @@ function repairWeeklyTasks(items: unknown[]): GeneratedWeeklyTask[] {
       title: typeof rec.title === "string" ? rec.title : "",
       description: typeof rec.description === "string" ? rec.description : "",
       order_index: Number(rec.order_index) || idx + FIRST_ORDER_INDEX,
-      difficulty_rating: rec.difficulty_rating,
+      estimated_minutes:
+        typeof rec.estimated_minutes === "number"
+          ? rec.estimated_minutes
+          : undefined,
     };
   });
   const repairedInstances = plainToInstance(GeneratedWeeklyTask, cleaned);

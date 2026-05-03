@@ -43,7 +43,7 @@ export class ChatToolRegistryService {
       {
         name: "getWeeklyTasks",
         description:
-          "Fetch this week's tasks. Returns array of {id, title, description, is_completed, difficulty_rating}.",
+          "Fetch this week's tasks. Returns array of {id, title, description, is_completed, estimated_minutes}.",
         executor: (async (_args, ctx) =>
           this.toolsService.getWeeklyTasks(ctx)) satisfies ChatToolExecutor,
       },

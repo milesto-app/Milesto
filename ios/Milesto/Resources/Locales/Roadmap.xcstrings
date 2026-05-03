@@ -273,6 +273,23 @@
         }
       }
     },
+    "roadmap.journey.deadline" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Deadline %@"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Échéance %@"
+          }
+        }
+      }
+    },
     "roadmap.ofTotal" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -796,23 +813,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Description"
-          }
-        }
-      }
-    },
-    "roadmap.task.difficulty" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Difficulty"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Difficulté"
           }
         }
       }

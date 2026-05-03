@@ -138,7 +138,6 @@ export class IntakeDataService {
       .insert({
         goal_id: options.goalId,
         batch_number: options.batchNumber,
-        is_fallback: false,
       })
       .select()
       .single();

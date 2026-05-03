@@ -1,0 +1,29 @@
+import SwiftUI
+
+struct IntakeQuestionCard: View {
+    let question: IntakeQuestion
+    let answers: [String: IntakeAnswerDTO]
+    let setAnswer: (String, IntakeAnswerDTO) -> Void
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            AppText(verbatim: question.questionText, style: .headline)
+
+            switch question.questionType {
+            case .text:
+                if question.config?.format == "date" {
+                    IntakeDateQuestionView(question: question, setAnswer: setAnswer)
+                } else {
+                    IntakeTextQuestionView(question: question, answers: answers, setAnswer: setAnswer)
+                }
+            case .scale:
+                IntakeScaleQuestionView(question: question, answers: answers, setAnswer: setAnswer)
+            case .singleChoice:
+                IntakeSingleChoiceView(question: question, answers: answers, setAnswer: setAnswer)
+            case .multipleChoice:
+                IntakeMultipleChoiceView(question: question, answers: answers, setAnswer: setAnswer)
+            }
+        }
+        .padding(.vertical, 16)
+    }
+}

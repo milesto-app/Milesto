@@ -10,6 +10,26 @@ import type { Stream } from "openai/streaming";
 
 import { config } from "../config/app.config.js";
 
+export interface TokenUsage {
+  promptTokens: number;
+  completionTokens: number;
+  model: string;
+}
+
+export interface JsonGenerationResult<T> {
+  data: T;
+  usage: TokenUsage | null;
+}
+
+export interface StreamGenerationResult {
+  stream: AsyncIterable<ChatCompletionChunk>;
+  // Resolves with usage from the final chunk once the consumer finishes
+  // iterating, or null if the provider did not emit usage info. Must be
+  // awaited after the stream is drained.
+  usagePromise: Promise<TokenUsage | null>;
+  model: string;
+}
+
 @Injectable()
 export class AiService {
   private readonly logger = new Logger(AiService.name);
@@ -26,16 +46,26 @@ export class AiService {
     messages: ChatCompletionMessageParam[],
     tools: ChatCompletionTool[],
     reasoning?: string,
-  ): Promise<Stream<ChatCompletionChunk>> {
-    return this.openai.chat.completions.create({
-      model: config.chat.model,
+  ): Promise<StreamGenerationResult> {
+    const model = config.chat.model;
+    const rawStream = await this.openai.chat.completions.create({
+      model,
       messages,
       tools,
       stream: true,
+      stream_options: { include_usage: true },
       ...(reasoning !== undefined && {
         reasoning: { effort: reasoning },
       }),
     } as OpenAI.Chat.ChatCompletionCreateParamsStreaming);
+
+    let resolveUsage: (usage: TokenUsage | null) => void = () => {};
+    const usagePromise = new Promise<TokenUsage | null>((resolve) => {
+      resolveUsage = resolve;
+    });
+    const stream = wrapStreamWithUsage(rawStream, model, resolveUsage);
+
+    return { stream, usagePromise, model };
   }
 
   public async generateEmbedding(text: string): Promise<number[]> {
@@ -74,19 +104,21 @@ export class AiService {
     model?: string,
     reasoning?: string,
     timeoutMs?: number,
-  ): Promise<T> {
+  ): Promise<JsonGenerationResult<T>> {
     const effectiveTimeoutMs = timeoutMs ?? config.ai.callTimeoutMs;
+    const effectiveModel = model ?? config.ai.defaultModel;
     for (let attempt = 1; attempt <= config.ai.maxRetries; attempt++) {
       try {
         return await this.withTimeout(effectiveTimeoutMs, async (signal) => {
           const stream = await this.openai.chat.completions.create(
             {
-              model: model ?? config.ai.defaultModel,
+              model: effectiveModel,
               messages: [
                 { role: "system", content: system },
                 { role: "user", content: user },
               ],
               stream: true,
+              stream_options: { include_usage: true },
               ...(reasoning !== undefined && {
                 reasoning: { effort: reasoning },
               }),
@@ -94,10 +126,16 @@ export class AiService {
             { signal },
           );
           let content = "";
+          let usage: TokenUsage | null = null;
           for await (const chunk of stream) {
             content += chunk.choices[0]?.delta.content ?? "";
+            const captured = extractUsage(chunk, effectiveModel);
+            if (captured !== null) {
+              usage = captured;
+            }
           }
-          return this.extractJsonFromContent(content) as T;
+          const data = this.extractJsonFromContent(content) as T;
+          return { data, usage };
         });
       } catch (error) {
         const isLastAttempt = attempt >= config.ai.maxRetries;
@@ -147,5 +185,44 @@ export class AiService {
     } finally {
       clearTimeout(timeout);
     }
+  }
+}
+
+function extractUsage(
+  chunk: ChatCompletionChunk,
+  model: string,
+): TokenUsage | null {
+  const usage = chunk.usage;
+  if (
+    usage === null ||
+    usage === undefined ||
+    typeof usage.prompt_tokens !== "number" ||
+    typeof usage.completion_tokens !== "number"
+  ) {
+    return null;
+  }
+  return {
+    promptTokens: usage.prompt_tokens,
+    completionTokens: usage.completion_tokens,
+    model,
+  };
+}
+
+async function* wrapStreamWithUsage(
+  source: Stream<ChatCompletionChunk>,
+  model: string,
+  onUsage: (usage: TokenUsage | null) => void,
+): AsyncGenerator<ChatCompletionChunk, void, void> {
+  let captured: TokenUsage | null = null;
+  try {
+    for await (const chunk of source) {
+      const usage = extractUsage(chunk, model);
+      if (usage !== null) {
+        captured = usage;
+      }
+      yield chunk;
+    }
+  } finally {
+    onUsage(captured);
   }
 }

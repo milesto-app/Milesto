@@ -112,7 +112,7 @@ export class IntakeQualityService {
     priorQuestions: Array<{ question_text: string; batch_number: number }>;
   }): Promise<QualityScores & { composite: number }> {
     const userPrompt = buildQualityUserPrompt(params);
-    const scores = await this.aiService.generateJson<QualityScores>(
+    const { data: scores } = await this.aiService.generateJson<QualityScores>(
       QUALITY_JUDGE_SYSTEM_PROMPT,
       userPrompt,
     );

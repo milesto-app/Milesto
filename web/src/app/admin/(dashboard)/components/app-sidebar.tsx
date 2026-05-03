@@ -1,14 +1,7 @@
 "use client";
 
 import { usePathname, useRouter } from "next/navigation";
-import {
-  Activity,
-  BarChart3,
-  Bell,
-  LayoutDashboard,
-  LogOut,
-  Users,
-} from "lucide-react";
+import { LogOut, type LucideIcon } from "lucide-react";
 
 import { createClient } from "@/lib/supabase/client";
 import {
@@ -23,13 +16,13 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 
-const navItems = [
-  { title: "Overview", href: "/admin", icon: LayoutDashboard },
-  { title: "Users", href: "/admin/users", icon: Users },
-  { title: "Usage", href: "/admin/usage", icon: BarChart3 },
-  { title: "Notifications", href: "/admin/notifications", icon: Bell },
-  { title: "Health", href: "/admin/health", icon: Activity },
-];
+import { CommandPalette } from "./command-palette";
+import { ADMIN_NAV_GROUPS, ADMIN_SETTINGS_ITEMS } from "./nav-config";
+
+function isActive(pathname: string, href: string): boolean {
+  if (href === "/admin") return pathname === "/admin";
+  return pathname === href || pathname.startsWith(`${href}/`);
+}
 
 export function AppSidebar({ userEmail }: { userEmail: string }) {
   const pathname = usePathname();
@@ -43,8 +36,8 @@ export function AppSidebar({ userEmail }: { userEmail: string }) {
 
   return (
     <Sidebar>
-      <SidebarHeader className="px-5 py-5">
-        <div className="flex items-center gap-2.5">
+      <SidebarHeader className="gap-3 px-3 py-4">
+        <div className="flex items-center gap-2.5 px-2">
           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-white/10">
             <svg
               width="16"
@@ -52,6 +45,7 @@ export function AppSidebar({ userEmail }: { userEmail: string }) {
               viewBox="0 0 24 24"
               fill="none"
               className="text-sidebar-foreground"
+              aria-hidden
             >
               <path
                 d="M13 3L4 14h7l-1 7 9-11h-7l1-7z"
@@ -66,34 +60,41 @@ export function AppSidebar({ userEmail }: { userEmail: string }) {
             Milesto
           </span>
         </div>
+        <CommandPalette />
       </SidebarHeader>
       <SidebarContent>
-        <SidebarGroup>
-          <SidebarGroupLabel className="text-[11px] uppercase tracking-wider text-sidebar-foreground/40">
-            Dashboard
-          </SidebarGroupLabel>
-          <SidebarMenu>
-            {navItems.map((item) => (
-              <SidebarMenuItem key={item.href}>
-                <SidebarMenuButton
-                  render={<a href={item.href} />}
-                  isActive={
-                    item.href === "/admin"
-                      ? pathname === "/admin"
-                      : pathname.startsWith(item.href)
-                  }
-                  className="h-9 gap-2.5 rounded-lg text-[13px] font-medium text-sidebar-foreground/70 transition-colors hover:text-sidebar-foreground data-[active=true]:bg-white/10 data-[active=true]:text-sidebar-foreground"
-                >
-                  <item.icon className="h-4 w-4" />
-                  <span>{item.title}</span>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-            ))}
-          </SidebarMenu>
-        </SidebarGroup>
+        {ADMIN_NAV_GROUPS.map((group) => (
+          <SidebarGroup key={group.label}>
+            <SidebarGroupLabel className="text-[11px] uppercase tracking-wider text-sidebar-foreground/40">
+              {group.label}
+            </SidebarGroupLabel>
+            <SidebarMenu>
+              {group.items.map((item) => (
+                <NavItem
+                  key={item.href}
+                  title={item.title}
+                  href={item.href}
+                  icon={item.icon}
+                  active={isActive(pathname, item.href)}
+                />
+              ))}
+            </SidebarMenu>
+          </SidebarGroup>
+        ))}
       </SidebarContent>
-      <SidebarFooter className="border-t border-sidebar-border px-4 py-4">
-        <div className="flex items-center gap-3">
+      <SidebarFooter className="gap-2 border-t border-sidebar-border px-2 py-3">
+        <SidebarMenu>
+          {ADMIN_SETTINGS_ITEMS.map((item) => (
+            <NavItem
+              key={item.href}
+              title={item.title}
+              href={item.href}
+              icon={item.icon}
+              active={isActive(pathname, item.href)}
+            />
+          ))}
+        </SidebarMenu>
+        <div className="mt-1 flex items-center gap-3 border-t border-sidebar-border pt-3">
           <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white/10 text-xs font-medium text-sidebar-foreground">
             {userEmail.charAt(0).toUpperCase()}
           </div>
@@ -103,11 +104,38 @@ export function AppSidebar({ userEmail }: { userEmail: string }) {
           <button
             onClick={handleLogout}
             className="shrink-0 rounded-md p-1.5 text-sidebar-foreground/40 transition-colors hover:bg-white/10 hover:text-sidebar-foreground"
+            aria-label="Sign out"
           >
             <LogOut className="h-3.5 w-3.5" />
           </button>
         </div>
       </SidebarFooter>
     </Sidebar>
+  );
+}
+
+function NavItem({
+  title,
+  href,
+  icon: Icon,
+  active,
+}: {
+  title: string;
+  href: string;
+  icon: LucideIcon;
+  active: boolean;
+}) {
+  return (
+    <SidebarMenuItem>
+      <SidebarMenuButton
+        {...({ nativeButton: false } as { nativeButton?: boolean })}
+        render={<a href={href} />}
+        isActive={active}
+        className="h-9 gap-2.5 rounded-lg text-[13px] font-medium text-sidebar-foreground/70 transition-colors hover:text-sidebar-foreground data-[active=true]:bg-white/10 data-[active=true]:text-sidebar-foreground"
+      >
+        <Icon className="h-4 w-4" />
+        <span>{title}</span>
+      </SidebarMenuButton>
+    </SidebarMenuItem>
   );
 }

@@ -136,7 +136,6 @@ export type Database = {
           goal_id: string;
           id: string;
           note: string;
-          task_ratings: Json | null;
           user_id: string;
           weekly_plan_id: string | null;
         };
@@ -146,7 +145,6 @@ export type Database = {
           goal_id: string;
           id?: string;
           note: string;
-          task_ratings?: Json | null;
           user_id: string;
           weekly_plan_id?: string | null;
         };
@@ -156,7 +154,6 @@ export type Database = {
           goal_id?: string;
           id?: string;
           note?: string;
-          task_ratings?: Json | null;
           user_id?: string;
           weekly_plan_id?: string | null;
         };
@@ -209,23 +206,32 @@ export type Database = {
       };
       generation_usage: {
         Row: {
+          completion_tokens: number | null;
           created_at: string;
           generation_type: string;
           id: string;
+          model: string | null;
+          prompt_tokens: number | null;
           usage_date: string;
           user_id: string;
         };
         Insert: {
+          completion_tokens?: number | null;
           created_at?: string;
           generation_type: string;
           id?: string;
+          model?: string | null;
+          prompt_tokens?: number | null;
           usage_date?: string;
           user_id: string;
         };
         Update: {
+          completion_tokens?: number | null;
           created_at?: string;
           generation_type?: string;
           id?: string;
+          model?: string | null;
+          prompt_tokens?: number | null;
           usage_date?: string;
           user_id?: string;
         };
@@ -314,7 +320,6 @@ export type Database = {
           goal_id: string;
           id: string;
           is_answered: boolean;
-          is_fallback: boolean;
           quality_score: number | null;
         };
         Insert: {
@@ -324,7 +329,6 @@ export type Database = {
           goal_id: string;
           id?: string;
           is_answered?: boolean;
-          is_fallback?: boolean;
           quality_score?: number | null;
         };
         Update: {
@@ -334,7 +338,6 @@ export type Database = {
           goal_id?: string;
           id?: string;
           is_answered?: boolean;
-          is_fallback?: boolean;
           quality_score?: number | null;
         };
         Relationships: [
@@ -609,6 +612,36 @@ export type Database = {
         };
         Relationships: [];
       };
+      system_logs: {
+        Row: {
+          context: string | null;
+          id: string;
+          level: string;
+          logged_at: string;
+          message: string;
+          metadata: Json | null;
+          stack: string | null;
+        };
+        Insert: {
+          context?: string | null;
+          id?: string;
+          level: string;
+          logged_at?: string;
+          message: string;
+          metadata?: Json | null;
+          stack?: string | null;
+        };
+        Update: {
+          context?: string | null;
+          id?: string;
+          level?: string;
+          logged_at?: string;
+          message?: string;
+          metadata?: Json | null;
+          stack?: string | null;
+        };
+        Relationships: [];
+      };
       weekly_plans: {
         Row: {
           created_at: string | null;
@@ -686,7 +719,7 @@ export type Database = {
           completed_at: string | null;
           created_at: string | null;
           description: string;
-          difficulty_rating: string | null;
+          estimated_minutes: number | null;
           goal_id: string;
           id: string;
           is_completed: boolean;
@@ -701,7 +734,7 @@ export type Database = {
           completed_at?: string | null;
           created_at?: string | null;
           description: string;
-          difficulty_rating?: string | null;
+          estimated_minutes?: number | null;
           goal_id: string;
           id?: string;
           is_completed?: boolean;
@@ -716,7 +749,7 @@ export type Database = {
           completed_at?: string | null;
           created_at?: string | null;
           description?: string;
-          difficulty_rating?: string | null;
+          estimated_minutes?: number | null;
           goal_id?: string;
           id?: string;
           is_completed?: boolean;

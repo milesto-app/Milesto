@@ -29,7 +29,7 @@ export class ChatToolsService {
         title: task.title,
         description: task.description,
         is_completed: task.is_completed,
-        difficulty_rating: task.difficulty_rating,
+        estimated_minutes: task.estimated_minutes,
       }));
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);

@@ -29,9 +29,19 @@ interface Candidate {
   next_task_title: string | null;
 }
 
+export interface SchedulerStatus {
+  isRunning: boolean;
+  lastRunAt: string | null;
+  nextRunAt: string | null;
+  lastBatchSize: number;
+}
+
 @Injectable()
 export class NotificationSchedulerService {
   private readonly logger = new Logger(NotificationSchedulerService.name);
+  private isRunning = false;
+  private lastRunAt: Date | null = null;
+  private lastBatchSize = 0;
 
   constructor(
     private readonly supabaseService: SupabaseService,
@@ -42,14 +52,54 @@ export class NotificationSchedulerService {
 
   @Cron(config.notifications.cronExpression)
   public async tick(): Promise<void> {
-    const candidates = await this.loadCandidates();
-    if (candidates.length === 0) {
-      return;
+    this.isRunning = true;
+    try {
+      const candidates = await this.loadCandidates();
+      this.lastBatchSize = candidates.length;
+      this.lastRunAt = new Date();
+      if (candidates.length === 0) {
+        return;
+      }
+      this.logger.log(
+        `Dispatching nudges to ${String(candidates.length)} candidates`,
+      );
+      await Promise.all(candidates.map(async (c) => this.dispatch(c)));
+    } finally {
+      this.isRunning = false;
     }
-    this.logger.log(
-      `Dispatching nudges to ${String(candidates.length)} candidates`,
+  }
+
+  public getStatus(): SchedulerStatus {
+    return {
+      isRunning: this.isRunning,
+      lastRunAt: this.lastRunAt?.toISOString() ?? null,
+      nextRunAt: this.computeNextRunAt(),
+      lastBatchSize: this.lastBatchSize,
+    };
+  }
+
+  // Best-effort estimate based on the configured cron expression. We only
+  // implement the simple `*/N * * * *` pattern used by the notifications cron
+  // — anything else falls back to null so callers can render "unknown".
+  private computeNextRunAt(): string | null {
+    const match = config.notifications.cronExpression.match(
+      /^\*\/(\d+) \* \* \* \*$/,
     );
-    await Promise.all(candidates.map(async (c) => this.dispatch(c)));
+    if (match === null) {
+      return null;
+    }
+    const intervalMinutes = Number.parseInt(match[1] ?? "", 10);
+    if (!Number.isFinite(intervalMinutes) || intervalMinutes <= 0) {
+      return null;
+    }
+    const now = new Date();
+    const nextMinute =
+      Math.floor(now.getMinutes() / intervalMinutes) * intervalMinutes +
+      intervalMinutes;
+    const next = new Date(now);
+    next.setSeconds(0, 0);
+    next.setMinutes(nextMinute);
+    return next.toISOString();
   }
 
   private async loadCandidates(): Promise<Candidate[]> {
