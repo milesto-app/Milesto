@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 
+import { formatDateTime } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
 export function PageHeader({
@@ -41,15 +42,8 @@ export function PageHeader({
 }
 
 function LastSyncedChip({ at }: { at: Date | string }) {
-  const date = at instanceof Date ? at : new Date(at);
-  const label = Number.isNaN(date.getTime())
-    ? null
-    : date.toLocaleTimeString(undefined, {
-        hour: "2-digit",
-        minute: "2-digit",
-      });
-
-  if (!label) return null;
+  const label = formatDateTime(at);
+  if (label === "—") return null;
 
   return (
     <span
