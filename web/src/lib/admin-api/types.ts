@@ -36,3 +36,91 @@ export interface ActivityTimelineEntry {
   goals: number;
   messages: number;
 }
+
+// --- users.types.ts ---
+
+export interface AdminUserSummary {
+  id: string;
+  email: string;
+  firstName: string | null;
+  lastName: string | null;
+  subscriptionStatus: string;
+  coachId: number | null;
+  createdAt: string;
+}
+
+export interface AdminUserList {
+  users: AdminUserSummary[];
+  page: number;
+  perPage: number;
+  total: number;
+  totalPages: number;
+}
+
+export interface AdminUserDetail {
+  id: string;
+  email: string;
+  role: string;
+  firstName: string | null;
+  lastName: string | null;
+  language: string | null;
+  timezone: string | null;
+  dateOfBirth: string | null;
+  coachId: number | null;
+  subscriptionStatus: string;
+  subscriptionExpiresAt: string | null;
+  createdAt: string;
+  goalCount: number;
+}
+
+export interface AdminUserGoal {
+  id: string;
+  title: string;
+  status: string;
+  targetDate: string | null;
+  createdAt: string;
+  milestoneCount: number;
+  totalTasks: number;
+  completedTasks: number;
+}
+
+// --- admin-usage.types.ts ---
+
+export interface AdminUsageDailyEntry {
+  date: string;
+  counts: Record<string, number>;
+}
+
+export interface AdminUsageDaily {
+  days: AdminUsageDailyEntry[];
+}
+
+export type AdminUsageTotals = Record<string, number>;
+
+export interface AdminUsageByTypeEntry {
+  type: string;
+  count: number;
+}
+
+export interface AdminUsageTopUser {
+  userId: string;
+  name: string;
+  count: number;
+}
+
+// --- system.types.ts ---
+
+export interface AdminHealthCheck {
+  status: "healthy" | "unhealthy";
+  responseTimeMs: number;
+}
+
+export interface AdminHealthReport {
+  backend: AdminHealthCheck;
+  supabase: AdminHealthCheck;
+  queueDepth: number | null;
+}
+
+// --- subscriptions.types.ts (partial — only what Phase 2 needs) ---
+
+export type AdminSubscriptionDistribution = Record<string, number>;
