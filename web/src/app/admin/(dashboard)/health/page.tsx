@@ -1,8 +1,8 @@
-import { checkHealth } from "@/lib/supabase/queries/health";
+import { getHealth } from "@/lib/admin-api/resources/system";
 import { HealthStatus } from "@/components/admin/health-status";
 
 export default async function HealthPage() {
-  const healthData = await checkHealth();
+  const healthData = await getHealth();
 
   return (
     <div className="space-y-6">

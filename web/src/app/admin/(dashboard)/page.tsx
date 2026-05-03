@@ -1,13 +1,9 @@
 import Link from "next/link";
 
 import {
-  getOverviewStats as getApiOverviewStats,
-  getRecentGoals as getApiRecentGoals,
-} from "@/lib/admin-api/resources/overview";
-import {
   getOverviewStats,
   getRecentGoals,
-} from "@/lib/supabase/queries/overview";
+} from "@/lib/admin-api/resources/overview";
 import { Badge } from "@/components/ui/badge";
 import {
   Table,
@@ -69,64 +65,11 @@ function goalStatusBadge(status: string) {
   }
 }
 
-type DashboardSearchParams = Promise<
-  Record<string, string | string[] | undefined>
->;
-
-type RecentGoalRow = {
-  id: string;
-  title: string;
-  status: string;
-  userId: string;
-  userName: string;
-  createdAt: string;
-};
-
-export default async function DashboardPage({
-  searchParams,
-}: {
-  searchParams?: DashboardSearchParams;
-}) {
-  const params = (await searchParams) ?? {};
-  const useApi = params.api === "1";
-
-  let stats: {
-    totalUsers: number;
-    activeGoals: number;
-    proSubscriptions: number;
-    todayGenerations: number;
-  };
-  let recentGoals: RecentGoalRow[];
-
-  if (useApi) {
-    const [apiStats, apiGoals] = await Promise.all([
-      getApiOverviewStats(),
-      getApiRecentGoals(),
-    ]);
-    stats = apiStats;
-    recentGoals = apiGoals.map((goal) => ({
-      id: goal.id,
-      title: goal.title,
-      status: goal.status,
-      userId: goal.userId,
-      userName: goal.userName,
-      createdAt: goal.createdAt,
-    }));
-  } else {
-    const [supabaseStats, supabaseGoals] = await Promise.all([
-      getOverviewStats(),
-      getRecentGoals(),
-    ]);
-    stats = supabaseStats;
-    recentGoals = supabaseGoals.map((goal) => ({
-      id: goal.id,
-      title: goal.title,
-      status: goal.status,
-      userId: goal.user_id,
-      userName: goal.userName,
-      createdAt: goal.created_at,
-    }));
-  }
+export default async function DashboardPage() {
+  const [stats, recentGoals] = await Promise.all([
+    getOverviewStats(),
+    getRecentGoals(),
+  ]);
 
   return (
     <div className="space-y-8">

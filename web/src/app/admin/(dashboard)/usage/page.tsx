@@ -1,8 +1,9 @@
 import {
-  getSubscriptionDistribution,
+  getDailyUsage,
   getTopUsers,
-  getUsageStats,
-} from "@/lib/supabase/queries/usage";
+  getUsageByType,
+} from "@/lib/admin-api/resources/usage";
+import { getSubscriptionDistribution } from "@/lib/admin-api/resources/subscriptions";
 import { Card, CardContent } from "@/components/ui/card";
 import {
   Table,
@@ -15,16 +16,23 @@ import {
 import { StatsCard } from "@/components/admin/stats-card";
 import { UsageChart } from "@/components/admin/usage-chart";
 
+function formatTypeLabel(type: string): string {
+  return type
+    .replace(/_/g, " ")
+    .toLowerCase()
+    .replace(/\b\w/g, (c) => c.toUpperCase());
+}
+
 export default async function UsagePage() {
-  const [usage, subscriptions, topUsers] = await Promise.all([
-    getUsageStats(),
+  const [daily, byType, subscriptions, topUsers] = await Promise.all([
+    getDailyUsage(),
+    getUsageByType(),
     getSubscriptionDistribution(),
     getTopUsers(),
   ]);
 
-  const typeEntries = Object.entries(usage.totalsByType).sort(
-    (a, b) => b[1] - a[1],
-  );
+  const sortedByType = [...byType].sort((a, b) => b.count - a.count);
+  const dailyData = daily.days.map(({ date, counts }) => ({ date, ...counts }));
 
   return (
     <div className="space-y-8">
@@ -38,15 +46,8 @@ export default async function UsagePage() {
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {typeEntries.map(([type, count]) => (
-          <StatsCard
-            key={type}
-            title={type
-              .replace(/_/g, " ")
-              .toLowerCase()
-              .replace(/\b\w/g, (c) => c.toUpperCase())}
-            value={count}
-          />
+        {sortedByType.map(({ type, count }) => (
+          <StatsCard key={type} title={formatTypeLabel(type)} value={count} />
         ))}
       </div>
 
@@ -56,7 +57,7 @@ export default async function UsagePage() {
         </h2>
         <Card className="mt-3 border-border/50 shadow-none">
           <CardContent className="p-5">
-            <UsageChart data={usage.dailyData} />
+            <UsageChart data={dailyData} />
           </CardContent>
         </Card>
       </div>
