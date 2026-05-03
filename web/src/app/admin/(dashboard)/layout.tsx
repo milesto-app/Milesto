@@ -9,7 +9,10 @@ import {
 } from "@/components/ui/sidebar";
 import { TooltipProvider } from "@/components/ui/tooltip";
 
+import { KeyboardScopeProvider } from "@/components/admin/keyboard-scope";
+
 import { AppSidebar } from "./components/app-sidebar";
+import { RouteTransition } from "./route-transition";
 import "./admin.css";
 
 export default async function DashboardLayout({
@@ -33,7 +36,11 @@ export default async function DashboardLayout({
                   Admin
                 </span>
               </header>
-              <main className="flex-1 px-6 py-6">{children}</main>
+              <KeyboardScopeProvider>
+                <main className="flex-1 px-6 py-6">
+                  <RouteTransition>{children}</RouteTransition>
+                </main>
+              </KeyboardScopeProvider>
             </SidebarInset>
             <Toaster position="bottom-right" richColors closeButton theme="dark" />
           </SidebarProvider>

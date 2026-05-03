@@ -101,3 +101,24 @@
   --row-pad-y: 6px;
   --card-pad: 12px;
 }
+
+::view-transition-old(admin-fade),
+::view-transition-new(admin-fade) {
+  animation-duration: 60ms;
+  animation-timing-function: ease-out;
+}
+
+::view-transition-old(admin-slide) {
+  animation: admin-slide-out 220ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+::view-transition-new(admin-slide) {
+  animation: admin-slide-in 220ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+@keyframes admin-slide-out {
+  from { opacity: 1; transform: translateY(0); }
+  to   { opacity: 0; transform: translateY(-6px); }
+}
+@keyframes admin-slide-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
