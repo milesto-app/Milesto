@@ -3,7 +3,6 @@ export interface AdminIntakeBatch {
   goalId: string;
   batchNumber: number;
   isAnswered: boolean;
-  isFallback: boolean;
   qualityScore: number | null;
   embedded: boolean;
   createdAt: string;

@@ -88,9 +88,6 @@ export class CoachesService {
 
     const counts = new Map<number, number>();
     for (const row of data) {
-      if (row.coach_id === null) {
-        continue;
-      }
       counts.set(row.coach_id, (counts.get(row.coach_id) ?? 0) + 1);
     }
     return counts;
