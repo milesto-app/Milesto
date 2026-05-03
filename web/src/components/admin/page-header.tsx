@@ -56,10 +56,7 @@ function LastSyncedChip({ at }: { at: Date | string }) {
       className="inline-flex items-center gap-1.5 rounded-full border border-border/60 bg-card px-2.5 py-1 text-[11px] font-medium uppercase tracking-wider text-muted-foreground"
       aria-live="polite"
     >
-      <span
-        className="size-1.5 rounded-full bg-primary/70"
-        aria-hidden
-      />
+      <span className="size-1.5 rounded-full bg-primary/70" aria-hidden />
       Synced {label}
     </span>
   );

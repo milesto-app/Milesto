@@ -1,6 +1,11 @@
 "use client";
 
-import { useCallback, useMemo, useSyncExternalStore, useTransition } from "react";
+import {
+  useCallback,
+  useMemo,
+  useSyncExternalStore,
+  useTransition,
+} from "react";
 import { useRouter } from "next/navigation";
 import { Rows3, Rows4 } from "lucide-react";
 import {
@@ -29,9 +34,7 @@ import {
 } from "@/components/ui/table";
 import { EmptyState } from "@/components/admin/empty-state";
 
-import {
-  DataTablePagination,
-} from "@/components/admin/data-table/pagination";
+import { DataTablePagination } from "@/components/admin/data-table/pagination";
 import {
   parseSort,
   serializeSort,
@@ -117,9 +120,7 @@ export function DataTable<TData>({
         pageIndex: Math.max(0, pagination.page - 1),
         pageSize: pagination.perPage,
       },
-      sorting: sort
-        ? [{ id: sort.id, desc: sort.direction === "desc" }]
-        : [],
+      sorting: sort ? [{ id: sort.id, desc: sort.direction === "desc" }] : [],
     },
     meta: {
       sort,
@@ -132,7 +133,10 @@ export function DataTable<TData>({
   return (
     <div className={cn("space-y-2", className)}>
       <div className="flex items-center justify-end">
-        <DensityToggle density={density.density} onChange={density.setDensity} />
+        <DensityToggle
+          density={density.density}
+          onChange={density.setDensity}
+        />
       </div>
       <div
         data-density={density.density}
@@ -183,14 +187,16 @@ export function DataTable<TData>({
                   </TableCell>
                 </TableRow>
               ) : (
-                table.getRowModel().rows.map((row) => (
-                  <DataTableRow
-                    key={row.id}
-                    row={row}
-                    density={density.density}
-                    onRowClick={onRowClick}
-                  />
-                ))
+                table
+                  .getRowModel()
+                  .rows.map((row) => (
+                    <DataTableRow
+                      key={row.id}
+                      row={row}
+                      density={density.density}
+                      onRowClick={onRowClick}
+                    />
+                  ))
               )}
             </TableBody>
           </Table>
@@ -300,10 +306,7 @@ function useDensity(storageKey?: string): DensityHandle {
     (callback: () => void) => subscribeDensity(callback),
     [],
   );
-  const getSnapshot = useCallback(
-    () => readDensity(storageKey),
-    [storageKey],
-  );
+  const getSnapshot = useCallback(() => readDensity(storageKey), [storageKey]);
   const getServerSnapshot = useCallback(() => DEFAULT_DENSITY, []);
 
   const density = useSyncExternalStore(

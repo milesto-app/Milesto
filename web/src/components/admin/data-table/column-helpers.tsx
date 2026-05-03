@@ -67,13 +67,9 @@ export function SortableHeader({
 function SortIcon({ direction }: { direction: SortDirection | null }) {
   const iconClass = "size-3";
   if (direction === "asc") return <ArrowUp className={iconClass} aria-hidden />;
-  if (direction === "desc") return <ArrowDown className={iconClass} aria-hidden />;
-  return (
-    <ArrowUpDown
-      className={cn(iconClass, "opacity-50")}
-      aria-hidden
-    />
-  );
+  if (direction === "desc")
+    return <ArrowDown className={iconClass} aria-hidden />;
+  return <ArrowUpDown className={cn(iconClass, "opacity-50")} aria-hidden />;
 }
 
 /**

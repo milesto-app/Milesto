@@ -75,14 +75,12 @@ function SearchInput({
   const [, startTransition] = useTransition();
   const [value, setValue] = useQueryState(
     name,
-    parseAsString
-      .withDefault("")
-      .withOptions({
-        shallow: false,
-        throttleMs: SEARCH_DEBOUNCE_MS,
-        startTransition,
-        clearOnDefault: true,
-      }),
+    parseAsString.withDefault("").withOptions({
+      shallow: false,
+      throttleMs: SEARCH_DEBOUNCE_MS,
+      startTransition,
+      clearOnDefault: true,
+    }),
   );
 
   return (
@@ -108,12 +106,11 @@ function FacetSelect({ facet }: { facet: FilterFacet }) {
   const [, startTransition] = useTransition();
   const [value, setValue] = useQueryState(
     facet.key,
-    parseAsStringLiteral(allowed)
-      .withOptions({
-        shallow: false,
-        startTransition,
-        clearOnDefault: true,
-      }),
+    parseAsStringLiteral(allowed).withOptions({
+      shallow: false,
+      startTransition,
+      clearOnDefault: true,
+    }),
   );
 
   const current = value ?? ALL_VALUE;
@@ -129,7 +126,9 @@ function FacetSelect({ facet }: { facet: FilterFacet }) {
         <SelectValue placeholder={facet.placeholder ?? facet.label} />
       </SelectTrigger>
       <SelectContent>
-        <SelectItem value={ALL_VALUE}>All {facet.label.toLowerCase()}</SelectItem>
+        <SelectItem value={ALL_VALUE}>
+          All {facet.label.toLowerCase()}
+        </SelectItem>
         {facet.options.map((option) => (
           <SelectItem key={option.value} value={option.value}>
             {option.label}
@@ -195,7 +194,10 @@ function ResetButton({
   showDateRange: boolean;
 }) {
   const [, startTransition] = useTransition();
-  const parsers: Record<string, ReturnType<typeof parseAsString.withDefault>> = {
+  const parsers: Record<
+    string,
+    ReturnType<typeof parseAsString.withDefault>
+  > = {
     [searchKey]: parseAsString.withDefault(""),
   };
   for (const key of facetKeys) {
