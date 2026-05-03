@@ -174,3 +174,6 @@ web/next-env.d.ts
 /node_modules/
 /bun.lock
 /bun.lockb
+
+# superpowers brainstorm sessions
+.superpowers/

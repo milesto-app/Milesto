@@ -1,0 +1,136 @@
+/* web/src/app/admin/(dashboard)/admin.css */
+
+.admin-shell {
+  /* color */
+  --brand: #00e0ff;
+  --brand-strong: #00c4dc;
+  --brand-bg-soft: rgba(0, 224, 255, 0.08);
+
+  --surface-0: #000000;
+  --surface-1: #0b0b0d;
+  --surface-2: #131316;
+  --surface-3: #1a1a1f;
+  --surface-popover: #18181e;
+
+  --border-subtle: #1f1f25;
+  --border-default: #2a2a33;
+  --border-strong: #3a3a45;
+  --border-brand: rgba(0, 224, 255, 0.3);
+
+  --text-primary: #f4f3f0;
+  --text-secondary: #9c9c9c;
+  --text-tertiary: #6f6f6f;
+  --text-on-brand: #000000;
+  --text-brand: #00e0ff;
+
+  --status-success: #10b981;
+  --status-warning: #f59e0b;
+  --status-danger: #ef4444;
+  --status-info: #00e0ff;
+
+  --chart-1: #00e0ff;
+  --chart-2: #4dd0cd;
+  --chart-3: #f59e0b;
+  --chart-4: #ff7a6b;
+  --chart-5: #b388ff;
+
+  /* spacing */
+  --row-pad-y: 10px;
+  --row-pad-x: 14px;
+  --card-pad: 16px;
+  --page-gutter: 24px;
+  --section-gap: 32px;
+
+  /* motion */
+  --motion-fast: 150ms ease-out;
+  --motion-layout: 220ms cubic-bezier(0.2, 0.8, 0.2, 1);
+
+  /* override shadcn variables for this subtree only */
+  --background: var(--surface-1);
+  --foreground: var(--text-primary);
+  --card: var(--surface-2);
+  --card-foreground: var(--text-primary);
+  --popover: var(--surface-popover);
+  --popover-foreground: var(--text-primary);
+  --primary: var(--brand);
+  --primary-foreground: var(--text-on-brand);
+  --secondary: var(--surface-3);
+  --secondary-foreground: var(--text-primary);
+  --muted: var(--surface-3);
+  --muted-foreground: var(--text-secondary);
+  --accent: var(--surface-3);
+  --accent-foreground: var(--text-primary);
+  --destructive: var(--status-danger);
+  --border: var(--border-default);
+  --input: var(--border-default);
+  --ring: var(--brand);
+  --sidebar: var(--surface-0);
+  --sidebar-foreground: var(--text-primary);
+  --sidebar-primary: var(--brand);
+  --sidebar-primary-foreground: var(--text-on-brand);
+  --sidebar-accent: var(--surface-3);
+  --sidebar-accent-foreground: var(--text-primary);
+  --sidebar-border: var(--border-subtle);
+  --sidebar-ring: var(--brand);
+
+  background: var(--surface-1);
+  color: var(--text-primary);
+  color-scheme: dark;
+}
+
+.admin-shell ::selection {
+  background: var(--brand-bg-soft);
+  color: var(--text-primary);
+}
+
+/* tabular-nums by default for table cells inside admin */
+.admin-shell table tbody td,
+.admin-shell .admin-numeric {
+  font-variant-numeric: tabular-nums;
+}
+
+/* keyboard focus ring (used by InlineField, table row focus) */
+.admin-shell [data-kbd-focus="true"] {
+  outline: 2px solid var(--border-brand);
+  outline-offset: -2px;
+  border-radius: 6px;
+}
+
+/* density tokens — driven by data-density attribute on .admin-shell */
+.admin-shell[data-density="compact"] {
+  --row-pad-y: 6px;
+  --card-pad: 12px;
+}
+
+::view-transition-old(admin-fade),
+::view-transition-new(admin-fade) {
+  animation-duration: 60ms;
+  animation-timing-function: ease-out;
+}
+
+::view-transition-old(admin-slide) {
+  animation: admin-slide-out 220ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+::view-transition-new(admin-slide) {
+  animation: admin-slide-in 220ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+@keyframes admin-slide-out {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+}
+@keyframes admin-slide-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
