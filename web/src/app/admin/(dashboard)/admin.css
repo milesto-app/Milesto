@@ -102,6 +102,10 @@
   --card-pad: 12px;
 }
 
+.admin-shell[data-density="compact"] [data-table-root] tbody td {
+  padding-block: 6px;
+}
+
 ::view-transition-old(admin-fade),
 ::view-transition-new(admin-fade) {
   animation-duration: 60ms;
