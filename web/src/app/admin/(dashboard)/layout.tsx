@@ -42,7 +42,12 @@ export default async function DashboardLayout({
                 </main>
               </KeyboardScopeProvider>
             </SidebarInset>
-            <Toaster position="bottom-right" richColors closeButton theme="dark" />
+            <Toaster
+              position="bottom-right"
+              richColors
+              closeButton
+              theme="dark"
+            />
           </SidebarProvider>
         </div>
       </TooltipProvider>

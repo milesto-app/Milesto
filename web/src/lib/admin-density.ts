@@ -39,7 +39,9 @@ export function useDensity(): [Density, (next: Density) => void] {
     cached = next;
     if (typeof window !== "undefined") {
       window.localStorage.setItem(KEY, next);
-      document.querySelector(".admin-shell")?.setAttribute("data-density", next);
+      document
+        .querySelector(".admin-shell")
+        ?.setAttribute("data-density", next);
     }
     notify();
   }, []);

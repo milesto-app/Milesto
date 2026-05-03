@@ -10,11 +10,7 @@ import {
 } from "react";
 import { createPortal } from "react-dom";
 
-import {
-  HotkeyBinding,
-  HotkeyContext,
-  HotkeyScope,
-} from "@/lib/admin-hotkeys";
+import { HotkeyBinding, HotkeyContext, HotkeyScope } from "@/lib/admin-hotkeys";
 
 const SEQUENCE_TIMEOUT_MS = 800;
 
@@ -183,7 +179,9 @@ function CheatsheetOverlay({
           <h2 className="text-sm font-semibold tracking-wide uppercase text-muted-foreground">
             Keyboard shortcuts
           </h2>
-          <span className="text-[11px] text-muted-foreground/70">esc to close</span>
+          <span className="text-[11px] text-muted-foreground/70">
+            esc to close
+          </span>
         </div>
         <div className="space-y-4">
           {order.map((scope) =>
