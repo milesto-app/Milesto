@@ -3,6 +3,7 @@ import "server-only";
 import { apiFetch } from "@/lib/admin-api/client";
 import type {
   AdminUsageByTypeEntry,
+  AdminUsageCostEstimate,
   AdminUsageDaily,
   AdminUsageTopUser,
   AdminUsageTotals,
@@ -48,5 +49,14 @@ export async function getTopUsers(
   return apiFetch<AdminUsageTopUser[]>("/admin/usage/top-users", {
     next: next(),
     query: { limit, days },
+  });
+}
+
+export async function getCostEstimate(
+  days?: number,
+): Promise<AdminUsageCostEstimate> {
+  return apiFetch<AdminUsageCostEstimate>("/admin/usage/cost-estimate", {
+    next: next(),
+    query: { days },
   });
 }
