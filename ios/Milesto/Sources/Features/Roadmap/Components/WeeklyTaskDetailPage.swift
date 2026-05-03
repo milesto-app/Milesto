@@ -138,34 +138,17 @@ struct WeeklyTaskDetailPage: View {
     }
 
     private var toggleButton: some View {
-        Button {
+        AppButton(
+            task.isCompleted ? "roadmap.task.markIncomplete" : "roadmap.task.markComplete",
+            table: "Roadmap",
+            style: task.isCompleted ? .neutral : .primary
+        ) {
             withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
                 performToggle()
             }
-        } label: {
-            HStack(spacing: 10) {
-                TablerIcons(
-                    task.isCompleted ? .arrowBackUp : .check,
-                    size: 20,
-                    color: Color("TextOnBrand")
-                )
-
-                AppText(
-                    task.isCompleted ? "roadmap.task.markIncomplete" : "roadmap.task.markComplete",
-                    table: "Roadmap",
-                    style: .body
-                )
-                .weight(.semibold)
-                .color(Color("TextOnBrand"))
-            }
-            .frame(maxWidth: .infinity)
-            .padding(.vertical, 16)
-            .padding(.horizontal, 24)
         }
-        .glassEffect(
-            .regular.interactive().tint(accent),
-            in: RoundedRectangle(cornerRadius: 16)
-        )
+        .icon(task.isCompleted ? .arrowBackUp : .check)
+        .fullWidth()
     }
 
     private func performToggle() {
