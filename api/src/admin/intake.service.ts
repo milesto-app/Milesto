@@ -108,7 +108,6 @@ export class AdminIntakeService {
         goalId: row.goal_id,
         batchNumber: row.batch_number,
         isAnswered: row.is_answered,
-        isFallback: row.is_fallback,
         qualityScore: row.quality_score,
         embedded: row.embedded,
         createdAt: row.created_at,

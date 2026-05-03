@@ -88,10 +88,11 @@ export class CoachesService {
 
     const counts = new Map<number, number>();
     for (const row of data) {
-      if (row.coach_id === null) {
+      const coachId = row.coach_id;
+      if (coachId === null) {
         continue;
       }
-      counts.set(row.coach_id, (counts.get(row.coach_id) ?? 0) + 1);
+      counts.set(coachId, (counts.get(coachId) ?? 0) + 1);
     }
     return counts;
   }
