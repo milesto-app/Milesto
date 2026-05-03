@@ -174,10 +174,7 @@ export function CommandPalette() {
                         : "text-text-secondary hover:bg-surface-3",
                     )}
                   >
-                    <Icon
-                      className="h-4 w-4 text-text-secondary"
-                      aria-hidden
-                    />
+                    <Icon className="h-4 w-4 text-text-secondary" aria-hidden />
                     <span className="flex-1">{entry.title}</span>
                     <span className="text-[10px] uppercase tracking-wider text-text-secondary">
                       {entry.group}
