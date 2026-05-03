@@ -37,7 +37,7 @@ export function CopyButton({
       size="xs"
       aria-label={label ?? "Copy to clipboard"}
       onClick={handleClick}
-      className={cn("text-muted-foreground hover:text-foreground", className)}
+      className={cn("text-text-secondary hover:text-text-primary hover:bg-surface-3 focus-visible:bg-surface-3", className)}
     >
       {copied ? (
         <Check className="size-3" aria-hidden />
