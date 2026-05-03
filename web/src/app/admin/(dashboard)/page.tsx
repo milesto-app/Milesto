@@ -1,6 +1,10 @@
 import Link from "next/link";
 
 import {
+  getOverviewStats as getApiOverviewStats,
+  getRecentGoals as getApiRecentGoals,
+} from "@/lib/admin-api/resources/overview";
+import {
   getOverviewStats,
   getRecentGoals,
 } from "@/lib/supabase/queries/overview";
@@ -65,11 +69,64 @@ function goalStatusBadge(status: string) {
   }
 }
 
-export default async function DashboardPage() {
-  const [stats, recentGoals] = await Promise.all([
-    getOverviewStats(),
-    getRecentGoals(),
-  ]);
+type DashboardSearchParams = Promise<
+  Record<string, string | string[] | undefined>
+>;
+
+type RecentGoalRow = {
+  id: string;
+  title: string;
+  status: string;
+  userId: string;
+  userName: string;
+  createdAt: string;
+};
+
+export default async function DashboardPage({
+  searchParams,
+}: {
+  searchParams?: DashboardSearchParams;
+}) {
+  const params = (await searchParams) ?? {};
+  const useApi = params.api === "1";
+
+  let stats: {
+    totalUsers: number;
+    activeGoals: number;
+    proSubscriptions: number;
+    todayGenerations: number;
+  };
+  let recentGoals: RecentGoalRow[];
+
+  if (useApi) {
+    const [apiStats, apiGoals] = await Promise.all([
+      getApiOverviewStats(),
+      getApiRecentGoals(),
+    ]);
+    stats = apiStats;
+    recentGoals = apiGoals.map((goal) => ({
+      id: goal.id,
+      title: goal.title,
+      status: goal.status,
+      userId: goal.userId,
+      userName: goal.userName,
+      createdAt: goal.createdAt,
+    }));
+  } else {
+    const [supabaseStats, supabaseGoals] = await Promise.all([
+      getOverviewStats(),
+      getRecentGoals(),
+    ]);
+    stats = supabaseStats;
+    recentGoals = supabaseGoals.map((goal) => ({
+      id: goal.id,
+      title: goal.title,
+      status: goal.status,
+      userId: goal.user_id,
+      userName: goal.userName,
+      createdAt: goal.created_at,
+    }));
+  }
 
   return (
     <div className="space-y-8">
@@ -130,14 +187,14 @@ export default async function DashboardPage() {
                     <TableCell>{goalStatusBadge(goal.status)}</TableCell>
                     <TableCell>
                       <Link
-                        href={`/admin/users/${goal.user_id}`}
+                        href={`/admin/users/${goal.userId}`}
                         className="text-sm text-muted-foreground transition-colors group-hover:text-primary"
                       >
                         {goal.userName}
                       </Link>
                     </TableCell>
                     <TableCell className="text-sm text-muted-foreground tabular-nums">
-                      {new Date(goal.created_at).toLocaleDateString("en-US", {
+                      {new Date(goal.createdAt).toLocaleDateString("en-US", {
                         month: "short",
                         day: "numeric",
                       })}
