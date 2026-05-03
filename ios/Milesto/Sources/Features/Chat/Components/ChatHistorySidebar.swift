@@ -5,7 +5,6 @@ struct ChatHistorySidebar: View {
     let conversations: [ConversationSummary]
     let activeConversationId: String?
     let onSelectConversation: (String) -> Void
-    let onNewConversation: () -> Void
     let onDeleteConversation: (String) -> Void
 
     @State private var dragOffset: CGFloat = 0
@@ -65,23 +64,11 @@ struct ChatHistorySidebar: View {
     }
 
     private var header: some View {
-        HStack(spacing: 12) {
-            AppText("chat.history.title", table: "Chat", style: .headline)
-                .frame(maxWidth: .infinity, alignment: .leading)
-
-            Button {
-                dismiss()
-                onNewConversation()
-            } label: {
-                TablerIcons(.edit, size: 20, color: Color("TextPrimary"))
-                    .frame(width: 36, height: 36)
-                    .glassEffect(.regular.interactive(), in: .circle)
-            }
-            .accessibilityLabel(String(localized: "chat.history.new", table: "Chat"))
-        }
-        .padding(.horizontal, 8 + 16)
-        .padding(.top, 64)
-        .padding(.bottom, 4)
+        AppText("chat.history.title", table: "Chat", style: .headline)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.horizontal, 8 + 16)
+            .padding(.top, 64)
+            .padding(.bottom, 4)
     }
 
     private var emptyState: some View {

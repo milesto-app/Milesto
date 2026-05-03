@@ -9,7 +9,7 @@ struct HomeView: View {
                 VStack(spacing: 16) {
                     HomeJourneyCard(goalId: goalId)
                     DebriefBannerCard(goalId: goalId)
-                    WeeklyTasksCard(goalId: goalId)
+                    HomeWeeklyTasksCard(goalId: goalId)
                         .padding(.top, 16)
                 }
                 .padding(.bottom, 40)
