@@ -141,12 +141,13 @@ export function DataTable<TData>({
         />
       </div>
       <div
+        data-table-root
         data-density={density.density}
-        className="overflow-hidden rounded-xl border border-border/60 bg-card"
+        className="overflow-hidden rounded-xl border border-border-default bg-surface-2"
       >
         <div className="max-h-[calc(100vh-18rem)] overflow-auto">
           <Table>
-            <TableHeader className="sticky top-0 z-10 bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/80">
+            <TableHeader className="sticky top-0 z-10 bg-surface-2/95 backdrop-blur supports-[backdrop-filter]:bg-surface-2/80">
               {table.getHeaderGroups().map((headerGroup) => (
                 <TableRow key={headerGroup.id} className="hover:bg-transparent">
                   {headerGroup.headers.map((header) => (
@@ -159,7 +160,7 @@ export function DataTable<TData>({
                             : undefined,
                       }}
                       className={cn(
-                        "h-[var(--row-h-header,2.25rem)] text-xs font-medium uppercase tracking-wider text-muted-foreground",
+                        "h-[var(--row-h-header,2.25rem)] text-xs font-medium uppercase tracking-wider text-text-secondary",
                         density.density === "compact" &&
                           "[--row-h-header:1.875rem]",
                       )}
@@ -273,7 +274,7 @@ function DensityToggle({
       }
       title={`Switch to ${next} density`}
       onClick={() => onChange(next)}
-      className="text-muted-foreground hover:text-foreground"
+      className="text-text-secondary hover:text-text-primary"
     >
       <Icon className="size-3" aria-hidden />
     </Button>

@@ -86,9 +86,9 @@ export function ConfirmDestructiveDialog({
           <DialogDescription>{description}</DialogDescription>
         </DialogHeader>
         <div className="space-y-2 pt-2">
-          <label htmlFor={inputId} className="text-xs text-muted-foreground">
+          <label htmlFor={inputId} className="text-xs text-text-secondary">
             Type{" "}
-            <code className="rounded bg-muted px-1.5 py-0.5 font-mono text-foreground">
+            <code className="rounded bg-surface-3 px-1.5 py-0.5 font-mono text-text-primary">
               {confirmString}
             </code>{" "}
             to confirm.

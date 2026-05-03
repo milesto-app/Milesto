@@ -13,10 +13,10 @@ export type SurfaceProps = HTMLAttributes<HTMLElement> & {
 };
 
 const TONE_CLASSES: Record<SurfaceTone, string> = {
-  default: "border-border/50 bg-card",
-  elevated: "border-border/60 bg-card shadow-sm",
-  sunken: "border-border/40 bg-muted/40",
-  muted: "border-border/40 bg-muted/30",
+  default: "border-border-default bg-surface-2",
+  elevated: "border-border-default bg-surface-3",
+  sunken: "border-border-subtle bg-surface-1",
+  muted: "border-border-subtle bg-surface-2/60",
 };
 
 const PAD_CLASSES: Record<SurfacePad, string> = {

@@ -27,14 +27,14 @@ export function JsonViewer({
   return (
     <div
       className={cn(
-        "relative rounded-lg border border-border/60 bg-muted/30",
+        "relative rounded-lg border border-border-default bg-surface-1",
         className,
       )}
     >
       <div className="absolute right-2 top-2">
         <CopyButton value={formatted} label={copyLabel} />
       </div>
-      <pre className="max-h-96 overflow-auto px-4 py-3 pr-14 font-mono text-xs leading-relaxed text-foreground">
+      <pre className="max-h-96 overflow-auto px-4 py-3 pr-14 font-mono text-xs leading-relaxed text-text-secondary">
         {formatted}
       </pre>
     </div>

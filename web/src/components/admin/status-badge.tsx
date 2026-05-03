@@ -14,13 +14,17 @@ import { cn } from "@/lib/utils";
 
 export type StatusVariant =
   | "active"
+  | "pro"
   | "pending"
   | "expired"
   | "cancelled"
   | "revoked"
+  | "failed"
+  | "free"
   | "healthy"
   | "degraded"
   | "down"
+  | "info"
   | "unknown";
 
 type IconComponent = ComponentType<{ className?: string }>;
@@ -35,49 +39,67 @@ const VARIANTS: Record<StatusVariant, Definition> = {
   active: {
     label: "Active",
     icon: CheckCircle2,
-    className: "bg-primary/10 text-primary",
+    className: "bg-brand-bg-soft text-text-brand",
+  },
+  pro: {
+    label: "Pro",
+    icon: CheckCircle2,
+    className: "bg-brand-bg-soft text-text-brand",
   },
   pending: {
     label: "Pending",
     icon: Clock,
-    className: "bg-blue-500/10 text-blue-600 dark:text-blue-400",
+    className: "bg-status-info/10 text-status-info",
   },
   expired: {
     label: "Expired",
-    icon: Circle,
-    className: "bg-muted text-muted-foreground",
+    icon: AlertTriangle,
+    className: "bg-status-warning/15 text-status-warning",
   },
   cancelled: {
     label: "Cancelled",
     icon: CircleSlash,
-    className:
-      "bg-amber-500/10 text-amber-600 dark:bg-amber-400/15 dark:text-amber-300",
+    className: "bg-status-danger/12 text-status-danger",
   },
   revoked: {
     label: "Revoked",
     icon: Ban,
-    className: "bg-destructive/10 text-destructive",
+    className: "bg-status-danger/12 text-status-danger",
+  },
+  failed: {
+    label: "Failed",
+    icon: XCircle,
+    className: "bg-status-danger/12 text-status-danger",
+  },
+  free: {
+    label: "Free",
+    icon: Circle,
+    className: "border border-border-default text-text-secondary",
   },
   healthy: {
     label: "Healthy",
     icon: CheckCircle2,
-    className: "bg-primary/10 text-primary",
+    className: "bg-status-success/12 text-status-success",
   },
   degraded: {
     label: "Degraded",
     icon: AlertTriangle,
-    className:
-      "bg-amber-500/10 text-amber-600 dark:bg-amber-400/15 dark:text-amber-300",
+    className: "bg-status-warning/15 text-status-warning",
   },
   down: {
     label: "Down",
     icon: XCircle,
-    className: "bg-destructive/10 text-destructive",
+    className: "bg-status-danger/12 text-status-danger",
+  },
+  info: {
+    label: "Info",
+    icon: HelpCircle,
+    className: "bg-status-info/10 text-status-info",
   },
   unknown: {
     label: "Unknown",
     icon: HelpCircle,
-    className: "bg-muted text-muted-foreground",
+    className: "border border-border-subtle text-text-tertiary",
   },
 };
 

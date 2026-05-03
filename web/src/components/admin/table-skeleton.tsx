@@ -13,7 +13,7 @@ export function TableSkeleton({
   return (
     <div
       className={cn(
-        "space-y-2 rounded-xl border border-border/60 bg-card p-3",
+        "space-y-2 rounded-xl border border-border-default bg-surface-2 p-3",
         className,
       )}
     >
@@ -47,7 +47,7 @@ export function PageHeaderSkeleton() {
 
 export function StatCardSkeleton() {
   return (
-    <div className="rounded-xl border border-border/60 bg-card p-4 space-y-2">
+    <div className="rounded-xl border border-border-default bg-surface-2 p-4 space-y-2">
       <Skeleton className="h-3 w-24" />
       <Skeleton className="h-7 w-20" />
     </div>
