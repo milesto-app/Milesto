@@ -149,12 +149,18 @@ struct RoadmapView: View {
             }
             .appBackground()
             .navigationDestination(item: $selectedMilestone) { milestone in
+                let section = monthSections.first { $0.targetMonth == milestone.targetMonth }
+                let position = (section?.milestones.firstIndex { $0.id == milestone.id } ?? 0) + 1
                 MilestoneDetailView(
                     milestoneId: milestone.id,
                     title: milestone.title,
                     description: milestone.description,
                     expectedOutcome: milestone.expectedOutcome,
-                    status: milestone.status
+                    status: milestone.status,
+                    position: position,
+                    totalInSection: section?.milestones.count ?? 0,
+                    targetWeek: milestone.targetWeek,
+                    targetMonth: milestone.targetMonth
                 )
             }
         }

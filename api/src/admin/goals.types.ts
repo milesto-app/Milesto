@@ -106,7 +106,7 @@ export interface AdminGoalWeeklyTask {
   weekNumber: number;
   title: string;
   description: string;
-  difficultyRating: string | null;
+  estimatedMinutes: number | null;
   orderIndex: number;
   isCompleted: boolean;
   isFallback: boolean;
@@ -119,7 +119,6 @@ export interface AdminGoalDebrief {
   weeklyPlanId: string | null;
   date: string;
   note: string;
-  taskRatings: unknown;
   createdAt: string | null;
 }
 

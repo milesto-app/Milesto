@@ -3,27 +3,15 @@ import SwiftUI
 struct WeeklyTaskDetailPage: View {
     let task: WeeklyTask
     let weekNumber: Int?
-    let indexInWeek: Int
-    let totalInWeek: Int
     let appeared: Bool
     let onToggle: ((WeeklyTask) -> Void)?
 
     private var accent: Color {
-        switch task.difficultyRating {
-        case .easy: return Color("Success")
-        case .moderate: return Color("Warning")
-        case .hard: return Color("Error")
-        case nil: return Color("Brand")
-        }
+        Color("Brand")
     }
 
-    private var difficultyLabel: String {
-        switch task.difficultyRating {
-        case .easy: return String(localized: "home.tasks.difficulty.easy", table: "Home")
-        case .moderate: return String(localized: "home.tasks.difficulty.moderate", table: "Home")
-        case .hard: return String(localized: "home.tasks.difficulty.hard", table: "Home")
-        case nil: return ""
-        }
+    private var durationLabel: String? {
+        formatDuration(task.estimatedMinutes)
     }
 
     var body: some View {
@@ -81,10 +69,6 @@ struct WeeklyTaskDetailPage: View {
                         .stroke(accent.opacity(0.08), lineWidth: 1)
                         .frame(width: 600, height: 600)
                         .position(x: geo.size.width - 40, y: 0)
-
-                    AppText(verbatim: String(format: "%02d", indexInWeek + 1), style: .largeTitle)
-                        .color(accent.opacity(0.18))
-                        .position(x: geo.size.width - 64, y: 68)
                 }
             }
             .clipShape(RoundedRectangle(cornerRadius: 28, style: .continuous))
@@ -99,33 +83,15 @@ struct WeeklyTaskDetailPage: View {
                         width * 0.7
                     }
 
-                HStack(alignment: .center, spacing: 12) {
-                    if totalInWeek > 1 {
-                        HStack(spacing: 6) {
-                            ForEach(0 ..< totalInWeek, id: \.self) { i in
-                                Capsule()
-                                    .fill(i == indexInWeek ? accent : accent.opacity(0.22))
-                                    .frame(
-                                        width: i == indexInWeek ? 20 : 6,
-                                        height: 4
-                                    )
-                            }
-                        }
-                    }
-
-                    Spacer(minLength: 0)
-
-                    if task.difficultyRating != nil {
-                        difficultyBadge
+                if let durationLabel {
+                    HStack {
+                        AppPill(verbatim: durationLabel, tint: accent)
+                        Spacer(minLength: 0)
                     }
                 }
             }
             .padding(24)
         }
-    }
-
-    private var difficultyBadge: some View {
-        AppPill(verbatim: difficultyLabel, tint: accent)
     }
 
     private var eyebrowRow: some View {
@@ -172,34 +138,17 @@ struct WeeklyTaskDetailPage: View {
     }
 
     private var toggleButton: some View {
-        Button {
+        AppButton(
+            task.isCompleted ? "roadmap.task.markIncomplete" : "roadmap.task.markComplete",
+            table: "Roadmap",
+            style: task.isCompleted ? .neutral : .primary
+        ) {
             withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
                 performToggle()
             }
-        } label: {
-            HStack(spacing: 10) {
-                TablerIcons(
-                    task.isCompleted ? .arrowBackUp : .check,
-                    size: 20,
-                    color: Color("TextOnBrand")
-                )
-
-                AppText(
-                    task.isCompleted ? "roadmap.task.markIncomplete" : "roadmap.task.markComplete",
-                    table: "Roadmap",
-                    style: .body
-                )
-                .weight(.semibold)
-                .color(Color("TextOnBrand"))
-            }
-            .frame(maxWidth: .infinity)
-            .padding(.vertical, 16)
-            .padding(.horizontal, 24)
         }
-        .glassEffect(
-            .regular.interactive().tint(accent),
-            in: RoundedRectangle(cornerRadius: 16)
-        )
+        .icon(task.isCompleted ? .arrowBackUp : .check)
+        .fullWidth()
     }
 
     private func performToggle() {

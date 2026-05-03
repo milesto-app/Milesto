@@ -136,7 +136,6 @@ export type Database = {
           goal_id: string;
           id: string;
           note: string;
-          task_ratings: Json | null;
           user_id: string;
           weekly_plan_id: string | null;
         };
@@ -146,7 +145,6 @@ export type Database = {
           goal_id: string;
           id?: string;
           note: string;
-          task_ratings?: Json | null;
           user_id: string;
           weekly_plan_id?: string | null;
         };
@@ -156,7 +154,6 @@ export type Database = {
           goal_id?: string;
           id?: string;
           note?: string;
-          task_ratings?: Json | null;
           user_id?: string;
           weekly_plan_id?: string | null;
         };
@@ -722,7 +719,7 @@ export type Database = {
           completed_at: string | null;
           created_at: string | null;
           description: string;
-          difficulty_rating: string | null;
+          estimated_minutes: number | null;
           goal_id: string;
           id: string;
           is_completed: boolean;
@@ -737,7 +734,7 @@ export type Database = {
           completed_at?: string | null;
           created_at?: string | null;
           description: string;
-          difficulty_rating?: string | null;
+          estimated_minutes?: number | null;
           goal_id: string;
           id?: string;
           is_completed?: boolean;
@@ -752,7 +749,7 @@ export type Database = {
           completed_at?: string | null;
           created_at?: string | null;
           description?: string;
-          difficulty_rating?: string | null;
+          estimated_minutes?: number | null;
           goal_id?: string;
           id?: string;
           is_completed?: boolean;

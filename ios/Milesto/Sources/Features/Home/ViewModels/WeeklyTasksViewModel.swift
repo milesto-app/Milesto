@@ -21,10 +21,6 @@ final class WeeklyTasksViewModel {
         repository.sortedTasks(tasks)
     }
 
-    var completedCount: Int {
-        tasks.filter(\.isCompleted).count
-    }
-
     func configure(goalId: String) {
         self.goalId = goalId
         let localTasks = repository.loadWeeklyTasks(goalId: goalId)

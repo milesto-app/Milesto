@@ -81,7 +81,7 @@ final class SyncingRoadmapRepository: RoadmapSummaryRepository, WeeklyTaskReposi
             local.weeklyPlanId = task.weeklyPlanId
             local.title = task.title
             local.taskDescription = task.description
-            local.difficultyRating = task.difficultyRating?.rawValue
+            local.estimatedMinutes = task.estimatedMinutes
             local.orderIndex = task.orderIndex
             local.isCompleted = task.isCompleted
             local.isFallback = task.isFallback
@@ -93,7 +93,7 @@ final class SyncingRoadmapRepository: RoadmapSummaryRepository, WeeklyTaskReposi
                 userId: task.userId,
                 title: task.title,
                 taskDescription: task.description,
-                difficultyRating: task.difficultyRating?.rawValue,
+                estimatedMinutes: task.estimatedMinutes,
                 orderIndex: task.orderIndex,
                 isCompleted: task.isCompleted,
                 isFallback: task.isFallback,
@@ -133,7 +133,7 @@ final class SyncingRoadmapRepository: RoadmapSummaryRepository, WeeklyTaskReposi
                 userId: local.userId,
                 title: local.title,
                 description: local.taskDescription,
-                difficultyRating: local.difficultyRating.flatMap { DifficultyRating(rawValue: $0) },
+                estimatedMinutes: local.estimatedMinutes,
                 orderIndex: local.orderIndex,
                 isCompleted: local.isCompleted,
                 isFallback: local.isFallback,
@@ -197,7 +197,6 @@ final class SyncingRoadmapRepository: RoadmapSummaryRepository, WeeklyTaskReposi
             weeklyPlanId: local.weeklyPlanId,
             date: local.date,
             note: local.note,
-            taskRatings: local.taskRatings,
             createdAt: local.createdAt
         )
     }
@@ -211,12 +210,11 @@ final class SyncingRoadmapRepository: RoadmapSummaryRepository, WeeklyTaskReposi
         return latest
     }
 
-    func submitDebrief(goalId: String, weeklyPlanId: String, note: String, taskRatings: [TaskRating]?) async throws -> Debrief {
+    func submitDebrief(goalId: String, weeklyPlanId: String, note: String) async throws -> Debrief {
         let remote = try await remote.submitDebrief(
             goalId: goalId,
             weeklyPlanId: weeklyPlanId,
-            note: note,
-            taskRatings: taskRatings
+            note: note
         )
         saveDebrief(remote)
         try? context.save()
@@ -242,9 +240,6 @@ final class SyncingRoadmapRepository: RoadmapSummaryRepository, WeeklyTaskReposi
     func sortedTasks(_ tasks: [WeeklyTask]) -> [WeeklyTask] {
         tasks.sorted {
             if $0.isCompleted != $1.isCompleted { return !$0.isCompleted }
-            let p0 = $0.difficultyRating.priority
-            let p1 = $1.difficultyRating.priority
-            if p0 != p1 { return p0 < p1 }
             return $0.orderIndex < $1.orderIndex
         }
     }
@@ -334,7 +329,6 @@ final class SyncingRoadmapRepository: RoadmapSummaryRepository, WeeklyTaskReposi
                 weeklyPlanId: remote.weeklyPlanId,
                 date: remote.date,
                 note: remote.note,
-                taskRatings: remote.taskRatings,
                 createdAt: remote.createdAt
             ))
         }
@@ -457,7 +451,7 @@ final class SyncingRoadmapRepository: RoadmapSummaryRepository, WeeklyTaskReposi
                 local.weeklyPlanId = remote.weeklyPlanId
                 local.title = remote.title
                 local.taskDescription = remote.description
-                local.difficultyRating = remote.difficultyRating?.rawValue
+                local.estimatedMinutes = remote.estimatedMinutes
                 local.orderIndex = remote.orderIndex
                 local.isCompleted = remote.isCompleted
                 local.isFallback = remote.isFallback
@@ -469,7 +463,7 @@ final class SyncingRoadmapRepository: RoadmapSummaryRepository, WeeklyTaskReposi
                     userId: remote.userId,
                     title: remote.title,
                     taskDescription: remote.description,
-                    difficultyRating: remote.difficultyRating?.rawValue,
+                    estimatedMinutes: remote.estimatedMinutes,
                     orderIndex: remote.orderIndex,
                     isCompleted: remote.isCompleted,
                     isFallback: remote.isFallback,
@@ -505,12 +499,10 @@ final class SyncingRoadmapRepository: RoadmapSummaryRepository, WeeklyTaskReposi
     }
 
     private func debriefPromptState(tasks: [WeeklyTask], plan: WeeklyPlan?, latest: Debrief?) -> DebriefPromptState {
-        let completedTasks = tasks.filter(\.isCompleted)
         let allComplete = !tasks.isEmpty && tasks.allSatisfy(\.isCompleted)
         let debriefMissingForCurrentPlan = latest?.weeklyPlanId != plan?.id
         return DebriefPromptState(
             weeklyPlanId: plan?.id,
-            completedTasks: completedTasks,
             shouldDisplay: allComplete && debriefMissingForCurrentPlan && plan != nil
         )
     }
@@ -525,7 +517,7 @@ extension WeeklyTask {
             userId: userId,
             title: title,
             description: description,
-            difficultyRating: difficultyRating,
+            estimatedMinutes: estimatedMinutes,
             orderIndex: orderIndex,
             isCompleted: isCompleted,
             isFallback: isFallback,

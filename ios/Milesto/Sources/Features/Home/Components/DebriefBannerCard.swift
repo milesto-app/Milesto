@@ -33,7 +33,6 @@ struct DebriefBannerCard: View {
                 DebriefSheetView(
                     goalId: goalId,
                     weeklyPlanId: weeklyPlanId,
-                    completedTasks: model.completedTasks,
                     onDebriefComplete: {
                         showWeeklyPlanGeneration = true
                     }

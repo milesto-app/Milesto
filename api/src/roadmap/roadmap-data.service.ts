@@ -57,7 +57,7 @@ interface StoreWeeklyTaskRow {
   title: string;
   description: string;
   order_index: number;
-  difficulty_rating: string | null;
+  estimated_minutes: number | null;
 }
 
 export interface StoreTasksParams {
@@ -426,7 +426,7 @@ export class RoadmapDataService {
       user_id: params.userId,
       title: task.title,
       description: task.description,
-      difficulty_rating: task.difficulty_rating,
+      estimated_minutes: task.estimated_minutes,
       order_index: task.order_index,
       is_completed: false,
       is_fallback: params.isFallback,

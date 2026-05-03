@@ -2,20 +2,20 @@ import SwiftUI
 
 enum AppButtonStyle {
     case primary
+    case neutral
     case secondary
     case text
 
     var backgroundColor: Color {
         switch self {
-        case .primary: return .clear
-        case .secondary: return Color.clear
-        case .text: return Color.clear
+        case .primary, .neutral, .secondary, .text: return Color.clear
         }
     }
 
     var foregroundColor: Color {
         switch self {
         case .primary: return Color("TextOnBrand")
+        case .neutral: return Color("TextPrimary")
         case .secondary: return Color("Brand")
         case .text: return Color("Brand")
         }
@@ -23,24 +23,30 @@ enum AppButtonStyle {
 
     var usesGlass: Bool {
         switch self {
-        case .primary: return true
+        case .primary, .neutral: return true
         case .secondary, .text: return false
+        }
+    }
+
+    var glassTint: Color {
+        switch self {
+        case .primary: return Color("BrandDeep")
+        case .neutral: return Color("BackgroundElevated")
+        case .secondary, .text: return Color.clear
         }
     }
 
     var borderColor: Color {
         switch self {
-        case .primary: return Color.clear
+        case .primary, .neutral, .text: return Color.clear
         case .secondary: return Color("Brand")
-        case .text: return Color.clear
         }
     }
 
     var borderWidth: CGFloat {
         switch self {
-        case .primary: return 0
+        case .primary, .neutral, .text: return 0
         case .secondary: return 2
-        case .text: return 0
         }
     }
 }
@@ -94,7 +100,7 @@ struct AppButton: View {
         Button(action: action) {
             if style.usesGlass {
                 buttonContent
-                    .glassEffect(.regular.interactive().tint(Color("Brand")), in: RoundedRectangle(cornerRadius: 12))
+                    .glassEffect(.regular.interactive().tint(style.glassTint), in: RoundedRectangle(cornerRadius: 12))
             } else {
                 buttonContent
                     .cornerRadius(12)

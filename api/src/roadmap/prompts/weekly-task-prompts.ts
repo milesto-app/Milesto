@@ -18,7 +18,7 @@ Rules:
 - Each task should be specific, actionable, and achievable within the week
 - Tasks should align with the weekly plan's objectives
 - Consider previous week's completion data and debrief notes
-- Include a mix of difficulty levels (easy, moderate, hard)
+- Mix shorter and longer tasks so the week has both quick wins and deeper work
 - Tasks are not assigned to specific days — the user organizes their week
 - Order tasks by recommended priority (most important first)
 
@@ -26,7 +26,7 @@ Return a JSON array of objects with these exact fields:
 - "title": A concise task title
 - "description": Detailed description of what to accomplish
 - "order_index": Sequential index starting from 1
-- "difficulty_rating": One of "easy", "moderate", or "hard"
+- "estimated_minutes": Realistic integer estimate of focused minutes to complete the task (typical range 5–120)
 
 Return ONLY the JSON array, no other text.${buildLanguageBlock(language)}`;
 }

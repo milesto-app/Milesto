@@ -77,9 +77,6 @@ struct ChatView: View {
                 conversations: model.conversations,
                 activeConversationId: model.conversationId,
                 onSelectConversation: { id in model.loadConversation(id) },
-                onNewConversation: {
-                    withAnimation { model.startNewConversation() }
-                },
                 onDeleteConversation: { id in model.deleteConversation(id) }
             )
             .ignoresSafeArea()

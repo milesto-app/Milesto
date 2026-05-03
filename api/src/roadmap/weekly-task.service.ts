@@ -159,7 +159,7 @@ export class WeeklyTaskService {
         title: task.title,
         description: task.description,
         order_index: task.order_index,
-        difficulty_rating: task.difficulty_rating ?? null,
+        estimated_minutes: task.estimated_minutes ?? null,
       })),
       weeklyPlanId: params.weeklyPlan.id,
       goalId: params.goalId,
@@ -197,7 +197,7 @@ export class WeeklyTaskService {
       title: obj,
       description: obj,
       order_index: i + 1,
-      difficulty_rating: null,
+      estimated_minutes: null,
     }));
 
     return this.storage.storeTasks({

@@ -110,11 +110,11 @@ final class SupabaseRoadmapRepository: RemoteRoadmapRepository {
         )
     }
 
-    func submitDebrief(goalId: String, weeklyPlanId: String, note: String, taskRatings: [TaskRating]?) async throws -> Debrief {
+    func submitDebrief(goalId: String, weeklyPlanId: String, note: String) async throws -> Debrief {
         return try await ApiClient.shared.request(
             method: "POST",
             path: "goals/\(goalId)/debrief",
-            body: SubmitDebriefRequest(weeklyPlanId: weeklyPlanId, note: note, taskRatings: taskRatings)
+            body: SubmitDebriefRequest(weeklyPlanId: weeklyPlanId, note: note)
         )
     }
 

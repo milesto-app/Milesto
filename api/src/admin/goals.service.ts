@@ -552,7 +552,7 @@ function mapWeeklyTask(
     weekNumber,
     title: row.title,
     description: row.description,
-    difficultyRating: row.difficulty_rating,
+    estimatedMinutes: row.estimated_minutes,
     orderIndex: row.order_index,
     isCompleted: row.is_completed,
     isFallback: row.is_fallback,
@@ -567,7 +567,6 @@ function mapDebrief(row: DebriefRow): AdminGoalDebrief {
     weeklyPlanId: row.weekly_plan_id,
     date: row.date,
     note: row.note,
-    taskRatings: row.task_ratings,
     createdAt: row.created_at,
   };
 }

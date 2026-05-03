@@ -817,23 +817,6 @@
         }
       }
     },
-    "roadmap.task.difficulty" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Difficulty"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Difficulté"
-          }
-        }
-      }
-    },
     "roadmap.task.focusTitle" : {
       "extractionState" : "manual",
       "localizations" : {

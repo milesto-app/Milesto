@@ -20,7 +20,7 @@ struct ChatBubble: View {
                     .padding(12)
                     .background(
                         RoundedRectangle(cornerRadius: 16)
-                            .fill(Color("Brand"))
+                            .fill(Color("BrandDeep"))
                     )
             } else {
                 StreamingText(content: message.content, isStreaming: isStreamingResponse)
