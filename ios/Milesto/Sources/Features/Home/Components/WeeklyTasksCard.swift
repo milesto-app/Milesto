@@ -50,24 +50,25 @@ struct WeeklyTasksCard: View {
                     .padding(.horizontal, 24)
                     .padding(.vertical, 16)
             } else {
-                VStack(spacing: 8) {
-                    ForEach(model.sortedTasks) { task in
-                        ObjectiveRowView(
-                            task: task,
-                            onToggle: {
-                                withAnimation(.easeInOut(duration: 0.3)) {
-                                    model.toggle(task)
-                                }
-                            },
-                            onOpen: {
-                                selectedTaskId = task.id
+                GlassEffectContainer(spacing: 14) {
+                    VStack(spacing: 8) {
+                        ForEach(model.sortedTasks) { task in
+                            taskSurface {
+                                ObjectiveRowView(
+                                    task: task,
+                                    onToggle: {
+                                        withAnimation(.easeInOut(duration: 0.3)) {
+                                            model.toggle(task)
+                                        }
+                                    },
+                                    onOpen: {
+                                        selectedTaskId = task.id
+                                    }
+                                )
                             }
-                        )
-                        .padding(.horizontal, 16)
-                        .padding(.vertical, 14)
-                        .glassEffect(.regular.interactive(), in: RoundedRectangle(cornerRadius: 16))
-                        .padding(.horizontal, 16)
-                        .transition(.move(edge: .bottom).combined(with: .opacity))
+                            .padding(.horizontal, 16)
+                            .transition(.move(edge: .bottom).combined(with: .opacity))
+                        }
                     }
                 }
                 .animation(.easeInOut(duration: 0.3), value: model.tasks.map(\.isCompleted))
@@ -85,5 +86,21 @@ struct WeeklyTasksCard: View {
                 )
             }
         }
+    }
+
+    @ViewBuilder
+    private func taskSurface<Content: View>(@ViewBuilder content: () -> Content) -> some View {
+        let shape = RoundedRectangle(cornerRadius: 16, style: .continuous)
+
+        content()
+            .padding(.horizontal, 16)
+            .padding(.vertical, 14)
+            .glassEffect(
+                .regular
+                    .interactive()
+                    .tint(Color("BackgroundBase").opacity(0.35)),
+                in: shape
+            )
+            .contentShape(shape)
     }
 }
