@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 
+import { formatDateTime } from "@/lib/format";
 import type { AdminNotificationSend } from "@/lib/admin-api/types";
 import { defineColumns } from "@/components/admin/data-table/column-helpers";
 import { DataTable } from "@/components/admin/data-table/data-table";
@@ -14,18 +15,6 @@ import {
 } from "@/components/ui/sheet";
 
 const DENSITY_KEY = "admin:notification-sends:density";
-
-function formatDate(value: string): string {
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return "—";
-  return date.toLocaleString("en-US", {
-    year: "numeric",
-    month: "short",
-    day: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-}
 
 const columns = defineColumns<AdminNotificationSend>([
   {
@@ -60,7 +49,7 @@ const columns = defineColumns<AdminNotificationSend>([
     header: "Sent",
     cell: ({ row }) => (
       <span className="text-xs text-muted-foreground tabular-nums">
-        {formatDate(row.original.sentAt)}
+        {formatDateTime(row.original.sentAt)}
       </span>
     ),
   },
@@ -96,7 +85,7 @@ export function SendsTable({
           <SheetHeader>
             <SheetTitle>Notification send</SheetTitle>
             <SheetDescription>
-              {active ? formatDate(active.sentAt) : ""}
+              {active ? formatDateTime(active.sentAt) : ""}
             </SheetDescription>
           </SheetHeader>
           {active ? (

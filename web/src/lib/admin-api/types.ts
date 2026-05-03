@@ -84,6 +84,39 @@ export interface AdminUserGoal {
   completedTasks: number;
 }
 
+export interface AdminUserUsageEntry {
+  id: string;
+  generationType: string;
+  usageDate: string;
+  createdAt: string;
+}
+
+export interface AdminUserUsage {
+  totalGenerations: number;
+  byType: Record<string, number>;
+  recent: AdminUserUsageEntry[];
+}
+
+export interface AdminUserSubscription {
+  status: string;
+  expiresAt: string | null;
+  productId: string | null;
+  environment: string | null;
+  autoRenewStatus: boolean | null;
+  originalTransactionId: string | null;
+  appleSignedAt: string | null;
+  verifiedAt: string | null;
+}
+
+export interface AdminUserDevice {
+  id: string;
+  platform: string;
+  environment: string;
+  tokenLast4: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 // --- admin-usage.types.ts ---
 
 export interface AdminUsageDailyEntry {
@@ -106,6 +139,18 @@ export interface AdminUsageTopUser {
   userId: string;
   name: string;
   count: number;
+}
+
+export interface AdminUsageCostByModel {
+  promptTokens: number;
+  completionTokens: number;
+  costUsd: number;
+}
+
+export interface AdminUsageCostEstimate {
+  totalCostUsd: number;
+  byModel: Record<string, AdminUsageCostByModel>;
+  coverageRatio: number;
 }
 
 // --- system.types.ts ---
@@ -528,4 +573,10 @@ export interface AdminListEntry {
 
 export interface AdminListResponse {
   admins: AdminListEntry[];
+}
+
+export interface AdminRoleUpdate {
+  id: string;
+  email: string;
+  role: string;
 }

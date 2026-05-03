@@ -1,6 +1,6 @@
-import { listAdmins } from "@/lib/admin-api/resources/meta";
+import { formatDate } from "@/lib/format";
+import { getMe, listAdmins } from "@/lib/admin-api/resources/meta";
 import type { AdminListEntry } from "@/lib/admin-api/types";
-import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import {
   Table,
@@ -13,15 +13,8 @@ import {
 import { EmptyState } from "@/components/admin/empty-state";
 import { PageHeader } from "@/components/admin/page-header";
 
-function formatDate(value: string): string {
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return "—";
-  return date.toLocaleDateString("en-US", {
-    year: "numeric",
-    month: "short",
-    day: "numeric",
-  });
-}
+import { DemoteAdminButton } from "./_components/demote-button";
+import { PromoteAdminForm } from "./_components/promote-form";
 
 function name(entry: AdminListEntry): string {
   const value = [entry.firstName, entry.lastName].filter(Boolean).join(" ");
@@ -29,13 +22,14 @@ function name(entry: AdminListEntry): string {
 }
 
 export default async function AdminsPage() {
-  const data = await listAdmins();
+  const [data, me] = await Promise.all([listAdmins(), getMe()]);
 
   return (
     <div className="space-y-4">
       <PageHeader
         title="Admins"
-        description="Operators with the admin role. Promote and demote actions ship in Phase 4."
+        description="Operators with the admin role."
+        actions={<PromoteAdminForm />}
       />
       {data.admins.length === 0 ? (
         <EmptyState title="No admins yet" />
@@ -61,15 +55,16 @@ export default async function AdminsPage() {
                     {formatDate(entry.createdAt)}
                   </TableCell>
                   <TableCell className="text-right">
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="xs"
-                      disabled
-                      title="Available in Phase 4"
-                    >
-                      Demote
-                    </Button>
+                    {entry.id === me.id ? (
+                      <span className="text-xs text-muted-foreground">
+                        You
+                      </span>
+                    ) : (
+                      <DemoteAdminButton
+                        userId={entry.id}
+                        email={entry.email}
+                      />
+                    )}
                   </TableCell>
                 </TableRow>
               ))}

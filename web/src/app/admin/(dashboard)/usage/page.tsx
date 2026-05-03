@@ -1,14 +1,21 @@
 import Link from "next/link";
 
 import {
+  getCostEstimate,
   getDailyUsage,
   getTopUsers,
   getUsageByType,
   getUsageTotals,
 } from "@/lib/admin-api/resources/usage";
-import { readString } from "@/lib/admin-api/search-params";
+import { formatCurrency, formatNumber } from "@/lib/format";
+import {
+  dateRangeToDays,
+  readDateRange,
+  readString,
+} from "@/lib/admin-api/search-params";
 import type {
   AdminUsageByTypeEntry,
+  AdminUsageCostEstimate,
   AdminUsageDaily,
   AdminUsageTopUser,
   AdminUsageTotals,
@@ -22,7 +29,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { DateRangePicker, dateRangeToDays, readDateRange } from "@/components/admin/date-range-picker";
+import { DateRangePicker } from "@/components/admin/date-range-picker";
 import { EmptyState } from "@/components/admin/empty-state";
 import { PageHeader } from "@/components/admin/page-header";
 
@@ -47,11 +54,12 @@ export default async function UsagePage({
   const days = dateRangeToDays(range);
   const type = readString(sp, "type");
 
-  const [daily, totals, byType, topUsers] = await Promise.all([
+  const [daily, totals, byType, topUsers, cost] = await Promise.all([
     getDailyUsage(days, type),
     getUsageTotals(days),
     getUsageByType(days),
     getTopUsers(20, days),
+    getCostEstimate(days),
   ]);
 
   return (
@@ -66,7 +74,7 @@ export default async function UsagePage({
         totals={<TotalsPanel data={totals} />}
         byType={<ByTypePanel data={byType} />}
         topUsers={<TopUsersPanel data={topUsers} />}
-        cost={<CostPanel />}
+        cost={<CostPanel data={cost} />}
       />
     </div>
   );
@@ -200,11 +208,99 @@ function TopUsersPanel({ data }: { data: AdminUsageTopUser[] }) {
   );
 }
 
-function CostPanel() {
+function CostPanel({ data }: { data: AdminUsageCostEstimate }) {
+  const models = Object.entries(data.byModel).sort(
+    ([, a], [, b]) => b.costUsd - a.costUsd,
+  );
+  if (models.length === 0) {
+    return (
+      <EmptyState
+        title="No priced generations in this window"
+        description="The cost endpoint only counts rows with token totals and a known model."
+      />
+    );
+  }
+  const max = models[0]?.[1].costUsd ?? 0;
+  const coveragePct = Math.round(data.coverageRatio * 100);
   return (
-    <EmptyState
-      title="Cost analysis coming soon"
-      description="Cost breakdowns ship in a future phase."
-    />
+    <div className="space-y-4">
+      <div className="grid gap-3 sm:grid-cols-3">
+        <Card className="border-border/60 shadow-none">
+          <CardContent className="space-y-1 p-5">
+            <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
+              Total cost
+            </p>
+            <p className="text-2xl font-semibold tabular-nums text-foreground">
+              {formatCurrency(data.totalCostUsd)}
+            </p>
+          </CardContent>
+        </Card>
+        <Card className="border-border/60 shadow-none">
+          <CardContent className="space-y-1 p-5">
+            <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
+              Coverage
+            </p>
+            <p className="text-2xl font-semibold tabular-nums text-foreground">
+              {coveragePct}%
+            </p>
+            {data.coverageRatio < 1 ? (
+              <p className="text-xs text-amber-600">
+                Some rows lack token data and were excluded.
+              </p>
+            ) : null}
+          </CardContent>
+        </Card>
+        <Card className="border-border/60 shadow-none">
+          <CardContent className="space-y-1 p-5">
+            <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
+              Models
+            </p>
+            <p className="text-2xl font-semibold tabular-nums text-foreground">
+              {models.length}
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+
+      <Card className="border-border/60 shadow-none">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Model</TableHead>
+              <TableHead className="text-right">Prompt tokens</TableHead>
+              <TableHead className="text-right">Completion tokens</TableHead>
+              <TableHead className="text-right">Cost</TableHead>
+              <TableHead className="w-40">Share</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {models.map(([model, row]) => (
+              <TableRow key={model}>
+                <TableCell className="font-mono text-xs">{model}</TableCell>
+                <TableCell className="text-right tabular-nums">
+                  {formatNumber(row.promptTokens)}
+                </TableCell>
+                <TableCell className="text-right tabular-nums">
+                  {formatNumber(row.completionTokens)}
+                </TableCell>
+                <TableCell className="text-right tabular-nums font-medium">
+                  {formatCurrency(row.costUsd)}
+                </TableCell>
+                <TableCell>
+                  <div className="h-1.5 w-full overflow-hidden rounded-full bg-muted">
+                    <div
+                      className="h-full bg-primary"
+                      style={{
+                        width: max > 0 ? `${(row.costUsd / max) * 100}%` : "0%",
+                      }}
+                    />
+                  </div>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </Card>
+    </div>
   );
 }

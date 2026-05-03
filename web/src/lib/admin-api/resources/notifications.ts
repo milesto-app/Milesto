@@ -2,6 +2,8 @@ import "server-only";
 
 import { apiFetch } from "@/lib/admin-api/client";
 import type {
+  AdminBroadcastResult,
+  AdminBroadcastSegment,
   AdminNotificationDeviceList,
   AdminNotificationSendList,
   AdminSchedulerStatus,
@@ -60,3 +62,22 @@ export async function getSchedulerStatus(): Promise<AdminSchedulerStatus> {
     { cache: "no-store" },
   );
 }
+
+export type BroadcastBody = {
+  title: string;
+  body: string;
+  segment?: AdminBroadcastSegment;
+  data?: Record<string, string>;
+};
+
+export async function broadcastNotification(
+  body: BroadcastBody,
+): Promise<AdminBroadcastResult> {
+  return apiFetch<AdminBroadcastResult>("/admin/notifications/broadcast", {
+    method: "POST",
+    cache: "no-store",
+    body,
+  });
+}
+
+export const NOTIFICATIONS_CACHE_TAG = NOTIFICATIONS_TAG;

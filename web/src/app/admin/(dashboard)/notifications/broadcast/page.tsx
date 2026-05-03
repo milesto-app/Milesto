@@ -1,11 +1,17 @@
 import Link from "next/link";
-import { ArrowLeft, Megaphone } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 
+import { getSubscriptionDistribution } from "@/lib/admin-api/resources/subscriptions";
 import { Button } from "@/components/ui/button";
-import { EmptyState } from "@/components/admin/empty-state";
 import { PageHeader } from "@/components/admin/page-header";
 
-export default function BroadcastPage() {
+import { BroadcastComposer } from "./_components/broadcast-composer";
+
+export default async function BroadcastPage() {
+  const distribution = await getSubscriptionDistribution().catch(
+    () => ({}) as Record<string, number>,
+  );
+
   return (
     <div className="space-y-4">
       <Button
@@ -21,11 +27,7 @@ export default function BroadcastPage() {
         title="Broadcast"
         description="Send a push notification to a user segment."
       />
-      <EmptyState
-        icon={Megaphone}
-        title="Coming in Phase 4"
-        description="The broadcast composer (audience preview, typed SEND confirm, dry-run) ships with Phase 4b mutations."
-      />
+      <BroadcastComposer distribution={distribution} />
     </div>
   );
 }

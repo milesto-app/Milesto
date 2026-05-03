@@ -68,3 +68,12 @@ export async function getRecentEvents(
     },
   );
 }
+
+export async function refreshSubscription(userId: string): Promise<unknown> {
+  return apiFetch<unknown>(`/admin/subscriptions/refresh/${userId}`, {
+    method: "POST",
+    cache: "no-store",
+  });
+}
+
+export const SUBSCRIPTIONS_CACHE_TAG = SUBSCRIPTIONS_TAG;

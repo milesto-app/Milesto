@@ -106,3 +106,36 @@ export async function getGoalEmbeddings(
     query: { limit },
   });
 }
+
+export async function regenerateGoalProfile(id: string): Promise<unknown> {
+  return apiFetch<unknown>(`/admin/goals/${id}/regenerate-profile`, {
+    method: "POST",
+    cache: "no-store",
+  });
+}
+
+export async function regenerateGoalRoadmap(id: string): Promise<unknown> {
+  return apiFetch<unknown>(`/admin/goals/${id}/regenerate-roadmap`, {
+    method: "POST",
+    cache: "no-store",
+  });
+}
+
+export async function reembedGoal(id: string): Promise<unknown> {
+  return apiFetch<unknown>(`/admin/goals/${id}/reembed`, {
+    method: "POST",
+    cache: "no-store",
+  });
+}
+
+export async function deleteGoal(id: string): Promise<void> {
+  await apiFetch<void>(`/admin/goals/${id}`, {
+    method: "DELETE",
+    cache: "no-store",
+  });
+}
+
+export const GOALS_CACHE_TAGS = {
+  list: GOALS_TAG,
+  detail: goalTag,
+};

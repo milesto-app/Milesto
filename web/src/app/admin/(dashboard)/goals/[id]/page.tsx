@@ -28,6 +28,7 @@ import { JsonViewer } from "@/components/admin/json-viewer";
 import { PageHeader } from "@/components/admin/page-header";
 import { StatusBadge } from "@/components/admin/status-badge";
 
+import { GoalDangerZone, GoalToolbar } from "./_components/goal-actions";
 import { GoalTabs } from "./_components/goal-tabs";
 
 function formatDate(value: string | null): string {
@@ -87,7 +88,11 @@ export default async function GoalDetailPage({
         Goals
       </Button>
 
-      <PageHeader title={goal.title} description={`Goal ID: ${goal.id}`} />
+      <PageHeader
+        title={goal.title}
+        description={`Goal ID: ${goal.id}`}
+        actions={<GoalToolbar id={goal.id} />}
+      />
 
       <GoalTabs
         overview={<OverviewTab goal={goal} />}
@@ -98,6 +103,8 @@ export default async function GoalDetailPage({
         coachMemory={<CoachMemoryTab entries={coachMemory} />}
         embeddings={<EmbeddingsTab embeddings={embeddings} />}
       />
+
+      <GoalDangerZone id={goal.id} title={goal.title} />
     </div>
   );
 }
