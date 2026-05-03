@@ -69,7 +69,9 @@ function goalStatusBadge(status: string) {
   }
 }
 
-type DashboardSearchParams = Promise<Record<string, string | string[] | undefined>>;
+type DashboardSearchParams = Promise<
+  Record<string, string | string[] | undefined>
+>;
 
 type RecentGoalRow = {
   id: string;

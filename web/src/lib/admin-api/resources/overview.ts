@@ -45,8 +45,11 @@ export async function getRecentSignups(
 export async function getActivityTimeline(
   days?: number,
 ): Promise<ActivityTimelineEntry[]> {
-  return apiFetch<ActivityTimelineEntry[]>("/admin/overview/activity-timeline", {
-    next: defaultNext(),
-    query: { days },
-  });
+  return apiFetch<ActivityTimelineEntry[]>(
+    "/admin/overview/activity-timeline",
+    {
+      next: defaultNext(),
+      query: { days },
+    },
+  );
 }

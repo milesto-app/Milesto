@@ -68,10 +68,7 @@ async function getAccessToken(): Promise<string> {
   return token;
 }
 
-function buildUrl(
-  path: string,
-  query: ApiFetchOptions["query"],
-): string {
+function buildUrl(path: string, query: ApiFetchOptions["query"]): string {
   const base = getApiBaseUrl();
   const normalizedPath = path.startsWith("/") ? path : `/${path}`;
   const url = new URL(`${base}${normalizedPath}`);
