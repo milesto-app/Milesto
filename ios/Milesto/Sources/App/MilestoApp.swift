@@ -3,6 +3,7 @@ import SwiftUI
 
 @main
 struct MilestoApp: App {
+    @UIApplicationDelegateAdaptor(PushNotificationDelegate.self) private var pushDelegate
     let container: ModelContainer = MilestoApp.makeContainer()
 
     var body: some Scene {

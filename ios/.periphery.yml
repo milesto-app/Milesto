@@ -10,3 +10,4 @@ retain_codable_properties: true
 disable_unused_import_analysis: false
 report_exclude:
   - "Milesto/Sources/Shared/Components/TablerIcons.swift"
+  - "Milesto/Sources/Shared/Notifications/PushNotificationDelegate.swift"
