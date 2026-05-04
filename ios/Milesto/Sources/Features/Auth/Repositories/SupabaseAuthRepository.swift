@@ -27,6 +27,7 @@ final class SupabaseAuthRepository: AuthRepository {
                     authState = .authenticated(userId: session.user.id.uuidString)
                     currentUserId = session.user.id.uuidString
                     persistSession(session)
+                    Task { await NotificationService.shared.requestPermissionAndRegister() }
                 } else {
                     authState = .unauthenticated
                     currentUserId = nil
@@ -36,6 +37,7 @@ final class SupabaseAuthRepository: AuthRepository {
                     authState = .authenticated(userId: session.user.id.uuidString)
                     currentUserId = session.user.id.uuidString
                     persistSession(session)
+                    Task { await NotificationService.shared.requestPermissionAndRegister() }
                 }
             case .signedOut:
                 authState = .unauthenticated
