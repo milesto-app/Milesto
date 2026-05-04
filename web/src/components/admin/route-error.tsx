@@ -25,10 +25,10 @@ export function RouteError({
         <AlertOctagon className="size-5" aria-hidden />
       </div>
       <div className="space-y-1">
-        <h3 className="text-sm font-semibold text-foreground">
+        <h3 className="text-sm font-semibold text-text-primary">
           Couldn&apos;t load {resourceLabel}
         </h3>
-        <p className="text-sm text-muted-foreground">
+        <p className="text-sm text-text-secondary">
           {error.message || "An unexpected error occurred."}
         </p>
       </div>

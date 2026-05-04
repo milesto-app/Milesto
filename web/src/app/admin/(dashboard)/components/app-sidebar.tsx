@@ -38,13 +38,13 @@ export function AppSidebar({ userEmail }: { userEmail: string }) {
     <Sidebar>
       <SidebarHeader className="gap-3 px-3 py-4">
         <div className="flex items-center gap-2.5 px-2">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-white/10">
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-bg-soft">
             <svg
               width="16"
               height="16"
               viewBox="0 0 24 24"
               fill="none"
-              className="text-sidebar-foreground"
+              className="text-brand"
               aria-hidden
             >
               <path
@@ -65,7 +65,7 @@ export function AppSidebar({ userEmail }: { userEmail: string }) {
       <SidebarContent>
         {ADMIN_NAV_GROUPS.map((group) => (
           <SidebarGroup key={group.label}>
-            <SidebarGroupLabel className="text-[11px] uppercase tracking-wider text-sidebar-foreground/40">
+            <SidebarGroupLabel className="text-[11px] uppercase tracking-wider text-text-tertiary">
               {group.label}
             </SidebarGroupLabel>
             <SidebarMenu>
@@ -95,7 +95,7 @@ export function AppSidebar({ userEmail }: { userEmail: string }) {
           ))}
         </SidebarMenu>
         <div className="mt-1 flex items-center gap-3 border-t border-sidebar-border pt-3">
-          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white/10 text-xs font-medium text-sidebar-foreground">
+          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-brand-bg-soft text-xs font-medium text-sidebar-foreground">
             {userEmail.charAt(0).toUpperCase()}
           </div>
           <span className="min-w-0 flex-1 truncate text-xs text-sidebar-foreground/60">
@@ -128,10 +128,9 @@ function NavItem({
   return (
     <SidebarMenuItem>
       <SidebarMenuButton
-        {...({ nativeButton: false } as { nativeButton?: boolean })}
         render={<a href={href} />}
         isActive={active}
-        className="h-9 gap-2.5 rounded-lg text-[13px] font-medium text-sidebar-foreground/70 transition-colors hover:text-sidebar-foreground data-[active=true]:bg-white/10 data-[active=true]:text-sidebar-foreground"
+        className="h-9 gap-2.5 rounded-lg text-[13px] font-medium text-sidebar-foreground/70 transition-colors hover:text-sidebar-foreground data-[active=true]:bg-brand-bg-soft data-[active=true]:text-text-brand"
       >
         <Icon className="h-4 w-4" />
         <span>{title}</span>

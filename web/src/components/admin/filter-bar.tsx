@@ -47,7 +47,7 @@ export function FilterBar({
   return (
     <div
       className={cn(
-        "flex flex-wrap items-center gap-2 rounded-lg border border-border/60 bg-card px-3 py-2",
+        "flex flex-wrap items-center gap-2 rounded-lg border border-border-default bg-surface-2 px-3 py-2",
         className,
       )}
     >
@@ -86,7 +86,7 @@ function SearchInput({
   return (
     <div className="relative min-w-0 flex-1 sm:max-w-xs">
       <Search
-        className="pointer-events-none absolute left-2.5 top-1/2 size-3.5 -translate-y-1/2 text-muted-foreground"
+        className="pointer-events-none absolute left-2.5 top-1/2 size-3.5 -translate-y-1/2 text-text-secondary"
         aria-hidden
       />
       <Input
@@ -154,7 +154,7 @@ function DateRange() {
   );
 
   return (
-    <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+    <div className="flex items-center gap-1.5 text-xs text-text-secondary">
       <label className="sr-only" htmlFor="filter-from">
         From
       </label>
@@ -226,7 +226,7 @@ function ResetButton({
         for (const key of Object.keys(parsers)) cleared[key] = null;
         void setValues(cleared);
       }}
-      className="ml-auto text-muted-foreground hover:text-foreground"
+      className="ml-auto text-text-secondary hover:text-text-primary"
     >
       <X className="size-3" aria-hidden />
       Reset
