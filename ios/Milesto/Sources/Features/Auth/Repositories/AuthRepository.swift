@@ -9,99 +9,40 @@ final class AuthRepository {
     private let oauth: OAuthClient
 
     private(set) var authState: AuthState = .authenticating
-    private(set) var currentUserId: String?
+
+    var currentUserId: String? {
+        if case let .authenticated(userId) = authState { return userId }
+        return nil
+    }
 
     init(client: SupabaseClient? = nil, oauth: OAuthClient? = nil) {
         self.client = client ?? SupabaseConfig.client
         self.oauth = oauth ?? OAuthClient()
-        Task {
-            await setupAuthStateListener()
-        }
-    }
-
-    private func setupAuthStateListener() async {
-        for await (event, session) in client.auth.authStateChanges {
-            switch event {
-            case .initialSession:
-                if let session {
-                    applySignedInSession(session)
-                } else {
-                    authState = .unauthenticated
-                    currentUserId = nil
-                }
-            case .signedIn:
-                if let session {
-                    applySignedInSession(session)
-                }
-            case .signedOut:
-                authState = .unauthenticated
-                currentUserId = nil
-                oauth.clearPendingAppleName()
-            case .tokenRefreshed:
-                if let session {
-                    currentUserId = session.user.id.uuidString
-                }
-            default:
-                break
-            }
-        }
-    }
-
-    private func applySignedInSession(_ session: Session) {
-        applyAuthenticatedUser(session.user.id.uuidString)
-        Task { await NotificationService.shared.requestPermissionAndRegister() }
-    }
-
-    @discardableResult
-    private func applyAuthenticatedUser(_ userId: String) -> String {
-        currentUserId = userId
-        authState = .authenticated(userId: userId)
-        return userId
+        Task { await observeAuthState() }
     }
 
     func signUp(email: String, password: String) async throws -> String {
-        authState = .authenticating
-        do {
-            let response = try await client.auth.signUp(
-                email: email,
-                password: password
-            )
-            return applyAuthenticatedUser(response.user.id.uuidString)
-        } catch {
-            authState = .error(error.localizedDescription)
-            throw mapAuthError(error)
+        try await authenticate {
+            try await self.client.auth.signUp(email: email, password: password).user.id.uuidString
         }
     }
 
     func signIn(email: String, password: String) async throws -> String {
-        authState = .authenticating
-        do {
-            let session = try await client.auth.signIn(
-                email: email,
-                password: password
-            )
-            return applyAuthenticatedUser(session.user.id.uuidString)
-        } catch {
-            authState = .error(error.localizedDescription)
-            throw mapAuthError(error)
+        try await authenticate {
+            try await self.client.auth.signIn(email: email, password: password).user.id.uuidString
         }
     }
 
     func signInWithApple() async throws -> String {
         let credentials = try await oauth.performAppleSignIn()
-
-        do {
-            let session = try await client.auth.signInWithIdToken(
+        return try await authenticate {
+            try await self.client.auth.signInWithIdToken(
                 credentials: OpenIDConnectCredentials(
                     provider: .apple,
-                    idToken: credentials.identityToken,
+                    idToken: credentials.idToken,
                     nonce: credentials.nonce
                 )
-            )
-            return applyAuthenticatedUser(session.user.id.uuidString)
-        } catch {
-            authState = .error(error.localizedDescription)
-            throw mapAuthError(error)
+            ).user.id.uuidString
         }
     }
 
@@ -111,35 +52,56 @@ final class AuthRepository {
                 provider: .google,
                 redirectTo: URL(string: "milesto://auth-callback")
             )
+        } catch let error as ASWebAuthenticationSessionError where error.code == .canceledLogin {
+            throw AuthError.cancelled
         } catch {
             authState = .error(error.localizedDescription)
-            throw mapAuthError(error)
+            throw AuthError(from: error)
         }
     }
 
     func signOut() async throws {
         await NotificationService.shared.unregisterCurrentToken()
         try await client.auth.signOut()
-        authState = .unauthenticated
-        currentUserId = nil
-        oauth.clearPendingAppleName()
+        clearSession()
     }
 
     func consumePendingAppleName() -> (firstName: String?, lastName: String?) {
         oauth.consumePendingAppleName()
     }
 
-    private func mapAuthError(_ error: Error) -> AuthError {
-        let errorString = error.localizedDescription.lowercased()
-        if errorString.contains("invalid") || errorString.contains("credentials") {
-            return .invalidCredentials
-        } else if errorString.contains("already") || errorString.contains("exists") || errorString.contains("registered") {
-            return .emailAlreadyInUse
-        } else if errorString.contains("weak") || errorString.contains("password") {
-            return .weakPassword
-        } else if errorString.contains("network") || errorString.contains("connection") {
-            return .networkError
+    private func authenticate(_ obtainUserId: () async throws -> String) async throws -> String {
+        authState = .authenticating
+        do {
+            let userId = try await obtainUserId()
+            authState = .authenticated(userId: userId)
+            return userId
+        } catch {
+            authState = .error(error.localizedDescription)
+            throw AuthError(from: error)
         }
-        return .unknown(error.localizedDescription)
+    }
+
+    private func clearSession() {
+        authState = .unauthenticated
+        oauth.clearPendingAppleName()
+    }
+
+    private func observeAuthState() async {
+        for await (event, session) in client.auth.authStateChanges {
+            switch event {
+            case .initialSession, .signedIn:
+                if let userId = session?.user.id.uuidString {
+                    authState = .authenticated(userId: userId)
+                    Task { await NotificationService.shared.requestPermissionAndRegister() }
+                } else if event == .initialSession {
+                    authState = .unauthenticated
+                }
+            case .signedOut:
+                clearSession()
+            default:
+                break
+            }
+        }
     }
 }

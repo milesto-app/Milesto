@@ -46,13 +46,13 @@ struct AuthView: View {
 
                 HStack(spacing: 16) {
                     Rectangle()
-                        .fill(Color.secondary.opacity(0.5))
+                        .fill(Color.secondary.opacity(0.9))
                         .frame(height: 0.5)
 
                     AppText("auth.welcome.or", table: "Auth", style: .caption)
 
                     Rectangle()
-                        .fill(Color.secondary.opacity(0.5))
+                        .fill(Color.secondary.opacity(0.9))
                         .frame(height: 0.5)
                 }
                 .padding(.horizontal, 16)
@@ -81,15 +81,18 @@ private struct AuthProviderButton: View {
 
     var body: some View {
         Button(action: action) {
-            if isLoading {
-                ProgressView()
-                    .tint(Color("TextPrimary"))
-            } else {
+            ZStack {
                 HStack(spacing: 12) {
                     logo
 
                     AppText(title, table: "Auth", style: .headline)
                         .weight(.semibold)
+                }
+                .opacity(isLoading ? 0 : 1)
+
+                if isLoading {
+                    ProgressView()
+                        .tint(Color("TextPrimary"))
                 }
             }
         }

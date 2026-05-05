@@ -71,6 +71,8 @@ struct AuthContainerView: View {
 
             do {
                 try await env.auth.signInWithGoogle()
+            } catch AuthError.cancelled {
+                loadingTarget = nil
             } catch {
                 loadingTarget = nil
                 present(error.localizedDescription)
