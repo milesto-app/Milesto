@@ -20,7 +20,7 @@ final class SupabaseAuthRepository: AuthRepository {
     }
 
     private func setupAuthStateListener() async {
-        for await(event, session) in client.auth.authStateChanges {
+        for await (event, session) in client.auth.authStateChanges {
             switch event {
             case .initialSession:
                 if let session {

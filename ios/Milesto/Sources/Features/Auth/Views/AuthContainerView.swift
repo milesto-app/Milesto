@@ -1,37 +1,31 @@
 import SwiftUI
 
 struct AuthContainerView: View {
+    @Environment(AppEnv.self) private var env
+
     @State private var model = AuthViewModel()
     @State private var emailModel = AuthEmailViewModel()
-
-    private enum AuthRoute: Hashable {
-        case emailAuth
-    }
-
-    @State private var path: [AuthRoute] = []
+    @State private var showEmailAuth = false
 
     var body: some View {
         @Bindable var bindable = model
         @Bindable var bindableEmail = emailModel
-        NavigationStack(path: $path) {
+        NavigationStack {
             AuthView(
                 onSignInWithApple: { Task { await model.signInWithApple() } },
                 onSignInWithGoogle: { Task { await model.signInWithGoogle() } },
-                onContinueWithEmail: { path.append(.emailAuth) },
+                onContinueWithEmail: { showEmailAuth = true },
                 isAppleLoading: model.isAppleLoading,
                 isGoogleLoading: model.isGoogleLoading
             )
-            .navigationDestination(for: AuthRoute.self) { route in
-                switch route {
-                case .emailAuth:
-                    AuthEmailView(
-                        email: $bindableEmail.email,
-                        password: $bindableEmail.password,
-                        isLoading: emailModel.isLoading,
-                        onSignUp: { Task { await emailModel.signUp() } },
-                        onSignIn: { Task { await emailModel.signIn() } }
-                    )
-                }
+            .navigationDestination(isPresented: $showEmailAuth) {
+                AuthEmailView(
+                    email: $bindableEmail.email,
+                    password: $bindableEmail.password,
+                    isLoading: emailModel.isLoading,
+                    onSignUp: { Task { await emailModel.signUp() } },
+                    onSignIn: { Task { await emailModel.signIn() } }
+                )
             }
         }
         .appBackground()
@@ -45,7 +39,7 @@ struct AuthContainerView: View {
         } message: {
             AppText(verbatim: emailModel.errorMessage ?? "", style: .body)
         }
-        .onChange(of: model.authState) { _, newState in
+        .onChange(of: env.auth.authState) { _, newState in
             model.handleAuthStateChange(newState)
         }
     }
