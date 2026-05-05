@@ -8,16 +8,12 @@ private let roadmapLogger = Logger(subsystem: Bundle.main.bundleIdentifier ?? "a
 final class SyncingRoadmapRepository: RoadmapSummaryRepository, WeeklyTaskRepository, WeeklyPlanRepository, DebriefRepository {
     private let remote: any RemoteRoadmapRepository
     private let goals: any GoalRepository
-    private let container: ModelContainer
+    private let context: ModelContext
 
-    init(remote: any RemoteRoadmapRepository, goals: any GoalRepository, container: ModelContainer) {
+    init(remote: any RemoteRoadmapRepository, goals: any GoalRepository, modelContext: ModelContext) {
         self.remote = remote
         self.goals = goals
-        self.container = container
-    }
-
-    private var context: ModelContext {
-        container.mainContext
+        context = modelContext
     }
 
     func loadRoadmapSnapshot(goalId: String) -> RoadmapSnapshot {

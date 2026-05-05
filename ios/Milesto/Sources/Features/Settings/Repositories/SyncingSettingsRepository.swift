@@ -12,20 +12,16 @@ enum SettingsRepositoryError: Error {
 final class SyncingSettingsRepository: SettingsRepository {
     private let profile: any ProfileRepository
     private let goals: any GoalRepository
-    private let container: ModelContainer
+    private let context: ModelContext
 
     init(
         profile: any ProfileRepository,
         goals: any GoalRepository,
-        container: ModelContainer
+        modelContext: ModelContext
     ) {
         self.profile = profile
         self.goals = goals
-        self.container = container
-    }
-
-    private var context: ModelContext {
-        container.mainContext
+        context = modelContext
     }
 
     func loadProfile(userId: String) -> ProfileSnapshot? {

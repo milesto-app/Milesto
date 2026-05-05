@@ -4,15 +4,11 @@ import SwiftData
 @MainActor
 final class SyncingGoalRepository: GoalRepository, GoalRoutingRepository {
     private let remote: any RemoteGoalRepository
-    private let container: ModelContainer
+    private let context: ModelContext
 
-    init(remote: any RemoteGoalRepository, container: ModelContainer) {
+    init(remote: any RemoteGoalRepository, modelContext: ModelContext) {
         self.remote = remote
-        self.container = container
-    }
-
-    private var context: ModelContext {
-        container.mainContext
+        context = modelContext
     }
 
     private func localGoals(userId: String) -> [LocalGoal] {

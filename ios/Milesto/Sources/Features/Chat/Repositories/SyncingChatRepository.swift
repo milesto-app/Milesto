@@ -4,15 +4,11 @@ import SwiftData
 @MainActor
 final class SyncingChatRepository: ChatRepository {
     private let remote: any RemoteChatRepository
-    private let container: ModelContainer
+    private let context: ModelContext
 
-    init(remote: any RemoteChatRepository, container: ModelContainer) {
+    init(remote: any RemoteChatRepository, modelContext: ModelContext) {
         self.remote = remote
-        self.container = container
-    }
-
-    private var context: ModelContext {
-        container.mainContext
+        context = modelContext
     }
 
     func loadConversations(goalId: String) -> [ConversationSummary] {

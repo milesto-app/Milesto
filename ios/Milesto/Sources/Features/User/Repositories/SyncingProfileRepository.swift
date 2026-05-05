@@ -5,20 +5,16 @@ import SwiftData
 final class SyncingProfileRepository: ProfileRepository {
     private let remote: SupabaseProfileRepository
     private let auth: any AuthRepository
-    private let container: ModelContainer
+    private let context: ModelContext
 
     init(
         remote: SupabaseProfileRepository,
         auth: any AuthRepository,
-        container: ModelContainer
+        modelContext: ModelContext
     ) {
         self.remote = remote
         self.auth = auth
-        self.container = container
-    }
-
-    private var context: ModelContext {
-        container.mainContext
+        context = modelContext
     }
 
     func updateProfile(_ fields: ProfileUpdateFields) async throws -> ProfileSnapshot {

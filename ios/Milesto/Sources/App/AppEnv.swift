@@ -24,17 +24,17 @@ final class AppEnv {
         let developerSettings = DeveloperSettings()
     #endif
 
-    init(container: ModelContainer) {
+    init(modelContext: ModelContext) {
         let oauth = OAuthClient()
         let authService = SupabaseAuthRepository(client: SupabaseConfig.client, oauth: oauth)
         let supabaseProfile = SupabaseProfileRepository()
         let syncingProfile = SyncingProfileRepository(
             remote: supabaseProfile,
             auth: authService,
-            container: container
+            modelContext: modelContext
         )
         let supabaseGoal = SupabaseGoalRepository(client: SupabaseConfig.client, api: .shared)
-        let goalRepo = SyncingGoalRepository(remote: supabaseGoal, container: container)
+        let goalRepo = SyncingGoalRepository(remote: supabaseGoal, modelContext: modelContext)
         let supabaseIntake = SupabaseIntakeRepository()
         let intakeFlowRepo = SyncingIntakeFlowRepository(
             goals: goalRepo
@@ -45,25 +45,26 @@ final class AppEnv {
         let settingsRepo = SyncingSettingsRepository(
             profile: syncingProfile,
             goals: goalRepo,
-            container: container
+            modelContext: modelContext
         )
         let roadmapRemote = SupabaseRoadmapRepository()
         let roadmapRepo = SyncingRoadmapRepository(
             remote: roadmapRemote,
             goals: goalRepo,
-            container: container
+            modelContext: modelContext
         )
         let remoteChat = SupabaseChatRepository()
         let chatRepo = SyncingChatRepository(
             remote: remoteChat,
-            container: container
+            modelContext: modelContext
         )
         let supabaseStats = SupabaseStatsRepository()
         let statsRepo = SyncingStatsRepository(
             remote: supabaseStats,
-            container: container
+            modelContext: modelContext
         )
         let subscriptionService = SyncingSubscriptionRepository()
+        let container = modelContext.container
         Task { await SubscriptionSyncOutbox.shared.configure(container: container) }
 
         auth = authService

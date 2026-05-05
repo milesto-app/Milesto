@@ -4,15 +4,11 @@ import SwiftData
 @MainActor
 final class SyncingStatsRepository: StatsRepository {
     private let remote: any RemoteStatsRepository
-    private let container: ModelContainer
+    private let context: ModelContext
 
-    init(remote: any RemoteStatsRepository, container: ModelContainer) {
+    init(remote: any RemoteStatsRepository, modelContext: ModelContext) {
         self.remote = remote
-        self.container = container
-    }
-
-    private var context: ModelContext {
-        container.mainContext
+        context = modelContext
     }
 
     func loadStats(goalId: String) -> StatsSnapshot? {
