@@ -143,7 +143,7 @@ struct WeeklyTaskDetailPage: View {
             table: "Roadmap",
             style: task.isCompleted ? .neutral : .primary
         ) {
-            withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
+            withAnimation(.spring(response: 0.42, dampingFraction: 0.78, blendDuration: 0.08)) {
                 performToggle()
             }
         }
