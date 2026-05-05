@@ -11,9 +11,9 @@ final class SupabaseAuthRepository: AuthRepository {
     private(set) var authState: AuthState = .authenticating
     private(set) var currentUserId: String?
 
-    init(client: SupabaseClient = SupabaseConfig.client, oauth: OAuthClient = OAuthClient()) {
-        self.client = client
-        self.oauth = oauth
+    init(client: SupabaseClient? = nil, oauth: OAuthClient? = nil) {
+        self.client = client ?? SupabaseConfig.client
+        self.oauth = oauth ?? OAuthClient()
         Task {
             await setupAuthStateListener()
         }

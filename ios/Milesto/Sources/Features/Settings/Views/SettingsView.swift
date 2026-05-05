@@ -3,7 +3,7 @@ import SwiftUI
 struct SettingsView: View {
     var onDeleteGoal: (() -> Void)?
 
-    @Environment(AppEnv.self) private var dependencies
+    @Environment(AppEnv.self) private var env
     @State private var model: SettingsViewModel?
     @State private var showSignOutAlert = false
     @State private var showDeleteGoalAlert = false
@@ -20,8 +20,8 @@ struct SettingsView: View {
         .task {
             if model == nil {
                 let vm = SettingsViewModel(
-                    repository: dependencies.settings,
-                    auth: dependencies.auth
+                    repository: env.settings,
+                    auth: env.auth
                 )
                 vm.loadLocalState()
                 model = vm

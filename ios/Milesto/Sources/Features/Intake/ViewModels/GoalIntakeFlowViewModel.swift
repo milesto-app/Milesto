@@ -9,7 +9,7 @@ enum GoalIntakeStep {
 @MainActor
 @Observable
 final class GoalIntakeFlowViewModel {
-    @ObservationIgnored private let repository: any IntakeFlowRepository
+    @ObservationIgnored private let repository: IntakeFlowRepository
 
     private(set) var step: GoalIntakeStep = .goalSetup
     var goalDescription = ""
@@ -19,7 +19,7 @@ final class GoalIntakeFlowViewModel {
     var showError = false
     private(set) var errorMessage = ""
 
-    init(repository: any IntakeFlowRepository) {
+    init(repository: IntakeFlowRepository) {
         self.repository = repository
     }
 

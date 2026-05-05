@@ -1,25 +1,25 @@
 import SwiftUI
 
 struct SubscriptionGateView<Content: View>: View {
-    @Environment(AppEnv.self) private var dependencies
+    @Environment(AppEnv.self) private var env
     @ViewBuilder let content: () -> Content
 
     var body: some View {
         subscriptionGate
             .appBackground()
-            .animation(.easeInOut(duration: 0.4), value: dependencies.subscription.entitlementState)
-            .animation(.easeInOut(duration: 0.4), value: dependencies.subscription.isReconcilingEntitlement)
+            .animation(.easeInOut(duration: 0.4), value: env.subscription.entitlementState)
+            .animation(.easeInOut(duration: 0.4), value: env.subscription.isReconcilingEntitlement)
             .task {
-                guard dependencies.subscription.entitlementState == .unknown ||
-                    dependencies.subscription.entitlementState == .connectionError
+                guard env.subscription.entitlementState == .unknown ||
+                    env.subscription.entitlementState == .connectionError
                 else { return }
-                await dependencies.subscription.reconcileWithApi()
+                await env.subscription.reconcileWithApi()
             }
     }
 
     private var subscriptionGate: some View {
         Group {
-            switch dependencies.subscription.entitlementState {
+            switch env.subscription.entitlementState {
             case .unknown:
                 Color("BackgroundBase").ignoresSafeArea()
             case .subscribed:
@@ -29,11 +29,11 @@ struct SubscriptionGateView<Content: View>: View {
                 PaywallView()
                     .transition(.opacity)
             case .connectionError:
-                if dependencies.subscription.isReconcilingEntitlement {
+                if env.subscription.isReconcilingEntitlement {
                     Color("BackgroundBase").ignoresSafeArea()
                 } else {
                     PaywallConnectionErrorView {
-                        await dependencies.subscription.reconcileWithApi()
+                        await env.subscription.reconcileWithApi()
                     }
                     .transition(.opacity)
                 }

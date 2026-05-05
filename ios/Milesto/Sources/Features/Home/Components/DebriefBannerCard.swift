@@ -3,7 +3,7 @@ import SwiftUI
 struct DebriefBannerCard: View {
     let goalId: String
 
-    @Environment(AppEnv.self) private var dependencies
+    @Environment(AppEnv.self) private var env
     @State private var model: DebriefBannerViewModel?
     @State private var showDebriefSheet = false
     @State private var showWeeklyPlanGeneration = false
@@ -19,7 +19,7 @@ struct DebriefBannerCard: View {
         }
         .task(id: goalId) {
             if model == nil {
-                let vm = DebriefBannerViewModel(repository: dependencies.roadmap)
+                let vm = DebriefBannerViewModel(repository: env.roadmap)
                 vm.configure(goalId: goalId)
                 model = vm
             }

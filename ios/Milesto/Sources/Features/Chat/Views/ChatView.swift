@@ -4,7 +4,7 @@ struct ChatView: View {
     let goalId: String
     var onClose: (() -> Void)?
 
-    @Environment(AppEnv.self) private var dependencies
+    @Environment(AppEnv.self) private var env
     @State private var model: ChatViewModel?
     @FocusState private var isInputFocused: Bool
     @State private var isSidebarOpen = false
@@ -19,7 +19,7 @@ struct ChatView: View {
         }
         .task {
             if model == nil {
-                let vm = ChatViewModel(repository: dependencies.chat)
+                let vm = ChatViewModel(repository: env.chat)
                 vm.configure(goalId: goalId)
                 model = vm
             }

@@ -3,7 +3,7 @@ import Foundation
 @MainActor
 @Observable
 final class ProfileOnboardingViewModel {
-    @ObservationIgnored private let repository: any OnboardingRepository
+    @ObservationIgnored private let repository: OnboardingRepository
     @ObservationIgnored private let userId: String
     @ObservationIgnored let missingSteps: [OnboardingStep]
     @ObservationIgnored private let existingProfile: ProfileSnapshot?
@@ -18,7 +18,7 @@ final class ProfileOnboardingViewModel {
     var showError = false
 
     init(
-        repository: any OnboardingRepository,
+        repository: OnboardingRepository,
         userId: String,
         missingSteps: [OnboardingStep],
         existingProfile: ProfileSnapshot?

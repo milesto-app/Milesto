@@ -5,7 +5,7 @@ struct GoalIntakeFlowView: View {
     let onClose: (() -> Void)?
     let onComplete: (String) -> Void
 
-    @Environment(AppEnv.self) private var dependencies
+    @Environment(AppEnv.self) private var env
     @State private var model: GoalIntakeFlowViewModel?
 
     var body: some View {
@@ -18,7 +18,7 @@ struct GoalIntakeFlowView: View {
         }
         .task {
             if model == nil {
-                let vm = GoalIntakeFlowViewModel(repository: dependencies.intakeFlow)
+                let vm = GoalIntakeFlowViewModel(repository: env.intakeFlow)
                 vm.startWithExistingGoalId(existingGoalId)
                 model = vm
             }

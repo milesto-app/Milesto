@@ -53,7 +53,7 @@ final class LocalProfile {
     }
 }
 
-struct RemoteProfile: Codable {
+struct ProfileDTO: Codable {
     let userId: String
     let firstName: String?
     let lastName: String?
@@ -135,7 +135,7 @@ struct ProfileSnapshot {
 }
 
 extension LocalProfile {
-    convenience init(remote: RemoteProfile?, userId: String, email: String?, avatarURL: String?, avatarData: Data?) {
+    convenience init(remote: ProfileDTO?, userId: String, email: String?, avatarURL: String?, avatarData: Data?) {
         self.init(
             userId: userId,
             firstName: remote?.firstName,
@@ -150,7 +150,7 @@ extension LocalProfile {
         )
     }
 
-    func update(remote: RemoteProfile?, email: String?, avatarURL: String?, avatarData: Data?) {
+    func update(remote: ProfileDTO?, email: String?, avatarURL: String?, avatarData: Data?) {
         firstName = remote?.firstName
         lastName = remote?.lastName
         self.email = email

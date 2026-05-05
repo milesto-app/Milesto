@@ -4,28 +4,28 @@ import SwiftData
 @Observable
 final class AppEnv {
     let auth: SupabaseAuthRepository
-    let subscription: SyncingSubscriptionRepository
-    let profile: SyncingProfileRepository
-    let goals: SyncingGoalRepository
-    let intake: SupabaseIntakeRepository
-    let intakeFlow: SyncingIntakeFlowRepository
-    let onboarding: SyncingOnboardingRepository
-    let settings: SyncingSettingsRepository
-    let roadmap: SyncingRoadmapRepository
-    let chat: SyncingChatRepository
-    let stats: SyncingStatsRepository
+    let subscription: SubscriptionRepository
+    let profile: ProfileRepository
+    let goals: GoalRepository
+    let intake: IntakeRemote
+    let intakeFlow: IntakeFlowRepository
+    let onboarding: OnboardingRepository
+    let settings: SettingsRepository
+    let roadmap: RoadmapRepository
+    let chat: ChatRepository
+    let stats: StatsRepository
 
     init(modelContext: ModelContext) {
         auth = SupabaseAuthRepository()
-        subscription = SyncingSubscriptionRepository(modelContext: modelContext)
-        profile = SyncingProfileRepository(modelContext: modelContext, auth: auth)
-        goals = SyncingGoalRepository(modelContext: modelContext)
-        intake = SupabaseIntakeRepository()
-        intakeFlow = SyncingIntakeFlowRepository(modelContext: modelContext)
-        onboarding = SyncingOnboardingRepository(modelContext: modelContext, auth: auth)
-        settings = SyncingSettingsRepository(modelContext: modelContext, auth: auth)
-        roadmap = SyncingRoadmapRepository(modelContext: modelContext)
-        chat = SyncingChatRepository(modelContext: modelContext)
-        stats = SyncingStatsRepository(modelContext: modelContext)
+        subscription = SubscriptionRepository(modelContext: modelContext)
+        profile = ProfileRepository(modelContext: modelContext, auth: auth)
+        goals = GoalRepository(modelContext: modelContext)
+        intake = IntakeRemote()
+        intakeFlow = IntakeFlowRepository(modelContext: modelContext)
+        onboarding = OnboardingRepository(modelContext: modelContext, auth: auth)
+        settings = SettingsRepository(modelContext: modelContext, auth: auth)
+        roadmap = RoadmapRepository(modelContext: modelContext)
+        chat = ChatRepository(modelContext: modelContext)
+        stats = StatsRepository(modelContext: modelContext)
     }
 }

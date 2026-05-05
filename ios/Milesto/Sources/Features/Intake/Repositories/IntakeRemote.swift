@@ -11,7 +11,7 @@ struct RetryProfileResponse: Codable {
 }
 
 @MainActor
-final class SupabaseIntakeRepository: IntakeRepository {
+final class IntakeRemote {
     init() {}
 
     func getNextBatch(goalId: String) async throws -> IntakeBatch {

@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct AuthContainerView: View {
-    @Environment(AppEnv.self) private var dependencies
+    @Environment(AppEnv.self) private var env
     @State private var model: AuthViewModel?
 
     private enum AuthRoute: Hashable {
@@ -20,7 +20,7 @@ struct AuthContainerView: View {
         }
         .task {
             if model == nil {
-                model = AuthViewModel(auth: dependencies.auth)
+                model = AuthViewModel(auth: env.auth)
             }
         }
     }

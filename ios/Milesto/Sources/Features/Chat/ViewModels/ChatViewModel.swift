@@ -3,7 +3,7 @@ import Foundation
 @MainActor
 @Observable
 final class ChatViewModel {
-    @ObservationIgnored private let repository: any ChatRepository
+    @ObservationIgnored private let repository: ChatRepository
 
     private(set) var messages: [ChatMessage] = []
     var inputText = ""
@@ -19,7 +19,7 @@ final class ChatViewModel {
 
     private(set) var goalId: String = ""
 
-    init(repository: any ChatRepository) {
+    init(repository: ChatRepository) {
         self.repository = repository
     }
 

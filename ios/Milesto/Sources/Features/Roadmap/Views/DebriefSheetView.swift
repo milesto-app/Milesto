@@ -6,7 +6,7 @@ struct DebriefSheetView: View {
     let onDebriefComplete: () -> Void
 
     @Environment(\.dismiss) private var dismiss
-    @Environment(AppEnv.self) private var dependencies
+    @Environment(AppEnv.self) private var env
     @State private var model: DebriefSheetViewModel?
 
     var body: some View {
@@ -20,7 +20,7 @@ struct DebriefSheetView: View {
         .task {
             if model == nil {
                 model = DebriefSheetViewModel(
-                    repository: dependencies.roadmap,
+                    repository: env.roadmap,
                     goalId: goalId,
                     weeklyPlanId: weeklyPlanId
                 )

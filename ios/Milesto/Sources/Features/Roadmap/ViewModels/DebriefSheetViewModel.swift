@@ -3,7 +3,7 @@ import Foundation
 @MainActor
 @Observable
 final class DebriefSheetViewModel {
-    @ObservationIgnored private let repository: any DebriefRepository
+    @ObservationIgnored private let repository: RoadmapRepository
     @ObservationIgnored private let goalId: String
     @ObservationIgnored private let weeklyPlanId: String
 
@@ -11,7 +11,7 @@ final class DebriefSheetViewModel {
     private(set) var isSubmitting = false
     private(set) var errorMessage: String?
 
-    init(repository: any DebriefRepository, goalId: String, weeklyPlanId: String) {
+    init(repository: RoadmapRepository, goalId: String, weeklyPlanId: String) {
         self.repository = repository
         self.goalId = goalId
         self.weeklyPlanId = weeklyPlanId

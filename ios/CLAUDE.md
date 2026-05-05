@@ -4,6 +4,17 @@
 
 Never run xcodebuild or other build/run commands. The user handles all builds through the Xcode UI.
 
+## Architecture
+
+Follow the Learning demo architecture, adapted for Milesto's larger app:
+
+- Keep source code under `Milesto/Sources/`.
+- Use `Sources/App`, `Sources/Features`, and `Sources/Shared` as the top-level app structure.
+- `AppEnv` is the single environment-injected dependency container. Views should read it with `@Environment(AppEnv.self) private var env`.
+- Feature code stays feature-local under `Models/`, `Repositories/`, `ViewModels/`, `Views/`, and `Components/` when a larger screen benefits from feature-specific subviews.
+- Prefer SwiftData local models paired with DTOs and repository facades. Name local-plus-sync facades `*Repository`, remote data sources `*Remote`, and wire models `*DTO`.
+- Use `Shared/Sync/` for Learning-style local/remote synchronization. Features with SwiftData mirrors should prefer a local model conforming to `Syncable`, a wire model conforming to `SyncableDTO`, a `*Remote` conforming to `SyncableRemote`, and a `*Repository` that owns a `SyncEngine`.
+
 ## Components
 
 **Before making any frontend/UI changes, always check `Shared/Components/` and feature-specific `Components/` folders for existing reusable components.** Use existing components instead of creating new ones or using raw SwiftUI views.
@@ -128,7 +139,7 @@ var title: String {
 
 ## Code Style
 
-- Do not write comments in code
-- Do not add file headers (the `//  FileName.swift` blocks at the top of files)
 - Keep code self-documenting through clear naming
+- Learning-style Xcode file headers are allowed.
+- Do not write explanatory comments in code unless they clarify non-obvious behavior.
 - Do not use glow effects unless explicitly requested

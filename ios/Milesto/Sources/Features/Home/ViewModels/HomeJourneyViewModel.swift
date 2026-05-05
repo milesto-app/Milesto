@@ -3,14 +3,14 @@ import Foundation
 @MainActor
 @Observable
 final class HomeJourneyViewModel {
-    @ObservationIgnored private let repository: any RoadmapSummaryRepository
+    @ObservationIgnored private let repository: RoadmapRepository
     @ObservationIgnored private var goalId: String = ""
 
     private(set) var goalTitle: String = ""
     private(set) var goalDeadlineText: String?
     private(set) var completionProgress: Double = 0
 
-    init(repository: any RoadmapSummaryRepository) {
+    init(repository: RoadmapRepository) {
         self.repository = repository
     }
 

@@ -3,8 +3,7 @@ import Foundation
 @MainActor
 @Observable
 final class WeeklyTasksViewModel {
-    @ObservationIgnored private let repository: any WeeklyTaskRepository
-    @ObservationIgnored private let planRepository: any WeeklyPlanRepository
+    @ObservationIgnored private let repository: RoadmapRepository
     @ObservationIgnored private var goalId: String = ""
 
     private(set) var tasks: [WeeklyTask] = []
@@ -12,9 +11,8 @@ final class WeeklyTasksViewModel {
     private(set) var isLoading = true
     private(set) var hasError = false
 
-    init(repository: any WeeklyTaskRepository, planRepository: any WeeklyPlanRepository) {
+    init(repository: RoadmapRepository) {
         self.repository = repository
-        self.planRepository = planRepository
     }
 
     var sortedTasks: [WeeklyTask] {
@@ -28,7 +26,7 @@ final class WeeklyTasksViewModel {
             tasks = localTasks
             isLoading = false
         }
-        weekNumber = planRepository.loadWeeklyPlan(goalId: goalId)?.weekNumber
+        weekNumber = repository.loadWeeklyPlan(goalId: goalId)?.weekNumber
     }
 
     func refresh() async {
@@ -39,7 +37,7 @@ final class WeeklyTasksViewModel {
         } catch {
             if tasks.isEmpty { hasError = true }
         }
-        if let plan = await planRepository.refreshWeeklyPlan(goalId: goalId) {
+        if let plan = await repository.refreshWeeklyPlan(goalId: goalId) {
             weekNumber = plan.weekNumber
         }
     }

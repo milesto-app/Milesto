@@ -3,14 +3,14 @@ import Foundation
 @MainActor
 @Observable
 final class StatsViewModel {
-    @ObservationIgnored private let repository: any StatsRepository
+    @ObservationIgnored private let repository: StatsRepository
 
     private(set) var stats: StatsSnapshot?
     private(set) var isLoading = true
     private(set) var hasAppeared = false
     private(set) var loadError: Error?
 
-    init(repository: any StatsRepository) {
+    init(repository: StatsRepository) {
         self.repository = repository
     }
 

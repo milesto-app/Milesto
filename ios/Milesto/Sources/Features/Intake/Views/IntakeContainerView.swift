@@ -4,7 +4,7 @@ struct IntakeContainerView: View {
     let goalId: String
     let onComplete: () -> Void
 
-    @Environment(AppEnv.self) private var dependencies
+    @Environment(AppEnv.self) private var env
     @State private var model: IntakeContainerViewModel?
 
     var body: some View {
@@ -18,7 +18,7 @@ struct IntakeContainerView: View {
         .appBackground()
         .task {
             if model == nil {
-                let vm = IntakeContainerViewModel(intake: dependencies.intake)
+                let vm = IntakeContainerViewModel(intake: env.intake)
                 vm.configure(goalId: goalId)
                 model = vm
             }

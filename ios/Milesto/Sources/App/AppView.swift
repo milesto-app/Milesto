@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct AppView: View {
-    @Environment(AppEnv.self) private var dependencies
+    @Environment(AppEnv.self) private var env
 
     @State private var routing: AppViewModel?
     @State private var selectedTab = 0
@@ -10,7 +10,7 @@ struct AppView: View {
 
     var body: some View {
         Group {
-            switch dependencies.auth.authState {
+            switch env.auth.authState {
             case .unauthenticated, .error:
                 AuthContainerView()
             case .authenticating:
@@ -23,9 +23,9 @@ struct AppView: View {
         .onAppear {
             if routing == nil {
                 routing = AppViewModel(
-                    profile: dependencies.profile,
-                    goals: dependencies.goals,
-                    roadmap: dependencies.roadmap
+                    profile: env.profile,
+                    goals: env.goals,
+                    roadmap: env.roadmap
                 )
             }
         }
