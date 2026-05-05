@@ -33,6 +33,22 @@ export class DebriefService {
     return this.insertDebrief(goalId, userId, today, dto);
   }
 
+  public async getHistory(goalId: string, userId: string): Promise<Debrief[]> {
+    await this.validateGoalExists(goalId, userId);
+    const supabase = this.supabaseService.getAdminClient();
+    const { data, error } = await supabase
+      .from("debriefs")
+      .select("*")
+      .eq("goal_id", goalId)
+      .eq("user_id", userId)
+      .order("date", { ascending: false });
+    if (error) {
+      this.logger.error(`Failed to fetch debrief history: ${error.message}`);
+      throw new InternalServerErrorException("Failed to fetch debrief history");
+    }
+    return data as unknown as Debrief[];
+  }
+
   private async validateWeeklyPlan(
     goalId: string,
     userId: string,
