@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct PaywallView: View {
-    @Environment(AppDependencies.self) private var dependencies
+    @Environment(AppEnv.self) private var env
     @State private var model: PaywallViewModel?
     @State private var heroVisible = false
     @State private var featuresVisible = false
@@ -21,7 +21,7 @@ struct PaywallView: View {
         }
         .task {
             if model == nil {
-                model = PaywallViewModel(subscription: dependencies.subscription)
+                model = PaywallViewModel(subscription: env.subscription)
             }
             await model?.loadPlans()
             startEntryAnimation()

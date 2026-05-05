@@ -1,62 +1,117 @@
 import SwiftUI
 
+private enum AuthLoadingTarget: Equatable {
+    case apple
+    case google
+    case email
+}
+
+private enum AuthEmailAction {
+    case signUp
+    case signIn
+}
+
 struct AuthContainerView: View {
-    @Environment(AppDependencies.self) private var dependencies
-    @State private var model: AuthViewModel?
+    @Environment(AppEnv.self) private var env
 
-    private enum AuthRoute: Hashable {
-        case emailAuth
-    }
-
-    @State private var path: [AuthRoute] = []
+    @State private var showEmailAuth = false
+    @State private var loadingTarget: AuthLoadingTarget?
+    @State private var email = ""
+    @State private var password = ""
+    @State private var errorMessage: String?
+    @State private var showErrorAlert = false
 
     var body: some View {
-        Group {
-            if let model {
-                content(model: model)
-            } else {
-                Color("BackgroundBase").ignoresSafeArea()
-            }
-        }
-        .task {
-            if model == nil {
-                model = AuthViewModel(auth: dependencies.authRepository)
-            }
-        }
-    }
-
-    @ViewBuilder
-    private func content(model: AuthViewModel) -> some View {
-        @Bindable var bindable = model
-        NavigationStack(path: $path) {
+        NavigationStack {
             AuthView(
-                onSignInWithApple: { Task { await model.signInWithApple() } },
-                onSignInWithGoogle: { Task { await model.signInWithGoogle() } },
-                onContinueWithEmail: { path.append(.emailAuth) },
-                isAppleLoading: model.isAppleLoading,
-                isGoogleLoading: model.isGoogleLoading
+                onSignInWithApple: signInWithApple,
+                onSignInWithGoogle: signInWithGoogle,
+                onContinueWithEmail: { showEmailAuth = true },
+                isAppleLoading: loadingTarget == .apple,
+                isGoogleLoading: loadingTarget == .google
             )
-            .navigationDestination(for: AuthRoute.self) { route in
-                switch route {
-                case .emailAuth:
-                    AuthEmailView(
-                        email: $bindable.email,
-                        password: $bindable.password,
-                        isLoading: model.isLoading,
-                        onSignUp: { Task { await model.signUp() } },
-                        onSignIn: { Task { await model.signIn() } }
-                    )
-                }
+            .navigationDestination(isPresented: $showEmailAuth) {
+                AuthEmailView(
+                    email: $email,
+                    password: $password,
+                    isLoading: loadingTarget == .email,
+                    onSignUp: { authenticateWithEmail(.signUp) },
+                    onSignIn: { authenticateWithEmail(.signIn) }
+                )
             }
         }
         .appBackground()
-        .alert(String(localized: "auth.error.title", table: "Auth"), isPresented: $bindable.showErrorAlert) {
+        .alert(String(localized: "auth.error.title", table: "Auth"), isPresented: $showErrorAlert) {
             Button(String(localized: "common.ok", table: "Common"), role: .cancel) {}
         } message: {
-            AppText(verbatim: model.errorMessage ?? "", style: .body)
+            AppText(verbatim: errorMessage ?? "", style: .body)
         }
-        .onChange(of: model.authState) { _, newState in
-            model.handleAuthStateChange(newState)
+        .onChange(of: env.auth.authState) { _, newState in
+            handleAuthStateChange(newState)
         }
+    }
+
+    private func signInWithApple() {
+        Task {
+            loadingTarget = .apple
+            defer { loadingTarget = nil }
+
+            do {
+                _ = try await env.auth.signInWithApple()
+            } catch AuthError.cancelled {
+            } catch {
+                present(error.localizedDescription)
+            }
+        }
+    }
+
+    private func signInWithGoogle() {
+        Task {
+            loadingTarget = .google
+
+            do {
+                try await env.auth.signInWithGoogle()
+            } catch AuthError.cancelled {
+                loadingTarget = nil
+            } catch {
+                loadingTarget = nil
+                present(error.localizedDescription)
+            }
+        }
+    }
+
+    private func authenticateWithEmail(_ action: AuthEmailAction) {
+        Task {
+            loadingTarget = .email
+            defer { loadingTarget = nil }
+
+            do {
+                switch action {
+                case .signUp:
+                    _ = try await env.auth.signUp(email: email, password: password)
+                case .signIn:
+                    _ = try await env.auth.signIn(email: email, password: password)
+                }
+            } catch {
+                present(error.localizedDescription)
+            }
+        }
+    }
+
+    private func handleAuthStateChange(_ state: AuthState) {
+        switch state {
+        case .authenticated:
+            loadingTarget = nil
+        case let .error(message) where loadingTarget == .google:
+            loadingTarget = nil
+            present(message)
+        default:
+            break
+        }
+    }
+
+    private func present(_ message: String) {
+        errorMessage = message
+        showErrorAlert = true
     }
 }

@@ -1,11 +1,12 @@
 import Foundation
+import SwiftData
 
 @MainActor
-final class SyncingIntakeFlowRepository: IntakeFlowRepository {
-    private let goals: any GoalRepository
+final class IntakeFlowRepository {
+    private let goals: GoalRepository
 
-    init(goals: any GoalRepository) {
-        self.goals = goals
+    init(modelContext: ModelContext) {
+        goals = GoalRepository(modelContext: modelContext)
     }
 
     func createGoal(description: String) async throws -> GoalSnapshot {

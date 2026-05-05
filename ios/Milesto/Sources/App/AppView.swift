@@ -1,16 +1,16 @@
 import SwiftUI
 
-struct RootView: View {
-    @Environment(AppDependencies.self) private var dependencies
+struct AppView: View {
+    @Environment(AppEnv.self) private var env
 
-    @State private var routing: RootViewModel?
+    @State private var routing: AppViewModel?
     @State private var selectedTab = 0
     @State private var isChatPresented = false
     @State private var retryId = 0
 
     var body: some View {
         Group {
-            switch dependencies.auth.authState {
+            switch env.auth.authState {
             case .unauthenticated, .error:
                 AuthContainerView()
             case .authenticating:
@@ -22,68 +22,29 @@ struct RootView: View {
         .appBackground()
         .onAppear {
             if routing == nil {
-                routing = RootViewModel(
-                    profile: dependencies.profile,
-                    goals: dependencies.goalRouting,
-                    roadmap: dependencies.roadmap
+                routing = AppViewModel(
+                    profile: env.profile,
+                    goals: env.goals,
+                    roadmap: env.roadmap
                 )
             }
         }
-        #if DEBUG
-        .showsDeveloperRouteMenuOnShake(dependencies.developerSettings)
-        #endif
     }
 
     @ViewBuilder
     private func authenticatedBody(userId: String) -> some View {
         if let routing {
-            Group {
-                #if DEBUG
-                    switch dependencies.developerSettings.routeOverride {
-                    case .profileOnboarding:
-                        ProfileOnboardingView(
-                            userId: userId,
-                            missingSteps: [.name, .birthdate, .coach],
-                            existingProfile: routing.localProfile,
-                            onComplete: {
-                                dependencies.developerSettings.clearRouteOverride()
-                            }
-                        )
-                        .transition(.opacity)
-                    case .goalIntake:
-                        GoalIntakeFlowView(
-                            existingGoalId: nil,
-                            onClose: {
-                                dependencies.developerSettings.clearRouteOverride()
-                            },
-                            onComplete: { goalId in
-                                routing.activeGoalId = goalId
-                                dependencies.developerSettings.clearRouteOverride()
-                            }
-                        )
-                        .transition(.opacity)
-                    case .roadmapGeneration:
-                        RoadmapGenerationView(goalId: routing.activeGoalId ?? "") {
-                            dependencies.developerSettings.clearRouteOverride()
-                        }
-                        .transition(.opacity)
-                    case .paywall, .none:
-                        standardAuthenticatedBody(userId: userId, routing: routing)
-                    }
-                #else
-                    standardAuthenticatedBody(userId: userId, routing: routing)
-                #endif
-            }
-            .task(id: retryId) {
-                guard !routing.hasSynced else { return }
-                await routing.sync(userId: userId)
-            }
+            standardAuthenticatedBody(userId: userId, routing: routing)
+                .task(id: retryId) {
+                    guard !routing.hasSynced else { return }
+                    await routing.sync(userId: userId)
+                }
         } else {
             Color("BackgroundBase").ignoresSafeArea()
         }
     }
 
-    private func standardAuthenticatedBody(userId: String, routing: RootViewModel) -> some View {
+    private func standardAuthenticatedBody(userId: String, routing: AppViewModel) -> some View {
         Group {
             if routing.profileComplete {
                 SubscriptionGateView {
@@ -125,7 +86,7 @@ struct RootView: View {
         }
     }
 
-    private func postProfileFlow(routing: RootViewModel) -> some View {
+    private func postProfileFlow(routing: AppViewModel) -> some View {
         Group {
             if routing.goalComplete && routing.roadmapReady {
                 mainAppContent(routing: routing)
@@ -152,7 +113,7 @@ struct RootView: View {
         .animation(.easeInOut(duration: 0.4), value: routing.roadmapReady)
     }
 
-    private func mainAppContent(routing: RootViewModel) -> some View {
+    private func mainAppContent(routing: AppViewModel) -> some View {
         TabView(selection: $selectedTab) {
             Tab(value: 0) {
                 HomeView(goalId: routing.activeGoalId ?? "")

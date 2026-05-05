@@ -3,7 +3,7 @@ import SwiftUI
 struct HomeJourneyCard: View {
     let goalId: String
 
-    @Environment(AppDependencies.self) private var dependencies
+    @Environment(AppEnv.self) private var env
     @State private var model: HomeJourneyViewModel?
 
     var body: some View {
@@ -12,7 +12,7 @@ struct HomeJourneyCard: View {
             .padding(.top, 32)
             .task(id: goalId) {
                 if model == nil {
-                    let vm = HomeJourneyViewModel(repository: dependencies.roadmap)
+                    let vm = HomeJourneyViewModel(repository: env.roadmap)
                     vm.configure(goalId: goalId)
                     model = vm
                 }

@@ -4,116 +4,105 @@ import Foundation
 
 @MainActor
 final class OAuthClient: NSObject {
-    private(set) var pendingAppleFirstName: String?
-    private(set) var pendingAppleLastName: String?
-
-    override init() {
-        super.init()
+    struct AppleCredentials {
+        let idToken: String
+        let nonce: String
     }
 
-    func performAppleSignIn() async throws -> (identityToken: String, nonce: String) {
-        let nonce = try randomNonceString()
-        let hashedNonce = sha256(nonce)
+    private(set) var pendingAppleName: (first: String?, last: String?)?
+    private var continuation: CheckedContinuation<ASAuthorization, Error>?
 
-        let provider = ASAuthorizationAppleIDProvider()
-        let request = provider.createRequest()
+    func performAppleSignIn() async throws -> AppleCredentials {
+        let nonce = try Self.randomNonce()
+        let request = ASAuthorizationAppleIDProvider().createRequest()
         request.requestedScopes = [.fullName, .email]
-        request.nonce = hashedNonce
+        request.nonce = Self.sha256(nonce)
 
-        let result: ASAuthorization
+        let authorization: ASAuthorization
         do {
-            result = try await performAppleRequest(request: request)
-        } catch let error as ASAuthorizationError where error.code == .canceled {
+            authorization = try await withCheckedThrowingContinuation { cont in
+                self.continuation = cont
+                let controller = ASAuthorizationController(authorizationRequests: [request])
+                controller.delegate = self
+                controller.presentationContextProvider = self
+                controller.performRequests()
+            }
+        } catch let error as ASAuthorizationError where error.code == .canceled || error.code == .unknown {
             throw AuthError.cancelled
         }
 
-        guard let appleIDCredential = result.credential as? ASAuthorizationAppleIDCredential,
-              let identityTokenData = appleIDCredential.identityToken,
-              let identityToken = String(data: identityTokenData, encoding: .utf8)
-        else {
-            throw AuthError.unknown("Failed to get Apple ID token")
-        }
+        guard let credential = authorization.credential as? ASAuthorizationAppleIDCredential,
+              let tokenData = credential.identityToken,
+              let idToken = String(data: tokenData, encoding: .utf8)
+        else { throw AuthError.unknown("Failed to get Apple ID token") }
 
-        let givenName = appleIDCredential.fullName?.givenName?.trimmingCharacters(in: .whitespaces)
-        let familyName = appleIDCredential.fullName?.familyName?.trimmingCharacters(in: .whitespaces)
-        pendingAppleFirstName = (givenName?.isEmpty == false) ? givenName : nil
-        pendingAppleLastName = (familyName?.isEmpty == false) ? familyName : nil
-
-        return (identityToken, nonce)
+        pendingAppleName = (
+            credential.fullName?.givenName?.trimmedNonEmpty,
+            credential.fullName?.familyName?.trimmedNonEmpty
+        )
+        return AppleCredentials(idToken: idToken, nonce: nonce)
     }
 
     func consumePendingAppleName() -> (firstName: String?, lastName: String?) {
-        let name = (pendingAppleFirstName, pendingAppleLastName)
-        pendingAppleFirstName = nil
-        pendingAppleLastName = nil
-        return name
+        defer { pendingAppleName = nil }
+        return (firstName: pendingAppleName?.first, lastName: pendingAppleName?.last)
     }
 
     func clearPendingAppleName() {
-        pendingAppleFirstName = nil
-        pendingAppleLastName = nil
+        pendingAppleName = nil
     }
 
-    private func performAppleRequest(request: ASAuthorizationAppleIDRequest) async throws -> ASAuthorization {
-        try await withCheckedThrowingContinuation { continuation in
-            let controller = ASAuthorizationController(authorizationRequests: [request])
-            let delegate = AppleSignInDelegate(continuation: continuation)
-            controller.delegate = delegate
-            controller.presentationContextProvider = self
-            objc_setAssociatedObject(controller, "delegate", delegate, .OBJC_ASSOCIATION_RETAIN)
-            controller.performRequests()
+    private static func randomNonce(length: Int = 32) throws -> String {
+        var bytes = [UInt8](repeating: 0, count: length)
+        guard SecRandomCopyBytes(kSecRandomDefault, length, &bytes) == errSecSuccess
+        else { throw AuthError.unknown("Unable to generate nonce") }
+        let charset = Array("0123456789ABCDEFGHIJKLMNOPQRSTUVXYZabcdefghijklmnopqrstuvwxyz-._")
+        return String(bytes.map { charset[Int($0) % charset.count] })
+    }
+
+    private static func sha256(_ input: String) -> String {
+        SHA256.hash(data: Data(input.utf8)).map { String(format: "%02x", $0) }.joined()
+    }
+}
+
+extension OAuthClient: ASAuthorizationControllerDelegate {
+    nonisolated func authorizationController(
+        controller _: ASAuthorizationController,
+        didCompleteWithAuthorization authorization: ASAuthorization
+    ) {
+        Task { @MainActor in
+            self.continuation?.resume(returning: authorization)
+            self.continuation = nil
         }
     }
 
-    private func randomNonceString(length: Int = 32) throws -> String {
-        precondition(length > 0)
-        var randomBytes = [UInt8](repeating: 0, count: length)
-        let errorCode = SecRandomCopyBytes(kSecRandomDefault, randomBytes.count, &randomBytes)
-        guard errorCode == errSecSuccess else {
-            throw AuthError.unknown("Unable to generate nonce")
+    nonisolated func authorizationController(
+        controller _: ASAuthorizationController,
+        didCompleteWithError error: Error
+    ) {
+        Task { @MainActor in
+            self.continuation?.resume(throwing: error)
+            self.continuation = nil
         }
-        let charset: [Character] = Array("0123456789ABCDEFGHIJKLMNOPQRSTUVXYZabcdefghijklmnopqrstuvwxyz-._")
-        let nonce = randomBytes.map { byte in
-            charset[Int(byte) % charset.count]
-        }
-        return String(nonce)
-    }
-
-    private func sha256(_ input: String) -> String {
-        let inputData = Data(input.utf8)
-        let hashedData = SHA256.hash(data: inputData)
-        return hashedData.compactMap { String(format: "%02x", $0) }.joined()
     }
 }
 
 extension OAuthClient: ASAuthorizationControllerPresentationContextProviding {
     nonisolated func presentationAnchor(for _: ASAuthorizationController) -> ASPresentationAnchor {
-        DispatchQueue.main.sync {
-            let scenes = UIApplication.shared.connectedScenes
-            guard let windowScene = scenes.first(where: { $0.activationState == .foregroundActive }) as? UIWindowScene
-                ?? scenes.first as? UIWindowScene
-            else {
-                preconditionFailure("ASAuthorizationController requires an active UIWindowScene")
-            }
-            return windowScene.windows.first(where: \.isKeyWindow)
-                ?? windowScene.windows.first
-                ?? UIWindow(windowScene: windowScene)
+        MainActor.assumeIsolated {
+            let scenes = UIApplication.shared.connectedScenes.compactMap { $0 as? UIWindowScene }
+            guard let scene = scenes.first(where: { $0.activationState == .foregroundActive }) ?? scenes.first
+            else { preconditionFailure("ASAuthorizationController requires an active UIWindowScene") }
+            return scene.windows.first(where: \.isKeyWindow)
+                ?? scene.windows.first
+                ?? UIWindow(windowScene: scene)
         }
     }
 }
 
-private class AppleSignInDelegate: NSObject, ASAuthorizationControllerDelegate {
-    private let continuation: CheckedContinuation<ASAuthorization, Error>
-
-    init(continuation: CheckedContinuation<ASAuthorization, Error>) {
-        self.continuation = continuation
-    }
-
-    func authorizationController(controller _: ASAuthorizationController, didCompleteWithAuthorization authorization: ASAuthorization) {
-        continuation.resume(returning: authorization)
-    }
-
-    func authorizationController(controller _: ASAuthorizationController, didCompleteWithError error: Error) {
-        continuation.resume(throwing: error)
+private extension String {
+    var trimmedNonEmpty: String? {
+        let trimmed = trimmingCharacters(in: .whitespaces)
+        return trimmed.isEmpty ? nil : trimmed
     }
 }

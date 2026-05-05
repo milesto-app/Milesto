@@ -2,10 +2,10 @@ import Foundation
 import Supabase
 
 @MainActor
-final class SupabaseStatsRepository: RemoteStatsRepository {
+final class StatsRemote {
     init() {}
 
-    func getStats(goalId: String) async throws -> RemoteStats {
+    func fetchStats(goalId: String) async throws -> StatsDTO {
         async let tasksResult = fetchTasks(goalId: goalId)
         async let weeklyPlansResult = fetchWeeklyPlans(goalId: goalId)
         async let milestonesResult = fetchMilestones(goalId: goalId)
@@ -19,7 +19,9 @@ final class SupabaseStatsRepository: RemoteStatsRepository {
         let weeklyProgress = computeWeeklyProgress(weeklyPlans: weeklyPlans, tasks: tasks)
         let milestoneProgress = computeMilestones(milestones: milestones, weeklyPlans: weeklyPlans)
 
-        return RemoteStats(
+        return StatsDTO(
+            goalId: goalId,
+            updatedAt: Date(),
             streak: streak,
             completion: completion,
             weeklyProgress: weeklyProgress,
@@ -28,7 +30,7 @@ final class SupabaseStatsRepository: RemoteStatsRepository {
     }
 }
 
-private extension SupabaseStatsRepository {
+private extension StatsRemote {
     struct TaskRow: Decodable {
         let isCompleted: Bool
         let weeklyPlanId: String
@@ -88,7 +90,7 @@ private extension SupabaseStatsRepository {
             .value
     }
 
-    func computeStreak(tasks: [TaskRow]) -> RemoteStreakStats {
+    func computeStreak(tasks: [TaskRow]) -> StreakStatsDTO {
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "yyyy-MM-dd"
         dateFormatter.timeZone = .current
@@ -112,13 +114,13 @@ private extension SupabaseStatsRepository {
             acc[day, default: 0] += 1
         }
 
-        var last7Days: [RemoteDayActivity] = []
+        var last7Days: [DayActivityDTO] = []
         var maxDailyInWindow = 0
         for offset in (0 ..< 7).reversed() {
             guard let day = calendar.date(byAdding: .day, value: -offset, to: today) else { continue }
             let count = completionsByDay[day] ?? 0
             maxDailyInWindow = max(maxDailyInWindow, count)
-            last7Days.append(RemoteDayActivity(
+            last7Days.append(DayActivityDTO(
                 date: dateFormatter.string(from: day),
                 objectivesCompleted: count,
                 objectivesTotal: 0
@@ -126,7 +128,7 @@ private extension SupabaseStatsRepository {
         }
         let dailyTarget = max(maxDailyInWindow, 1)
         last7Days = last7Days.map {
-            RemoteDayActivity(
+            DayActivityDTO(
                 date: $0.date,
                 objectivesCompleted: $0.objectivesCompleted,
                 objectivesTotal: dailyTarget
@@ -157,10 +159,10 @@ private extension SupabaseStatsRepository {
         }
         bestStreak = max(bestStreak, currentStreak)
 
-        return RemoteStreakStats(current: currentStreak, best: bestStreak, last7Days: last7Days)
+        return StreakStatsDTO(current: currentStreak, best: bestStreak, last7Days: last7Days)
     }
 
-    func computeCompletion(tasks: [TaskRow]) -> RemoteCompletionStats {
+    func computeCompletion(tasks: [TaskRow]) -> CompletionStatsDTO {
         let totalTasks = tasks.count
         let totalCompleted = tasks.filter(\.isCompleted).count
         let overallRate = totalTasks > 0 ? Double(totalCompleted) / Double(totalTasks) : 0
@@ -181,7 +183,7 @@ private extension SupabaseStatsRepository {
         let thisWeekCompleted = thisWeekTasks.filter(\.isCompleted).count
         let thisWeekRate = thisWeekTasks.isEmpty ? 0 : Double(thisWeekCompleted) / Double(thisWeekTasks.count)
 
-        return RemoteCompletionStats(
+        return CompletionStatsDTO(
             overallRate: overallRate,
             thisWeekRate: thisWeekRate,
             totalCompleted: totalCompleted,
@@ -189,7 +191,7 @@ private extension SupabaseStatsRepository {
         )
     }
 
-    func computeWeeklyProgress(weeklyPlans: [WeeklyPlanRow], tasks: [TaskRow]) -> [RemoteWeeklyProgress] {
+    func computeWeeklyProgress(weeklyPlans: [WeeklyPlanRow], tasks: [TaskRow]) -> [WeeklyProgressDTO] {
         let tasksByPlan = Dictionary(grouping: tasks, by: \.weeklyPlanId)
 
         return weeklyPlans.map { plan in
@@ -198,7 +200,7 @@ private extension SupabaseStatsRepository {
             let total = planTasks.count
             let rate = total > 0 ? Double(completed) / Double(total) : 0
 
-            return RemoteWeeklyProgress(
+            return WeeklyProgressDTO(
                 weekNumber: plan.weekNumber,
                 completionRate: rate,
                 objectivesCompleted: completed,
@@ -207,7 +209,7 @@ private extension SupabaseStatsRepository {
         }
     }
 
-    func computeMilestones(milestones: [MilestoneRow], weeklyPlans: [WeeklyPlanRow]) -> RemoteMilestoneProgress {
+    func computeMilestones(milestones: [MilestoneRow], weeklyPlans: [WeeklyPlanRow]) -> MilestoneProgressDTO {
         let plansByMilestone = Dictionary(grouping: weeklyPlans, by: \.milestoneId)
 
         let completedCount = milestones.filter { milestone in
@@ -215,6 +217,6 @@ private extension SupabaseStatsRepository {
             return !plans.isEmpty && plans.allSatisfy { $0.status == "completed" }
         }.count
 
-        return RemoteMilestoneProgress(completed: completedCount, total: milestones.count)
+        return MilestoneProgressDTO(completed: completedCount, total: milestones.count)
     }
 }

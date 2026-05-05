@@ -1,13 +1,13 @@
 import Foundation
 
-struct RemoteRoadmap: Codable {
+struct RoadmapDTO: Codable {
     let goalId: String
     let userId: String
     let status: RoadmapStatus
     let generationAttempts: Int
     let createdAt: String
     let updatedAt: String
-    let milestones: [RemoteMilestone]?
+    let milestones: [MilestoneDTO]?
     let currentMilestoneId: String?
 
     enum CodingKeys: String, CodingKey {
@@ -21,7 +21,7 @@ struct RemoteRoadmap: Codable {
     }
 }
 
-struct RemoteMilestone: Codable, Identifiable {
+struct MilestoneDTO: Codable, Identifiable {
     let id: String
     let goalId: String
     let orderIndex: Int

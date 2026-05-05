@@ -4,7 +4,7 @@ struct WeeklyPlanGenerationView: View {
     let goalId: String
     let onComplete: () -> Void
 
-    @Environment(AppDependencies.self) private var dependencies
+    @Environment(AppEnv.self) private var env
     @State private var model: WeeklyPlanGenerationViewModel?
     @State private var pulseScale: CGFloat = 1.0
 
@@ -23,7 +23,7 @@ struct WeeklyPlanGenerationView: View {
         .appBackground()
         .task {
             if model == nil {
-                model = WeeklyPlanGenerationViewModel(repository: dependencies.weeklyPlans)
+                model = WeeklyPlanGenerationViewModel(repository: env.roadmap)
             }
             await runGeneration()
         }

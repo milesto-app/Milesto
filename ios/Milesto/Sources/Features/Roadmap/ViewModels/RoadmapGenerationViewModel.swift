@@ -6,12 +6,12 @@ private let logger = Logger(subsystem: "app.milesto", category: "RoadmapGenerati
 @MainActor
 @Observable
 final class RoadmapGenerationViewModel {
-    @ObservationIgnored private let repository: any RoadmapSummaryRepository
+    @ObservationIgnored private let repository: RoadmapRepository
 
     private(set) var isGenerating = false
     private(set) var hasFailed = false
 
-    init(repository: any RoadmapSummaryRepository) {
+    init(repository: RoadmapRepository) {
         self.repository = repository
     }
 

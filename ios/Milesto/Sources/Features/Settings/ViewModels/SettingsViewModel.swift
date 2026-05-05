@@ -3,8 +3,8 @@ import Foundation
 @MainActor
 @Observable
 final class SettingsViewModel {
-    @ObservationIgnored private let repository: any SettingsRepository
-    @ObservationIgnored private let auth: any AuthSessionProviding
+    @ObservationIgnored private let repository: SettingsRepository
+    @ObservationIgnored private let auth: AuthRepository
 
     private(set) var profile: ProfileSnapshot?
     private(set) var activeGoal: GoalSnapshot?
@@ -13,7 +13,7 @@ final class SettingsViewModel {
     private(set) var errorMessage: String?
     var showError = false
 
-    init(repository: any SettingsRepository, auth: any AuthSessionProviding) {
+    init(repository: SettingsRepository, auth: AuthRepository) {
         self.repository = repository
         self.auth = auth
     }

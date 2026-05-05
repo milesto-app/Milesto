@@ -2,7 +2,7 @@ import Foundation
 
 @MainActor
 @Observable
-final class RootViewModel {
+final class AppViewModel {
     private(set) var hasSynced = false
     var profileComplete = false
     var goalComplete = false
@@ -12,14 +12,14 @@ final class RootViewModel {
 
     private(set) var localProfile: ProfileSnapshot?
 
-    @ObservationIgnored private let profile: any ProfileRepository
-    @ObservationIgnored private let goals: any GoalRoutingRepository
-    @ObservationIgnored private let roadmap: any RoadmapSummaryRepository
+    @ObservationIgnored private let profile: ProfileRepository
+    @ObservationIgnored private let goals: GoalRepository
+    @ObservationIgnored private let roadmap: RoadmapRepository
 
     init(
-        profile: any ProfileRepository,
-        goals: any GoalRoutingRepository,
-        roadmap: any RoadmapSummaryRepository
+        profile: ProfileRepository,
+        goals: GoalRepository,
+        roadmap: RoadmapRepository
     ) {
         self.profile = profile
         self.goals = goals

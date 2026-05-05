@@ -1,13 +1,13 @@
 import Foundation
 
-enum GoalStatus: String, Codable {
+nonisolated enum GoalStatus: String, Codable {
     case active
     case intakeCompleted = "intake_completed"
     case intakeInProgress = "intake_in_progress"
     case profileGenerating = "profile_generating"
     case generationFailed = "profile_generation_failed"
 
-    static func from(_ rawValue: String) -> GoalStatus {
+    nonisolated static func from(_ rawValue: String) -> GoalStatus {
         switch rawValue {
         case active.rawValue:
             return .active

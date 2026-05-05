@@ -3,11 +3,11 @@ import Foundation
 @MainActor
 @Observable
 final class PaywallViewModel {
-    @ObservationIgnored private let subscription: any SubscriptionRepository
+    @ObservationIgnored private let subscription: SubscriptionRepository
 
     private(set) var selectedPlanId: String?
 
-    init(subscription: any SubscriptionRepository) {
+    init(subscription: SubscriptionRepository) {
         self.subscription = subscription
     }
 

@@ -2,17 +2,17 @@ import Foundation
 import Supabase
 
 @MainActor
-final class SupabaseRoadmapRepository: RemoteRoadmapRepository {
+final class RoadmapRemote {
     init() {}
 
-    func generateRoadmap(goalId: String) async throws -> RemoteRoadmap {
+    func generateRoadmap(goalId: String) async throws -> RoadmapDTO {
         return try await ApiClient.shared.request(
             method: "POST",
             path: "goals/\(goalId)/roadmap/generate"
         )
     }
 
-    func getRoadmap(goalId: String) async throws -> RemoteRoadmap {
+    func getRoadmap(goalId: String) async throws -> RoadmapDTO {
         struct GoalRoadmapRow: Decodable {
             let id: String
             let userId: String
@@ -20,7 +20,7 @@ final class SupabaseRoadmapRepository: RemoteRoadmapRepository {
             let roadmapGenerationAttempts: Int
             let roadmapCreatedAt: String?
             let roadmapUpdatedAt: String?
-            let milestones: [RemoteMilestone]?
+            let milestones: [MilestoneDTO]?
 
             enum CodingKeys: String, CodingKey {
                 case id, milestones
@@ -61,7 +61,7 @@ final class SupabaseRoadmapRepository: RemoteRoadmapRepository {
             currentMilestoneId = activePlan.milestoneId
         }
 
-        return RemoteRoadmap(
+        return RoadmapDTO(
             goalId: row.id,
             userId: row.userId,
             status: row.roadmapStatus ?? .generating,

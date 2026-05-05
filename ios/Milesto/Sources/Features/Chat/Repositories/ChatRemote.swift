@@ -1,7 +1,7 @@
 import Foundation
 import Supabase
 
-private struct RemoteMessage: Decodable {
+private struct ChatMessageDTO: Decodable {
     let id: String
     let role: String
     let content: String?
@@ -20,7 +20,7 @@ private struct ConversationWithMessages: Decodable {
     let goalId: String
     let updatedAt: String
     let createdAt: String
-    let messages: [RemoteMessage]
+    let messages: [ChatMessageDTO]
 
     private enum CodingKeys: String, CodingKey {
         case id
@@ -32,7 +32,7 @@ private struct ConversationWithMessages: Decodable {
 }
 
 @MainActor
-final class SupabaseChatRepository: RemoteChatRepository {
+final class ChatRemote {
     private let baseURL: URL
     private let encoder = JSONEncoder()
     private let decoder = JSONDecoder()
@@ -73,7 +73,7 @@ final class SupabaseChatRepository: RemoteChatRepository {
     }
 
     func getConversationMessages(conversationId: String) async throws -> [ChatMessage] {
-        let rows: [RemoteMessage] = try await SupabaseConfig.client
+        let rows: [ChatMessageDTO] = try await SupabaseConfig.client
             .from("messages")
             .select()
             .eq("conversation_id", value: conversationId)

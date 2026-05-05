@@ -24,4 +24,17 @@ enum AuthError: LocalizedError {
             return message
         }
     }
+
+    init(from error: Error) {
+        if let auth = error as? AuthError { self = auth; return }
+        let message = error.localizedDescription.lowercased()
+        let matches: ([String]) -> Bool = { keywords in keywords.contains { message.contains($0) } }
+        switch true {
+        case matches(["invalid", "credentials"]): self = .invalidCredentials
+        case matches(["already", "exists", "registered"]): self = .emailAlreadyInUse
+        case matches(["weak", "password"]): self = .weakPassword
+        case matches(["network", "connection"]): self = .networkError
+        default: self = .unknown(error.localizedDescription)
+        }
+    }
 }

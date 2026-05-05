@@ -3,14 +3,14 @@ import Foundation
 @MainActor
 @Observable
 final class MilestoneDetailViewModel {
-    @ObservationIgnored private let repository: any WeeklyTaskRepository
+    @ObservationIgnored private let repository: RoadmapRepository
     @ObservationIgnored private let milestoneId: String
     @ObservationIgnored private let status: MilestoneStatus
 
     private(set) var tasks: [WeeklyTask] = []
     private(set) var isLoadingTasks = false
 
-    init(repository: any WeeklyTaskRepository, milestoneId: String, status: MilestoneStatus) {
+    init(repository: RoadmapRepository, milestoneId: String, status: MilestoneStatus) {
         self.repository = repository
         self.milestoneId = milestoneId
         self.status = status
