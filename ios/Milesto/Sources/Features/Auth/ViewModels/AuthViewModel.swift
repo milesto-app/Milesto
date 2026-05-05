@@ -1,9 +1,10 @@
 import Foundation
+import SwiftUI
 
 @MainActor
 @Observable
 final class AuthViewModel {
-    @ObservationIgnored private let auth: any AuthRepository
+    @ObservationIgnored @Environment(AppEnv.self) private var env
 
     var email = ""
     var password = ""
@@ -13,19 +14,15 @@ final class AuthViewModel {
     private(set) var errorMessage: String?
     var showErrorAlert = false
 
-    init(auth: any AuthRepository) {
-        self.auth = auth
-    }
-
     var authState: AuthState {
-        auth.authState
+        env.auth.authState
     }
 
     func signUp() async {
         isLoading = true
         defer { isLoading = false }
         do {
-            _ = try await auth.signUp(email: email, password: password)
+            _ = try await env.auth.signUp(email: email, password: password)
         } catch {
             errorMessage = error.localizedDescription
             showErrorAlert = true
@@ -36,7 +33,7 @@ final class AuthViewModel {
         isLoading = true
         defer { isLoading = false }
         do {
-            _ = try await auth.signIn(email: email, password: password)
+            _ = try await env.auth.signIn(email: email, password: password)
         } catch {
             errorMessage = error.localizedDescription
             showErrorAlert = true
@@ -47,7 +44,7 @@ final class AuthViewModel {
         isAppleLoading = true
         defer { isAppleLoading = false }
         do {
-            _ = try await auth.signInWithApple()
+            _ = try await env.auth.signInWithApple()
         } catch AuthError.cancelled {
         } catch {
             errorMessage = error.localizedDescription
@@ -58,7 +55,7 @@ final class AuthViewModel {
     func signInWithGoogle() async {
         isGoogleLoading = true
         do {
-            try await auth.signInWithGoogle()
+            try await env.auth.signInWithGoogle()
         } catch {
             isGoogleLoading = false
             errorMessage = error.localizedDescription

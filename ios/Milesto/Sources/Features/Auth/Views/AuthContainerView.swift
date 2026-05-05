@@ -1,8 +1,7 @@
 import SwiftUI
 
 struct AuthContainerView: View {
-    @Environment(AppEnv.self) private var env
-    @State private var model: AuthViewModel?
+    @State private var model = AuthViewModel()
 
     private enum AuthRoute: Hashable {
         case emailAuth
@@ -11,18 +10,7 @@ struct AuthContainerView: View {
     @State private var path: [AuthRoute] = []
 
     var body: some View {
-        Group {
-            if let model {
-                content(model: model)
-            } else {
-                Color("BackgroundBase").ignoresSafeArea()
-            }
-        }
-        .task {
-            if model == nil {
-                model = AuthViewModel(auth: env.auth)
-            }
-        }
+        content(model: model)
     }
 
     @ViewBuilder
