@@ -8,7 +8,7 @@ final class ChatMessage {
     var content: String
     var createdAt: Date
     var conversationId: String
-    var conversation: LocalConversation?
+    var conversation: ChatConversation?
 
     init(id: String, role: Role, content: String, createdAt: Date, conversationId: String = "") {
         self.id = id

@@ -2,7 +2,7 @@ import Foundation
 import SwiftData
 
 @Model
-final class LocalConversation {
+final class ChatConversation {
     @Attribute(.unique) var id: String
     var goalId: String
     var preview: String?
@@ -17,5 +17,11 @@ final class LocalConversation {
         self.updatedAt = updatedAt
         self.createdAt = createdAt
         self.messages = messages
+    }
+
+    var relativeDate: String {
+        let formatter = RelativeDateTimeFormatter()
+        formatter.unitsStyle = .short
+        return formatter.localizedString(for: updatedAt, relativeTo: Date())
     }
 }

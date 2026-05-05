@@ -13,7 +13,7 @@ final class ChatViewModel {
     var showError = false
     private(set) var errorMessage = ""
     private(set) var showThinking = false
-    private(set) var conversations: [ConversationSummary] = []
+    private(set) var conversations: [ChatConversation] = []
     private(set) var isLoadingHistory = false
     var isLimitReached = false
 

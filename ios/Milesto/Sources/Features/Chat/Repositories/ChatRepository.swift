@@ -11,30 +11,19 @@ final class ChatRepository {
         context = modelContext
     }
 
-    func loadConversations(goalId: String) -> [ConversationSummary] {
-        let descriptor = FetchDescriptor<LocalConversation>(
+    func loadConversations(goalId: String) -> [ChatConversation] {
+        let descriptor = FetchDescriptor<ChatConversation>(
             predicate: #Predicate { $0.goalId == goalId },
             sortBy: [SortDescriptor(\.updatedAt, order: .reverse)]
         )
-        guard let localConversations = try? context.fetch(descriptor), !localConversations.isEmpty else { return [] }
-        let formatter = ISO8601DateFormatter()
-        formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
-        return localConversations.map { local in
-            ConversationSummary(
-                id: local.id,
-                goalId: local.goalId,
-                preview: local.preview,
-                updatedAt: formatter.string(from: local.updatedAt),
-                createdAt: formatter.string(from: local.createdAt)
-            )
-        }
+        return (try? context.fetch(descriptor)) ?? []
     }
 
-    func refreshConversations(goalId: String) async throws -> [ConversationSummary] {
-        let summaries = try await remote.listConversations(goalId: goalId)
-        replaceConversations(summaries, goalId: goalId)
+    func refreshConversations(goalId: String) async throws -> [ChatConversation] {
+        let remotes = try await remote.listConversations(goalId: goalId)
+        replaceConversations(remotes, goalId: goalId)
         try? context.save()
-        return summaries
+        return loadConversations(goalId: goalId)
     }
 
     func loadMessages(conversationId: String) -> [ChatMessage] {
@@ -54,7 +43,7 @@ final class ChatRepository {
 
     func deleteConversation(conversationId: String) async throws {
         try await remote.deleteConversation(conversationId: conversationId)
-        let descriptor = FetchDescriptor<LocalConversation>(
+        let descriptor = FetchDescriptor<ChatConversation>(
             predicate: #Predicate { $0.id == conversationId }
         )
         if let local = try? context.fetch(descriptor).first {
@@ -68,7 +57,7 @@ final class ChatRepository {
     }
 
     func saveStreamedMessages(_ messages: [ChatMessage], conversationId: String, goalId: String) {
-        let convDescriptor = FetchDescriptor<LocalConversation>(
+        let convDescriptor = FetchDescriptor<ChatConversation>(
             predicate: #Predicate { $0.id == conversationId }
         )
         let lastPreview = messages.last?.content.prefix(100).description
@@ -77,7 +66,7 @@ final class ChatRepository {
             existing.preview = lastPreview
             existing.updatedAt = Date()
         } else {
-            context.insert(LocalConversation(
+            context.insert(ChatConversation(
                 id: conversationId,
                 goalId: goalId,
                 preview: lastPreview,
@@ -90,8 +79,8 @@ final class ChatRepository {
         try? context.save()
     }
 
-    private func replaceConversations(_ summaries: [ConversationSummary], goalId: String) {
-        let descriptor = FetchDescriptor<LocalConversation>(
+    private func replaceConversations(_ remotes: [ChatConversationDTO], goalId: String) {
+        let descriptor = FetchDescriptor<ChatConversation>(
             predicate: #Predicate { $0.goalId == goalId }
         )
         let existing = (try? context.fetch(descriptor)) ?? []
@@ -99,21 +88,21 @@ final class ChatRepository {
 
         let formatter = ISO8601DateFormatter()
         formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
-        let remoteIds = Set(summaries.map(\.id))
+        let remoteIds = Set(remotes.map(\.id))
 
-        for summary in summaries {
-            let updatedAt = formatter.date(from: summary.updatedAt) ?? Date()
-            let createdAt = formatter.date(from: summary.createdAt) ?? Date()
+        for dto in remotes {
+            let updatedAt = formatter.date(from: dto.updatedAt) ?? Date()
+            let createdAt = formatter.date(from: dto.createdAt) ?? Date()
 
-            if let local = existingById[summary.id] {
-                local.preview = summary.preview
+            if let local = existingById[dto.id] {
+                local.preview = dto.preview
                 local.updatedAt = updatedAt
                 local.createdAt = createdAt
             } else {
-                context.insert(LocalConversation(
-                    id: summary.id,
-                    goalId: summary.goalId,
-                    preview: summary.preview,
+                context.insert(ChatConversation(
+                    id: dto.id,
+                    goalId: dto.goalId,
+                    preview: dto.preview,
                     updatedAt: updatedAt,
                     createdAt: createdAt
                 ))

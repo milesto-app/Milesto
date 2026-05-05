@@ -1,22 +1,6 @@
 import Foundation
 import Supabase
 
-private struct ConversationWithMessages: Decodable {
-    let id: String
-    let goalId: String
-    let updatedAt: String
-    let createdAt: String
-    let messages: [ChatMessageDTO]
-
-    private enum CodingKeys: String, CodingKey {
-        case id
-        case goalId = "goal_id"
-        case updatedAt = "updated_at"
-        case createdAt = "created_at"
-        case messages
-    }
-}
-
 @MainActor
 final class ChatRemote {
     private let baseURL: URL
@@ -30,8 +14,8 @@ final class ChatRemote {
         baseURL = url
     }
 
-    func listConversations(goalId: String) async throws -> [ConversationSummary] {
-        let rows: [ConversationWithMessages] = try await SupabaseConfig.client
+    func listConversations(goalId: String) async throws -> [ChatConversationDTO] {
+        try await SupabaseConfig.client
             .from("conversations")
             .select("*, messages(id, content, role, created_at)")
             .eq("goal_id", value: goalId)
@@ -39,23 +23,6 @@ final class ChatRemote {
             .order("created_at", ascending: true, referencedTable: "messages")
             .execute()
             .value
-
-        return rows.map { row in
-            let firstUserMessage = row.messages
-                .first { $0.role == "user" && $0.content != nil }
-            let preview = firstUserMessage.flatMap { msg -> String? in
-                guard let content = msg.content else { return nil }
-                return content.count > 100 ? String(content.prefix(100)) : content
-            }
-
-            return ConversationSummary(
-                id: row.id,
-                goalId: row.goalId,
-                preview: preview,
-                updatedAt: row.updatedAt,
-                createdAt: row.createdAt
-            )
-        }
     }
 
     func getConversationMessages(conversationId: String) async throws -> [ChatMessage] {
