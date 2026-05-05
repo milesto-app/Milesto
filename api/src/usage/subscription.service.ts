@@ -76,6 +76,7 @@ export class SubscriptionService {
 
   public async verifyAndSync(userId: string, jws: string): Promise<void> {
     const transaction = await this.verifyTransactionWithFallback(jws);
+    this.logger.debug(this.formatTransactionDiagnostic(transaction, userId));
     this.assertTransactionClaims(transaction);
     this.assertAppAccountToken(transaction.appAccountToken, userId);
 
@@ -387,15 +388,44 @@ export class SubscriptionService {
     signedDateIso: string | null,
   ): Promise<boolean> {
     const supabase = this.supabaseService.getAdminClient();
-    let query = supabase.from("profiles").update(patch).eq("id", userId);
 
-    if (signedDateIso !== null) {
-      query = query.or(
-        `subscription_apple_signed_at.is.null,subscription_apple_signed_at.lt.${signedDateIso}`,
-      );
+    if (signedDateIso === null) {
+      const { data, error } = await supabase
+        .from("profiles")
+        .update(patch)
+        .eq("id", userId)
+        .select("id");
+      return this.didApplyProfilePatch(userId, data, error);
     }
 
-    const { data, error } = await query.select("id");
+    const nullResult = await supabase
+      .from("profiles")
+      .update(patch)
+      .eq("id", userId)
+      .is("subscription_apple_signed_at", null)
+      .select("id");
+    if (this.didApplyProfilePatch(userId, nullResult.data, nullResult.error)) {
+      return true;
+    }
+
+    const olderResult = await supabase
+      .from("profiles")
+      .update(patch)
+      .eq("id", userId)
+      .lt("subscription_apple_signed_at", signedDateIso)
+      .select("id");
+    return this.didApplyProfilePatch(
+      userId,
+      olderResult.data,
+      olderResult.error,
+    );
+  }
+
+  private didApplyProfilePatch(
+    userId: string,
+    data: { id: string }[] | null,
+    error: { message: string } | null,
+  ): boolean {
     if (error) {
       this.logger.error(
         `Failed to persist subscription update user=${userId}: ${error.message}`,
@@ -405,7 +435,7 @@ export class SubscriptionService {
       );
     }
 
-    return data.length > 0;
+    return (data?.length ?? 0) > 0;
   }
 
   private async assertOriginalTransactionNotOwnedByOther(
@@ -444,10 +474,15 @@ export class SubscriptionService {
   }
 
   private assertTransactionClaims(tx: JWSTransactionDecodedPayload): void {
+    const txId = tx.transactionId ?? "unknown";
     if (this.stringOrNull(tx.type) !== TYPE_AUTO_RENEWABLE) {
+      this.logger.warn(`Reject tx=${txId}: invalid type=${tx.type}`);
       throw new UnauthorizedException("Invalid product type");
     }
     if (tx.bundleId !== config.apple.bundleId) {
+      this.logger.warn(
+        `Reject tx=${txId}: bundle mismatch jws=${tx.bundleId} expected=${config.apple.bundleId}`,
+      );
       throw new UnauthorizedException("Invalid bundle");
     }
     const productId = tx.productId;
@@ -456,13 +491,29 @@ export class SubscriptionService {
       productId === "" ||
       !this.isAllowedProductId(productId)
     ) {
+      this.logger.warn(`Reject tx=${txId}: unknown product=${productId}`);
       throw new UnauthorizedException("Unknown product");
     }
     if (this.stringOrNull(tx.inAppOwnershipType) === OWNERSHIP_FAMILY_SHARED) {
+      this.logger.warn(`Reject tx=${txId}: family-shared subscription`);
       throw new UnauthorizedException(
         "Family-shared subscriptions not supported",
       );
     }
+  }
+
+  private formatTransactionDiagnostic(
+    tx: JWSTransactionDecodedPayload,
+    userId: string,
+  ): string {
+    const txId = tx.transactionId ?? "unknown";
+    const bundle = tx.bundleId ?? "null";
+    const product = tx.productId ?? "null";
+    const env = this.stringOrNull(tx.environment) ?? "null";
+    const type = this.stringOrNull(tx.type) ?? "null";
+    const ownership = this.stringOrNull(tx.inAppOwnershipType) ?? "null";
+    const token = tx.appAccountToken ?? "null";
+    return `Verifying tx=${txId} user=${userId} bundle=${bundle} product=${product} env=${env} type=${type} ownership=${ownership} appAccountToken=${token}`;
   }
 
   private assertAppAccountToken(
@@ -470,12 +521,19 @@ export class SubscriptionService {
     userId: string,
   ): void {
     if (appAccountToken === undefined || appAccountToken === "") {
+      this.logger.warn(`Reject user=${userId}: missing appAccountToken`);
       throw new UnauthorizedException("Transaction not bound to this user");
     }
     if (!UUID_REGEX.test(appAccountToken) || !UUID_REGEX.test(userId)) {
+      this.logger.warn(
+        `Reject user=${userId}: malformed UUID token=${appAccountToken}`,
+      );
       throw new UnauthorizedException("Transaction not bound to this user");
     }
     if (appAccountToken.toLowerCase() !== userId.toLowerCase()) {
+      this.logger.warn(
+        `Reject user=${userId}: appAccountToken mismatch token=${appAccountToken}`,
+      );
       throw new UnauthorizedException("Transaction not bound to this user");
     }
   }

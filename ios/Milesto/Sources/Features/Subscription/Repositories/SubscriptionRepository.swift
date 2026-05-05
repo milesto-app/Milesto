@@ -114,9 +114,13 @@ final class SubscriptionRepository {
             switch result {
             case let .success(verification):
                 if case let .verified(tx) = verification {
-                    await syncTransactionWithRetry(jws: verification.jwsRepresentation)
-                    await tx.finish()
-                    entitlementState = .subscribed
+                    let synced = await syncTransactionWithRetry(jws: verification.jwsRepresentation)
+                    if synced {
+                        await tx.finish()
+                        entitlementState = .subscribed
+                    } else {
+                        purchaseError = .verificationFailed
+                    }
                 }
             case .userCancelled, .pending:
                 break
@@ -124,6 +128,7 @@ final class SubscriptionRepository {
                 break
             }
         } catch {
+            subscriptionLogger.error("StoreKit purchase failed: \(String(describing: error), privacy: .public)")
             purchaseError = .storeFailure(error.localizedDescription)
         }
     }
@@ -137,25 +142,28 @@ final class SubscriptionRepository {
         await reconcileWithApi()
     }
 
-    private func syncTransactionWithRetry(jws: String) async {
+    private func syncTransactionWithRetry(jws: String) async -> Bool {
         let delaysNanos: [UInt64] = [1_000_000_000, 2_000_000_000, 3_000_000_000]
         let body = VerifySubscriptionBody(jwsTransaction: jws)
 
         for (index, delay) in delaysNanos.enumerated() {
-            if Task.isCancelled { return }
+            if Task.isCancelled { return false }
             do {
                 try await ApiClient.shared.requestVoid(method: "POST", path: "subscription/verify", body: body)
-                return
+                return true
             } catch {
-                subscriptionLogger.debug("verify attempt \(index + 1, privacy: .public) failed")
+                subscriptionLogger.warning(
+                    "verify attempt \(index + 1, privacy: .public) failed: \(String(describing: error), privacy: .public)"
+                )
                 if index < delaysNanos.count - 1 {
                     try? await Task.sleep(nanoseconds: delay)
                 }
             }
         }
 
-        subscriptionLogger.debug("verify failed after retries, enqueueing")
+        subscriptionLogger.error("verify failed after retries, enqueueing for later sync")
         await SubscriptionSyncOutbox.shared.enqueue(jws: jws, userId: await currentUserId())
+        return false
     }
 
     private func currentUserId() async -> String? {
@@ -174,8 +182,10 @@ final class SubscriptionRepository {
                 await tx.finish()
                 continue
             }
-            await syncTransactionWithRetry(jws: result.jwsRepresentation)
-            await tx.finish()
+            let synced = await syncTransactionWithRetry(jws: result.jwsRepresentation)
+            if synced {
+                await tx.finish()
+            }
         }
     }
 
@@ -219,7 +229,7 @@ final class SubscriptionRepository {
         }
 
         if let entitlement = await currentVerifiedEntitlement() {
-            await syncTransactionWithRetry(jws: entitlement.jws)
+            _ = await syncTransactionWithRetry(jws: entitlement.jws)
             let refetched: SubscriptionStatusResponse
             do {
                 refetched = try await ApiClient.shared.request(method: "GET", path: "subscription/status")
@@ -272,8 +282,10 @@ final class SubscriptionRepository {
     }
 
     private func handleTransactionUpdate(_ tx: Transaction, jws: String) async {
-        await syncTransactionWithRetry(jws: jws)
-        await tx.finish()
-        await refreshEntitlement()
+        let synced = await syncTransactionWithRetry(jws: jws)
+        if synced {
+            await tx.finish()
+            await refreshEntitlement()
+        }
     }
 }
