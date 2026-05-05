@@ -1,7 +1,11 @@
 import SwiftUI
 
 struct PaywallView: View {
+    private static let privacyURL = URL(string: "https://milesto.app/privacy")!
+    private static let eulaURL = URL(string: "https://www.apple.com/legal/internet-services/itunes/dev/stdeula/")!
+
     @Environment(AppEnv.self) private var env
+    @Environment(\.openURL) private var openURL
     @State private var model: PaywallViewModel?
     @State private var heroVisible = false
     @State private var featuresVisible = false
@@ -154,11 +158,15 @@ struct PaywallView: View {
                 Circle()
                     .fill(Color("TextSecondary").opacity(0.3))
                     .frame(width: 3, height: 3)
-                footerLink("paywall.footer.terms") {}
+                footerLink("paywall.footer.terms") {
+                    openURL(Self.eulaURL)
+                }
                 Circle()
                     .fill(Color("TextSecondary").opacity(0.3))
                     .frame(width: 3, height: 3)
-                footerLink("paywall.footer.privacy") {}
+                footerLink("paywall.footer.privacy") {
+                    openURL(Self.privacyURL)
+                }
             }
             .padding(.top, 4)
         }
