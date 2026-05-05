@@ -123,7 +123,7 @@ struct WeeklyTasksCard: View {
 
     @ViewBuilder
     private func taskSurface<Content: View>(@ViewBuilder content: () -> Content) -> some View {
-        let shape = RoundedRectangle(cornerRadius: 16, style: .continuous)
+        let shape = RoundedRectangle(cornerRadius: 16, style: .circular)
 
         content()
             .padding(.horizontal, 16)

@@ -33,7 +33,7 @@ struct RoadmapMilestoneRow: View {
             }
             .padding(.horizontal, 16)
             .padding(.vertical, 15)
-            .contentShape(RoundedRectangle(cornerRadius: cornerRadius, style: .continuous))
+            .contentShape(RoundedRectangle(cornerRadius: cornerRadius, style: .circular))
         }
     }
 
@@ -99,7 +99,7 @@ struct RoadmapMilestoneRow: View {
 
     @ViewBuilder
     private func glassSurface<Content: View>(@ViewBuilder content: () -> Content) -> some View {
-        let shape = RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+        let shape = RoundedRectangle(cornerRadius: cornerRadius, style: .circular)
 
         content()
             .glassEffect(.regular.interactive(), in: shape)
