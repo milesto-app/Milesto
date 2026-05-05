@@ -37,11 +37,9 @@ final class AuthRepository {
                 authState = .unauthenticated
                 currentUserId = nil
                 oauth.clearPendingAppleName()
-                Keychain.clearAll()
             case .tokenRefreshed:
                 if let session {
                     currentUserId = session.user.id.uuidString
-                    persistSession(session)
                 }
             default:
                 break
@@ -51,7 +49,6 @@ final class AuthRepository {
 
     private func applySignedInSession(_ session: Session) {
         applyAuthenticatedUser(session.user.id.uuidString)
-        persistSession(session)
         Task { await NotificationService.shared.requestPermissionAndRegister() }
     }
 
@@ -60,11 +57,6 @@ final class AuthRepository {
         currentUserId = userId
         authState = .authenticated(userId: userId)
         return userId
-    }
-
-    private func persistSession(_ session: Session) {
-        let expiresAt = Date(timeIntervalSince1970: session.expiresAt)
-        Keychain.setSupabaseAccessToken(session.accessToken, expiresAt: expiresAt)
     }
 
     func signUp(email: String, password: String) async throws -> String {
