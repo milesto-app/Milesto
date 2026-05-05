@@ -9,9 +9,9 @@ struct MilestoApp: App {
     var body: some Scene {
         WindowGroup {
             RootView()
-                .environment(AppDependencies(container: container))
         }
         .modelContainer(container)
+        .environment(AppDependencies(container: container))
     }
 
     private static func makeContainer() -> ModelContainer {
