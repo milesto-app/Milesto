@@ -38,20 +38,11 @@ final class ChatRepository {
     }
 
     func loadMessages(conversationId: String) -> [ChatMessage] {
-        let descriptor = FetchDescriptor<LocalChatMessage>(
+        let descriptor = FetchDescriptor<ChatMessage>(
             predicate: #Predicate { $0.conversationId == conversationId },
             sortBy: [SortDescriptor(\.createdAt)]
         )
-        guard let localMessages = try? context.fetch(descriptor), !localMessages.isEmpty else { return [] }
-        return localMessages.compactMap { local in
-            guard local.role == "user" || local.role == "assistant" else { return nil }
-            return ChatMessage(
-                id: local.id,
-                role: local.role == "user" ? .user : .assistant,
-                content: local.content,
-                createdAt: local.createdAt
-            )
-        }
+        return (try? context.fetch(descriptor)) ?? []
     }
 
     func refreshMessages(conversationId: String) async throws -> [ChatMessage] {
@@ -135,7 +126,7 @@ final class ChatRepository {
     }
 
     private func replaceMessages(_ messages: [ChatMessage], conversationId: String) {
-        let descriptor = FetchDescriptor<LocalChatMessage>(
+        let descriptor = FetchDescriptor<ChatMessage>(
             predicate: #Predicate { $0.conversationId == conversationId }
         )
         let existing = (try? context.fetch(descriptor)) ?? []
@@ -144,17 +135,17 @@ final class ChatRepository {
         let remoteIds = Set(messages.map(\.id))
 
         for message in messages {
-            let roleString = message.role == .user ? "user" : "assistant"
             if let local = existingById[message.id] {
                 local.content = message.content
-                local.role = roleString
+                local.role = message.role
+                local.createdAt = message.createdAt
             } else {
-                context.insert(LocalChatMessage(
+                context.insert(ChatMessage(
                     id: message.id,
-                    conversationId: conversationId,
-                    role: roleString,
+                    role: message.role,
                     content: message.content,
-                    createdAt: message.createdAt
+                    createdAt: message.createdAt,
+                    conversationId: conversationId
                 ))
             }
         }

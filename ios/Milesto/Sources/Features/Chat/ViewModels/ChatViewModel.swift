@@ -158,9 +158,8 @@ final class ChatViewModel {
         case let .messageStart(id):
             conversationId = id
         case let .textDelta(delta):
-            if var last = messages.last, last.role == .assistant {
+            if let last = messages.last, last.role == .assistant {
                 last.content += delta
-                messages[messages.count - 1] = last
             } else if !delta.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
                 let assistantMessage = ChatMessage(
                     id: UUID().uuidString,

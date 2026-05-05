@@ -15,7 +15,7 @@ enum ModelContainerFactory {
             LocalWeeklyTask.self,
             LocalDebrief.self,
             LocalConversation.self,
-            LocalChatMessage.self,
+            ChatMessage.self,
             LocalStats.self,
             LocalPendingSubscriptionSync.self,
         ])
