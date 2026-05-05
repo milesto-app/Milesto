@@ -3,7 +3,7 @@ import SwiftUI
 struct DebriefBannerCard: View {
     let goalId: String
 
-    @Environment(AppDependencies.self) private var dependencies
+    @Environment(AppEnv.self) private var dependencies
     @State private var model: DebriefBannerViewModel?
     @State private var showDebriefSheet = false
     @State private var showWeeklyPlanGeneration = false

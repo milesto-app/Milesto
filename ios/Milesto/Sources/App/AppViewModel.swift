@@ -2,7 +2,7 @@ import Foundation
 
 @MainActor
 @Observable
-final class RootViewModel {
+final class AppViewModel {
     private(set) var hasSynced = false
     var profileComplete = false
     var goalComplete = false

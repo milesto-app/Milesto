@@ -3,7 +3,7 @@ import SwiftUI
 struct StatsView: View {
     let goalId: String
 
-    @Environment(AppDependencies.self) private var dependencies
+    @Environment(AppEnv.self) private var dependencies
     @State private var model: StatsViewModel?
 
     var body: some View {

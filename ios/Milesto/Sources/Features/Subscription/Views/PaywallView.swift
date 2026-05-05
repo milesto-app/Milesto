@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct PaywallView: View {
-    @Environment(AppDependencies.self) private var dependencies
+    @Environment(AppEnv.self) private var dependencies
     @State private var model: PaywallViewModel?
     @State private var heroVisible = false
     @State private var featuresVisible = false

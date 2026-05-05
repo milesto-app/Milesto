@@ -5,7 +5,7 @@ struct GoalIntakeFlowView: View {
     let onClose: (() -> Void)?
     let onComplete: (String) -> Void
 
-    @Environment(AppDependencies.self) private var dependencies
+    @Environment(AppEnv.self) private var dependencies
     @State private var model: GoalIntakeFlowViewModel?
 
     var body: some View {

@@ -6,7 +6,7 @@ struct DebriefSheetView: View {
     let onDebriefComplete: () -> Void
 
     @Environment(\.dismiss) private var dismiss
-    @Environment(AppDependencies.self) private var dependencies
+    @Environment(AppEnv.self) private var dependencies
     @State private var model: DebriefSheetViewModel?
 
     var body: some View {

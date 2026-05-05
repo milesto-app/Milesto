@@ -3,7 +3,7 @@ import SwiftUI
 struct HomeWeeklyTasksCard: View {
     let goalId: String
 
-    @Environment(AppDependencies.self) private var dependencies
+    @Environment(AppEnv.self) private var dependencies
     @State private var model: WeeklyTasksViewModel?
 
     var body: some View {

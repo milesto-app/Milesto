@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct SubscriptionGateView<Content: View>: View {
-    @Environment(AppDependencies.self) private var dependencies
+    @Environment(AppEnv.self) private var dependencies
     @ViewBuilder let content: () -> Content
 
     var body: some View {

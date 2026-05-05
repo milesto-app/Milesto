@@ -6,7 +6,7 @@ struct ProfileOnboardingView: View {
     let existingProfile: ProfileSnapshot?
     let onComplete: () -> Void
 
-    @Environment(AppDependencies.self) private var dependencies
+    @Environment(AppEnv.self) private var dependencies
     @State private var model: ProfileOnboardingViewModel?
 
     var body: some View {

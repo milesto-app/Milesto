@@ -2,16 +2,16 @@ import SwiftData
 import SwiftUI
 
 @main
-struct MilestoApp: App {
+struct AppMain: App {
     @UIApplicationDelegateAdaptor(PushNotificationDelegate.self) private var pushDelegate
-    let container: ModelContainer = MilestoApp.makeContainer()
+    let container: ModelContainer = AppMain.makeContainer()
 
     var body: some Scene {
         WindowGroup {
-            RootView()
+            AppView()
         }
         .modelContainer(container)
-        .environment(AppDependencies(container: container))
+        .environment(AppEnv(container: container))
     }
 
     private static func makeContainer() -> ModelContainer {

@@ -2,7 +2,7 @@ import SwiftData
 
 @MainActor
 @Observable
-final class AppDependencies {
+final class AppEnv {
     let auth: any AuthSessionProviding
     let authRepository: any AuthRepository
     let entitlement: any EntitlementProviding

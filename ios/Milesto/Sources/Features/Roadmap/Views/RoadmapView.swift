@@ -57,7 +57,7 @@ struct RoadmapMonthSection: Identifiable {
 struct RoadmapView: View {
     let goalId: String
 
-    @Environment(AppDependencies.self) private var dependencies
+    @Environment(AppEnv.self) private var dependencies
     @State private var model: RoadmapViewModel?
     @State private var selectedMilestone: DisplayMilestone?
     @State private var expandedPastSections: Set<Int> = []

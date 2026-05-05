@@ -4,7 +4,7 @@ struct RoadmapGenerationView: View {
     let goalId: String
     let onComplete: () -> Void
 
-    @Environment(AppDependencies.self) private var dependencies
+    @Environment(AppEnv.self) private var dependencies
     @State private var model: RoadmapGenerationViewModel?
     @State private var currentTipIndex = 0
     @State private var tipOpacity: Double = 1

@@ -11,7 +11,7 @@ struct MilestoneDetailView: View {
     let targetWeek: Int
     let targetMonth: Int
 
-    @Environment(AppDependencies.self) private var dependencies
+    @Environment(AppEnv.self) private var dependencies
     @State private var model: MilestoneDetailViewModel?
 
     var body: some View {

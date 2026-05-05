@@ -4,7 +4,7 @@ struct ChatView: View {
     let goalId: String
     var onClose: (() -> Void)?
 
-    @Environment(AppDependencies.self) private var dependencies
+    @Environment(AppEnv.self) private var dependencies
     @State private var model: ChatViewModel?
     @FocusState private var isInputFocused: Bool
     @State private var isSidebarOpen = false

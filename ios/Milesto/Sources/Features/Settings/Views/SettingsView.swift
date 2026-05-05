@@ -3,7 +3,7 @@ import SwiftUI
 struct SettingsView: View {
     var onDeleteGoal: (() -> Void)?
 
-    @Environment(AppDependencies.self) private var dependencies
+    @Environment(AppEnv.self) private var dependencies
     @State private var model: SettingsViewModel?
     @State private var showSignOutAlert = false
     @State private var showDeleteGoalAlert = false
