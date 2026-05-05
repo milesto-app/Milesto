@@ -2,6 +2,7 @@ import SwiftUI
 
 struct AuthContainerView: View {
     @State private var model = AuthViewModel()
+    @State private var emailModel = AuthEmailViewModel()
 
     private enum AuthRoute: Hashable {
         case emailAuth
@@ -10,12 +11,8 @@ struct AuthContainerView: View {
     @State private var path: [AuthRoute] = []
 
     var body: some View {
-        content(model: model)
-    }
-
-    @ViewBuilder
-    private func content(model: AuthViewModel) -> some View {
         @Bindable var bindable = model
+        @Bindable var bindableEmail = emailModel
         NavigationStack(path: $path) {
             AuthView(
                 onSignInWithApple: { Task { await model.signInWithApple() } },
@@ -28,11 +25,11 @@ struct AuthContainerView: View {
                 switch route {
                 case .emailAuth:
                     AuthEmailView(
-                        email: $bindable.email,
-                        password: $bindable.password,
-                        isLoading: model.isLoading,
-                        onSignUp: { Task { await model.signUp() } },
-                        onSignIn: { Task { await model.signIn() } }
+                        email: $bindableEmail.email,
+                        password: $bindableEmail.password,
+                        isLoading: emailModel.isLoading,
+                        onSignUp: { Task { await emailModel.signUp() } },
+                        onSignIn: { Task { await emailModel.signIn() } }
                     )
                 }
             }
@@ -42,6 +39,11 @@ struct AuthContainerView: View {
             Button(String(localized: "common.ok", table: "Common"), role: .cancel) {}
         } message: {
             AppText(verbatim: model.errorMessage ?? "", style: .body)
+        }
+        .alert(String(localized: "auth.error.title", table: "Auth"), isPresented: $bindableEmail.showErrorAlert) {
+            Button(String(localized: "common.ok", table: "Common"), role: .cancel) {}
+        } message: {
+            AppText(verbatim: emailModel.errorMessage ?? "", style: .body)
         }
         .onChange(of: model.authState) { _, newState in
             model.handleAuthStateChange(newState)

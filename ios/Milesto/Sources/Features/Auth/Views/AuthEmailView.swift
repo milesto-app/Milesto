@@ -52,7 +52,7 @@ struct AuthEmailView: View {
     @State private var mode: AuthFormMode = .signUp
 
     private var isEmailValid: Bool {
-        AuthValidation.isValidEmail(email)
+        AuthEmailViewModel.isValidEmail(email)
     }
 
     private var isPasswordValid: Bool {
