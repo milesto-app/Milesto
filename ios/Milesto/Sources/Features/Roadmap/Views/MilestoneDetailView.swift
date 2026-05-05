@@ -11,7 +11,7 @@ struct MilestoneDetailView: View {
     let targetWeek: Int
     let targetMonth: Int
 
-    @Environment(AppDependencies.self) private var dependencies
+    @Environment(AppEnv.self) private var env
     @State private var model: MilestoneDetailViewModel?
 
     var body: some View {
@@ -50,7 +50,7 @@ struct MilestoneDetailView: View {
         .task {
             if model == nil {
                 model = MilestoneDetailViewModel(
-                    repository: dependencies.weeklyTasks,
+                    repository: env.roadmap,
                     milestoneId: milestoneId,
                     status: status
                 )

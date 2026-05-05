@@ -2,7 +2,7 @@ import SwiftUI
 
 struct ChatHistorySidebar: View {
     @Binding var isOpen: Bool
-    let conversations: [ConversationSummary]
+    let conversations: [ChatConversation]
     let activeConversationId: String?
     let onSelectConversation: (String) -> Void
     let onDeleteConversation: (String) -> Void

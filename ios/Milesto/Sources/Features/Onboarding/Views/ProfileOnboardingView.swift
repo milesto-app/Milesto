@@ -6,7 +6,7 @@ struct ProfileOnboardingView: View {
     let existingProfile: ProfileSnapshot?
     let onComplete: () -> Void
 
-    @Environment(AppDependencies.self) private var dependencies
+    @Environment(AppEnv.self) private var env
     @State private var model: ProfileOnboardingViewModel?
 
     var body: some View {
@@ -20,7 +20,7 @@ struct ProfileOnboardingView: View {
         .task {
             if model == nil {
                 model = ProfileOnboardingViewModel(
-                    repository: dependencies.onboarding,
+                    repository: env.onboarding,
                     userId: userId,
                     missingSteps: missingSteps,
                     existingProfile: existingProfile

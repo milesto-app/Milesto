@@ -3,13 +3,13 @@ import Foundation
 @MainActor
 @Observable
 final class DebriefBannerViewModel {
-    @ObservationIgnored private let repository: any DebriefRepository
+    @ObservationIgnored private let repository: RoadmapRepository
     @ObservationIgnored private var goalId: String = ""
 
     private(set) var weeklyPlanId: String?
     private(set) var shouldDisplay = false
 
-    init(repository: any DebriefRepository) {
+    init(repository: RoadmapRepository) {
         self.repository = repository
     }
 

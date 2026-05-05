@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct ChatHistoryRow: View {
-    let conversation: ConversationSummary
+    let conversation: ChatConversation
     let isActive: Bool
 
     var body: some View {

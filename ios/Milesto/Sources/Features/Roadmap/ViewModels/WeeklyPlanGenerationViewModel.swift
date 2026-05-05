@@ -3,12 +3,12 @@ import Foundation
 @MainActor
 @Observable
 final class WeeklyPlanGenerationViewModel {
-    @ObservationIgnored private let repository: any WeeklyPlanRepository
+    @ObservationIgnored private let repository: RoadmapRepository
 
     private(set) var isGenerating = false
     private(set) var hasFailed = false
 
-    init(repository: any WeeklyPlanRepository) {
+    init(repository: RoadmapRepository) {
         self.repository = repository
     }
 

@@ -3,7 +3,7 @@ import Foundation
 @MainActor
 @Observable
 final class ChatViewModel {
-    @ObservationIgnored private let repository: any ChatRepository
+    @ObservationIgnored private let repository: ChatRepository
 
     private(set) var messages: [ChatMessage] = []
     var inputText = ""
@@ -13,13 +13,13 @@ final class ChatViewModel {
     var showError = false
     private(set) var errorMessage = ""
     private(set) var showThinking = false
-    private(set) var conversations: [ConversationSummary] = []
+    private(set) var conversations: [ChatConversation] = []
     private(set) var isLoadingHistory = false
     var isLimitReached = false
 
     private(set) var goalId: String = ""
 
-    init(repository: any ChatRepository) {
+    init(repository: ChatRepository) {
         self.repository = repository
     }
 
@@ -158,9 +158,8 @@ final class ChatViewModel {
         case let .messageStart(id):
             conversationId = id
         case let .textDelta(delta):
-            if var last = messages.last, last.role == .assistant {
+            if let last = messages.last, last.role == .assistant {
                 last.content += delta
-                messages[messages.count - 1] = last
             } else if !delta.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
                 let assistantMessage = ChatMessage(
                     id: UUID().uuidString,

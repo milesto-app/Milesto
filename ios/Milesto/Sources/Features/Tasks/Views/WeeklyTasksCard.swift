@@ -104,7 +104,7 @@ struct WeeklyTasksCard: View {
                             task: task,
                             onToggle: {
                                 guard let onToggle else { return }
-                                withAnimation(.easeInOut(duration: 0.3)) {
+                                withAnimation(.spring(response: 0.42, dampingFraction: 0.78, blendDuration: 0.08)) {
                                     onToggle(task)
                                 }
                             },
@@ -118,12 +118,12 @@ struct WeeklyTasksCard: View {
                 }
             }
         }
-        .animation(.easeInOut(duration: 0.3), value: tasks.map(\.isCompleted))
+        .animation(.spring(response: 0.42, dampingFraction: 0.78, blendDuration: 0.08), value: tasks.map(\.isCompleted))
     }
 
     @ViewBuilder
     private func taskSurface<Content: View>(@ViewBuilder content: () -> Content) -> some View {
-        let shape = RoundedRectangle(cornerRadius: 16, style: .continuous)
+        let shape = RoundedRectangle(cornerRadius: 16, style: .circular)
 
         content()
             .padding(.horizontal, 16)

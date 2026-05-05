@@ -30,7 +30,7 @@ enum IntakePhase: Equatable {
 @MainActor
 @Observable
 final class IntakeContainerViewModel {
-    @ObservationIgnored private let intake: any IntakeRepository
+    @ObservationIgnored private let intake: IntakeRemote
     @ObservationIgnored private let maxPollingAttempts = 60
     @ObservationIgnored private var pollingTask: Task<Void, Never>?
 
@@ -39,7 +39,7 @@ final class IntakeContainerViewModel {
     private(set) var currentBatchNumber = 0
     private(set) var answers: [String: IntakeAnswerDTO] = [:]
 
-    init(intake: any IntakeRepository) {
+    init(intake: IntakeRemote) {
         self.intake = intake
     }
 

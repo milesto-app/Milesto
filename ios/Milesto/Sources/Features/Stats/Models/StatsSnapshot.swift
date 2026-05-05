@@ -40,7 +40,7 @@ struct WeeklyProgressSnapshot: Identifiable {
     let objectivesTotal: Int
 }
 
-extension RemoteStats {
+extension StatsDTO {
     var snapshot: StatsSnapshot {
         StatsSnapshot(
             streakCurrent: streak.current,

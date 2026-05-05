@@ -19,7 +19,7 @@ struct ChatMessageList: View {
                     }
 
                     if isWaitingForResponse && showThinking {
-                        ThinkingIndicator()
+                        ChatThinkingIndicator()
                             .id("thinking")
                             .transition(.opacity)
                     }

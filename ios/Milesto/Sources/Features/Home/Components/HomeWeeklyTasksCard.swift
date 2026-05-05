@@ -3,7 +3,7 @@ import SwiftUI
 struct HomeWeeklyTasksCard: View {
     let goalId: String
 
-    @Environment(AppDependencies.self) private var dependencies
+    @Environment(AppEnv.self) private var env
     @State private var model: WeeklyTasksViewModel?
 
     var body: some View {
@@ -26,10 +26,7 @@ struct HomeWeeklyTasksCard: View {
         }
         .task(id: goalId) {
             if model == nil {
-                let vm = WeeklyTasksViewModel(
-                    repository: dependencies.weeklyTasks,
-                    planRepository: dependencies.weeklyPlans
-                )
+                let vm = WeeklyTasksViewModel(repository: env.roadmap)
                 vm.configure(goalId: goalId)
                 model = vm
             }

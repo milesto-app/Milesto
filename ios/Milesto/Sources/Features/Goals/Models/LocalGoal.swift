@@ -10,8 +10,20 @@ final class LocalGoal {
     var status: String
     var targetDate: Date?
     var createdAt: Date?
+    var updatedAt: Date
+    var syncStatus: SyncStatus
 
-    init(id: String, userId: String, title: String, goalDescription: String, status: String, targetDate: Date? = nil, createdAt: Date? = nil) {
+    init(
+        id: String,
+        userId: String,
+        title: String,
+        goalDescription: String,
+        status: String,
+        targetDate: Date? = nil,
+        createdAt: Date? = nil,
+        updatedAt: Date = Date(),
+        syncStatus: SyncStatus = .synced
+    ) {
         self.id = id
         self.userId = userId
         self.title = title
@@ -19,6 +31,8 @@ final class LocalGoal {
         self.status = status
         self.targetDate = targetDate
         self.createdAt = createdAt
+        self.updatedAt = updatedAt
+        self.syncStatus = syncStatus
     }
 
     var snapshot: GoalSnapshot {
@@ -30,7 +44,7 @@ final class LocalGoal {
     }
 }
 
-struct RemoteGoal: Codable {
+nonisolated struct GoalDTO: SyncableDTO {
     let id: String
     let userId: String
     let title: String
@@ -38,6 +52,7 @@ struct RemoteGoal: Codable {
     let status: GoalStatus
     let targetDate: Date?
     let createdAt: Date?
+    let updatedAt: Date
 
     enum CodingKeys: String, CodingKey {
         case id
@@ -47,6 +62,27 @@ struct RemoteGoal: Codable {
         case description
         case targetDate = "target_date"
         case createdAt = "created_at"
+        case updatedAt = "updated_at"
+    }
+
+    init(
+        id: String,
+        userId: String,
+        title: String,
+        description: String,
+        status: GoalStatus,
+        targetDate: Date?,
+        createdAt: Date?,
+        updatedAt: Date
+    ) {
+        self.id = id
+        self.userId = userId
+        self.title = title
+        self.description = description
+        self.status = status
+        self.targetDate = targetDate
+        self.createdAt = createdAt
+        self.updatedAt = updatedAt
     }
 
     init(from decoder: Decoder) throws {
@@ -66,6 +102,12 @@ struct RemoteGoal: Codable {
         } else {
             createdAt = nil
         }
+
+        if let updatedAtString = try container.decodeIfPresent(String.self, forKey: .updatedAt) {
+            updatedAt = Self.parseDateTime(updatedAtString) ?? Date()
+        } else {
+            updatedAt = createdAt ?? Date()
+        }
     }
 
     private static func parseDate(_ value: String?) -> Date? {
@@ -81,6 +123,13 @@ struct RemoteGoal: Codable {
         formatter.dateFormat = "yyyy-MM-dd"
         return formatter.date(from: value)
     }
+
+    private static func parseDateTime(_ value: String) -> Date? {
+        let withFraction = ISO8601DateFormatter()
+        withFraction.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+        if let date = withFraction.date(from: value) { return date }
+        return ISO8601DateFormatter().date(from: value)
+    }
 }
 
 struct GoalSnapshot: Identifiable, Hashable {
@@ -94,7 +143,7 @@ struct GoalSummary: Identifiable, Hashable {
 }
 
 extension LocalGoal {
-    convenience init(remote: RemoteGoal) {
+    convenience init(remote: GoalDTO) {
         self.init(
             id: remote.id,
             userId: remote.userId,
@@ -102,15 +151,46 @@ extension LocalGoal {
             goalDescription: remote.description,
             status: remote.status.rawValue,
             targetDate: remote.targetDate,
-            createdAt: remote.createdAt
+            createdAt: remote.createdAt,
+            updatedAt: remote.updatedAt,
+            syncStatus: .synced
         )
     }
 
-    func update(with remote: RemoteGoal) {
-        title = remote.title
-        goalDescription = remote.description
-        status = remote.status.rawValue
-        targetDate = remote.targetDate
-        createdAt = remote.createdAt
+    func update(with remote: GoalDTO) {
+        update(from: remote)
+        syncStatus = .synced
+    }
+}
+
+extension LocalGoal: Syncable {
+    static func make(from dto: GoalDTO) -> LocalGoal {
+        LocalGoal(remote: dto)
+    }
+
+    func toDTO() -> GoalDTO {
+        GoalDTO(
+            id: id,
+            userId: userId,
+            title: title,
+            description: goalDescription,
+            status: GoalStatus.from(status),
+            targetDate: targetDate,
+            createdAt: createdAt,
+            updatedAt: updatedAt
+        )
+    }
+
+    func update(from dto: GoalDTO) {
+        title = dto.title
+        goalDescription = dto.description
+        status = dto.status.rawValue
+        targetDate = dto.targetDate
+        createdAt = dto.createdAt
+        updatedAt = dto.updatedAt
+    }
+
+    func regenerateID() {
+        id = UUID().uuidString
     }
 }

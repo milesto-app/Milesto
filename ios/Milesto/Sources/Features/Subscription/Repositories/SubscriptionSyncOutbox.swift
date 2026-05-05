@@ -1,4 +1,3 @@
-import CryptoKit
 import Foundation
 import OSLog
 import SwiftData
@@ -23,16 +22,14 @@ actor SubscriptionSyncOutbox {
 
     func enqueue(jws: String, userId: String?) {
         guard let context = makeContext() else { return }
-        let jwsKey = Self.key(for: jws)
         let descriptor = FetchDescriptor<LocalPendingSubscriptionSync>(
-            predicate: #Predicate { $0.jwsRepresentation == jwsKey }
+            predicate: #Predicate { $0.jwsRepresentation == jws }
         )
         if let existing = try? context.fetch(descriptor), !existing.isEmpty {
             outboxLogger.debug("enqueue skipped — duplicate JWS already pending")
             return
         }
-        Keychain.setPendingSubscriptionJWS(jws, key: jwsKey)
-        let pending = LocalPendingSubscriptionSync(jwsRepresentation: jwsKey, userId: userId)
+        let pending = LocalPendingSubscriptionSync(jwsRepresentation: jws, userId: userId)
         context.insert(pending)
         do {
             try context.save()
@@ -40,11 +37,5 @@ actor SubscriptionSyncOutbox {
         } catch {
             outboxLogger.debug("enqueue save failed")
         }
-    }
-
-    private static func key(for jws: String) -> String {
-        let digest = SHA256.hash(data: Data(jws.utf8))
-        let hash = digest.map { String(format: "%02x", $0) }.joined()
-        return "subscription_jws_\(hash)"
     }
 }
