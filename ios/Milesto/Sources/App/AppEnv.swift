@@ -3,7 +3,7 @@ import SwiftData
 @MainActor
 @Observable
 final class AppEnv {
-    let auth: SupabaseAuthRepository
+    let auth: AuthRepository
     let subscription: SubscriptionRepository
     let profile: ProfileRepository
     let goals: GoalRepository
@@ -16,7 +16,7 @@ final class AppEnv {
     let stats: StatsRepository
 
     init(modelContext: ModelContext) {
-        auth = SupabaseAuthRepository()
+        auth = AuthRepository()
         subscription = SubscriptionRepository(modelContext: modelContext)
         profile = ProfileRepository(modelContext: modelContext, auth: auth)
         goals = GoalRepository(modelContext: modelContext)

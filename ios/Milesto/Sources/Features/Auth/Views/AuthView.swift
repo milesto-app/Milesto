@@ -4,8 +4,8 @@ struct AuthView: View {
     let onSignInWithApple: () -> Void
     let onSignInWithGoogle: () -> Void
     let onContinueWithEmail: () -> Void
-    var isAppleLoading: Bool = false
-    var isGoogleLoading: Bool = false
+    let isAppleLoading: Bool
+    let isGoogleLoading: Bool
 
     private var isAnyLoading: Bool {
         isAppleLoading || isGoogleLoading
@@ -27,55 +27,21 @@ struct AuthView: View {
             Spacer()
 
             VStack(spacing: 12) {
-                Button(action: onSignInWithApple) {
-                    Group {
-                        if isAppleLoading {
-                            ProgressView()
-                                .tint(Color("TextPrimary"))
-                        } else {
-                            HStack(spacing: 12) {
-                                Image("AppleLogo")
-                                    .renderingMode(.template)
-                                    .resizable()
-                                    .scaledToFit()
-                                    .frame(width: 18, height: 18)
-
-                                AppText("auth.welcome.apple", table: "Auth", style: .headline)
-                                    .weight(.semibold)
-                            }
-                        }
-                    }
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 16)
-                    .foregroundColor(Color("TextPrimary"))
-                    .background(.clear)
-                    .glassEffect(.regular.interactive(), in: RoundedRectangle(cornerRadius: 12))
-                }
+                AuthProviderButton(
+                    title: "auth.welcome.apple",
+                    logoName: "AppleLogo",
+                    rendersAsTemplate: true,
+                    isLoading: isAppleLoading,
+                    action: onSignInWithApple
+                )
                 .disabled(isAnyLoading)
 
-                Button(action: onSignInWithGoogle) {
-                    Group {
-                        if isGoogleLoading {
-                            ProgressView()
-                                .tint(Color("TextPrimary"))
-                        } else {
-                            HStack(spacing: 12) {
-                                Image("GoogleLogo")
-                                    .resizable()
-                                    .scaledToFit()
-                                    .frame(width: 18, height: 18)
-
-                                AppText("auth.welcome.google", table: "Auth", style: .headline)
-                                    .weight(.semibold)
-                            }
-                        }
-                    }
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 16)
-                    .foregroundColor(Color("TextPrimary"))
-                    .background(.clear)
-                    .glassEffect(.regular.interactive(), in: RoundedRectangle(cornerRadius: 12))
-                }
+                AuthProviderButton(
+                    title: "auth.welcome.google",
+                    logoName: "GoogleLogo",
+                    isLoading: isGoogleLoading,
+                    action: onSignInWithGoogle
+                )
                 .disabled(isAnyLoading)
 
                 HStack(spacing: 16) {
@@ -103,5 +69,42 @@ struct AuthView: View {
                 .padding(.bottom, 32)
         }
         .appBackground()
+    }
+}
+
+private struct AuthProviderButton: View {
+    let title: LocalizedStringKey
+    let logoName: String
+    var rendersAsTemplate = false
+    let isLoading: Bool
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            if isLoading {
+                ProgressView()
+                    .tint(Color("TextPrimary"))
+            } else {
+                HStack(spacing: 12) {
+                    logo
+
+                    AppText(title, table: "Auth", style: .headline)
+                        .weight(.semibold)
+                }
+            }
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, 16)
+        .foregroundColor(Color("TextPrimary"))
+        .background(.clear)
+        .glassEffect(.regular.interactive(), in: RoundedRectangle(cornerRadius: 12))
+    }
+
+    private var logo: some View {
+        Image(logoName)
+            .renderingMode(rendersAsTemplate ? .template : .original)
+            .resizable()
+            .scaledToFit()
+            .frame(width: 18, height: 18)
     }
 }

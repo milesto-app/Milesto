@@ -1,3 +1,4 @@
+import Foundation
 import SwiftUI
 
 enum AuthFormMode {
@@ -51,8 +52,11 @@ struct AuthEmailView: View {
 
     @State private var mode: AuthFormMode = .signUp
 
+    private static let emailRegex = "[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,64}"
+
     private var isEmailValid: Bool {
-        AuthEmailViewModel.isValidEmail(email)
+        let predicate = NSPredicate(format: "SELF MATCHES %@", Self.emailRegex)
+        return predicate.evaluate(with: email)
     }
 
     private var isPasswordValid: Bool {

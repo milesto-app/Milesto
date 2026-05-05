@@ -4,12 +4,12 @@ import SwiftData
 @MainActor
 final class ProfileRepository {
     private let remote: ProfileRemote
-    private let auth: any AuthRepository
+    private let auth: AuthRepository
     private let context: ModelContext
 
     init(
         modelContext: ModelContext,
-        auth: any AuthRepository,
+        auth: AuthRepository,
         remote: ProfileRemote? = nil
     ) {
         self.remote = remote ?? ProfileRemote()

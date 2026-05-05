@@ -5,7 +5,7 @@ import SwiftData
 final class OnboardingRepository {
     private let profile: ProfileRepository
 
-    init(modelContext: ModelContext, auth: any AuthRepository) {
+    init(modelContext: ModelContext, auth: AuthRepository) {
         profile = ProfileRepository(modelContext: modelContext, auth: auth)
     }
 

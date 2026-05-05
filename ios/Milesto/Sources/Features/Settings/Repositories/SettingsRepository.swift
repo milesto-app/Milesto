@@ -14,7 +14,7 @@ final class SettingsRepository {
     private let goals: GoalRepository
     private let context: ModelContext
 
-    init(modelContext: ModelContext, auth: any AuthRepository) {
+    init(modelContext: ModelContext, auth: AuthRepository) {
         profile = ProfileRepository(modelContext: modelContext, auth: auth)
         goals = GoalRepository(modelContext: modelContext)
         context = modelContext
