@@ -1,7 +1,7 @@
 import Combine
 import SwiftUI
 
-struct ThinkingIndicator: View {
+struct ChatThinkingIndicator: View {
     private let labels: [LocalizedStringResource] = [
         LocalizedStringResource("chat.thinking.1", table: "Chat"),
         LocalizedStringResource("chat.thinking.2", table: "Chat"),

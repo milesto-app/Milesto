@@ -8,7 +8,7 @@ enum MarkdownBlock {
     case orderedList([String])
 }
 
-struct MarkdownText: View {
+struct ChatMarkdownText: View {
     let content: String
     var textColor: Color = .init("TextPrimary")
     var codeBackground: Color = .init("BackgroundElevated")
