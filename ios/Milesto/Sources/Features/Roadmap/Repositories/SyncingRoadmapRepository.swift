@@ -10,7 +10,11 @@ final class SyncingRoadmapRepository: RoadmapSummaryRepository, WeeklyTaskReposi
     private let goals: any GoalRepository
     private let context: ModelContext
 
-    init(remote: any RemoteRoadmapRepository, goals: any GoalRepository, modelContext: ModelContext) {
+    init(
+        modelContext: ModelContext,
+        goals: any GoalRepository,
+        remote: any RemoteRoadmapRepository = SupabaseRoadmapRepository()
+    ) {
         self.remote = remote
         self.goals = goals
         context = modelContext

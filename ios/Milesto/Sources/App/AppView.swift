@@ -24,60 +24,21 @@ struct AppView: View {
             if routing == nil {
                 routing = AppViewModel(
                     profile: dependencies.profile,
-                    goals: dependencies.goalRouting,
+                    goals: dependencies.goals,
                     roadmap: dependencies.roadmap
                 )
             }
         }
-        #if DEBUG
-        .showsDeveloperRouteMenuOnShake(dependencies.developerSettings)
-        #endif
     }
 
     @ViewBuilder
     private func authenticatedBody(userId: String) -> some View {
         if let routing {
-            Group {
-                #if DEBUG
-                    switch dependencies.developerSettings.routeOverride {
-                    case .profileOnboarding:
-                        ProfileOnboardingView(
-                            userId: userId,
-                            missingSteps: [.name, .birthdate, .coach],
-                            existingProfile: routing.localProfile,
-                            onComplete: {
-                                dependencies.developerSettings.clearRouteOverride()
-                            }
-                        )
-                        .transition(.opacity)
-                    case .goalIntake:
-                        GoalIntakeFlowView(
-                            existingGoalId: nil,
-                            onClose: {
-                                dependencies.developerSettings.clearRouteOverride()
-                            },
-                            onComplete: { goalId in
-                                routing.activeGoalId = goalId
-                                dependencies.developerSettings.clearRouteOverride()
-                            }
-                        )
-                        .transition(.opacity)
-                    case .roadmapGeneration:
-                        RoadmapGenerationView(goalId: routing.activeGoalId ?? "") {
-                            dependencies.developerSettings.clearRouteOverride()
-                        }
-                        .transition(.opacity)
-                    case .paywall, .none:
-                        standardAuthenticatedBody(userId: userId, routing: routing)
-                    }
-                #else
-                    standardAuthenticatedBody(userId: userId, routing: routing)
-                #endif
-            }
-            .task(id: retryId) {
-                guard !routing.hasSynced else { return }
-                await routing.sync(userId: userId)
-            }
+            standardAuthenticatedBody(userId: userId, routing: routing)
+                .task(id: retryId) {
+                    guard !routing.hasSynced else { return }
+                    await routing.sync(userId: userId)
+                }
         } else {
             Color("BackgroundBase").ignoresSafeArea()
         }

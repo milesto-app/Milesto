@@ -20,7 +20,7 @@ struct AuthContainerView: View {
         }
         .task {
             if model == nil {
-                model = AuthViewModel(auth: dependencies.authRepository)
+                model = AuthViewModel(auth: dependencies.auth)
             }
         }
     }

@@ -3,88 +3,29 @@ import SwiftData
 @MainActor
 @Observable
 final class AppEnv {
-    let auth: any AuthSessionProviding
-    let authRepository: any AuthRepository
-    let entitlement: any EntitlementProviding
-    let subscription: any SubscriptionRepository
-    let profile: any ProfileRepository
-    let goalRouting: any GoalRoutingRepository
-    let intake: any IntakeRepository
-    let intakeFlow: any IntakeFlowRepository
-    let onboarding: any OnboardingRepository
-    let settings: any SettingsRepository
-    let roadmap: any RoadmapSummaryRepository
-    let weeklyTasks: any WeeklyTaskRepository
-    let weeklyPlans: any WeeklyPlanRepository
-    let debriefs: any DebriefRepository
-    let chat: any ChatRepository
-    let stats: any StatsRepository
-
-    #if DEBUG
-        let developerSettings = DeveloperSettings()
-    #endif
+    let auth: SupabaseAuthRepository
+    let subscription: SyncingSubscriptionRepository
+    let profile: SyncingProfileRepository
+    let goals: SyncingGoalRepository
+    let intake: SupabaseIntakeRepository
+    let intakeFlow: SyncingIntakeFlowRepository
+    let onboarding: SyncingOnboardingRepository
+    let settings: SyncingSettingsRepository
+    let roadmap: SyncingRoadmapRepository
+    let chat: SyncingChatRepository
+    let stats: SyncingStatsRepository
 
     init(modelContext: ModelContext) {
-        let oauth = OAuthClient()
-        let authService = SupabaseAuthRepository(client: SupabaseConfig.client, oauth: oauth)
-        let supabaseProfile = SupabaseProfileRepository()
-        let syncingProfile = SyncingProfileRepository(
-            remote: supabaseProfile,
-            auth: authService,
-            modelContext: modelContext
-        )
-        let supabaseGoal = SupabaseGoalRepository(client: SupabaseConfig.client, api: .shared)
-        let goalRepo = SyncingGoalRepository(remote: supabaseGoal, modelContext: modelContext)
-        let supabaseIntake = SupabaseIntakeRepository()
-        let intakeFlowRepo = SyncingIntakeFlowRepository(
-            goals: goalRepo
-        )
-        let onboardingRepo = SyncingOnboardingRepository(
-            profile: syncingProfile
-        )
-        let settingsRepo = SyncingSettingsRepository(
-            profile: syncingProfile,
-            goals: goalRepo,
-            modelContext: modelContext
-        )
-        let roadmapRemote = SupabaseRoadmapRepository()
-        let roadmapRepo = SyncingRoadmapRepository(
-            remote: roadmapRemote,
-            goals: goalRepo,
-            modelContext: modelContext
-        )
-        let remoteChat = SupabaseChatRepository()
-        let chatRepo = SyncingChatRepository(
-            remote: remoteChat,
-            modelContext: modelContext
-        )
-        let supabaseStats = SupabaseStatsRepository()
-        let statsRepo = SyncingStatsRepository(
-            remote: supabaseStats,
-            modelContext: modelContext
-        )
-        let subscriptionService = SyncingSubscriptionRepository()
-        let container = modelContext.container
-        Task { await SubscriptionSyncOutbox.shared.configure(container: container) }
-
-        auth = authService
-        authRepository = authService
-        entitlement = subscriptionService
-        subscription = subscriptionService
-        ApiClient.shared.setSubscriptionRequiredHandler { [weak subscriptionService] in
-            await subscriptionService?.handleApiSubscriptionRequired()
-        }
-        profile = syncingProfile
-        goalRouting = goalRepo
-        intake = supabaseIntake
-        intakeFlow = intakeFlowRepo
-        onboarding = onboardingRepo
-        settings = settingsRepo
-        roadmap = roadmapRepo
-        weeklyTasks = roadmapRepo
-        weeklyPlans = roadmapRepo
-        debriefs = roadmapRepo
-        chat = chatRepo
-        stats = statsRepo
+        auth = SupabaseAuthRepository()
+        subscription = SyncingSubscriptionRepository(modelContext: modelContext)
+        profile = SyncingProfileRepository(modelContext: modelContext, auth: auth)
+        goals = SyncingGoalRepository(modelContext: modelContext)
+        intake = SupabaseIntakeRepository()
+        intakeFlow = SyncingIntakeFlowRepository(goals: goals)
+        onboarding = SyncingOnboardingRepository(profile: profile)
+        settings = SyncingSettingsRepository(profile: profile, goals: goals, modelContext: modelContext)
+        roadmap = SyncingRoadmapRepository(modelContext: modelContext, goals: goals)
+        chat = SyncingChatRepository(modelContext: modelContext)
+        stats = SyncingStatsRepository(modelContext: modelContext)
     }
 }

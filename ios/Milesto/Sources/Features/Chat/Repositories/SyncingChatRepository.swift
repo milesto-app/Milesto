@@ -6,7 +6,7 @@ final class SyncingChatRepository: ChatRepository {
     private let remote: any RemoteChatRepository
     private let context: ModelContext
 
-    init(remote: any RemoteChatRepository, modelContext: ModelContext) {
+    init(modelContext: ModelContext, remote: any RemoteChatRepository = SupabaseChatRepository()) {
         self.remote = remote
         context = modelContext
     }

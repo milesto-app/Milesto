@@ -8,9 +8,9 @@ final class SyncingProfileRepository: ProfileRepository {
     private let context: ModelContext
 
     init(
-        remote: SupabaseProfileRepository,
+        modelContext: ModelContext,
         auth: any AuthRepository,
-        modelContext: ModelContext
+        remote: SupabaseProfileRepository = SupabaseProfileRepository()
     ) {
         self.remote = remote
         self.auth = auth

@@ -6,7 +6,7 @@ final class SyncingGoalRepository: GoalRepository, GoalRoutingRepository {
     private let remote: any RemoteGoalRepository
     private let context: ModelContext
 
-    init(remote: any RemoteGoalRepository, modelContext: ModelContext) {
+    init(modelContext: ModelContext, remote: any RemoteGoalRepository = SupabaseGoalRepository()) {
         self.remote = remote
         context = modelContext
     }

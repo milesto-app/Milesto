@@ -6,7 +6,7 @@ final class SyncingStatsRepository: StatsRepository {
     private let remote: any RemoteStatsRepository
     private let context: ModelContext
 
-    init(remote: any RemoteStatsRepository, modelContext: ModelContext) {
+    init(modelContext: ModelContext, remote: any RemoteStatsRepository = SupabaseStatsRepository()) {
         self.remote = remote
         context = modelContext
     }

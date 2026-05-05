@@ -2,6 +2,7 @@ import Foundation
 import OSLog
 import StoreKit
 import Supabase
+import SwiftData
 
 private let subscriptionLogger = Logger(subsystem: Bundle.main.bundleIdentifier ?? "app.milesto", category: "Subscription")
 
@@ -18,7 +19,7 @@ nonisolated struct SubscriptionStatusResponse: Decodable {
 
 @MainActor
 @Observable
-final class SyncingSubscriptionRepository: EntitlementProviding, SubscriptionRepository {
+final class SyncingSubscriptionRepository: SubscriptionRepository {
     static let monthlyProductId = "milesto_plus_monthly"
     static let annualProductId = "milesto_plus_annual"
 
@@ -45,8 +46,13 @@ final class SyncingSubscriptionRepository: EntitlementProviding, SubscriptionRep
         plans.first { $0.id == Self.annualProductId }
     }
 
-    init() {
+    init(modelContext: ModelContext) {
         updatesTask = observeTransactionUpdates()
+        let container = modelContext.container
+        Task { await SubscriptionSyncOutbox.shared.configure(container: container) }
+        ApiClient.shared.setSubscriptionRequiredHandler { [weak self] in
+            await self?.handleApiSubscriptionRequired()
+        }
         Task {
             await loadPlans()
         }

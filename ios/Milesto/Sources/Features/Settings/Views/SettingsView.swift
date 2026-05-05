@@ -21,7 +21,7 @@ struct SettingsView: View {
             if model == nil {
                 let vm = SettingsViewModel(
                     repository: dependencies.settings,
-                    auth: dependencies.authRepository
+                    auth: dependencies.auth
                 )
                 vm.loadLocalState()
                 model = vm

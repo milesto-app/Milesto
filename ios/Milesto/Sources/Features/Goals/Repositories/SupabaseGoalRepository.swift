@@ -6,7 +6,7 @@ final class SupabaseGoalRepository: RemoteGoalRepository {
     private let client: SupabaseClient
     private let api: ApiClient
 
-    init(client: SupabaseClient, api: ApiClient) {
+    init(client: SupabaseClient = SupabaseConfig.client, api: ApiClient = .shared) {
         self.client = client
         self.api = api
     }

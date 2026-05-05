@@ -11,5 +11,4 @@ protocol SubscriptionRepository: AnyObject {
     func loadPlans() async
     func purchase(planId: String) async
     func restore() async
-    func reconcileWithApi() async
 }

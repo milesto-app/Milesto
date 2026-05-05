@@ -5,38 +5,21 @@ struct SubscriptionGateView<Content: View>: View {
     @ViewBuilder let content: () -> Content
 
     var body: some View {
-        Group {
-            #if DEBUG
-                if dependencies.developerSettings.forcesPaywall {
-                    PaywallView()
-                        .transition(.opacity)
-                } else if dependencies.developerSettings.bypassesPaywall {
-                    content()
-                        .transition(.opacity)
-                } else {
-                    subscriptionGate
-                }
-            #else
-                subscriptionGate
-            #endif
-        }
-        .appBackground()
-        .animation(.easeInOut(duration: 0.4), value: dependencies.entitlement.entitlementState)
-        .animation(.easeInOut(duration: 0.4), value: dependencies.entitlement.isReconcilingEntitlement)
-        .task {
-            #if DEBUG
-                guard !dependencies.developerSettings.forcesPaywall, !dependencies.developerSettings.bypassesPaywall else { return }
-            #endif
-            guard dependencies.entitlement.entitlementState == .unknown ||
-                dependencies.entitlement.entitlementState == .connectionError
-            else { return }
-            await dependencies.subscription.reconcileWithApi()
-        }
+        subscriptionGate
+            .appBackground()
+            .animation(.easeInOut(duration: 0.4), value: dependencies.subscription.entitlementState)
+            .animation(.easeInOut(duration: 0.4), value: dependencies.subscription.isReconcilingEntitlement)
+            .task {
+                guard dependencies.subscription.entitlementState == .unknown ||
+                    dependencies.subscription.entitlementState == .connectionError
+                else { return }
+                await dependencies.subscription.reconcileWithApi()
+            }
     }
 
     private var subscriptionGate: some View {
         Group {
-            switch dependencies.entitlement.entitlementState {
+            switch dependencies.subscription.entitlementState {
             case .unknown:
                 Color("BackgroundBase").ignoresSafeArea()
             case .subscribed:
@@ -46,7 +29,7 @@ struct SubscriptionGateView<Content: View>: View {
                 PaywallView()
                     .transition(.opacity)
             case .connectionError:
-                if dependencies.entitlement.isReconcilingEntitlement {
+                if dependencies.subscription.isReconcilingEntitlement {
                     Color("BackgroundBase").ignoresSafeArea()
                 } else {
                     PaywallConnectionErrorView {
