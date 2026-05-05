@@ -23,7 +23,7 @@ struct ChatBubble: View {
                             .fill(Color("BrandDeep"))
                     )
             } else {
-                StreamingText(content: message.content, isStreaming: isStreamingResponse)
+                ChatStreamingText(content: message.content, isStreaming: isStreamingResponse)
             }
 
             if !isUser { Spacer(minLength: 0) }

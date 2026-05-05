@@ -1,6 +1,6 @@
 import SwiftUI
 
-struct StreamingText: View {
+struct ChatStreamingText: View {
     let content: String
     let isStreaming: Bool
 
@@ -16,10 +16,10 @@ struct StreamingText: View {
 
     var body: some View {
         if isFinished {
-            MarkdownText(content: content)
+            ChatMarkdownText(content: content)
                 .transaction { $0.animation = nil }
         } else {
-            MarkdownText(content: String(content.prefix(revealedCount)))
+            ChatMarkdownText(content: String(content.prefix(revealedCount)))
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .onChange(of: content) {
                     startRevealIfNeeded()
