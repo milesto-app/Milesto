@@ -1,11 +1,12 @@
 import Foundation
+import SwiftData
 
 @MainActor
 final class SyncingOnboardingRepository: OnboardingRepository {
     private let profile: any ProfileRepository
 
-    init(profile: any ProfileRepository) {
-        self.profile = profile
+    init(modelContext: ModelContext, auth: any AuthRepository) {
+        profile = SyncingProfileRepository(modelContext: modelContext, auth: auth)
     }
 
     func saveProfile(userId _: String, fields: ProfileUpdateFields, dateOfBirth _: Date) async throws {

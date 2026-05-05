@@ -14,13 +14,9 @@ final class SyncingSettingsRepository: SettingsRepository {
     private let goals: any GoalRepository
     private let context: ModelContext
 
-    init(
-        profile: any ProfileRepository,
-        goals: any GoalRepository,
-        modelContext: ModelContext
-    ) {
-        self.profile = profile
-        self.goals = goals
+    init(modelContext: ModelContext, auth: any AuthRepository) {
+        profile = SyncingProfileRepository(modelContext: modelContext, auth: auth)
+        goals = SyncingGoalRepository(modelContext: modelContext)
         context = modelContext
     }
 
