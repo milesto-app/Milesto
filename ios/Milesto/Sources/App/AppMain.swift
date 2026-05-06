@@ -3,12 +3,7 @@ import SwiftUI
 @main
 struct AppMain: App {
     @UIApplicationDelegateAdaptor(PushNotificationDelegate.self) private var pushDelegate
-
-    private let env: AppEnv
-
-    init() {
-        env = AppEnv()
-    }
+    private let env: AppEnv = AppEnv()
 
     var body: some Scene {
         WindowGroup {
