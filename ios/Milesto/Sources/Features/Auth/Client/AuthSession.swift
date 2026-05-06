@@ -14,10 +14,6 @@ enum AuthSession {
         try await SupabaseClient.client.auth.session.user.id
     }
 
-    static func userId() async throws -> String {
-        try await userUUID().uuidString
-    }
-
     static func userEmail() async throws -> String? {
         try await SupabaseClient.client.auth.session.user.email
     }

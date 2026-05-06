@@ -1,7 +1,7 @@
 import Foundation
 
 @MainActor
-final class GoalRemote: SyncableRemote {
+final class GoalRemote {
     private let api: ApiClient
 
     init() {
@@ -44,20 +44,5 @@ final class GoalRemote: SyncableRemote {
             method: "GET",
             path: "goals"
         )
-    }
-
-    func fetchAll() async throws -> [GoalDTO] {
-        try await listGoals()
-    }
-
-    func upsert(_ dto: GoalDTO) async throws -> GoalDTO {
-        try await api.request(
-            method: "GET",
-            path: "goals/\(dto.id)"
-        )
-    }
-
-    func delete(id: String) async throws {
-        try await deleteGoal(goalId: id)
     }
 }

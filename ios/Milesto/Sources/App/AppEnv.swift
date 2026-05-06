@@ -1,4 +1,4 @@
-import SwiftData
+import Foundation
 
 @MainActor
 @Observable
@@ -15,17 +15,17 @@ final class AppEnv {
     let chat: ChatRepository
     let stats: StatsRepository
 
-    init(modelContext: ModelContext) {
+    init() {
         auth = AuthRepository()
-        subscription = SubscriptionRepository(modelContext: modelContext)
-        profile = ProfileRepository(modelContext: modelContext, auth: auth)
-        goals = GoalRepository(modelContext: modelContext)
+        subscription = SubscriptionRepository()
+        profile = ProfileRepository(auth: auth)
+        goals = GoalRepository()
         intake = IntakeRemote()
-        intakeFlow = IntakeFlowRepository(modelContext: modelContext)
-        onboarding = OnboardingRepository(modelContext: modelContext, auth: auth)
-        settings = SettingsRepository(modelContext: modelContext, auth: auth)
-        roadmap = RoadmapRepository(modelContext: modelContext)
-        chat = ChatRepository(modelContext: modelContext)
-        stats = StatsRepository(modelContext: modelContext)
+        intakeFlow = IntakeFlowRepository(goals: goals)
+        onboarding = OnboardingRepository(profile: profile)
+        settings = SettingsRepository(profile: profile, goals: goals)
+        roadmap = RoadmapRepository(goals: goals)
+        chat = ChatRepository()
+        stats = StatsRepository()
     }
 }

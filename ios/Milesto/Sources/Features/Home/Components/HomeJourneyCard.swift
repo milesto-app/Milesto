@@ -18,9 +18,6 @@ struct HomeJourneyCard: View {
                 }
                 await model?.refresh()
             }
-            .onReceive(NotificationCenter.default.publisher(for: .weeklyTaskCompletionDidChange)) { _ in
-                model?.reactToTaskChange()
-            }
     }
 
     private var journeyContent: some View {

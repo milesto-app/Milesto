@@ -1,35 +1,21 @@
 import Foundation
-import OSLog
-import SwiftData
-
-private let settingsLogger = Logger(subsystem: Bundle.main.bundleIdentifier ?? "app.milesto", category: "Settings")
-
-enum SettingsRepositoryError: Error {
-    case localPurgeFailed
-}
 
 @MainActor
 final class SettingsRepository {
     private let profile: ProfileRepository
     private let goals: GoalRepository
-    private let context: ModelContext
 
-    init(modelContext: ModelContext, auth: AuthRepository) {
-        profile = ProfileRepository(modelContext: modelContext, auth: auth)
-        goals = GoalRepository(modelContext: modelContext)
-        context = modelContext
+    init(profile: ProfileRepository, goals: GoalRepository) {
+        self.profile = profile
+        self.goals = goals
     }
 
-    func loadProfile(userId: String) -> ProfileSnapshot? {
-        profile.loadProfile(userId: userId)
+    func fetchProfile() async throws -> ProfileSnapshot {
+        try await profile.fetchProfile()
     }
 
-    func loadActiveGoal(userId: String) -> GoalSnapshot? {
-        goals.loadActiveGoal(userId: userId)
-    }
-
-    func syncProfile(userId: String) async throws {
-        try await profile.sync(userId: userId)
+    func fetchActiveGoal(userId: String) async throws -> GoalSnapshot? {
+        try await goals.fetchActiveGoal(userId: userId)
     }
 
     func updateProfile(_ fields: ProfileUpdateFields) async throws {
@@ -38,24 +24,5 @@ final class SettingsRepository {
 
     func deleteGoal(goalId: String) async throws {
         try await goals.deleteGoal(goalId: goalId)
-    }
-
-    func purgeLocalUserData() async throws {
-        do {
-            try deleteAll(LocalGoal.self)
-            try deleteAll(LocalProfile.self)
-            try context.save()
-        } catch {
-            settingsLogger.error("Failed to purge local user data before sign-out")
-            throw SettingsRepositoryError.localPurgeFailed
-        }
-    }
-
-    private func deleteAll<T: PersistentModel>(_: T.Type) throws {
-        let descriptor = FetchDescriptor<T>()
-        let rows = try context.fetch(descriptor)
-        for row in rows {
-            context.delete(row)
-        }
     }
 }

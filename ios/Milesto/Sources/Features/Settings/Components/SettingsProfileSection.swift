@@ -20,7 +20,7 @@ struct SettingsProfileHeaderSection: View {
                 Button(action: onEdit) {
                     VStack(spacing: 16) {
                         ProfileAvatarView(
-                            imageData: profile?.avatarData,
+                            imageURL: profile?.avatarURL.flatMap(URL.init(string:)),
                             initials: initials,
                             size: 80
                         )

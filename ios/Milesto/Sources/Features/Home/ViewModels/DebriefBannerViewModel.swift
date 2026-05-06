@@ -15,18 +15,11 @@ final class DebriefBannerViewModel {
 
     func configure(goalId: String) {
         self.goalId = goalId
-        apply(repository.loadDebriefPromptState(goalId: goalId))
     }
 
     func refresh() async {
-        apply(await repository.refreshDebriefPromptState(goalId: goalId))
-    }
-
-    func reactToTaskChange() {
-        apply(repository.loadDebriefPromptState(goalId: goalId))
-    }
-
-    private func apply(_ state: DebriefPromptState) {
+        guard !goalId.isEmpty else { return }
+        guard let state = try? await repository.fetchDebriefPromptState(goalId: goalId) else { return }
         weeklyPlanId = state.weeklyPlanId
         shouldDisplay = state.shouldDisplay
     }

@@ -1,6 +1,6 @@
 import Foundation
 
-struct StatsDTO: nonisolated SyncableDTO {
+struct StatsDTO: Codable, Identifiable {
     let goalId: String
     let updatedAt: Date
     let streak: StreakStatsDTO
@@ -17,22 +17,6 @@ struct StatsDTO: nonisolated SyncableDTO {
         case goalId = "goal_id"
         case updatedAt = "updated_at"
         case weeklyProgress = "weekly_progress"
-    }
-
-    init(
-        goalId: String,
-        updatedAt: Date = Date(),
-        streak: StreakStatsDTO,
-        completion: CompletionStatsDTO,
-        weeklyProgress: [WeeklyProgressDTO],
-        milestones: MilestoneProgressDTO
-    ) {
-        self.goalId = goalId
-        self.updatedAt = updatedAt
-        self.streak = streak
-        self.completion = completion
-        self.weeklyProgress = weeklyProgress
-        self.milestones = milestones
     }
 
     init(from decoder: Decoder) throws {
@@ -53,33 +37,6 @@ struct StatsDTO: nonisolated SyncableDTO {
         completion = try container.decode(CompletionStatsDTO.self, forKey: .completion)
         weeklyProgress = try container.decode([WeeklyProgressDTO].self, forKey: .weeklyProgress)
         milestones = try container.decode(MilestoneProgressDTO.self, forKey: .milestones)
-    }
-
-    func withSyncMetadata(goalId: String, updatedAt: Date) -> StatsDTO {
-        StatsDTO(
-            goalId: goalId,
-            updatedAt: updatedAt,
-            streak: streak,
-            completion: completion,
-            weeklyProgress: weeklyProgress,
-            milestones: milestones
-        )
-    }
-
-    static func empty(goalId: String, updatedAt: Date = Date()) -> StatsDTO {
-        StatsDTO(
-            goalId: goalId,
-            updatedAt: updatedAt,
-            streak: StreakStatsDTO(current: 0, best: 0, last7Days: []),
-            completion: CompletionStatsDTO(
-                overallRate: 0,
-                thisWeekRate: 0,
-                totalCompleted: 0,
-                totalObjectives: 0
-            ),
-            weeklyProgress: [],
-            milestones: MilestoneProgressDTO(completed: 0, total: 0)
-        )
     }
 }
 

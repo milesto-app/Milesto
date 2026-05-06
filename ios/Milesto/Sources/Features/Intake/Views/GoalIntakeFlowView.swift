@@ -50,7 +50,6 @@ struct GoalIntakeFlowView: View {
                     )
                 case let .intake(goalId):
                     IntakeContainerView(goalId: goalId, onComplete: {
-                        model.markGoalCompleted(goalId: goalId)
                         onComplete(goalId)
                     })
                 }

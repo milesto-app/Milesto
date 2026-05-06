@@ -26,17 +26,13 @@ final class ChatRemote {
             path: "conversations/\(conversationId)/messages"
         )
 
-        let dateFormatter = ISO8601DateFormatter()
-        dateFormatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
-
         return rows
             .filter { ($0.role == "user" || $0.role == "assistant") && $0.content != nil }
             .map { remote in
                 ChatMessage(
                     id: remote.id,
                     role: remote.role == "user" ? .user : .assistant,
-                    content: remote.content ?? "",
-                    createdAt: dateFormatter.date(from: remote.createdAt) ?? Date()
+                    content: remote.content ?? ""
                 )
             }
     }

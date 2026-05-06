@@ -21,23 +21,17 @@ final class WeeklyTasksViewModel {
 
     func configure(goalId: String) {
         self.goalId = goalId
-        let localTasks = repository.loadWeeklyTasks(goalId: goalId)
-        if !localTasks.isEmpty {
-            tasks = localTasks
-            isLoading = false
-        }
-        weekNumber = repository.loadWeeklyPlan(goalId: goalId)?.weekNumber
     }
 
     func refresh() async {
         defer { isLoading = false }
         do {
-            tasks = try await repository.refreshWeeklyTasks(goalId: goalId)
+            tasks = try await repository.fetchWeeklyTasks(goalId: goalId)
             hasError = false
         } catch {
             if tasks.isEmpty { hasError = true }
         }
-        if let plan = await repository.refreshWeeklyPlan(goalId: goalId) {
+        if let plan = try? await repository.fetchWeeklyPlan(goalId: goalId) {
             weekNumber = plan.weekNumber
         }
     }
@@ -64,7 +58,6 @@ final class WeeklyTasksViewModel {
                 if let idx = tasks.firstIndex(where: { $0.id == original.id }) {
                     tasks[idx] = original
                 }
-                repository.saveTask(original)
             }
         }
     }

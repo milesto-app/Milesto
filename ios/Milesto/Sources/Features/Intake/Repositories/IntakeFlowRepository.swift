@@ -1,12 +1,11 @@
 import Foundation
-import SwiftData
 
 @MainActor
 final class IntakeFlowRepository {
     private let goals: GoalRepository
 
-    init(modelContext: ModelContext) {
-        goals = GoalRepository(modelContext: modelContext)
+    init(goals: GoalRepository) {
+        self.goals = goals
     }
 
     func createGoal(description: String) async throws -> GoalSnapshot {
@@ -15,9 +14,5 @@ final class IntakeFlowRepository {
 
     func saveMotivation(goalId: String, quote: String) async throws {
         try await goals.updateGoal(goalId: goalId, motivationQuote: quote)
-    }
-
-    func markIntakeCompleted(goalId: String) {
-        goals.markIntakeCompleted(goalId: goalId)
     }
 }

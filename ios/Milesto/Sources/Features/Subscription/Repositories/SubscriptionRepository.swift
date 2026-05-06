@@ -1,7 +1,6 @@
 import Foundation
 import OSLog
 import StoreKit
-import SwiftData
 
 private let subscriptionLogger = Logger(subsystem: Bundle.main.bundleIdentifier ?? "app.milesto", category: "Subscription")
 
@@ -45,10 +44,8 @@ final class SubscriptionRepository {
         plans.first { $0.id == Self.annualProductId }
     }
 
-    init(modelContext: ModelContext) {
+    init() {
         updatesTask = observeTransactionUpdates()
-        let container = modelContext.container
-        Task { await SubscriptionSyncOutbox.shared.configure(container: container) }
         ApiClient.shared.setSubscriptionRequiredHandler { [weak self] in
             await self?.handleApiSubscriptionRequired()
         }
@@ -152,12 +149,7 @@ final class SubscriptionRepository {
             }
         }
 
-        subscriptionLogger.debug("verify failed after retries, enqueueing")
-        await SubscriptionSyncOutbox.shared.enqueue(jws: jws, userId: await currentUserId())
-    }
-
-    private func currentUserId() async -> String? {
-        try? await AuthSession.userId()
+        subscriptionLogger.debug("verify failed after retries")
     }
 
     private func processUnfinishedTransactions() async {

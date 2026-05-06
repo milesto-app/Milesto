@@ -25,9 +25,6 @@ struct DebriefBannerCard: View {
             }
             await model?.refresh()
         }
-        .onReceive(NotificationCenter.default.publisher(for: .weeklyTaskCompletionDidChange)) { _ in
-            model?.reactToTaskChange()
-        }
         .sheet(isPresented: $showDebriefSheet) {
             if let model, let weeklyPlanId = model.weeklyPlanId {
                 DebriefSheetView(

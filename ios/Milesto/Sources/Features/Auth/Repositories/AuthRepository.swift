@@ -61,7 +61,6 @@ final class AuthRepository {
     }
 
     func signOut() async throws {
-        await NotificationService.shared.unregisterCurrentToken()
         try await client.auth.signOut()
         clearSession()
     }

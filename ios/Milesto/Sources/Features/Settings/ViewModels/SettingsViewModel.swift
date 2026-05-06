@@ -42,16 +42,10 @@ final class SettingsViewModel {
         return locale.localizedString(forLanguageCode: code)?.capitalized ?? code
     }
 
-    func loadLocalState() {
+    func loadState() async {
         guard let userId = auth.currentUserId else { return }
-        profile = repository.loadProfile(userId: userId)
-        activeGoal = repository.loadActiveGoal(userId: userId)
-    }
-
-    func syncProfile() async {
-        guard let userId = auth.currentUserId else { return }
-        try? await repository.syncProfile(userId: userId)
-        loadLocalState()
+        profile = try? await repository.fetchProfile()
+        activeGoal = try? await repository.fetchActiveGoal(userId: userId)
     }
 
     func saveProfileFields(_ fields: ProfileUpdateFields) async {
@@ -59,7 +53,7 @@ final class SettingsViewModel {
         defer { isSaving = false }
         do {
             try await repository.updateProfile(fields)
-            loadLocalState()
+            await loadState()
         } catch {
             errorMessage = error.localizedDescription
             showError = true
@@ -84,11 +78,7 @@ final class SettingsViewModel {
 
     func signOut() async {
         do {
-            try await repository.purgeLocalUserData()
             try await auth.signOut()
-        } catch SettingsRepositoryError.localPurgeFailed {
-            errorMessage = String(localized: "settings.signOut.purge.error", table: "Settings")
-            showError = true
         } catch {
             errorMessage = error.localizedDescription
             showError = true

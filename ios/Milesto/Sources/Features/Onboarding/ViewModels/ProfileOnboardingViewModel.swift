@@ -79,7 +79,7 @@ final class ProfileOnboardingViewModel {
         )
 
         do {
-            try await repository.saveProfile(userId: userId, fields: fields, dateOfBirth: mergedDateOfBirth)
+            try await repository.saveProfile(fields: fields)
             return true
         } catch {
             errorMessage = error.localizedDescription

@@ -52,7 +52,6 @@ final class MilestoneDetailViewModel {
                 if let idx = tasks.firstIndex(where: { $0.id == original.id }) {
                     tasks[idx] = original
                 }
-                repository.saveTask(original)
             }
         }
     }

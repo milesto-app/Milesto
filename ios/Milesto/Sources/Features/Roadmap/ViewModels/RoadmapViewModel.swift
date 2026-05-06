@@ -18,7 +18,6 @@ final class RoadmapViewModel {
 
     func configure(goalId: String) {
         self.goalId = goalId
-        applySnapshot(repository.loadRoadmapSnapshot(goalId: goalId))
     }
 
     func resetForGoalChange() {
@@ -29,34 +28,21 @@ final class RoadmapViewModel {
         appeared = false
     }
 
-    func loadMilestones() async {
-        let snapshot = await repository.refreshRoadmap(goalId: goalId)
-        applySnapshot(snapshot)
+    func loadMilestones(userId: String?) async {
+        guard !goalId.isEmpty else { return }
+        guard let snapshot = try? await repository.fetchRoadmap(goalId: goalId, userId: userId) else {
+            isLoading = false
+            return
+        }
+        let tasks = (try? await repository.fetchWeeklyTasks(goalId: goalId)) ?? []
+        applySnapshot(snapshot, tasks: tasks)
         isLoading = false
         if !appeared {
             appeared = true
         }
     }
 
-    func refreshDisplayedProgress() {
-        let progress = repository.currentTaskProgress(goalId: goalId)
-        milestones = milestones.map { milestone in
-            DisplayMilestone(
-                id: milestone.id,
-                title: milestone.title,
-                description: milestone.description,
-                targetMonth: milestone.targetMonth,
-                targetWeek: milestone.targetWeek,
-                isMonthlyCheckpoint: milestone.isMonthlyCheckpoint,
-                orderIndex: milestone.orderIndex,
-                expectedOutcome: milestone.expectedOutcome,
-                status: milestone.status,
-                progress: milestone.status == .current ? progress : milestone.progress
-            )
-        }
-    }
-
-    private func applySnapshot(_ snapshot: RoadmapSnapshot) {
+    private func applySnapshot(_ snapshot: RoadmapSnapshot, tasks: [WeeklyTask]) {
         if let goalTitle = snapshot.goalTitle {
             self.goalTitle = goalTitle
         }
@@ -70,7 +56,13 @@ final class RoadmapViewModel {
 
         var foundCurrent = false
         let currentMilestoneId = snapshot.currentMilestoneId
-        let progress = repository.currentTaskProgress(goalId: goalId)
+        let progress: Double
+        if tasks.isEmpty {
+            progress = 0
+        } else {
+            let completed = tasks.filter(\.isCompleted).count
+            progress = Double(completed) / Double(tasks.count)
+        }
 
         milestones = records.enumerated().map { index, record in
             let status: MilestoneStatus
@@ -93,19 +85,11 @@ final class RoadmapViewModel {
                 description: record.description,
                 targetMonth: record.targetMonth,
                 targetWeek: record.targetWeek,
-                isMonthlyCheckpoint: record.isMonthlyCheckpoint,
                 orderIndex: record.orderIndex,
                 expectedOutcome: record.expectedOutcome,
                 status: status,
                 progress: status == .current ? progress : (status == .completed ? 1.0 : 0.0)
             )
-        }
-
-        if !milestones.isEmpty {
-            isLoading = false
-            if !appeared {
-                appeared = true
-            }
         }
     }
 }
