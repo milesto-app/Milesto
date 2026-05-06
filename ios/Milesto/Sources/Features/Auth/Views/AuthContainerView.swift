@@ -46,7 +46,7 @@ struct AuthContainerView: View {
         } message: {
             AppText(verbatim: errorMessage ?? "", style: .body)
         }
-        .onChange(of: env.auth.authState) { _, newState in
+        .onChange(of: env.auth.status) { _, newState in
             handleAuthStateChange(newState)
         }
     }

@@ -10,7 +10,7 @@ struct AppView: View {
 
     var body: some View {
         Group {
-            switch env.auth.authState {
+            switch env.auth.status {
             case .unauthenticated, .error:
                 AuthContainerView()
             case .authenticating:
