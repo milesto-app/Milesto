@@ -3,14 +3,14 @@ import Foundation
 @MainActor
 @Observable
 final class DebriefBannerViewModel {
-    @ObservationIgnored private let repository: RoadmapRepository
+    @ObservationIgnored private let env: AppEnv
     @ObservationIgnored private var goalId: String = ""
 
     private(set) var weeklyPlanId: String?
     private(set) var shouldDisplay = false
 
-    init(repository: RoadmapRepository) {
-        self.repository = repository
+    init(env: AppEnv) {
+        self.env = env
     }
 
     func configure(goalId: String) {
@@ -20,9 +20,9 @@ final class DebriefBannerViewModel {
     func refresh() async {
         guard !goalId.isEmpty else { return }
 
-        async let tasksAsync = repository.fetchWeeklyTasks(goalId: goalId)
-        async let planAsync = repository.fetchWeeklyPlan(goalId: goalId)
-        async let debriefAsync = repository.fetchLatestDebrief(goalId: goalId)
+        async let tasksAsync = env.roadmap.fetchWeeklyTasks(goalId: goalId)
+        async let planAsync = env.roadmap.fetchWeeklyPlan(goalId: goalId)
+        async let debriefAsync = env.roadmap.fetchLatestDebrief(goalId: goalId)
         let tasks = (try? await tasksAsync) ?? []
         let plan: WeeklyPlanDTO? = (try? await planAsync) ?? nil
         let latest: DebriefDTO? = (try? await debriefAsync) ?? nil

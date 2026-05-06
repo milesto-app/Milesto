@@ -3,7 +3,7 @@ import Foundation
 @MainActor
 @Observable
 final class ProfileOnboardingViewModel {
-    @ObservationIgnored private let repository: OnboardingRepository
+    @ObservationIgnored private let env: AppEnv
     @ObservationIgnored private let userId: String
     @ObservationIgnored let missingSteps: [OnboardingStep]
     @ObservationIgnored private let existingProfile: ProfileDTO?
@@ -18,12 +18,12 @@ final class ProfileOnboardingViewModel {
     var showError = false
 
     init(
-        repository: OnboardingRepository,
+        env: AppEnv,
         userId: String,
         missingSteps: [OnboardingStep],
         existingProfile: ProfileDTO?
     ) {
-        self.repository = repository
+        self.env = env
         self.userId = userId
         self.missingSteps = missingSteps
         self.existingProfile = existingProfile
@@ -74,7 +74,7 @@ final class ProfileOnboardingViewModel {
         )
 
         do {
-            try await repository.saveProfile(fields: fields)
+            try await env.onboarding.saveProfile(fields: fields)
             return true
         } catch {
             errorMessage = error.localizedDescription

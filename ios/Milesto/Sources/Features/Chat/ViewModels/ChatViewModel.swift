@@ -3,7 +3,7 @@ import Foundation
 @MainActor
 @Observable
 final class ChatViewModel {
-    @ObservationIgnored private let repository: ChatRepository
+    @ObservationIgnored private let env: AppEnv
 
     private(set) var messages: [ChatMessageDTO] = []
     var inputText = ""
@@ -19,8 +19,8 @@ final class ChatViewModel {
 
     private(set) var goalId: String = ""
 
-    init(repository: ChatRepository) {
-        self.repository = repository
+    init(env: AppEnv) {
+        self.env = env
     }
 
     var isWaitingForResponse: Bool {
@@ -63,7 +63,7 @@ final class ChatViewModel {
 
         Task {
             do {
-                let stream = repository.sendMessage(
+                let stream = env.chat.sendMessage(
                     conversationId: conversationId,
                     goalId: goalId,
                     content: content
@@ -97,7 +97,7 @@ final class ChatViewModel {
         isLoadingHistory = true
 
         Task {
-            if let fetched = try? await repository.fetchConversations(goalId: goalId) {
+            if let fetched = try? await env.chat.fetchConversations(goalId: goalId) {
                 conversations = fetched
             }
             isLoadingHistory = false
@@ -107,7 +107,7 @@ final class ChatViewModel {
     func deleteConversation(_ id: String) {
         Task {
             do {
-                try await repository.deleteConversation(conversationId: id)
+                try await env.chat.deleteConversation(conversationId: id)
                 conversations.removeAll { $0.id == id }
                 if conversationId == id {
                     messages = []
@@ -126,7 +126,7 @@ final class ChatViewModel {
 
         Task {
             do {
-                let loaded = try await repository.fetchMessages(conversationId: id)
+                let loaded = try await env.chat.fetchMessages(conversationId: id)
                 conversationId = id
                 messages = loaded
             } catch {

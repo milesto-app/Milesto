@@ -28,7 +28,7 @@ struct RoadmapGenerationView: View {
         .appBackground()
         .task {
             if model == nil {
-                model = RoadmapGenerationViewModel(repository: env.roadmap)
+                model = RoadmapGenerationViewModel(env: env)
             }
             await runGeneration()
         }

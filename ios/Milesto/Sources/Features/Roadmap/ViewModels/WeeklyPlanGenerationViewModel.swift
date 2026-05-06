@@ -3,13 +3,13 @@ import Foundation
 @MainActor
 @Observable
 final class WeeklyPlanGenerationViewModel {
-    @ObservationIgnored private let repository: RoadmapRepository
+    @ObservationIgnored private let env: AppEnv
 
     private(set) var isGenerating = false
     private(set) var hasFailed = false
 
-    init(repository: RoadmapRepository) {
-        self.repository = repository
+    init(env: AppEnv) {
+        self.env = env
     }
 
     func generate(goalId: String) async -> Bool {
@@ -18,13 +18,13 @@ final class WeeklyPlanGenerationViewModel {
         defer { isGenerating = false }
 
         do {
-            try await repository.generateWeeklyPlan(goalId: goalId)
+            try await env.roadmap.generateWeeklyPlan(goalId: goalId)
         } catch {
             hasFailed = true
             return false
         }
 
-        let succeeded = await repository.waitForGeneratedTasks(goalId: goalId)
+        let succeeded = await env.roadmap.waitForGeneratedTasks(goalId: goalId)
         if !succeeded {
             hasFailed = true
         }

@@ -3,21 +3,21 @@ import Foundation
 @MainActor
 @Observable
 final class StatsViewModel {
-    @ObservationIgnored private let repository: StatsRepository
+    @ObservationIgnored private let env: AppEnv
 
     private(set) var stats: StatsDTO?
     private(set) var isLoading = true
     private(set) var hasAppeared = false
     private(set) var loadError: Error?
 
-    init(repository: StatsRepository) {
-        self.repository = repository
+    init(env: AppEnv) {
+        self.env = env
     }
 
     func load(goalId: String) async {
         loadError = nil
         do {
-            stats = try await repository.fetchStats(goalId: goalId)
+            stats = try await env.stats.fetchStats(goalId: goalId)
             isLoading = false
             hasAppeared = true
         } catch {

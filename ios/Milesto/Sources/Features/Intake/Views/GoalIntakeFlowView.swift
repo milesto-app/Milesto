@@ -18,7 +18,7 @@ struct GoalIntakeFlowView: View {
         }
         .task {
             if model == nil {
-                let vm = GoalIntakeFlowViewModel(repository: env.intakeFlow)
+                let vm = GoalIntakeFlowViewModel(env: env)
                 vm.startWithExistingGoalId(existingGoalId)
                 model = vm
             }

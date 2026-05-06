@@ -18,7 +18,7 @@ struct IntakeContainerView: View {
         .appBackground()
         .task {
             if model == nil {
-                let vm = IntakeContainerViewModel(intake: env.intake)
+                let vm = IntakeContainerViewModel(env: env)
                 vm.configure(goalId: goalId)
                 model = vm
             }
