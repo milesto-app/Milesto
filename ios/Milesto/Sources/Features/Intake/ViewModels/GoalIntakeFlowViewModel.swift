@@ -34,7 +34,7 @@ final class GoalIntakeFlowViewModel {
         defer { isCreatingGoal = false }
 
         do {
-            let goal = try await env.intakeFlow.createGoal(
+            let goal = try await env.intake.createGoal(
                 description: goalDescription.trimmingCharacters(in: .whitespacesAndNewlines)
             )
             step = .motivation(goalId: goal.id)
@@ -56,7 +56,7 @@ final class GoalIntakeFlowViewModel {
         }
 
         do {
-            try await env.intakeFlow.saveMotivation(goalId: goalId, quote: trimmed)
+            try await env.intake.saveMotivation(goalId: goalId, quote: trimmed)
             advanceToIntake(goalId: goalId)
         } catch ApiError.subscriptionRequired {
         } catch {
