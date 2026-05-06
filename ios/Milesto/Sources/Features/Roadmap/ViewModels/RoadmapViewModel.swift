@@ -46,7 +46,7 @@ final class RoadmapViewModel {
         }
     }
 
-    private static func buildMilestones(from roadmap: RoadmapDTO?, tasks: [WeeklyTask]) -> [DisplayMilestone] {
+    private static func buildMilestones(from roadmap: RoadmapDTO?, tasks: [WeeklyTaskDTO]) -> [DisplayMilestone] {
         let records = (roadmap?.milestones ?? []).sorted { $0.orderIndex < $1.orderIndex }
         guard !records.isEmpty else { return [] }
 

@@ -1,6 +1,6 @@
 import Foundation
 
-struct WeeklyTask: Codable, Identifiable {
+struct WeeklyTaskDTO: Codable, Identifiable {
     let id: String
     let weeklyPlanId: String
     let goalId: String

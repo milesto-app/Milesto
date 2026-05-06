@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct ObjectiveRowView: View {
-    let task: WeeklyTask
+    let task: WeeklyTaskDTO
     let onToggle: () -> Void
     var onOpen: (() -> Void)?
 

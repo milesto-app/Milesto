@@ -9,16 +9,16 @@ final class GoalRemote {
     }
 
     func createGoal(description: String) async throws -> GoalDTO {
-        struct Body: Encodable { let description: String }
+        struct CreateGoalBodyDTO: Encodable { let description: String }
         return try await api.request(
             method: "POST",
             path: "goals",
-            body: Body(description: description)
+            body: CreateGoalBodyDTO(description: description)
         )
     }
 
     func updateGoal(goalId: String, motivationQuote: String?) async throws {
-        struct Body: Encodable {
+        struct UpdateGoalBodyDTO: Encodable {
             let userMotivationQuote: String?
 
             enum CodingKeys: String, CodingKey {
@@ -28,7 +28,7 @@ final class GoalRemote {
         try await api.requestVoid(
             method: "PATCH",
             path: "goals/\(goalId)",
-            body: Body(userMotivationQuote: motivationQuote)
+            body: UpdateGoalBodyDTO(userMotivationQuote: motivationQuote)
         )
     }
 

@@ -24,8 +24,8 @@ final class DebriefBannerViewModel {
         async let planAsync = repository.fetchWeeklyPlan(goalId: goalId)
         async let debriefAsync = repository.fetchLatestDebrief(goalId: goalId)
         let tasks = (try? await tasksAsync) ?? []
-        let plan: WeeklyPlan? = (try? await planAsync) ?? nil
-        let latest: Debrief? = (try? await debriefAsync) ?? nil
+        let plan: WeeklyPlanDTO? = (try? await planAsync) ?? nil
+        let latest: DebriefDTO? = (try? await debriefAsync) ?? nil
 
         let allComplete = !tasks.isEmpty && tasks.allSatisfy(\.isCompleted)
         let debriefMissingForCurrentPlan = latest?.weeklyPlanId != plan?.id

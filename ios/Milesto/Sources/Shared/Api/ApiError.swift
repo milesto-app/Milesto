@@ -1,22 +1,22 @@
 import Foundation
 
-nonisolated struct GenerationLimitUsage: Decodable {
+nonisolated struct GenerationLimitUsageDTO: Decodable {
     let used: Int
     let limit: Int
     let isPro: Bool
     let resetsAt: String
 }
 
-private nonisolated struct LimitErrorBody: Decodable {
+private nonisolated struct LimitErrorBodyDTO: Decodable {
     let error: String?
-    let usage: GenerationLimitUsage?
+    let usage: GenerationLimitUsageDTO?
 }
 
 enum ApiError: LocalizedError {
     case invalidResponse
     case httpError(statusCode: Int, data: Data)
     case unauthorized
-    case generationLimitReached(usage: GenerationLimitUsage)
+    case generationLimitReached(usage: GenerationLimitUsageDTO)
     case subscriptionRequired
 
     var errorDescription: String? {
@@ -40,7 +40,7 @@ enum ApiError: LocalizedError {
             return .subscriptionRequired
         }
         if statusCode == 429 {
-            if let body = try? JSONDecoder().decode(LimitErrorBody.self, from: data),
+            if let body = try? JSONDecoder().decode(LimitErrorBodyDTO.self, from: data),
                body.error == "GENERATION_LIMIT_REACHED",
                let usage = body.usage
             {

@@ -7,7 +7,7 @@ final class MilestoneDetailViewModel {
     @ObservationIgnored private let milestoneId: String
     @ObservationIgnored private let status: MilestoneStatus
 
-    private(set) var tasks: [WeeklyTask] = []
+    private(set) var tasks: [WeeklyTaskDTO] = []
     private(set) var isLoadingTasks = false
 
     init(repository: RoadmapRepository, milestoneId: String, status: MilestoneStatus) {
@@ -16,7 +16,7 @@ final class MilestoneDetailViewModel {
         self.status = status
     }
 
-    var sortedTasks: [WeeklyTask] {
+    var sortedTasks: [WeeklyTaskDTO] {
         repository.sortedTasks(tasks)
     }
 
@@ -27,7 +27,7 @@ final class MilestoneDetailViewModel {
         tasks = (try? await repository.tasksForMilestone(milestoneId: milestoneId)) ?? []
     }
 
-    func toggleTask(_ task: WeeklyTask) {
+    func toggleTask(_ task: WeeklyTaskDTO) {
         guard status == .current,
               let index = tasks.firstIndex(where: { $0.id == task.id })
         else { return }
@@ -35,7 +35,7 @@ final class MilestoneDetailViewModel {
         setTaskCompletion(tasks[index], isCompleted: !tasks[index].isCompleted)
     }
 
-    private func setTaskCompletion(_ task: WeeklyTask, isCompleted: Bool) {
+    private func setTaskCompletion(_ task: WeeklyTaskDTO, isCompleted: Bool) {
         guard let original = repository.applyOptimisticCompletion(task: task, isCompleted: isCompleted, in: &tasks) else { return }
 
         Task {

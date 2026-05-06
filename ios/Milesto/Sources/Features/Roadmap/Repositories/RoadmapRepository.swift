@@ -20,30 +20,30 @@ final class RoadmapRepository {
         _ = try await remote.generateRoadmap(goalId: goalId)
     }
 
-    func tasksForMilestone(milestoneId: String) async throws -> [WeeklyTask] {
+    func tasksForMilestone(milestoneId: String) async throws -> [WeeklyTaskDTO] {
         try await remote.getTasksForMilestone(milestoneId: milestoneId)
     }
 
-    func toggleTask(taskId: String, goalId: String, isCompleted: Bool) async throws -> WeeklyTask {
+    func toggleTask(taskId: String, goalId: String, isCompleted: Bool) async throws -> WeeklyTaskDTO {
         try await remote.toggleTask(goalId: goalId, taskId: taskId, isCompleted: isCompleted)
     }
 
-    func fetchWeeklyTasks(goalId: String) async throws -> [WeeklyTask] {
+    func fetchWeeklyTasks(goalId: String) async throws -> [WeeklyTaskDTO] {
         try await remote.getWeeklyTasks(goalId: goalId)
     }
 
-    func fetchWeeklyPlan(goalId: String) async throws -> WeeklyPlan? {
+    func fetchWeeklyPlan(goalId: String) async throws -> WeeklyPlanDTO? {
         if let existing = try? await remote.getWeeklyPlan(goalId: goalId) {
             return existing
         }
         return try? await remote.generateWeeklyPlan(goalId: goalId)
     }
 
-    func fetchLatestDebrief(goalId: String) async throws -> Debrief? {
+    func fetchLatestDebrief(goalId: String) async throws -> DebriefDTO? {
         try await remote.getDebriefHistory(goalId: goalId).first
     }
 
-    func submitDebrief(goalId: String, weeklyPlanId: String, note: String) async throws -> Debrief {
+    func submitDebrief(goalId: String, weeklyPlanId: String, note: String) async throws -> DebriefDTO {
         try await remote.submitDebrief(goalId: goalId, weeklyPlanId: weeklyPlanId, note: note)
     }
 
@@ -61,7 +61,7 @@ final class RoadmapRepository {
         return false
     }
 
-    func sortedTasks(_ tasks: [WeeklyTask]) -> [WeeklyTask] {
+    func sortedTasks(_ tasks: [WeeklyTaskDTO]) -> [WeeklyTaskDTO] {
         tasks.sorted {
             if $0.isCompleted != $1.isCompleted { return !$0.isCompleted }
             return $0.orderIndex < $1.orderIndex
@@ -69,30 +69,24 @@ final class RoadmapRepository {
     }
 
     func applyOptimisticCompletion(
-        task: WeeklyTask,
+        task: WeeklyTaskDTO,
         isCompleted: Bool,
-        in tasks: inout [WeeklyTask]
-    ) -> WeeklyTask? {
+        in tasks: inout [WeeklyTaskDTO]
+    ) -> WeeklyTaskDTO? {
         guard let index = tasks.firstIndex(where: { $0.id == task.id }) else { return nil }
         let original = tasks[index]
-        tasks[index] = original.with(isCompleted: isCompleted)
-        return original
-    }
-}
-
-extension WeeklyTask {
-    func with(isCompleted: Bool) -> WeeklyTask {
-        WeeklyTask(
-            id: id,
-            weeklyPlanId: weeklyPlanId,
-            goalId: goalId,
-            userId: userId,
-            title: title,
-            description: description,
-            estimatedMinutes: estimatedMinutes,
-            orderIndex: orderIndex,
+        tasks[index] = WeeklyTaskDTO(
+            id: original.id,
+            weeklyPlanId: original.weeklyPlanId,
+            goalId: original.goalId,
+            userId: original.userId,
+            title: original.title,
+            description: original.description,
+            estimatedMinutes: original.estimatedMinutes,
+            orderIndex: original.orderIndex,
             isCompleted: isCompleted,
-            createdAt: createdAt
+            createdAt: original.createdAt
         )
+        return original
     }
 }

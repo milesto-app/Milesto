@@ -136,7 +136,7 @@ final class ChatViewModel {
         }
     }
 
-    private func handle(event: ChatStreamEvent) {
+    private func handle(event: ChatStreamEventDTO) {
         switch event {
         case let .messageStart(id):
             conversationId = id

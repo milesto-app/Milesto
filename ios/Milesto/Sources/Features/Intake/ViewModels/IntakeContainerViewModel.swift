@@ -2,7 +2,7 @@ import Foundation
 
 enum IntakePhase: Equatable {
     case loading
-    case answering(IntakeBatch)
+    case answering(IntakeBatchDTO)
     case submitting
     case generatingProfile
     case completed
@@ -150,7 +150,7 @@ final class IntakeContainerViewModel {
         }
     }
 
-    private func handleBatchResponse(_ response: IntakeBatch) {
+    private func handleBatchResponse(_ response: IntakeBatchDTO) {
         if let questions = response.questions, !questions.isEmpty {
             answers = [:]
             currentBatchNumber = response.batchNumber ?? 1

@@ -6,7 +6,7 @@ final class WeeklyTasksViewModel {
     @ObservationIgnored private let repository: RoadmapRepository
     @ObservationIgnored private var goalId: String = ""
 
-    private(set) var tasks: [WeeklyTask] = []
+    private(set) var tasks: [WeeklyTaskDTO] = []
     private(set) var weekNumber: Int?
     private(set) var isLoading = true
     private(set) var hasError = false
@@ -15,7 +15,7 @@ final class WeeklyTasksViewModel {
         self.repository = repository
     }
 
-    var sortedTasks: [WeeklyTask] {
+    var sortedTasks: [WeeklyTaskDTO] {
         repository.sortedTasks(tasks)
     }
 
@@ -36,12 +36,12 @@ final class WeeklyTasksViewModel {
         }
     }
 
-    func toggle(_ task: WeeklyTask) {
+    func toggle(_ task: WeeklyTaskDTO) {
         guard let current = tasks.first(where: { $0.id == task.id }) else { return }
         setTaskCompletion(current, isCompleted: !current.isCompleted)
     }
 
-    private func setTaskCompletion(_ task: WeeklyTask, isCompleted: Bool) {
+    private func setTaskCompletion(_ task: WeeklyTaskDTO, isCompleted: Bool) {
         guard let original = repository.applyOptimisticCompletion(task: task, isCompleted: isCompleted, in: &tasks) else { return }
 
         Task {

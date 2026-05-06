@@ -20,7 +20,7 @@ final class ChatRepository {
         try await remote.deleteConversation(conversationId: conversationId)
     }
 
-    func sendMessage(conversationId: String?, goalId: String, content: String) -> AsyncThrowingStream<ChatStreamEvent, Error> {
+    func sendMessage(conversationId: String?, goalId: String, content: String) -> AsyncThrowingStream<ChatStreamEventDTO, Error> {
         remote.sendMessage(conversationId: conversationId, goalId: goalId, content: content)
     }
 }

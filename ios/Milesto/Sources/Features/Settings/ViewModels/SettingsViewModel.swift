@@ -52,7 +52,7 @@ final class SettingsViewModel {
         activeGoal = try? await repository.fetchActiveGoal(userId: userId)
     }
 
-    func saveProfileFields(_ fields: ProfileUpdateFields) async {
+    func saveProfileFields(_ fields: ProfileUpdateFieldsDTO) async {
         isSaving = true
         defer { isSaving = false }
         do {

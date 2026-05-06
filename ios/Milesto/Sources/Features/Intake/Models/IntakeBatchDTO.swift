@@ -7,7 +7,7 @@ enum QuestionType: String, Codable {
     case multipleChoice = "multiple_choice"
 }
 
-struct QuestionConfig: Codable {
+struct QuestionConfigDTO: Codable {
     let min: Int?
     let max: Int?
     let minLabel: String?
@@ -25,11 +25,11 @@ struct QuestionConfig: Codable {
     }
 }
 
-struct IntakeQuestion: Codable, Identifiable {
+struct IntakeQuestionDTO: Codable, Identifiable {
     let id: String
     let questionText: String
     let questionType: QuestionType
-    let config: QuestionConfig?
+    let config: QuestionConfigDTO?
     let orderInBatch: Int
 
     enum CodingKeys: String, CodingKey {
@@ -41,10 +41,10 @@ struct IntakeQuestion: Codable, Identifiable {
     }
 }
 
-struct IntakeBatch: Codable {
+struct IntakeBatchDTO: Codable {
     let batchId: String?
     let batchNumber: Int?
-    let questions: [IntakeQuestion]?
+    let questions: [IntakeQuestionDTO]?
     let isComplete: Bool?
     let profileId: String?
     let profileStatus: String?
@@ -59,9 +59,9 @@ struct IntakeBatch: Codable {
     }
 }
 
-struct SubmitBatchResponse: Codable {
-    let submittedBatch: SubmittedBatchInfo?
-    let nextBatch: IntakeBatch?
+struct SubmitBatchResponseDTO: Codable {
+    let submittedBatch: SubmittedBatchInfoDTO?
+    let nextBatch: IntakeBatchDTO?
     let profileId: String?
     let profileStatus: String?
 
@@ -73,7 +73,7 @@ struct SubmitBatchResponse: Codable {
     }
 }
 
-struct SubmittedBatchInfo: Codable {
+struct SubmittedBatchInfoDTO: Codable {
     let batchId: String
     let batchNumber: Int
 

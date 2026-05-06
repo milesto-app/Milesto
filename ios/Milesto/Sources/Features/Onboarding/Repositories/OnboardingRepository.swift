@@ -8,7 +8,7 @@ final class OnboardingRepository {
         self.profile = profile
     }
 
-    func saveProfile(fields: ProfileUpdateFields) async throws {
+    func saveProfile(fields: ProfileUpdateFieldsDTO) async throws {
         _ = try await profile.updateProfile(fields)
     }
 }

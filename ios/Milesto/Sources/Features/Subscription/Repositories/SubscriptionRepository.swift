@@ -4,11 +4,11 @@ import StoreKit
 
 private let subscriptionLogger = Logger(subsystem: Bundle.main.bundleIdentifier ?? "app.milesto", category: "Subscription")
 
-nonisolated struct VerifySubscriptionBody: Encodable {
+nonisolated struct VerifySubscriptionBodyDTO: Encodable {
     let jwsTransaction: String
 }
 
-nonisolated struct SubscriptionStatusResponse: Decodable {
+nonisolated struct SubscriptionStatusResponseDTO: Decodable {
     let status: String
     let expiresAt: String?
     let productId: String?
@@ -139,7 +139,7 @@ final class SubscriptionRepository {
 
     private func syncTransactionWithRetry(jws: String) async -> Bool {
         let delaysNanos: [UInt64] = [1_000_000_000, 2_000_000_000, 3_000_000_000]
-        let body = VerifySubscriptionBody(jwsTransaction: jws)
+        let body = VerifySubscriptionBodyDTO(jwsTransaction: jws)
 
         for (index, delay) in delaysNanos.enumerated() {
             if Task.isCancelled { return false }
@@ -195,7 +195,7 @@ final class SubscriptionRepository {
             reconcileTask = nil
         }
 
-        let response: SubscriptionStatusResponse
+        let response: SubscriptionStatusResponseDTO
         do {
             response = try await ApiClient.shared.request(method: "GET", path: "subscription/status")
         } catch {
@@ -215,7 +215,7 @@ final class SubscriptionRepository {
 
         if let entitlement = await currentVerifiedEntitlement() {
             _ = await syncTransactionWithRetry(jws: entitlement.jws)
-            let refetched: SubscriptionStatusResponse
+            let refetched: SubscriptionStatusResponseDTO
             do {
                 refetched = try await ApiClient.shared.request(method: "GET", path: "subscription/status")
             } catch {
@@ -232,7 +232,7 @@ final class SubscriptionRepository {
         entitlementState = .notSubscribed
     }
 
-    private static func isApiActive(_ response: SubscriptionStatusResponse) -> Bool {
+    private static func isApiActive(_ response: SubscriptionStatusResponseDTO) -> Bool {
         guard response.status == "active" || response.status == "grace_period" else { return false }
         guard let expiresAtString = response.expiresAt,
               let expiresAt = parseISO8601(expiresAtString)

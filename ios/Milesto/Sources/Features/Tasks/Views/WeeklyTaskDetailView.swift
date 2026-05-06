@@ -1,17 +1,17 @@
 import SwiftUI
 
 struct WeeklyTaskDetailView: View {
-    let task: WeeklyTask
+    let task: WeeklyTaskDTO
     let weekNumber: Int?
-    let onToggle: ((WeeklyTask) -> Void)?
+    let onToggle: ((WeeklyTaskDTO) -> Void)?
 
     @Environment(\.dismiss) private var dismiss
     @State private var appeared = false
 
     init(
-        task: WeeklyTask,
+        task: WeeklyTaskDTO,
         weekNumber: Int? = nil,
-        onToggle: ((WeeklyTask) -> Void)? = nil
+        onToggle: ((WeeklyTaskDTO) -> Void)? = nil
     ) {
         self.task = task
         self.weekNumber = weekNumber

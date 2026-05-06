@@ -18,7 +18,7 @@ final class SettingsRepository {
         try await goals.fetchActiveGoal(userId: userId)
     }
 
-    func updateProfile(_ fields: ProfileUpdateFields) async throws {
+    func updateProfile(_ fields: ProfileUpdateFieldsDTO) async throws {
         _ = try await profile.updateProfile(fields)
     }
 
