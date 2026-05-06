@@ -6,7 +6,6 @@ struct ProfileDTO: Codable {
     let lastName: String?
     let coachId: Int?
     let dateOfBirth: Date?
-    let language: String?
     let createdAt: Date?
 
     enum CodingKeys: String, CodingKey {
@@ -15,7 +14,6 @@ struct ProfileDTO: Codable {
         case lastName = "last_name"
         case dateOfBirth = "date_of_birth"
         case coachId = "coach_id"
-        case language
         case createdAt = "created_at"
     }
 
@@ -26,7 +24,6 @@ struct ProfileDTO: Codable {
         firstName = try container.decodeIfPresent(String.self, forKey: .firstName)
         lastName = try container.decodeIfPresent(String.self, forKey: .lastName)
         coachId = try container.decodeIfPresent(Int.self, forKey: .coachId)
-        language = try container.decodeIfPresent(String.self, forKey: .language)
 
         if let dateString = try container.decodeIfPresent(String.self, forKey: .dateOfBirth) {
             let formatter = DateFormatter()
@@ -46,15 +43,7 @@ struct ProfileDTO: Codable {
     }
 }
 
-struct ProfileSnapshot {
-    let firstName: String?
-    let lastName: String?
-    let email: String?
-    let avatarURL: String?
-    let coachId: Int?
-    let dateOfBirth: Date?
-    let createdAt: Date?
-
+extension ProfileDTO {
     var isProfileComplete: Bool {
         firstName?.trimmingCharacters(in: .whitespaces).isEmpty == false
             && lastName?.trimmingCharacters(in: .whitespaces).isEmpty == false

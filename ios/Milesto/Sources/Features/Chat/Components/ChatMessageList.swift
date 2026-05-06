@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct ChatMessageList: View {
-    let messages: [ChatMessage]
+    let messages: [ChatMessageDTO]
     let isStreaming: Bool
     let isWaitingForResponse: Bool
     let showThinking: Bool
@@ -13,7 +13,7 @@ struct ChatMessageList: View {
                     ForEach(messages) { message in
                         ChatBubble(
                             message: message,
-                            isStreamingResponse: isStreaming && message.id == messages.last?.id && message.role == .assistant
+                            isStreamingResponse: isStreaming && message.id == messages.last?.id && message.isAssistant
                         )
                         .id(message.id)
                     }

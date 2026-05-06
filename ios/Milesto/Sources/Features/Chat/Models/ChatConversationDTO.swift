@@ -1,17 +1,22 @@
 import Foundation
 
-struct ChatConversationDTO: Decodable {
+struct ChatConversationDTO: Decodable, Identifiable, Hashable {
     let id: String
-    let goalId: String
-    let updatedAt: String
-    let createdAt: String
     let preview: String?
+    let updatedAt: Date
 
     private enum CodingKeys: String, CodingKey {
-        case id
-        case goalId = "goal_id"
+        case id, preview
         case updatedAt = "updated_at"
-        case createdAt = "created_at"
-        case preview
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        id = try container.decode(String.self, forKey: .id)
+        preview = try container.decodeIfPresent(String.self, forKey: .preview)
+        let updatedAtString = try container.decode(String.self, forKey: .updatedAt)
+        let formatter = ISO8601DateFormatter()
+        formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+        updatedAt = formatter.date(from: updatedAtString) ?? Date()
     }
 }

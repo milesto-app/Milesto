@@ -10,7 +10,7 @@ final class AppViewModel {
     var activeGoalId: String?
     var connectionError = false
 
-    private(set) var localProfile: ProfileSnapshot?
+    private(set) var localProfile: ProfileDTO?
 
     @ObservationIgnored private let profile: ProfileRepository
     @ObservationIgnored private let goals: GoalRepository
@@ -39,8 +39,7 @@ final class AppViewModel {
             return
         }
 
-        let remoteComplete = localProfile?.isProfileComplete == true
-        if !remoteComplete {
+        guard localProfile?.isProfileComplete == true else {
             profileComplete = false
             goalComplete = false
             roadmapReady = false
@@ -51,26 +50,28 @@ final class AppViewModel {
 
         profileComplete = true
 
-        let descriptor: ActiveGoalDescriptor?
+        let activeGoal: GoalDTO?
         do {
-            descriptor = try await goals.resolveActiveGoal(userId: userId)
+            activeGoal = try await goals.fetchActiveGoal(userId: userId)
         } catch {
             connectionError = true
             return
         }
 
-        if let descriptor {
-            applyGoalState(descriptor)
-            if descriptor.phase == .intakeCompleted {
-                let status = try? await roadmap.fetchRoadmapStatus(goalId: descriptor.goalId)
-                if activeGoalId == descriptor.goalId {
-                    roadmapReady = status == .complete
-                }
-            }
-        } else {
+        guard let activeGoal else {
             activeGoalId = nil
             goalComplete = false
             roadmapReady = false
+            hasSynced = true
+            return
+        }
+
+        applyGoalState(activeGoal)
+        if activeGoal.status == .intakeCompleted {
+            let status = try? await roadmap.fetchRoadmapStatus(goalId: activeGoal.id)
+            if activeGoalId == activeGoal.id {
+                roadmapReady = status == .complete
+            }
         }
 
         hasSynced = true
@@ -80,16 +81,16 @@ final class AppViewModel {
         roadmapReady = true
     }
 
-    private func applyGoalState(_ descriptor: ActiveGoalDescriptor) {
-        activeGoalId = descriptor.goalId
-        switch descriptor.phase {
+    private func applyGoalState(_ goal: GoalDTO) {
+        activeGoalId = goal.id
+        switch goal.status {
         case .active:
             goalComplete = true
             roadmapReady = true
         case .intakeCompleted:
             goalComplete = true
             roadmapReady = false
-        case .intakeInProgress, .profileGenerating, .generationFailed, .other:
+        case .intakeInProgress, .profileGenerating, .generationFailed:
             goalComplete = false
             roadmapReady = false
         }

@@ -35,6 +35,8 @@ struct SettingsView: View {
             List {
                 SettingsProfileHeaderSection(
                     profile: model.profile,
+                    email: model.email,
+                    avatarURL: model.avatarURL,
                     fullName: model.fullName,
                     initials: model.initials,
                     onEdit: { activeSheet = .name }

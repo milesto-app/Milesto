@@ -5,7 +5,7 @@ import Foundation
 final class StatsViewModel {
     @ObservationIgnored private let repository: StatsRepository
 
-    private(set) var stats: StatsSnapshot?
+    private(set) var stats: StatsDTO?
     private(set) var isLoading = true
     private(set) var hasAppeared = false
     private(set) var loadError: Error?

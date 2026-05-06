@@ -6,7 +6,7 @@ final class ProfileOnboardingViewModel {
     @ObservationIgnored private let repository: OnboardingRepository
     @ObservationIgnored private let userId: String
     @ObservationIgnored let missingSteps: [OnboardingStep]
-    @ObservationIgnored private let existingProfile: ProfileSnapshot?
+    @ObservationIgnored private let existingProfile: ProfileDTO?
 
     var firstName: String
     var lastName: String
@@ -21,7 +21,7 @@ final class ProfileOnboardingViewModel {
         repository: OnboardingRepository,
         userId: String,
         missingSteps: [OnboardingStep],
-        existingProfile: ProfileSnapshot?
+        existingProfile: ProfileDTO?
     ) {
         self.repository = repository
         self.userId = userId
@@ -39,10 +39,6 @@ final class ProfileOnboardingViewModel {
     var currentStep: OnboardingStep? {
         guard currentStepIndex < missingSteps.count else { return nil }
         return missingSteps[currentStepIndex]
-    }
-
-    private var deviceLanguage: String {
-        Locale.current.language.languageCode?.identifier == "fr" ? "fr" : "en"
     }
 
     func advanceOrSave() async -> Bool {
@@ -74,8 +70,7 @@ final class ProfileOnboardingViewModel {
             firstName: mergedFirstName,
             lastName: mergedLastName,
             dateOfBirth: formatter.string(from: mergedDateOfBirth),
-            coachId: mergedCoachId,
-            language: deviceLanguage
+            coachId: mergedCoachId
         )
 
         do {

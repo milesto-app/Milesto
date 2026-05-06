@@ -8,7 +8,7 @@ final class StatsRepository {
         remote = StatsRemote()
     }
 
-    func fetchStats(goalId: String) async throws -> StatsSnapshot {
-        try await remote.fetchStats(goalId: goalId).snapshot
+    func fetchStats(goalId: String) async throws -> StatsDTO {
+        try await remote.fetchStats(goalId: goalId)
     }
 }

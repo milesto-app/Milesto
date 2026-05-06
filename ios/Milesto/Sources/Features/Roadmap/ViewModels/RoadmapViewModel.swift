@@ -3,17 +3,18 @@ import Foundation
 @MainActor
 @Observable
 final class RoadmapViewModel {
-    @ObservationIgnored private let repository: RoadmapRepository
+    @ObservationIgnored private let roadmap: RoadmapRepository
+    @ObservationIgnored private let goals: GoalRepository
 
     private(set) var goalId: String = ""
     private(set) var goalTitle: String = ""
-    private(set) var switchableGoals: [GoalSummary] = []
     private(set) var milestones: [DisplayMilestone] = []
     private(set) var isLoading = true
     var appeared = false
 
-    init(repository: RoadmapRepository) {
-        self.repository = repository
+    init(roadmap: RoadmapRepository, goals: GoalRepository) {
+        self.roadmap = roadmap
+        self.goals = goals
     }
 
     func configure(goalId: String) {
@@ -23,39 +24,32 @@ final class RoadmapViewModel {
     func resetForGoalChange() {
         milestones = []
         goalTitle = ""
-        switchableGoals = []
         isLoading = true
         appeared = false
     }
 
-    func loadMilestones(userId: String?) async {
+    func loadMilestones() async {
         guard !goalId.isEmpty else { return }
-        guard let snapshot = try? await repository.fetchRoadmap(goalId: goalId, userId: userId) else {
-            isLoading = false
-            return
+
+        let goal = try? await goals.fetchGoal(goalId: goalId)
+        let dto = try? await roadmap.fetchRoadmap(goalId: goalId)
+        let tasks = (try? await roadmap.fetchWeeklyTasks(goalId: goalId)) ?? []
+
+        if let title = goal?.title {
+            goalTitle = title
         }
-        let tasks = (try? await repository.fetchWeeklyTasks(goalId: goalId)) ?? []
-        applySnapshot(snapshot, tasks: tasks)
+        milestones = Self.buildMilestones(from: dto, tasks: tasks)
+
         isLoading = false
         if !appeared {
             appeared = true
         }
     }
 
-    private func applySnapshot(_ snapshot: RoadmapSnapshot, tasks: [WeeklyTask]) {
-        if let goalTitle = snapshot.goalTitle {
-            self.goalTitle = goalTitle
-        }
-        switchableGoals = snapshot.switchableGoals
+    private static func buildMilestones(from roadmap: RoadmapDTO?, tasks: [WeeklyTask]) -> [DisplayMilestone] {
+        let records = (roadmap?.milestones ?? []).sorted { $0.orderIndex < $1.orderIndex }
+        guard !records.isEmpty else { return [] }
 
-        let records = snapshot.milestones
-        guard !records.isEmpty else {
-            milestones = []
-            return
-        }
-
-        var foundCurrent = false
-        let currentMilestoneId = snapshot.currentMilestoneId
         let progress: Double
         if tasks.isEmpty {
             progress = 0
@@ -64,7 +58,10 @@ final class RoadmapViewModel {
             progress = Double(completed) / Double(tasks.count)
         }
 
-        milestones = records.enumerated().map { index, record in
+        var foundCurrent = false
+        let currentMilestoneId = roadmap?.currentMilestoneId
+
+        return records.enumerated().map { index, record in
             let status: MilestoneStatus
             if let currentMilestoneId {
                 if record.id == currentMilestoneId {
