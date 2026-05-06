@@ -1,6 +1,6 @@
 import Foundation
 
-nonisolated struct GoalDTO: Codable, Identifiable {
+nonisolated struct GoalDTO: Codable, Identifiable, Hashable {
     let id: String
     let userId: String
     let title: String
@@ -65,21 +65,5 @@ nonisolated struct GoalDTO: Codable, Identifiable {
         withFraction.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
         if let date = withFraction.date(from: value) { return date }
         return ISO8601DateFormatter().date(from: value)
-    }
-}
-
-struct GoalSnapshot: Identifiable, Hashable {
-    let id: String
-    let title: String
-    let targetDate: Date?
-}
-
-struct GoalSummary: Identifiable, Hashable {
-    let id: String
-}
-
-extension GoalDTO {
-    var snapshot: GoalSnapshot {
-        GoalSnapshot(id: id, title: title, targetDate: targetDate)
     }
 }

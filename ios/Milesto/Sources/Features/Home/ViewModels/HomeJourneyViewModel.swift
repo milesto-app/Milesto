@@ -3,15 +3,17 @@ import Foundation
 @MainActor
 @Observable
 final class HomeJourneyViewModel {
-    @ObservationIgnored private let repository: RoadmapRepository
+    @ObservationIgnored private let roadmap: RoadmapRepository
+    @ObservationIgnored private let goals: GoalRepository
     @ObservationIgnored private var goalId: String = ""
 
     private(set) var goalTitle: String = ""
     private(set) var goalDeadlineText: String?
     private(set) var completionProgress: Double = 0
 
-    init(repository: RoadmapRepository) {
-        self.repository = repository
+    init(roadmap: RoadmapRepository, goals: GoalRepository) {
+        self.roadmap = roadmap
+        self.goals = goals
     }
 
     func configure(goalId: String) {
@@ -20,25 +22,23 @@ final class HomeJourneyViewModel {
 
     func refresh() async {
         guard !goalId.isEmpty else { return }
-        guard let snapshot = try? await repository.fetchRoadmap(goalId: goalId, userId: nil) else { return }
-        let tasks = (try? await repository.fetchWeeklyTasks(goalId: goalId)) ?? []
-        applySnapshot(snapshot, tasks: tasks)
-    }
+        let goal = try? await goals.fetchGoal(goalId: goalId)
+        let roadmapDTO = try? await roadmap.fetchRoadmap(goalId: goalId)
+        let tasks = (try? await roadmap.fetchWeeklyTasks(goalId: goalId)) ?? []
 
-    private func applySnapshot(_ snapshot: RoadmapSnapshot, tasks: [WeeklyTask]) {
-        if let goalTitle = snapshot.goalTitle {
-            self.goalTitle = goalTitle
+        if let title = goal?.title {
+            goalTitle = title
         }
-        goalDeadlineText = snapshot.goalTargetDate.map(Self.formattedDeadline)
-        completionProgress = Self.completionProgress(snapshot: snapshot, tasks: tasks)
+        goalDeadlineText = goal?.targetDate.map(Self.formattedDeadline)
+        completionProgress = Self.completionProgress(roadmap: roadmapDTO, tasks: tasks)
     }
 
-    private static func completionProgress(snapshot: RoadmapSnapshot, tasks: [WeeklyTask]) -> Double {
-        let records = snapshot.milestones
-        guard !records.isEmpty else { return 0 }
+    private static func completionProgress(roadmap: RoadmapDTO?, tasks: [WeeklyTask]) -> Double {
+        let milestones = (roadmap?.milestones ?? []).sorted { $0.orderIndex < $1.orderIndex }
+        guard !milestones.isEmpty else { return 0 }
 
-        let currentIndex = snapshot.currentMilestoneId.flatMap { currentMilestoneId in
-            records.firstIndex { $0.id == currentMilestoneId }
+        let currentIndex = roadmap?.currentMilestoneId.flatMap { id in
+            milestones.firstIndex { $0.id == id }
         } ?? 0
 
         let currentTaskProgress: Double
@@ -49,7 +49,7 @@ final class HomeJourneyViewModel {
             currentTaskProgress = Double(completed) / Double(tasks.count)
         }
 
-        return (Double(currentIndex) + currentTaskProgress) / Double(records.count)
+        return (Double(currentIndex) + currentTaskProgress) / Double(milestones.count)
     }
 
     private static func formattedDeadline(_ date: Date) -> String {

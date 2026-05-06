@@ -62,10 +62,6 @@ struct RoadmapView: View {
     @State private var expandedPastSections: Set<Int> = []
     @State private var collapsedSections: Set<Int> = []
 
-    private var userId: String? {
-        env.auth.currentUserId
-    }
-
     private var monthSections: [RoadmapMonthSection] {
         guard let model else { return [] }
         let grouped = Dictionary(grouping: model.milestones) { $0.targetMonth }
@@ -90,16 +86,16 @@ struct RoadmapView: View {
         }
         .task {
             if model == nil {
-                let vm = RoadmapViewModel(repository: env.roadmap)
+                let vm = RoadmapViewModel(roadmap: env.roadmap, goals: env.goals)
                 vm.configure(goalId: goalId)
                 model = vm
             }
-            await model?.loadMilestones(userId: userId)
+            await model?.loadMilestones()
         }
         .onAppear {
             model?.appeared = true
             if let model, !model.milestones.isEmpty {
-                Task { await model.loadMilestones(userId: userId) }
+                Task { await model.loadMilestones() }
             }
         }
         .onChange(of: goalId) {
@@ -109,7 +105,7 @@ struct RoadmapView: View {
             expandedPastSections = []
             collapsedSections = []
             Task {
-                await model.loadMilestones(userId: userId)
+                await model.loadMilestones()
                 if !model.appeared {
                     model.appeared = true
                 }

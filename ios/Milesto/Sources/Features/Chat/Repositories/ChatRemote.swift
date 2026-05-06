@@ -20,21 +20,12 @@ final class ChatRemote {
         )
     }
 
-    func getConversationMessages(conversationId: String) async throws -> [ChatMessage] {
+    func getConversationMessages(conversationId: String) async throws -> [ChatMessageDTO] {
         let rows: [ChatMessageDTO] = try await ApiClient.shared.request(
             method: "GET",
             path: "conversations/\(conversationId)/messages"
         )
-
-        return rows
-            .filter { ($0.role == "user" || $0.role == "assistant") && $0.content != nil }
-            .map { remote in
-                ChatMessage(
-                    id: remote.id,
-                    role: remote.role == "user" ? .user : .assistant,
-                    content: remote.content ?? ""
-                )
-            }
+        return rows.filter { ($0.isUser || $0.isAssistant) && $0.content != nil }
     }
 
     func deleteConversation(conversationId: String) async throws {

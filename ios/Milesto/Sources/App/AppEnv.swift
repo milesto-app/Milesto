@@ -24,7 +24,7 @@ final class AppEnv {
         intakeFlow = IntakeFlowRepository(goals: goals)
         onboarding = OnboardingRepository(profile: profile)
         settings = SettingsRepository(profile: profile, goals: goals)
-        roadmap = RoadmapRepository(goals: goals)
+        roadmap = RoadmapRepository()
         chat = ChatRepository()
         stats = StatsRepository()
     }

@@ -5,7 +5,7 @@ import Foundation
 final class ChatViewModel {
     @ObservationIgnored private let repository: ChatRepository
 
-    private(set) var messages: [ChatMessage] = []
+    private(set) var messages: [ChatMessageDTO] = []
     var inputText = ""
     private(set) var isStreaming = false
     private(set) var conversationId: String?
@@ -13,7 +13,7 @@ final class ChatViewModel {
     var showError = false
     private(set) var errorMessage = ""
     private(set) var showThinking = false
-    private(set) var conversations: [ChatConversation] = []
+    private(set) var conversations: [ChatConversationDTO] = []
     private(set) var isLoadingHistory = false
     var isLimitReached = false
 
@@ -26,8 +26,8 @@ final class ChatViewModel {
     var isWaitingForResponse: Bool {
         guard isStreaming else { return false }
         if isToolRunning { return true }
-        guard let last = messages.last, last.role == .assistant else { return true }
-        return last.content.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+        guard let last = messages.last, last.isAssistant else { return true }
+        return (last.content ?? "").trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
     }
 
     func configure(goalId: String) {
@@ -44,9 +44,9 @@ final class ChatViewModel {
         let content = inputText.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !content.isEmpty else { return }
 
-        let userMessage = ChatMessage(
+        let userMessage = ChatMessageDTO(
             id: UUID().uuidString,
-            role: .user,
+            role: "user",
             content: content
         )
         messages.append(userMessage)
@@ -141,12 +141,12 @@ final class ChatViewModel {
         case let .messageStart(id):
             conversationId = id
         case let .textDelta(delta):
-            if let lastIndex = messages.indices.last, messages[lastIndex].role == .assistant {
-                messages[lastIndex].content += delta
+            if let lastIndex = messages.indices.last, messages[lastIndex].isAssistant {
+                messages[lastIndex].content = (messages[lastIndex].content ?? "") + delta
             } else if !delta.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-                let assistantMessage = ChatMessage(
+                let assistantMessage = ChatMessageDTO(
                     id: UUID().uuidString,
-                    role: .assistant,
+                    role: "assistant",
                     content: delta
                 )
                 messages.append(assistantMessage)

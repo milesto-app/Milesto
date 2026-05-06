@@ -10,40 +10,13 @@ final class ProfileRepository {
         self.auth = auth
     }
 
-    func fetchProfile() async throws -> ProfileSnapshot {
-        var fetchedProfile = try await remote.fetchProfile()
-        fetchedProfile = await mergePendingAppleName(into: fetchedProfile)
-
-        var fetchedEmail: String?
-        var fetchedAvatarURL: String?
-        if let authSnapshot = try? await remote.fetchAuthSnapshot() {
-            fetchedEmail = authSnapshot.email
-            fetchedAvatarURL = authSnapshot.avatarURL
-        }
-
-        return ProfileSnapshot(
-            firstName: fetchedProfile?.firstName,
-            lastName: fetchedProfile?.lastName,
-            email: fetchedEmail,
-            avatarURL: fetchedAvatarURL,
-            coachId: fetchedProfile?.coachId,
-            dateOfBirth: fetchedProfile?.dateOfBirth,
-            createdAt: fetchedProfile?.createdAt
-        )
+    func fetchProfile() async throws -> ProfileDTO? {
+        let fetched = try await remote.fetchProfile()
+        return await mergePendingAppleName(into: fetched)
     }
 
-    func updateProfile(_ fields: ProfileUpdateFields) async throws -> ProfileSnapshot {
-        let dto = try await remote.updateProfile(fields)
-        let auth = try? await remote.fetchAuthSnapshot()
-        return ProfileSnapshot(
-            firstName: dto.firstName,
-            lastName: dto.lastName,
-            email: auth?.email,
-            avatarURL: auth?.avatarURL,
-            coachId: dto.coachId,
-            dateOfBirth: dto.dateOfBirth,
-            createdAt: dto.createdAt
-        )
+    func updateProfile(_ fields: ProfileUpdateFields) async throws -> ProfileDTO {
+        try await remote.updateProfile(fields)
     }
 
     private func mergePendingAppleName(into fetchedProfile: ProfileDTO?) async -> ProfileDTO? {

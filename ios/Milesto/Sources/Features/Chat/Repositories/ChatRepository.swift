@@ -8,20 +8,11 @@ final class ChatRepository {
         remote = ChatRemote()
     }
 
-    func fetchConversations(goalId: String) async throws -> [ChatConversation] {
-        let dtos = try await remote.listConversations(goalId: goalId)
-        let formatter = ISO8601DateFormatter()
-        formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
-        return dtos.map { dto in
-            ChatConversation(
-                id: dto.id,
-                preview: dto.preview,
-                updatedAt: formatter.date(from: dto.updatedAt) ?? Date()
-            )
-        }
+    func fetchConversations(goalId: String) async throws -> [ChatConversationDTO] {
+        try await remote.listConversations(goalId: goalId)
     }
 
-    func fetchMessages(conversationId: String) async throws -> [ChatMessage] {
+    func fetchMessages(conversationId: String) async throws -> [ChatMessageDTO] {
         try await remote.getConversationMessages(conversationId: conversationId)
     }
 

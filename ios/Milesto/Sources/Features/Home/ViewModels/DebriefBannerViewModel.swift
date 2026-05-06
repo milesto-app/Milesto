@@ -19,8 +19,17 @@ final class DebriefBannerViewModel {
 
     func refresh() async {
         guard !goalId.isEmpty else { return }
-        guard let state = try? await repository.fetchDebriefPromptState(goalId: goalId) else { return }
-        weeklyPlanId = state.weeklyPlanId
-        shouldDisplay = state.shouldDisplay
+
+        async let tasksAsync = repository.fetchWeeklyTasks(goalId: goalId)
+        async let planAsync = repository.fetchWeeklyPlan(goalId: goalId)
+        async let debriefAsync = repository.fetchLatestDebrief(goalId: goalId)
+        let tasks = (try? await tasksAsync) ?? []
+        let plan: WeeklyPlan? = (try? await planAsync) ?? nil
+        let latest: Debrief? = (try? await debriefAsync) ?? nil
+
+        let allComplete = !tasks.isEmpty && tasks.allSatisfy(\.isCompleted)
+        let debriefMissingForCurrentPlan = latest?.weeklyPlanId != plan?.id
+        weeklyPlanId = plan?.id
+        shouldDisplay = allComplete && debriefMissingForCurrentPlan && plan != nil
     }
 }

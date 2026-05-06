@@ -1,7 +1,9 @@
 import SwiftUI
 
 struct SettingsProfileHeaderSection: View {
-    let profile: ProfileSnapshot?
+    let profile: ProfileDTO?
+    let email: String?
+    let avatarURL: String?
     let fullName: String
     let initials: String
     let onEdit: () -> Void
@@ -20,7 +22,7 @@ struct SettingsProfileHeaderSection: View {
                 Button(action: onEdit) {
                     VStack(spacing: 16) {
                         ProfileAvatarView(
-                            imageURL: profile?.avatarURL.flatMap(URL.init(string:)),
+                            imageURL: avatarURL.flatMap(URL.init(string:)),
                             initials: initials,
                             size: 80
                         )
@@ -34,7 +36,7 @@ struct SettingsProfileHeaderSection: View {
                                 }
                             }
 
-                            if let email = profile?.email, !email.isEmpty {
+                            if let email, !email.isEmpty {
                                 AppText(verbatim: email, style: .subheadline)
                                     .alignment(.center)
                             }
@@ -53,7 +55,7 @@ struct SettingsProfileHeaderSection: View {
 }
 
 struct SettingsProfileDetailsSection: View {
-    let profile: ProfileSnapshot?
+    let profile: ProfileDTO?
     let coach: CoachPersonality?
     let currentAppLanguage: String
     let onEditBirthdate: () -> Void

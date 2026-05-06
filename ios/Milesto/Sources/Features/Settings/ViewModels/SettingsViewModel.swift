@@ -6,8 +6,10 @@ final class SettingsViewModel {
     @ObservationIgnored private let repository: SettingsRepository
     @ObservationIgnored private let auth: AuthRepository
 
-    private(set) var profile: ProfileSnapshot?
-    private(set) var activeGoal: GoalSnapshot?
+    private(set) var profile: ProfileDTO?
+    private(set) var email: String?
+    private(set) var avatarURL: String?
+    private(set) var activeGoal: GoalDTO?
     private(set) var isDeleting = false
     private(set) var isSaving = false
     private(set) var errorMessage: String?
@@ -45,6 +47,8 @@ final class SettingsViewModel {
     func loadState() async {
         guard let userId = auth.currentUserId else { return }
         profile = try? await repository.fetchProfile()
+        email = try? await AuthSession.userEmail()
+        avatarURL = try? await AuthSession.userMetadataString("avatar_url")
         activeGoal = try? await repository.fetchActiveGoal(userId: userId)
     }
 

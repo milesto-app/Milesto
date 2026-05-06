@@ -10,11 +10,11 @@ final class SettingsRepository {
         self.goals = goals
     }
 
-    func fetchProfile() async throws -> ProfileSnapshot {
+    func fetchProfile() async throws -> ProfileDTO? {
         try await profile.fetchProfile()
     }
 
-    func fetchActiveGoal(userId: String) async throws -> GoalSnapshot? {
+    func fetchActiveGoal(userId: String) async throws -> GoalDTO? {
         try await goals.fetchActiveGoal(userId: userId)
     }
 

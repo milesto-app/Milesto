@@ -3,31 +3,13 @@ import Foundation
 @MainActor
 final class RoadmapRepository {
     private let remote: RoadmapRemote
-    private let goals: GoalRepository
 
-    init(goals: GoalRepository) {
+    init() {
         remote = RoadmapRemote()
-        self.goals = goals
     }
 
-    func fetchRoadmap(goalId: String, userId: String?) async throws -> RoadmapSnapshot {
-        let dto = try await remote.getRoadmap(goalId: goalId)
-        let goal = try? await goals.fetchGoal(goalId: goalId)
-        let switchable: [GoalSummary]
-        if let userId {
-            switchable = (try? await goals.fetchSwitchableGoals(userId: userId)) ?? []
-        } else {
-            switchable = []
-        }
-        return RoadmapSnapshot(
-            goalTitle: goal?.title,
-            goalTargetDate: goal?.targetDate,
-            switchableGoals: switchable,
-            currentMilestoneId: dto.currentMilestoneId,
-            milestones: (dto.milestones ?? [])
-                .sorted { $0.orderIndex < $1.orderIndex }
-                .map(MilestoneRecord.init(remote:))
-        )
+    func fetchRoadmap(goalId: String) async throws -> RoadmapDTO {
+        try await remote.getRoadmap(goalId: goalId)
     }
 
     func fetchRoadmapStatus(goalId: String) async throws -> RoadmapStatus {
@@ -58,8 +40,7 @@ final class RoadmapRepository {
     }
 
     func fetchLatestDebrief(goalId: String) async throws -> Debrief? {
-        let history = try await remote.getDebriefHistory(goalId: goalId)
-        return history.first
+        try await remote.getDebriefHistory(goalId: goalId).first
     }
 
     func submitDebrief(goalId: String, weeklyPlanId: String, note: String) async throws -> Debrief {
@@ -80,16 +61,6 @@ final class RoadmapRepository {
         return false
     }
 
-    func fetchDebriefPromptState(goalId: String) async throws -> DebriefPromptState {
-        async let tasksAsync = remote.getWeeklyTasks(goalId: goalId)
-        async let planAsync = fetchWeeklyPlan(goalId: goalId)
-        async let debriefAsync = fetchLatestDebrief(goalId: goalId)
-        let tasks = (try? await tasksAsync) ?? []
-        let plan = try? await planAsync
-        let latest = try? await debriefAsync
-        return debriefPromptState(tasks: tasks, plan: plan ?? nil, latest: latest ?? nil)
-    }
-
     func sortedTasks(_ tasks: [WeeklyTask]) -> [WeeklyTask] {
         tasks.sorted {
             if $0.isCompleted != $1.isCompleted { return !$0.isCompleted }
@@ -107,15 +78,6 @@ final class RoadmapRepository {
         tasks[index] = original.with(isCompleted: isCompleted)
         return original
     }
-
-    private func debriefPromptState(tasks: [WeeklyTask], plan: WeeklyPlan?, latest: Debrief?) -> DebriefPromptState {
-        let allComplete = !tasks.isEmpty && tasks.allSatisfy(\.isCompleted)
-        let debriefMissingForCurrentPlan = latest?.weeklyPlanId != plan?.id
-        return DebriefPromptState(
-            weeklyPlanId: plan?.id,
-            shouldDisplay: allComplete && debriefMissingForCurrentPlan && plan != nil
-        )
-    }
 }
 
 extension WeeklyTask {
@@ -132,20 +94,6 @@ extension WeeklyTask {
             isCompleted: isCompleted,
             isFallback: isFallback,
             createdAt: createdAt
-        )
-    }
-}
-
-extension MilestoneRecord {
-    init(remote: MilestoneDTO) {
-        self.init(
-            id: remote.id,
-            title: remote.title,
-            description: remote.description,
-            expectedOutcome: remote.expectedOutcome,
-            targetMonth: remote.targetMonth,
-            targetWeek: remote.targetWeek,
-            orderIndex: remote.orderIndex
         )
     }
 }

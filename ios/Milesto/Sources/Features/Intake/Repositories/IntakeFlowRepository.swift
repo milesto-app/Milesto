@@ -8,7 +8,7 @@ final class IntakeFlowRepository {
         self.goals = goals
     }
 
-    func createGoal(description: String) async throws -> GoalSnapshot {
+    func createGoal(description: String) async throws -> GoalDTO {
         try await goals.createGoal(description: description)
     }
 

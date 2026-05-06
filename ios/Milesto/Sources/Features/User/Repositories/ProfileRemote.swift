@@ -5,14 +5,12 @@ struct ProfileUpdateFields: Encodable {
     var lastName: String?
     var dateOfBirth: String?
     var coachId: Int?
-    var language: String?
 
     enum CodingKeys: String, CodingKey {
         case firstName = "first_name"
         case lastName = "last_name"
         case dateOfBirth = "date_of_birth"
         case coachId = "coach_id"
-        case language
     }
 
     func encode(to encoder: Encoder) throws {
@@ -21,13 +19,7 @@ struct ProfileUpdateFields: Encodable {
         if let lastName { try container.encode(lastName, forKey: .lastName) }
         if let dateOfBirth { try container.encode(dateOfBirth, forKey: .dateOfBirth) }
         if let coachId { try container.encode(coachId, forKey: .coachId) }
-        if let language { try container.encode(language, forKey: .language) }
     }
-}
-
-struct ProfileAuthSnapshot {
-    let email: String?
-    let avatarURL: String?
 }
 
 @MainActor
@@ -52,11 +44,5 @@ final class ProfileRemote {
         } catch ApiError.httpError(statusCode: 404, _) {
             return nil
         }
-    }
-
-    func fetchAuthSnapshot() async throws -> ProfileAuthSnapshot {
-        let email = try await AuthSession.userEmail()
-        let avatarURL = try await AuthSession.userMetadataString("avatar_url")
-        return ProfileAuthSnapshot(email: email, avatarURL: avatarURL)
     }
 }
