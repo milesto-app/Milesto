@@ -34,6 +34,8 @@ final class PaywallViewModel {
             return String(localized: "paywall.error.generic", table: "Paywall")
         case let .storeFailure(detail):
             return detail
+        case .verificationFailed:
+            return String(localized: "paywall.error.verification", table: "Paywall")
         }
     }
 

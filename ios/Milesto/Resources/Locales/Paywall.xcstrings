@@ -69,6 +69,23 @@
         }
       }
     },
+    "paywall.error.verification" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your payment went through, but we couldn't verify it with our server. We'll retry automatically — pull to refresh or tap Restore in a moment."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le paiement a été pris en compte, mais nous n'avons pas pu le vérifier avec notre serveur. Nous réessaierons automatiquement — tire pour rafraîchir ou appuie sur Restaurer dans un instant."
+          }
+        }
+      }
+    },
     "paywall.feature.chat" : {
       "extractionState" : "manual",
       "localizations" : {
