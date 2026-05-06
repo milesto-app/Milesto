@@ -14,6 +14,6 @@ struct IntakeAnswerDTO: Codable {
     }
 }
 
-struct SubmitAnswersRequest: Codable {
+struct SubmitAnswersRequestDTO: Codable {
     let answers: [IntakeAnswerDTO]
 }

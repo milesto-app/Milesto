@@ -1,6 +1,6 @@
 import Foundation
 
-private struct RegisterTokenBody: Encodable {
+private struct RegisterTokenBodyDTO: Encodable {
     let token: String
     let environment: String
 }
@@ -14,7 +14,7 @@ final class DeviceTokenRepository {
         try await ApiClient.shared.requestVoid(
             method: "POST",
             path: "notifications/tokens",
-            body: RegisterTokenBody(token: token, environment: environment)
+            body: RegisterTokenBodyDTO(token: token, environment: environment)
         )
     }
 }

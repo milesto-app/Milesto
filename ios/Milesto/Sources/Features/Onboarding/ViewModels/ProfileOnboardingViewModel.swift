@@ -66,7 +66,7 @@ final class ProfileOnboardingViewModel {
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyy-MM-dd"
 
-        let fields = ProfileUpdateFields(
+        let fields = ProfileUpdateFieldsDTO(
             firstName: mergedFirstName,
             lastName: mergedLastName,
             dateOfBirth: formatter.string(from: mergedDateOfBirth),

@@ -1,6 +1,6 @@
 import Foundation
 
-struct Debrief: Codable, Identifiable {
+struct DebriefDTO: Codable, Identifiable {
     let id: String
     let goalId: String
     let userId: String

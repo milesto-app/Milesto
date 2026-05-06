@@ -1,6 +1,6 @@
 import Foundation
 
-struct ProfileUpdateFields: Encodable {
+struct ProfileUpdateFieldsDTO: Encodable {
     var firstName: String?
     var lastName: String?
     var dateOfBirth: String?
@@ -26,7 +26,7 @@ struct ProfileUpdateFields: Encodable {
 final class ProfileRemote {
     init() {}
 
-    func updateProfile(_ fields: ProfileUpdateFields) async throws -> ProfileDTO {
+    func updateProfile(_ fields: ProfileUpdateFieldsDTO) async throws -> ProfileDTO {
         try await ApiClient.shared.request(
             method: "PATCH",
             path: "me/profile",

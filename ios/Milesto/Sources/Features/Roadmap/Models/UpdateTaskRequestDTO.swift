@@ -1,6 +1,6 @@
 import Foundation
 
-struct UpdateTaskRequest: Encodable {
+struct UpdateTaskRequestDTO: Encodable {
     let isCompleted: Bool
 
     enum CodingKeys: String, CodingKey {

@@ -6,10 +6,10 @@ struct WeeklyTasksCard: View {
     let icon: TablerIconOutline?
     let emptyText: LocalizedStringKey
     let emptyTextTable: String?
-    let tasks: [WeeklyTask]
+    let tasks: [WeeklyTaskDTO]
     let isLoading: Bool
     let weekNumber: Int?
-    let onToggle: ((WeeklyTask) -> Void)?
+    let onToggle: ((WeeklyTaskDTO) -> Void)?
 
     @State private var selectedTaskId: String?
 
@@ -19,10 +19,10 @@ struct WeeklyTasksCard: View {
         icon: TablerIconOutline? = nil,
         emptyText: LocalizedStringKey,
         emptyTextTable: String? = nil,
-        tasks: [WeeklyTask],
+        tasks: [WeeklyTaskDTO],
         isLoading: Bool = false,
         weekNumber: Int? = nil,
-        onToggle: ((WeeklyTask) -> Void)? = nil
+        onToggle: ((WeeklyTaskDTO) -> Void)? = nil
     ) {
         self.title = title
         self.titleTable = titleTable

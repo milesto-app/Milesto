@@ -15,7 +15,7 @@ final class ProfileRepository {
         return await mergePendingAppleName(into: fetched)
     }
 
-    func updateProfile(_ fields: ProfileUpdateFields) async throws -> ProfileDTO {
+    func updateProfile(_ fields: ProfileUpdateFieldsDTO) async throws -> ProfileDTO {
         try await remote.updateProfile(fields)
     }
 
@@ -29,7 +29,7 @@ final class ProfileRepository {
 
         do {
             return try await remote.updateProfile(
-                ProfileUpdateFields(firstName: pending.firstName, lastName: pending.lastName)
+                ProfileUpdateFieldsDTO(firstName: pending.firstName, lastName: pending.lastName)
             )
         } catch {
             return fetchedProfile

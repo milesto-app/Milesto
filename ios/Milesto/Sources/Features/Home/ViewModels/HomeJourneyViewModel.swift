@@ -33,7 +33,7 @@ final class HomeJourneyViewModel {
         completionProgress = Self.completionProgress(roadmap: roadmapDTO, tasks: tasks)
     }
 
-    private static func completionProgress(roadmap: RoadmapDTO?, tasks: [WeeklyTask]) -> Double {
+    private static func completionProgress(roadmap: RoadmapDTO?, tasks: [WeeklyTaskDTO]) -> Double {
         let milestones = (roadmap?.milestones ?? []).sorted { $0.orderIndex < $1.orderIndex }
         guard !milestones.isEmpty else { return 0 }
 
