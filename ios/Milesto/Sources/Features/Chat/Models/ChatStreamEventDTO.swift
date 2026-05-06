@@ -1,6 +1,6 @@
 import Foundation
 
-enum ChatStreamEvent: Decodable {
+enum ChatStreamEventDTO: Decodable {
     case messageStart(conversationId: String)
     case textDelta(delta: String)
     case toolStart(toolName: String)

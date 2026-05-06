@@ -35,7 +35,7 @@ final class ChatRemote {
         )
     }
 
-    func sendMessage(conversationId: String?, goalId: String, content: String) -> AsyncThrowingStream<ChatStreamEvent, Error> {
+    func sendMessage(conversationId: String?, goalId: String, content: String) -> AsyncThrowingStream<ChatStreamEventDTO, Error> {
         AsyncThrowingStream { continuation in
             Task {
                 do {
@@ -95,7 +95,7 @@ final class ChatRemote {
                         guard line.hasPrefix("data: ") else { continue }
                         let jsonString = String(line.dropFirst(6))
                         guard let data = jsonString.data(using: .utf8) else { continue }
-                        let event = try decoder.decode(ChatStreamEvent.self, from: data)
+                        let event = try decoder.decode(ChatStreamEventDTO.self, from: data)
                         continuation.yield(event)
                     }
 
