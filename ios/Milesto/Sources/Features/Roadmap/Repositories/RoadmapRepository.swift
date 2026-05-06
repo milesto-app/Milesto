@@ -92,7 +92,6 @@ extension WeeklyTask {
             estimatedMinutes: estimatedMinutes,
             orderIndex: orderIndex,
             isCompleted: isCompleted,
-            isFallback: isFallback,
             createdAt: createdAt
         )
     }

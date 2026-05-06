@@ -15,7 +15,6 @@ struct WeeklyPlan: Codable {
     let objectives: [String]
     let summary: WeeklySummary?
     let status: WeeklyPlanStatus
-    let isFallback: Bool
     let createdAt: String
 
     enum CodingKeys: String, CodingKey {
@@ -25,7 +24,6 @@ struct WeeklyPlan: Codable {
         case userId = "user_id"
         case weekNumber = "week_number"
         case weekStartDate = "week_start_date"
-        case isFallback = "is_fallback"
         case createdAt = "created_at"
     }
 }
