@@ -22,11 +22,7 @@ struct AppView: View {
         .appBackground()
         .onAppear {
             if routing == nil {
-                routing = AppViewModel(
-                    profile: env.profile,
-                    goals: env.goals,
-                    roadmap: env.roadmap
-                )
+                routing = AppViewModel(env: env)
             }
         }
     }

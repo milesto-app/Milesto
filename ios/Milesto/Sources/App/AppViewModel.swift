@@ -12,18 +12,10 @@ final class AppViewModel {
 
     private(set) var localProfile: ProfileDTO?
 
-    @ObservationIgnored private let profile: ProfileRepository
-    @ObservationIgnored private let goals: GoalRepository
-    @ObservationIgnored private let roadmap: RoadmapRepository
+    @ObservationIgnored private let env: AppEnv
 
-    init(
-        profile: ProfileRepository,
-        goals: GoalRepository,
-        roadmap: RoadmapRepository
-    ) {
-        self.profile = profile
-        self.goals = goals
-        self.roadmap = roadmap
+    init(env: AppEnv) {
+        self.env = env
     }
 
     func resetForRetry() {
@@ -33,7 +25,7 @@ final class AppViewModel {
     func sync(userId: String) async {
         connectionError = false
         do {
-            localProfile = try await profile.fetchProfile()
+            localProfile = try await env.profile.fetchProfile()
         } catch {
             connectionError = true
             return
@@ -52,7 +44,7 @@ final class AppViewModel {
 
         let activeGoal: GoalDTO?
         do {
-            activeGoal = try await goals.fetchActiveGoal(userId: userId)
+            activeGoal = try await env.goals.fetchActiveGoal(userId: userId)
         } catch {
             connectionError = true
             return
@@ -68,7 +60,7 @@ final class AppViewModel {
 
         applyGoalState(activeGoal)
         if activeGoal.status == .intakeCompleted {
-            let status = try? await roadmap.fetchRoadmapStatus(goalId: activeGoal.id)
+            let status = try? await env.roadmap.fetchRoadmapStatus(goalId: activeGoal.id)
             if activeGoalId == activeGoal.id {
                 roadmapReady = status == .complete
             }
