@@ -1,5 +1,4 @@
 import Foundation
-import Supabase
 
 struct ProfileUpdateFields: Encodable {
     var firstName: String?
@@ -36,46 +35,28 @@ final class ProfileRemote {
     init() {}
 
     func updateProfile(_ fields: ProfileUpdateFields) async throws -> ProfileDTO {
-        let session = try await SupabaseConfig.client.auth.session
-        return try await SupabaseConfig.client
-            .from("profiles")
-            .update(fields)
-            .eq("id", value: session.user.id)
-            .select()
-            .single()
-            .execute()
-            .value
+        try await ApiClient.shared.request(
+            method: "PATCH",
+            path: "me/profile",
+            body: fields
+        )
     }
 
-    func fetchProfile(userId: String) async throws -> ProfileDTO? {
-        guard let uuid = UUID(uuidString: userId) else {
-            throw ProfileRepositoryError.invalidUserId
+    func fetchProfile() async throws -> ProfileDTO? {
+        do {
+            let profile: ProfileDTO = try await ApiClient.shared.request(
+                method: "GET",
+                path: "me/profile"
+            )
+            return profile
+        } catch ApiError.httpError(statusCode: 404, _) {
+            return nil
         }
-
-        let response: [ProfileDTO] = try await SupabaseConfig.client
-            .from("profiles")
-            .select()
-            .eq("id", value: uuid)
-            .execute()
-            .value
-
-        return response.first
     }
 
     func fetchAuthSnapshot() async throws -> ProfileAuthSnapshot {
-        let session = try await SupabaseConfig.client.auth.session
-        let avatarURL = session.user.userMetadata["avatar_url"]?.stringValue
-        return ProfileAuthSnapshot(email: session.user.email, avatarURL: avatarURL)
-    }
-}
-
-enum ProfileRepositoryError: LocalizedError {
-    case invalidUserId
-
-    var errorDescription: String? {
-        switch self {
-        case .invalidUserId:
-            return "Invalid user ID format"
-        }
+        let email = try await AuthSession.userEmail()
+        let avatarURL = try await AuthSession.userMetadataString("avatar_url")
+        return ProfileAuthSnapshot(email: email, avatarURL: avatarURL)
     }
 }

@@ -5,7 +5,7 @@ import Supabase
 @MainActor
 @Observable
 final class AuthRepository {
-    private let client: SupabaseClient
+    private let client: Supabase.SupabaseClient
     private let oauth: OAuthClient
 
     private(set) var authState: AuthState = .authenticating
@@ -15,8 +15,8 @@ final class AuthRepository {
         return nil
     }
 
-    init(client: SupabaseClient? = nil, oauth: OAuthClient? = nil) {
-        self.client = client ?? SupabaseConfig.client
+    init(client: Supabase.SupabaseClient? = nil, oauth: OAuthClient? = nil) {
+        self.client = client ?? SupabaseClient.client
         self.oauth = oauth ?? OAuthClient()
         Task { await observeAuthState() }
     }

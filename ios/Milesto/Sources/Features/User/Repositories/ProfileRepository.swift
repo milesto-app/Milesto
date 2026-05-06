@@ -32,7 +32,7 @@ final class ProfileRepository {
     }
 
     func sync(userId: String) async throws {
-        var fetchedProfile = try await remote.fetchProfile(userId: userId)
+        var fetchedProfile = try await remote.fetchProfile()
         fetchedProfile = await mergePendingAppleName(into: fetchedProfile)
 
         var fetchedEmail: String?

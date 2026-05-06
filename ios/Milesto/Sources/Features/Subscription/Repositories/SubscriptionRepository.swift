@@ -1,7 +1,6 @@
 import Foundation
 import OSLog
 import StoreKit
-import Supabase
 import SwiftData
 
 private let subscriptionLogger = Logger(subsystem: Bundle.main.bundleIdentifier ?? "app.milesto", category: "Subscription")
@@ -102,8 +101,7 @@ final class SubscriptionRepository {
 
         let userUUID: UUID
         do {
-            let session = try await SupabaseConfig.client.auth.session
-            userUUID = session.user.id
+            userUUID = try await AuthSession.userUUID()
         } catch {
             purchaseError = .missingUser
             return
@@ -159,12 +157,7 @@ final class SubscriptionRepository {
     }
 
     private func currentUserId() async -> String? {
-        do {
-            let session = try await SupabaseConfig.client.auth.session
-            return session.user.id.uuidString
-        } catch {
-            return nil
-        }
+        try? await AuthSession.userId()
     }
 
     private func processUnfinishedTransactions() async {
