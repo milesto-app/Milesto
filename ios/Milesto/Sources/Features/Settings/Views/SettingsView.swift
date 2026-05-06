@@ -19,14 +19,12 @@ struct SettingsView: View {
         }
         .task {
             if model == nil {
-                let vm = SettingsViewModel(
+                model = SettingsViewModel(
                     repository: env.settings,
                     auth: env.auth
                 )
-                vm.loadLocalState()
-                model = vm
             }
-            await model?.syncProfile()
+            await model?.loadState()
         }
     }
 

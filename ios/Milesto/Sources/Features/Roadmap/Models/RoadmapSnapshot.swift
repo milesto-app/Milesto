@@ -15,7 +15,6 @@ struct MilestoneRecord: Identifiable, Hashable {
     let expectedOutcome: String
     let targetMonth: Int
     let targetWeek: Int
-    let isMonthlyCheckpoint: Bool
     let orderIndex: Int
 }
 

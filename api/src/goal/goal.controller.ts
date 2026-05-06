@@ -2,6 +2,7 @@ import {
   BadRequestException,
   Body,
   Controller,
+  Delete,
   Get,
   HttpCode,
   HttpStatus,
@@ -34,6 +35,41 @@ type GoalRow = Database["public"]["Tables"]["goals"]["Row"];
 @UseGuards(AuthGuard)
 export class GoalController {
   constructor(private readonly goalService: GoalService) {}
+
+  @Get()
+  @ApiOperation({ summary: "List goals owned by the authenticated user" })
+  @ApiResponse({ status: 200, description: "Goals returned" })
+  @ApiResponse({ status: 401, description: "Unauthorized" })
+  public async list(@UserId() userId: string): Promise<GoalRow[]> {
+    return this.goalService.findAllForUser(userId);
+  }
+
+  @Get(":goalId")
+  @ApiOperation({ summary: "Fetch a single goal by id" })
+  @ApiParam({ name: "goalId", description: "The goal UUID" })
+  @ApiResponse({ status: 200, description: "Goal returned" })
+  @ApiResponse({ status: 404, description: "Goal not found" })
+  @ApiResponse({ status: 401, description: "Unauthorized" })
+  public async findOne(
+    @UserId() userId: string,
+    @Param("goalId") goalId: string,
+  ): Promise<GoalRow> {
+    return this.goalService.findOne(userId, goalId);
+  }
+
+  @Delete(":goalId")
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({ summary: "Soft-delete a goal" })
+  @ApiParam({ name: "goalId", description: "The goal UUID" })
+  @ApiResponse({ status: 204, description: "Goal deleted" })
+  @ApiResponse({ status: 404, description: "Goal not found" })
+  @ApiResponse({ status: 401, description: "Unauthorized" })
+  public async delete(
+    @UserId() userId: string,
+    @Param("goalId") goalId: string,
+  ): Promise<void> {
+    await this.goalService.softDelete(userId, goalId);
+  }
 
   @Post()
   @ApiOperation({ summary: "Create a new goal" })

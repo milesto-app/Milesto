@@ -123,6 +123,47 @@ export class GoalService {
     return data;
   }
 
+  public async findAllForUser(userId: string): Promise<GoalRow[]> {
+    const supabase = this.supabaseService.getAdminClient();
+    const { data, error } = await supabase
+      .from("goals")
+      .select("*")
+      .eq("user_id", userId)
+      .is("deleted_at", null)
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      this.logger.error(
+        `Failed to list goals for user ${userId}: ${error.message}`,
+      );
+      throw new InternalServerErrorException("Failed to list goals");
+    }
+
+    return data;
+  }
+
+  public async softDelete(userId: string, goalId: string): Promise<void> {
+    const supabase = this.supabaseService.getAdminClient();
+    const { data, error } = await supabase
+      .from("goals")
+      .update({
+        deleted_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", goalId)
+      .eq("user_id", userId)
+      .is("deleted_at", null)
+      .select("id");
+
+    if (error) {
+      this.logger.error(`Failed to delete goal ${goalId}: ${error.message}`);
+      throw new InternalServerErrorException("Failed to delete goal");
+    }
+    if (data.length === 0) {
+      throw new NotFoundException("Goal not found");
+    }
+  }
+
   public async getGoalProfile(
     userId: string,
     goalId: string,

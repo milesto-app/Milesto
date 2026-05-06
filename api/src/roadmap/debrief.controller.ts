@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Get,
   HttpCode,
   HttpStatus,
   Param,
@@ -60,5 +61,18 @@ export class DebriefController {
     @Body() dto: SubmitDebriefDto,
   ): Promise<Debrief> {
     return this.debriefService.submitDebrief(goalId, userId, dto);
+  }
+
+  @Get()
+  @ApiOperation({ summary: "Read all debriefs for a goal (most recent first)" })
+  @ApiParam({ name: "goalId", description: "Goal ID" })
+  @ApiResponse({ status: HttpStatus.OK, description: "Debriefs returned" })
+  @ApiResponse({ status: HttpStatus.NOT_FOUND, description: "Goal not found" })
+  @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: "Unauthorized" })
+  public async getHistory(
+    @Param("goalId") goalId: string,
+    @UserId() userId: string,
+  ): Promise<Debrief[]> {
+    return this.debriefService.getHistory(goalId, userId);
   }
 }

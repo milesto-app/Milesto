@@ -1,5 +1,4 @@
 import Foundation
-import Supabase
 
 @MainActor
 final class ChatRemote {
@@ -15,27 +14,17 @@ final class ChatRemote {
     }
 
     func listConversations(goalId: String) async throws -> [ChatConversationDTO] {
-        try await SupabaseConfig.client
-            .from("conversations")
-            .select("*, messages(id, content, role, created_at)")
-            .eq("goal_id", value: goalId)
-            .order("updated_at", ascending: false)
-            .order("created_at", ascending: true, referencedTable: "messages")
-            .execute()
-            .value
+        try await ApiClient.shared.request(
+            method: "GET",
+            path: "goals/\(goalId)/conversations"
+        )
     }
 
     func getConversationMessages(conversationId: String) async throws -> [ChatMessage] {
-        let rows: [ChatMessageDTO] = try await SupabaseConfig.client
-            .from("messages")
-            .select()
-            .eq("conversation_id", value: conversationId)
-            .order("created_at")
-            .execute()
-            .value
-
-        let dateFormatter = ISO8601DateFormatter()
-        dateFormatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+        let rows: [ChatMessageDTO] = try await ApiClient.shared.request(
+            method: "GET",
+            path: "conversations/\(conversationId)/messages"
+        )
 
         return rows
             .filter { ($0.role == "user" || $0.role == "assistant") && $0.content != nil }
@@ -43,18 +32,16 @@ final class ChatRemote {
                 ChatMessage(
                     id: remote.id,
                     role: remote.role == "user" ? .user : .assistant,
-                    content: remote.content ?? "",
-                    createdAt: dateFormatter.date(from: remote.createdAt) ?? Date()
+                    content: remote.content ?? ""
                 )
             }
     }
 
     func deleteConversation(conversationId: String) async throws {
-        try await SupabaseConfig.client
-            .from("conversations")
-            .delete()
-            .eq("id", value: conversationId)
-            .execute()
+        try await ApiClient.shared.requestVoid(
+            method: "DELETE",
+            path: "conversations/\(conversationId)"
+        )
     }
 
     func sendMessage(conversationId: String?, goalId: String, content: String) -> AsyncThrowingStream<ChatStreamEvent, Error> {
@@ -80,13 +67,13 @@ final class ChatRemote {
                         return request
                     }
 
-                    let session = try await SupabaseConfig.client.auth.session
-                    var request = try buildRequest(token: session.accessToken)
+                    let token = try await AuthSession.accessToken()
+                    var request = try buildRequest(token: token)
                     var (bytes, response) = try await URLSession.shared.bytes(for: request)
 
                     if let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 401 {
-                        let refreshed = try await SupabaseConfig.client.auth.refreshSession()
-                        request = try buildRequest(token: refreshed.accessToken)
+                        let refreshedToken = try await AuthSession.refreshAccessToken()
+                        request = try buildRequest(token: refreshedToken)
                         (bytes, response) = try await URLSession.shared.bytes(for: request)
                     }
 

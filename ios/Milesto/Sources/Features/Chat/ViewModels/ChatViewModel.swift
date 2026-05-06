@@ -47,8 +47,7 @@ final class ChatViewModel {
         let userMessage = ChatMessage(
             id: UUID().uuidString,
             role: .user,
-            content: content,
-            createdAt: Date()
+            content: content
         )
         messages.append(userMessage)
         inputText = ""
@@ -90,9 +89,6 @@ final class ChatViewModel {
             isStreaming = false
             isToolRunning = false
             showThinking = false
-            if let conversationId {
-                repository.saveStreamedMessages(messages, conversationId: conversationId, goalId: goalId)
-            }
         }
     }
 
@@ -100,13 +96,8 @@ final class ChatViewModel {
         guard !isLoadingHistory else { return }
         isLoadingHistory = true
 
-        let localConversations = repository.loadConversations(goalId: goalId)
-        if !localConversations.isEmpty {
-            conversations = localConversations
-        }
-
         Task {
-            if let fetched = try? await repository.refreshConversations(goalId: goalId) {
+            if let fetched = try? await repository.fetchConversations(goalId: goalId) {
                 conversations = fetched
             }
             isLoadingHistory = false
@@ -133,22 +124,14 @@ final class ChatViewModel {
     func loadConversation(_ id: String) {
         guard id != conversationId else { return }
 
-        let localMessages = repository.loadMessages(conversationId: id)
-        if !localMessages.isEmpty {
-            conversationId = id
-            messages = localMessages
-        }
-
         Task {
             do {
-                let loaded = try await repository.refreshMessages(conversationId: id)
+                let loaded = try await repository.fetchMessages(conversationId: id)
                 conversationId = id
                 messages = loaded
             } catch {
-                if messages.isEmpty || conversationId != id {
-                    errorMessage = String(localized: "chat.error.generic", table: "Chat")
-                    showError = true
-                }
+                errorMessage = String(localized: "chat.error.generic", table: "Chat")
+                showError = true
             }
         }
     }
@@ -158,14 +141,13 @@ final class ChatViewModel {
         case let .messageStart(id):
             conversationId = id
         case let .textDelta(delta):
-            if let last = messages.last, last.role == .assistant {
-                last.content += delta
+            if let lastIndex = messages.indices.last, messages[lastIndex].role == .assistant {
+                messages[lastIndex].content += delta
             } else if !delta.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
                 let assistantMessage = ChatMessage(
                     id: UUID().uuidString,
                     role: .assistant,
-                    content: delta,
-                    createdAt: Date()
+                    content: delta
                 )
                 messages.append(assistantMessage)
             }

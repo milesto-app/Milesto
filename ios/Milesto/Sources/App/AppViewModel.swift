@@ -32,72 +32,52 @@ final class AppViewModel {
 
     func sync(userId: String) async {
         connectionError = false
-        refreshLocalSnapshots(userId: userId)
-
-        let locallyComplete = localProfile?.isProfileComplete == true
-        if locallyComplete {
-            profileComplete = true
-            applyResolvedGoalState(userId: userId)
-        }
-
         do {
-            try await profile.sync(userId: userId)
+            localProfile = try await profile.fetchProfile()
         } catch {
             connectionError = true
             return
         }
-
-        do {
-            try await goals.syncFromRemote(userId: userId)
-        } catch {
-            connectionError = true
-            return
-        }
-
-        refreshLocalSnapshots(userId: userId)
 
         let remoteComplete = localProfile?.isProfileComplete == true
-        if locallyComplete, !remoteComplete {
+        if !remoteComplete {
             profileComplete = false
             goalComplete = false
             roadmapReady = false
             activeGoalId = nil
-        } else if remoteComplete {
-            profileComplete = true
-            applyResolvedGoalState(userId: userId)
-            if goalComplete,
-               let id = activeGoalId,
-               let descriptor = goals.resolveGoal(userId: userId, goalId: id),
-               descriptor.goalId == id,
-               descriptor.phase == .intakeCompleted
-            {
-                let status = try? await roadmap.fetchRoadmapStatus(goalId: id)
-                if activeGoalId == id {
+            hasSynced = true
+            return
+        }
+
+        profileComplete = true
+
+        let descriptor: ActiveGoalDescriptor?
+        do {
+            descriptor = try await goals.resolveActiveGoal(userId: userId)
+        } catch {
+            connectionError = true
+            return
+        }
+
+        if let descriptor {
+            applyGoalState(descriptor)
+            if descriptor.phase == .intakeCompleted {
+                let status = try? await roadmap.fetchRoadmapStatus(goalId: descriptor.goalId)
+                if activeGoalId == descriptor.goalId {
                     roadmapReady = status == .complete
                 }
             }
+        } else {
+            activeGoalId = nil
+            goalComplete = false
+            roadmapReady = false
         }
+
         hasSynced = true
     }
 
     func markRoadmapReady() {
         roadmapReady = true
-        guard let activeGoalId else { return }
-        try? goals.activateGeneratedRoadmap(goalId: activeGoalId)
-    }
-
-    private func refreshLocalSnapshots(userId: String) {
-        localProfile = profile.loadProfile(userId: userId)
-    }
-
-    private func applyResolvedGoalState(userId: String) {
-        guard let descriptor = goals.resolveActiveGoal(userId: userId) else {
-            activeGoalId = nil
-            goalComplete = false
-            roadmapReady = false
-            return
-        }
-        applyGoalState(descriptor)
     }
 
     private func applyGoalState(_ descriptor: ActiveGoalDescriptor) {

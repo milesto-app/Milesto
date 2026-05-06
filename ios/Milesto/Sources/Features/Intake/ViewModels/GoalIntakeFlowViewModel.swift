@@ -68,8 +68,4 @@ final class GoalIntakeFlowViewModel {
     func advanceToIntake(goalId: String) {
         step = .intake(goalId: goalId)
     }
-
-    func markGoalCompleted(goalId: String) {
-        repository.markIntakeCompleted(goalId: goalId)
-    }
 }

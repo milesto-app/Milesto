@@ -6,7 +6,6 @@ struct DisplayMilestone: Identifiable {
     let description: String
     let targetMonth: Int
     let targetWeek: Int
-    let isMonthlyCheckpoint: Bool
     let orderIndex: Int
     let expectedOutcome: String
     let status: MilestoneStatus
@@ -63,6 +62,10 @@ struct RoadmapView: View {
     @State private var expandedPastSections: Set<Int> = []
     @State private var collapsedSections: Set<Int> = []
 
+    private var userId: String? {
+        env.auth.currentUserId
+    }
+
     private var monthSections: [RoadmapMonthSection] {
         guard let model else { return [] }
         let grouped = Dictionary(grouping: model.milestones) { $0.targetMonth }
@@ -91,12 +94,12 @@ struct RoadmapView: View {
                 vm.configure(goalId: goalId)
                 model = vm
             }
-            await model?.loadMilestones()
+            await model?.loadMilestones(userId: userId)
         }
         .onAppear {
             model?.appeared = true
             if let model, !model.milestones.isEmpty {
-                Task { await model.loadMilestones() }
+                Task { await model.loadMilestones(userId: userId) }
             }
         }
         .onChange(of: goalId) {
@@ -106,15 +109,11 @@ struct RoadmapView: View {
             expandedPastSections = []
             collapsedSections = []
             Task {
-                await model.loadMilestones()
+                await model.loadMilestones(userId: userId)
                 if !model.appeared {
                     model.appeared = true
                 }
             }
-        }
-        .onReceive(NotificationCenter.default.publisher(for: .weeklyTaskCompletionDidChange)) { notification in
-            guard notification.userInfo?["goalId"] as? String == goalId else { return }
-            model?.refreshDisplayedProgress()
         }
     }
 
