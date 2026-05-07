@@ -8,6 +8,27 @@ Never run xcodebuild or other build/run commands. The user handles all builds th
 
 **Before making any frontend/UI changes, always check `Shared/Components/` and feature-specific `Components/` folders for existing reusable components.** Use existing components instead of creating new ones or using raw SwiftUI views.
 
+**Starting view animation** (`Shared/Components/AppStartTransition.swift`) - Any view that can become the first visible authenticated screen should use the shared start transition so it fades in consistently with the normal app.
+
+- In `AppView`, wrap new root branches with `startingView { ... }`.
+- If a root branch renders a placeholder first while creating/loading a local model, apply `.appStartTransition()` to the first real content that replaces the placeholder.
+- Do not add one-off entrance `@State` fade logic inside individual feature views unless the animation is unique to that feature.
+
+```swift
+// In AppView:
+startingView {
+    NewFeatureStartView()
+}
+
+// Inside a view that initially shows a loading/background placeholder:
+if let model {
+    content(model: model)
+        .appStartTransition()
+} else {
+    Color("BackgroundBase").ignoresSafeArea()
+}
+```
+
 **AppText** (`Shared/Components/AppText.swift`) - Always use `AppText` instead of `Text` for displaying text. This ensures consistent typography across the app.
 
 ```swift

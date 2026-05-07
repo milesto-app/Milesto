@@ -12,6 +12,7 @@ struct GoalIntakeFlowView: View {
         Group {
             if let model {
                 content(model: model)
+                    .appStartTransition()
             } else {
                 Color("BackgroundBase").ignoresSafeArea()
             }

@@ -51,21 +51,25 @@ private struct AuthenticatedRootView: View {
     private func standardAuthenticatedBody(routing: AppViewModel) -> some View {
         Group {
             if routing.profileComplete {
-                SubscriptionGateView {
-                    postProfileFlow(routing: routing)
+                startingView {
+                    SubscriptionGateView {
+                        postProfileFlow(routing: routing)
+                    }
                 }
                 .transition(.opacity)
             } else if routing.hasSynced {
-                ProfileOnboardingView(
-                    userId: userId,
-                    missingSteps: routing.localProfile?.missingOnboardingSteps ?? [.name, .birthdate, .coach],
-                    existingProfile: routing.localProfile,
-                    onComplete: {
-                        withAnimation(.easeInOut(duration: 0.4)) {
-                            routing.profileComplete = true
+                startingView {
+                    ProfileOnboardingView(
+                        userId: userId,
+                        missingSteps: routing.localProfile?.missingOnboardingSteps ?? [.name, .birthdate, .coach],
+                        existingProfile: routing.localProfile,
+                        onComplete: {
+                            withAnimation(.easeInOut(duration: 0.4)) {
+                                routing.profileComplete = true
+                            }
                         }
-                    }
-                )
+                    )
+                }
                 .transition(.opacity)
             } else if routing.connectionError {
                 VStack(spacing: 24) {
@@ -93,28 +97,39 @@ private struct AuthenticatedRootView: View {
     private func postProfileFlow(routing: AppViewModel) -> some View {
         Group {
             if routing.goalComplete && routing.roadmapReady {
-                mainAppContent(routing: routing)
+                startingView {
+                    mainAppContent(routing: routing)
+                }
             } else if routing.goalComplete {
-                RoadmapGenerationView(goalId: routing.activeGoalId ?? "") {
-                    withAnimation(.easeInOut(duration: 0.4)) {
-                        routing.markRoadmapReady()
+                startingView {
+                    RoadmapGenerationView(goalId: routing.activeGoalId ?? "") {
+                        withAnimation(.easeInOut(duration: 0.4)) {
+                            routing.markRoadmapReady()
+                        }
                     }
                 }
             } else {
-                GoalIntakeFlowView(
-                    existingGoalId: routing.activeGoalId,
-                    onClose: nil,
-                    onComplete: { goalId in
-                        routing.activeGoalId = goalId
-                        withAnimation(.easeInOut(duration: 0.4)) {
-                            routing.goalComplete = true
+                startingView {
+                    GoalIntakeFlowView(
+                        existingGoalId: routing.activeGoalId,
+                        onClose: nil,
+                        onComplete: { goalId in
+                            routing.activeGoalId = goalId
+                            withAnimation(.easeInOut(duration: 0.4)) {
+                                routing.goalComplete = true
+                            }
                         }
-                    }
-                )
+                    )
+                }
             }
         }
         .animation(.easeInOut(duration: 0.4), value: routing.goalComplete)
         .animation(.easeInOut(duration: 0.4), value: routing.roadmapReady)
+    }
+
+    private func startingView<Content: View>(@ViewBuilder content: () -> Content) -> some View {
+        content()
+            .appStartTransition()
     }
 
     private func mainAppContent(routing: AppViewModel) -> some View {
