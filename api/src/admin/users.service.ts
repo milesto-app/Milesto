@@ -22,7 +22,6 @@ import type {
   AdminUserUsageEntry,
 } from "./users.types.js";
 
-const FREE_SUBSCRIPTION_STATUS = "free";
 const DEFAULT_USER_ROLE = "user";
 const SEARCH_USER_POOL_SIZE = 1000;
 const RECENT_USAGE_LIMIT = 50;
@@ -379,7 +378,7 @@ export class UsersService {
         firstName: profile?.first_name ?? null,
         lastName: profile?.last_name ?? null,
         subscriptionStatus:
-          profile?.subscription_status ?? FREE_SUBSCRIPTION_STATUS,
+          profile?.subscription_status ?? SUBSCRIPTION_STATUS.UNKNOWN,
         coachId: profile?.coach_id ?? null,
         createdAt: user.created_at,
       };
@@ -530,7 +529,7 @@ function profileDetailFields(
       timezone: null,
       dateOfBirth: null,
       coachId: null,
-      subscriptionStatus: FREE_SUBSCRIPTION_STATUS,
+      subscriptionStatus: SUBSCRIPTION_STATUS.UNKNOWN,
       subscriptionExpiresAt: null,
     };
   }

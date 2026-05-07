@@ -350,6 +350,55 @@ export class RoadmapDataService {
 
   // ---------- Weekly tasks ----------
 
+  public async getTasksForMilestone(
+    milestoneId: string,
+    userId: string,
+  ): Promise<WeeklyTask[]> {
+    const supabase = this.supabaseService.getAdminClient();
+
+    const { data: milestone, error: milestoneError } = await supabase
+      .from("milestones")
+      .select("id, goal_id")
+      .eq("id", milestoneId)
+      .maybeSingle();
+    if (milestoneError !== null || milestone === null) {
+      throw new NotFoundException("Milestone not found");
+    }
+
+    const { data: goal, error: goalError } = await supabase
+      .from("goals")
+      .select("id")
+      .eq("id", milestone.goal_id)
+      .eq("user_id", userId)
+      .is("deleted_at", null)
+      .maybeSingle();
+    if (goalError !== null || goal === null) {
+      throw new NotFoundException("Milestone not found");
+    }
+
+    const { data: plans, error: plansError } = await supabase
+      .from("weekly_plans")
+      .select("id")
+      .eq("milestone_id", milestoneId);
+    if (plansError !== null) {
+      throw new InternalServerErrorException("Failed to load milestone tasks");
+    }
+    const planIds = plans.map((p: { id: string }) => p.id);
+    if (planIds.length === 0) {
+      return [];
+    }
+
+    const { data, error } = await supabase
+      .from("weekly_tasks")
+      .select("*")
+      .in("weekly_plan_id", planIds)
+      .order("order_index", { ascending: true });
+    if (error) {
+      throw new InternalServerErrorException("Failed to load milestone tasks");
+    }
+    return data as WeeklyTask[];
+  }
+
   public async getExistingTasks(
     goalId: string,
     userId: string,

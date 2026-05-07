@@ -3,9 +3,9 @@ import Foundation
 @MainActor
 @Observable
 final class ChatViewModel {
-    @ObservationIgnored private let repository: ChatRepository
+    @ObservationIgnored private let env: AppEnv
 
-    private(set) var messages: [ChatMessage] = []
+    private(set) var messages: [ChatMessageDTO] = []
     var inputText = ""
     private(set) var isStreaming = false
     private(set) var conversationId: String?
@@ -13,21 +13,21 @@ final class ChatViewModel {
     var showError = false
     private(set) var errorMessage = ""
     private(set) var showThinking = false
-    private(set) var conversations: [ChatConversation] = []
+    private(set) var conversations: [ChatConversationDTO] = []
     private(set) var isLoadingHistory = false
     var isLimitReached = false
 
     private(set) var goalId: String = ""
 
-    init(repository: ChatRepository) {
-        self.repository = repository
+    init(env: AppEnv) {
+        self.env = env
     }
 
     var isWaitingForResponse: Bool {
         guard isStreaming else { return false }
         if isToolRunning { return true }
-        guard let last = messages.last, last.role == .assistant else { return true }
-        return last.content.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+        guard let last = messages.last, last.isAssistant else { return true }
+        return (last.content ?? "").trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
     }
 
     func configure(goalId: String) {
@@ -44,11 +44,10 @@ final class ChatViewModel {
         let content = inputText.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !content.isEmpty else { return }
 
-        let userMessage = ChatMessage(
+        let userMessage = ChatMessageDTO(
             id: UUID().uuidString,
-            role: .user,
-            content: content,
-            createdAt: Date()
+            role: "user",
+            content: content
         )
         messages.append(userMessage)
         inputText = ""
@@ -64,7 +63,7 @@ final class ChatViewModel {
 
         Task {
             do {
-                let stream = repository.sendMessage(
+                let stream = env.chat.sendMessage(
                     conversationId: conversationId,
                     goalId: goalId,
                     content: content
@@ -90,9 +89,6 @@ final class ChatViewModel {
             isStreaming = false
             isToolRunning = false
             showThinking = false
-            if let conversationId {
-                repository.saveStreamedMessages(messages, conversationId: conversationId, goalId: goalId)
-            }
         }
     }
 
@@ -100,13 +96,8 @@ final class ChatViewModel {
         guard !isLoadingHistory else { return }
         isLoadingHistory = true
 
-        let localConversations = repository.loadConversations(goalId: goalId)
-        if !localConversations.isEmpty {
-            conversations = localConversations
-        }
-
         Task {
-            if let fetched = try? await repository.refreshConversations(goalId: goalId) {
+            if let fetched = try? await env.chat.fetchConversations(goalId: goalId) {
                 conversations = fetched
             }
             isLoadingHistory = false
@@ -116,7 +107,7 @@ final class ChatViewModel {
     func deleteConversation(_ id: String) {
         Task {
             do {
-                try await repository.deleteConversation(conversationId: id)
+                try await env.chat.deleteConversation(conversationId: id)
                 conversations.removeAll { $0.id == id }
                 if conversationId == id {
                     messages = []
@@ -133,39 +124,30 @@ final class ChatViewModel {
     func loadConversation(_ id: String) {
         guard id != conversationId else { return }
 
-        let localMessages = repository.loadMessages(conversationId: id)
-        if !localMessages.isEmpty {
-            conversationId = id
-            messages = localMessages
-        }
-
         Task {
             do {
-                let loaded = try await repository.refreshMessages(conversationId: id)
+                let loaded = try await env.chat.fetchMessages(conversationId: id)
                 conversationId = id
                 messages = loaded
             } catch {
-                if messages.isEmpty || conversationId != id {
-                    errorMessage = String(localized: "chat.error.generic", table: "Chat")
-                    showError = true
-                }
+                errorMessage = String(localized: "chat.error.generic", table: "Chat")
+                showError = true
             }
         }
     }
 
-    private func handle(event: ChatStreamEvent) {
+    private func handle(event: ChatStreamEventDTO) {
         switch event {
         case let .messageStart(id):
             conversationId = id
         case let .textDelta(delta):
-            if let last = messages.last, last.role == .assistant {
-                last.content += delta
+            if let lastIndex = messages.indices.last, messages[lastIndex].isAssistant {
+                messages[lastIndex].content = (messages[lastIndex].content ?? "") + delta
             } else if !delta.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-                let assistantMessage = ChatMessage(
+                let assistantMessage = ChatMessageDTO(
                     id: UUID().uuidString,
-                    role: .assistant,
-                    content: delta,
-                    createdAt: Date()
+                    role: "assistant",
+                    content: delta
                 )
                 messages.append(assistantMessage)
             }

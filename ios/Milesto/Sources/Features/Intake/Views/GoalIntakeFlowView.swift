@@ -18,7 +18,7 @@ struct GoalIntakeFlowView: View {
         }
         .task {
             if model == nil {
-                let vm = GoalIntakeFlowViewModel(repository: env.intakeFlow)
+                let vm = GoalIntakeFlowViewModel(env: env)
                 vm.startWithExistingGoalId(existingGoalId)
                 model = vm
             }
@@ -50,7 +50,6 @@ struct GoalIntakeFlowView: View {
                     )
                 case let .intake(goalId):
                     IntakeContainerView(goalId: goalId, onComplete: {
-                        model.markGoalCompleted(goalId: goalId)
                         onComplete(goalId)
                     })
                 }

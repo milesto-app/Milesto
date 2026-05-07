@@ -1,6 +1,6 @@
 import Foundation
 
-struct SubmitDebriefRequest: Encodable {
+struct SubmitDebriefRequestDTO: Encodable {
     let weeklyPlanId: String
     let note: String
 

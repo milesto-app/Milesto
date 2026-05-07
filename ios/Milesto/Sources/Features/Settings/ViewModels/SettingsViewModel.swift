@@ -3,19 +3,19 @@ import Foundation
 @MainActor
 @Observable
 final class SettingsViewModel {
-    @ObservationIgnored private let repository: SettingsRepository
-    @ObservationIgnored private let auth: AuthRepository
+    @ObservationIgnored private let env: AppEnv
 
-    private(set) var profile: ProfileSnapshot?
-    private(set) var activeGoal: GoalSnapshot?
+    private(set) var profile: ProfileDTO?
+    private(set) var email: String?
+    private(set) var avatarURL: String?
+    private(set) var activeGoal: GoalDTO?
     private(set) var isDeleting = false
     private(set) var isSaving = false
     private(set) var errorMessage: String?
     var showError = false
 
-    init(repository: SettingsRepository, auth: AuthRepository) {
-        self.repository = repository
-        self.auth = auth
+    init(env: AppEnv) {
+        self.env = env
     }
 
     var coach: CoachPersonality? {
@@ -42,24 +42,20 @@ final class SettingsViewModel {
         return locale.localizedString(forLanguageCode: code)?.capitalized ?? code
     }
 
-    func loadLocalState() {
-        guard let userId = auth.currentUserId else { return }
-        profile = repository.loadProfile(userId: userId)
-        activeGoal = repository.loadActiveGoal(userId: userId)
+    func loadState() async {
+        guard let userId = env.auth.currentUserId else { return }
+        profile = try? await env.settings.fetchProfile()
+        email = try? await AuthSession.userEmail()
+        avatarURL = try? await AuthSession.userMetadataString("avatar_url")
+        activeGoal = try? await env.settings.fetchActiveGoal(userId: userId)
     }
 
-    func syncProfile() async {
-        guard let userId = auth.currentUserId else { return }
-        try? await repository.syncProfile(userId: userId)
-        loadLocalState()
-    }
-
-    func saveProfileFields(_ fields: ProfileUpdateFields) async {
+    func saveProfileFields(_ fields: ProfileUpdateFieldsDTO) async {
         isSaving = true
         defer { isSaving = false }
         do {
-            try await repository.updateProfile(fields)
-            loadLocalState()
+            try await env.settings.updateProfile(fields)
+            await loadState()
         } catch {
             errorMessage = error.localizedDescription
             showError = true
@@ -72,7 +68,7 @@ final class SettingsViewModel {
         isDeleting = true
         defer { isDeleting = false }
         do {
-            try await repository.deleteGoal(goalId: goal.id)
+            try await env.settings.deleteGoal(goalId: goal.id)
             activeGoal = nil
             return true
         } catch {
@@ -84,11 +80,7 @@ final class SettingsViewModel {
 
     func signOut() async {
         do {
-            try await repository.purgeLocalUserData()
-            try await auth.signOut()
-        } catch SettingsRepositoryError.localPurgeFailed {
-            errorMessage = String(localized: "settings.signOut.purge.error", table: "Settings")
-            showError = true
+            try await env.auth.signOut()
         } catch {
             errorMessage = error.localizedDescription
             showError = true

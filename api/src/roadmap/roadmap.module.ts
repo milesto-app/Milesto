@@ -3,6 +3,7 @@ import { Module } from "@nestjs/common";
 import { GoalModule } from "../goal/goal.module.js";
 import { DebriefController } from "./debrief.controller.js";
 import { DebriefService } from "./debrief.service.js";
+import { MilestoneController } from "./milestone.controller.js";
 import { RerankService } from "./rerank.service.js";
 import { RoadmapController } from "./roadmap.controller.js";
 import { RoadmapService } from "./roadmap.service.js";
@@ -17,7 +18,12 @@ import { WeeklyTaskService } from "./weekly-task.service.js";
 
 @Module({
   imports: [GoalModule],
-  controllers: [RoadmapController, WeeklyTaskController, DebriefController],
+  controllers: [
+    RoadmapController,
+    WeeklyTaskController,
+    DebriefController,
+    MilestoneController,
+  ],
   providers: [
     RoadmapContextService,
     RerankService,

@@ -5,18 +5,18 @@ import Supabase
 @MainActor
 @Observable
 final class AuthRepository {
-    private let client: SupabaseClient
+    private let client: Supabase.SupabaseClient
     private let oauth: OAuthClient
 
-    private(set) var authState: AuthState = .authenticating
+    private(set) var status: AuthState = .authenticating
 
     var currentUserId: String? {
-        if case let .authenticated(userId) = authState { return userId }
+        if case let .authenticated(userId) = status { return userId }
         return nil
     }
 
-    init(client: SupabaseClient? = nil, oauth: OAuthClient? = nil) {
-        self.client = client ?? SupabaseConfig.client
+    init(client: Supabase.SupabaseClient? = nil, oauth: OAuthClient? = nil) {
+        self.client = client ?? SupabaseClient.client
         self.oauth = oauth ?? OAuthClient()
         Task { await observeAuthState() }
     }
@@ -55,13 +55,12 @@ final class AuthRepository {
         } catch let error as ASWebAuthenticationSessionError where error.code == .canceledLogin {
             throw AuthError.cancelled
         } catch {
-            authState = .error(error.localizedDescription)
+            status = .error(error.localizedDescription)
             throw AuthError(from: error)
         }
     }
 
     func signOut() async throws {
-        await NotificationService.shared.unregisterCurrentToken()
         try await client.auth.signOut()
         clearSession()
     }
@@ -71,19 +70,19 @@ final class AuthRepository {
     }
 
     private func authenticate(_ obtainUserId: () async throws -> String) async throws -> String {
-        authState = .authenticating
+        status = .authenticating
         do {
             let userId = try await obtainUserId()
-            authState = .authenticated(userId: userId)
+            status = .authenticated(userId: userId)
             return userId
         } catch {
-            authState = .error(error.localizedDescription)
+            status = .error(error.localizedDescription)
             throw AuthError(from: error)
         }
     }
 
     private func clearSession() {
-        authState = .unauthenticated
+        status = .unauthenticated
         oauth.clearPendingAppleName()
     }
 
@@ -92,10 +91,10 @@ final class AuthRepository {
             switch event {
             case .initialSession, .signedIn:
                 if let userId = session?.user.id.uuidString {
-                    authState = .authenticated(userId: userId)
+                    status = .authenticated(userId: userId)
                     Task { await NotificationService.shared.requestPermissionAndRegister() }
                 } else if event == .initialSession {
-                    authState = .unauthenticated
+                    status = .unauthenticated
                 }
             case .signedOut:
                 clearSession()

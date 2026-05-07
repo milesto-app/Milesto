@@ -19,14 +19,9 @@ struct SettingsView: View {
         }
         .task {
             if model == nil {
-                let vm = SettingsViewModel(
-                    repository: env.settings,
-                    auth: env.auth
-                )
-                vm.loadLocalState()
-                model = vm
+                model = SettingsViewModel(env: env)
             }
-            await model?.syncProfile()
+            await model?.loadState()
         }
     }
 
@@ -37,6 +32,8 @@ struct SettingsView: View {
             List {
                 SettingsProfileHeaderSection(
                     profile: model.profile,
+                    email: model.email,
+                    avatarURL: model.avatarURL,
                     fullName: model.fullName,
                     initials: model.initials,
                     onEdit: { activeSheet = .name }

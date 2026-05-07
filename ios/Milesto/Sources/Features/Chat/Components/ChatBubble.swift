@@ -1,21 +1,18 @@
 import SwiftUI
 
 struct ChatBubble: View {
-    let message: ChatMessage
+    let message: ChatMessageDTO
     var isStreamingResponse = false
 
     @State private var appeared = false
 
-    private var isUser: Bool {
-        message.role == .user
-    }
-
     var body: some View {
+        let content = message.content ?? ""
         HStack {
-            if isUser { Spacer(minLength: 0) }
+            if message.isUser { Spacer(minLength: 0) }
 
-            if isUser {
-                AppText(verbatim: message.content, style: .body)
+            if message.isUser {
+                AppText(verbatim: content, style: .body)
                     .color(Color("TextOnBrand"))
                     .padding(12)
                     .background(
@@ -23,13 +20,13 @@ struct ChatBubble: View {
                             .fill(Color("BrandDeep"))
                     )
             } else {
-                ChatStreamingText(content: message.content, isStreaming: isStreamingResponse)
+                ChatStreamingText(content: content, isStreaming: isStreamingResponse)
             }
 
-            if !isUser { Spacer(minLength: 0) }
+            if !message.isUser { Spacer(minLength: 0) }
         }
         .padding(.horizontal, 16)
-        .padding(isUser ? .leading : .trailing, 40)
+        .padding(message.isUser ? .leading : .trailing, 40)
         .opacity(appeared ? 1 : 0)
         .offset(y: appeared ? 0 : 12)
         .onAppear {

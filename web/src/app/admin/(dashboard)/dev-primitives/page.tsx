@@ -28,7 +28,6 @@ export default function PrimitivesPreviewPage() {
           <StatusBadge variant="cancelled" />
           <StatusBadge variant="revoked" />
           <StatusBadge variant="failed" />
-          <StatusBadge variant="free" />
           <StatusBadge variant="healthy" />
           <StatusBadge variant="degraded" />
           <StatusBadge variant="down" />

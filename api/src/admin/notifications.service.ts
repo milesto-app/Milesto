@@ -165,10 +165,6 @@ export class AdminNotificationsService {
 
       if (segment === "pro") {
         query = query.eq("subscription_status", SUBSCRIPTION_STATUS.ACTIVE);
-      } else if (segment === "free") {
-        query = query.or(
-          `subscription_status.eq.free,subscription_status.is.null`,
-        );
       }
 
       const { data, error } = await query;

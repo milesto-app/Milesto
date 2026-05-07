@@ -19,6 +19,7 @@ import { RoadmapModule } from "./roadmap/roadmap.module.js";
 import { SupabaseModule } from "./supabase/supabase.module.js";
 import { TranscriptionModule } from "./transcription/transcription.module.js";
 import { UsageModule } from "./usage/usage.module.js";
+import { UserModule } from "./user/user.module.js";
 
 @Module({
   imports: [
@@ -44,6 +45,7 @@ import { UsageModule } from "./usage/usage.module.js";
     ChatModule,
     NotificationsModule,
     AdminModule,
+    UserModule,
   ],
   providers: [
     {

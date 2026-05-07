@@ -1,18 +1,18 @@
 import SwiftUI
 
 struct IntakeBatchView: View {
-    let batch: IntakeBatch
+    let batch: IntakeBatchDTO
     let answers: [String: IntakeAnswerDTO]
     let setAnswer: (String, IntakeAnswerDTO) -> Void
     let onSubmit: () -> Void
 
     @State private var currentQuestionIndex = 0
 
-    private var questions: [IntakeQuestion] {
+    private var questions: [IntakeQuestionDTO] {
         (batch.questions ?? []).sorted { $0.orderInBatch < $1.orderInBatch }
     }
 
-    private var currentQuestion: IntakeQuestion? {
+    private var currentQuestion: IntakeQuestionDTO? {
         guard currentQuestionIndex < questions.count else { return nil }
         return questions[currentQuestionIndex]
     }

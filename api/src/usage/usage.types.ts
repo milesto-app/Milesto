@@ -9,16 +9,8 @@ export enum GenerationType {
   VOICE_TRANSCRIPTION = "VOICE_TRANSCRIPTION",
 }
 
-export interface UsageStatus {
-  used: number;
-  limit: number;
-  isPro: boolean;
-  resetsAt: string;
-}
-
 export interface ReservationResult {
   granted: boolean;
   used: number;
   limit: number;
-  is_pro: boolean;
 }

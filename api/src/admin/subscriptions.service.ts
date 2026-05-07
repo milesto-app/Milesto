@@ -19,7 +19,6 @@ import type {
   AdminSubscriptionSummary,
 } from "./subscriptions.types.js";
 
-const FREE_SUBSCRIPTION_STATUS = "free";
 const MS_PER_DAY = 86_400_000;
 const MONTHS_PER_YEAR = 12;
 const ANNUAL_PRODUCT_SUFFIX = "annual";
@@ -115,7 +114,7 @@ export class SubscriptionsService {
 
     const counts: Record<string, number> = {};
     for (const row of data) {
-      const status = row.subscription_status || FREE_SUBSCRIPTION_STATUS;
+      const status = row.subscription_status || SUBSCRIPTION_STATUS.UNKNOWN;
       counts[status] = (counts[status] ?? 0) + 1;
     }
     return counts;

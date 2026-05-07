@@ -3,31 +3,33 @@ import Foundation
 @MainActor
 @Observable
 final class DebriefBannerViewModel {
-    @ObservationIgnored private let repository: RoadmapRepository
+    @ObservationIgnored private let env: AppEnv
     @ObservationIgnored private var goalId: String = ""
 
     private(set) var weeklyPlanId: String?
     private(set) var shouldDisplay = false
 
-    init(repository: RoadmapRepository) {
-        self.repository = repository
+    init(env: AppEnv) {
+        self.env = env
     }
 
     func configure(goalId: String) {
         self.goalId = goalId
-        apply(repository.loadDebriefPromptState(goalId: goalId))
     }
 
     func refresh() async {
-        apply(await repository.refreshDebriefPromptState(goalId: goalId))
-    }
+        guard !goalId.isEmpty else { return }
 
-    func reactToTaskChange() {
-        apply(repository.loadDebriefPromptState(goalId: goalId))
-    }
+        async let tasksAsync = env.roadmap.fetchWeeklyTasks(goalId: goalId)
+        async let planAsync = env.roadmap.fetchWeeklyPlan(goalId: goalId)
+        async let debriefAsync = env.roadmap.fetchLatestDebrief(goalId: goalId)
+        let tasks = (try? await tasksAsync) ?? []
+        let plan: WeeklyPlanDTO? = (try? await planAsync) ?? nil
+        let latest: DebriefDTO? = (try? await debriefAsync) ?? nil
 
-    private func apply(_ state: DebriefPromptState) {
-        weeklyPlanId = state.weeklyPlanId
-        shouldDisplay = state.shouldDisplay
+        let allComplete = !tasks.isEmpty && tasks.allSatisfy(\.isCompleted)
+        let debriefMissingForCurrentPlan = latest?.weeklyPlanId != plan?.id
+        weeklyPlanId = plan?.id
+        shouldDisplay = allComplete && debriefMissingForCurrentPlan && plan != nil
     }
 }

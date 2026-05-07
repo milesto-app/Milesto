@@ -3,7 +3,7 @@ import SwiftUI
 struct ProfileOnboardingView: View {
     let userId: String
     let missingSteps: [OnboardingStep]
-    let existingProfile: ProfileSnapshot?
+    let existingProfile: ProfileDTO?
     let onComplete: () -> Void
 
     @Environment(AppEnv.self) private var env
@@ -20,7 +20,7 @@ struct ProfileOnboardingView: View {
         .task {
             if model == nil {
                 model = ProfileOnboardingViewModel(
-                    repository: env.onboarding,
+                    env: env,
                     userId: userId,
                     missingSteps: missingSteps,
                     existingProfile: existingProfile

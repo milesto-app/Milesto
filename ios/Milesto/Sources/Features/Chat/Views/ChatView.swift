@@ -19,7 +19,7 @@ struct ChatView: View {
         }
         .task {
             if model == nil {
-                let vm = ChatViewModel(repository: env.chat)
+                let vm = ChatViewModel(env: env)
                 vm.configure(goalId: goalId)
                 model = vm
             }

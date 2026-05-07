@@ -1,17 +1,26 @@
 import SwiftUI
 
 struct ProfileAvatarView: View {
-    let imageData: Data?
+    let imageURL: URL?
     let initials: String
     let size: CGFloat
 
     var body: some View {
-        if let imageData, let uiImage = UIImage(data: imageData) {
-            Image(uiImage: uiImage)
-                .resizable()
-                .scaledToFill()
-                .frame(width: size, height: size)
-                .clipShape(Circle())
+        if let imageURL {
+            AsyncImage(url: imageURL) { phase in
+                switch phase {
+                case let .success(image):
+                    image
+                        .resizable()
+                        .scaledToFill()
+                        .frame(width: size, height: size)
+                        .clipShape(Circle())
+                case .failure, .empty:
+                    initialsView
+                @unknown default:
+                    initialsView
+                }
+            }
         } else {
             initialsView
         }

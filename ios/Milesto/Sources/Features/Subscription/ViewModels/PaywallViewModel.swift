@@ -3,32 +3,32 @@ import Foundation
 @MainActor
 @Observable
 final class PaywallViewModel {
-    @ObservationIgnored private let subscription: SubscriptionRepository
+    @ObservationIgnored private let env: AppEnv
 
     private(set) var selectedPlanId: String?
 
-    init(subscription: SubscriptionRepository) {
-        self.subscription = subscription
+    init(env: AppEnv) {
+        self.env = env
     }
 
     var plans: [SubscriptionPlan] {
-        subscription.plans
+        env.subscription.plans
     }
 
     var monthlyPlan: SubscriptionPlan? {
-        subscription.monthlyPlan
+        env.subscription.monthlyPlan
     }
 
     var annualPlan: SubscriptionPlan? {
-        subscription.annualPlan
+        env.subscription.annualPlan
     }
 
     var isPurchasing: Bool {
-        subscription.isPurchasing
+        env.subscription.isPurchasing
     }
 
     var purchaseErrorMessage: String? {
-        guard let error = subscription.purchaseError else { return nil }
+        guard let error = env.subscription.purchaseError else { return nil }
         switch error {
         case .missingUser:
             return String(localized: "paywall.error.generic", table: "Paywall")
@@ -40,7 +40,7 @@ final class PaywallViewModel {
     }
 
     func dismissPurchaseError() {
-        subscription.purchaseError = nil
+        env.subscription.purchaseError = nil
     }
 
     var isAnnualSelected: Bool {
@@ -62,7 +62,7 @@ final class PaywallViewModel {
     }
 
     func loadPlans() async {
-        await subscription.loadPlans()
+        await env.subscription.loadPlans()
         if selectedPlanId == nil {
             selectAnnual()
         }
@@ -70,10 +70,10 @@ final class PaywallViewModel {
 
     func purchaseSelected() async {
         guard let id = selectedPlanId else { return }
-        await subscription.purchase(planId: id)
+        await env.subscription.purchase(planId: id)
     }
 
     func restore() async {
-        await subscription.restore()
+        await env.subscription.restore()
     }
 }

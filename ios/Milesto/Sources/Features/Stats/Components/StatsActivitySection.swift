@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct StatsActivitySection: View {
-    let days: [DayActivitySnapshot]
+    let days: [DayActivityDTO]
 
     @State private var isAnimated = false
 
@@ -32,7 +32,7 @@ struct StatsActivitySection: View {
         }
     }
 
-    private func dayBar(day: DayActivitySnapshot, index: Int, isToday: Bool) -> some View {
+    private func dayBar(day: DayActivityDTO, index: Int, isToday: Bool) -> some View {
         let ratio = day.objectivesTotal > 0
             ? Double(day.objectivesCompleted) / Double(day.objectivesTotal)
             : 0

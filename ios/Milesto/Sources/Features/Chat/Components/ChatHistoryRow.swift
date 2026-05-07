@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct ChatHistoryRow: View {
-    let conversation: ChatConversation
+    let conversation: ChatConversationDTO
     let isActive: Bool
 
     var body: some View {
@@ -12,7 +12,7 @@ struct ChatHistoryRow: View {
             )
             .lineLimit(2)
 
-            AppText(verbatim: conversation.relativeDate, style: .caption)
+            AppText(verbatim: Self.relativeDate(conversation.updatedAt), style: .caption)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(.horizontal, 16)
@@ -24,5 +24,11 @@ struct ChatHistoryRow: View {
         )
         .clipShape(RoundedRectangle(cornerRadius: 12))
         .padding(.horizontal, 8)
+    }
+
+    private static func relativeDate(_ date: Date) -> String {
+        let formatter = RelativeDateTimeFormatter()
+        formatter.unitsStyle = .short
+        return formatter.localizedString(for: date, relativeTo: Date())
     }
 }

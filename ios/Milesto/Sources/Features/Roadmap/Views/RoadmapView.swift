@@ -6,7 +6,6 @@ struct DisplayMilestone: Identifiable {
     let description: String
     let targetMonth: Int
     let targetWeek: Int
-    let isMonthlyCheckpoint: Bool
     let orderIndex: Int
     let expectedOutcome: String
     let status: MilestoneStatus
@@ -87,7 +86,7 @@ struct RoadmapView: View {
         }
         .task {
             if model == nil {
-                let vm = RoadmapViewModel(repository: env.roadmap)
+                let vm = RoadmapViewModel(env: env)
                 vm.configure(goalId: goalId)
                 model = vm
             }
@@ -111,10 +110,6 @@ struct RoadmapView: View {
                     model.appeared = true
                 }
             }
-        }
-        .onReceive(NotificationCenter.default.publisher(for: .weeklyTaskCompletionDidChange)) { notification in
-            guard notification.userInfo?["goalId"] as? String == goalId else { return }
-            model?.refreshDisplayedProgress()
         }
     }
 
