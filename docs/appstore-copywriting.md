@@ -2,60 +2,45 @@
 
 ## Promotional Text (170 characters max)
 
-Set one big goal. Get an AI-generated roadmap with milestones, weekly plans, and daily tasks — guided by a coach personality you choose. Your goals, your rhythm.
+AI roadmaps, weekly tasks, coach chat, and progress tracking. Requires Milesto Pro in-app purchase after a 1-week free trial.
 
 ## Description (4000 characters max)
 
-Milesto is your AI-powered personal coaching app. Set one ambitious goal, and Milesto builds a complete roadmap to get you there — with milestones, weekly plans, and daily tasks tailored to who you are.
+Milesto is your AI-powered personal coach that helps you achieve any meaningful goal — whether it's running a marathon, launching a business, learning a new skill, or building a healthier lifestyle.
 
-**How it works**
+Milesto requires a Milesto Pro subscription purchased through in-app purchase to use the app after the 1-week free trial. Personalized AI coaching, roadmap generation, weekly tasks, coach chat, progress tracking, and adaptive planning are paid Milesto Pro features.
 
-1. Define your goal and deadline
-2. Choose your AI coach personality
-3. Answer a short adaptive intake so the AI understands your strengths, constraints, and lifestyle
-4. Get a personalized roadmap generated just for you
+Tell Milesto what you want to achieve, and your AI coach will design a personalized roadmap with clear milestones, weekly plans, and weekly tasks tailored to your life. Every step is broken down so you always know what to focus on next.
 
-**Pick the coach that fits your style**
+WHAT MAKES MILESTO DIFFERENT
 
-- Motivator — your biggest fan, full of energy and encouragement
-- Zen — a calm, caring guide who keeps you grounded
-- Strict — no excuses, no shortcuts, pure accountability
-- Buddy — like a supportive friend walking the path with you
+• Personalized AI Coaching — Pick a coach whose style fits you, from supportive and encouraging to direct and demanding. Your coach remembers your progress, your wins, and your setbacks.
 
-**Stay on track every day**
+• Smart Roadmap Generation — Big goals become structured plans. Milesto turns vague intentions into concrete milestones with realistic timelines.
 
-Morning check-ins set the tone for your day. Your coach assigns daily objectives rated by difficulty, so you always know what to focus on. End-of-day debriefs help you reflect and adjust. Chat with your coach anytime for guidance, motivation, or a reality check.
+• Weekly Tasks That Actually Move the Needle — Start each week with a focused plan. No overwhelm, no decision fatigue.
 
-**Watch your progress unfold**
+• Coach Chat — Message your coach when you need help getting unstuck, reflecting on your progress, or planning your next move.
 
-Track your streaks, energy levels, weekly progress, and milestone completions — all in one place. See how far you've come and what's ahead.
+• Streaks & Progress Tracking — Build momentum with check-ins, debriefs, and visual progress on your roadmap.
 
-**Smart replanning**
+• Adaptive Plans — Life happens. Milesto adjusts your roadmap when priorities shift, schedules change, or you need to rest.
 
-Life happens. Milesto adapts your roadmap when things change, so you never lose milesto.
+HOW IT WORKS
 
-**Milesto Pro**
+1. Share your goal. Tell Milesto what you want to achieve and why it matters.
+2. Get your roadmap. Your AI coach builds a step-by-step plan with milestones and weekly focus areas.
+3. Take action weekly. Complete focused tasks, check in with your coach, and watch your progress grow.
 
-Unlock your full potential with unlimited access:
+MILESTO PRO — PAID SUBSCRIPTION REQUIRED AFTER TRIAL
 
-- Personalized AI coaching
-- Unlimited roadmap generation
-- Unlimited coach conversations
-- Advanced progress analytics
-- Smart replanning and adjustments
+Unlock the full coaching experience with Milesto Pro, an auto-renewing subscription available as an in-app purchase. Start with a 1-week free trial, then subscribe to continue using Milesto.
 
-Start with a 2-week free trial.
+Pro members get unlimited roadmap generations, coach chat, deeper coach memory, and full access to every coach personality.
 
-Whether you're training for a marathon, launching a business, learning a new skill, or making a lifestyle change — Milesto gives you the structure, accountability, and AI intelligence to make it happen.
+Subscriptions automatically renew unless canceled at least 24 hours before the end of the current period. Manage your subscription in your App Store account settings.
 
-## Keywords (100 characters max)
+Start your journey today. Pick a goal that matters, and let Milesto guide you to the finish line.
 
-goal,coach,AI,planner,habits,roadmap,milestones,productivity,motivation,tracker,daily,tasks,streak
-
-## Support URL
-
-https://milesto.app/support
-
-## Copyright
-
-Copyright 2025 Milesto. All rights reserved.
+Terms of Use (EULA): https://www.apple.com/legal/internet-services/itunes/dev/stdeula/
+Privacy Policy: https://milesto.app/privacy
