@@ -15,6 +15,7 @@ struct PaywallFeatureRow: View {
 
             AppText(labelKey, table: "Paywall", style: .body)
                 .weight(.medium)
+                .lineLimit(1)
 
             Spacer(minLength: 0)
 
