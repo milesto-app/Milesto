@@ -69,6 +69,11 @@ struct PaywallView: View {
         }
         .appBackground()
         .interactiveDismissDisabled(true)
+        .overlay(alignment: .topTrailing) {
+            SignOutGlassButton()
+                .padding(.top, 8)
+                .padding(.trailing, 16)
+        }
         .onChange(of: model.purchaseErrorMessage) { _, newValue in
             showError = newValue != nil
         }

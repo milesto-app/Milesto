@@ -2,7 +2,6 @@ import SwiftUI
 
 struct GoalIntakeFlowView: View {
     let existingGoalId: String?
-    let onClose: (() -> Void)?
     let onComplete: (String) -> Void
 
     @Environment(AppEnv.self) private var env
@@ -56,15 +55,9 @@ struct GoalIntakeFlowView: View {
                 }
             }
             .overlay(alignment: .topTrailing) {
-                if let onClose {
-                    Button(action: onClose) {
-                        TablerIcons(.x, size: 24, color: Color("TextPrimary"))
-                            .frame(width: 44, height: 44)
-                            .glassEffect(.regular.interactive(), in: .circle)
-                    }
+                SignOutGlassButton()
                     .padding(.top, 8)
                     .padding(.trailing, 16)
-                }
             }
         }
         .appBackground()

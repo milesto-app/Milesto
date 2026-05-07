@@ -65,6 +65,11 @@ struct ProfileOnboardingView: View {
                     ProgressView()
                 }
             }
+            .overlay(alignment: .topTrailing) {
+                SignOutGlassButton()
+                    .padding(.top, 8)
+                    .padding(.trailing, 16)
+            }
         }
         .appBackground()
         .alert(String(localized: "onboarding.error.title", table: "Onboarding"), isPresented: $bindable.showError) {

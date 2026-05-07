@@ -112,7 +112,6 @@ private struct AuthenticatedRootView: View {
                 startingView {
                     GoalIntakeFlowView(
                         existingGoalId: routing.activeGoalId,
-                        onClose: nil,
                         onComplete: { goalId in
                             routing.activeGoalId = goalId
                             withAnimation(.easeInOut(duration: 0.4)) {
