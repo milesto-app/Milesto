@@ -19,7 +19,7 @@ const MAX_DATA_KEYS = 20;
 const MAX_DATA_KEY_LENGTH = 64;
 const MAX_DATA_VALUE_LENGTH = 512;
 
-const SEGMENTS: AdminBroadcastSegment[] = ["all", "pro", "free"];
+const SEGMENTS: AdminBroadcastSegment[] = ["all", "pro"];
 
 @ValidatorConstraint({ name: "isAdminBroadcastDataPayload", async: false })
 class BroadcastDataPayloadConstraint implements ValidatorConstraintInterface {

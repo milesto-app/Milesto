@@ -24,11 +24,6 @@ const SEGMENTS: {
     hint: "Everyone with a registered device",
   },
   { value: "pro", label: "Pro", hint: "Active paid subscribers only" },
-  {
-    value: "free",
-    label: "Free",
-    hint: "Users without an active subscription",
-  },
 ];
 
 const TITLE_LIMIT = 50;
@@ -45,12 +40,7 @@ export function BroadcastComposer({
 
   const audienceEstimate = useMemo(() => {
     const total = Object.values(distribution).reduce((sum, n) => sum + n, 0);
-    if (segment === "all") return total;
     if (segment === "pro") return distribution["active"] ?? 0;
-    if (segment === "free") {
-      const active = distribution["active"] ?? 0;
-      return Math.max(total - active, 0);
-    }
     return total;
   }, [distribution, segment]);
 
@@ -81,7 +71,7 @@ export function BroadcastComposer({
           />
         </Field>
         <Field label="Segment">
-          <div className="grid gap-2 sm:grid-cols-3">
+          <div className="grid gap-2 sm:grid-cols-2">
             {SEGMENTS.map((opt) => (
               <button
                 key={opt.value}

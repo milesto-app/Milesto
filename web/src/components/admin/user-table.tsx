@@ -31,8 +31,8 @@ function subscriptionBadge(status: string) {
       );
     default:
       return (
-        <Badge variant="secondary" className="font-medium">
-          Free
+        <Badge variant="secondary" className="font-medium capitalize">
+          {status.replace(/_/g, " ")}
         </Badge>
       );
   }

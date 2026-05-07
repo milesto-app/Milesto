@@ -785,8 +785,7 @@ export type Database = {
       };
       reserve_generation: {
         Args: {
-          p_free_limit: number;
-          p_pro_limit: number;
+          p_limit: number;
           p_type: string;
           p_user_id: string;
         };

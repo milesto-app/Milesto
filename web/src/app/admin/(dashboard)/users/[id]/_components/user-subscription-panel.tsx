@@ -41,17 +41,10 @@ function statusBadge(status: string) {
           Pending
         </Badge>
       );
-    case "free":
-    case "none":
-      return (
-        <Badge variant="secondary" className="font-medium">
-          Free
-        </Badge>
-      );
     default:
       return (
-        <Badge variant="secondary" className="font-medium">
-          {status}
+        <Badge variant="secondary" className="font-medium capitalize">
+          {status.replace(/_/g, " ")}
         </Badge>
       );
   }

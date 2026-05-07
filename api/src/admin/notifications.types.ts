@@ -37,4 +37,4 @@ export interface AdminBroadcastResult {
   recipientCount: number;
 }
 
-export type AdminBroadcastSegment = "all" | "pro" | "free";
+export type AdminBroadcastSegment = "all" | "pro";
