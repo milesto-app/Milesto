@@ -92,13 +92,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Unlimited AI coaching chats"
+            "value" : "An AI coach that knows you"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Discussions illimitées avec ton coach IA"
+            "value" : "Un coach IA qui te connaît"
           }
         }
       }
@@ -109,13 +109,30 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Adapts to your pace and style"
+            "value" : "Know what to do this week"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "S'adapte à ton rythme et à ton style"
+            "value" : "Sache quoi faire cette semaine"
+          }
+        }
+      }
+    },
+    "paywall.feature.flexibility" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A plan that adapts to life"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Un plan qui s'adapte à la vie"
           }
         }
       }
@@ -126,13 +143,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Personalized roadmap with milestones"
+            "value" : "Your goal, in clear steps"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Roadmap personnalisée avec étapes clés"
+            "value" : "Ton objectif, en étapes claires"
           }
         }
       }
@@ -143,13 +160,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Streaks & weekly insights"
+            "value" : "Weekly progress you can see"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Séries et bilans hebdomadaires"
+            "value" : "Ta progression, chaque semaine"
           }
         }
       }
@@ -211,13 +228,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Go all in on your goal."
+            "value" : "Milesto Plus"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Donne-toi à fond pour ton objectif."
+            "value" : "Milesto Plus"
           }
         }
       }
@@ -324,36 +341,19 @@
         }
       }
     },
-    "paywall.premium.tag" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "MILESTO PLUS"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "MILESTO PLUS"
-          }
-        }
-      }
-    },
     "paywall.subheadline" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Your coach, your roadmap, your pace — without limits."
+            "value" : "No limits between you and your goal."
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Ton coach, ta roadmap, ton rythme — sans limites."
+            "value" : "Aucune limite entre toi et ton objectif."
           }
         }
       }

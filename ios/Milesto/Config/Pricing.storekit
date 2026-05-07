@@ -24,7 +24,7 @@
     "_developerTeamID" : "6W6LHS996D",
     "_disableDialogs" : false,
     "_failTransactionsEnabled" : false,
-    "_lastSynchronizedDate" : 799837212.11986196,
+    "_lastSynchronizedDate" : 799839360.506374,
     "_locale" : "en_US",
     "_renewalBillingIssuesEnabled" : false,
     "_storefront" : "USA",
@@ -58,7 +58,7 @@
           "internalID" : "6764297950",
           "introductoryOffer" : {
             "billingPlanType" : "BILLED_UPFRONT",
-            "internalID" : "E93672B0",
+            "internalID" : "EAAAF1A8",
             "numberOfPeriods" : 1,
             "paymentMode" : "free",
             "subscriptionPeriod" : "P1W"
@@ -66,7 +66,7 @@
           "introductoryOffers" : [
             {
               "billingPlanType" : "BILLED_UPFRONT",
-              "internalID" : "E93672B0",
+              "internalID" : "EAAAF1A8",
               "numberOfPeriods" : 1,
               "paymentMode" : "free",
               "subscriptionPeriod" : "P1W"

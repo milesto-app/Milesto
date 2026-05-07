@@ -86,9 +86,7 @@ struct PaywallView: View {
     }
 
     private var hero: some View {
-        VStack(alignment: .leading, spacing: 20) {
-            AppPill("paywall.premium.tag", table: "Paywall", tint: Color("Brand"), icon: .sparkles2)
-
+        VStack(alignment: .leading, spacing: 8) {
             AppText("paywall.headline", table: "Paywall", style: .largeTitle)
                 .weight(.semibold)
                 .alignment(.leading)
@@ -104,8 +102,9 @@ struct PaywallView: View {
         VStack(spacing: 14) {
             PaywallFeatureRow(icon: .compass, labelKey: "paywall.feature.roadmap")
             PaywallFeatureRow(icon: .brain, labelKey: "paywall.feature.chat")
-            PaywallFeatureRow(icon: .trophy, labelKey: "paywall.feature.stats")
             PaywallFeatureRow(icon: .sparkles, labelKey: "paywall.feature.adaptive")
+            PaywallFeatureRow(icon: .refresh, labelKey: "paywall.feature.flexibility")
+            PaywallFeatureRow(icon: .trophy, labelKey: "paywall.feature.stats")
         }
     }
 
@@ -135,14 +134,14 @@ struct PaywallView: View {
 
     private func ctaStack(model: PaywallViewModel) -> some View {
         VStack(spacing: 14) {
-            PaywallCTAButton(
-                titleKey: model.isAnnualSelected ? "paywall.cta.trial" : "paywall.cta.subscribe",
-                isLoading: model.isPurchasing,
-                isDisabled: model.selectedPlan == nil,
-                action: {
-                    Task { await model.purchaseSelected() }
-                }
+            AppButton(
+                model.isAnnualSelected ? "paywall.cta.trial" : "paywall.cta.subscribe",
+                table: "Paywall",
+                action: { Task { await model.purchaseSelected() } }
             )
+            .icon(.arrowRight, position: .trailing)
+            .fullWidth()
+            .disabled(model.isPurchasing || model.selectedPlan == nil)
 
             AppText(
                 verbatim: termsLine(model: model),
