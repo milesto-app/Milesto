@@ -19,7 +19,6 @@
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Config/Info.plist,
-				Config/Pricing.storekit,
 			);
 			target = 4C824E7C2F30B07D00056D79 /* Milesto */;
 		};
