@@ -106,8 +106,8 @@ export default async function UserDetailPage({
                   Expired
                 </Badge>
               ) : (
-                <Badge variant="secondary" className="font-medium">
-                  Free
+                <Badge variant="secondary" className="font-medium capitalize">
+                  {user.subscriptionStatus.replace(/_/g, " ")}
                 </Badge>
               )}
               <UserEditButton user={user} />

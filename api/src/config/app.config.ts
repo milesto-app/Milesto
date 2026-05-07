@@ -170,8 +170,7 @@ export const config = {
     defaultCoachId: 1,
   },
   usage: {
-    freeGenerationsPerDay: 20,
-    proGenerationsPerDay: 200,
+    generationsPerDay: 200,
   },
   apns: {
     host: {

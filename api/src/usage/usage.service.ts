@@ -10,11 +10,7 @@ import { config } from "../config/app.config.js";
 import { SupabaseService } from "../supabase/supabase.service.js";
 import { SubscriptionRequiredException } from "./subscription-required.exception.js";
 import { isProSubscriptionStatus } from "./subscription-state.js";
-import type {
-  GenerationType,
-  ReservationResult,
-  UsageStatus,
-} from "./usage.types.js";
+import type { GenerationType, ReservationResult } from "./usage.types.js";
 
 @Injectable()
 export class UsageService {
@@ -32,8 +28,7 @@ export class UsageService {
     const { data, error } = await supabase.rpc("reserve_generation", {
       p_user_id: userId,
       p_type: type,
-      p_free_limit: config.usage.freeGenerationsPerDay,
-      p_pro_limit: config.usage.proGenerationsPerDay,
+      p_limit: config.usage.generationsPerDay,
     });
 
     if (error) {
@@ -51,7 +46,6 @@ export class UsageService {
           usage: {
             used: result.used,
             limit: result.limit,
-            isPro: result.is_pro,
             resetsAt: this.getNextResetTime(),
           },
         },
@@ -140,47 +134,6 @@ export class UsageService {
         `Failed to record token usage on row ${rowId}: ${error.message}`,
       );
     }
-  }
-
-  public async getUsage(userId: string): Promise<UsageStatus> {
-    const supabase = this.supabaseService.getAdminClient();
-    const today = new Date().toISOString().split("T")[0] ?? "";
-
-    const [profileResult, countResult] = await Promise.all([
-      supabase
-        .from("profiles")
-        .select("subscription_status, subscription_expires_at")
-        .eq("id", userId)
-        .single(),
-      supabase
-        .from("generation_usage")
-        .select("id", { count: "exact", head: true })
-        .eq("user_id", userId)
-        .eq("usage_date", today),
-    ]);
-
-    if (profileResult.error) {
-      this.logger.error(
-        `Failed to fetch profile for usage: ${profileResult.error.message}`,
-      );
-      throw new InternalServerErrorException("Failed to fetch usage");
-    }
-
-    const isPro =
-      isProSubscriptionStatus(profileResult.data.subscription_status) &&
-      profileResult.data.subscription_expires_at !== null &&
-      new Date(profileResult.data.subscription_expires_at) > new Date();
-
-    const limit = isPro
-      ? config.usage.proGenerationsPerDay
-      : config.usage.freeGenerationsPerDay;
-
-    return {
-      used: countResult.count ?? 0,
-      limit,
-      isPro,
-      resetsAt: this.getNextResetTime(),
-    };
   }
 
   private async assertActiveSubscription(userId: string): Promise<void> {

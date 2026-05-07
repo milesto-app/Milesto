@@ -3,7 +3,6 @@ import {
   AlertTriangle,
   Ban,
   CheckCircle2,
-  Circle,
   CircleSlash,
   Clock,
   HelpCircle,
@@ -20,7 +19,6 @@ export type StatusVariant =
   | "cancelled"
   | "revoked"
   | "failed"
-  | "free"
   | "healthy"
   | "degraded"
   | "down"
@@ -70,11 +68,6 @@ const VARIANTS: Record<StatusVariant, Definition> = {
     label: "Failed",
     icon: XCircle,
     className: "bg-status-danger/12 text-status-danger",
-  },
-  free: {
-    label: "Free",
-    icon: Circle,
-    className: "border border-border-default text-text-secondary",
   },
   healthy: {
     label: "Healthy",

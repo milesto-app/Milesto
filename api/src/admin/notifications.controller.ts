@@ -81,7 +81,7 @@ export class AdminNotificationsController {
   @ApiOperation({
     summary: "Broadcast a push notification to a user segment",
     description:
-      "Resolves recipient user IDs from `segment` (all | pro | free) and queues an APNs broadcast.",
+      "Resolves recipient user IDs from `segment` (all | pro) and queues an APNs broadcast.",
   })
   @ApiResponse({ status: 200, description: "Broadcast queued" })
   public async broadcast(

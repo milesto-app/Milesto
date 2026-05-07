@@ -3,7 +3,6 @@ import Foundation
 nonisolated struct GenerationLimitUsageDTO: Decodable {
     let used: Int
     let limit: Int
-    let isPro: Bool
     let resetsAt: String
 }
 
