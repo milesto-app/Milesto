@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct IntakeMultipleChoiceView: View {
-    let question: IntakeQuestion
+    let question: IntakeQuestionDTO
     let answers: [String: IntakeAnswerDTO]
     let setAnswer: (String, IntakeAnswerDTO) -> Void
 

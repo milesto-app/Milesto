@@ -10,10 +10,11 @@ import { ChatRoadmapToolsService } from "./chat-roadmap-tools.service.js";
 import { ChatSearchService } from "./chat-search.service.js";
 import { ChatToolRegistryService } from "./chat-tool-registry.service.js";
 import { ChatToolsService } from "./chat-tools.service.js";
+import { ConversationsController } from "./conversations.controller.js";
 
 @Module({
   imports: [RoadmapModule],
-  controllers: [ChatController],
+  controllers: [ChatController, ConversationsController],
   providers: [
     ChatHistoryService,
     ChatSearchService,

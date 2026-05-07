@@ -1,6 +1,6 @@
 import Foundation
 
-struct RetryProfileResponse: Codable {
+struct RetryProfileResponseDTO: Codable {
     let profileId: String?
     let profileStatus: String?
 
@@ -14,22 +14,22 @@ struct RetryProfileResponse: Codable {
 final class IntakeRemote {
     init() {}
 
-    func getNextBatch(goalId: String) async throws -> IntakeBatch {
+    func getNextBatch(goalId: String) async throws -> IntakeBatchDTO {
         return try await ApiClient.shared.request(
             method: "GET",
             path: "goals/\(goalId)/intake/next-batch"
         )
     }
 
-    func submitBatch(goalId: String, answers: [IntakeAnswerDTO]) async throws -> SubmitBatchResponse {
+    func submitBatch(goalId: String, answers: [IntakeAnswerDTO]) async throws -> SubmitBatchResponseDTO {
         return try await ApiClient.shared.request(
             method: "POST",
             path: "goals/\(goalId)/intake/submit-batch",
-            body: SubmitAnswersRequest(answers: answers)
+            body: SubmitAnswersRequestDTO(answers: answers)
         )
     }
 
-    func retryProfile(goalId: String) async throws -> RetryProfileResponse {
+    func retryProfile(goalId: String) async throws -> RetryProfileResponseDTO {
         return try await ApiClient.shared.request(
             method: "POST",
             path: "goals/\(goalId)/intake/retry-profile"

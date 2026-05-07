@@ -1,7 +1,9 @@
 import {
   Controller,
+  Get,
   HttpStatus,
   Logger,
+  NotFoundException,
   Param,
   Post,
   UseGuards,
@@ -19,6 +21,7 @@ import { UserId } from "../common/decorators/user.decorator.js";
 import { AuthGuard } from "../common/guards/auth.guard.js";
 import { config } from "../config/app.config.js";
 import { RoadmapService } from "./roadmap.service.js";
+import { RoadmapDataService } from "./roadmap-data.service.js";
 import type { Roadmap } from "./types/roadmap.types.js";
 import type { WeeklyPlan } from "./types/weekly-plan.types.js";
 import { WeeklyPlanService } from "./weekly-plan.service.js";
@@ -33,7 +36,57 @@ export class RoadmapController {
   constructor(
     private readonly roadmapService: RoadmapService,
     private readonly weeklyPlanService: WeeklyPlanService,
+    private readonly roadmapDataService: RoadmapDataService,
   ) {}
+
+  @Get()
+  @ApiOperation({
+    summary: "Read the roadmap for a goal (no generation)",
+  })
+  @ApiParam({ name: "goalId", description: "Goal ID" })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: "Roadmap with milestones and current milestone id",
+  })
+  @ApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    description: "Roadmap not found",
+  })
+  @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: "Unauthorized" })
+  public async getRoadmap(
+    @Param("goalId") goalId: string,
+    @UserId() userId: string,
+  ): Promise<Roadmap> {
+    return this.roadmapDataService.getRoadmap(goalId, userId);
+  }
+
+  @Get("weekly-plan")
+  @ApiOperation({
+    summary: "Read the active weekly plan for a goal",
+  })
+  @ApiParam({ name: "goalId", description: "Goal ID" })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: "Active weekly plan",
+  })
+  @ApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    description: "No active weekly plan",
+  })
+  @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: "Unauthorized" })
+  public async getActiveWeeklyPlan(
+    @Param("goalId") goalId: string,
+    @UserId() userId: string,
+  ): Promise<WeeklyPlan> {
+    const plan = await this.weeklyPlanService.getCurrentWeeklyPlan(
+      goalId,
+      userId,
+    );
+    if (plan === null) {
+      throw new NotFoundException("No active weekly plan");
+    }
+    return plan;
+  }
 
   @Post("generate")
   @ApiOperation({ summary: "Generate milestone roadmap for a goal" })

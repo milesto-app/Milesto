@@ -3,76 +3,63 @@ import Foundation
 @MainActor
 @Observable
 final class RoadmapViewModel {
-    @ObservationIgnored private let repository: RoadmapRepository
+    @ObservationIgnored private let env: AppEnv
 
     private(set) var goalId: String = ""
     private(set) var goalTitle: String = ""
-    private(set) var switchableGoals: [GoalSummary] = []
     private(set) var milestones: [DisplayMilestone] = []
     private(set) var isLoading = true
     var appeared = false
 
-    init(repository: RoadmapRepository) {
-        self.repository = repository
+    init(env: AppEnv) {
+        self.env = env
     }
 
     func configure(goalId: String) {
         self.goalId = goalId
-        applySnapshot(repository.loadRoadmapSnapshot(goalId: goalId))
     }
 
     func resetForGoalChange() {
         milestones = []
         goalTitle = ""
-        switchableGoals = []
         isLoading = true
         appeared = false
     }
 
     func loadMilestones() async {
-        let snapshot = await repository.refreshRoadmap(goalId: goalId)
-        applySnapshot(snapshot)
+        guard !goalId.isEmpty else { return }
+
+        let goal = try? await env.goals.fetchGoal(goalId: goalId)
+        let dto = try? await env.roadmap.fetchRoadmap(goalId: goalId)
+        let tasks = (try? await env.roadmap.fetchWeeklyTasks(goalId: goalId)) ?? []
+
+        if let title = goal?.title {
+            goalTitle = title
+        }
+        milestones = Self.buildMilestones(from: dto, tasks: tasks)
+
         isLoading = false
         if !appeared {
             appeared = true
         }
     }
 
-    func refreshDisplayedProgress() {
-        let progress = repository.currentTaskProgress(goalId: goalId)
-        milestones = milestones.map { milestone in
-            DisplayMilestone(
-                id: milestone.id,
-                title: milestone.title,
-                description: milestone.description,
-                targetMonth: milestone.targetMonth,
-                targetWeek: milestone.targetWeek,
-                isMonthlyCheckpoint: milestone.isMonthlyCheckpoint,
-                orderIndex: milestone.orderIndex,
-                expectedOutcome: milestone.expectedOutcome,
-                status: milestone.status,
-                progress: milestone.status == .current ? progress : milestone.progress
-            )
-        }
-    }
+    private static func buildMilestones(from roadmap: RoadmapDTO?, tasks: [WeeklyTaskDTO]) -> [DisplayMilestone] {
+        let records = (roadmap?.milestones ?? []).sorted { $0.orderIndex < $1.orderIndex }
+        guard !records.isEmpty else { return [] }
 
-    private func applySnapshot(_ snapshot: RoadmapSnapshot) {
-        if let goalTitle = snapshot.goalTitle {
-            self.goalTitle = goalTitle
-        }
-        switchableGoals = snapshot.switchableGoals
-
-        let records = snapshot.milestones
-        guard !records.isEmpty else {
-            milestones = []
-            return
+        let progress: Double
+        if tasks.isEmpty {
+            progress = 0
+        } else {
+            let completed = tasks.filter(\.isCompleted).count
+            progress = Double(completed) / Double(tasks.count)
         }
 
         var foundCurrent = false
-        let currentMilestoneId = snapshot.currentMilestoneId
-        let progress = repository.currentTaskProgress(goalId: goalId)
+        let currentMilestoneId = roadmap?.currentMilestoneId
 
-        milestones = records.enumerated().map { index, record in
+        return records.enumerated().map { index, record in
             let status: MilestoneStatus
             if let currentMilestoneId {
                 if record.id == currentMilestoneId {
@@ -93,19 +80,11 @@ final class RoadmapViewModel {
                 description: record.description,
                 targetMonth: record.targetMonth,
                 targetWeek: record.targetWeek,
-                isMonthlyCheckpoint: record.isMonthlyCheckpoint,
                 orderIndex: record.orderIndex,
                 expectedOutcome: record.expectedOutcome,
                 status: status,
                 progress: status == .current ? progress : (status == .completed ? 1.0 : 0.0)
             )
-        }
-
-        if !milestones.isEmpty {
-            isLoading = false
-            if !appeared {
-                appeared = true
-            }
         }
     }
 }

@@ -2,7 +2,6 @@ import OSLog
 import UIKit
 import UserNotifications
 
-private let lastTokenKey = "lastAPNSToken"
 private let notificationLogger = Logger(subsystem: Bundle.main.bundleIdentifier ?? "app.milesto", category: "Notifications")
 
 final class NotificationService {
@@ -40,19 +39,8 @@ final class NotificationService {
 
         do {
             try await DeviceTokenRepository.shared.register(token: token, environment: environment)
-            UserDefaults.standard.set(token, forKey: lastTokenKey)
         } catch {
             notificationLogger.error("Failed to register APNS token: \(String(describing: error), privacy: .public)")
-        }
-    }
-
-    func unregisterCurrentToken() async {
-        guard let token = UserDefaults.standard.string(forKey: lastTokenKey) else { return }
-        do {
-            try await DeviceTokenRepository.shared.unregister(token: token)
-            UserDefaults.standard.removeObject(forKey: lastTokenKey)
-        } catch {
-            notificationLogger.error("Failed to unregister APNS token: \(String(describing: error), privacy: .public)")
         }
     }
 }

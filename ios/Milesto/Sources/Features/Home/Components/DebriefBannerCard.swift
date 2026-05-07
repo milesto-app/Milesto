@@ -19,14 +19,11 @@ struct DebriefBannerCard: View {
         }
         .task(id: goalId) {
             if model == nil {
-                let vm = DebriefBannerViewModel(repository: env.roadmap)
+                let vm = DebriefBannerViewModel(env: env)
                 vm.configure(goalId: goalId)
                 model = vm
             }
             await model?.refresh()
-        }
-        .onReceive(NotificationCenter.default.publisher(for: .weeklyTaskCompletionDidChange)) { _ in
-            model?.reactToTaskChange()
         }
         .sheet(isPresented: $showDebriefSheet) {
             if let model, let weeklyPlanId = model.weeklyPlanId {

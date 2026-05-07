@@ -1,5 +1,4 @@
 import Foundation
-import Supabase
 
 final class ApiClient {
     static let shared = ApiClient()
@@ -52,12 +51,12 @@ final class ApiClient {
             return (data, httpResponse)
         }
 
-        let session = try await SupabaseConfig.client.auth.session
-        let (data, httpResponse) = try await perform(token: session.accessToken)
+        let token = try await AuthSession.accessToken()
+        let (data, httpResponse) = try await perform(token: token)
 
         if httpResponse.statusCode == 401 {
-            let refreshed = try await SupabaseConfig.client.auth.refreshSession()
-            let (retryData, retryResponse) = try await perform(token: refreshed.accessToken)
+            let refreshedToken = try await AuthSession.refreshAccessToken()
+            let (retryData, retryResponse) = try await perform(token: refreshedToken)
             if retryResponse.statusCode == 401 {
                 throw ApiError.unauthorized
             }
@@ -93,12 +92,12 @@ final class ApiClient {
             return httpResponse
         }
 
-        let session = try await SupabaseConfig.client.auth.session
-        let httpResponse = try await perform(token: session.accessToken)
+        let token = try await AuthSession.accessToken()
+        let httpResponse = try await perform(token: token)
 
         if httpResponse.statusCode == 401 {
-            let refreshed = try await SupabaseConfig.client.auth.refreshSession()
-            let retryResponse = try await perform(token: refreshed.accessToken)
+            let refreshedToken = try await AuthSession.refreshAccessToken()
+            let retryResponse = try await perform(token: refreshedToken)
             if retryResponse.statusCode == 401 {
                 throw ApiError.unauthorized
             }

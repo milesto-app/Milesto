@@ -1,12 +1,8 @@
 import Foundation
 
-private struct RegisterTokenBody: Encodable {
+private struct RegisterTokenBodyDTO: Encodable {
     let token: String
     let environment: String
-}
-
-private struct UnregisterTokenBody: Encodable {
-    let token: String
 }
 
 final class DeviceTokenRepository {
@@ -18,15 +14,7 @@ final class DeviceTokenRepository {
         try await ApiClient.shared.requestVoid(
             method: "POST",
             path: "notifications/tokens",
-            body: RegisterTokenBody(token: token, environment: environment)
-        )
-    }
-
-    func unregister(token: String) async throws {
-        try await ApiClient.shared.requestVoid(
-            method: "DELETE",
-            path: "notifications/tokens",
-            body: UnregisterTokenBody(token: token)
+            body: RegisterTokenBodyDTO(token: token, environment: environment)
         )
     }
 }

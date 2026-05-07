@@ -16,7 +16,7 @@ struct StatsView: View {
         }
         .task {
             if model == nil {
-                model = StatsViewModel(repository: env.stats)
+                model = StatsViewModel(env: env)
             }
             await model?.load(goalId: goalId)
         }
@@ -42,32 +42,36 @@ struct StatsView: View {
         .appBackground()
     }
 
-    private func loadedContent(model: StatsViewModel, stats: StatsSnapshot) -> some View {
-        ScrollView(showsIndicators: false) {
+    private func loadedContent(model: StatsViewModel, stats: StatsDTO) -> some View {
+        let thisWeekCompleted = stats.weeklyProgress.last?.objectivesCompleted
+            ?? Int(stats.completion.thisWeekRate * Double(stats.completion.totalObjectives))
+        let thisWeekTotal = stats.weeklyProgress.last?.objectivesTotal ?? stats.completion.totalObjectives
+
+        return ScrollView(showsIndicators: false) {
             VStack(spacing: 0) {
                 statsTitle
 
                 VStack(alignment: .leading, spacing: 28) {
                     StatsHeroSection(
-                        completed: stats.overallCompleted,
-                        total: stats.overallTotal
+                        completed: stats.completion.totalCompleted,
+                        total: stats.completion.totalObjectives
                     )
 
                     StatsThisWeekSection(
-                        completed: stats.thisWeekCompleted,
-                        total: stats.thisWeekTotal
+                        completed: thisWeekCompleted,
+                        total: thisWeekTotal
                     )
 
                     StatsStreakSection(
-                        current: stats.streakCurrent,
-                        best: stats.streakBest
+                        current: stats.streak.current,
+                        best: stats.streak.best
                     )
 
-                    StatsActivitySection(days: stats.last7Days)
+                    StatsActivitySection(days: stats.streak.last7Days)
 
                     StatsMilestonesSection(
-                        completed: stats.milestoneCompleted,
-                        total: stats.milestoneTotal
+                        completed: stats.milestones.completed,
+                        total: stats.milestones.total
                     )
                 }
                 .padding(.horizontal, 24)

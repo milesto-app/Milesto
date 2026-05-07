@@ -6,13 +6,13 @@ private let logger = Logger(subsystem: "app.milesto", category: "RoadmapGenerati
 @MainActor
 @Observable
 final class RoadmapGenerationViewModel {
-    @ObservationIgnored private let repository: RoadmapRepository
+    @ObservationIgnored private let env: AppEnv
 
     private(set) var isGenerating = false
     private(set) var hasFailed = false
 
-    init(repository: RoadmapRepository) {
-        self.repository = repository
+    init(env: AppEnv) {
+        self.env = env
     }
 
     func generate(goalId: String) async -> Bool {
@@ -20,7 +20,7 @@ final class RoadmapGenerationViewModel {
         isGenerating = true
 
         do {
-            try await repository.generateRoadmap(goalId: goalId)
+            try await env.roadmap.generateRoadmap(goalId: goalId)
         } catch {
             if let apiError = error as? ApiError,
                case .httpError(statusCode: 409, _) = apiError
@@ -36,7 +36,7 @@ final class RoadmapGenerationViewModel {
         for _ in 0 ..< 60 {
             try? await Task.sleep(for: .seconds(3))
             do {
-                let status = try await repository.fetchRoadmapStatus(goalId: goalId)
+                let status = try await env.roadmap.fetchRoadmapStatus(goalId: goalId)
                 if status == .complete {
                     isGenerating = false
                     return true

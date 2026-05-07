@@ -3,50 +3,51 @@ import Foundation
 @MainActor
 @Observable
 final class HomeJourneyViewModel {
-    @ObservationIgnored private let repository: RoadmapRepository
+    @ObservationIgnored private let env: AppEnv
     @ObservationIgnored private var goalId: String = ""
 
     private(set) var goalTitle: String = ""
     private(set) var goalDeadlineText: String?
     private(set) var completionProgress: Double = 0
 
-    init(repository: RoadmapRepository) {
-        self.repository = repository
+    init(env: AppEnv) {
+        self.env = env
     }
 
     func configure(goalId: String) {
         self.goalId = goalId
-        applySnapshot(repository.loadRoadmapSnapshot(goalId: goalId))
     }
 
     func refresh() async {
-        applySnapshot(await repository.refreshRoadmap(goalId: goalId))
-    }
+        guard !goalId.isEmpty else { return }
+        let goal = try? await env.goals.fetchGoal(goalId: goalId)
+        let roadmapDTO = try? await env.roadmap.fetchRoadmap(goalId: goalId)
+        let tasks = (try? await env.roadmap.fetchWeeklyTasks(goalId: goalId)) ?? []
 
-    func reactToTaskChange() {
-        applySnapshot(repository.loadRoadmapSnapshot(goalId: goalId))
-    }
-
-    private func applySnapshot(_ snapshot: RoadmapSnapshot) {
-        if let goalTitle = snapshot.goalTitle {
-            self.goalTitle = goalTitle
+        if let title = goal?.title {
+            goalTitle = title
         }
-        goalDeadlineText = snapshot.goalTargetDate.map(Self.formattedDeadline)
-        completionProgress = Self.completionProgress(
-            snapshot: snapshot,
-            currentTaskProgress: repository.currentTaskProgress(goalId: goalId)
-        )
+        goalDeadlineText = goal?.targetDate.map(Self.formattedDeadline)
+        completionProgress = Self.completionProgress(roadmap: roadmapDTO, tasks: tasks)
     }
 
-    private static func completionProgress(snapshot: RoadmapSnapshot, currentTaskProgress: Double) -> Double {
-        let records = snapshot.milestones
-        guard !records.isEmpty else { return 0 }
+    private static func completionProgress(roadmap: RoadmapDTO?, tasks: [WeeklyTaskDTO]) -> Double {
+        let milestones = (roadmap?.milestones ?? []).sorted { $0.orderIndex < $1.orderIndex }
+        guard !milestones.isEmpty else { return 0 }
 
-        let currentIndex = snapshot.currentMilestoneId.flatMap { currentMilestoneId in
-            records.firstIndex { $0.id == currentMilestoneId }
+        let currentIndex = roadmap?.currentMilestoneId.flatMap { id in
+            milestones.firstIndex { $0.id == id }
         } ?? 0
 
-        return (Double(currentIndex) + currentTaskProgress) / Double(records.count)
+        let currentTaskProgress: Double
+        if tasks.isEmpty {
+            currentTaskProgress = 0
+        } else {
+            let completed = tasks.filter(\.isCompleted).count
+            currentTaskProgress = Double(completed) / Double(tasks.count)
+        }
+
+        return (Double(currentIndex) + currentTaskProgress) / Double(milestones.count)
     }
 
     private static func formattedDeadline(_ date: Date) -> String {

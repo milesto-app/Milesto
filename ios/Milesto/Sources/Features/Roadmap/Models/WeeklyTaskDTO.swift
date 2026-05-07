@@ -1,6 +1,6 @@
 import Foundation
 
-struct WeeklyTask: Codable, Identifiable {
+struct WeeklyTaskDTO: Codable, Identifiable {
     let id: String
     let weeklyPlanId: String
     let goalId: String
@@ -10,7 +10,6 @@ struct WeeklyTask: Codable, Identifiable {
     let estimatedMinutes: Int?
     let orderIndex: Int
     let isCompleted: Bool
-    let isFallback: Bool
     let createdAt: String
 
     enum CodingKeys: String, CodingKey {
@@ -21,7 +20,6 @@ struct WeeklyTask: Codable, Identifiable {
         case estimatedMinutes = "estimated_minutes"
         case orderIndex = "order_index"
         case isCompleted = "is_completed"
-        case isFallback = "is_fallback"
         case createdAt = "created_at"
     }
 }

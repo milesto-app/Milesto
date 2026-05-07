@@ -1,9 +1,18 @@
-import { Injectable, Logger, NotFoundException } from "@nestjs/common";
+import {
+  Injectable,
+  InternalServerErrorException,
+  Logger,
+  NotFoundException,
+} from "@nestjs/common";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 import { config } from "../config/app.config.js";
 import { SupabaseService } from "../supabase/supabase.service.js";
-import type { Conversation, StoredMessage } from "./types/chat.types.js";
+import type {
+  Conversation,
+  ConversationPreview,
+  StoredMessage,
+} from "./types/chat.types.js";
 
 export interface StoreMessageInput {
   role: "user" | "assistant" | "tool";
@@ -90,6 +99,76 @@ export class ChatHistoryService {
     }
 
     return data as StoredMessage;
+  }
+
+  public async listForGoal(
+    userId: string,
+    goalId: string,
+  ): Promise<ConversationPreview[]> {
+    const supabase = this.getClient();
+    const { data, error } = await supabase
+      .from("conversations")
+      .select(
+        "id, goal_id, created_at, updated_at, messages(content, role, created_at)",
+      )
+      .eq("user_id", userId)
+      .eq("goal_id", goalId)
+      .order("updated_at", { ascending: false });
+
+    if (error) {
+      this.logger.error(`Failed to list conversations: ${error.message}`);
+      throw new InternalServerErrorException("Failed to list conversations");
+    }
+
+    return data.map((row: Record<string, unknown>) => {
+      const msgs =
+        (row.messages as Array<{
+          content: string | null;
+          role: string;
+          created_at: string;
+        }> | null) ?? [];
+      const lastUserOrAssistant = msgs
+        .filter(
+          (m) =>
+            (m.role === "user" || m.role === "assistant") && m.content !== null,
+        )
+        .sort((a, b) => (a.created_at < b.created_at ? 1 : -1))[0];
+      return {
+        id: row.id as string,
+        goal_id: row.goal_id as string,
+        created_at: row.created_at as string,
+        updated_at: row.updated_at as string,
+        preview: lastUserOrAssistant?.content ?? null,
+      };
+    });
+  }
+
+  public async deleteConversation(
+    conversationId: string,
+    userId: string,
+  ): Promise<void> {
+    const supabase = this.getClient();
+    const { data, error } = await supabase
+      .from("conversations")
+      .delete()
+      .eq("id", conversationId)
+      .eq("user_id", userId)
+      .select("id");
+    if (error) {
+      this.logger.error(`Failed to delete conversation: ${error.message}`);
+      throw new InternalServerErrorException("Failed to delete conversation");
+    }
+    if (data.length === 0) {
+      throw new NotFoundException("Conversation not found");
+    }
+  }
+
+  public async getMessagesForUser(
+    conversationId: string,
+    userId: string,
+  ): Promise<StoredMessage[]> {
+    await this.getConversation(conversationId, userId);
+    return this.getMessages(conversationId);
   }
 
   public async getMessages(conversationId: string): Promise<StoredMessage[]> {

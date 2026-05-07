@@ -25,7 +25,7 @@ struct PaywallView: View {
         }
         .task {
             if model == nil {
-                model = PaywallViewModel(subscription: env.subscription)
+                model = PaywallViewModel(env: env)
             }
             await model?.loadPlans()
             startEntryAnimation()

@@ -3,10 +3,10 @@ import Foundation
 @MainActor
 @Observable
 final class ProfileOnboardingViewModel {
-    @ObservationIgnored private let repository: OnboardingRepository
+    @ObservationIgnored private let env: AppEnv
     @ObservationIgnored private let userId: String
     @ObservationIgnored let missingSteps: [OnboardingStep]
-    @ObservationIgnored private let existingProfile: ProfileSnapshot?
+    @ObservationIgnored private let existingProfile: ProfileDTO?
 
     var firstName: String
     var lastName: String
@@ -18,12 +18,12 @@ final class ProfileOnboardingViewModel {
     var showError = false
 
     init(
-        repository: OnboardingRepository,
+        env: AppEnv,
         userId: String,
         missingSteps: [OnboardingStep],
-        existingProfile: ProfileSnapshot?
+        existingProfile: ProfileDTO?
     ) {
-        self.repository = repository
+        self.env = env
         self.userId = userId
         self.missingSteps = missingSteps
         self.existingProfile = existingProfile
@@ -39,10 +39,6 @@ final class ProfileOnboardingViewModel {
     var currentStep: OnboardingStep? {
         guard currentStepIndex < missingSteps.count else { return nil }
         return missingSteps[currentStepIndex]
-    }
-
-    private var deviceLanguage: String {
-        Locale.current.language.languageCode?.identifier == "fr" ? "fr" : "en"
     }
 
     func advanceOrSave() async -> Bool {
@@ -70,16 +66,15 @@ final class ProfileOnboardingViewModel {
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyy-MM-dd"
 
-        let fields = ProfileUpdateFields(
+        let fields = ProfileUpdateFieldsDTO(
             firstName: mergedFirstName,
             lastName: mergedLastName,
             dateOfBirth: formatter.string(from: mergedDateOfBirth),
-            coachId: mergedCoachId,
-            language: deviceLanguage
+            coachId: mergedCoachId
         )
 
         do {
-            try await repository.saveProfile(userId: userId, fields: fields, dateOfBirth: mergedDateOfBirth)
+            try await env.onboarding.saveProfile(fields: fields)
             return true
         } catch {
             errorMessage = error.localizedDescription

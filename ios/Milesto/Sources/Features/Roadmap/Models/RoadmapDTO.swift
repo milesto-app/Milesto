@@ -4,7 +4,6 @@ struct RoadmapDTO: Codable {
     let goalId: String
     let userId: String
     let status: RoadmapStatus
-    let generationAttempts: Int
     let createdAt: String
     let updatedAt: String
     let milestones: [MilestoneDTO]?
@@ -14,7 +13,6 @@ struct RoadmapDTO: Codable {
         case status, milestones
         case goalId = "goal_id"
         case userId = "user_id"
-        case generationAttempts = "generation_attempts"
         case createdAt = "created_at"
         case updatedAt = "updated_at"
         case currentMilestoneId = "current_milestone_id"

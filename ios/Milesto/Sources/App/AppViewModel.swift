@@ -10,20 +10,12 @@ final class AppViewModel {
     var activeGoalId: String?
     var connectionError = false
 
-    private(set) var localProfile: ProfileSnapshot?
+    private(set) var localProfile: ProfileDTO?
 
-    @ObservationIgnored private let profile: ProfileRepository
-    @ObservationIgnored private let goals: GoalRepository
-    @ObservationIgnored private let roadmap: RoadmapRepository
+    @ObservationIgnored private let env: AppEnv
 
-    init(
-        profile: ProfileRepository,
-        goals: GoalRepository,
-        roadmap: RoadmapRepository
-    ) {
-        self.profile = profile
-        self.goals = goals
-        self.roadmap = roadmap
+    init(env: AppEnv) {
+        self.env = env
     }
 
     func resetForRetry() {
@@ -32,84 +24,65 @@ final class AppViewModel {
 
     func sync(userId: String) async {
         connectionError = false
-        refreshLocalSnapshots(userId: userId)
-
-        let locallyComplete = localProfile?.isProfileComplete == true
-        if locallyComplete {
-            profileComplete = true
-            applyResolvedGoalState(userId: userId)
-        }
-
         do {
-            try await profile.sync(userId: userId)
+            localProfile = try await env.profile.fetchProfile()
         } catch {
             connectionError = true
             return
         }
 
-        do {
-            try await goals.syncFromRemote(userId: userId)
-        } catch {
-            connectionError = true
-            return
-        }
-
-        refreshLocalSnapshots(userId: userId)
-
-        let remoteComplete = localProfile?.isProfileComplete == true
-        if locallyComplete, !remoteComplete {
+        guard localProfile?.isProfileComplete == true else {
             profileComplete = false
             goalComplete = false
             roadmapReady = false
             activeGoalId = nil
-        } else if remoteComplete {
-            profileComplete = true
-            applyResolvedGoalState(userId: userId)
-            if goalComplete,
-               let id = activeGoalId,
-               let descriptor = goals.resolveGoal(userId: userId, goalId: id),
-               descriptor.goalId == id,
-               descriptor.phase == .intakeCompleted
-            {
-                let status = try? await roadmap.fetchRoadmapStatus(goalId: id)
-                if activeGoalId == id {
-                    roadmapReady = status == .complete
-                }
+            hasSynced = true
+            return
+        }
+
+        profileComplete = true
+
+        let activeGoal: GoalDTO?
+        do {
+            activeGoal = try await env.goals.fetchActiveGoal(userId: userId)
+        } catch {
+            connectionError = true
+            return
+        }
+
+        guard let activeGoal else {
+            activeGoalId = nil
+            goalComplete = false
+            roadmapReady = false
+            hasSynced = true
+            return
+        }
+
+        applyGoalState(activeGoal)
+        if activeGoal.status == .intakeCompleted {
+            let status = try? await env.roadmap.fetchRoadmapStatus(goalId: activeGoal.id)
+            if activeGoalId == activeGoal.id {
+                roadmapReady = status == .complete
             }
         }
+
         hasSynced = true
     }
 
     func markRoadmapReady() {
         roadmapReady = true
-        guard let activeGoalId else { return }
-        try? goals.activateGeneratedRoadmap(goalId: activeGoalId)
     }
 
-    private func refreshLocalSnapshots(userId: String) {
-        localProfile = profile.loadProfile(userId: userId)
-    }
-
-    private func applyResolvedGoalState(userId: String) {
-        guard let descriptor = goals.resolveActiveGoal(userId: userId) else {
-            activeGoalId = nil
-            goalComplete = false
-            roadmapReady = false
-            return
-        }
-        applyGoalState(descriptor)
-    }
-
-    private func applyGoalState(_ descriptor: ActiveGoalDescriptor) {
-        activeGoalId = descriptor.goalId
-        switch descriptor.phase {
+    private func applyGoalState(_ goal: GoalDTO) {
+        activeGoalId = goal.id
+        switch goal.status {
         case .active:
             goalComplete = true
             roadmapReady = true
         case .intakeCompleted:
             goalComplete = true
             roadmapReady = false
-        case .intakeInProgress, .profileGenerating, .generationFailed, .other:
+        case .intakeInProgress, .profileGenerating, .generationFailed:
             goalComplete = false
             roadmapReady = false
         }

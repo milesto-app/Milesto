@@ -12,14 +12,11 @@ struct HomeJourneyCard: View {
             .padding(.top, 32)
             .task(id: goalId) {
                 if model == nil {
-                    let vm = HomeJourneyViewModel(repository: env.roadmap)
+                    let vm = HomeJourneyViewModel(env: env)
                     vm.configure(goalId: goalId)
                     model = vm
                 }
                 await model?.refresh()
-            }
-            .onReceive(NotificationCenter.default.publisher(for: .weeklyTaskCompletionDidChange)) { _ in
-                model?.reactToTaskChange()
             }
     }
 
