@@ -3,11 +3,6 @@ import SwiftUI
 struct AppView: View {
     @Environment(AppEnv.self) private var env
 
-    @State private var routing: AppViewModel?
-    @State private var selectedTab = 0
-    @State private var isChatPresented = false
-    @State private var retryId = 0
-
     var body: some View {
         Group {
             switch env.auth.status {
@@ -16,10 +11,36 @@ struct AppView: View {
             case .authenticating:
                 Color("BackgroundBase").ignoresSafeArea()
             case let .authenticated(userId):
-                authenticatedBody(userId: userId)
+                AuthenticatedRootView(userId: userId)
+                    .id(userId)
             }
         }
         .appBackground()
+    }
+}
+
+private struct AuthenticatedRootView: View {
+    let userId: String
+
+    @Environment(AppEnv.self) private var env
+
+    @State private var routing: AppViewModel?
+    @State private var selectedTab = 0
+    @State private var isChatPresented = false
+    @State private var retryId = 0
+
+    var body: some View {
+        Group {
+            if let routing {
+                standardAuthenticatedBody(routing: routing)
+                    .task(id: retryId) {
+                        guard !routing.hasSynced else { return }
+                        await routing.sync(userId: userId)
+                    }
+            } else {
+                Color("BackgroundBase").ignoresSafeArea()
+            }
+        }
         .onAppear {
             if routing == nil {
                 routing = AppViewModel(env: env)
@@ -27,20 +48,7 @@ struct AppView: View {
         }
     }
 
-    @ViewBuilder
-    private func authenticatedBody(userId: String) -> some View {
-        if let routing {
-            standardAuthenticatedBody(userId: userId, routing: routing)
-                .task(id: retryId) {
-                    guard !routing.hasSynced else { return }
-                    await routing.sync(userId: userId)
-                }
-        } else {
-            Color("BackgroundBase").ignoresSafeArea()
-        }
-    }
-
-    private func standardAuthenticatedBody(userId: String, routing: AppViewModel) -> some View {
+    private func standardAuthenticatedBody(routing: AppViewModel) -> some View {
         Group {
             if routing.profileComplete {
                 SubscriptionGateView {
