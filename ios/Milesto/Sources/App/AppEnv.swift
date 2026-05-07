@@ -7,8 +7,7 @@ final class AppEnv {
     let subscription: SubscriptionRepository
     let profile: ProfileRepository
     let goals: GoalRepository
-    let intake: IntakeRemote
-    let intakeFlow: IntakeFlowRepository
+    let intake: IntakeRepository
     let onboarding: OnboardingRepository
     let settings: SettingsRepository
     let roadmap: RoadmapRepository
@@ -20,8 +19,7 @@ final class AppEnv {
         subscription = SubscriptionRepository()
         profile = ProfileRepository(auth: auth)
         goals = GoalRepository()
-        intake = IntakeRemote()
-        intakeFlow = IntakeFlowRepository(goals: goals)
+        intake = IntakeRepository(goals: goals)
         onboarding = OnboardingRepository(profile: profile)
         settings = SettingsRepository(profile: profile, goals: goals)
         roadmap = RoadmapRepository()

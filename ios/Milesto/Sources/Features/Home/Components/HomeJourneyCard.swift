@@ -12,7 +12,7 @@ struct HomeJourneyCard: View {
             .padding(.top, 32)
             .task(id: goalId) {
                 if model == nil {
-                    let vm = HomeJourneyViewModel(roadmap: env.roadmap, goals: env.goals)
+                    let vm = HomeJourneyViewModel(env: env)
                     vm.configure(goalId: goalId)
                     model = vm
                 }

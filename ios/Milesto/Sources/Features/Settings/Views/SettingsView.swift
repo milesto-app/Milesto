@@ -19,10 +19,7 @@ struct SettingsView: View {
         }
         .task {
             if model == nil {
-                model = SettingsViewModel(
-                    repository: env.settings,
-                    auth: env.auth
-                )
+                model = SettingsViewModel(env: env)
             }
             await model?.loadState()
         }

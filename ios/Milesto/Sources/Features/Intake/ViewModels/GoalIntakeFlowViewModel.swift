@@ -9,7 +9,7 @@ enum GoalIntakeStep {
 @MainActor
 @Observable
 final class GoalIntakeFlowViewModel {
-    @ObservationIgnored private let repository: IntakeFlowRepository
+    @ObservationIgnored private let env: AppEnv
 
     private(set) var step: GoalIntakeStep = .goalSetup
     var goalDescription = ""
@@ -19,8 +19,8 @@ final class GoalIntakeFlowViewModel {
     var showError = false
     private(set) var errorMessage = ""
 
-    init(repository: IntakeFlowRepository) {
-        self.repository = repository
+    init(env: AppEnv) {
+        self.env = env
     }
 
     func startWithExistingGoalId(_ goalId: String?) {
@@ -34,7 +34,7 @@ final class GoalIntakeFlowViewModel {
         defer { isCreatingGoal = false }
 
         do {
-            let goal = try await repository.createGoal(
+            let goal = try await env.intake.createGoal(
                 description: goalDescription.trimmingCharacters(in: .whitespacesAndNewlines)
             )
             step = .motivation(goalId: goal.id)
@@ -56,7 +56,7 @@ final class GoalIntakeFlowViewModel {
         }
 
         do {
-            try await repository.saveMotivation(goalId: goalId, quote: trimmed)
+            try await env.intake.saveMotivation(goalId: goalId, quote: trimmed)
             advanceToIntake(goalId: goalId)
         } catch ApiError.subscriptionRequired {
         } catch {

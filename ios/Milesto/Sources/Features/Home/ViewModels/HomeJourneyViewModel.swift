@@ -3,17 +3,15 @@ import Foundation
 @MainActor
 @Observable
 final class HomeJourneyViewModel {
-    @ObservationIgnored private let roadmap: RoadmapRepository
-    @ObservationIgnored private let goals: GoalRepository
+    @ObservationIgnored private let env: AppEnv
     @ObservationIgnored private var goalId: String = ""
 
     private(set) var goalTitle: String = ""
     private(set) var goalDeadlineText: String?
     private(set) var completionProgress: Double = 0
 
-    init(roadmap: RoadmapRepository, goals: GoalRepository) {
-        self.roadmap = roadmap
-        self.goals = goals
+    init(env: AppEnv) {
+        self.env = env
     }
 
     func configure(goalId: String) {
@@ -22,9 +20,9 @@ final class HomeJourneyViewModel {
 
     func refresh() async {
         guard !goalId.isEmpty else { return }
-        let goal = try? await goals.fetchGoal(goalId: goalId)
-        let roadmapDTO = try? await roadmap.fetchRoadmap(goalId: goalId)
-        let tasks = (try? await roadmap.fetchWeeklyTasks(goalId: goalId)) ?? []
+        let goal = try? await env.goals.fetchGoal(goalId: goalId)
+        let roadmapDTO = try? await env.roadmap.fetchRoadmap(goalId: goalId)
+        let tasks = (try? await env.roadmap.fetchWeeklyTasks(goalId: goalId)) ?? []
 
         if let title = goal?.title {
             goalTitle = title

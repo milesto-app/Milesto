@@ -3,7 +3,7 @@ import Foundation
 @MainActor
 @Observable
 final class WeeklyTasksViewModel {
-    @ObservationIgnored private let repository: RoadmapRepository
+    @ObservationIgnored private let env: AppEnv
     @ObservationIgnored private var goalId: String = ""
 
     private(set) var tasks: [WeeklyTaskDTO] = []
@@ -11,12 +11,12 @@ final class WeeklyTasksViewModel {
     private(set) var isLoading = true
     private(set) var hasError = false
 
-    init(repository: RoadmapRepository) {
-        self.repository = repository
+    init(env: AppEnv) {
+        self.env = env
     }
 
     var sortedTasks: [WeeklyTaskDTO] {
-        repository.sortedTasks(tasks)
+        env.roadmap.sortedTasks(tasks)
     }
 
     func configure(goalId: String) {
@@ -26,12 +26,12 @@ final class WeeklyTasksViewModel {
     func refresh() async {
         defer { isLoading = false }
         do {
-            tasks = try await repository.fetchWeeklyTasks(goalId: goalId)
+            tasks = try await env.roadmap.fetchWeeklyTasks(goalId: goalId)
             hasError = false
         } catch {
             if tasks.isEmpty { hasError = true }
         }
-        if let plan = try? await repository.fetchWeeklyPlan(goalId: goalId) {
+        if let plan = try? await env.roadmap.fetchWeeklyPlan(goalId: goalId) {
             weekNumber = plan.weekNumber
         }
     }
@@ -42,11 +42,11 @@ final class WeeklyTasksViewModel {
     }
 
     private func setTaskCompletion(_ task: WeeklyTaskDTO, isCompleted: Bool) {
-        guard let original = repository.applyOptimisticCompletion(task: task, isCompleted: isCompleted, in: &tasks) else { return }
+        guard let original = env.roadmap.applyOptimisticCompletion(task: task, isCompleted: isCompleted, in: &tasks) else { return }
 
         Task {
             do {
-                let confirmed = try await repository.toggleTask(
+                let confirmed = try await env.roadmap.toggleTask(
                     taskId: original.id,
                     goalId: original.goalId,
                     isCompleted: isCompleted

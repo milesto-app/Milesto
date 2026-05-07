@@ -20,7 +20,7 @@ struct ProfileOnboardingView: View {
         .task {
             if model == nil {
                 model = ProfileOnboardingViewModel(
-                    repository: env.onboarding,
+                    env: env,
                     userId: userId,
                     missingSteps: missingSteps,
                     existingProfile: existingProfile

@@ -5,8 +5,8 @@ final class ProfileRepository {
     private let remote: ProfileRemote
     private let auth: AuthRepository
 
-    init(auth: AuthRepository, remote: ProfileRemote? = nil) {
-        self.remote = remote ?? ProfileRemote()
+    init(auth: AuthRepository) {
+        remote = ProfileRemote()
         self.auth = auth
     }
 

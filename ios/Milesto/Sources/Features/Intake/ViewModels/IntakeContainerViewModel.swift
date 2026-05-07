@@ -30,7 +30,7 @@ enum IntakePhase: Equatable {
 @MainActor
 @Observable
 final class IntakeContainerViewModel {
-    @ObservationIgnored private let intake: IntakeRemote
+    @ObservationIgnored private let env: AppEnv
     @ObservationIgnored private let maxPollingAttempts = 60
     @ObservationIgnored private var pollingTask: Task<Void, Never>?
 
@@ -39,8 +39,8 @@ final class IntakeContainerViewModel {
     private(set) var currentBatchNumber = 0
     private(set) var answers: [String: IntakeAnswerDTO] = [:]
 
-    init(intake: IntakeRemote) {
-        self.intake = intake
+    init(env: AppEnv) {
+        self.env = env
     }
 
     func configure(goalId: String) {
@@ -58,7 +58,7 @@ final class IntakeContainerViewModel {
     func loadNextBatch() async {
         phase = .loading
         do {
-            let response = try await intake.getNextBatch(goalId: goalId)
+            let response = try await env.intake.getNextBatch(goalId: goalId)
             handleBatchResponse(response)
         } catch {
             phase = .error(error.localizedDescription)
@@ -69,7 +69,7 @@ final class IntakeContainerViewModel {
         phase = .submitting
         let answerList = Array(answers.values)
         do {
-            let response = try await intake.submitBatch(goalId: goalId, answers: answerList)
+            let response = try await env.intake.submitBatch(goalId: goalId, answers: answerList)
 
             if let nextBatch = response.nextBatch,
                let questions = nextBatch.questions,
@@ -107,7 +107,7 @@ final class IntakeContainerViewModel {
     func retryProfileGeneration() async {
         phase = .generatingProfile
         do {
-            let response = try await intake.retryProfile(goalId: goalId)
+            let response = try await env.intake.retryProfile(goalId: goalId)
             if response.profileStatus == GoalStatus.intakeCompleted.rawValue {
                 phase = .completed
             } else if response.profileStatus == GoalStatus.generationFailed.rawValue {
@@ -128,7 +128,7 @@ final class IntakeContainerViewModel {
             while !Task.isCancelled && attempts < maxPollingAttempts {
                 do {
                     try await Task.sleep(for: .seconds(3))
-                    let response = try await intake.getNextBatch(goalId: goalId)
+                    let response = try await env.intake.getNextBatch(goalId: goalId)
                     if response.profileStatus == GoalStatus.intakeCompleted.rawValue {
                         phase = .completed
                         return
@@ -145,7 +145,7 @@ final class IntakeContainerViewModel {
                 }
             }
             if !Task.isCancelled {
-                phase = .error(String(localized: "intake.error.network", table: "Intake"))
+                phase = .error(String(localized: "env.intake.error.network", table: "Intake"))
             }
         }
     }

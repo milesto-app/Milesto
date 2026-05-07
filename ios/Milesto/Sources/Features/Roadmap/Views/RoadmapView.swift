@@ -86,7 +86,7 @@ struct RoadmapView: View {
         }
         .task {
             if model == nil {
-                let vm = RoadmapViewModel(roadmap: env.roadmap, goals: env.goals)
+                let vm = RoadmapViewModel(env: env)
                 vm.configure(goalId: goalId)
                 model = vm
             }

@@ -16,7 +16,7 @@ struct StatsView: View {
         }
         .task {
             if model == nil {
-                model = StatsViewModel(repository: env.stats)
+                model = StatsViewModel(env: env)
             }
             await model?.load(goalId: goalId)
         }

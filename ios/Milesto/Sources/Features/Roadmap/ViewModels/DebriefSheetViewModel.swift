@@ -3,7 +3,7 @@ import Foundation
 @MainActor
 @Observable
 final class DebriefSheetViewModel {
-    @ObservationIgnored private let repository: RoadmapRepository
+    @ObservationIgnored private let env: AppEnv
     @ObservationIgnored private let goalId: String
     @ObservationIgnored private let weeklyPlanId: String
 
@@ -11,8 +11,8 @@ final class DebriefSheetViewModel {
     private(set) var isSubmitting = false
     private(set) var errorMessage: String?
 
-    init(repository: RoadmapRepository, goalId: String, weeklyPlanId: String) {
-        self.repository = repository
+    init(env: AppEnv, goalId: String, weeklyPlanId: String) {
+        self.env = env
         self.goalId = goalId
         self.weeklyPlanId = weeklyPlanId
     }
@@ -31,7 +31,7 @@ final class DebriefSheetViewModel {
         defer { isSubmitting = false }
 
         do {
-            _ = try await repository.submitDebrief(
+            _ = try await env.roadmap.submitDebrief(
                 goalId: goalId,
                 weeklyPlanId: weeklyPlanId,
                 note: reflectionNote

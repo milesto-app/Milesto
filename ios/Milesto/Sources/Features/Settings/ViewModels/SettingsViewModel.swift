@@ -3,8 +3,7 @@ import Foundation
 @MainActor
 @Observable
 final class SettingsViewModel {
-    @ObservationIgnored private let repository: SettingsRepository
-    @ObservationIgnored private let auth: AuthRepository
+    @ObservationIgnored private let env: AppEnv
 
     private(set) var profile: ProfileDTO?
     private(set) var email: String?
@@ -15,9 +14,8 @@ final class SettingsViewModel {
     private(set) var errorMessage: String?
     var showError = false
 
-    init(repository: SettingsRepository, auth: AuthRepository) {
-        self.repository = repository
-        self.auth = auth
+    init(env: AppEnv) {
+        self.env = env
     }
 
     var coach: CoachPersonality? {
@@ -45,18 +43,18 @@ final class SettingsViewModel {
     }
 
     func loadState() async {
-        guard let userId = auth.currentUserId else { return }
-        profile = try? await repository.fetchProfile()
+        guard let userId = env.auth.currentUserId else { return }
+        profile = try? await env.settings.fetchProfile()
         email = try? await AuthSession.userEmail()
         avatarURL = try? await AuthSession.userMetadataString("avatar_url")
-        activeGoal = try? await repository.fetchActiveGoal(userId: userId)
+        activeGoal = try? await env.settings.fetchActiveGoal(userId: userId)
     }
 
     func saveProfileFields(_ fields: ProfileUpdateFieldsDTO) async {
         isSaving = true
         defer { isSaving = false }
         do {
-            try await repository.updateProfile(fields)
+            try await env.settings.updateProfile(fields)
             await loadState()
         } catch {
             errorMessage = error.localizedDescription
@@ -70,7 +68,7 @@ final class SettingsViewModel {
         isDeleting = true
         defer { isDeleting = false }
         do {
-            try await repository.deleteGoal(goalId: goal.id)
+            try await env.settings.deleteGoal(goalId: goal.id)
             activeGoal = nil
             return true
         } catch {
@@ -82,7 +80,7 @@ final class SettingsViewModel {
 
     func signOut() async {
         do {
-            try await auth.signOut()
+            try await env.auth.signOut()
         } catch {
             errorMessage = error.localizedDescription
             showError = true
