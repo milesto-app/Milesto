@@ -44,7 +44,6 @@ struct IntakeTextField: View {
             field
                 .font(Fonts.ui(size: 17, relativeTo: .body))
                 .foregroundColor(Color("TextPrimary"))
-                .tint(Color("Brand"))
         }
         .frame(
             minHeight: multiline ? minHeight : singleLineHeight,

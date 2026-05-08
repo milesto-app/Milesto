@@ -16,116 +16,105 @@ struct AppTextField: View {
     var onSubmit: (() -> Void)?
 
     @FocusState private var isFocused: Bool
-    @State private var isPasswordVisible: Bool = false
+    @State private var isPasswordVisible = false
 
-    private var shouldFloatLabel: Bool {
-        label != nil && (isFocused || !text.isEmpty)
+    private let cornerRadius: CGFloat = 16
+    private let fieldHeight: CGFloat = 56
+    private let multilineHeight: CGFloat = 150
+
+    private var fieldIconColor: Color {
+        errorMessage == nil ? Color("TextSecondary") : Color("Error")
     }
 
-    private var hasError: Bool {
-        errorMessage != nil
-    }
-
-    private var borderColor: Color {
-        if hasError {
-            return Color("Error")
-        } else if isFocused {
-            return Color("Brand")
-        }
-        return Color("TextSecondary").opacity(0.2)
-    }
-
-    private var iconColor: Color {
-        if hasError {
-            return Color("Error")
-        } else if isFocused {
-            return Color("Brand")
-        }
-        return Color("TextSecondary")
+    private var prompt: Text {
+        Text(label ?? placeholder, tableName: table)
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 4) {
-            ZStack(alignment: multiline ? .topLeading : .leading) {
-                RoundedRectangle(cornerRadius: 12)
-                    .fill(Color("BackgroundSecondary"))
-                    .frame(height: multiline ? 150 : 56)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 12)
-                            .stroke(borderColor, lineWidth: hasError || isFocused ? 2 : 1)
-                    )
+        VStack(alignment: .leading, spacing: 6) {
+            fieldContainer
 
-                HStack(alignment: multiline ? .top : .center, spacing: 12) {
-                    if let icon = icon {
-                        TablerIcons(icon, size: 20, color: iconColor)
-                            .frame(width: 20)
-                            .padding(.top, multiline ? 16 : 0)
-                    }
+            if let errorMessage {
+                AppText(verbatim: errorMessage, style: .caption)
+                    .color(Color("Error"))
+                    .padding(.horizontal, 4)
+            } else if let helperText {
+                AppText(verbatim: helperText, style: .caption)
+                    .color(Color("TextSecondary"))
+                    .padding(.horizontal, 4)
+            }
+        }
+    }
 
-                    ZStack(alignment: multiline ? .topLeading : .leading) {
-                        if let label = label {
-                            Text(label, tableName: table)
-                                .font(shouldFloatLabel ? Fonts.ui(size: 12, relativeTo: .caption) : Fonts.ui(size: 17, relativeTo: .body))
-                                .foregroundColor(hasError ? Color("Error") : (isFocused ? Color("Brand") : Color("TextSecondary")))
-                                .offset(y: shouldFloatLabel ? (multiline ? 0 : -12) : (multiline ? 8 : 0))
-                                .animation(.easeOut(duration: 0.2), value: shouldFloatLabel)
-                        }
+    private var fieldContainer: some View {
+        HStack(alignment: multiline ? .top : .center, spacing: 12) {
+            if let icon {
+                TablerIcons(icon, size: 20, color: fieldIconColor)
+                    .frame(width: 20, height: 20)
+                    .padding(.top, multiline ? 16 : 0)
+            }
 
-                        if text.isEmpty && (label == nil || shouldFloatLabel) {
-                            Text(label == nil ? placeholder : (shouldFloatLabel ? placeholder : ""), tableName: table)
-                                .foregroundColor(Color("TextSecondary"))
-                                .offset(y: label != nil ? (multiline ? 20 : 6) : 0)
-                        }
+            inputView
 
-                        Group {
-                            if multiline {
-                                TextEditor(text: $text)
-                                    .focused($isFocused)
-                                    .scrollContentBackground(.hidden)
-                                    .padding(.leading, -3)
-                            } else if isSecure && !isPasswordVisible {
-                                SecureField("", text: $text)
-                                    .focused($isFocused)
-                                    .submitLabel(submitLabel)
-                                    .onSubmit { onSubmit?() }
-                            } else {
-                                TextField("", text: $text)
-                                    .focused($isFocused)
-                                    .submitLabel(submitLabel)
-                                    .onSubmit { onSubmit?() }
-                            }
-                        }
-                        .textContentType(textContentType)
-                        .autocorrectionDisabled(autocorrectionDisabled)
-                        .offset(y: label != nil ? (multiline ? 12 : 6) : 0)
-                    }
-
-                    if isSecure {
-                        Button {
-                            isPasswordVisible.toggle()
-                        } label: {
-                            TablerIcons(isPasswordVisible ? .eyeOff : .eye, size: 16, color: Color("TextSecondary"))
-                        }
-                        .buttonStyle(.plain)
-                    }
+            if isSecure {
+                Button {
+                    isPasswordVisible.toggle()
+                } label: {
+                    TablerIcons(isPasswordVisible ? .eyeOff : .eye, size: 20, color: Color("TextSecondary"))
+                        .frame(width: 24, height: 24)
                 }
-                .padding(.horizontal, 16)
-                .padding(.vertical, multiline ? 8 : 0)
+                .buttonStyle(.plain)
             }
-            .frame(height: multiline ? 150 : 56)
-            .clipShape(RoundedRectangle(cornerRadius: 12))
+        }
+        .padding(.horizontal, 16)
+        .frame(height: multiline ? multilineHeight : fieldHeight)
+        .background(Color("BackgroundTertiary"))
+        .clipShape(RoundedRectangle(cornerRadius: cornerRadius))
+        .contentShape(RoundedRectangle(cornerRadius: cornerRadius))
+        .onTapGesture {
+            isFocused = true
+        }
+    }
 
-            if let errorMessage = errorMessage {
-                Text(errorMessage)
-                    .font(Fonts.ui(size: 12, relativeTo: .caption))
-                    .foregroundColor(Color("Error"))
-                    .padding(.horizontal, 4)
-            } else if let helperText = helperText {
-                Text(helperText)
-                    .font(Fonts.ui(size: 12, relativeTo: .caption))
-                    .foregroundColor(Color("TextSecondary"))
-                    .padding(.horizontal, 4)
+    @ViewBuilder
+    private var inputView: some View {
+        if multiline {
+            ZStack(alignment: .topLeading) {
+                if text.isEmpty {
+                    prompt
+                        .font(Fonts.ui(size: 17, relativeTo: .body))
+                        .foregroundStyle(Color("TextSecondary"))
+                        .padding(.top, 16)
+                        .allowsHitTesting(false)
+                }
+
+                TextEditor(text: $text)
+                    .focused($isFocused)
+                    .scrollContentBackground(.hidden)
+                    .font(Fonts.ui(size: 17, relativeTo: .body))
+                    .foregroundStyle(Color("TextPrimary"))
+                    .padding(.vertical, 8)
+                    .padding(.horizontal, -5)
             }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+        } else if isSecure && !isPasswordVisible {
+            SecureField("", text: $text, prompt: prompt.foregroundColor(Color("TextSecondary")))
+                .focused($isFocused)
+                .textContentType(textContentType)
+                .autocorrectionDisabled(autocorrectionDisabled)
+                .submitLabel(submitLabel)
+                .font(Fonts.ui(size: 17, relativeTo: .body))
+                .foregroundStyle(Color("TextPrimary"))
+                .onSubmit { onSubmit?() }
+        } else {
+            TextField("", text: $text, prompt: prompt.foregroundColor(Color("TextSecondary")))
+                .focused($isFocused)
+                .textContentType(textContentType)
+                .autocorrectionDisabled(autocorrectionDisabled)
+                .submitLabel(submitLabel)
+                .font(Fonts.ui(size: 17, relativeTo: .body))
+                .foregroundStyle(Color("TextPrimary"))
+                .onSubmit { onSubmit?() }
         }
     }
 }
