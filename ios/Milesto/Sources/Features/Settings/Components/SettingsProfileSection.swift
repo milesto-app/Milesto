@@ -150,6 +150,13 @@ struct SettingsDangerSection: View {
     let isDeleting: Bool
     let onDeleteGoal: () -> Void
     let onSignOut: () -> Void
+    var onUnlockDesignSystem: (() -> Void)?
+
+    @State private var versionTapCount: Int = 0
+    @State private var lastVersionTap: Date = .distantPast
+
+    private let unlockTapTarget: Int = 7
+    private let tapResetWindow: TimeInterval = 2.0
 
     var body: some View {
         Section {
@@ -170,11 +177,28 @@ struct SettingsDangerSection: View {
                 Spacer()
                 AppText(verbatim: "\(String(localized: "settings.version", table: "Settings")) \(Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "")", style: .caption)
                     .color(Color("TextSecondary"))
+                    .contentShape(Rectangle())
+                    .onTapGesture { handleVersionTap() }
                 Spacer()
             }
             .padding(.top, 24)
         }
         .listRowBackground(Color("BackgroundElevated"))
+    }
+
+    private func handleVersionTap() {
+        let now = Date()
+        if now.timeIntervalSince(lastVersionTap) > tapResetWindow {
+            versionTapCount = 1
+        } else {
+            versionTapCount += 1
+        }
+        lastVersionTap = now
+
+        if versionTapCount >= unlockTapTarget {
+            versionTapCount = 0
+            onUnlockDesignSystem?()
+        }
     }
 
     private func dangerButton(
