@@ -21,16 +21,11 @@ final class AuthRepository {
         Task { await observeAuthState() }
     }
 
-    func signUp(email: String, password: String) async throws -> String {
-        try await authenticate {
-            try await self.client.auth.signUp(email: email, password: password).user.id.uuidString
-        }
-    }
-
-    func signIn(email: String, password: String) async throws -> String {
-        try await authenticate {
-            try await self.client.auth.signIn(email: email, password: password).user.id.uuidString
-        }
+    func sendMagicLink(email: String) async throws {
+        try await client.auth.signInWithOTP(
+            email: email,
+            redirectTo: URL(string: "milesto://auth-callback")
+        )
     }
 
     func signInWithApple() async throws -> String {
@@ -63,6 +58,17 @@ final class AuthRepository {
     func signOut() async throws {
         try await client.auth.signOut()
         clearSession()
+    }
+
+    func handleAuthCallback(_ url: URL) async {
+        guard url.scheme == "milesto", url.host == "auth-callback" else { return }
+
+        do {
+            let session = try await client.auth.session(from: url)
+            status = .authenticated(userId: session.user.id.uuidString)
+        } catch {
+            status = .error(error.localizedDescription)
+        }
     }
 
     func consumePendingAppleName() -> (firstName: String?, lastName: String?) {

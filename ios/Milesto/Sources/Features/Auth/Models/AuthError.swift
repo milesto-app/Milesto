@@ -3,7 +3,6 @@ import Foundation
 enum AuthError: LocalizedError {
     case invalidCredentials
     case emailAlreadyInUse
-    case weakPassword
     case networkError
     case cancelled
     case unknown(String)
@@ -14,8 +13,6 @@ enum AuthError: LocalizedError {
             return String(localized: "auth.error.invalidCredentials", table: "Auth")
         case .emailAlreadyInUse:
             return String(localized: "auth.error.emailAlreadyInUse", table: "Auth")
-        case .weakPassword:
-            return String(localized: "auth.error.weakPassword", table: "Auth")
         case .networkError:
             return String(localized: "auth.error.networkError", table: "Auth")
         case .cancelled:
@@ -32,7 +29,6 @@ enum AuthError: LocalizedError {
         switch true {
         case matches(["invalid", "credentials"]): self = .invalidCredentials
         case matches(["already", "exists", "registered"]): self = .emailAlreadyInUse
-        case matches(["weak", "password"]): self = .weakPassword
         case matches(["network", "connection"]): self = .networkError
         default: self = .unknown(error.localizedDescription)
         }

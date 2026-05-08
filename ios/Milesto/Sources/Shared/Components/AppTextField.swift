@@ -4,7 +4,6 @@ struct AppTextField: View {
     @Binding var text: String
     var label: LocalizedStringKey?
     var placeholder: LocalizedStringKey = ""
-    var icon: TablerIconOutline?
     var table: String?
     var isSecure: Bool = false
     var errorMessage: String?
@@ -21,10 +20,6 @@ struct AppTextField: View {
     private let cornerRadius: CGFloat = 16
     private let fieldHeight: CGFloat = 56
     private let multilineHeight: CGFloat = 150
-
-    private var fieldIconColor: Color {
-        errorMessage == nil ? Color("TextSecondary") : Color("Error")
-    }
 
     private var prompt: Text {
         Text(label ?? placeholder, tableName: table)
@@ -48,12 +43,6 @@ struct AppTextField: View {
 
     private var fieldContainer: some View {
         HStack(alignment: multiline ? .top : .center, spacing: 12) {
-            if let icon {
-                TablerIcons(icon, size: 20, color: fieldIconColor)
-                    .frame(width: 20, height: 20)
-                    .padding(.top, multiline ? 16 : 0)
-            }
-
             inputView
 
             if isSecure {

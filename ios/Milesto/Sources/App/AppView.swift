@@ -16,6 +16,11 @@ struct AppView: View {
             }
         }
         .appBackground()
+        .onOpenURL { url in
+            Task {
+                await env.auth.handleAuthCallback(url)
+            }
+        }
     }
 }
 

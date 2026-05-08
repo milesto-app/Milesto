@@ -202,14 +202,13 @@ struct DesignSystemView: View {
             VStack(alignment: .leading, spacing: 16) {
                 AppTextField(text: $fieldEmpty, label: "Email", placeholder: "you@milesto.app")
                 AppTextField(text: $fieldFilled, label: "First name")
-                AppTextField(text: $fieldWithIcon, label: "Search", icon: .search)
+                AppTextField(text: $fieldWithIcon, label: "Search")
                 AppTextField(
                     text: $fieldError,
                     label: "Email",
-                    icon: .mail,
                     errorMessage: "Doesn't look like an email"
                 )
-                AppTextField(text: $fieldSecure, label: "Password", icon: .lock, isSecure: true)
+                AppTextField(text: $fieldSecure, label: "Password", isSecure: true)
             }
         }
     }

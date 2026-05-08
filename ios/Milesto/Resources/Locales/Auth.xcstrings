@@ -24,13 +24,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Invalid email or password"
+            "value" : "Invalid email"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Email ou mot de passe incorrect"
+            "value" : "Email incorrect"
           }
         }
       }
@@ -69,23 +69,6 @@
         }
       }
     },
-    "auth.error.weakPassword" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Password is too weak"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Le mot de passe est trop faible"
-          }
-        }
-      }
-    },
     "auth.form.email" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -103,155 +86,104 @@
         }
       }
     },
-    "auth.form.password" : {
+    "auth.magic.resend" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Password"
+            "value" : "Resend link"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Mot de passe"
+            "value" : "Renvoyer le lien"
           }
         }
       }
     },
-    "auth.form.toggle.signin" : {
+    "auth.magic.send" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Sign In"
+            "value" : "Send link"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Se connecter"
+            "value" : "Envoyer le lien"
           }
         }
       }
     },
-    "auth.form.toggle.signup" : {
+    "auth.magic.sent.subtitle" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Sign Up"
+            "value" : "Open the link we sent to continue."
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "S'inscrire"
+            "value" : "Ouvrez le lien que nous vous avons envoyé pour continuer."
           }
         }
       }
     },
-    "auth.signin.button" : {
+    "auth.magic.sent.title" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Sign In"
+            "value" : "Check your email"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Se connecter"
+            "value" : "Consultez vos emails"
           }
         }
       }
     },
-    "auth.signin.subtitle" : {
+    "auth.magic.subtitle" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Sign in to continue"
+            "value" : "We'll send you a secure sign-in link to your inbox."
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Connectez-vous pour continuer"
+            "value" : "Nous vous enverrons un lien de connexion sécurisé dans votre boîte mail."
           }
         }
       }
     },
-    "auth.signin.title" : {
+    "auth.magic.title" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Welcome back"
+            "value" : "Continue with email"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Bon retour"
-          }
-        }
-      }
-    },
-    "auth.signup.button" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sign Up"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "S'inscrire"
-          }
-        }
-      }
-    },
-    "auth.signup.subtitle" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "The first step toward your goals"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Le premier pas vers vos objectifs"
-          }
-        }
-      }
-    },
-    "auth.signup.title" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Create your account"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Créez votre compte"
+            "value" : "Continuer avec un email"
           }
         }
       }
