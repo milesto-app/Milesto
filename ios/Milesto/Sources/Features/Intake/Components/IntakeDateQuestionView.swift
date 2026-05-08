@@ -31,7 +31,6 @@ struct IntakeDateQuestionView: View {
                 displayedComponents: .date
             )
             .datePickerStyle(.graphical)
-            .tint(Color("Brand"))
             .labelsHidden()
             .onChange(of: selectedDate) {
                 hasSelected = true

@@ -101,7 +101,6 @@ struct ChatHistorySidebar: View {
                         } label: {
                             AppText("chat.history.delete", table: "Chat", style: .body)
                         }
-                        .tint(.red)
                     }
                 }
             }
