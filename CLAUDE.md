@@ -25,7 +25,7 @@ These files are the source of truth for code style, architecture, components, an
 
 ## Root Task Runner
 
-A root `package.json` provides bun-based scripts that orchestrate common tasks across `ios/`, `api/`, and `web/`. Run `bun run` (no args) to list them. Prefer these over `cd`-ing into sub-projects for setup, dev, build, lint, test, and dependency updates.
+A root `Makefile` orchestrates common tasks across `ios/`, `api/`, and `web/`. Independent tasks (install, build, lint, update) run in parallel automatically using all logical CPU cores. Prefer these over `cd`-ing into sub-projects. See the `Makefile` for the full target list.
 
 ## Shared Conventions
 
@@ -33,7 +33,7 @@ A root `package.json` provides bun-based scripts that orchestrate common tasks a
 - **Supabase MCP** — use MCP tools for migrations, SQL, edge functions, logs, advisors, etc.
 - **RLS required** — always enable Row Level Security on new tables with appropriate policies.
 - **After DDL changes** — run `get_advisors` (security + performance) to catch issues.
-- **After any changes** — run `bun run lint` at the repo root before reporting the task as done, but dont check or revert what's been changed by the linter even if it's not related to your changes.
+- **After any changes** — run `make lint` at the repo root before reporting the task as done, but dont check or revert what's been changed by the linter even if it's not related to your changes.
 
 ## Branching & PR Workflow
 
