@@ -1,9 +1,17 @@
 import Foundation
 
-enum GoalIntakeStep {
+enum GoalIntakeStep: Equatable {
     case goalSetup
     case motivation(goalId: String)
     case intake(goalId: String)
+
+    var identifier: String {
+        switch self {
+        case .goalSetup: return "goalSetup"
+        case let .motivation(goalId): return "motivation_\(goalId)"
+        case let .intake(goalId): return "intake_\(goalId)"
+        }
+    }
 }
 
 @MainActor
@@ -50,14 +58,10 @@ final class GoalIntakeFlowViewModel {
         defer { isSavingMotivation = false }
 
         let trimmed = motivationQuote.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !trimmed.isEmpty else {
-            advanceToIntake(goalId: goalId)
-            return
-        }
 
         do {
             try await env.intake.saveMotivation(goalId: goalId, quote: trimmed)
-            advanceToIntake(goalId: goalId)
+            step = .intake(goalId: goalId)
         } catch ApiError.subscriptionRequired {
         } catch {
             errorMessage = error.localizedDescription
@@ -65,7 +69,32 @@ final class GoalIntakeFlowViewModel {
         }
     }
 
-    func advanceToIntake(goalId: String) {
-        step = .intake(goalId: goalId)
+    var canRestart: Bool {
+        currentGoalId != nil
+    }
+
+    func restart() async -> Bool {
+        if let goalId = currentGoalId {
+            do {
+                try await env.goals.deleteGoal(goalId: goalId)
+            } catch {
+                errorMessage = error.localizedDescription
+                showError = true
+                return false
+            }
+        }
+        goalDescription = ""
+        motivationQuote = ""
+        step = .goalSetup
+        return true
+    }
+
+    private var currentGoalId: String? {
+        switch step {
+        case .goalSetup:
+            return nil
+        case let .motivation(goalId), let .intake(goalId):
+            return goalId
+        }
     }
 }

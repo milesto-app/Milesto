@@ -110,13 +110,16 @@ private struct AuthenticatedRootView: View {
                 }
             } else {
                 startingView {
-                    GoalIntakeFlowView(
+                    IntakeFlowView(
                         existingGoalId: routing.activeGoalId,
                         onComplete: { goalId in
                             routing.activeGoalId = goalId
                             withAnimation(.easeInOut(duration: 0.4)) {
                                 routing.goalComplete = true
                             }
+                        },
+                        onStartOver: {
+                            routing.activeGoalId = nil
                         }
                     )
                 }

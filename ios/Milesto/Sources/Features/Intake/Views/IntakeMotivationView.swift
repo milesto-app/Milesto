@@ -4,7 +4,6 @@ struct IntakeMotivationView: View {
     @Binding var motivationQuote: String
     let isSaving: Bool
     let onContinue: () -> Void
-    let onSkip: () -> Void
 
     private let characterCap = 500
 
@@ -17,21 +16,21 @@ struct IntakeMotivationView: View {
     }
 
     var body: some View {
-        VStack(spacing: 24) {
-            VStack(spacing: 8) {
+        VStack(alignment: .leading, spacing: 24) {
+            VStack(alignment: .leading, spacing: 8) {
                 AppText("intake.motivation.title", table: "Intake", style: .title)
-                    .alignment(.center)
 
                 AppText("intake.motivation.subtitle", table: "Intake", style: .subheadline)
-                    .alignment(.center)
             }
-            .padding(.top, 40)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.top, 8)
             .padding(.bottom, 16)
-            .padding(.horizontal, 24)
+            .padding(.leading, 24)
+            .padding(.trailing, 76)
 
-            AppTextField(
+            IntakeTextField(
                 text: $motivationQuote,
-                label: "intake.motivation.placeholder",
+                placeholder: "intake.motivation.placeholder",
                 table: "Intake",
                 multiline: true
             )
@@ -39,28 +38,24 @@ struct IntakeMotivationView: View {
 
             Spacer()
 
-            VStack(spacing: 12) {
-                AppButton("common.continue", table: "Common", action: onContinue)
-                    .fullWidth()
-                    .disabled(!canContinue || isSaving)
-
-                AppButton("intake.motivation.skip", table: "Intake", style: .text, action: onSkip)
-                    .fullWidth()
-                    .disabled(isSaving)
-            }
-            .padding(.horizontal, 24)
-            .padding(.bottom, 24)
+            AppButton("common.continue", table: "Common", action: onContinue)
+                .fullWidth()
+                .disabled(!canContinue || isSaving)
+                .padding(.horizontal, 24)
+                .padding(.bottom, 24)
         }
-        .appBackground()
         .overlay {
             if isSaving {
-                ZStack {
-                    Color("TextPrimary").opacity(0.3)
-                        .ignoresSafeArea()
-                    ProgressView()
-                        .tint(Color("Brand"))
-                }
+                ProgressView()
+                    .controlSize(.large)
+                    .tint(Color("Brand"))
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .background(.regularMaterial)
+                    .ignoresSafeArea()
+                    .transition(.opacity)
             }
         }
+        .animation(.easeInOut(duration: 0.25), value: isSaving)
+        .appBackground()
     }
 }

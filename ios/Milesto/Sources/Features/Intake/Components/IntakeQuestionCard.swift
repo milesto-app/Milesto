@@ -6,9 +6,7 @@ struct IntakeQuestionCard: View {
     let setAnswer: (String, IntakeAnswerDTO) -> Void
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            AppText(verbatim: question.questionText, style: .headline)
-
+        Group {
             switch question.questionType {
             case .text:
                 if question.config?.format == "date" {
@@ -24,6 +22,6 @@ struct IntakeQuestionCard: View {
                 IntakeMultipleChoiceView(question: question, answers: answers, setAnswer: setAnswer)
             }
         }
-        .padding(.vertical, 16)
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
 }

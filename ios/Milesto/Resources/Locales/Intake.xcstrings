@@ -208,40 +208,6 @@
         }
       }
     },
-    "intake.loading.profile" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Generating your profile..."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Génération de votre profil..."
-          }
-        }
-      }
-    },
-    "intake.loading.questions" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Preparing questions..."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Préparation des questions..."
-          }
-        }
-      }
-    },
     "intake.motivation.placeholder" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -255,23 +221,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Qu'est-ce qui changera une fois atteint ?"
-          }
-        }
-      }
-    },
-    "intake.motivation.skip" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Skip for now"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Passer pour l'instant"
           }
         }
       }
@@ -344,6 +293,57 @@
         }
       }
     },
+    "intake.startOver.action" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Start over"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Recommencer"
+          }
+        }
+      }
+    },
+    "intake.startOver.alert.message" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your current goal and answers will be deleted. You'll go back to the first question."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Votre objectif actuel et vos réponses seront supprimés. Vous reviendrez à la première question."
+          }
+        }
+      }
+    },
+    "intake.startOver.alert.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Start over?"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Recommencer ?"
+          }
+        }
+      }
+    },
     "intake.submit" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -357,6 +357,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Continuer"
+          }
+        }
+      }
+    },
+    "intake.topBar.actions.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "What would you like to do?"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Que souhaitez-vous faire ?"
           }
         }
       }
