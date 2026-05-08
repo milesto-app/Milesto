@@ -27,22 +27,17 @@ struct AuthView: View {
             Spacer()
 
             VStack(spacing: 12) {
-                AuthProviderButton(
-                    title: "auth.welcome.apple",
-                    logoName: "AppleLogo",
-                    rendersAsTemplate: true,
-                    isLoading: isAppleLoading,
-                    action: onSignInWithApple
-                )
-                .disabled(isAnyLoading)
+                AppButton("auth.welcome.apple", table: "Auth", style: .secondary, action: onSignInWithApple)
+                    .assetIcon("AppleLogo", rendersAsTemplate: true)
+                    .fullWidth()
+                    .loading(isAppleLoading)
+                    .disabled(isAnyLoading)
 
-                AuthProviderButton(
-                    title: "auth.welcome.google",
-                    logoName: "GoogleLogo",
-                    isLoading: isGoogleLoading,
-                    action: onSignInWithGoogle
-                )
-                .disabled(isAnyLoading)
+                AppButton("auth.welcome.google", table: "Auth", style: .secondary, action: onSignInWithGoogle)
+                    .assetIcon("GoogleLogo")
+                    .fullWidth()
+                    .loading(isGoogleLoading)
+                    .disabled(isAnyLoading)
 
                 HStack(spacing: 16) {
                     Rectangle()
@@ -69,44 +64,5 @@ struct AuthView: View {
                 .padding(.bottom, 32)
         }
         .appBackground()
-    }
-}
-
-private struct AuthProviderButton: View {
-    let title: LocalizedStringKey
-    let logoName: String
-    var rendersAsTemplate = false
-    let isLoading: Bool
-    let action: () -> Void
-
-    var body: some View {
-        Button(action: action) {
-            ZStack {
-                HStack(spacing: 12) {
-                    logo
-
-                    AppText(title, table: "Auth", style: .headline)
-                        .weight(.semibold)
-                }
-                .opacity(isLoading ? 0 : 1)
-
-                if isLoading {
-                    AppLoader(color: Color("TextPrimary"))
-                }
-            }
-        }
-        .frame(maxWidth: .infinity)
-        .padding(.vertical, 16)
-        .foregroundColor(Color("TextPrimary"))
-        .background(.clear)
-        .glassEffect(.regular.interactive(), in: RoundedRectangle(cornerRadius: 12))
-    }
-
-    private var logo: some View {
-        Image(logoName)
-            .renderingMode(rendersAsTemplate ? .template : .original)
-            .resizable()
-            .scaledToFit()
-            .frame(width: 18, height: 18)
     }
 }

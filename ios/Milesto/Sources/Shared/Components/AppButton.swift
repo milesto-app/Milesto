@@ -1,6 +1,6 @@
 import SwiftUI
 
-enum AppButtonStyle {
+enum AppButtonStyle: Equatable {
     case primary
     case secondary
     case ghost
@@ -27,13 +27,20 @@ enum AppButtonIconPosition {
     case trailing
 }
 
+private struct AppButtonAssetIcon {
+    let name: String
+    let rendersAsTemplate: Bool
+}
+
 struct AppButton: View {
+    private let stateAnimation = Animation.easeInOut(duration: 0.2)
     private let cornerRadius: CGFloat = 16
     private let title: LocalizedStringKey
     private let table: String?
     private let action: () -> Void
     private let style: AppButtonStyle
     private var icon: TablerIconOutline?
+    private var assetIcon: AppButtonAssetIcon?
     private var iconPosition: AppButtonIconPosition
     private var isFullWidth: Bool
     private var isDisabled: Bool
@@ -53,7 +60,13 @@ struct AppButton: View {
     private var buttonContent: some View {
         ZStack {
             HStack(spacing: 8) {
-                if let icon = icon, iconPosition == .leading {
+                if let assetIcon, iconPosition == .leading {
+                    Image(assetIcon.name)
+                        .renderingMode(assetIcon.rendersAsTemplate ? .template : .original)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 20, height: 20)
+                } else if let icon = icon, iconPosition == .leading {
                     TablerIcons(icon, size: 20, color: style.foregroundColor)
                 }
 
@@ -76,6 +89,9 @@ struct AppButton: View {
         .padding(.horizontal, 24)
         .background(style.backgroundColor)
         .foregroundStyle(style.foregroundColor)
+        .animation(stateAnimation, value: isFullWidth)
+        .animation(stateAnimation, value: isLoading)
+        .animation(stateAnimation, value: style)
     }
 
     var body: some View {
@@ -85,12 +101,21 @@ struct AppButton: View {
         }
         .opacity(isDisabled ? 0.5 : 1.0)
         .disabled(isDisabled || isLoading)
+        .animation(stateAnimation, value: isDisabled)
+        .animation(stateAnimation, value: isLoading)
     }
 
     func icon(_ icon: TablerIconOutline, position: AppButtonIconPosition = .leading) -> AppButton {
         var copy = self
         copy.icon = icon
         copy.iconPosition = position
+        return copy
+    }
+
+    func assetIcon(_ name: String, rendersAsTemplate: Bool = false) -> AppButton {
+        var copy = self
+        copy.assetIcon = AppButtonAssetIcon(name: name, rendersAsTemplate: rendersAsTemplate)
+        copy.iconPosition = .leading
         return copy
     }
 
