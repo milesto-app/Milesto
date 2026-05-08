@@ -3,13 +3,13 @@ import SwiftUI
 enum AppButtonStyle {
     case primary
     case secondary
-    case text
+    case ghost
 
     var backgroundColor: Color {
         switch self {
         case .primary: return Color("Brand")
         case .secondary: return Color("BackgroundTertiary")
-        case .text: return Color.clear
+        case .ghost: return Color.clear
         }
     }
 
@@ -17,7 +17,7 @@ enum AppButtonStyle {
         switch self {
         case .primary: return Color("BrandDeep")
         case .secondary: return Color("TextPrimary")
-        case .text: return Color("Brand")
+        case .ghost: return Color("Brand")
         }
     }
 }

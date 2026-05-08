@@ -110,44 +110,38 @@ struct DesignSystemView: View {
     }
 
     private var buttonsSection: some View {
-        DSSection("Buttons", subtitle: "AppButton — primary / secondary / text") {
+        DSSection("Buttons", subtitle: "AppButton — primary / secondary / ghost") {
             VStack(alignment: .leading, spacing: 16) {
                 AppPill(verbatim: "Last tapped: \(lastTappedButton)", tint: Color("Brand"))
 
-                buttonRow(label: ".primary") {
-                    AppButton("Save", style: .primary) { lastTappedButton = "primary" }
-                    AppButton("Continue", style: .primary) { lastTappedButton = "primary +icon" }
-                        .icon(.arrowRight, position: .trailing)
-                }
+                buttonVariantSection(label: ".primary", style: .primary)
+                buttonVariantSection(label: ".secondary", style: .secondary)
+                buttonVariantSection(label: ".ghost", style: .ghost)
+            }
+        }
+    }
 
-                buttonRow(label: ".secondary") {
-                    AppButton("Learn more", style: .secondary) { lastTappedButton = "secondary" }
-                    AppButton("Edit", style: .secondary) { lastTappedButton = "secondary +icon" }
-                        .icon(.settings, position: .leading)
-                }
+    private func buttonVariantSection(label: String, style: AppButtonStyle) -> some View {
+        VStack(alignment: .leading, spacing: 12) {
+            buttonRow(label: label) {
+                AppButton("Save", style: style) { lastTappedButton = "\(label) normal" }
+                AppButton("Continue", style: style) { lastTappedButton = "\(label) +icon" }
+                    .icon(.arrowRight, position: .trailing)
+            }
 
-                buttonRow(label: ".text") {
-                    AppButton("Skip", style: .text) { lastTappedButton = "text" }
-                    AppButton("Go", style: .text) { lastTappedButton = "text +icon" }
-                        .icon(.arrowRight, position: .trailing)
-                }
+            VStack(alignment: .leading, spacing: 8) {
+                AppText(verbatim: "\(label).fullWidth()", style: .caption)
+                    .color(Color("TextSecondary"))
+                AppButton("Continue", style: style) { lastTappedButton = "\(label) fullWidth" }
+                    .icon(.arrowRight, position: .trailing)
+                    .fullWidth()
+            }
 
-                Divider().background(Color("TextSecondary").opacity(0.2))
-
-                VStack(alignment: .leading, spacing: 8) {
-                    AppText(verbatim: ".fullWidth()", style: .caption)
-                        .color(Color("TextSecondary"))
-                    AppButton("Continue", style: .primary) { lastTappedButton = "primary fullWidth" }
-                        .icon(.arrowRight, position: .trailing)
-                        .fullWidth()
-                }
-
-                VStack(alignment: .leading, spacing: 8) {
-                    AppText(verbatim: ".disabled(true)", style: .caption)
-                        .color(Color("TextSecondary"))
-                    AppButton("Submit", style: .primary) { lastTappedButton = "should not fire" }
-                        .disabled(true)
-                }
+            VStack(alignment: .leading, spacing: 8) {
+                AppText(verbatim: "\(label).disabled(true)", style: .caption)
+                    .color(Color("TextSecondary"))
+                AppButton("Submit", style: style) { lastTappedButton = "should not fire" }
+                    .disabled(true)
             }
         }
     }
