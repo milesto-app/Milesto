@@ -17,7 +17,7 @@ enum AppButtonStyle: Equatable {
         switch self {
         case .primary: return Color("BrandDeep")
         case .secondary: return Color("TextPrimary")
-        case .ghost: return Color("Brand")
+        case .ghost: return Color("TextPrimary")
         }
     }
 }
