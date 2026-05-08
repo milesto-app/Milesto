@@ -37,6 +37,7 @@ struct AppButton: View {
     private var iconPosition: AppButtonIconPosition
     private var isFullWidth: Bool
     private var isDisabled: Bool
+    private var isLoading: Bool
 
     init(_ title: LocalizedStringKey, table: String? = nil, style: AppButtonStyle = .primary, action: @escaping () -> Void) {
         self.title = title
@@ -46,19 +47,28 @@ struct AppButton: View {
         iconPosition = .leading
         isFullWidth = false
         isDisabled = false
+        isLoading = false
     }
 
     private var buttonContent: some View {
-        HStack(spacing: 8) {
-            if let icon = icon, iconPosition == .leading {
-                TablerIcons(icon, size: 20, color: style.foregroundColor)
+        ZStack {
+            HStack(spacing: 8) {
+                if let icon = icon, iconPosition == .leading {
+                    TablerIcons(icon, size: 20, color: style.foregroundColor)
+                }
+
+                Text(title, tableName: table)
+                    .font(Fonts.ui(size: 17, relativeTo: .headline, weight: .regular))
+
+                if let icon = icon, iconPosition == .trailing {
+                    TablerIcons(icon, size: 20, color: style.foregroundColor)
+                }
             }
+            .opacity(isLoading ? 0 : 1)
 
-            Text(title, tableName: table)
-                .font(Fonts.ui(size: 17, relativeTo: .headline, weight: .regular))
-
-            if let icon = icon, iconPosition == .trailing {
-                TablerIcons(icon, size: 20, color: style.foregroundColor)
+            if isLoading {
+                AppButtonLoadingIndicator(color: style.foregroundColor)
+                    .transition(.opacity)
             }
         }
         .frame(maxWidth: isFullWidth ? .infinity : nil)
@@ -74,7 +84,7 @@ struct AppButton: View {
                 .cornerRadius(cornerRadius)
         }
         .opacity(isDisabled ? 0.5 : 1.0)
-        .disabled(isDisabled)
+        .disabled(isDisabled || isLoading)
     }
 
     func icon(_ icon: TablerIconOutline, position: AppButtonIconPosition = .leading) -> AppButton {
@@ -94,5 +104,29 @@ struct AppButton: View {
         var copy = self
         copy.isDisabled = isDisabled
         return copy
+    }
+
+    func loading(_ isLoading: Bool = true) -> AppButton {
+        var copy = self
+        copy.isLoading = isLoading
+        return copy
+    }
+}
+
+private struct AppButtonLoadingIndicator: View {
+    let color: Color
+    @State private var rotation: Angle = .zero
+
+    var body: some View {
+        Circle()
+            .trim(from: 0.18, to: 0.82)
+            .stroke(color, style: StrokeStyle(lineWidth: 2.4, lineCap: .round))
+            .frame(width: 20, height: 20)
+            .rotationEffect(rotation)
+            .onAppear {
+                withAnimation(.linear(duration: 0.75).repeatForever(autoreverses: false)) {
+                    rotation = .degrees(360)
+                }
+            }
     }
 }

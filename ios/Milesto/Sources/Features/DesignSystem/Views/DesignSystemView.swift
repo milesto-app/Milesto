@@ -143,6 +143,14 @@ struct DesignSystemView: View {
                 AppButton("Submit", style: style) { lastTappedButton = "should not fire" }
                     .disabled(true)
             }
+
+            VStack(alignment: .leading, spacing: 8) {
+                AppText(verbatim: "\(label).loading()", style: .caption)
+                    .color(Color("TextSecondary"))
+                AppButton("Loading", style: style) { lastTappedButton = "should not fire" }
+                    .icon(.loader, position: .leading)
+                    .loading()
+            }
         }
     }
 
