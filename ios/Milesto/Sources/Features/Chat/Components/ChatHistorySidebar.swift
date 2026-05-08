@@ -53,7 +53,7 @@ struct ChatHistorySidebar: View {
                     conversationList
                 }
             }
-            .background(Color("BackgroundBase").opacity(0.88))
+            .background(Color("BackgroundPrimary").opacity(0.88))
             .safeAreaPadding(.top)
             .frame(width: geometry.size.width * 0.8 + 8, height: geometry.size.height + 8)
             .glassEffect(.regular, in: .rect)
@@ -107,7 +107,7 @@ struct ChatHistorySidebar: View {
             }
             .padding(.bottom, 16)
         }
-        .background(Color("BackgroundBase"))
+        .background(Color("BackgroundPrimary"))
     }
 
     private func dismiss() {

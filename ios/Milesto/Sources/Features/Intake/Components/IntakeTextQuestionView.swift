@@ -24,7 +24,7 @@ struct IntakeTextQuestionView: View {
     var body: some View {
         ZStack(alignment: .topLeading) {
             RoundedRectangle(cornerRadius: 8)
-                .fill(Color("BackgroundElevated"))
+                .fill(Color("BackgroundSecondary"))
 
             RoundedRectangle(cornerRadius: 8)
                 .stroke(

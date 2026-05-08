@@ -48,7 +48,7 @@ struct AppTextField: View {
         VStack(alignment: .leading, spacing: 4) {
             ZStack(alignment: multiline ? .topLeading : .leading) {
                 RoundedRectangle(cornerRadius: 12)
-                    .fill(Color("BackgroundElevated"))
+                    .fill(Color("BackgroundSecondary"))
                     .frame(height: multiline ? 150 : 56)
                     .overlay(
                         RoundedRectangle(cornerRadius: 12)

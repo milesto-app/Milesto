@@ -81,7 +81,7 @@ struct RoadmapView: View {
             if let model {
                 content(model: model)
             } else {
-                Color("BackgroundBase").ignoresSafeArea()
+                Color("BackgroundPrimary").ignoresSafeArea()
             }
         }
         .task {

@@ -24,7 +24,7 @@ struct ChatInputBar: View {
                     sendHaptic.impactOccurred()
                     onSend()
                 } label: {
-                    TablerIcons(.arrowUp, size: 18, color: Color("TextOnBrand"))
+                    TablerIcons(.arrowUp, size: 18, color: Color("TextPrimary"))
                         .frame(width: 32, height: 32)
                         .background(isDisabled ? Color("TextSecondary") : Color("BrandDeep"), in: Circle())
                 }

@@ -15,7 +15,7 @@ struct ProfileOnboardingView: View {
                 content(model: model)
                     .appStartTransition()
             } else {
-                Color("BackgroundBase").ignoresSafeArea()
+                Color("BackgroundPrimary").ignoresSafeArea()
             }
         }
         .task {

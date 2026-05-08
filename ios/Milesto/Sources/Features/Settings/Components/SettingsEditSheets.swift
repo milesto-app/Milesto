@@ -181,7 +181,7 @@ struct LanguageInfoSheet: View {
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(16)
-                .background(Color("BackgroundElevated"), in: RoundedRectangle(cornerRadius: 12))
+                .background(Color("BackgroundSecondary"), in: RoundedRectangle(cornerRadius: 12))
 
                 AppText("settings.language.info.description", table: "Settings", style: .body)
                     .color(Color("TextSecondary"))

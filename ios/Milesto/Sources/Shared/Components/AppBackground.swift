@@ -6,14 +6,14 @@ struct AppBackground: ViewModifier {
     func body(content: Content) -> some View {
         ZStack {
             if ignoresSafeArea {
-                Color("BackgroundBase").ignoresSafeArea()
+                Color("BackgroundPrimary").ignoresSafeArea()
             } else {
-                Color("BackgroundBase")
+                Color("BackgroundPrimary")
             }
 
             content
         }
-        .background(Color("BackgroundBase"))
+        .background(Color("BackgroundPrimary"))
     }
 }
 
@@ -24,10 +24,10 @@ extension View {
 
     func appScrollBackground() -> some View {
         scrollContentBackground(.hidden)
-            .background(Color("BackgroundBase"))
+            .background(Color("BackgroundPrimary"))
     }
 
     func appPresentationBackground() -> some View {
-        presentationBackground(Color("BackgroundBase"))
+        presentationBackground(Color("BackgroundPrimary"))
     }
 }

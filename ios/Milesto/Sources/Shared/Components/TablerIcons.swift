@@ -41,7 +41,7 @@ struct TablerTabLabel: View {
         let renderer = ImageRenderer(
             content: Text(icon.rawValue)
                 .font(.custom("tabler-icons", size: 28))
-                .foregroundStyle(Color("TextOnBrand"))
+                .foregroundStyle(Color("TextPrimary"))
         )
         renderer.scale = UITraitCollection.current.displayScale
         if let uiImage = renderer.uiImage {
@@ -51,7 +51,7 @@ struct TablerTabLabel: View {
         let fallbackRenderer = ImageRenderer(
             content: Text(TablerIconOutline.questionMark.rawValue)
                 .font(.custom("tabler-icons", size: 28))
-                .foregroundStyle(Color("TextOnBrand"))
+                .foregroundStyle(Color("TextPrimary"))
         )
         fallbackRenderer.scale = UITraitCollection.current.displayScale
         guard let fallbackImage = fallbackRenderer.uiImage else {

@@ -32,7 +32,7 @@ struct IntakeSingleChoiceView: View {
                         }
                     }
                     .padding(16)
-                    .background(Color("BackgroundElevated"))
+                    .background(Color("BackgroundSecondary"))
                     .cornerRadius(8)
                     .overlay(
                         RoundedRectangle(cornerRadius: 8)

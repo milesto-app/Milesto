@@ -50,7 +50,7 @@ struct SettingsProfileHeaderSection: View {
                 .listRowInsets(EdgeInsets())
             }
         }
-        .listRowBackground(Color("BackgroundBase"))
+        .listRowBackground(Color("BackgroundPrimary"))
     }
 }
 
@@ -97,7 +97,7 @@ struct SettingsProfileDetailsSection: View {
                 )
             }
         }
-        .listRowBackground(Color("BackgroundElevated"))
+        .listRowBackground(Color("BackgroundSecondary"))
     }
 
     static func formattedDate(_ date: Date) -> String {
@@ -183,7 +183,7 @@ struct SettingsDangerSection: View {
             }
             .padding(.top, 24)
         }
-        .listRowBackground(Color("BackgroundElevated"))
+        .listRowBackground(Color("BackgroundSecondary"))
     }
 
     private func handleVersionTap() {

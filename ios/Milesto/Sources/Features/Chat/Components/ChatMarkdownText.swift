@@ -11,7 +11,7 @@ enum MarkdownBlock {
 struct ChatMarkdownText: View {
     let content: String
     var textColor: Color = .init("TextPrimary")
-    var codeBackground: Color = .init("BackgroundElevated")
+    var codeBackground: Color = .init("BackgroundSecondary")
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {

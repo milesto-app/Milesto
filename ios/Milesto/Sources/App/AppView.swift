@@ -9,7 +9,7 @@ struct AppView: View {
             case .unauthenticated, .error:
                 AuthContainerView()
             case .authenticating:
-                Color("BackgroundBase").ignoresSafeArea()
+                Color("BackgroundPrimary").ignoresSafeArea()
             case let .authenticated(userId):
                 AuthenticatedRootView(userId: userId)
                     .id(userId)
@@ -38,7 +38,7 @@ private struct AuthenticatedRootView: View {
                         await routing.sync(userId: userId)
                     }
             } else {
-                Color("BackgroundBase").ignoresSafeArea()
+                Color("BackgroundPrimary").ignoresSafeArea()
             }
         }
         .onAppear {
@@ -89,7 +89,7 @@ private struct AuthenticatedRootView: View {
                 }
                 .padding(32)
             } else {
-                Color("BackgroundBase").ignoresSafeArea()
+                Color("BackgroundPrimary").ignoresSafeArea()
             }
         }
     }

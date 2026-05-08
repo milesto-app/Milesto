@@ -17,9 +17,9 @@ struct DesignSystemView: View {
         DSColorToken(name: "BrandDeep", lightHex: "#00525F", darkHex: "#002830"),
         DSColorToken(name: "TextPrimary", lightHex: "#2A2B2A", darkHex: "#F4F3F0"),
         DSColorToken(name: "TextSecondary", lightHex: "#6F716F", darkHex: "#9B9C9B"),
-        DSColorToken(name: "TextOnBrand", lightHex: "#FFFFFF", darkHex: nil),
-        DSColorToken(name: "BackgroundBase", lightHex: "#F7F7F7", darkHex: "#000000"),
-        DSColorToken(name: "BackgroundElevated", lightHex: "#F0F0F0", darkHex: "#1A1A1A"),
+        DSColorToken(name: "BackgroundPrimary", lightHex: "#F7F7F7", darkHex: "#000000"),
+        DSColorToken(name: "BackgroundSecondary", lightHex: "#F0F0F0", darkHex: "#1A1A1A"),
+        DSColorToken(name: "BackgroundTertiary", lightHex: "#E6E6E6", darkHex: "#292929"),
         DSColorToken(name: "Error", lightHex: "#EF4444", darkHex: "#DC2626"),
         DSColorToken(name: "Success", lightHex: "#10B981", darkHex: "#059669"),
         DSColorToken(name: "Warning", lightHex: "#F59E0B", darkHex: "#D97706"),
@@ -34,8 +34,6 @@ struct DesignSystemView: View {
         (.caption, "caption", "12 / regular"),
     ]
 
-    private let spacingSteps: [CGFloat] = [8, 12, 16, 24, 32]
-
     var body: some View {
         ScrollView {
             VStack(spacing: 16) {
@@ -45,8 +43,6 @@ struct DesignSystemView: View {
                 buttonsSection
                 pillsSection
                 textFieldsSection
-                iconsSection
-                spacingSection
             }
             .padding(.horizontal, 16)
             .padding(.bottom, 48)
@@ -124,7 +120,7 @@ struct DesignSystemView: View {
     }
 
     private var buttonsSection: some View {
-        DSSection("Buttons", subtitle: "AppButton — primary / neutral / secondary / text") {
+        DSSection("Buttons", subtitle: "AppButton — primary / secondary / text") {
             VStack(alignment: .leading, spacing: 16) {
                 AppPill(verbatim: "Last tapped: \(lastTappedButton)", tint: Color("Brand"))
 
@@ -132,12 +128,6 @@ struct DesignSystemView: View {
                     AppButton("Save", style: .primary) { lastTappedButton = "primary" }
                     AppButton("Continue", style: .primary) { lastTappedButton = "primary +icon" }
                         .icon(.arrowRight, position: .trailing)
-                }
-
-                buttonRow(label: ".neutral") {
-                    AppButton("Cancel", style: .neutral) { lastTappedButton = "neutral" }
-                    AppButton("Back", style: .neutral) { lastTappedButton = "neutral +icon" }
-                        .icon(.chevronLeft, position: .leading)
                 }
 
                 buttonRow(label: ".secondary") {
@@ -228,59 +218,6 @@ struct DesignSystemView: View {
                     errorMessage: "Doesn't look like an email"
                 )
                 AppTextField(text: $fieldSecure, label: "Password", icon: .lock, isSecure: true)
-            }
-        }
-    }
-
-    private var iconsSection: some View {
-        DSSection("Icons", subtitle: "TablerIcons — outline & filled") {
-            DSIconGrid()
-        }
-    }
-
-    private var spacingSection: some View {
-        DSSection("Spacing & radii", subtitle: "Standard pt values used across the app") {
-            VStack(alignment: .leading, spacing: 16) {
-                VStack(alignment: .leading, spacing: 8) {
-                    ForEach(spacingSteps, id: \.self) { step in
-                        HStack(spacing: 12) {
-                            AppText(verbatim: "\(Int(step))", style: .caption)
-                                .color(Color("TextSecondary"))
-                                .frame(width: 24, alignment: .trailing)
-                            RoundedRectangle(cornerRadius: 4)
-                                .fill(Color("Brand"))
-                                .frame(width: step, height: 16)
-                            Spacer()
-                        }
-                    }
-                }
-
-                Divider().background(Color("TextSecondary").opacity(0.2))
-
-                HStack(spacing: 16) {
-                    VStack(spacing: 6) {
-                        RoundedRectangle(cornerRadius: 12)
-                            .fill(Color("Brand"))
-                            .frame(width: 80, height: 56)
-                        AppText(verbatim: "radius 12", style: .caption)
-                            .color(Color("TextSecondary"))
-                    }
-                    VStack(spacing: 6) {
-                        RoundedRectangle(cornerRadius: 16)
-                            .fill(Color("Brand"))
-                            .frame(width: 80, height: 56)
-                        AppText(verbatim: "radius 16", style: .caption)
-                            .color(Color("TextSecondary"))
-                    }
-                    VStack(spacing: 6) {
-                        Capsule()
-                            .fill(Color("Brand"))
-                            .frame(width: 80, height: 32)
-                        AppText(verbatim: "Capsule()", style: .caption)
-                            .color(Color("TextSecondary"))
-                    }
-                    Spacer()
-                }
             }
         }
     }

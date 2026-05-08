@@ -22,7 +22,7 @@ struct IntakeTextField: View {
     var body: some View {
         ZStack(alignment: multiline ? .topLeading : .leading) {
             RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
-                .fill(Color("BackgroundElevated"))
+                .fill(Color("BackgroundSecondary"))
 
             RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
                 .strokeBorder(borderColor, lineWidth: 1)

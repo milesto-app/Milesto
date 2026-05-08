@@ -44,7 +44,7 @@ struct MilestoneDetailView: View {
                 .padding(.top, 24)
                 .padding(.bottom, 40)
             }
-            .background(Color("BackgroundBase"))
+            .background(Color("BackgroundPrimary"))
         }
         .appBackground()
         .task {

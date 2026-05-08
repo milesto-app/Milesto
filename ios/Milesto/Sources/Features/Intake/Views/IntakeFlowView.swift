@@ -14,7 +14,7 @@ struct IntakeFlowView: View {
                 content(model: model)
                     .appStartTransition()
             } else {
-                Color("BackgroundBase").ignoresSafeArea()
+                Color("BackgroundPrimary").ignoresSafeArea()
             }
         }
         .task {

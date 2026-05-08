@@ -2,51 +2,22 @@ import SwiftUI
 
 enum AppButtonStyle {
     case primary
-    case neutral
     case secondary
     case text
 
     var backgroundColor: Color {
         switch self {
-        case .primary, .neutral, .secondary, .text: return Color.clear
+        case .primary: return Color("Brand")
+        case .secondary: return Color("BackgroundTertiary")
+        case .text: return Color.clear
         }
     }
 
     var foregroundColor: Color {
         switch self {
-        case .primary: return Color("TextOnBrand")
-        case .neutral: return Color("TextPrimary")
-        case .secondary: return Color("Brand")
-        case .text: return Color("Brand")
-        }
-    }
-
-    var usesGlass: Bool {
-        switch self {
-        case .primary, .neutral: return true
-        case .secondary, .text: return false
-        }
-    }
-
-    var glassTint: Color {
-        switch self {
         case .primary: return Color("BrandDeep")
-        case .neutral: return Color("BackgroundElevated")
-        case .secondary, .text: return Color.clear
-        }
-    }
-
-    var borderColor: Color {
-        switch self {
-        case .primary, .neutral, .text: return Color.clear
-        case .secondary: return Color("Brand")
-        }
-    }
-
-    var borderWidth: CGFloat {
-        switch self {
-        case .primary, .neutral, .text: return 0
-        case .secondary: return 2
+        case .secondary: return Color("TextPrimary")
+        case .text: return Color("Brand")
         }
     }
 }
@@ -57,6 +28,7 @@ enum AppButtonIconPosition {
 }
 
 struct AppButton: View {
+    private let cornerRadius: CGFloat = 16
     private let title: LocalizedStringKey
     private let table: String?
     private let action: () -> Void
@@ -83,7 +55,7 @@ struct AppButton: View {
             }
 
             Text(title, tableName: table)
-                .font(Fonts.ui(size: 17, relativeTo: .headline, weight: .semibold))
+                .font(Fonts.ui(size: 17, relativeTo: .headline, weight: .regular))
 
             if let icon = icon, iconPosition == .trailing {
                 TablerIcons(icon, size: 20, color: style.foregroundColor)
@@ -98,17 +70,8 @@ struct AppButton: View {
 
     var body: some View {
         Button(action: action) {
-            if style.usesGlass {
-                buttonContent
-                    .glassEffect(.regular.interactive().tint(style.glassTint), in: RoundedRectangle(cornerRadius: 12))
-            } else {
-                buttonContent
-                    .cornerRadius(12)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 12)
-                            .stroke(style.borderColor, lineWidth: style.borderWidth)
-                    )
-            }
+            buttonContent
+                .cornerRadius(cornerRadius)
         }
         .opacity(isDisabled ? 0.5 : 1.0)
         .disabled(isDisabled)

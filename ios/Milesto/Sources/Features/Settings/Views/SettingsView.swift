@@ -15,7 +15,7 @@ struct SettingsView: View {
             if let model {
                 content(model: model)
             } else {
-                Color("BackgroundBase").ignoresSafeArea()
+                Color("BackgroundPrimary").ignoresSafeArea()
             }
         }
         .task {
@@ -55,7 +55,7 @@ struct SettingsView: View {
                 )
             }
             .appScrollBackground()
-            .background(Color("BackgroundBase"))
+            .background(Color("BackgroundPrimary"))
             .contentMargins(.bottom, 80, for: .scrollContent)
             .navigationTitle("")
             .navigationBarHidden(true)

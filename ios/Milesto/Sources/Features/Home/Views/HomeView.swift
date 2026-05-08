@@ -14,7 +14,7 @@ struct HomeView: View {
                 }
                 .padding(.bottom, 40)
             }
-            .background(Color("BackgroundBase"))
+            .background(Color("BackgroundPrimary"))
         }
         .appBackground()
     }

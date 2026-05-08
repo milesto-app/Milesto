@@ -62,17 +62,17 @@ struct TranscriptionToggleButton: View {
         case .idle:
             TablerIcons(.microphone, size: size.iconSize, color: iconColor)
         case .recording:
-            TablerIcons(.playerStop, size: size.iconSize, color: Color("TextOnBrand"))
+            TablerIcons(.playerStop, size: size.iconSize, color: Color("TextPrimary"))
         case .transcribing:
             ProgressView()
-                .tint(Color("TextOnBrand"))
+                .tint(Color("TextPrimary"))
         case .error:
-            TablerIcons(.alertCircle, size: size.iconSize, color: Color("TextOnBrand"))
+            TablerIcons(.alertCircle, size: size.iconSize, color: Color("TextPrimary"))
         }
     }
 
     private var iconColor: Color {
-        (model?.state ?? .idle) == .idle ? Color("TextSecondary") : Color("TextOnBrand")
+        (model?.state ?? .idle) == .idle ? Color("TextSecondary") : Color("TextPrimary")
     }
 
     private var backgroundFill: Color {
