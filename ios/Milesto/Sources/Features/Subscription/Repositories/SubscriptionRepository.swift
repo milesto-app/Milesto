@@ -15,6 +15,12 @@ nonisolated struct SubscriptionStatusResponseDTO: Decodable {
     let autoRenew: Bool?
 }
 
+private enum SubscriptionSyncResult {
+    case success
+    case unauthorized
+    case failed
+}
+
 @MainActor
 @Observable
 final class SubscriptionRepository {
@@ -110,9 +116,11 @@ final class SubscriptionRepository {
             case let .success(verification):
                 if case let .verified(tx) = verification {
                     let synced = await syncTransactionWithRetry(jws: verification.jwsRepresentation)
-                    if synced {
+                    if synced == .success {
                         await tx.finish()
                         entitlementState = .subscribed
+                    } else if synced == .unauthorized {
+                        purchaseError = .accountMismatch
                     } else {
                         purchaseError = .verificationFailed
                     }
@@ -131,21 +139,29 @@ final class SubscriptionRepository {
     func restore() async {
         guard !isPurchasing else { return }
         isPurchasing = true
+        purchaseError = nil
         defer { isPurchasing = false }
         try? await AppStore.sync()
-        await processUnfinishedTransactions()
+        let unfinishedResult = await processUnfinishedTransactions()
+        if unfinishedResult == .unauthorized {
+            purchaseError = .accountMismatch
+            return
+        }
         await reconcileWithApi()
     }
 
-    private func syncTransactionWithRetry(jws: String) async -> Bool {
+    private func syncTransactionWithRetry(jws: String) async -> SubscriptionSyncResult {
         let delaysNanos: [UInt64] = [1_000_000_000, 2_000_000_000, 3_000_000_000]
         let body = VerifySubscriptionBodyDTO(jwsTransaction: jws)
 
         for (index, delay) in delaysNanos.enumerated() {
-            if Task.isCancelled { return false }
+            if Task.isCancelled { return .failed }
             do {
                 try await ApiClient.shared.requestVoid(method: "POST", path: "subscription/verify", body: body)
-                return true
+                return .success
+            } catch ApiError.unauthorized {
+                subscriptionLogger.warning("verify failed: transaction is not bound to the signed-in account")
+                return .unauthorized
             } catch {
                 subscriptionLogger.warning(
                     "verify attempt \(index + 1, privacy: .public) failed: \(String(describing: error), privacy: .public)"
@@ -157,21 +173,27 @@ final class SubscriptionRepository {
         }
 
         subscriptionLogger.error("verify failed after retries")
-        return false
+        return .failed
     }
 
-    private func processUnfinishedTransactions() async {
-        for await result in Transaction.unfinished {
-            guard case let .verified(tx) = result else { continue }
+    private func processUnfinishedTransactions() async -> SubscriptionSyncResult {
+        var syncResult: SubscriptionSyncResult = .success
+        for await transactionResult in Transaction.unfinished {
+            guard case let .verified(tx) = transactionResult else { continue }
             guard Self.productIds.contains(tx.productID) else {
                 await tx.finish()
                 continue
             }
-            let synced = await syncTransactionWithRetry(jws: result.jwsRepresentation)
-            if synced {
+            let synced = await syncTransactionWithRetry(jws: transactionResult.jwsRepresentation)
+            if synced == .success {
                 await tx.finish()
+            } else if synced == .unauthorized {
+                return .unauthorized
+            } else {
+                syncResult = .failed
             }
         }
+        return syncResult
     }
 
     func reconcileWithApi() async {
@@ -214,7 +236,12 @@ final class SubscriptionRepository {
         }
 
         if let entitlement = await currentVerifiedEntitlement() {
-            _ = await syncTransactionWithRetry(jws: entitlement.jws)
+            let synced = await syncTransactionWithRetry(jws: entitlement.jws)
+            if synced == .unauthorized {
+                purchaseError = .accountMismatch
+                entitlementState = .notSubscribed
+                return
+            }
             let refetched: SubscriptionStatusResponseDTO
             do {
                 refetched = try await ApiClient.shared.request(method: "GET", path: "subscription/status")
@@ -268,9 +295,11 @@ final class SubscriptionRepository {
 
     private func handleTransactionUpdate(_ tx: Transaction, jws: String) async {
         let synced = await syncTransactionWithRetry(jws: jws)
-        if synced {
+        if synced == .success {
             await tx.finish()
             await refreshEntitlement()
+        } else if synced == .unauthorized {
+            purchaseError = .accountMismatch
         }
     }
 }

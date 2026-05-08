@@ -14,6 +14,7 @@ struct PaywallView: View {
     @State private var glowScale: CGFloat = 0.9
     @State private var glowOpacity: Double = 0.55
     @State private var showError = false
+    @State private var errorMessage: String?
 
     var body: some View {
         Group {
@@ -74,16 +75,18 @@ struct PaywallView: View {
                 .padding(.top, 8)
                 .padding(.trailing, 16)
         }
-        .onChange(of: model.purchaseErrorMessage) { _, newValue in
-            showError = newValue != nil
+        .onChange(of: env.subscription.purchaseError) { _, _ in
+            errorMessage = model.purchaseErrorMessage
+            showError = errorMessage != nil
         }
         .alert(
             String(localized: "paywall.error.title", table: "Paywall"),
             isPresented: $showError,
-            presenting: model.purchaseErrorMessage
+            presenting: errorMessage
         ) { _ in
             Button(String(localized: "common.ok", table: "Common"), role: .cancel) {
                 model.dismissPurchaseError()
+                errorMessage = nil
             }
         } message: { message in
             AppText(verbatim: message, style: .body)

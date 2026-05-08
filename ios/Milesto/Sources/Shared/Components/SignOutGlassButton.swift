@@ -10,7 +10,7 @@ struct SignOutGlassButton: View {
         Button {
             showConfirm = true
         } label: {
-            TablerIcons(.logout, size: 24, color: Color("TextPrimary"))
+            TablerIcons(.x, size: 24, color: Color("TextPrimary"))
                 .frame(width: 44, height: 44)
                 .glassEffect(.regular.interactive(), in: .circle)
         }
