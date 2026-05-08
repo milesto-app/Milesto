@@ -1,0 +1,17 @@
+{
+  "$schema": "https://unpkg.com/knip@6/schema.json",
+  "ignoreDependencies": [
+    "@eslint/eslintrc",
+    "eslint-config-prettier",
+    "eslint-plugin-prettier",
+    "source-map-support",
+    "ts-loader",
+    "ts-node",
+    "tsconfig-paths",
+    "tsx"
+  ],
+  "ignoreExportsUsedInFile": true,
+  "ignoreIssues": {
+    "src/supabase/database.types.ts": ["exports", "types"]
+  }
+}

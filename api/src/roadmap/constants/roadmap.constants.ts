@@ -3,6 +3,3 @@ export const ROADMAP_STATUS = {
   COMPLETE: "complete",
   FAILED: "failed",
 } as const;
-
-export type RoadmapStatusValue =
-  (typeof ROADMAP_STATUS)[keyof typeof ROADMAP_STATUS];

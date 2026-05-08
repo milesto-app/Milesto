@@ -75,5 +75,3 @@ export async function refreshSubscription(userId: string): Promise<unknown> {
     cache: "no-store",
   });
 }
-
-export const SUBSCRIPTIONS_CACHE_TAG = SUBSCRIPTIONS_TAG;

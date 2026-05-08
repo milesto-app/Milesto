@@ -1,0 +1,10 @@
+{
+  "$schema": "https://unpkg.com/knip@6/schema.json",
+  "ignoreDependencies": ["@eslint/eslintrc"],
+  "ignoreExportsUsedInFile": true,
+  "ignoreIssues": {
+    "src/components/ui/**": ["exports", "types"],
+    "src/lib/admin-api/types.ts": ["types"],
+    "src/lib/supabase/database.types.ts": ["exports", "types"]
+  }
+}
