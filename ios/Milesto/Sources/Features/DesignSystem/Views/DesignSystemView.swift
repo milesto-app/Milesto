@@ -2,7 +2,6 @@ import SwiftUI
 
 struct DesignSystemView: View {
     @Environment(\.dismiss) private var dismiss
-    @State private var preferredScheme: ColorScheme = .light
     @State private var lastTappedButton: String = "tap a button"
     @State private var pillTint: Color = .init("Brand")
 
@@ -49,7 +48,6 @@ struct DesignSystemView: View {
         }
         .scrollDismissesKeyboard(.interactively)
         .appBackground()
-        .preferredColorScheme(preferredScheme)
     }
 
     private var topBar: some View {
@@ -72,16 +70,8 @@ struct DesignSystemView: View {
 
             Spacer()
 
-            Button {
-                preferredScheme = preferredScheme == .light ? .dark : .light
-            } label: {
-                TablerIcons(
-                    preferredScheme == .light ? .moon : .sun,
-                    size: 24,
-                    color: Color("TextPrimary")
-                )
+            Color.clear
                 .frame(width: 44, height: 44)
-            }
         }
         .padding(.top, 8)
     }
