@@ -268,10 +268,28 @@ final class SubscriptionRepository {
     }
 
     private static func parseISO8601(_ string: String) -> Date? {
-        let withFraction = ISO8601DateFormatter()
-        withFraction.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
-        if let date = withFraction.date(from: string) { return date }
-        return ISO8601DateFormatter().date(from: string)
+        for candidate in iso8601Candidates(from: string) {
+            let withFraction = ISO8601DateFormatter()
+            withFraction.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+            if let date = withFraction.date(from: candidate) { return date }
+            if let date = ISO8601DateFormatter().date(from: candidate) { return date }
+        }
+        return nil
+    }
+
+    private static func iso8601Candidates(from string: String) -> [String] {
+        var candidates = [string]
+        let postgresTimestamp = string.replacingOccurrences(of: " ", with: "T")
+        candidates.append(postgresTimestamp)
+
+        let normalizedTimezone = postgresTimestamp.replacingOccurrences(
+            of: #"([+-]\d{2})$"#,
+            with: "$1:00",
+            options: .regularExpression
+        )
+        candidates.append(normalizedTimezone)
+
+        return candidates
     }
 
     private func currentVerifiedEntitlement() async -> (transaction: Transaction, jws: String)? {

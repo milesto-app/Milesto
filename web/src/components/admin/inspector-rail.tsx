@@ -5,7 +5,6 @@ import {
   createContext,
   useCallback,
   useContext,
-  useEffect,
   useMemo,
   useState,
 } from "react";
@@ -34,21 +33,6 @@ function useInspectorContext(): InspectorContextValue {
   const ctx = useContext(InspectorContext);
   if (!ctx) throw new Error("useInspector outside InspectorRailProvider");
   return ctx;
-}
-
-export function useInspector(content: InspectorContent | null): {
-  inspectId: string | null;
-  open: (id: string) => void;
-  close: () => void;
-} {
-  const ctx = useInspectorContext();
-
-  useEffect(() => {
-    ctx.setRegistered(content);
-    return () => ctx.setRegistered(null);
-  }, [ctx, content]);
-
-  return { inspectId: ctx.inspectId, open: ctx.open, close: ctx.close };
 }
 
 export function InspectorRailProvider({ children }: { children: ReactNode }) {
@@ -131,24 +115,3 @@ function RailOutlet() {
     </aside>
   );
 }
-
-export const InspectorSection = ({
-  title,
-  children,
-}: {
-  title?: string;
-  children: ReactNode;
-}) => (
-  <section className="mb-5">
-    {title ? (
-      <h3 className="mb-2 text-[10px] uppercase tracking-[0.14em] text-text-tertiary">
-        {title}
-      </h3>
-    ) : null}
-    {children}
-  </section>
-);
-
-export const InspectorActions = ({ children }: { children: ReactNode }) => (
-  <div className="mt-4 flex flex-col gap-2">{children}</div>
-);

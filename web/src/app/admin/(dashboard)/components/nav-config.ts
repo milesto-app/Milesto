@@ -125,10 +125,3 @@ export const ADMIN_SETTINGS_ITEMS: AdminNavItem[] = [
     keywords: ["roles", "permissions", "team"],
   },
 ];
-
-export function flattenNavItems(): AdminNavItem[] {
-  return [
-    ...ADMIN_NAV_GROUPS.flatMap((group) => group.items),
-    ...ADMIN_SETTINGS_ITEMS,
-  ];
-}

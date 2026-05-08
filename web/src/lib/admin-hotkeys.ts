@@ -46,12 +46,4 @@ export function useHotkeys(binding: HotkeyBinding): void {
   }, [register, keys, scope, description]);
 }
 
-export function useScope(scope: HotkeyScope): void {
-  const { setActiveScope } = useHotkeyContext();
-  useEffect(() => {
-    setActiveScope(scope);
-    return () => setActiveScope(null);
-  }, [setActiveScope, scope]);
-}
-
 export { HotkeyContext };

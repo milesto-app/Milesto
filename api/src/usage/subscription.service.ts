@@ -30,6 +30,7 @@ import {
 
 const TYPE_AUTO_RENEWABLE = "Auto-Renewable Subscription";
 const OWNERSHIP_FAMILY_SHARED = "FAMILY_SHARED";
+const MAX_ORIGINAL_TRANSACTION_OWNERS = 10;
 const UUID_REGEX =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -38,6 +39,12 @@ interface SubscriptionStatusResponse {
   expiresAt: string | null;
   productId: string | null;
   autoRenew: boolean | null;
+}
+
+interface OriginalTransactionOwner {
+  id: string;
+  subscription_status: string;
+  subscription_expires_at: string | null;
 }
 
 @Injectable()
@@ -78,12 +85,7 @@ export class SubscriptionService {
     const transaction = await this.verifyTransactionWithFallback(jws);
     this.logger.debug(this.formatTransactionDiagnostic(transaction, userId));
     this.assertTransactionClaims(transaction);
-    this.assertAppAccountToken(transaction.appAccountToken, userId);
-
-    await this.assertOriginalTransactionNotOwnedByOther(
-      transaction.originalTransactionId,
-      userId,
-    );
+    await this.assertTransactionOwnership(transaction, userId);
 
     const signedDateIso = this.toIsoOrNull(transaction.signedDate);
     const status = this.deriveStatusFromTransaction(transaction);
@@ -255,7 +257,7 @@ export class SubscriptionService {
         data.subscription_status,
         data.subscription_expires_at,
       ),
-      expiresAt: data.subscription_expires_at,
+      expiresAt: this.toIsoTimestampOrNull(data.subscription_expires_at),
       productId: data.subscription_product_id,
       autoRenew: data.subscription_auto_renew_status,
     };
@@ -438,23 +440,63 @@ export class SubscriptionService {
     return (data?.length ?? 0) > 0;
   }
 
-  private async assertOriginalTransactionNotOwnedByOther(
-    originalTransactionId: string | undefined,
+  private async assertTransactionOwnership(
+    transaction: JWSTransactionDecodedPayload,
     userId: string,
   ): Promise<void> {
-    if (originalTransactionId === undefined || originalTransactionId === "") {
+    const owners = await this.findOriginalTransactionOwners(
+      transaction.originalTransactionId,
+    );
+    const currentOwner = owners.find((owner) => owner.id === userId) ?? null;
+    const activeOtherOwner = owners.find(
+      (owner) => owner.id !== userId && this.isActiveOwner(owner),
+    );
+
+    if (activeOtherOwner !== undefined) {
+      this.logger.warn(
+        `Rejecting replay originalTx=${transaction.originalTransactionId ?? "unknown"} claimed by user=${userId} but actively owned by user=${activeOtherOwner.id}`,
+      );
+      throw new UnauthorizedException(
+        "Transaction already bound to another user",
+      );
+    }
+
+    if (this.isMatchingAppAccountToken(transaction.appAccountToken, userId)) {
       return;
+    }
+
+    if (currentOwner !== null) {
+      this.logger.log(
+        `Accepting tx=${transaction.transactionId ?? "unknown"} for user=${userId} via existing original transaction ownership`,
+      );
+      return;
+    }
+
+    if (owners.length > 0) {
+      this.logger.log(
+        `Transferring expired originalTx=${transaction.originalTransactionId ?? "unknown"} to user=${userId}`,
+      );
+      return;
+    }
+
+    this.rejectAppAccountToken(transaction.appAccountToken, userId);
+  }
+
+  private async findOriginalTransactionOwners(
+    originalTransactionId: string | undefined,
+  ): Promise<OriginalTransactionOwner[]> {
+    if (originalTransactionId === undefined || originalTransactionId === "") {
+      return [];
     }
 
     const supabase = this.supabaseService.getAdminClient();
     const { data, error } = await supabase
       .from("profiles")
-      .select("id")
+      .select("id, subscription_status, subscription_expires_at")
       .eq("subscription_original_transaction_id", originalTransactionId)
-      .neq("id", userId)
-      .maybeSingle();
+      .limit(MAX_ORIGINAL_TRANSACTION_OWNERS);
 
-    if (error && error.code !== SUPABASE_NOT_FOUND) {
+    if (error) {
       this.logger.error(
         `Collision check failed originalTx=${originalTransactionId}: ${error.message}`,
       );
@@ -463,14 +505,7 @@ export class SubscriptionService {
       );
     }
 
-    if (data) {
-      this.logger.warn(
-        `Rejecting replay originalTx=${originalTransactionId} claimed by user=${userId} but owned by user=${data.id}`,
-      );
-      throw new UnauthorizedException(
-        "Transaction already bound to another user",
-      );
-    }
+    return data;
   }
 
   private assertTransactionClaims(tx: JWSTransactionDecodedPayload): void {
@@ -516,26 +551,46 @@ export class SubscriptionService {
     return `Verifying tx=${txId} user=${userId} bundle=${bundle} product=${product} env=${env} type=${type} ownership=${ownership} appAccountToken=${token}`;
   }
 
-  private assertAppAccountToken(
+  private isMatchingAppAccountToken(
     appAccountToken: string | undefined,
     userId: string,
-  ): void {
+  ): boolean {
     if (appAccountToken === undefined || appAccountToken === "") {
-      this.logger.warn(`Reject user=${userId}: missing appAccountToken`);
-      throw new UnauthorizedException("Transaction not bound to this user");
+      return false;
     }
     if (!UUID_REGEX.test(appAccountToken) || !UUID_REGEX.test(userId)) {
+      return false;
+    }
+    return appAccountToken.toLowerCase() === userId.toLowerCase();
+  }
+
+  private rejectAppAccountToken(
+    appAccountToken: string | undefined,
+    userId: string,
+  ): never {
+    if (appAccountToken === undefined || appAccountToken === "") {
+      this.logger.warn(`Reject user=${userId}: missing appAccountToken`);
+    } else if (!UUID_REGEX.test(appAccountToken) || !UUID_REGEX.test(userId)) {
       this.logger.warn(
         `Reject user=${userId}: malformed UUID token=${appAccountToken}`,
       );
-      throw new UnauthorizedException("Transaction not bound to this user");
-    }
-    if (appAccountToken.toLowerCase() !== userId.toLowerCase()) {
+    } else {
       this.logger.warn(
         `Reject user=${userId}: appAccountToken mismatch token=${appAccountToken}`,
       );
-      throw new UnauthorizedException("Transaction not bound to this user");
     }
+    throw new UnauthorizedException("Transaction not bound to this user");
+  }
+
+  private isActiveOwner(owner: OriginalTransactionOwner): boolean {
+    const status = this.deriveEffectiveStatus(
+      owner.subscription_status,
+      owner.subscription_expires_at,
+    );
+    return (
+      status === SUBSCRIPTION_STATUS.ACTIVE ||
+      status === SUBSCRIPTION_STATUS.GRACE_PERIOD
+    );
   }
 
   private isAllowedProductId(productId: string): boolean {
@@ -625,6 +680,17 @@ export class SubscriptionService {
       return null;
     }
     return new Date(ms).toISOString();
+  }
+
+  private toIsoTimestampOrNull(value: string | null): string | null {
+    if (value === null) {
+      return null;
+    }
+    const timestamp = Date.parse(value);
+    if (Number.isNaN(timestamp)) {
+      return null;
+    }
+    return new Date(timestamp).toISOString();
   }
 
   private stringOrNull(value: string | number | undefined): string | null {

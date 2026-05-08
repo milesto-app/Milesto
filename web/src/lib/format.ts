@@ -36,11 +36,3 @@ export function formatDate(value: string | Date | null | undefined): string {
   if (!date) return "—";
   return format(date, "MMM d, yyyy");
 }
-
-export function formatShortDate(
-  value: string | Date | null | undefined,
-): string {
-  const date = parseDate(value);
-  if (!date) return "—";
-  return format(date, "M/d");
-}
