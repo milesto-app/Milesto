@@ -113,7 +113,7 @@ struct AuthEmailView: View {
             .animation(.easeInOut(duration: 0.25), value: mode)
 
             if isLoading {
-                ProgressView()
+                AppLoader()
             }
 
             Spacer()

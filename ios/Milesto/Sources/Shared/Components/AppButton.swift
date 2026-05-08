@@ -67,7 +67,7 @@ struct AppButton: View {
             .opacity(isLoading ? 0 : 1)
 
             if isLoading {
-                AppButtonLoadingIndicator(color: style.foregroundColor)
+                AppLoader(color: style.foregroundColor)
                     .transition(.opacity)
             }
         }
@@ -110,23 +110,5 @@ struct AppButton: View {
         var copy = self
         copy.isLoading = isLoading
         return copy
-    }
-}
-
-private struct AppButtonLoadingIndicator: View {
-    let color: Color
-    @State private var rotation: Angle = .zero
-
-    var body: some View {
-        Circle()
-            .trim(from: 0.18, to: 0.82)
-            .stroke(color, style: StrokeStyle(lineWidth: 2.4, lineCap: .round))
-            .frame(width: 20, height: 20)
-            .rotationEffect(rotation)
-            .onAppear {
-                withAnimation(.linear(duration: 0.75).repeatForever(autoreverses: false)) {
-                    rotation = .degrees(360)
-                }
-            }
     }
 }

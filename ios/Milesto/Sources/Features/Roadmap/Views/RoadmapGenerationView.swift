@@ -72,9 +72,7 @@ struct RoadmapGenerationView: View {
 
             Spacer()
 
-            ProgressView()
-                .controlSize(.large)
-                .tint(Color("Brand"))
+            AppLoader(size: 32, lineWidth: 3)
                 .padding(.bottom, 40)
         }
         .padding(.horizontal, 24)

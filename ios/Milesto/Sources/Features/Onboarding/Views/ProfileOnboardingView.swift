@@ -62,7 +62,7 @@ struct ProfileOnboardingView: View {
                 if model.isSaving {
                     Color("TextPrimary").opacity(0.3)
                         .ignoresSafeArea()
-                    ProgressView()
+                    AppLoader(size: 28)
                 }
             }
             .overlay(alignment: .topTrailing) {

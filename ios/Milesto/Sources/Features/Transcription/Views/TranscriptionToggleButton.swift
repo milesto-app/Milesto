@@ -64,8 +64,7 @@ struct TranscriptionToggleButton: View {
         case .recording:
             TablerIcons(.playerStop, size: size.iconSize, color: Color("TextPrimary"))
         case .transcribing:
-            ProgressView()
-                .tint(Color("TextPrimary"))
+            AppLoader(size: size.iconSize, color: Color("TextPrimary"))
         case .error:
             TablerIcons(.alertCircle, size: size.iconSize, color: Color("TextPrimary"))
         }

@@ -26,7 +26,7 @@ struct StatsView: View {
         NavigationStack {
             ZStack {
                 if model.isLoading && model.stats == nil {
-                    ProgressView()
+                    AppLoader(size: 28)
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
                 } else if let stats = model.stats {
                     loadedContent(model: model, stats: stats)

@@ -13,7 +13,7 @@ struct SettingsProfileHeaderSection: View {
             if profile == nil {
                 HStack {
                     Spacer()
-                    ProgressView()
+                    AppLoader()
                     Spacer()
                 }
                 .padding(.vertical, 32)

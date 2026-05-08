@@ -117,7 +117,7 @@ struct RoadmapView: View {
         NavigationStack {
             ZStack(alignment: .top) {
                 if model.isLoading && model.milestones.isEmpty {
-                    ProgressView()
+                    AppLoader(size: 28)
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
                 } else {
                     ScrollView(showsIndicators: false) {

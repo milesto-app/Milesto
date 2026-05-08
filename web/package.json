@@ -9,7 +9,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint ."
+    "lint": "eslint . --cache --cache-location node_modules/.cache/eslint"
   },
   "dependencies": {
     "@base-ui/react": "^1.4.1",

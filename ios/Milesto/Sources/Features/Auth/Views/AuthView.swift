@@ -91,8 +91,7 @@ private struct AuthProviderButton: View {
                 .opacity(isLoading ? 0 : 1)
 
                 if isLoading {
-                    ProgressView()
-                        .tint(Color("TextPrimary"))
+                    AppLoader(color: Color("TextPrimary"))
                 }
             }
         }
