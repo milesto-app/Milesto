@@ -44,7 +44,8 @@ struct WeeklyTasksCard: View {
             header
 
             if isLoading && tasks.isEmpty {
-                ProgressView().padding(.top, 24)
+                AppLoader()
+                    .padding(.top, 24)
             } else if tasks.isEmpty {
                 AppText(emptyText, table: emptyTextTable, style: .subheadline)
                     .color(Color("TextSecondary"))
@@ -131,7 +132,7 @@ struct WeeklyTasksCard: View {
             .glassEffect(
                 .regular
                     .interactive()
-                    .tint(Color("BackgroundBase").opacity(0.35)),
+                    .tint(Color("BackgroundPrimary").opacity(0.35)),
                 in: shape
             )
             .contentShape(shape)

@@ -20,7 +20,7 @@ struct HomeWeeklyTasksCard: View {
                     onToggle: { task in model.toggle(task) }
                 )
             } else {
-                ProgressView()
+                AppLoader()
                     .padding(.top, 40)
             }
         }

@@ -30,10 +30,11 @@ struct IntakeContainerView: View {
     }
 
     private func content(model: IntakeContainerViewModel) -> some View {
-        Group {
+        ZStack {
             switch model.phase {
             case .loading:
                 IntakeLoadingView()
+                    .transition(.opacity)
 
             case let .answering(batch):
                 IntakeBatchView(
@@ -45,21 +46,25 @@ struct IntakeContainerView: View {
                     }
                 )
                 .id(batch.batchId)
-                .transition(.push(from: .trailing))
+                .transition(.opacity)
 
             case .submitting:
                 IntakeLoadingView()
+                    .transition(.opacity)
 
             case .generatingProfile:
-                IntakeLoadingView(isGeneratingProfile: true)
+                IntakeLoadingView()
+                    .transition(.opacity)
 
             case .completed:
                 IntakeCompletionView(onContinue: onComplete)
+                    .transition(.opacity)
 
             case let .error(message):
                 IntakeErrorView(message: message, onRetry: {
                     Task { await model.loadNextBatch() }
                 })
+                .transition(.opacity)
 
             case .profileFailed:
                 IntakeErrorView(
@@ -68,6 +73,7 @@ struct IntakeContainerView: View {
                         Task { await model.retryProfileGeneration() }
                     }
                 )
+                .transition(.opacity)
             }
         }
         .appBackground()

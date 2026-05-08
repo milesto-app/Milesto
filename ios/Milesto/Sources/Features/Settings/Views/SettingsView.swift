@@ -7,6 +7,7 @@ struct SettingsView: View {
     @State private var model: SettingsViewModel?
     @State private var showSignOutAlert = false
     @State private var showDeleteGoalAlert = false
+    @State private var showDesignSystem = false
     @State private var activeSheet: SettingsSheet?
 
     var body: some View {
@@ -14,7 +15,7 @@ struct SettingsView: View {
             if let model {
                 content(model: model)
             } else {
-                Color("BackgroundBase").ignoresSafeArea()
+                Color("BackgroundPrimary").ignoresSafeArea()
             }
         }
         .task {
@@ -49,11 +50,12 @@ struct SettingsView: View {
                 SettingsDangerSection(
                     isDeleting: model.isDeleting,
                     onDeleteGoal: { showDeleteGoalAlert = true },
-                    onSignOut: { showSignOutAlert = true }
+                    onSignOut: { showSignOutAlert = true },
+                    onUnlockDesignSystem: { showDesignSystem = true }
                 )
             }
             .appScrollBackground()
-            .background(Color("BackgroundBase"))
+            .background(Color("BackgroundPrimary"))
             .contentMargins(.bottom, 80, for: .scrollContent)
             .navigationTitle("")
             .navigationBarHidden(true)
@@ -88,6 +90,9 @@ struct SettingsView: View {
                 }
                 .appPresentationBackground()
                 .presentationDetents(sheet == .coach || sheet == .language ? [.large] : [.medium, .large])
+            }
+            .fullScreenCover(isPresented: $showDesignSystem) {
+                DesignSystemView()
             }
         }
         .appBackground()

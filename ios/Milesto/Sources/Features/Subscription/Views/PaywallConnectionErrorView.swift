@@ -27,5 +27,10 @@ struct PaywallConnectionErrorView: View {
             .padding(.horizontal, 32)
         }
         .appBackground()
+        .overlay(alignment: .topTrailing) {
+            SignOutGlassButton()
+                .padding(.top, 8)
+                .padding(.trailing, 16)
+        }
     }
 }

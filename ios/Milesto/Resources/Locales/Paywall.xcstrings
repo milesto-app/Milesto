@@ -52,6 +52,23 @@
         }
       }
     },
+    "paywall.error.accountMismatch" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This Apple subscription is already linked to another Milesto account. Sign in with the original account, or contact support."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cet abonnement Apple est déjà lié à un autre compte Milesto. Connecte-toi avec le compte d'origine ou contacte le support."
+          }
+        }
+      }
+    },
     "paywall.error.title" : {
       "extractionState" : "manual",
       "localizations" : {

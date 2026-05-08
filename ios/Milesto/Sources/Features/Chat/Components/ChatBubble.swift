@@ -13,7 +13,7 @@ struct ChatBubble: View {
 
             if message.isUser {
                 AppText(verbatim: content, style: .body)
-                    .color(Color("TextOnBrand"))
+                    .color(Color("TextPrimary"))
                     .padding(12)
                     .background(
                         RoundedRectangle(cornerRadius: 16)

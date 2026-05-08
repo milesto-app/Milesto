@@ -1,9 +1,9 @@
 import SwiftUI
 
-struct GoalIntakeFlowView: View {
+struct IntakeFlowView: View {
     let existingGoalId: String?
-    let onClose: (() -> Void)?
     let onComplete: (String) -> Void
+    let onStartOver: () -> Void
 
     @Environment(AppEnv.self) private var env
     @State private var model: GoalIntakeFlowViewModel?
@@ -12,8 +12,9 @@ struct GoalIntakeFlowView: View {
         Group {
             if let model {
                 content(model: model)
+                    .appStartTransition()
             } else {
-                Color("BackgroundBase").ignoresSafeArea()
+                Color("BackgroundPrimary").ignoresSafeArea()
             }
         }
         .task {
@@ -29,7 +30,7 @@ struct GoalIntakeFlowView: View {
     private func content(model: GoalIntakeFlowViewModel) -> some View {
         @Bindable var bindable = model
         NavigationStack {
-            Group {
+            ZStack {
                 switch model.step {
                 case .goalSetup:
                     GoalSetupView(
@@ -39,31 +40,33 @@ struct GoalIntakeFlowView: View {
                             Task { await model.createGoal() }
                         }
                     )
+                    .transition(.opacity)
                 case let .motivation(goalId):
                     IntakeMotivationView(
                         motivationQuote: $bindable.motivationQuote,
                         isSaving: model.isSavingMotivation,
                         onContinue: {
                             Task { await model.saveMotivation(goalId: goalId) }
-                        },
-                        onSkip: { model.advanceToIntake(goalId: goalId) }
+                        }
                     )
+                    .transition(.opacity)
                 case let .intake(goalId):
                     IntakeContainerView(goalId: goalId, onComplete: {
                         onComplete(goalId)
                     })
+                    .transition(.opacity)
                 }
             }
-            .overlay(alignment: .topTrailing) {
-                if let onClose {
-                    Button(action: onClose) {
-                        TablerIcons(.x, size: 24, color: Color("TextPrimary"))
-                            .frame(width: 44, height: 44)
-                            .glassEffect(.regular.interactive(), in: .circle)
+            .animation(.easeInOut(duration: 0.3), value: model.step.identifier)
+            .overlay(alignment: .top) {
+                IntakeTopBar(
+                    canRestart: model.canRestart,
+                    onStartOver: {
+                        if await model.restart() {
+                            onStartOver()
+                        }
                     }
-                    .padding(.top, 8)
-                    .padding(.trailing, 16)
-                }
+                )
             }
         }
         .appBackground()

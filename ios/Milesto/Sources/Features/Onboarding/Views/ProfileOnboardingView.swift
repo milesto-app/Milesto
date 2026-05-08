@@ -13,8 +13,9 @@ struct ProfileOnboardingView: View {
         Group {
             if let model {
                 content(model: model)
+                    .appStartTransition()
             } else {
-                Color("BackgroundBase").ignoresSafeArea()
+                Color("BackgroundPrimary").ignoresSafeArea()
             }
         }
         .task {
@@ -61,8 +62,13 @@ struct ProfileOnboardingView: View {
                 if model.isSaving {
                     Color("TextPrimary").opacity(0.3)
                         .ignoresSafeArea()
-                    ProgressView()
+                    AppLoader(size: 28)
                 }
+            }
+            .overlay(alignment: .topTrailing) {
+                SignOutGlassButton()
+                    .padding(.top, 8)
+                    .padding(.trailing, 16)
             }
         }
         .appBackground()

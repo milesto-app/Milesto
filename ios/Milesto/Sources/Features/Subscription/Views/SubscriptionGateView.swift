@@ -38,7 +38,7 @@ struct SubscriptionGateView<Content: View>: View {
     private var gateOverlay: some View {
         switch env.subscription.entitlementState {
         case .unknown:
-            Color("BackgroundBase").ignoresSafeArea()
+            Color("BackgroundPrimary").ignoresSafeArea()
         case .subscribed:
             EmptyView()
         case .notSubscribed:
@@ -46,7 +46,7 @@ struct SubscriptionGateView<Content: View>: View {
                 .transition(.opacity)
         case .connectionError:
             if env.subscription.isReconcilingEntitlement {
-                Color("BackgroundBase").ignoresSafeArea()
+                Color("BackgroundPrimary").ignoresSafeArea()
             } else {
                 PaywallConnectionErrorView {
                     await env.subscription.reconcileWithApi()

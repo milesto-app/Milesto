@@ -5,17 +5,15 @@ struct IntakeErrorView: View {
     let onRetry: () -> Void
 
     var body: some View {
-        VStack(spacing: 24) {
+        VStack(alignment: .leading, spacing: 24) {
             Spacer()
 
             TablerIcons(.alertTriangle, size: 48, color: Color("Error"))
 
             AppText("intake.error.title", table: "Intake", style: .title)
-                .alignment(.center)
 
             AppText(verbatim: message, style: .subheadline)
                 .color(Color("TextSecondary"))
-                .alignment(.center)
 
             Spacer()
 
@@ -23,6 +21,7 @@ struct IntakeErrorView: View {
                 .fullWidth()
                 .padding(.bottom, 24)
         }
+        .frame(maxWidth: .infinity, alignment: .leading)
         .appBackground()
         .padding(.horizontal, 24)
     }

@@ -14,7 +14,7 @@ struct DebriefSheetView: View {
             if let model {
                 content(model: model)
             } else {
-                Color("BackgroundBase").ignoresSafeArea()
+                Color("BackgroundPrimary").ignoresSafeArea()
             }
         }
         .task {
@@ -60,7 +60,7 @@ struct DebriefSheetView: View {
                 }
                 .padding(24)
             }
-            .background(Color("BackgroundBase"))
+            .background(Color("BackgroundPrimary"))
         }
         .appBackground()
         .appPresentationBackground()

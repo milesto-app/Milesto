@@ -37,16 +37,20 @@ struct IntakeBatchView: View {
     }
 
     var body: some View {
-        VStack(spacing: 0) {
-            IntakeProgressBar(current: currentQuestionIndex + 1, total: questions.count)
-                .padding(.horizontal, 24)
-                .padding(.top, 16)
-                .padding(.bottom, 12)
-
+        VStack(alignment: .leading, spacing: 24) {
             if let question = currentQuestion {
+                VStack(alignment: .leading, spacing: 8) {
+                    AppText(verbatim: question.questionText, style: .title)
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.top, 8)
+                .padding(.bottom, 16)
+                .padding(.leading, 24)
+                .padding(.trailing, 76)
+
                 IntakeQuestionCard(question: question, answers: answers, setAnswer: setAnswer)
                     .id(question.id)
-                    .transition(.push(from: .trailing))
+                    .transition(.opacity)
                     .padding(.horizontal, 24)
             }
 
@@ -57,7 +61,6 @@ struct IntakeBatchView: View {
                 .disabled(!currentAnswered)
                 .padding(.horizontal, 24)
                 .padding(.bottom, 24)
-                .padding(.top, 12)
         }
         .appBackground()
         .animation(.easeInOut(duration: 0.3), value: currentQuestionIndex)

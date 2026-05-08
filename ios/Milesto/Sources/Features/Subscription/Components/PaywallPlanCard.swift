@@ -52,7 +52,7 @@ struct PaywallPlanCard: View {
             .overlay(alignment: .topTrailing) {
                 if let badgeKey {
                     AppPill(badgeKey, table: "Paywall", tint: Color("Brand"), icon: .gift)
-                        .background(Capsule().fill(Color("BackgroundBase")))
+                        .background(Capsule().fill(Color("BackgroundPrimary")))
                         .offset(x: 8, y: -10)
                 }
             }

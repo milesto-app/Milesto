@@ -1,11 +1,11 @@
+import Auth
 import AuthenticationServices
 import Foundation
-import Supabase
 
 @MainActor
 @Observable
 final class AuthRepository {
-    private let client: Supabase.SupabaseClient
+    private let client: AuthClient
     private let oauth: OAuthClient
 
     private(set) var status: AuthState = .authenticating
@@ -15,28 +15,28 @@ final class AuthRepository {
         return nil
     }
 
-    init(client: Supabase.SupabaseClient? = nil, oauth: OAuthClient? = nil) {
+    init(client: AuthClient? = nil, oauth: OAuthClient? = nil) {
         self.client = client ?? SupabaseClient.client
         self.oauth = oauth ?? OAuthClient()
         Task { await observeAuthState() }
     }
 
-    func signUp(email: String, password: String) async throws -> String {
-        try await authenticate {
-            try await self.client.auth.signUp(email: email, password: password).user.id.uuidString
-        }
-    }
-
-    func signIn(email: String, password: String) async throws -> String {
-        try await authenticate {
-            try await self.client.auth.signIn(email: email, password: password).user.id.uuidString
+    func sendMagicLink(email: String) async throws {
+        do {
+            try await client.signInWithOTP(
+                email: email,
+                redirectTo: URL(string: "milesto://auth-callback")
+            )
+        } catch {
+            status = .error(error.localizedDescription)
+            throw AuthError(from: error)
         }
     }
 
     func signInWithApple() async throws -> String {
         let credentials = try await oauth.performAppleSignIn()
         return try await authenticate {
-            try await self.client.auth.signInWithIdToken(
+            try await self.client.signInWithIdToken(
                 credentials: OpenIDConnectCredentials(
                     provider: .apple,
                     idToken: credentials.idToken,
@@ -48,7 +48,7 @@ final class AuthRepository {
 
     func signInWithGoogle() async throws {
         do {
-            try await client.auth.signInWithOAuth(
+            try await client.signInWithOAuth(
                 provider: .google,
                 redirectTo: URL(string: "milesto://auth-callback")
             )
@@ -61,8 +61,17 @@ final class AuthRepository {
     }
 
     func signOut() async throws {
-        try await client.auth.signOut()
+        try await client.signOut()
         clearSession()
+    }
+
+    func handleAuthCallback(_ url: URL) async {
+        do {
+            let session = try await client.session(from: url)
+            status = .authenticated(userId: session.user.id.uuidString)
+        } catch {
+            status = .error(error.localizedDescription)
+        }
     }
 
     func consumePendingAppleName() -> (firstName: String?, lastName: String?) {
@@ -87,7 +96,7 @@ final class AuthRepository {
     }
 
     private func observeAuthState() async {
-        for await (event, session) in client.auth.authStateChanges {
+        for await (event, session) in client.authStateChanges {
             switch event {
             case .initialSession, .signedIn:
                 if let userId = session?.user.id.uuidString {

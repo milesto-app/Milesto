@@ -3,44 +3,31 @@ import SwiftUI
 private enum AuthLoadingTarget: Equatable {
     case apple
     case google
-    case email
-}
-
-private enum AuthEmailAction {
-    case signUp
-    case signIn
 }
 
 struct AuthContainerView: View {
     @Environment(AppEnv.self) private var env
 
-    @State private var showEmailAuth = false
+    @State private var isEmailSheetPresented = false
     @State private var loadingTarget: AuthLoadingTarget?
-    @State private var email = ""
-    @State private var password = ""
     @State private var errorMessage: String?
     @State private var showErrorAlert = false
 
     var body: some View {
-        NavigationStack {
-            AuthView(
-                onSignInWithApple: signInWithApple,
-                onSignInWithGoogle: signInWithGoogle,
-                onContinueWithEmail: { showEmailAuth = true },
-                isAppleLoading: loadingTarget == .apple,
-                isGoogleLoading: loadingTarget == .google
-            )
-            .navigationDestination(isPresented: $showEmailAuth) {
-                AuthEmailView(
-                    email: $email,
-                    password: $password,
-                    isLoading: loadingTarget == .email,
-                    onSignUp: { authenticateWithEmail(.signUp) },
-                    onSignIn: { authenticateWithEmail(.signIn) }
-                )
-            }
-        }
+        AuthView(
+            onSignInWithApple: signInWithApple,
+            onSignInWithGoogle: signInWithGoogle,
+            onContinueWithEmail: { isEmailSheetPresented = true },
+            isAppleLoading: loadingTarget == .apple,
+            isGoogleLoading: loadingTarget == .google
+        )
         .appBackground()
+        .sheet(isPresented: $isEmailSheetPresented) {
+            AuthMagicLinkSheet()
+                .presentationDetents([.height(380)])
+                .presentationDragIndicator(.visible)
+                .presentationBackground(Color("BackgroundSecondary"))
+        }
         .alert(String(localized: "auth.error.title", table: "Auth"), isPresented: $showErrorAlert) {
             Button(String(localized: "common.ok", table: "Common"), role: .cancel) {}
         } message: {
@@ -52,8 +39,10 @@ struct AuthContainerView: View {
     }
 
     private func signInWithApple() {
+        guard loadingTarget == nil else { return }
+        loadingTarget = .apple
+
         Task {
-            loadingTarget = .apple
             defer { loadingTarget = nil }
 
             do {
@@ -66,33 +55,16 @@ struct AuthContainerView: View {
     }
 
     private func signInWithGoogle() {
-        Task {
-            loadingTarget = .google
+        guard loadingTarget == nil else { return }
+        loadingTarget = .google
 
+        Task {
             do {
                 try await env.auth.signInWithGoogle()
             } catch AuthError.cancelled {
                 loadingTarget = nil
             } catch {
                 loadingTarget = nil
-                present(error.localizedDescription)
-            }
-        }
-    }
-
-    private func authenticateWithEmail(_ action: AuthEmailAction) {
-        Task {
-            loadingTarget = .email
-            defer { loadingTarget = nil }
-
-            do {
-                switch action {
-                case .signUp:
-                    _ = try await env.auth.signUp(email: email, password: password)
-                case .signIn:
-                    _ = try await env.auth.signIn(email: email, password: password)
-                }
-            } catch {
                 present(error.localizedDescription)
             }
         }

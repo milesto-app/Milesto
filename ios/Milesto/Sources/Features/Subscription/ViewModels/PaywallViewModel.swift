@@ -36,6 +36,8 @@ final class PaywallViewModel {
             return detail
         case .verificationFailed:
             return String(localized: "paywall.error.verification", table: "Paywall")
+        case .accountMismatch:
+            return String(localized: "paywall.error.accountMismatch", table: "Paywall")
         }
     }
 

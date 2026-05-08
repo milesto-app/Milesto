@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		4C824F382F33E35000056D79 /* Supabase in Frameworks */ = {isa = PBXBuildFile; productRef = 4C824F372F33E35000056D79 /* Supabase */; };
+		4C8E79A22FADE5CF00A3ECF0 /* Auth in Frameworks */ = {isa = PBXBuildFile; productRef = 4C8E79A12FADE5CF00A3ECF0 /* Auth */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -39,7 +39,7 @@
 		4C824E7A2F30B07D00056D79 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			files = (
-				4C824F382F33E35000056D79 /* Supabase in Frameworks */,
+				4C8E79A22FADE5CF00A3ECF0 /* Auth in Frameworks */,
 			);
 		};
 /* End PBXFrameworksBuildPhase section */
@@ -79,7 +79,7 @@
 			);
 			name = Milesto;
 			packageProductDependencies = (
-				4C824F372F33E35000056D79 /* Supabase */,
+				4C8E79A12FADE5CF00A3ECF0 /* Auth */,
 			);
 			productName = Milesto;
 			productReference = 4C824E7D2F30B07D00056D79 /* Milesto.app */;
@@ -110,7 +110,7 @@
 			mainGroup = 4C824E742F30B07D00056D79;
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
-				4C824F2B2F33E27800056D79 /* XCRemoteSwiftPackageReference "supabase-swift" */,
+				4C8E79A02FADE5CF00A3ECF0 /* XCRemoteSwiftPackageReference "supabase-swift" */,
 			);
 			preferredProjectObjectVersion = 90;
 			productRefGroup = 4C824E7E2F30B07D00056D79 /* Products */;
@@ -290,7 +290,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.18.4;
+				MARKETING_VERSION = 1.19.0;
 				PRODUCT_BUNDLE_IDENTIFIER = app.milesto.Milesto;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -337,7 +337,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.18.4;
+				MARKETING_VERSION = 1.19.0;
 				PRODUCT_BUNDLE_IDENTIFIER = app.milesto.Milesto;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -378,7 +378,7 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		4C824F2B2F33E27800056D79 /* XCRemoteSwiftPackageReference "supabase-swift" */ = {
+		4C8E79A02FADE5CF00A3ECF0 /* XCRemoteSwiftPackageReference "supabase-swift" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/supabase/supabase-swift";
 			requirement = {
@@ -389,10 +389,10 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		4C824F372F33E35000056D79 /* Supabase */ = {
+		4C8E79A12FADE5CF00A3ECF0 /* Auth */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 4C824F2B2F33E27800056D79 /* XCRemoteSwiftPackageReference "supabase-swift" */;
-			productName = Supabase;
+			package = 4C8E79A02FADE5CF00A3ECF0 /* XCRemoteSwiftPackageReference "supabase-swift" */;
+			productName = Auth;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

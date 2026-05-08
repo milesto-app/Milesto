@@ -37,7 +37,7 @@ struct WeeklyTaskDetailPage: View {
             }
             .padding(.bottom, 40)
         }
-        .background(Color("BackgroundBase"))
+        .background(Color("BackgroundPrimary"))
         .contentMargins(.top, 96)
     }
 
@@ -141,7 +141,7 @@ struct WeeklyTaskDetailPage: View {
         AppButton(
             task.isCompleted ? "roadmap.task.markIncomplete" : "roadmap.task.markComplete",
             table: "Roadmap",
-            style: task.isCompleted ? .neutral : .primary
+            style: task.isCompleted ? .secondary : .primary
         ) {
             withAnimation(.spring(response: 0.42, dampingFraction: 0.78, blendDuration: 0.08)) {
                 performToggle()

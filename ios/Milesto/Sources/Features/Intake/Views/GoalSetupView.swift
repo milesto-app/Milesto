@@ -10,21 +10,24 @@ struct GoalSetupView: View {
     }
 
     var body: some View {
-        VStack(spacing: 24) {
-            VStack(spacing: 8) {
+        VStack(alignment: .leading, spacing: 24) {
+            VStack(alignment: .leading, spacing: 8) {
                 AppText("intake.goal.title", table: "Intake", style: .title)
-                    .alignment(.center)
 
                 AppText("intake.goal.subtitle", table: "Intake", style: .subheadline)
-                    .alignment(.center)
             }
-            .padding(.top, 40)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.top, 8)
             .padding(.bottom, 16)
-            .padding(.horizontal, 24)
+            .padding(.leading, 24)
+            .padding(.trailing, 76)
 
-            VStack(spacing: 16) {
-                AppTextField(text: $goalDescription, label: "intake.goal.descriptionPlaceholder", table: "Intake", multiline: true)
-            }
+            IntakeTextField(
+                text: $goalDescription,
+                placeholder: "intake.goal.descriptionPlaceholder",
+                table: "Intake",
+                multiline: true
+            )
             .padding(.horizontal, 24)
 
             Spacer()
@@ -37,14 +40,14 @@ struct GoalSetupView: View {
         }
         .overlay {
             if isLoading {
-                ZStack {
-                    Color("TextPrimary").opacity(0.3)
-                        .ignoresSafeArea()
-                    ProgressView()
-                        .tint(Color("Brand"))
-                }
+                AppLoader(size: 32, lineWidth: 3)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .background(.regularMaterial)
+                    .ignoresSafeArea()
+                    .transition(.opacity)
             }
         }
+        .animation(.easeInOut(duration: 0.25), value: isLoading)
         .appBackground()
     }
 }

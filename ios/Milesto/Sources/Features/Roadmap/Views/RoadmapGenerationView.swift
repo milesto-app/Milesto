@@ -26,6 +26,11 @@ struct RoadmapGenerationView: View {
             }
         }
         .appBackground()
+        .overlay(alignment: .topTrailing) {
+            SignOutGlassButton()
+                .padding(.top, 8)
+                .padding(.trailing, 16)
+        }
         .task {
             if model == nil {
                 model = RoadmapGenerationViewModel(env: env)
@@ -67,9 +72,7 @@ struct RoadmapGenerationView: View {
 
             Spacer()
 
-            ProgressView()
-                .controlSize(.large)
-                .tint(Color("Brand"))
+            AppLoader(size: 32, lineWidth: 3)
                 .padding(.bottom, 40)
         }
         .padding(.horizontal, 24)

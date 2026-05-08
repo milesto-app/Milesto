@@ -14,13 +14,14 @@ struct PaywallView: View {
     @State private var glowScale: CGFloat = 0.9
     @State private var glowOpacity: Double = 0.55
     @State private var showError = false
+    @State private var errorMessage: String?
 
     var body: some View {
         Group {
             if let model {
                 content(model: model)
             } else {
-                Color("BackgroundBase").ignoresSafeArea()
+                Color("BackgroundPrimary").ignoresSafeArea()
             }
         }
         .task {
@@ -69,16 +70,23 @@ struct PaywallView: View {
         }
         .appBackground()
         .interactiveDismissDisabled(true)
-        .onChange(of: model.purchaseErrorMessage) { _, newValue in
-            showError = newValue != nil
+        .overlay(alignment: .topTrailing) {
+            SignOutGlassButton()
+                .padding(.top, 8)
+                .padding(.trailing, 16)
+        }
+        .onChange(of: env.subscription.purchaseError) { _, _ in
+            errorMessage = model.purchaseErrorMessage
+            showError = errorMessage != nil
         }
         .alert(
             String(localized: "paywall.error.title", table: "Paywall"),
             isPresented: $showError,
-            presenting: model.purchaseErrorMessage
+            presenting: errorMessage
         ) { _ in
             Button(String(localized: "common.ok", table: "Common"), role: .cancel) {
                 model.dismissPurchaseError()
+                errorMessage = nil
             }
         } message: { message in
             AppText(verbatim: message, style: .body)

@@ -13,7 +13,6 @@ struct ChatField: View {
         }
         .font(Fonts.ui(size: 17, relativeTo: .body))
         .foregroundStyle(Color("TextPrimary"))
-        .tint(Color("Brand"))
         .textFieldStyle(.plain)
         .lineLimit(lineLimit)
         .focused(isFocused)
