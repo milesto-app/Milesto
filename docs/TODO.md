@@ -1,1 +1,0 @@
-- optimize root scripts to run faster / asynchronously (maybe dont use package.json scripts for this?)

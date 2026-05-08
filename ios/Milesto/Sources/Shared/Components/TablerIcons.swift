@@ -83,25 +83,7 @@ extension TablerIcons {
     }
 }
 
-public extension TablerIconOutline {
-    var iconName: String {
-        String(describing: self)
-            .replacingOccurrences(of: "([a-z0-9])([A-Z])", with: "$1-$2", options: .regularExpression)
-            .lowercased()
-            .replacingOccurrences(of: "^_", with: "", options: .regularExpression)
-    }
-}
-
-public extension TablerIconFilled {
-    var iconName: String {
-        String(describing: self)
-            .replacingOccurrences(of: "([a-z0-9])([A-Z])", with: "$1-$2", options: .regularExpression)
-            .lowercased()
-            .replacingOccurrences(of: "^_", with: "", options: .regularExpression)
-    }
-}
-
-public enum TablerIconOutline: String, CaseIterable, Sendable {
+public enum TablerIconOutline: String, Sendable {
     case aB = "\u{EC36}"
     case aB2 = "\u{F25F}"
     case aBOff = "\u{F0A6}"
@@ -5307,7 +5289,7 @@ public extension TablerIconOutline {
     }
 }
 
-public enum TablerIconFilled: String, CaseIterable, Sendable {
+public enum TablerIconFilled: String, Sendable {
     case accessible = "\u{F6EA}"
     case ad = "\u{F6EB}"
     case adCircle = "\u{F7D3}"
