@@ -52,8 +52,10 @@ struct AuthContainerView: View {
     }
 
     private func signInWithApple() {
+        guard loadingTarget == nil else { return }
+        loadingTarget = .apple
+
         Task {
-            loadingTarget = .apple
             defer { loadingTarget = nil }
 
             do {
@@ -66,9 +68,10 @@ struct AuthContainerView: View {
     }
 
     private func signInWithGoogle() {
-        Task {
-            loadingTarget = .google
+        guard loadingTarget == nil else { return }
+        loadingTarget = .google
 
+        Task {
             do {
                 try await env.auth.signInWithGoogle()
             } catch AuthError.cancelled {
@@ -81,8 +84,10 @@ struct AuthContainerView: View {
     }
 
     private func authenticateWithEmail(_ action: AuthEmailAction) {
+        guard loadingTarget == nil else { return }
+        loadingTarget = .email
+
         Task {
-            loadingTarget = .email
             defer { loadingTarget = nil }
 
             do {
