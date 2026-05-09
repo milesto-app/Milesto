@@ -6,15 +6,15 @@ import {
 } from "@nestjs/common";
 
 import { UserLanguageService } from "../common/user-language.service.js";
+import { RoadmapContextService } from "../roadmap/roadmap-context.service.js";
+import type { UpdateTaskParams } from "../roadmap/roadmap-data.service.js";
+import { RoadmapDataService } from "../roadmap/roadmap-data.service.js";
+import { RoadmapGenerationService } from "../roadmap/roadmap-generation.service.js";
+import type { WeeklyPlan } from "../roadmap/types/weekly-plan.types.js";
+import type { WeeklyTask } from "../roadmap/types/weekly-task.types.js";
+import { WeeklyPlanService } from "../roadmap/weekly-plan.service.js";
 import { UsageService } from "../usage/usage.service.js";
 import { GenerationType } from "../usage/usage.types.js";
-import { RoadmapContextService } from "./roadmap-context.service.js";
-import type { UpdateTaskParams } from "./roadmap-data.service.js";
-import { RoadmapDataService } from "./roadmap-data.service.js";
-import { RoadmapGenerationService } from "./roadmap-generation.service.js";
-import type { WeeklyPlan } from "./types/weekly-plan.types.js";
-import type { WeeklyTask } from "./types/weekly-task.types.js";
-import { WeeklyPlanService } from "./weekly-plan.service.js";
 
 interface GenerateParams {
   weeklyPlan: WeeklyPlan;
