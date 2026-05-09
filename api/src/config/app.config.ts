@@ -3,7 +3,6 @@ const APPLE_PRODUCT_IDS = [
   "milesto_plus_annual",
 ] as const;
 
-const APPLE_DEFAULT_ENVIRONMENT = "Sandbox";
 const APPLE_DEFAULT_ROOT_CA_DIR = "resources/apple-root-certs";
 
 const PRICE_GEMINI_FLASH_INPUT_PER_1M = 0.075;
@@ -49,9 +48,11 @@ function parseAppAppleId(raw: string | undefined): number | undefined {
   return Number.isFinite(parsed) ? parsed : undefined;
 }
 
+type AppleEnvironmentName = "Production" | "Xcode";
+
 interface AppleConfig {
   bundleId: string;
-  environment: string;
+  environment: AppleEnvironmentName;
   appAppleId: number | undefined;
   rootCaDir: string;
   productIds: typeof APPLE_PRODUCT_IDS;
@@ -63,10 +64,23 @@ interface AppleServerApiConfig {
   privateKey: string | undefined;
 }
 
+function parseAppleEnvironment(
+  raw: string | undefined,
+): AppleEnvironmentName {
+  if (raw === "Production" || raw === "Xcode") {
+    return raw;
+  }
+  if (process.env.NODE_ENV === "test") {
+    return "Xcode";
+  }
+  throw new Error(
+    `APPLE_ENVIRONMENT must be set to one of Production | Xcode (got ${raw ?? "undefined"}).`,
+  );
+}
+
 function readAppleConfig(): AppleConfig {
   const bundleId = process.env.APPLE_BUNDLE_ID ?? "";
-  const environment =
-    process.env.APPLE_ENVIRONMENT ?? APPLE_DEFAULT_ENVIRONMENT;
+  const environment = parseAppleEnvironment(process.env.APPLE_ENVIRONMENT);
   const appAppleId = parseAppAppleId(process.env.APPLE_APP_APPLE_ID);
   const rootCaDir = process.env.APPLE_ROOT_CA_DIR ?? APPLE_DEFAULT_ROOT_CA_DIR;
 

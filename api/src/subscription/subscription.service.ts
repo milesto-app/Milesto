@@ -951,17 +951,11 @@ export class SubscriptionService {
     if (env === "Production") {
       return Environment.PRODUCTION;
     }
-    if (env === "Sandbox") {
-      return Environment.SANDBOX;
-    }
     if (env === "Xcode") {
       return Environment.XCODE;
     }
-    if (env === "LocalTesting") {
-      return Environment.LOCAL_TESTING;
-    }
     throw new Error(
-      `Invalid APPLE_ENVIRONMENT: ${env}. Expected one of Sandbox | Production | Xcode | LocalTesting`,
+      `Invalid APPLE_ENVIRONMENT: ${env}. Expected one of Production | Xcode`,
     );
   }
 
