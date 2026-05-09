@@ -23,8 +23,8 @@ lint-prettier: ; bunx prettier --write --ignore-unknown --log-level warn .
 
 unused: unused-ios unused-api unused-web
 unused-ios: ; cd ios && periphery scan --project Milesto.xcodeproj --schemes Milesto --strict --retain-codable-properties --retain-assign-only-properties --retain-files 'Milesto/Sources/Shared/Components/TablerIcons.swift'
-unused-api: ; bunx knip --directory api
-unused-web: ; bunx knip --directory web
+unused-api: ; npx -y knip --directory api
+unused-web: ; npx -y knip --directory web
 
 dev-api:   ; bun run --cwd api start:dev
 dev-web:   ; bun run --cwd web dev
