@@ -139,7 +139,7 @@ export class UsageService {
   private async assertActiveSubscription(userId: string): Promise<void> {
     const supabase = this.supabaseService.getAdminClient();
     const { data, error } = await supabase
-      .from("profiles")
+      .from("users")
       .select("subscription_status, subscription_expires_at")
       .eq("id", userId)
       .maybeSingle();

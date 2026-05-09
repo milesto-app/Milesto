@@ -31,7 +31,7 @@ export class CoachesController {
   @ApiOperation({
     summary: "List coaches with user counts",
     description:
-      "Returns the static coach roster augmented with the number of profiles assigned to each coach.",
+      "Returns the static coach roster augmented with the number of users assigned to each coach.",
   })
   @ApiResponse({ status: 200, description: "Coaches returned" })
   @ApiResponse({ status: 401, description: "Unauthorized" })

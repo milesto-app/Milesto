@@ -31,16 +31,16 @@ struct SettingsView: View {
         @Bindable var bindable = model
         NavigationStack {
             List {
-                SettingsProfileHeaderSection(
-                    profile: model.profile,
+                SettingsUserHeaderSection(
+                    user: model.user,
                     email: model.email,
                     avatarURL: model.avatarURL,
                     fullName: model.fullName,
                     initials: model.initials,
                     onEdit: { activeSheet = .name }
                 )
-                SettingsProfileDetailsSection(
-                    profile: model.profile,
+                SettingsUserDetailsSection(
+                    user: model.user,
                     coach: model.coach,
                     currentAppLanguage: model.currentAppLanguage,
                     onEditBirthdate: { activeSheet = .birthdate },
@@ -85,8 +85,8 @@ struct SettingsView: View {
                 AppText(verbatim: model.errorMessage ?? "", style: .body)
             }
             .sheet(item: $activeSheet) { sheet in
-                SettingsSheetContent(sheet: sheet, profile: model.profile) { fields in
-                    Task { await model.saveProfileFields(fields) }
+                SettingsSheetContent(sheet: sheet, user: model.user) { fields in
+                    Task { await model.saveUserFields(fields) }
                 }
                 .appPresentationBackground()
                 .presentationDetents(sheet == .coach || sheet == .language ? [.large] : [.medium, .large])

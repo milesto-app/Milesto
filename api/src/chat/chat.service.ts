@@ -63,7 +63,7 @@ export class ChatService {
     });
     const storedMessages = await this.history.getMessages(conversation.id);
     const [{ coachId, language }, goalContext, memory] = await Promise.all([
-      this.prompt.getUserProfile(userId),
+      this.prompt.getUser(userId),
       this.prompt.fetchGoalContext(dto.goalId, userId),
       this.prompt.fetchMemory(userId, dto.goalId),
     ]);

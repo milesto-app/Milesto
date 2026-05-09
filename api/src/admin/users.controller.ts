@@ -64,7 +64,7 @@ export class UsersController {
   }
 
   @Get(":id")
-  @ApiOperation({ summary: "User profile + goal count" })
+  @ApiOperation({ summary: "User detail + goal count" })
   @ApiParam({ name: "id", description: "Auth user UUID" })
   @ApiResponse({ status: 200, description: "User detail returned" })
   @ApiResponse({ status: 404, description: "User not found" })
@@ -98,7 +98,7 @@ export class UsersController {
   @ApiOperation({ summary: "Full subscription state for a user" })
   @ApiParam({ name: "id", description: "Auth user UUID" })
   @ApiResponse({ status: 200, description: "Subscription returned" })
-  @ApiResponse({ status: 404, description: "Profile not found" })
+  @ApiResponse({ status: 404, description: "User not found" })
   public async getUserSubscription(
     @Param("id", ParseUUIDPipe) id: string,
   ): Promise<AdminUserSubscription> {

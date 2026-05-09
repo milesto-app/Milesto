@@ -55,22 +55,22 @@ private struct AuthenticatedRootView: View {
 
     private func standardAuthenticatedBody(routing: AppViewModel) -> some View {
         Group {
-            if routing.profileComplete {
+            if routing.userComplete {
                 startingView {
                     SubscriptionGateView {
-                        postProfileFlow(routing: routing)
+                        postUserFlow(routing: routing)
                     }
                 }
                 .transition(.opacity)
             } else if routing.hasSynced {
                 startingView {
-                    ProfileOnboardingView(
+                    UserOnboardingView(
                         userId: userId,
-                        missingSteps: routing.localProfile?.missingOnboardingSteps ?? [.name, .birthdate, .coach],
-                        existingProfile: routing.localProfile,
+                        missingSteps: routing.localUser?.missingOnboardingSteps ?? [.name, .birthdate, .coach],
+                        existingUser: routing.localUser,
                         onComplete: {
                             withAnimation(.easeInOut(duration: 0.4)) {
-                                routing.profileComplete = true
+                                routing.userComplete = true
                             }
                         }
                     )
@@ -99,7 +99,7 @@ private struct AuthenticatedRootView: View {
         }
     }
 
-    private func postProfileFlow(routing: AppViewModel) -> some View {
+    private func postUserFlow(routing: AppViewModel) -> some View {
         Group {
             if routing.goalComplete && routing.roadmapReady {
                 startingView {

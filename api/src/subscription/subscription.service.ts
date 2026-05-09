@@ -205,7 +205,7 @@ export class SubscriptionService {
   ): Promise<SubscriptionStatusResponse> {
     const accounts = await this.fetchAppleAccounts(userId);
     if (accounts.length === 0) {
-      await this.refreshProfileCache(userId);
+      await this.refreshUserCache(userId);
       return this.getStatus(userId);
     }
 
@@ -239,7 +239,7 @@ export class SubscriptionService {
       this.logger.error(`Failed to grant override: ${error.message}`);
       throw new InternalServerErrorException("Failed to grant pro override");
     }
-    await this.refreshProfileCache(userId);
+    await this.refreshUserCache(userId);
     return this.getStatus(userId);
   }
 
@@ -258,7 +258,7 @@ export class SubscriptionService {
       this.logger.error(`Failed to revoke override: ${error.message}`);
       throw new InternalServerErrorException("Failed to revoke pro override");
     }
-    await this.refreshProfileCache(userId);
+    await this.refreshUserCache(userId);
     return this.getStatus(userId);
   }
 
@@ -346,7 +346,7 @@ export class SubscriptionService {
       originalTransactionId,
       canonical,
     );
-    await this.refreshProfileCache(userId);
+    await this.refreshUserCache(userId);
   }
 
   private async fetchAppleStatuses(
@@ -522,9 +522,9 @@ export class SubscriptionService {
     }
   }
 
-  private async refreshProfileCache(userId: string): Promise<void> {
+  private async refreshUserCache(userId: string): Promise<void> {
     const state = await this.getEffectiveSubscriptionState(userId);
-    const patch: TablesUpdate<"profiles"> = {
+    const patch: TablesUpdate<"users"> = {
       subscription_status: state.status,
       subscription_expires_at: state.expiresAt,
       subscription_product_id: state.productId,
@@ -543,7 +543,7 @@ export class SubscriptionService {
 
     const supabase = this.supabaseService.getAdminClient();
     const { error } = await supabase
-      .from("profiles")
+      .from("users")
       .update(patch)
       .eq("id", userId);
     if (error !== null) {
@@ -749,7 +749,7 @@ export class SubscriptionService {
     if (token === undefined || !UUID_REGEX.test(token)) {
       return null;
     }
-    return this.findProfileId(token);
+    return this.findUserId(token);
   }
 
   private async findAccountByOriginalTransaction(
@@ -770,15 +770,15 @@ export class SubscriptionService {
     return data ?? null;
   }
 
-  private async findProfileId(userId: string): Promise<string | null> {
+  private async findUserId(userId: string): Promise<string | null> {
     const supabase = this.supabaseService.getAdminClient();
     const { data, error } = await supabase
-      .from("profiles")
+      .from("users")
       .select("id")
       .eq("id", userId)
       .maybeSingle();
     if (error !== null && error.code !== SUPABASE_NOT_FOUND) {
-      throw new InternalServerErrorException("Failed to lookup user profile");
+      throw new InternalServerErrorException("Failed to lookup user");
     }
     return data?.id ?? null;
   }

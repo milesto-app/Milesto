@@ -4,13 +4,13 @@ import Foundation
 @Observable
 final class AppViewModel {
     private(set) var hasSynced = false
-    var profileComplete = false
+    var userComplete = false
     var goalComplete = false
     var roadmapReady = false
     var activeGoalId: String?
     var connectionError = false
 
-    private(set) var localProfile: ProfileDTO?
+    private(set) var localUser: UserDTO?
 
     @ObservationIgnored private let env: AppEnv
 
@@ -25,14 +25,14 @@ final class AppViewModel {
     func sync(userId: String) async {
         connectionError = false
         do {
-            localProfile = try await env.profile.fetchProfile()
+            localUser = try await env.user.fetchUser()
         } catch {
             connectionError = true
             return
         }
 
-        guard localProfile?.isProfileComplete == true else {
-            profileComplete = false
+        guard localUser?.isComplete == true else {
+            userComplete = false
             goalComplete = false
             roadmapReady = false
             activeGoalId = nil
@@ -40,7 +40,7 @@ final class AppViewModel {
             return
         }
 
-        profileComplete = true
+        userComplete = true
 
         let activeGoal: GoalDTO?
         do {
