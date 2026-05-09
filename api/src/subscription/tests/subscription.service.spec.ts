@@ -304,6 +304,56 @@ describe("SubscriptionService.syncWithTransaction", () => {
     ).toHaveLength(0);
   });
 
+  it("syncs Xcode transactions from the JWS without calling Apple Server API", async () => {
+    const futureExpires = Date.now() + 30 * 86_400_000;
+    setVerifier(Environment.PRODUCTION, {
+      transaction: async () =>
+        makeTransaction({
+          environment: Environment.XCODE,
+          expiresDate: futureExpires,
+        }),
+    });
+
+    const { service, supabase, appStoreApi } = buildHarness();
+
+    await service.syncWithTransaction(TEST_USER_UUID, "tx-jws");
+
+    expect(appStoreApi.getSubscriptionStatuses).not.toHaveBeenCalled();
+    const upserts = supabase.store.callsFor(
+      "apple_subscription_accounts",
+      "upsert",
+    );
+    expect(upserts).toHaveLength(1);
+    const payload = upserts[0]?.payload as Record<string, unknown>;
+    expect(payload.environment).toBe(Environment.XCODE);
+    expect(payload.user_id).toBe(TEST_USER_UUID);
+    expect(payload.status).toBe("active");
+    expect(payload.product_id).toBe(TEST_PRODUCT_ID);
+  });
+
+  it("marks Xcode transactions as expired when their expiresDate has passed", async () => {
+    const pastExpires = Date.now() - 86_400_000;
+    setVerifier(Environment.PRODUCTION, {
+      transaction: async () =>
+        makeTransaction({
+          environment: Environment.XCODE,
+          expiresDate: pastExpires,
+        }),
+    });
+
+    const { service, supabase, appStoreApi } = buildHarness();
+
+    await service.syncWithTransaction(TEST_USER_UUID, "tx-jws");
+
+    expect(appStoreApi.getSubscriptionStatuses).not.toHaveBeenCalled();
+    const upserts = supabase.store.callsFor(
+      "apple_subscription_accounts",
+      "upsert",
+    );
+    const payload = upserts[0]?.payload as Record<string, unknown>;
+    expect(payload.status).toBe("expired");
+  });
+
   it("is idempotent when an existing row already binds to the caller", async () => {
     setVerifier(Environment.PRODUCTION, {
       transaction: async () => makeTransaction(),

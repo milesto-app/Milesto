@@ -54,7 +54,10 @@ const EVENT_RESULT = {
   ERROR: "error",
 } as const;
 
-type AppleEnvironment = Environment.PRODUCTION | Environment.SANDBOX;
+type AppleEnvironment =
+  | Environment.PRODUCTION
+  | Environment.SANDBOX
+  | Environment.XCODE;
 type AppleAccountRow = Tables<"apple_subscription_accounts">;
 type OverrideRow = Tables<"subscription_overrides">;
 
@@ -133,6 +136,15 @@ export class SubscriptionService {
     const originalTransactionId =
       this.requireOriginalTransactionId(transaction);
     await this.assertTransactionOwnership(transaction, userId, environment);
+    if (environment === Environment.XCODE) {
+      await this.syncFromXcodeTransaction(
+        userId,
+        transaction,
+        originalTransactionId,
+        environment,
+      );
+      return;
+    }
     await this.syncOriginalTransactionForUser(
       userId,
       originalTransactionId,
@@ -210,13 +222,17 @@ export class SubscriptionService {
     }
 
     await Promise.all(
-      accounts.map(async (account) =>
-        this.syncOriginalTransactionForUser(
+      accounts.map(async (account) => {
+        const env = this.requireAppleServerEnvironment(account.environment);
+        if (env === Environment.XCODE) {
+          return;
+        }
+        await this.syncOriginalTransactionForUser(
           userId,
           account.original_transaction_id,
-          this.requireAppleServerEnvironment(account.environment),
-        ),
-      ),
+          env,
+        );
+      }),
     );
     return this.getStatus(userId);
   }
@@ -349,10 +365,49 @@ export class SubscriptionService {
     await this.refreshUserCache(userId);
   }
 
+  private async syncFromXcodeTransaction(
+    userId: string,
+    transaction: JWSTransactionDecodedPayload,
+    originalTransactionId: string,
+    environment: AppleEnvironment,
+  ): Promise<void> {
+    const canonical = this.canonicalFromTransaction(transaction);
+    await this.upsertAppleAccount(
+      userId,
+      environment,
+      originalTransactionId,
+      canonical,
+    );
+    await this.refreshUserCache(userId);
+  }
+
+  private canonicalFromTransaction(
+    tx: JWSTransactionDecodedPayload,
+  ): CanonicalAppleSubscription {
+    const expiresMs = tx.expiresDate;
+    const isActive = expiresMs !== undefined && expiresMs > Date.now();
+    return {
+      status: isActive
+        ? SUBSCRIPTION_STATUS.ACTIVE
+        : SUBSCRIPTION_STATUS.EXPIRED,
+      expiresAt: this.toIsoOrNull(expiresMs),
+      productId: tx.productId ?? null,
+      autoRenewStatus: true,
+      lastTransactionId: tx.transactionId ?? null,
+      appleStatusCode: null,
+      appleSignedAt: this.toIsoOrNull(tx.signedDate),
+    };
+  }
+
   private async fetchAppleStatuses(
     originalTransactionId: string,
     environment: AppleEnvironment,
   ): Promise<StatusResponse> {
+    if (environment === Environment.XCODE) {
+      throw new InternalServerErrorException(
+        "Apple Server API has no Xcode endpoint",
+      );
+    }
     try {
       return await this.appStoreServerApi.getSubscriptionStatuses(
         originalTransactionId,
@@ -856,6 +911,9 @@ export class SubscriptionService {
     }
     if (value === Environment.SANDBOX || value === "Sandbox") {
       return Environment.SANDBOX;
+    }
+    if (value === Environment.XCODE || value === "Xcode") {
+      return Environment.XCODE;
     }
     throw new UnauthorizedException("Unsupported Apple environment");
   }
