@@ -29,7 +29,7 @@ const CHURN_STATUSES = [
 const PERCENTAGE_DECIMAL_PLACES = 4;
 const EMAIL_LOOKUP_POOL_SIZE = 1000;
 
-interface ProfileSubscriptionRow {
+interface UserSubscriptionRow {
   id: string;
   subscription_status: string;
   subscription_product_id: string | null;
@@ -62,7 +62,7 @@ export class SubscriptionsService {
     const to = from + perPage - 1;
 
     let query = supabase
-      .from("profiles")
+      .from("users")
       .select(
         "id, first_name, last_name, subscription_status, subscription_product_id, subscription_environment, subscription_auto_renew_status, subscription_expires_at, subscription_verified_at, subscription_apple_signed_at, subscription_original_transaction_id",
         { count: "exact" },
@@ -84,7 +84,7 @@ export class SubscriptionsService {
       throw new InternalServerErrorException("Failed to list subscriptions");
     }
 
-    const rows = data as ProfileSubscriptionRow[];
+    const rows = data as UserSubscriptionRow[];
     const emails = await this.lookupEmails(rows.map((row) => row.id));
     const subscriptions = rows.map((row) =>
       buildSummary(row, emails.get(row.id) ?? ""),
@@ -103,7 +103,7 @@ export class SubscriptionsService {
   public async getDistribution(): Promise<Record<string, number>> {
     const supabase = this.supabaseService.getAdminClient();
     const { data, error } = await supabase
-      .from("profiles")
+      .from("users")
       .select("subscription_status");
 
     if (error !== null) {
@@ -126,7 +126,7 @@ export class SubscriptionsService {
   public async getMrrArr(): Promise<AdminSubscriptionMrrArr> {
     const supabase = this.supabaseService.getAdminClient();
     const { data, error } = await supabase
-      .from("profiles")
+      .from("users")
       .select("subscription_product_id")
       .eq("subscription_status", SUBSCRIPTION_STATUS.ACTIVE);
 
@@ -173,12 +173,12 @@ export class SubscriptionsService {
 
     const [churnedRes, retainedRes] = await Promise.all([
       supabase
-        .from("profiles")
+        .from("users")
         .select("*", { count: "exact", head: true })
         .in("subscription_status", CHURN_STATUSES)
         .gte("subscription_expires_at", cutoffIso),
       supabase
-        .from("profiles")
+        .from("users")
         .select("*", { count: "exact", head: true })
         .eq("subscription_status", SUBSCRIPTION_STATUS.ACTIVE),
     ]);
@@ -270,7 +270,7 @@ function emailFromUser(user: User): string {
 }
 
 function buildSummary(
-  row: ProfileSubscriptionRow,
+  row: UserSubscriptionRow,
   email: string,
 ): AdminSubscriptionSummary {
   return {
@@ -286,12 +286,12 @@ function buildSummary(
     verifiedAt: row.subscription_verified_at,
     appleSignedAt: row.subscription_apple_signed_at,
     originalTransactionId: row.subscription_original_transaction_id,
-    source: sourceFromProfile(row),
+    source: sourceFromUser(row),
     lastSyncedAt: row.subscription_verified_at,
   };
 }
 
-function sourceFromProfile(row: ProfileSubscriptionRow): string {
+function sourceFromUser(row: UserSubscriptionRow): string {
   if (row.subscription_original_transaction_id !== null) {
     return "apple";
   }

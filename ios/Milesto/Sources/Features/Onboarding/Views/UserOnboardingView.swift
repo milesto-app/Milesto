@@ -1,13 +1,13 @@
 import SwiftUI
 
-struct ProfileOnboardingView: View {
+struct UserOnboardingView: View {
     let userId: String
     let missingSteps: [OnboardingStep]
-    let existingProfile: ProfileDTO?
+    let existingUser: UserDTO?
     let onComplete: () -> Void
 
     @Environment(AppEnv.self) private var env
-    @State private var model: ProfileOnboardingViewModel?
+    @State private var model: UserOnboardingViewModel?
 
     var body: some View {
         Group {
@@ -20,18 +20,18 @@ struct ProfileOnboardingView: View {
         }
         .task {
             if model == nil {
-                model = ProfileOnboardingViewModel(
+                model = UserOnboardingViewModel(
                     env: env,
                     userId: userId,
                     missingSteps: missingSteps,
-                    existingProfile: existingProfile
+                    existingUser: existingUser
                 )
             }
         }
     }
 
     @ViewBuilder
-    private func content(model: ProfileOnboardingViewModel) -> some View {
+    private func content(model: UserOnboardingViewModel) -> some View {
         @Bindable var bindable = model
         NavigationStack {
             Group {
@@ -79,7 +79,7 @@ struct ProfileOnboardingView: View {
         }
     }
 
-    private func handleContinue(model: ProfileOnboardingViewModel) {
+    private func handleContinue(model: UserOnboardingViewModel) {
         Task {
             let didComplete = await model.advanceOrSave()
             if didComplete {

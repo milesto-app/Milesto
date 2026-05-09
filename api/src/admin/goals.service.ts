@@ -42,7 +42,7 @@ type DebriefRow = Database["public"]["Tables"]["debriefs"]["Row"];
 type CoachMemoryRow = Database["public"]["Tables"]["coach_memories"]["Row"];
 type ContextEmbeddingRow =
   Database["public"]["Tables"]["context_embeddings"]["Row"];
-type ProfileRow = Database["public"]["Tables"]["profiles"]["Row"];
+type UserRow = Database["public"]["Tables"]["users"]["Row"];
 
 @Injectable()
 export class GoalsService {
@@ -388,17 +388,17 @@ export class GoalsService {
     }
 
     const userIds = [...new Set(goals.map((g) => g.user_id))];
-    const profileMap = await this.loadProfiles(userIds);
+    const userMap = await this.loadUsers(userIds);
     const emailMap = await this.loadUserEmails(userIds);
 
     return goals.map((goal) => {
-      const profile = profileMap.get(goal.user_id);
+      const user = userMap.get(goal.user_id);
       return {
         id: goal.id,
         userId: goal.user_id,
         userEmail: emailMap.get(goal.user_id) ?? null,
-        userFirstName: profile?.first_name ?? null,
-        userLastName: profile?.last_name ?? null,
+        userFirstName: user?.first_name ?? null,
+        userLastName: user?.last_name ?? null,
         title: goal.title,
         status: goal.status,
         targetDate: goal.target_date,
@@ -408,16 +408,16 @@ export class GoalsService {
     });
   }
 
-  private async loadProfiles(
+  private async loadUsers(
     userIds: string[],
-  ): Promise<Map<string, Pick<ProfileRow, "first_name" | "last_name">>> {
+  ): Promise<Map<string, Pick<UserRow, "first_name" | "last_name">>> {
     const supabase = this.supabaseService.getAdminClient();
     const { data } = await supabase
-      .from("profiles")
+      .from("users")
       .select("id, first_name, last_name")
       .in("id", userIds);
 
-    const map = new Map<string, Pick<ProfileRow, "first_name" | "last_name">>();
+    const map = new Map<string, Pick<UserRow, "first_name" | "last_name">>();
     for (const row of data ?? []) {
       map.set(row.id, { first_name: row.first_name, last_name: row.last_name });
     }

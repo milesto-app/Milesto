@@ -7,12 +7,12 @@ import {
 
 import type { Database } from "../supabase/database.types.js";
 import { SupabaseService } from "../supabase/supabase.service.js";
-import type { UpdateProfileDto } from "./dto/update-profile.dto.js";
+import type { UpdateUserDto } from "./dto/update-user.dto.js";
 
-type ProfileRow = Database["public"]["Tables"]["profiles"]["Row"];
-type ProfileUpdate = Database["public"]["Tables"]["profiles"]["Update"];
+type UserRow = Database["public"]["Tables"]["users"]["Row"];
+type UserUpdate = Database["public"]["Tables"]["users"]["Update"];
 
-export interface ProfileResponse {
+export interface UserResponse {
   id: string;
   first_name: string | null;
   last_name: string | null;
@@ -23,15 +23,15 @@ export interface ProfileResponse {
 }
 
 @Injectable()
-export class ProfileService {
-  private readonly logger = new Logger(ProfileService.name);
+export class UserService {
+  private readonly logger = new Logger(UserService.name);
 
   constructor(private readonly supabaseService: SupabaseService) {}
 
-  public async findOne(userId: string): Promise<ProfileResponse> {
+  public async findOne(userId: string): Promise<UserResponse> {
     const supabase = this.supabaseService.getAdminClient();
     const { data, error } = await supabase
-      .from("profiles")
+      .from("users")
       .select(
         "id, first_name, last_name, date_of_birth, coach_id, language, created_at",
       )
@@ -39,22 +39,22 @@ export class ProfileService {
       .maybeSingle();
 
     if (error !== null) {
-      this.logger.error(`Failed to fetch profile ${userId}: ${error.message}`);
-      throw new InternalServerErrorException("Failed to fetch profile");
+      this.logger.error(`Failed to fetch user ${userId}: ${error.message}`);
+      throw new InternalServerErrorException("Failed to fetch user");
     }
     if (data === null) {
-      throw new NotFoundException("Profile not found");
+      throw new NotFoundException("User not found");
     }
 
-    return this.toResponse(data as ProfileRow);
+    return this.toResponse(data as UserRow);
   }
 
   public async update(
     userId: string,
-    dto: UpdateProfileDto,
-  ): Promise<ProfileResponse> {
+    dto: UpdateUserDto,
+  ): Promise<UserResponse> {
     const supabase = this.supabaseService.getAdminClient();
-    const update: ProfileUpdate = {
+    const update: UserUpdate = {
       ...(dto.first_name !== undefined ? { first_name: dto.first_name } : {}),
       ...(dto.last_name !== undefined ? { last_name: dto.last_name } : {}),
       ...(dto.date_of_birth !== undefined
@@ -66,7 +66,7 @@ export class ProfileService {
     };
 
     const { data, error } = await supabase
-      .from("profiles")
+      .from("users")
       .update(update)
       .eq("id", userId)
       .select(
@@ -75,17 +75,17 @@ export class ProfileService {
       .maybeSingle();
 
     if (error !== null) {
-      this.logger.error(`Failed to update profile ${userId}: ${error.message}`);
-      throw new InternalServerErrorException("Failed to update profile");
+      this.logger.error(`Failed to update user ${userId}: ${error.message}`);
+      throw new InternalServerErrorException("Failed to update user");
     }
     if (data === null) {
-      throw new NotFoundException("Profile not found");
+      throw new NotFoundException("User not found");
     }
 
-    return this.toResponse(data as ProfileRow);
+    return this.toResponse(data as UserRow);
   }
 
-  private toResponse(row: ProfileRow): ProfileResponse {
+  private toResponse(row: UserRow): UserResponse {
     return {
       id: row.id,
       first_name: row.first_name,

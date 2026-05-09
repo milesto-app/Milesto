@@ -5,7 +5,7 @@ import Foundation
 final class AppEnv {
     let auth: AuthRepository
     let subscription: SubscriptionRepository
-    let profile: ProfileRepository
+    let user: UserRepository
     let goals: GoalRepository
     let intake: IntakeRepository
     let onboarding: OnboardingRepository
@@ -17,11 +17,11 @@ final class AppEnv {
     init() {
         auth = AuthRepository()
         subscription = SubscriptionRepository()
-        profile = ProfileRepository(auth: auth)
+        user = UserRepository(auth: auth)
         goals = GoalRepository()
         intake = IntakeRepository(goals: goals)
-        onboarding = OnboardingRepository(profile: profile)
-        settings = SettingsRepository(profile: profile, goals: goals)
+        onboarding = OnboardingRepository(user: user)
+        settings = SettingsRepository(user: user, goals: goals)
         roadmap = RoadmapRepository()
         chat = ChatRepository()
         stats = StatsRepository()

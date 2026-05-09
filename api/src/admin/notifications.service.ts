@@ -20,7 +20,7 @@ import type {
 
 const TOKEN_LAST_CHARS = 4;
 const MS_PER_DAY = 86_400_000;
-const PROFILE_PAGE_SIZE = 1000;
+const USER_PAGE_SIZE = 1000;
 
 @Injectable()
 export class AdminNotificationsService {
@@ -159,9 +159,9 @@ export class AdminNotificationsService {
 
     for (;;) {
       let query = supabase
-        .from("profiles")
+        .from("users")
         .select("id, subscription_status")
-        .range(offset, offset + PROFILE_PAGE_SIZE - 1);
+        .range(offset, offset + USER_PAGE_SIZE - 1);
 
       if (segment === "pro") {
         query = query.eq("subscription_status", SUBSCRIPTION_STATUS.ACTIVE);
@@ -179,10 +179,10 @@ export class AdminNotificationsService {
         userIds.push(row.id);
       }
 
-      if (data.length < PROFILE_PAGE_SIZE) {
+      if (data.length < USER_PAGE_SIZE) {
         break;
       }
-      offset += PROFILE_PAGE_SIZE;
+      offset += USER_PAGE_SIZE;
     }
 
     return userIds;

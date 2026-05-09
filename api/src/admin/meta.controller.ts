@@ -38,11 +38,11 @@ export class MetaController {
 
   @Get("me")
   @ApiOperation({
-    summary: "Authenticated admin's profile",
+    summary: "Authenticated admin user",
     description:
-      "Returns the current admin user's id, email, role, and profile name fields.",
+      "Returns the current admin user's id, email, role, and name fields.",
   })
-  @ApiResponse({ status: 200, description: "Profile returned" })
+  @ApiResponse({ status: 200, description: "User returned" })
   @ApiResponse({ status: 401, description: "Unauthorized" })
   @ApiResponse({ status: 403, description: "Admin access required" })
   public async getMe(@Req() request: Request): Promise<AdminMe> {

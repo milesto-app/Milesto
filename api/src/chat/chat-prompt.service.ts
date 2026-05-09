@@ -20,19 +20,19 @@ export class ChatPromptService {
 
   constructor(private readonly supabaseService: SupabaseService) {}
 
-  public async getUserProfile(
+  public async getUser(
     userId: string,
   ): Promise<{ coachId: number; language: string }> {
     const supabase = this.supabaseService.getAdminClient();
 
     const { data, error } = await supabase
-      .from("profiles")
+      .from("users")
       .select("coach_id, language")
       .eq("id", userId)
       .single();
 
     if (error !== null) {
-      this.logger.warn(`No profile for user ${userId}, using defaults`);
+      this.logger.warn(`No user ${userId}, using defaults`);
       return { coachId: config.coach.defaultCoachId, language: "en" };
     }
 

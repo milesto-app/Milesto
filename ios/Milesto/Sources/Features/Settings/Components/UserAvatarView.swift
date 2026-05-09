@@ -1,6 +1,6 @@
 import SwiftUI
 
-struct ProfileAvatarView: View {
+struct UserAvatarView: View {
     let imageURL: URL?
     let initials: String
     let size: CGFloat

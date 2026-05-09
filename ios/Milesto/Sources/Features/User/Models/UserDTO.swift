@@ -1,6 +1,6 @@
 import Foundation
 
-struct ProfileDTO: Codable {
+struct UserDTO: Codable {
     let userId: String
     let firstName: String?
     let lastName: String?
@@ -43,8 +43,8 @@ struct ProfileDTO: Codable {
     }
 }
 
-extension ProfileDTO {
-    var isProfileComplete: Bool {
+extension UserDTO {
+    var isComplete: Bool {
         firstName?.trimmingCharacters(in: .whitespaces).isEmpty == false
             && lastName?.trimmingCharacters(in: .whitespaces).isEmpty == false
             && dateOfBirth != nil

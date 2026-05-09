@@ -10,7 +10,7 @@ import {
 const MAX_NAME_LENGTH = 200;
 const MAX_LANGUAGE_LENGTH = 10;
 
-export class UpdateProfileDto {
+export class UpdateUserDto {
   @ApiPropertyOptional({ example: "Gabriel" })
   @IsOptional()
   @IsString()

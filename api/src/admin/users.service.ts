@@ -4,7 +4,7 @@ import {
   Logger,
   NotFoundException,
 } from "@nestjs/common";
-import type { User } from "@supabase/supabase-js";
+import type { User as AuthUser } from "@supabase/supabase-js";
 
 import { SubscriptionService } from "../subscription/subscription.service.js";
 import { SUBSCRIPTION_STATUS } from "../subscription/subscription-state.js";
@@ -29,7 +29,7 @@ const RECENT_USAGE_LIMIT = 50;
 const TOKEN_LAST_CHARS = 4;
 const HTTP_NOT_FOUND = 404;
 
-interface ProfileRow {
+interface UserRow {
   id: string;
   first_name: string | null;
   last_name: string | null;
@@ -69,12 +69,12 @@ export class UsersService {
   }
 
   public async getUserDetail(userId: string): Promise<AdminUserDetail> {
-    const user = await this.requireAuthUser(userId);
-    const [profile, goalCount] = await Promise.all([
-      this.fetchProfile(userId),
+    const authUser = await this.requireAuthUser(userId);
+    const [user, goalCount] = await Promise.all([
+      this.fetchUser(userId),
       this.fetchGoalCount(userId),
     ]);
-    return buildUserDetail(user, profile, goalCount);
+    return buildUserDetail(authUser, user, goalCount);
   }
 
   public async getUserGoals(userId: string): Promise<AdminUserGoal[]> {
@@ -171,21 +171,21 @@ export class UsersService {
   public async getUserSubscription(
     userId: string,
   ): Promise<AdminUserSubscription> {
-    const profile = await this.fetchProfile(userId);
-    if (profile === null) {
-      throw new NotFoundException(`Profile for user ${userId} not found`);
+    const user = await this.fetchUser(userId);
+    if (user === null) {
+      throw new NotFoundException(`User ${userId} not found`);
     }
 
     const effective = await this.subscriptionService.getStatus(userId);
     return {
-      status: profile.subscription_status,
-      expiresAt: profile.subscription_expires_at,
-      productId: profile.subscription_product_id,
-      environment: profile.subscription_environment,
-      autoRenewStatus: profile.subscription_auto_renew_status,
-      originalTransactionId: profile.subscription_original_transaction_id,
-      appleSignedAt: profile.subscription_apple_signed_at,
-      verifiedAt: profile.subscription_verified_at,
+      status: user.subscription_status,
+      expiresAt: user.subscription_expires_at,
+      productId: user.subscription_product_id,
+      environment: user.subscription_environment,
+      autoRenewStatus: user.subscription_auto_renew_status,
+      originalTransactionId: user.subscription_original_transaction_id,
+      appleSignedAt: user.subscription_apple_signed_at,
+      verifiedAt: user.subscription_verified_at,
       source: effective.source,
       lastSyncedAt: effective.lastSyncedAt,
     };
@@ -221,18 +221,16 @@ export class UsersService {
     patch: { role?: AdminUserRole; language?: string; coachId?: number },
   ): Promise<AdminUserDetail> {
     const supabase = this.supabaseService.getAdminClient();
-    const profileUpdate = profileUpdateFromPatch(patch);
+    const userUpdate = userUpdateFromPatch(patch);
 
-    if (Object.keys(profileUpdate).length > 0) {
+    if (Object.keys(userUpdate).length > 0) {
       const { error } = await supabase
-        .from("profiles")
-        .update(profileUpdate)
+        .from("users")
+        .update(userUpdate)
         .eq("id", userId);
       if (error !== null) {
-        this.logger.error(
-          `Failed to update profile for ${userId}: ${error.message}`,
-        );
-        throw new InternalServerErrorException("Failed to update profile");
+        this.logger.error(`Failed to update user ${userId}: ${error.message}`);
+        throw new InternalServerErrorException("Failed to update user");
       }
     }
 
@@ -287,7 +285,7 @@ export class UsersService {
     }
 
     const total = extractTotalUsers(data);
-    const users = await this.enrichWithProfiles(data.users);
+    const users = await this.enrichWithUsers(data.users);
     const filtered = applyStatusFilter(users, status);
 
     return {
@@ -317,11 +315,11 @@ export class UsersService {
     }
 
     const lowered = search.toLowerCase();
-    const matched = data.users.filter((user) =>
-      (user.email ?? "").toLowerCase().includes(lowered),
+    const matched = data.users.filter((authUser) =>
+      (authUser.email ?? "").toLowerCase().includes(lowered),
     );
 
-    const enriched = await this.enrichWithProfiles(matched);
+    const enriched = await this.enrichWithUsers(matched);
     const filtered = applyStatusFilter(enriched, status);
     const total = filtered.length;
     const start = (page - 1) * perPage;
@@ -336,39 +334,41 @@ export class UsersService {
     };
   }
 
-  private async enrichWithProfiles(users: User[]): Promise<AdminUserSummary[]> {
-    if (users.length === 0) {
+  private async enrichWithUsers(
+    authUsers: AuthUser[],
+  ): Promise<AdminUserSummary[]> {
+    if (authUsers.length === 0) {
       return [];
     }
 
     const supabase = this.supabaseService.getAdminClient();
-    const userIds = users.map((user) => user.id);
-    const { data: profiles } = await supabase
-      .from("profiles")
+    const userIds = authUsers.map((authUser) => authUser.id);
+    const { data: users } = await supabase
+      .from("users")
       .select("id, first_name, last_name, subscription_status, coach_id")
       .in("id", userIds);
 
-    const profileMap = new Map(profiles?.map((p) => [p.id, p]) ?? []);
+    const userMap = new Map(users?.map((u) => [u.id, u]) ?? []);
 
-    return users.map((user) => {
-      const profile = profileMap.get(user.id);
+    return authUsers.map((authUser) => {
+      const user = userMap.get(authUser.id);
       return {
-        id: user.id,
-        email: user.email ?? "",
-        firstName: profile?.first_name ?? null,
-        lastName: profile?.last_name ?? null,
+        id: authUser.id,
+        email: authUser.email ?? "",
+        firstName: user?.first_name ?? null,
+        lastName: user?.last_name ?? null,
         subscriptionStatus:
-          profile?.subscription_status ?? SUBSCRIPTION_STATUS.UNKNOWN,
-        coachId: profile?.coach_id ?? null,
-        createdAt: user.created_at,
+          user?.subscription_status ?? SUBSCRIPTION_STATUS.UNKNOWN,
+        coachId: user?.coach_id ?? null,
+        createdAt: authUser.created_at,
       };
     });
   }
 
-  private async fetchProfile(userId: string): Promise<ProfileRow | null> {
+  private async fetchUser(userId: string): Promise<UserRow | null> {
     const supabase = this.supabaseService.getAdminClient();
     const { data, error } = await supabase
-      .from("profiles")
+      .from("users")
       .select(
         "id, first_name, last_name, language, timezone, date_of_birth, coach_id, subscription_status, subscription_expires_at, subscription_product_id, subscription_environment, subscription_auto_renew_status, subscription_original_transaction_id, subscription_apple_signed_at, subscription_verified_at",
       )
@@ -376,10 +376,8 @@ export class UsersService {
       .maybeSingle();
 
     if (error !== null && error.code !== SUPABASE_NOT_FOUND) {
-      this.logger.error(
-        `Failed to load profile for ${userId}: ${error.message}`,
-      );
-      throw new InternalServerErrorException("Failed to load profile");
+      this.logger.error(`Failed to load user ${userId}: ${error.message}`);
+      throw new InternalServerErrorException("Failed to load user");
     }
 
     return data;
@@ -439,7 +437,7 @@ export class UsersService {
     return counts;
   }
 
-  private async requireAuthUser(userId: string): Promise<User> {
+  private async requireAuthUser(userId: string): Promise<AuthUser> {
     const supabase = this.supabaseService.getAdminClient();
     const { data, error } = await supabase.auth.admin.getUserById(userId);
     if (error !== null) {
@@ -466,30 +464,30 @@ export class UsersService {
   }
 }
 
-function roleFromUser(user: User): string {
-  const metadata = user.app_metadata as { role?: unknown };
+function roleFromAuthUser(authUser: AuthUser): string {
+  const metadata = authUser.app_metadata as { role?: unknown };
   const role = metadata.role;
   return typeof role === "string" ? role : DEFAULT_USER_ROLE;
 }
 
 function buildUserDetail(
-  user: User,
-  profile: ProfileRow | null,
+  authUser: AuthUser,
+  user: UserRow | null,
   goalCount: number,
 ): AdminUserDetail {
-  const fields = profileDetailFields(profile);
+  const fields = userDetailFields(user);
   return {
-    id: user.id,
-    email: user.email ?? "",
-    role: roleFromUser(user),
-    createdAt: user.created_at,
+    id: authUser.id,
+    email: authUser.email ?? "",
+    role: roleFromAuthUser(authUser),
+    createdAt: authUser.created_at,
     goalCount,
     ...fields,
   };
 }
 
-function profileDetailFields(
-  profile: ProfileRow | null,
+function userDetailFields(
+  user: UserRow | null,
 ): Pick<
   AdminUserDetail,
   | "firstName"
@@ -501,7 +499,7 @@ function profileDetailFields(
   | "subscriptionStatus"
   | "subscriptionExpiresAt"
 > {
-  if (profile === null) {
+  if (user === null) {
     return {
       firstName: null,
       lastName: null,
@@ -514,14 +512,14 @@ function profileDetailFields(
     };
   }
   return {
-    firstName: profile.first_name,
-    lastName: profile.last_name,
-    language: profile.language,
-    timezone: profile.timezone,
-    dateOfBirth: profile.date_of_birth,
-    coachId: profile.coach_id,
-    subscriptionStatus: profile.subscription_status,
-    subscriptionExpiresAt: profile.subscription_expires_at,
+    firstName: user.first_name,
+    lastName: user.last_name,
+    language: user.language,
+    timezone: user.timezone,
+    dateOfBirth: user.date_of_birth,
+    coachId: user.coach_id,
+    subscriptionStatus: user.subscription_status,
+    subscriptionExpiresAt: user.subscription_expires_at,
   };
 }
 
@@ -543,11 +541,11 @@ function applyStatusFilter(
   return users.filter((user) => user.subscriptionStatus === status);
 }
 
-function profileUpdateFromPatch(patch: {
+function userUpdateFromPatch(patch: {
   language?: string;
   coachId?: number;
-}): TablesUpdate<"profiles"> {
-  const update: TablesUpdate<"profiles"> = {};
+}): TablesUpdate<"users"> {
+  const update: TablesUpdate<"users"> = {};
   if (patch.language !== undefined) {
     update.language = patch.language;
   }

@@ -111,20 +111,20 @@ export class AdminUsageService {
 
     const userIds = sorted.map(([id]) => id);
     const supabase = this.supabaseService.getAdminClient();
-    const { data: profiles, error } = await supabase
-      .from("profiles")
+    const { data: users, error } = await supabase
+      .from("users")
       .select("id, first_name, last_name")
       .in("id", userIds);
 
     if (error !== null) {
-      this.logger.error(`Failed to load top-user profiles: ${error.message}`);
+      this.logger.error(`Failed to load top users: ${error.message}`);
       throw new InternalServerErrorException("Failed to load top users");
     }
 
-    const profileMap = new Map(profiles.map((p) => [p.id, p]));
+    const userMap = new Map(users.map((u) => [u.id, u]));
     return sorted.map(([userId, count]) => ({
       userId,
-      name: nameFromProfile(profileMap.get(userId)),
+      name: nameFromUser(userMap.get(userId)),
       count,
     }));
   }
@@ -225,13 +225,13 @@ function fillZeroDays(
   }
 }
 
-function nameFromProfile(
-  profile: { first_name: string | null; last_name: string | null } | undefined,
+function nameFromUser(
+  user: { first_name: string | null; last_name: string | null } | undefined,
 ): string {
-  if (profile === undefined) {
+  if (user === undefined) {
     return UNKNOWN_USER_NAME;
   }
-  const joined = [profile.first_name, profile.last_name]
+  const joined = [user.first_name, user.last_name]
     .filter((value): value is string => value !== null && value !== "")
     .join(" ");
   return joined === "" ? UNKNOWN_USER_NAME : joined;

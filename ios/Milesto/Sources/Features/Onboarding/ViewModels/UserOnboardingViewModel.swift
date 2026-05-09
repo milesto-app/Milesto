@@ -2,11 +2,11 @@ import Foundation
 
 @MainActor
 @Observable
-final class ProfileOnboardingViewModel {
+final class UserOnboardingViewModel {
     @ObservationIgnored private let env: AppEnv
     @ObservationIgnored private let userId: String
     @ObservationIgnored let missingSteps: [OnboardingStep]
-    @ObservationIgnored private let existingProfile: ProfileDTO?
+    @ObservationIgnored private let existingUser: UserDTO?
 
     var firstName: String
     var lastName: String
@@ -21,17 +21,17 @@ final class ProfileOnboardingViewModel {
         env: AppEnv,
         userId: String,
         missingSteps: [OnboardingStep],
-        existingProfile: ProfileDTO?
+        existingUser: UserDTO?
     ) {
         self.env = env
         self.userId = userId
         self.missingSteps = missingSteps
-        self.existingProfile = existingProfile
+        self.existingUser = existingUser
 
-        firstName = existingProfile?.firstName ?? ""
-        lastName = existingProfile?.lastName ?? ""
-        dateOfBirth = existingProfile?.dateOfBirth ?? Self.defaultDateOfBirth()
-        if let coachId = existingProfile?.coachId {
+        firstName = existingUser?.firstName ?? ""
+        lastName = existingUser?.lastName ?? ""
+        dateOfBirth = existingUser?.dateOfBirth ?? Self.defaultDateOfBirth()
+        if let coachId = existingUser?.coachId {
             selectedCoach = CoachPersonality.from(databaseId: coachId)
         }
     }
@@ -57,16 +57,16 @@ final class ProfileOnboardingViewModel {
         let finalLastName = lastName.trimmingCharacters(in: .whitespaces)
 
         let mergedFirstName = finalFirstName.isEmpty
-            ? (existingProfile?.firstName ?? "") : finalFirstName
+            ? (existingUser?.firstName ?? "") : finalFirstName
         let mergedLastName = finalLastName.isEmpty
-            ? (existingProfile?.lastName ?? "") : finalLastName
-        let mergedDateOfBirth = existingProfile?.dateOfBirth ?? dateOfBirth
-        let mergedCoachId = selectedCoach?.databaseId ?? existingProfile?.coachId
+            ? (existingUser?.lastName ?? "") : finalLastName
+        let mergedDateOfBirth = existingUser?.dateOfBirth ?? dateOfBirth
+        let mergedCoachId = selectedCoach?.databaseId ?? existingUser?.coachId
 
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyy-MM-dd"
 
-        let fields = ProfileUpdateFieldsDTO(
+        let fields = UserUpdateFieldsDTO(
             firstName: mergedFirstName,
             lastName: mergedLastName,
             dateOfBirth: formatter.string(from: mergedDateOfBirth),
@@ -74,7 +74,7 @@ final class ProfileOnboardingViewModel {
         )
 
         do {
-            try await env.onboarding.saveProfile(fields: fields)
+            try await env.onboarding.saveUser(fields: fields)
             return true
         } catch {
             errorMessage = error.localizedDescription
