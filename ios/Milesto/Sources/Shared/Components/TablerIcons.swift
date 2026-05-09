@@ -5,7 +5,7 @@ struct TablerIcons: View {
     var size: CGFloat = 24
     var color: Color?
 
-    init(_ icon: TablerIconOutline, size: CGFloat = 24, color: Color? = nil) {
+    init(_ icon: TablerIcon, size: CGFloat = 24, color: Color? = nil) {
         unicode = icon.rawValue
         self.size = size
         self.color = color
@@ -19,10 +19,10 @@ struct TablerIcons: View {
 }
 
 struct TablerTabLabel: View {
-    let icon: TablerIconOutline
+    let icon: TablerIcon
     let title: String
 
-    init(_ icon: TablerIconOutline, title: String) {
+    init(_ icon: TablerIcon, title: String) {
         self.icon = icon
         self.title = title
     }
@@ -39,7 +39,7 @@ struct TablerTabLabel: View {
         }
 
         let fallbackRenderer = ImageRenderer(
-            content: Text(TablerIconOutline.questionMark.rawValue)
+            content: Text(TablerIcon.questionMark.rawValue)
                 .font(.custom("tabler-icons", size: 24))
                 .foregroundStyle(Color("TextPrimary"))
         )
@@ -73,7 +73,7 @@ extension TablerIcons {
     }
 }
 
-public enum TablerIconOutline: String, Sendable {
+public enum TablerIcon: String, Sendable {
     case aB = "\u{EC36}"
     case aB2 = "\u{F25F}"
     case aBOff = "\u{F0A6}"

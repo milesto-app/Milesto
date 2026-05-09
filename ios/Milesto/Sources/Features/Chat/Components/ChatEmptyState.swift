@@ -10,7 +10,7 @@ struct ChatEmptyState: View {
         appeared && isVisible
     }
 
-    private let prompts: [(icon: TablerIconOutline, key: String)] = [
+    private let prompts: [(icon: TablerIcon, key: String)] = [
         (.targetArrow, "chat.prompt.progress"),
         (.bulb, "chat.prompt.motivation"),
         (.calendarEvent, "chat.prompt.today"),

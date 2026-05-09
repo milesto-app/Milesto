@@ -3,7 +3,7 @@ import SwiftUI
 struct WeeklyTasksCard: View {
     let title: LocalizedStringKey
     let titleTable: String?
-    let icon: TablerIconOutline?
+    let icon: TablerIcon?
     let emptyText: LocalizedStringKey
     let emptyTextTable: String?
     let tasks: [WeeklyTaskDTO]
@@ -16,7 +16,7 @@ struct WeeklyTasksCard: View {
     init(
         title: LocalizedStringKey,
         titleTable: String? = nil,
-        icon: TablerIconOutline? = nil,
+        icon: TablerIcon? = nil,
         emptyText: LocalizedStringKey,
         emptyTextTable: String? = nil,
         tasks: [WeeklyTaskDTO],

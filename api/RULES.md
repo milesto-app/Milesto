@@ -2,40 +2,7 @@
 
 ## Project Overview
 
-Milesto is an AI-powered personal coaching API built with NestJS + TypeScript. It uses Supabase (Postgres + Auth), OpenRouter for LLM calls, and Cohere for vector reranking. The API is prefixed with `/api` and documented via Swagger at `/docs`.
-
-## Commands
-
-```bash
-bun run build              # Compile (nest build)
-bun run lint               # ESLint with auto-fix (Prettier runs from repo root)
-bun run eval               # Build + run evaluation suite
-```
-
-## Naming
-
-| Element               | Convention                                    | Example                     |
-| --------------------- | --------------------------------------------- | --------------------------- |
-| Files                 | `kebab-case`                                  | `intake-prompt.service.ts`  |
-| Classes               | `PascalCase`                                  | `IntakeService`             |
-| Variables / functions | `camelCase`                                   | `generateBatch`             |
-| Module-level consts   | `UPPER_SNAKE_CASE`                            | `MAX_RETRIES`               |
-| DB tables / columns   | `snake_case`                                  | `goal_profiles`             |
-| Enums                 | `PascalCase` name, `UPPER_SNAKE_CASE` members | `enum Status { ACTIVE }`    |
-| Booleans              | Prefix with `is`, `has`, `should`, `can`      | `isCompleted`, `hasProfile` |
-| Event names           | `domain.action`                               | `profile.generated`         |
-
-## Functions & Methods
-
-- **Max nesting depth: 3.** No nested callbacks deeper than 2 levels.
-- **Max cyclomatic complexity: 10.** Reduce branching with early returns and extracted helpers.
-- Always `await` promises or explicitly mark fire-and-forget with `void`.
-- No `return await` outside of `try/catch` blocks.
-- Use `for...of` instead of `.forEach()`. Use template literals instead of string concatenation.
-- No sequential `await` in loops — prefer `Promise.all()` for independent operations.
-- Prefer `const` — never use `var`, use `let` only when reassignment is needed.
-- No `console.*` — use the NestJS `Logger`.
-- No useless returns, no returning from Promise executors.
+Milesto is an AI-powered personal coaching API built with NestJS + TypeScript. It uses Supabase (Postgres + Auth), OpenRouter for LLM calls, and Cohere for vector reranking. The API is prefixed with `/api`.
 
 ## Error Handling
 

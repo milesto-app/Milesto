@@ -105,7 +105,7 @@ struct RoadmapMilestoneRow: View {
             .glassEffect(.regular.interactive(), in: shape)
     }
 
-    private var markerIcon: TablerIconOutline? {
+    private var markerIcon: TablerIcon? {
         if milestone.status == .completed { return .check }
         return nil
     }
@@ -130,7 +130,7 @@ struct RoadmapMilestoneRow: View {
         milestone.status == .completed ? Color("Brand") : typeColor
     }
 
-    private var typeIcon: TablerIconOutline {
+    private var typeIcon: TablerIcon {
         return .route
     }
 

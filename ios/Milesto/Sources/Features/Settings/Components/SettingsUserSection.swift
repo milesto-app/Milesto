@@ -109,7 +109,7 @@ struct SettingsUserDetailsSection: View {
 }
 
 struct SettingsEditableRow: View {
-    let icon: TablerIconOutline
+    let icon: TablerIcon
     let label: LocalizedStringKey
     let value: String
     let action: () -> Void
@@ -131,7 +131,7 @@ struct SettingsEditableRow: View {
 }
 
 struct SettingsDetailRow: View {
-    let icon: TablerIconOutline
+    let icon: TablerIcon
     let label: LocalizedStringKey
     let value: String
 
@@ -202,7 +202,7 @@ struct SettingsDangerSection: View {
     }
 
     private func dangerButton(
-        icon: TablerIconOutline,
+        icon: TablerIcon,
         label: LocalizedStringKey,
         action: @escaping () -> Void
     ) -> some View {

@@ -4,13 +4,6 @@
 
 Next.js admin dashboard and public pages for Milesto (milesto.app). Uses App Router, TypeScript, Tailwind CSS v4, and shadcn/ui.
 
-## Commands
-
-```bash
-bun run build              # Production build
-bun run lint               # Lint
-```
-
 ## Architecture
 
 - **Admin dashboard** (`/admin/*`): Protected by Supabase auth + admin role check. Queries Supabase directly with service-role key (server-side only).
@@ -34,7 +27,6 @@ Three clients, each for a specific context:
 
 ## Conventions
 
-- Use bun, not npm.
 - shadcn/ui for UI components.
 - Server Components by default, Client Components only when needed (charts, polling, forms).
 - `force-dynamic` on admin pages, static for public pages.

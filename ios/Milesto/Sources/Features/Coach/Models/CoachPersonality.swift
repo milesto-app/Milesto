@@ -28,7 +28,7 @@ enum CoachPersonality: String, CaseIterable, Identifiable {
         }
     }
 
-    var icon: TablerIconOutline {
+    var icon: TablerIcon {
         switch self {
         case .motivateur: return .flame
         case .zen: return .leaf

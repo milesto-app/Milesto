@@ -3,7 +3,7 @@ import SwiftUI
 struct MilestoneStatusBadge: View {
     let status: MilestoneStatus
 
-    private var icon: TablerIconOutline? {
+    private var icon: TablerIcon? {
         switch status {
         case .completed: return .check
         case .current: return .mapPin
