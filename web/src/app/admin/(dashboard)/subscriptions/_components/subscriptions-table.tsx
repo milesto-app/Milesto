@@ -143,6 +143,7 @@ function SubscriptionDetail({ row }: { row: AdminSubscriptionSummary }) {
       <Detail label="Email" value={row.email} />
       <Detail label="Status" value={row.status} />
       <Detail label="Product" value={row.productId ?? "—"} />
+      <Detail label="Source" value={row.source} />
       <Detail label="Environment" value={row.environment ?? "—"} />
       <Detail
         label="Auto-renew"
@@ -156,6 +157,7 @@ function SubscriptionDetail({ row }: { row: AdminSubscriptionSummary }) {
       />
       <Detail label="Expires" value={formatDate(row.expiresAt)} />
       <Detail label="Verified" value={formatDate(row.verifiedAt)} />
+      <Detail label="Last synced" value={formatDate(row.lastSyncedAt)} />
       <Detail label="Apple signed" value={formatDate(row.appleSignedAt)} />
       <Detail
         label="Original txn"

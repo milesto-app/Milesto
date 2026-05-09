@@ -7,8 +7,8 @@ import {
 import type { SchedulerStatus } from "../notifications/notification-scheduler.service.js";
 import { NotificationSchedulerService } from "../notifications/notification-scheduler.service.js";
 import { NotificationsService } from "../notifications/notifications.service.js";
+import { SUBSCRIPTION_STATUS } from "../subscription/subscription-state.js";
 import { SupabaseService } from "../supabase/supabase.service.js";
-import { SUBSCRIPTION_STATUS } from "../usage/subscription-state.js";
 import type {
   AdminBroadcastResult,
   AdminBroadcastSegment,

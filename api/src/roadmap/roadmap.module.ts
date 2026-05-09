@@ -1,6 +1,7 @@
 import { Module } from "@nestjs/common";
 
 import { GoalModule } from "../goal/goal.module.js";
+import { UsageModule } from "../usage/usage.module.js";
 import { DebriefController } from "./debrief.controller.js";
 import { DebriefService } from "./debrief.service.js";
 import { MilestoneController } from "./milestone.controller.js";
@@ -10,14 +11,13 @@ import { RoadmapService } from "./roadmap.service.js";
 import { RoadmapContextService } from "./roadmap-context.service.js";
 import { RoadmapDataService } from "./roadmap-data.service.js";
 import { RoadmapGenerationService } from "./roadmap-generation.service.js";
-import { RoadmapQualityService } from "./roadmap-quality.service.js";
 import { SummaryEmbeddingService } from "./summary-embedding.service.js";
 import { WeeklyPlanService } from "./weekly-plan.service.js";
 import { WeeklyTaskController } from "./weekly-task.controller.js";
 import { WeeklyTaskService } from "./weekly-task.service.js";
 
 @Module({
-  imports: [GoalModule],
+  imports: [GoalModule, UsageModule],
   controllers: [
     RoadmapController,
     WeeklyTaskController,
@@ -34,7 +34,6 @@ import { WeeklyTaskService } from "./weekly-task.service.js";
     WeeklyPlanService,
     WeeklyTaskService,
     SummaryEmbeddingService,
-    RoadmapQualityService,
   ],
   exports: [
     RoadmapContextService,

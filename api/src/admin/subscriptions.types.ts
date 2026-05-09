@@ -11,6 +11,8 @@ export interface AdminSubscriptionSummary {
   verifiedAt: string | null;
   appleSignedAt: string | null;
   originalTransactionId: string | null;
+  source: string;
+  lastSyncedAt: string | null;
 }
 
 export interface AdminSubscriptionList {

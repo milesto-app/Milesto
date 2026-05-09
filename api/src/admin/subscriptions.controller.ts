@@ -104,19 +104,18 @@ export class SubscriptionsController {
   }
 
   @Post("refresh/:userId")
-  @HttpCode(HttpStatus.NOT_IMPLEMENTED)
+  @HttpCode(HttpStatus.OK)
   @ApiOperation({
-    summary:
-      "Refresh subscription state for a user via App Store Server API (pending)",
+    summary: "Refresh subscription state for a user via App Store Server API",
   })
   @ApiParam({ name: "userId", description: "Auth user UUID" })
   @ApiResponse({
-    status: 501,
-    description: "App Store Server API integration pending",
+    status: 200,
+    description: "Subscription refreshed",
   })
   public async refreshSubscription(
     @Param("userId", ParseUUIDPipe) userId: string,
-  ): Promise<never> {
+  ): Promise<unknown> {
     return this.subscriptionsService.refreshSubscription(userId);
   }
 }

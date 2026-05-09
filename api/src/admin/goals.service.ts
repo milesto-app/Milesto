@@ -321,7 +321,6 @@ export class GoalsService {
         roadmap_generation_attempts: 0,
         roadmap_model_used: null,
         roadmap_generation_metadata: null,
-        roadmap_quality_scores: null,
         roadmap_created_at: null,
         roadmap_updated_at: null,
       })
@@ -492,7 +491,6 @@ function groupBatchesWithQuestions(
     batchNumber: batch.batch_number,
     isAnswered: batch.is_answered,
     embedded: batch.embedded,
-    qualityScore: batch.quality_score,
     createdAt: batch.created_at,
     questions: grouped.get(batch.id) ?? [],
   }));

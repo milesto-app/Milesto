@@ -16,6 +16,7 @@ import { HealthModule } from "./health/health.module.js";
 import { IntakeModule } from "./intake/intake.module.js";
 import { NotificationsModule } from "./notifications/notifications.module.js";
 import { RoadmapModule } from "./roadmap/roadmap.module.js";
+import { SubscriptionModule } from "./subscription/subscription.module.js";
 import { SupabaseModule } from "./supabase/supabase.module.js";
 import { TranscriptionModule } from "./transcription/transcription.module.js";
 import { UsageModule } from "./usage/usage.module.js";
@@ -35,6 +36,7 @@ import { UserModule } from "./user/user.module.js";
     ]),
     SupabaseModule,
     UsageModule,
+    SubscriptionModule,
     AiModule,
     GoalModule,
     HealthModule,

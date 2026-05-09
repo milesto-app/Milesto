@@ -6,10 +6,11 @@ import {
 } from "@nestjs/common";
 import type { User } from "@supabase/supabase-js";
 
+import { SubscriptionService } from "../subscription/subscription.service.js";
+import { SUBSCRIPTION_STATUS } from "../subscription/subscription-state.js";
 import type { TablesUpdate } from "../supabase/database.types.js";
 import { SUPABASE_NOT_FOUND } from "../supabase/error-codes.js";
 import { SupabaseService } from "../supabase/supabase.service.js";
-import { SUBSCRIPTION_STATUS } from "../usage/subscription-state.js";
 import type { AdminUserRole } from "./dto/patch-user.dto.js";
 import type {
   AdminUserDetail,
@@ -50,7 +51,10 @@ interface ProfileRow {
 export class UsersService {
   private readonly logger = new Logger(UsersService.name);
 
-  constructor(private readonly supabaseService: SupabaseService) {}
+  constructor(
+    private readonly supabaseService: SupabaseService,
+    private readonly subscriptionService: SubscriptionService,
+  ) {}
 
   public async listUsers(
     page: number,
@@ -172,6 +176,7 @@ export class UsersService {
       throw new NotFoundException(`Profile for user ${userId} not found`);
     }
 
+    const effective = await this.subscriptionService.getStatus(userId);
     return {
       status: profile.subscription_status,
       expiresAt: profile.subscription_expires_at,
@@ -181,6 +186,8 @@ export class UsersService {
       originalTransactionId: profile.subscription_original_transaction_id,
       appleSignedAt: profile.subscription_apple_signed_at,
       verifiedAt: profile.subscription_verified_at,
+      source: effective.source,
+      lastSyncedAt: effective.lastSyncedAt,
     };
   }
 
@@ -239,41 +246,14 @@ export class UsersService {
   public async grantPro(
     userId: string,
     expiresAt: string,
+    createdBy: string,
   ): Promise<AdminUserSubscription> {
-    const supabase = this.supabaseService.getAdminClient();
-    const { error } = await supabase
-      .from("profiles")
-      .update({
-        subscription_status: SUBSCRIPTION_STATUS.ACTIVE,
-        subscription_expires_at: expiresAt,
-        subscription_verified_at: new Date().toISOString(),
-      })
-      .eq("id", userId);
-
-    if (error !== null) {
-      this.logger.error(`Failed to grant pro for ${userId}: ${error.message}`);
-      throw new InternalServerErrorException("Failed to grant pro");
-    }
-
+    await this.subscriptionService.grantOverride(userId, expiresAt, createdBy);
     return this.getUserSubscription(userId);
   }
 
   public async revokePro(userId: string): Promise<AdminUserSubscription> {
-    const supabase = this.supabaseService.getAdminClient();
-    const { error } = await supabase
-      .from("profiles")
-      .update({
-        subscription_status: SUBSCRIPTION_STATUS.REVOKED,
-        subscription_expires_at: new Date().toISOString(),
-        subscription_verified_at: new Date().toISOString(),
-      })
-      .eq("id", userId);
-
-    if (error !== null) {
-      this.logger.error(`Failed to revoke pro for ${userId}: ${error.message}`);
-      throw new InternalServerErrorException("Failed to revoke pro");
-    }
-
+    await this.subscriptionService.revokeOverride(userId);
     return this.getUserSubscription(userId);
   }
 

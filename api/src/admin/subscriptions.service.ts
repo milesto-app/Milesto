@@ -2,13 +2,13 @@ import {
   Injectable,
   InternalServerErrorException,
   Logger,
-  NotImplementedException,
 } from "@nestjs/common";
 import type { User } from "@supabase/supabase-js";
 
 import { config } from "../config/app.config.js";
+import { SubscriptionService } from "../subscription/subscription.service.js";
+import { SUBSCRIPTION_STATUS } from "../subscription/subscription-state.js";
 import { SupabaseService } from "../supabase/supabase.service.js";
-import { SUBSCRIPTION_STATUS } from "../usage/subscription-state.js";
 import type {
   AdminSubscriptionChurn,
   AdminSubscriptionEvent,
@@ -47,7 +47,10 @@ interface ProfileSubscriptionRow {
 export class SubscriptionsService {
   private readonly logger = new Logger(SubscriptionsService.name);
 
-  constructor(private readonly supabaseService: SupabaseService) {}
+  constructor(
+    private readonly supabaseService: SupabaseService,
+    private readonly subscriptionService: SubscriptionService,
+  ) {}
 
   public async listSubscriptions(
     page: number,
@@ -209,9 +212,9 @@ export class SubscriptionsService {
   ): Promise<AdminSubscriptionEventList> {
     const supabase = this.supabaseService.getAdminClient();
     const { data, error } = await supabase
-      .from("processed_notifications")
-      .select("notification_uuid, notification_type, subtype, received_at")
-      .order("received_at", { ascending: false })
+      .from("apple_subscription_events")
+      .select("notification_uuid, notification_type, subtype, processed_at")
+      .order("processed_at", { ascending: false })
       .limit(limit);
 
     if (error !== null) {
@@ -225,19 +228,14 @@ export class SubscriptionsService {
       notificationUuid: row.notification_uuid,
       notificationType: row.notification_type,
       subtype: row.subtype,
-      receivedAt: row.received_at,
+      receivedAt: row.processed_at,
     }));
 
     return { events };
   }
 
-  public async refreshSubscription(userId: string): Promise<never> {
-    this.logger.warn(
-      `Subscription refresh requested for ${userId} but App Store Server API integration is pending`,
-    );
-    return Promise.reject(
-      new NotImplementedException("App Store Server API integration pending"),
-    );
+  public async refreshSubscription(userId: string): Promise<unknown> {
+    return this.subscriptionService.refreshUserAppleSubscriptions(userId);
   }
 
   private async lookupEmails(userIds: string[]): Promise<Map<string, string>> {
@@ -288,7 +286,22 @@ function buildSummary(
     verifiedAt: row.subscription_verified_at,
     appleSignedAt: row.subscription_apple_signed_at,
     originalTransactionId: row.subscription_original_transaction_id,
+    source: sourceFromProfile(row),
+    lastSyncedAt: row.subscription_verified_at,
   };
+}
+
+function sourceFromProfile(row: ProfileSubscriptionRow): string {
+  if (row.subscription_original_transaction_id !== null) {
+    return "apple";
+  }
+  if (
+    row.subscription_status === SUBSCRIPTION_STATUS.ACTIVE &&
+    row.subscription_expires_at !== null
+  ) {
+    return "override";
+  }
+  return "none";
 }
 
 function computeProductBreakdown(

@@ -4,7 +4,6 @@ import {
   InternalServerErrorException,
   Logger,
 } from "@nestjs/common";
-import { EventEmitter2 } from "@nestjs/event-emitter";
 
 import { UserLanguageService } from "../common/user-language.service.js";
 import { UsageService } from "../usage/usage.service.js";
@@ -38,7 +37,6 @@ export class WeeklyTaskService {
     private readonly contextPipeline: RoadmapContextService,
     private readonly generation: RoadmapGenerationService,
     private readonly storage: RoadmapDataService,
-    private readonly events: EventEmitter2,
     private readonly weeklyPlan: WeeklyPlanService,
     private readonly languageService: UserLanguageService,
     private readonly usageService: UsageService,
@@ -167,10 +165,6 @@ export class WeeklyTaskService {
       isFallback: false,
     });
 
-    this.events.emit("weekly-tasks.generated", {
-      goalId: params.goalId,
-      weeklyPlanId: params.weeklyPlan.id,
-    });
     return stored;
   }
 

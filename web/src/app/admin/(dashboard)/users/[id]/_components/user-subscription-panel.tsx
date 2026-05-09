@@ -67,6 +67,7 @@ export function UserSubscriptionPanel({
       </div>
 
       <dl className="grid gap-x-8 gap-y-4 sm:grid-cols-2">
+        <Field label="Source" value={subscription.source} />
         <Field label="Product ID" value={subscription.productId} mono />
         <Field label="Environment" value={subscription.environment} />
         <Field
@@ -90,6 +91,14 @@ export function UserSubscriptionPanel({
           value={
             subscription.appleSignedAt
               ? formatDateTime(subscription.appleSignedAt)
+              : null
+          }
+        />
+        <Field
+          label="Last synced"
+          value={
+            subscription.lastSyncedAt
+              ? formatDateTime(subscription.lastSyncedAt)
               : null
           }
         />
