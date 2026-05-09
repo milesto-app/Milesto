@@ -185,7 +185,6 @@ export class WeeklyPlanService {
       generation_metadata: metadata as unknown as Record<string, unknown>,
     });
 
-    this.storage.emitPlanGenerated(weeklyPlan.id, params.goalId);
     return weeklyPlan;
   }
 

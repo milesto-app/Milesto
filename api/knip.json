@@ -1,5 +1,6 @@
 {
   "$schema": "https://unpkg.com/knip@6/schema.json",
+  "entry": ["src/main.ts", "src/**/*.spec.ts"],
   "ignoreDependencies": [
     "@eslint/eslintrc",
     "eslint-config-prettier",

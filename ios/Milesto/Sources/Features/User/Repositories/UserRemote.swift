@@ -1,6 +1,6 @@
 import Foundation
 
-struct ProfileUpdateFieldsDTO: Encodable {
+struct UserUpdateFieldsDTO: Encodable {
     var firstName: String?
     var lastName: String?
     var dateOfBirth: String?
@@ -23,24 +23,24 @@ struct ProfileUpdateFieldsDTO: Encodable {
 }
 
 @MainActor
-final class ProfileRemote {
+final class UserRemote {
     init() {}
 
-    func updateProfile(_ fields: ProfileUpdateFieldsDTO) async throws -> ProfileDTO {
+    func updateUser(_ fields: UserUpdateFieldsDTO) async throws -> UserDTO {
         try await ApiClient.shared.request(
             method: "PATCH",
-            path: "me/profile",
+            path: "me",
             body: fields
         )
     }
 
-    func fetchProfile() async throws -> ProfileDTO? {
+    func fetchUser() async throws -> UserDTO? {
         do {
-            let profile: ProfileDTO = try await ApiClient.shared.request(
+            let user: UserDTO = try await ApiClient.shared.request(
                 method: "GET",
-                path: "me/profile"
+                path: "me"
             )
-            return profile
+            return user
         } catch ApiError.httpError(statusCode: 404, _) {
             return nil
         }

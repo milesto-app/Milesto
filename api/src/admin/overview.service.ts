@@ -1,7 +1,7 @@
 import { Injectable, Logger } from "@nestjs/common";
 
+import { PRO_SUBSCRIPTION_STATUSES } from "../subscription/subscription-state.js";
 import { SupabaseService } from "../supabase/supabase.service.js";
-import { PRO_SUBSCRIPTION_STATUSES } from "../usage/subscription-state.js";
 import type {
   ActivityTimelineEntry,
   OverviewStats,
@@ -34,7 +34,7 @@ export class OverviewService {
         .eq("status", ACTIVE_GOAL_STATUS)
         .is("deleted_at", null),
       supabase
-        .from("profiles")
+        .from("users")
         .select("*", { count: "exact", head: true })
         .in("subscription_status", PRO_SUBSCRIPTION_STATUSES)
         .gt("subscription_expires_at", nowIso),
@@ -71,7 +71,7 @@ export class OverviewService {
     }
 
     const userIds = [...new Set(goals.map((g) => g.user_id))];
-    const profileMap = await this.loadProfileNames(userIds);
+    const userNameMap = await this.loadUserNames(userIds);
 
     return goals.map((goal) => ({
       id: goal.id,
@@ -79,7 +79,7 @@ export class OverviewService {
       status: goal.status,
       createdAt: goal.created_at,
       userId: goal.user_id,
-      userName: profileMap.get(goal.user_id) ?? UNKNOWN_USER_NAME,
+      userName: userNameMap.get(goal.user_id) ?? UNKNOWN_USER_NAME,
     }));
   }
 
@@ -102,20 +102,20 @@ export class OverviewService {
     }
 
     const userIds = users.map((u) => u.id);
-    const { data: profiles } = await supabase
-      .from("profiles")
+    const { data: userRows } = await supabase
+      .from("users")
       .select("id, first_name, last_name")
       .in("id", userIds);
 
-    const profileMap = new Map(profiles?.map((p) => [p.id, p]) ?? []);
+    const userMap = new Map(userRows?.map((u) => [u.id, u]) ?? []);
 
     return users.map((user) => {
-      const profile = profileMap.get(user.id);
+      const row = userMap.get(user.id);
       return {
         id: user.id,
         email: user.email ?? "",
-        firstName: profile?.first_name ?? null,
-        lastName: profile?.last_name ?? null,
+        firstName: row?.first_name ?? null,
+        lastName: row?.last_name ?? null,
         createdAt: user.created_at,
       };
     });
@@ -132,7 +132,7 @@ export class OverviewService {
 
     const [signupsRes, goalsRes, messagesRes] = await Promise.all([
       supabase
-        .from("profiles")
+        .from("users")
         .select("created_at")
         .gte("created_at", cutoffIso)
         .limit(TIMELINE_ROW_LIMIT),
@@ -157,21 +157,19 @@ export class OverviewService {
     return [...buckets.values()];
   }
 
-  private async loadProfileNames(
-    userIds: string[],
-  ): Promise<Map<string, string>> {
+  private async loadUserNames(userIds: string[]): Promise<Map<string, string>> {
     if (userIds.length === 0) {
       return new Map();
     }
     const supabase = this.supabaseService.getAdminClient();
-    const { data: profiles } = await supabase
-      .from("profiles")
+    const { data: userRows } = await supabase
+      .from("users")
       .select("id, first_name, last_name")
       .in("id", userIds);
 
     const map = new Map<string, string>();
-    for (const profile of profiles ?? []) {
-      map.set(profile.id, formatName(profile.first_name, profile.last_name));
+    for (const row of userRows ?? []) {
+      map.set(row.id, formatName(row.first_name, row.last_name));
     }
     return map;
   }

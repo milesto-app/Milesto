@@ -11,7 +11,7 @@ export default async function AccountPage() {
     <div className="space-y-4">
       <PageHeader
         title="Account"
-        description="Your admin profile as the API sees it."
+        description="Your admin user as the API sees it."
       />
       <Card className="border-border/60 shadow-none">
         <CardContent className="grid gap-4 p-5 sm:grid-cols-2">

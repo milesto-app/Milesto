@@ -106,6 +106,8 @@ export interface AdminUserSubscription {
   originalTransactionId: string | null;
   appleSignedAt: string | null;
   verifiedAt: string | null;
+  source: string;
+  lastSyncedAt: string | null;
 }
 
 export interface AdminUserDevice {
@@ -183,6 +185,8 @@ export interface AdminSubscriptionSummary {
   verifiedAt: string | null;
   appleSignedAt: string | null;
   originalTransactionId: string | null;
+  source: string;
+  lastSyncedAt: string | null;
 }
 
 export interface AdminSubscriptionList {
@@ -286,7 +290,6 @@ export interface AdminGoalIntakeBatch {
   batchNumber: number;
   isAnswered: boolean;
   embedded: boolean;
-  qualityScore: number | null;
   createdAt: string;
   questions: AdminIntakeQuestion[];
 }
@@ -507,7 +510,6 @@ export interface AdminIntakeBatch {
   goalId: string;
   batchNumber: number;
   isAnswered: boolean;
-  qualityScore: number | null;
   embedded: boolean;
   createdAt: string;
   questionCount: number;
@@ -520,11 +522,6 @@ export interface AdminIntakeBatchList {
   perPage: number;
   total: number;
   totalPages: number;
-}
-
-export interface AdminIntakeQualityFailures {
-  batches: AdminIntakeBatch[];
-  threshold: number;
 }
 
 // --- system.types.ts (extension) ---

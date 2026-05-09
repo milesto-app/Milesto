@@ -28,16 +28,14 @@ export class MetaService {
   public async getMe(user: User): Promise<AdminMe> {
     const supabase = this.supabaseService.getAdminClient();
     const { data, error } = await supabase
-      .from("profiles")
+      .from("users")
       .select("first_name, last_name")
       .eq("id", user.id)
       .maybeSingle();
 
     if (error !== null) {
-      this.logger.error(
-        `Failed to load profile for ${user.id}: ${error.message}`,
-      );
-      throw new InternalServerErrorException("Failed to load profile");
+      this.logger.error(`Failed to load user ${user.id}: ${error.message}`);
+      throw new InternalServerErrorException("Failed to load user");
     }
 
     return {
@@ -67,27 +65,25 @@ export class MetaService {
     }
 
     const ids = admins.map((u) => u.id);
-    const { data: profiles, error: profileError } = await supabase
-      .from("profiles")
+    const { data: userRows, error: userRowsError } = await supabase
+      .from("users")
       .select("id, first_name, last_name")
       .in("id", ids);
 
-    if (profileError !== null) {
-      this.logger.error(
-        `Failed to load admin profiles: ${profileError.message}`,
-      );
-      throw new InternalServerErrorException("Failed to load admin profiles");
+    if (userRowsError !== null) {
+      this.logger.error(`Failed to load admin users: ${userRowsError.message}`);
+      throw new InternalServerErrorException("Failed to load admin users");
     }
 
-    const profileMap = new Map(profiles.map((p) => [p.id, p] as const));
+    const userMap = new Map(userRows.map((u) => [u.id, u] as const));
 
     const entries: AdminListEntry[] = admins.map((u) => {
-      const profile = profileMap.get(u.id);
+      const row = userMap.get(u.id);
       return {
         id: u.id,
         email: u.email ?? "",
-        firstName: profile?.first_name ?? null,
-        lastName: profile?.last_name ?? null,
+        firstName: row?.first_name ?? null,
+        lastName: row?.last_name ?? null,
         createdAt: u.created_at,
       };
     });

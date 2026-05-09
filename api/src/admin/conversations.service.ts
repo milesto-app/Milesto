@@ -18,7 +18,7 @@ import type {
 
 type ConversationRow = Database["public"]["Tables"]["conversations"]["Row"];
 type MessageRow = Database["public"]["Tables"]["messages"]["Row"];
-type ProfileRow = Database["public"]["Tables"]["profiles"]["Row"];
+type UserRow = Database["public"]["Tables"]["users"]["Row"];
 
 const ISO_DATE_LENGTH = 10;
 const MS_PER_DAY = 86_400_000;
@@ -174,22 +174,22 @@ export class ConversationsService {
     const goalIds = [...new Set(conversations.map((c) => c.goal_id))];
     const conversationIds = conversations.map((c) => c.id);
 
-    const [profileMap, emailMap, goalTitleMap, messageCountMap] =
+    const [userMap, emailMap, goalTitleMap, messageCountMap] =
       await Promise.all([
-        this.loadProfiles(userIds),
+        this.loadUsers(userIds),
         this.loadUserEmails(userIds),
         this.loadGoalTitles(goalIds),
         this.loadMessageCounts(conversationIds),
       ]);
 
     return conversations.map((conversation) => {
-      const profile = profileMap.get(conversation.user_id);
+      const user = userMap.get(conversation.user_id);
       return {
         id: conversation.id,
         userId: conversation.user_id,
         userEmail: emailMap.get(conversation.user_id) ?? null,
-        userFirstName: profile?.first_name ?? null,
-        userLastName: profile?.last_name ?? null,
+        userFirstName: user?.first_name ?? null,
+        userLastName: user?.last_name ?? null,
         goalId: conversation.goal_id,
         goalTitle: goalTitleMap.get(conversation.goal_id) ?? null,
         messageCount: messageCountMap.get(conversation.id) ?? 0,
@@ -199,16 +199,16 @@ export class ConversationsService {
     });
   }
 
-  private async loadProfiles(
+  private async loadUsers(
     userIds: string[],
-  ): Promise<Map<string, Pick<ProfileRow, "first_name" | "last_name">>> {
+  ): Promise<Map<string, Pick<UserRow, "first_name" | "last_name">>> {
     const supabase = this.supabaseService.getAdminClient();
     const { data } = await supabase
-      .from("profiles")
+      .from("users")
       .select("id, first_name, last_name")
       .in("id", userIds);
 
-    const map = new Map<string, Pick<ProfileRow, "first_name" | "last_name">>();
+    const map = new Map<string, Pick<UserRow, "first_name" | "last_name">>();
     for (const row of data ?? []) {
       map.set(row.id, { first_name: row.first_name, last_name: row.last_name });
     }

@@ -219,11 +219,6 @@ function IntakeTab({ batches }: { batches: AdminGoalIntakeBatch[] }) {
                   <StatusBadge variant="active" label="Embedded" />
                 ) : null}
               </div>
-              <span className="text-xs text-muted-foreground tabular-nums">
-                {batch.qualityScore !== null
-                  ? `Quality ${batch.qualityScore.toFixed(2)}`
-                  : "Unscored"}
-              </span>
             </div>
             <ol className="space-y-2 text-sm">
               {batch.questions.map((question) => (

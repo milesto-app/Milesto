@@ -9,7 +9,6 @@ export interface WeeklyTask {
   order_index: number;
   is_completed: boolean;
   is_fallback: boolean;
-  quality_scores: Record<string, unknown> | null;
   created_at: string;
   completed_at: string | null;
 }

@@ -13,14 +13,14 @@ export class UserLanguageService {
   public async getLanguage(userId: string): Promise<string> {
     const supabase = this.supabaseService.getAdminClient();
     const { data, error } = await supabase
-      .from("profiles")
+      .from("users")
       .select("language")
       .eq("id", userId)
       .single();
 
     if (error !== null) {
       this.logger.warn(
-        `No profile for user ${userId}, defaulting to '${DEFAULT_LANGUAGE}'`,
+        `No user ${userId}, defaulting to '${DEFAULT_LANGUAGE}'`,
       );
       return DEFAULT_LANGUAGE;
     }

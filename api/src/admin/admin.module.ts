@@ -3,6 +3,7 @@ import { Module } from "@nestjs/common";
 import { IntakeModule } from "../intake/intake.module.js";
 import { NotificationsModule } from "../notifications/notifications.module.js";
 import { RoadmapModule } from "../roadmap/roadmap.module.js";
+import { SubscriptionModule } from "../subscription/subscription.module.js";
 import { AdminUsageController } from "./admin-usage.controller.js";
 import { AdminUsageService } from "./admin-usage.service.js";
 import { CoachesController } from "./coaches.controller.js";
@@ -27,7 +28,12 @@ import { UsersController } from "./users.controller.js";
 import { UsersService } from "./users.service.js";
 
 @Module({
-  imports: [IntakeModule, NotificationsModule, RoadmapModule],
+  imports: [
+    IntakeModule,
+    NotificationsModule,
+    RoadmapModule,
+    SubscriptionModule,
+  ],
   controllers: [
     OverviewController,
     UsersController,

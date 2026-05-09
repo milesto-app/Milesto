@@ -1,7 +1,7 @@
 import SwiftUI
 
-struct SettingsProfileHeaderSection: View {
-    let profile: ProfileDTO?
+struct SettingsUserHeaderSection: View {
+    let user: UserDTO?
     let email: String?
     let avatarURL: String?
     let fullName: String
@@ -10,7 +10,7 @@ struct SettingsProfileHeaderSection: View {
 
     var body: some View {
         Section {
-            if profile == nil {
+            if user == nil {
                 HStack {
                     Spacer()
                     AppLoader()
@@ -21,7 +21,7 @@ struct SettingsProfileHeaderSection: View {
             } else {
                 Button(action: onEdit) {
                     VStack(spacing: 16) {
-                        ProfileAvatarView(
+                        UserAvatarView(
                             imageURL: avatarURL.flatMap(URL.init(string:)),
                             initials: initials,
                             size: 80
@@ -54,8 +54,8 @@ struct SettingsProfileHeaderSection: View {
     }
 }
 
-struct SettingsProfileDetailsSection: View {
-    let profile: ProfileDTO?
+struct SettingsUserDetailsSection: View {
+    let user: UserDTO?
     let coach: CoachPersonality?
     let currentAppLanguage: String
     let onEditBirthdate: () -> Void
@@ -64,7 +64,7 @@ struct SettingsProfileDetailsSection: View {
 
     var body: some View {
         Section {
-            if let dateOfBirth = profile?.dateOfBirth {
+            if let dateOfBirth = user?.dateOfBirth {
                 SettingsEditableRow(
                     icon: .cake,
                     label: "settings.profile.birthDate",
@@ -89,7 +89,7 @@ struct SettingsProfileDetailsSection: View {
                 action: onEditLanguage
             )
 
-            if let createdAt = profile?.createdAt {
+            if let createdAt = user?.createdAt {
                 SettingsDetailRow(
                     icon: .calendar,
                     label: "settings.profile.memberSince",

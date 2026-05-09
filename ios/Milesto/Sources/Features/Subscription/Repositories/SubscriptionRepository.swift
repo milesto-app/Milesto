@@ -5,7 +5,7 @@ import StoreKit
 private let subscriptionLogger = Logger(subsystem: Bundle.main.bundleIdentifier ?? "app.milesto", category: "Subscription")
 
 nonisolated struct VerifySubscriptionBodyDTO: Encodable {
-    let jwsTransaction: String
+    let transactionJws: String
 }
 
 nonisolated struct SubscriptionStatusResponseDTO: Decodable {
@@ -152,12 +152,12 @@ final class SubscriptionRepository {
 
     private func syncTransactionWithRetry(jws: String) async -> SubscriptionSyncResult {
         let delaysNanos: [UInt64] = [1_000_000_000, 2_000_000_000, 3_000_000_000]
-        let body = VerifySubscriptionBodyDTO(jwsTransaction: jws)
+        let body = VerifySubscriptionBodyDTO(transactionJws: jws)
 
         for (index, delay) in delaysNanos.enumerated() {
             if Task.isCancelled { return .failed }
             do {
-                try await ApiClient.shared.requestVoid(method: "POST", path: "subscription/verify", body: body)
+                try await ApiClient.shared.requestVoid(method: "POST", path: "subscription/sync", body: body)
                 return .success
             } catch ApiError.unauthorized {
                 subscriptionLogger.warning("verify failed: transaction is not bound to the signed-in account")
@@ -222,11 +222,7 @@ final class SubscriptionRepository {
             response = try await ApiClient.shared.request(method: "GET", path: "subscription/status")
         } catch {
             subscriptionLogger.debug("reconcile status fetch failed")
-            if await currentVerifiedEntitlement() != nil {
-                entitlementState = .subscribed
-            } else if entitlementState != .subscribed {
-                entitlementState = .connectionError
-            }
+            entitlementState = .connectionError
             return
         }
 

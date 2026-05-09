@@ -7,10 +7,10 @@ import {
 } from "@nestjs/common";
 import { EventEmitter2 } from "@nestjs/event-emitter";
 
+import type { SubmitDebriefDto } from "../roadmap/dto/submit-debrief.dto.js";
+import type { Debrief } from "../roadmap/types/weekly-task.types.js";
 import { SUPABASE_UNIQUE_VIOLATION } from "../supabase/error-codes.js";
 import { SupabaseService } from "../supabase/supabase.service.js";
-import type { SubmitDebriefDto } from "./dto/submit-debrief.dto.js";
-import type { Debrief } from "./types/weekly-task.types.js";
 
 @Injectable()
 export class DebriefService {

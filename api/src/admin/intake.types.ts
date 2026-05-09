@@ -3,7 +3,6 @@ export interface AdminIntakeBatch {
   goalId: string;
   batchNumber: number;
   isAnswered: boolean;
-  qualityScore: number | null;
   embedded: boolean;
   createdAt: string;
   questionCount: number;
@@ -16,9 +15,4 @@ export interface AdminIntakeBatchList {
   perPage: number;
   total: number;
   totalPages: number;
-}
-
-export interface AdminIntakeQualityFailures {
-  batches: AdminIntakeBatch[];
-  threshold: number;
 }

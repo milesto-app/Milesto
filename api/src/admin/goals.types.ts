@@ -59,7 +59,6 @@ export interface AdminIntakeBatch {
   batchNumber: number;
   isAnswered: boolean;
   embedded: boolean;
-  qualityScore: number | null;
   createdAt: string;
   questions: AdminIntakeQuestion[];
 }

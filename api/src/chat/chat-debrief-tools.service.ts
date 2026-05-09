@@ -1,6 +1,6 @@
 import { ConflictException, Injectable, Logger } from "@nestjs/common";
 
-import { DebriefService } from "../roadmap/debrief.service.js";
+import { DebriefService } from "../debrief/debrief.service.js";
 import type { ToolExecutionContext } from "./types/chat.types.js";
 
 @Injectable()

@@ -108,7 +108,7 @@ export class SystemService {
     try {
       const supabase = this.supabaseService.getAdminClient();
       const { error } = await supabase
-        .from("profiles")
+        .from("users")
         .select("id", { count: "exact", head: true });
       return {
         status: error === null ? "healthy" : "unhealthy",

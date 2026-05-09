@@ -45,7 +45,7 @@ export class CoachesService {
     const to = from + perPage - 1;
 
     const { data, count, error } = await supabase
-      .from("profiles")
+      .from("users")
       .select("id, first_name, last_name, subscription_status, coach_id", {
         count: "exact",
       })
@@ -75,7 +75,7 @@ export class CoachesService {
   private async fetchCoachUserCounts(): Promise<Map<number, number>> {
     const supabase = this.supabaseService.getAdminClient();
     const { data, error } = await supabase
-      .from("profiles")
+      .from("users")
       .select("coach_id")
       .not("coach_id", "is", null);
 
@@ -94,33 +94,31 @@ export class CoachesService {
   }
 
   private async enrichWithAuth(
-    profiles: Array<{
+    users: Array<{
       id: string;
       first_name: string | null;
       last_name: string | null;
       subscription_status: string;
     }>,
   ): Promise<AdminCoachUserSummary[]> {
-    if (profiles.length === 0) {
+    if (users.length === 0) {
       return [];
     }
 
     const supabase = this.supabaseService.getAdminClient();
     const authResults = await Promise.all(
-      profiles.map(async (profile) =>
-        supabase.auth.admin.getUserById(profile.id),
-      ),
+      users.map(async (user) => supabase.auth.admin.getUserById(user.id)),
     );
 
-    return profiles.map((profile, index) => {
+    return users.map((user, index) => {
       const authResult = authResults[index];
       const authUser = authResult?.data.user ?? null;
       return {
-        id: profile.id,
+        id: user.id,
         email: authUser?.email ?? "",
-        firstName: profile.first_name,
-        lastName: profile.last_name,
-        subscriptionStatus: profile.subscription_status,
+        firstName: user.first_name,
+        lastName: user.last_name,
+        subscriptionStatus: user.subscription_status,
         createdAt: authUser?.created_at ?? "",
       };
     });

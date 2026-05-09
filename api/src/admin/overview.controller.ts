@@ -53,7 +53,7 @@ export class OverviewController {
 
   @Get("recent-signups")
   @ApiOperation({
-    summary: "Recently signed up users with profile names",
+    summary: "Recently signed up users with names",
   })
   @ApiResponse({ status: 200, description: "Recent signups returned" })
   @ApiResponse({ status: 401, description: "Unauthorized" })

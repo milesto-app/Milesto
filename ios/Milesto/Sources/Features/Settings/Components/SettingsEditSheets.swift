@@ -3,26 +3,26 @@ import UIKit
 
 struct SettingsSheetContent: View {
     let sheet: SettingsSheet
-    let profile: ProfileDTO?
-    let onSave: (ProfileUpdateFieldsDTO) -> Void
+    let user: UserDTO?
+    let onSave: (UserUpdateFieldsDTO) -> Void
 
     var body: some View {
         Group {
             switch sheet {
             case .name:
                 EditNameSheet(
-                    firstName: profile?.firstName ?? "",
-                    lastName: profile?.lastName ?? "",
+                    firstName: user?.firstName ?? "",
+                    lastName: user?.lastName ?? "",
                     onSave: onSave
                 )
             case .birthdate:
                 EditBirthdateSheet(
-                    dateOfBirth: profile?.dateOfBirth ?? Date(),
+                    dateOfBirth: user?.dateOfBirth ?? Date(),
                     onSave: onSave
                 )
             case .coach:
                 EditCoachSheet(
-                    selectedCoach: profile?.coachId.flatMap { CoachPersonality.from(databaseId: $0) },
+                    selectedCoach: user?.coachId.flatMap { CoachPersonality.from(databaseId: $0) },
                     onSave: onSave
                 )
             case .language:
@@ -36,7 +36,7 @@ struct SettingsSheetContent: View {
 struct EditNameSheet: View {
     @State var firstName: String
     @State var lastName: String
-    let onSave: (ProfileUpdateFieldsDTO) -> Void
+    let onSave: (UserUpdateFieldsDTO) -> Void
 
     @Environment(\.dismiss) private var dismiss
 
@@ -67,7 +67,7 @@ struct EditNameSheet: View {
                 Spacer()
 
                 AppButton("settings.edit.save", table: "Settings") {
-                    onSave(ProfileUpdateFieldsDTO(
+                    onSave(UserUpdateFieldsDTO(
                         firstName: firstName.trimmingCharacters(in: .whitespaces),
                         lastName: lastName.trimmingCharacters(in: .whitespaces)
                     ))
@@ -86,7 +86,7 @@ struct EditNameSheet: View {
 
 struct EditBirthdateSheet: View {
     @State var dateOfBirth: Date
-    let onSave: (ProfileUpdateFieldsDTO) -> Void
+    let onSave: (UserUpdateFieldsDTO) -> Void
 
     @Environment(\.dismiss) private var dismiss
 
@@ -107,7 +107,7 @@ struct EditBirthdateSheet: View {
                 AppButton("settings.edit.save", table: "Settings") {
                     let formatter = DateFormatter()
                     formatter.dateFormat = "yyyy-MM-dd"
-                    onSave(ProfileUpdateFieldsDTO(
+                    onSave(UserUpdateFieldsDTO(
                         dateOfBirth: formatter.string(from: dateOfBirth)
                     ))
                     dismiss()
@@ -124,7 +124,7 @@ struct EditBirthdateSheet: View {
 
 struct EditCoachSheet: View {
     @State var selectedCoach: CoachPersonality?
-    let onSave: (ProfileUpdateFieldsDTO) -> Void
+    let onSave: (UserUpdateFieldsDTO) -> Void
 
     @Environment(\.dismiss) private var dismiss
 
@@ -145,7 +145,7 @@ struct EditCoachSheet: View {
 
                 AppButton("settings.edit.save", table: "Settings") {
                     if let coachId = selectedCoach?.databaseId {
-                        onSave(ProfileUpdateFieldsDTO(coachId: coachId))
+                        onSave(UserUpdateFieldsDTO(coachId: coachId))
                     }
                     dismiss()
                 }

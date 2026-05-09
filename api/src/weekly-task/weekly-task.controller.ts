@@ -19,7 +19,7 @@ import { Throttle } from "@nestjs/throttler";
 import { UserId } from "../common/decorators/user.decorator.js";
 import { AuthGuard } from "../common/guards/auth.guard.js";
 import { config } from "../config/app.config.js";
-import type { WeeklyTask } from "./types/weekly-task.types.js";
+import type { WeeklyTask } from "../roadmap/types/weekly-task.types.js";
 import { WeeklyTaskService } from "./weekly-task.service.js";
 
 @ApiTags("weekly-tasks")

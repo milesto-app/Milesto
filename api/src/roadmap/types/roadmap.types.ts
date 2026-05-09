@@ -7,7 +7,6 @@ export interface Roadmap {
   generation_attempts: number;
   model_used: string | null;
   generation_metadata: Record<string, unknown>;
-  quality_scores: Record<string, unknown> | null;
   created_at: string;
   updated_at: string;
   milestones?: Milestone[];

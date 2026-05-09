@@ -2,13 +2,13 @@ import {
   Injectable,
   InternalServerErrorException,
   Logger,
-  NotImplementedException,
 } from "@nestjs/common";
 import type { User } from "@supabase/supabase-js";
 
 import { config } from "../config/app.config.js";
+import { SubscriptionService } from "../subscription/subscription.service.js";
+import { SUBSCRIPTION_STATUS } from "../subscription/subscription-state.js";
 import { SupabaseService } from "../supabase/supabase.service.js";
-import { SUBSCRIPTION_STATUS } from "../usage/subscription-state.js";
 import type {
   AdminSubscriptionChurn,
   AdminSubscriptionEvent,
@@ -29,7 +29,7 @@ const CHURN_STATUSES = [
 const PERCENTAGE_DECIMAL_PLACES = 4;
 const EMAIL_LOOKUP_POOL_SIZE = 1000;
 
-interface ProfileSubscriptionRow {
+interface UserSubscriptionRow {
   id: string;
   subscription_status: string;
   subscription_product_id: string | null;
@@ -47,7 +47,10 @@ interface ProfileSubscriptionRow {
 export class SubscriptionsService {
   private readonly logger = new Logger(SubscriptionsService.name);
 
-  constructor(private readonly supabaseService: SupabaseService) {}
+  constructor(
+    private readonly supabaseService: SupabaseService,
+    private readonly subscriptionService: SubscriptionService,
+  ) {}
 
   public async listSubscriptions(
     page: number,
@@ -59,7 +62,7 @@ export class SubscriptionsService {
     const to = from + perPage - 1;
 
     let query = supabase
-      .from("profiles")
+      .from("users")
       .select(
         "id, first_name, last_name, subscription_status, subscription_product_id, subscription_environment, subscription_auto_renew_status, subscription_expires_at, subscription_verified_at, subscription_apple_signed_at, subscription_original_transaction_id",
         { count: "exact" },
@@ -81,7 +84,7 @@ export class SubscriptionsService {
       throw new InternalServerErrorException("Failed to list subscriptions");
     }
 
-    const rows = data as ProfileSubscriptionRow[];
+    const rows = data as UserSubscriptionRow[];
     const emails = await this.lookupEmails(rows.map((row) => row.id));
     const subscriptions = rows.map((row) =>
       buildSummary(row, emails.get(row.id) ?? ""),
@@ -100,7 +103,7 @@ export class SubscriptionsService {
   public async getDistribution(): Promise<Record<string, number>> {
     const supabase = this.supabaseService.getAdminClient();
     const { data, error } = await supabase
-      .from("profiles")
+      .from("users")
       .select("subscription_status");
 
     if (error !== null) {
@@ -123,7 +126,7 @@ export class SubscriptionsService {
   public async getMrrArr(): Promise<AdminSubscriptionMrrArr> {
     const supabase = this.supabaseService.getAdminClient();
     const { data, error } = await supabase
-      .from("profiles")
+      .from("users")
       .select("subscription_product_id")
       .eq("subscription_status", SUBSCRIPTION_STATUS.ACTIVE);
 
@@ -170,12 +173,12 @@ export class SubscriptionsService {
 
     const [churnedRes, retainedRes] = await Promise.all([
       supabase
-        .from("profiles")
+        .from("users")
         .select("*", { count: "exact", head: true })
         .in("subscription_status", CHURN_STATUSES)
         .gte("subscription_expires_at", cutoffIso),
       supabase
-        .from("profiles")
+        .from("users")
         .select("*", { count: "exact", head: true })
         .eq("subscription_status", SUBSCRIPTION_STATUS.ACTIVE),
     ]);
@@ -209,9 +212,9 @@ export class SubscriptionsService {
   ): Promise<AdminSubscriptionEventList> {
     const supabase = this.supabaseService.getAdminClient();
     const { data, error } = await supabase
-      .from("processed_notifications")
-      .select("notification_uuid, notification_type, subtype, received_at")
-      .order("received_at", { ascending: false })
+      .from("apple_subscription_events")
+      .select("notification_uuid, notification_type, subtype, processed_at")
+      .order("processed_at", { ascending: false })
       .limit(limit);
 
     if (error !== null) {
@@ -225,19 +228,14 @@ export class SubscriptionsService {
       notificationUuid: row.notification_uuid,
       notificationType: row.notification_type,
       subtype: row.subtype,
-      receivedAt: row.received_at,
+      receivedAt: row.processed_at,
     }));
 
     return { events };
   }
 
-  public async refreshSubscription(userId: string): Promise<never> {
-    this.logger.warn(
-      `Subscription refresh requested for ${userId} but App Store Server API integration is pending`,
-    );
-    return Promise.reject(
-      new NotImplementedException("App Store Server API integration pending"),
-    );
+  public async refreshSubscription(userId: string): Promise<unknown> {
+    return this.subscriptionService.refreshUserAppleSubscriptions(userId);
   }
 
   private async lookupEmails(userIds: string[]): Promise<Map<string, string>> {
@@ -272,7 +270,7 @@ function emailFromUser(user: User): string {
 }
 
 function buildSummary(
-  row: ProfileSubscriptionRow,
+  row: UserSubscriptionRow,
   email: string,
 ): AdminSubscriptionSummary {
   return {
@@ -288,7 +286,22 @@ function buildSummary(
     verifiedAt: row.subscription_verified_at,
     appleSignedAt: row.subscription_apple_signed_at,
     originalTransactionId: row.subscription_original_transaction_id,
+    source: sourceFromUser(row),
+    lastSyncedAt: row.subscription_verified_at,
   };
+}
+
+function sourceFromUser(row: UserSubscriptionRow): string {
+  if (row.subscription_original_transaction_id !== null) {
+    return "apple";
+  }
+  if (
+    row.subscription_status === SUBSCRIPTION_STATUS.ACTIVE &&
+    row.subscription_expires_at !== null
+  ) {
+    return "override";
+  }
+  return "none";
 }
 
 function computeProductBreakdown(

@@ -4,18 +4,17 @@ import {
   InternalServerErrorException,
   Logger,
 } from "@nestjs/common";
-import { EventEmitter2 } from "@nestjs/event-emitter";
 
 import { UserLanguageService } from "../common/user-language.service.js";
+import { RoadmapContextService } from "../roadmap/roadmap-context.service.js";
+import type { UpdateTaskParams } from "../roadmap/roadmap-data.service.js";
+import { RoadmapDataService } from "../roadmap/roadmap-data.service.js";
+import { RoadmapGenerationService } from "../roadmap/roadmap-generation.service.js";
+import type { WeeklyPlan } from "../roadmap/types/weekly-plan.types.js";
+import type { WeeklyTask } from "../roadmap/types/weekly-task.types.js";
+import { WeeklyPlanService } from "../roadmap/weekly-plan.service.js";
 import { UsageService } from "../usage/usage.service.js";
 import { GenerationType } from "../usage/usage.types.js";
-import { RoadmapContextService } from "./roadmap-context.service.js";
-import type { UpdateTaskParams } from "./roadmap-data.service.js";
-import { RoadmapDataService } from "./roadmap-data.service.js";
-import { RoadmapGenerationService } from "./roadmap-generation.service.js";
-import type { WeeklyPlan } from "./types/weekly-plan.types.js";
-import type { WeeklyTask } from "./types/weekly-task.types.js";
-import { WeeklyPlanService } from "./weekly-plan.service.js";
 
 interface GenerateParams {
   weeklyPlan: WeeklyPlan;
@@ -38,7 +37,6 @@ export class WeeklyTaskService {
     private readonly contextPipeline: RoadmapContextService,
     private readonly generation: RoadmapGenerationService,
     private readonly storage: RoadmapDataService,
-    private readonly events: EventEmitter2,
     private readonly weeklyPlan: WeeklyPlanService,
     private readonly languageService: UserLanguageService,
     private readonly usageService: UsageService,
@@ -167,10 +165,6 @@ export class WeeklyTaskService {
       isFallback: false,
     });
 
-    this.events.emit("weekly-tasks.generated", {
-      goalId: params.goalId,
-      weeklyPlanId: params.weeklyPlan.id,
-    });
     return stored;
   }
 

@@ -149,12 +149,19 @@ export default tseslint.config(
     },
   },
   {
-    files: ["**/*.spec.ts"],
+    files: ["**/*.spec.ts", "**/tests/**"],
     rules: {
       "no-magic-numbers": "off",
       "@typescript-eslint/unbound-method": "off",
       "@typescript-eslint/no-extraneous-class": "off",
       "@typescript-eslint/no-unsafe-assignment": "off",
+      "@typescript-eslint/require-await": "off",
+      "@typescript-eslint/naming-convention": "off",
+      "@typescript-eslint/no-unnecessary-condition": "off",
+      "@typescript-eslint/no-unused-vars": [
+        "error",
+        { argsIgnorePattern: "^_" },
+      ],
     },
   },
 );

@@ -5,7 +5,7 @@ import Foundation
 final class SettingsViewModel {
     @ObservationIgnored private let env: AppEnv
 
-    private(set) var profile: ProfileDTO?
+    private(set) var user: UserDTO?
     private(set) var email: String?
     private(set) var avatarURL: String?
     private(set) var activeGoal: GoalDTO?
@@ -19,19 +19,19 @@ final class SettingsViewModel {
     }
 
     var coach: CoachPersonality? {
-        guard let coachId = profile?.coachId else { return nil }
+        guard let coachId = user?.coachId else { return nil }
         return CoachPersonality.from(databaseId: coachId)
     }
 
     var fullName: String {
-        [profile?.firstName, profile?.lastName]
+        [user?.firstName, user?.lastName]
             .compactMap { $0 }
             .joined(separator: " ")
     }
 
     var initials: String {
-        let first = profile?.firstName?.prefix(1) ?? ""
-        let last = profile?.lastName?.prefix(1) ?? ""
+        let first = user?.firstName?.prefix(1) ?? ""
+        let last = user?.lastName?.prefix(1) ?? ""
         let result = "\(first)\(last)"
         return result.isEmpty ? "?" : result.uppercased()
     }
@@ -44,17 +44,17 @@ final class SettingsViewModel {
 
     func loadState() async {
         guard let userId = env.auth.currentUserId else { return }
-        profile = try? await env.settings.fetchProfile()
+        user = try? await env.settings.fetchUser()
         email = try? await AuthSession.userEmail()
         avatarURL = try? await AuthSession.userMetadataString("avatar_url")
         activeGoal = try? await env.settings.fetchActiveGoal(userId: userId)
     }
 
-    func saveProfileFields(_ fields: ProfileUpdateFieldsDTO) async {
+    func saveUserFields(_ fields: UserUpdateFieldsDTO) async {
         isSaving = true
         defer { isSaving = false }
         do {
-            try await env.settings.updateProfile(fields)
+            try await env.settings.updateUser(fields)
             await loadState()
         } catch {
             errorMessage = error.localizedDescription

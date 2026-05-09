@@ -4,18 +4,11 @@ import {
   Logger,
 } from "@nestjs/common";
 
-import { config } from "../config/app.config.js";
 import type { Database } from "../supabase/database.types.js";
 import { SupabaseService } from "../supabase/supabase.service.js";
-import type {
-  AdminIntakeBatch,
-  AdminIntakeBatchList,
-  AdminIntakeQualityFailures,
-} from "./intake.types.js";
+import type { AdminIntakeBatch, AdminIntakeBatchList } from "./intake.types.js";
 
 type IntakeBatchRow = Database["public"]["Tables"]["intake_batches"]["Row"];
-
-const MS_PER_DAY = 86_400_000;
 
 interface QuestionCounts {
   total: number;
@@ -64,33 +57,6 @@ export class AdminIntakeService {
     };
   }
 
-  public async getQualityFailures(
-    days: number,
-  ): Promise<AdminIntakeQualityFailures> {
-    const supabase = this.supabaseService.getAdminClient();
-    const threshold = config.qualityFailureThreshold;
-    const cutoffIso = new Date(Date.now() - days * MS_PER_DAY).toISOString();
-
-    const { data, error } = await supabase
-      .from("intake_batches")
-      .select("*")
-      .lt("quality_score", threshold)
-      .gte("created_at", cutoffIso)
-      .order("created_at", { ascending: false });
-
-    if (error !== null) {
-      this.logger.error(
-        `Failed to load intake quality failures: ${error.message}`,
-      );
-      throw new InternalServerErrorException(
-        "Failed to load intake quality failures",
-      );
-    }
-
-    const batches = await this.enrichBatches(data);
-    return { batches, threshold };
-  }
-
   private async enrichBatches(
     rows: IntakeBatchRow[],
   ): Promise<AdminIntakeBatch[]> {
@@ -108,7 +74,6 @@ export class AdminIntakeService {
         goalId: row.goal_id,
         batchNumber: row.batch_number,
         isAnswered: row.is_answered,
-        qualityScore: row.quality_score,
         embedded: row.embedded,
         createdAt: row.created_at,
         questionCount: tally.total,

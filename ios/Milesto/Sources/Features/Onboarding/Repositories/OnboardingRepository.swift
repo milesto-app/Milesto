@@ -2,13 +2,13 @@ import Foundation
 
 @MainActor
 final class OnboardingRepository {
-    private let profile: ProfileRepository
+    private let user: UserRepository
 
-    init(profile: ProfileRepository) {
-        self.profile = profile
+    init(user: UserRepository) {
+        self.user = user
     }
 
-    func saveProfile(fields: ProfileUpdateFieldsDTO) async throws {
-        _ = try await profile.updateProfile(fields)
+    func saveUser(fields: UserUpdateFieldsDTO) async throws {
+        _ = try await user.updateUser(fields)
     }
 }
