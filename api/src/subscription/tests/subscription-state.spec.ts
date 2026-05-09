@@ -6,7 +6,7 @@ import {
   appleStatusToSubscriptionStatus,
   isEffectiveProStatus,
   SUBSCRIPTION_STATUS,
-} from "./subscription-state.js";
+} from "../subscription-state.js";
 
 describe("subscription state mapping", () => {
   it("maps App Store Server API status codes", () => {
@@ -27,6 +27,15 @@ describe("subscription state mapping", () => {
     );
   });
 
+  it("returns UNKNOWN for undefined or unrecognised status codes", () => {
+    expect(appleStatusToSubscriptionStatus(undefined)).toBe(
+      SUBSCRIPTION_STATUS.UNKNOWN,
+    );
+    expect(appleStatusToSubscriptionStatus(999)).toBe(
+      SUBSCRIPTION_STATUS.UNKNOWN,
+    );
+  });
+
   it("requires a future expiry for effective pro access", () => {
     const future = new Date(Date.now() + 60_000).toISOString();
     const past = new Date(Date.now() - 60_000).toISOString();
@@ -39,5 +48,15 @@ describe("subscription state mapping", () => {
     expect(
       isEffectiveProStatus(SUBSCRIPTION_STATUS.BILLING_RETRY, future),
     ).toBe(false);
+  });
+
+  it("treats a null or undefined expiry as not effective", () => {
+    expect(isEffectiveProStatus(SUBSCRIPTION_STATUS.ACTIVE, null)).toBe(false);
+    expect(isEffectiveProStatus(SUBSCRIPTION_STATUS.ACTIVE, undefined)).toBe(
+      false,
+    );
+    expect(isEffectiveProStatus(SUBSCRIPTION_STATUS.GRACE_PERIOD, null)).toBe(
+      false,
+    );
   });
 });
