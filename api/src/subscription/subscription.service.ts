@@ -726,10 +726,7 @@ export class SubscriptionService {
       }
       return;
     }
-    this.rejectUnlessMatchingAppAccountToken(
-      transaction.appAccountToken,
-      userId,
-    );
+    this.logAppAccountTokenMismatch(transaction, userId, originalTransactionId);
   }
 
   private async findUserIdForAppleTransaction(
@@ -812,17 +809,22 @@ export class SubscriptionService {
     }
   }
 
-  private rejectUnlessMatchingAppAccountToken(
-    appAccountToken: string | undefined,
+  private logAppAccountTokenMismatch(
+    transaction: JWSTransactionDecodedPayload,
     userId: string,
+    originalTransactionId: string,
   ): void {
-    if (
-      appAccountToken === undefined ||
-      !UUID_REGEX.test(appAccountToken) ||
-      !UUID_REGEX.test(userId) ||
-      appAccountToken.toLowerCase() !== userId.toLowerCase()
-    ) {
-      throw new UnauthorizedException("Transaction not bound to this user");
+    const token = transaction.appAccountToken;
+    if (token === undefined || !UUID_REGEX.test(token)) {
+      this.logger.debug(
+        `First sync without appAccountToken originalTx=${originalTransactionId} claimingUser=${userId}`,
+      );
+      return;
+    }
+    if (token.toLowerCase() !== userId.toLowerCase()) {
+      this.logger.warn(
+        `appAccountToken mismatch on first sync originalTx=${originalTransactionId} tokenUser=${token} claimingUser=${userId}`,
+      );
     }
   }
 

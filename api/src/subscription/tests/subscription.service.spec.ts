@@ -18,6 +18,7 @@ import {
   makeRenewalInfo,
   makeStatusResponse,
   makeTransaction,
+  OTHER_USER_UUID,
   resetVerifiers,
   setVerifier,
   TEST_BUNDLE_ID,
@@ -214,5 +215,130 @@ describe("SubscriptionService.syncWithTransaction", () => {
       service.syncWithTransaction(TEST_USER_UUID, "tx-jws"),
     ).rejects.toThrow(/product type/i);
     expect(supabase.store.calls).toHaveLength(0);
+  });
+
+  it("binds subscription to caller when no row exists and appAccountToken belongs to a different user", async () => {
+    setVerifier(Environment.PRODUCTION, {
+      transaction: async () =>
+        makeTransaction({ appAccountToken: OTHER_USER_UUID }),
+      renewalInfo: async () => makeRenewalInfo(),
+    });
+
+    const { service, supabase } = buildHarness({
+      appStoreImpl: async () =>
+        makeStatusResponse({
+          data: [
+            {
+              subscriptionGroupIdentifier: "group-1",
+              lastTransactions: [
+                makeLastTransactionsItem({ status: Status.ACTIVE }),
+              ],
+            },
+          ],
+        }),
+    });
+
+    await service.syncWithTransaction(TEST_USER_UUID, "tx-jws");
+
+    const upserts = supabase.store.callsFor(
+      "apple_subscription_accounts",
+      "upsert",
+    );
+    expect(upserts).toHaveLength(1);
+    const payload = upserts[0]?.payload as Record<string, unknown>;
+    expect(payload.user_id).toBe(TEST_USER_UUID);
+    expect(payload.original_transaction_id).toBe(TEST_ORIGINAL_TX);
+    expect(payload.environment).toBe(Environment.PRODUCTION);
+  });
+
+  it("binds subscription to caller when appAccountToken is undefined and no row exists", async () => {
+    setVerifier(Environment.PRODUCTION, {
+      transaction: async () => makeTransaction({ appAccountToken: undefined }),
+      renewalInfo: async () => makeRenewalInfo(),
+    });
+
+    const { service, supabase } = buildHarness({
+      appStoreImpl: async () =>
+        makeStatusResponse({
+          data: [
+            {
+              subscriptionGroupIdentifier: "group-1",
+              lastTransactions: [
+                makeLastTransactionsItem({ status: Status.ACTIVE }),
+              ],
+            },
+          ],
+        }),
+    });
+
+    await service.syncWithTransaction(TEST_USER_UUID, "tx-jws");
+
+    const upserts = supabase.store.callsFor(
+      "apple_subscription_accounts",
+      "upsert",
+    );
+    expect(upserts).toHaveLength(1);
+    const payload = upserts[0]?.payload as Record<string, unknown>;
+    expect(payload.user_id).toBe(TEST_USER_UUID);
+  });
+
+  it("rejects when an existing row binds the subscription to a different user", async () => {
+    setVerifier(Environment.PRODUCTION, {
+      transaction: async () => makeTransaction(),
+    });
+
+    const { service, supabase } = buildHarness();
+    supabase.store.seed("apple_subscription_accounts", [
+      {
+        environment: Environment.PRODUCTION,
+        original_transaction_id: TEST_ORIGINAL_TX,
+        user_id: OTHER_USER_UUID,
+      },
+    ]);
+
+    await expect(
+      service.syncWithTransaction(TEST_USER_UUID, "tx-jws"),
+    ).rejects.toBeInstanceOf(UnauthorizedException);
+    expect(
+      supabase.store.callsFor("apple_subscription_accounts", "upsert"),
+    ).toHaveLength(0);
+  });
+
+  it("is idempotent when an existing row already binds to the caller", async () => {
+    setVerifier(Environment.PRODUCTION, {
+      transaction: async () => makeTransaction(),
+      renewalInfo: async () => makeRenewalInfo(),
+    });
+
+    const { service, supabase } = buildHarness({
+      appStoreImpl: async () =>
+        makeStatusResponse({
+          data: [
+            {
+              subscriptionGroupIdentifier: "group-1",
+              lastTransactions: [
+                makeLastTransactionsItem({ status: Status.ACTIVE }),
+              ],
+            },
+          ],
+        }),
+    });
+    supabase.store.seed("apple_subscription_accounts", [
+      {
+        environment: Environment.PRODUCTION,
+        original_transaction_id: TEST_ORIGINAL_TX,
+        user_id: TEST_USER_UUID,
+      },
+    ]);
+
+    await service.syncWithTransaction(TEST_USER_UUID, "tx-jws");
+
+    const upserts = supabase.store.callsFor(
+      "apple_subscription_accounts",
+      "upsert",
+    );
+    expect(upserts).toHaveLength(1);
+    const payload = upserts[0]?.payload as Record<string, unknown>;
+    expect(payload.user_id).toBe(TEST_USER_UUID);
   });
 });

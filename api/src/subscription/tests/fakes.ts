@@ -316,6 +316,7 @@ export function makeFakeAppStoreApi(
 export const TEST_BUNDLE_ID = "app.milesto.test";
 export const TEST_PRODUCT_ID = "milesto_plus_monthly";
 export const TEST_USER_UUID = "11111111-1111-4111-8111-111111111111";
+export const OTHER_USER_UUID = "22222222-2222-4222-8222-222222222222";
 export const TEST_ORIGINAL_TX = "1000000999999999";
 export const TEST_LATEST_TX = "1000000999999998";
 
