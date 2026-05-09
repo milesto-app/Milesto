@@ -9,7 +9,6 @@ import { IntakeDataService } from "./intake-data.service.js";
 import { IntakeEmbeddingService } from "./intake-embedding.service.js";
 import { IntakeGenerationService } from "./intake-generation.service.js";
 import { IntakeProfileService } from "./intake-profile.service.js";
-import { IntakeQualityService } from "./intake-quality.service.js";
 import { IntakeReembedService } from "./intake-reembed.service.js";
 
 @Module({
@@ -21,7 +20,6 @@ import { IntakeReembedService } from "./intake-reembed.service.js";
     IntakeEmbeddingService,
     IntakeGenerationService,
     IntakeProfileService,
-    IntakeQualityService,
     IntakeReembedService,
   ],
   exports: [IntakeBatchService, IntakeProfileService, IntakeReembedService],

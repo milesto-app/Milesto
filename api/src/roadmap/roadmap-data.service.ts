@@ -6,7 +6,6 @@ import {
   Logger,
   NotFoundException,
 } from "@nestjs/common";
-import { EventEmitter2 } from "@nestjs/event-emitter";
 
 import { config } from "../config/app.config.js";
 import type { Database, Json } from "../supabase/database.types.js";
@@ -48,7 +47,6 @@ type GoalRoadmapColumns = Pick<
   | "roadmap_generation_attempts"
   | "roadmap_model_used"
   | "roadmap_generation_metadata"
-  | "roadmap_quality_scores"
   | "roadmap_created_at"
   | "roadmap_updated_at"
 >;
@@ -79,10 +77,7 @@ export interface UpdateTaskParams {
 export class RoadmapDataService {
   private readonly logger = new Logger(RoadmapDataService.name);
 
-  constructor(
-    private readonly supabaseService: SupabaseService,
-    private readonly eventEmitter: EventEmitter2,
-  ) {}
+  constructor(private readonly supabaseService: SupabaseService) {}
 
   // ---------- Roadmap & milestones ----------
 
@@ -91,7 +86,7 @@ export class RoadmapDataService {
     const { data: goal, error } = await supabase
       .from("goals")
       .select(
-        "id, user_id, roadmap_status, roadmap_generation_attempts, roadmap_model_used, roadmap_generation_metadata, roadmap_quality_scores, roadmap_created_at, roadmap_updated_at",
+        "id, user_id, roadmap_status, roadmap_generation_attempts, roadmap_model_used, roadmap_generation_metadata, roadmap_created_at, roadmap_updated_at",
       )
       .eq("id", goalId)
       .eq("user_id", userId)
@@ -263,10 +258,6 @@ export class RoadmapDataService {
       );
     }
     return data as WeeklyPlan;
-  }
-
-  public emitPlanGenerated(planId: string, goalId: string): void {
-    this.eventEmitter.emit("weekly-plan.generated", { planId, goalId });
   }
 
   public getCurrentWeekStart(): string {
@@ -556,7 +547,7 @@ export class RoadmapDataService {
       .eq("id", goalId)
       .eq("user_id", userId)
       .select(
-        "id, user_id, roadmap_status, roadmap_generation_attempts, roadmap_model_used, roadmap_generation_metadata, roadmap_quality_scores, roadmap_created_at, roadmap_updated_at",
+        "id, user_id, roadmap_status, roadmap_generation_attempts, roadmap_model_used, roadmap_generation_metadata, roadmap_created_at, roadmap_updated_at",
       )
       .single();
     if (error) {
@@ -603,7 +594,7 @@ export class RoadmapDataService {
       .eq("user_id", userId)
       .neq("roadmap_status", ROADMAP_STATUS.GENERATING)
       .select(
-        "id, user_id, roadmap_status, roadmap_generation_attempts, roadmap_model_used, roadmap_generation_metadata, roadmap_quality_scores, roadmap_created_at, roadmap_updated_at",
+        "id, user_id, roadmap_status, roadmap_generation_attempts, roadmap_model_used, roadmap_generation_metadata, roadmap_created_at, roadmap_updated_at",
       )
       .single();
     // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition, @typescript-eslint/strict-boolean-expressions
@@ -621,7 +612,7 @@ export class RoadmapDataService {
     const { data: goal, error } = await supabase
       .from("goals")
       .select(
-        "id, user_id, roadmap_status, roadmap_generation_attempts, roadmap_model_used, roadmap_generation_metadata, roadmap_quality_scores, roadmap_created_at, roadmap_updated_at",
+        "id, user_id, roadmap_status, roadmap_generation_attempts, roadmap_model_used, roadmap_generation_metadata, roadmap_created_at, roadmap_updated_at",
       )
       .eq("id", goalId)
       .eq("user_id", userId)
@@ -762,8 +753,6 @@ export class RoadmapDataService {
       generation_metadata:
         (goal.roadmap_generation_metadata as Record<string, unknown> | null) ??
         {},
-      quality_scores:
-        (goal.roadmap_quality_scores as Record<string, unknown> | null) ?? null,
       created_at: goal.roadmap_created_at ?? now,
       updated_at: goal.roadmap_updated_at ?? now,
       ...(milestones !== undefined

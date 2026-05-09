@@ -10,18 +10,14 @@ import { UserLanguageService } from "../common/user-language.service.js";
 import { getUniversalBatch1 } from "../config/questions.config.js";
 import { GoalService } from "../goal/goal.service.js";
 import { FIRST_BATCH_NUMBER } from "./constants/intake.constants.js";
-import type {
-  QuestionConfig,
-  StoreBatchOptions,
-  StoredBatch,
-} from "./intake-data.service.js";
+import type { QuestionConfig } from "./intake-data.service.js";
 import { IntakeDataService } from "./intake-data.service.js";
 import { IntakeGenerationService } from "./intake-generation.service.js";
 import { validateAnswerSet } from "./intake-validators.js";
 import type {
   AnswerInput,
+  BatchAnsweredEvent,
   BatchParams,
-  BatchServedEvent,
 } from "./types/intake.types.js";
 
 @Injectable()
@@ -50,18 +46,11 @@ export class IntakeBatchService {
     const latestBatch = await this.dataService.queryLatestBatch(goalId);
     if (latestBatch === null) {
       const questions = getUniversalBatch1(language).map((q) => ({ ...q }));
-      const result = await this.dataService.storeGeneratedBatch({
+      return this.dataService.storeGeneratedBatch({
         goalId,
         batchNumber: FIRST_BATCH_NUMBER,
         questions,
       });
-      this.emitBatchEvent("batch.served", {
-        goal_id: goalId,
-        batch_id: result.batch_id,
-        batch_number: result.batch_number,
-        user_id: userId,
-      });
-      return result;
     }
     if (!(latestBatch.is_answered as boolean)) {
       return this.dataService.reServeBatch(
@@ -92,12 +81,12 @@ export class IntakeBatchService {
     validateAnswerSet(answers, questions);
     await this.dataService.persistAnswers(answers, batch.id);
     await this.tryExtractTargetDate(goalId, questions, answers);
-    this.emitBatchEvent("batch.answered", {
+    this.eventEmitter.emit("batch.answered", {
       goal_id: goalId,
       batch_id: batch.id,
       batch_number: batch.batch_number,
       user_id: userId,
-    });
+    } satisfies BatchAnsweredEvent);
     return this.tryGenerateNext(batch, {
       userId,
       goalId,
@@ -178,25 +167,11 @@ export class IntakeBatchService {
         ...result.profileResult,
       };
     }
-    return this.storeBatchAndEmit(params, result.questions);
-  }
-
-  private async storeBatchAndEmit(
-    params: BatchParams,
-    questions: StoreBatchOptions["questions"],
-  ): Promise<StoredBatch> {
-    const stored = await this.dataService.storeGeneratedBatch({
+    return this.dataService.storeGeneratedBatch({
       goalId: params.goalId,
       batchNumber: params.nextBatchNumber,
-      questions,
+      questions: result.questions,
     });
-    this.emitBatchEvent("batch.served", {
-      goal_id: params.goalId,
-      batch_id: stored.batch_id,
-      batch_number: stored.batch_number,
-      user_id: params.userId,
-    });
-    return stored;
   }
 
   private async tryGenerateNext(
@@ -223,9 +198,5 @@ export class IntakeBatchService {
         message: "Answers submitted successfully",
       };
     }
-  }
-
-  private emitBatchEvent(event: string, payload: BatchServedEvent): void {
-    this.eventEmitter.emit(event, payload);
   }
 }

@@ -1,5 +1,4 @@
 import { BadRequestException, Injectable, Logger } from "@nestjs/common";
-import { EventEmitter2 } from "@nestjs/event-emitter";
 
 import { UserLanguageService } from "../common/user-language.service.js";
 import { GoalService } from "../goal/goal.service.js";
@@ -25,7 +24,6 @@ export class RoadmapService {
     private readonly contextPipeline: RoadmapContextService,
     private readonly generation: RoadmapGenerationService,
     private readonly goal: GoalService,
-    private readonly events: EventEmitter2,
     private readonly roadmapStorage: RoadmapDataService,
     private readonly languageService: UserLanguageService,
     private readonly usageService: UsageService,
@@ -91,7 +89,6 @@ export class RoadmapService {
       );
       await this.goal.updateStatus(goalId, "active");
 
-      this.events.emit("roadmap.generated", { goalId });
       this.logger.log(
         `Roadmap generated for goal ${goalId}: ${String(milestones.length)} milestones`,
       );

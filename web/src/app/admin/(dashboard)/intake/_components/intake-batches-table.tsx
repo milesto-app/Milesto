@@ -51,17 +51,6 @@ const columns = defineColumns<AdminIntakeBatch>([
     ),
   },
   {
-    accessorKey: "qualityScore",
-    header: "Quality",
-    cell: ({ row }) => (
-      <span className="text-sm text-muted-foreground tabular-nums">
-        {row.original.qualityScore !== null
-          ? row.original.qualityScore.toFixed(2)
-          : "—"}
-      </span>
-    ),
-  },
-  {
     accessorKey: "embedded",
     header: "Embedded",
     cell: ({ row }) => (

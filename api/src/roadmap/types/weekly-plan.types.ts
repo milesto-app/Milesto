@@ -14,7 +14,6 @@ export interface WeeklyPlan {
   is_fallback: boolean;
   model_used: string | null;
   generation_metadata: Record<string, unknown>;
-  quality_scores: Record<string, unknown> | null;
   created_at: string;
 }
 

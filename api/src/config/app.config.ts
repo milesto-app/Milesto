@@ -11,8 +11,6 @@ const PRICE_GEMINI_FLASH_LITE_INPUT_PER_1M = 0.075;
 const PRICE_GEMINI_FLASH_LITE_OUTPUT_PER_1M = 0.3;
 const PRICE_GPT_5_5_INPUT_PER_1M = 1.25;
 const PRICE_GPT_5_5_OUTPUT_PER_1M = 10;
-const PRICE_GROK_4_1_FAST_INPUT_PER_1M = 0.2;
-const PRICE_GROK_4_1_FAST_OUTPUT_PER_1M = 0.5;
 
 const MODEL_PRICING: Record<
   string,
@@ -29,16 +27,10 @@ const MODEL_PRICING: Record<
     PRICE_GEMINI_FLASH_LITE_OUTPUT_PER_1M,
   ],
   ["openai/gpt-5.5", PRICE_GPT_5_5_INPUT_PER_1M, PRICE_GPT_5_5_OUTPUT_PER_1M],
-  [
-    "x-ai/grok-4.1-fast",
-    PRICE_GROK_4_1_FAST_INPUT_PER_1M,
-    PRICE_GROK_4_1_FAST_OUTPUT_PER_1M,
-  ],
 ]);
 
 const SUBSCRIPTION_PRICE_MONTHLY = 4.99;
 const SUBSCRIPTION_PRICE_ANNUAL = 39.99;
-const QUALITY_FAILURE_THRESHOLD = 0.5;
 
 function parseAppAppleId(raw: string | undefined): number | undefined {
   if (raw === undefined || raw === "") {
@@ -64,9 +56,7 @@ interface AppleServerApiConfig {
   privateKey: string | undefined;
 }
 
-function parseAppleEnvironment(
-  raw: string | undefined,
-): AppleEnvironmentName {
+function parseAppleEnvironment(raw: string | undefined): AppleEnvironmentName {
   if (raw === "Production" || raw === "Xcode") {
     return raw;
   }
@@ -142,11 +132,7 @@ export const config = {
     maxBatches: 7,
     questionsPerBatch: { min: 3, max: 5 },
     maxProfileRetries: 3,
-    qualityWarnThreshold: 0.5,
     model: "google/gemini-3-flash-preview",
-  },
-  eval: {
-    judgeModel: "x-ai/grok-4.1-fast",
   },
   throttle: {
     globalLimit: 60,
@@ -237,7 +223,4 @@ export const config = {
   // Rows in `generation_usage` whose model is missing from this map are
   // excluded from the cost estimate (reflected via `coverageRatio`).
   modelPricing: MODEL_PRICING,
-  // Intake batches with a quality score below this threshold are surfaced as
-  // failures in the admin dashboard.
-  qualityFailureThreshold: QUALITY_FAILURE_THRESHOLD,
 };

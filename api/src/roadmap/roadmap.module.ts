@@ -11,7 +11,6 @@ import { RoadmapService } from "./roadmap.service.js";
 import { RoadmapContextService } from "./roadmap-context.service.js";
 import { RoadmapDataService } from "./roadmap-data.service.js";
 import { RoadmapGenerationService } from "./roadmap-generation.service.js";
-import { RoadmapQualityService } from "./roadmap-quality.service.js";
 import { SummaryEmbeddingService } from "./summary-embedding.service.js";
 import { WeeklyPlanService } from "./weekly-plan.service.js";
 import { WeeklyTaskController } from "./weekly-task.controller.js";
@@ -35,7 +34,6 @@ import { WeeklyTaskService } from "./weekly-task.service.js";
     WeeklyPlanService,
     WeeklyTaskService,
     SummaryEmbeddingService,
-    RoadmapQualityService,
   ],
   exports: [
     RoadmapContextService,

@@ -8,13 +8,9 @@ import {
 
 import { AdminGuard } from "../common/guards/admin.guard.js";
 import { AuthGuard } from "../common/guards/auth.guard.js";
-import { DaysWindowQueryDto } from "./dto/days-window-query.dto.js";
 import { ListBatchesQueryDto } from "./dto/list-batches-query.dto.js";
 import { AdminIntakeService } from "./intake.service.js";
-import type {
-  AdminIntakeBatchList,
-  AdminIntakeQualityFailures,
-} from "./intake.types.js";
+import type { AdminIntakeBatchList } from "./intake.types.js";
 
 @ApiTags("Admin")
 @ApiBearerAuth()
@@ -40,18 +36,5 @@ export class AdminIntakeController {
       query.perPage,
       query.goalId,
     );
-  }
-
-  @Get("quality-failures")
-  @ApiOperation({
-    summary: "List intake batches that fell below the quality threshold",
-    description:
-      "Returns batches whose quality_score is below the configured failure threshold within the trailing window.",
-  })
-  @ApiResponse({ status: 200, description: "Quality failures returned" })
-  public async getQualityFailures(
-    @Query() query: DaysWindowQueryDto,
-  ): Promise<AdminIntakeQualityFailures> {
-    return this.intakeService.getQualityFailures(query.days);
   }
 }

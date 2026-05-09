@@ -296,23 +296,32 @@ export type Database = {
       };
       generation_usage: {
         Row: {
+          completion_tokens: number | null;
           created_at: string;
           generation_type: string;
           id: string;
+          model: string | null;
+          prompt_tokens: number | null;
           usage_date: string;
           user_id: string;
         };
         Insert: {
+          completion_tokens?: number | null;
           created_at?: string;
           generation_type: string;
           id?: string;
+          model?: string | null;
+          prompt_tokens?: number | null;
           usage_date?: string;
           user_id: string;
         };
         Update: {
+          completion_tokens?: number | null;
           created_at?: string;
           generation_type?: string;
           id?: string;
+          model?: string | null;
+          prompt_tokens?: number | null;
           usage_date?: string;
           user_id?: string;
         };
@@ -333,7 +342,6 @@ export type Database = {
           roadmap_generation_attempts: number;
           roadmap_generation_metadata: Json | null;
           roadmap_model_used: string | null;
-          roadmap_quality_scores: Json | null;
           roadmap_status: string | null;
           roadmap_updated_at: string | null;
           status: string;
@@ -357,7 +365,6 @@ export type Database = {
           roadmap_generation_attempts?: number;
           roadmap_generation_metadata?: Json | null;
           roadmap_model_used?: string | null;
-          roadmap_quality_scores?: Json | null;
           roadmap_status?: string | null;
           roadmap_updated_at?: string | null;
           status?: string;
@@ -381,7 +388,6 @@ export type Database = {
           roadmap_generation_attempts?: number;
           roadmap_generation_metadata?: Json | null;
           roadmap_model_used?: string | null;
-          roadmap_quality_scores?: Json | null;
           roadmap_status?: string | null;
           roadmap_updated_at?: string | null;
           status?: string;
@@ -401,7 +407,6 @@ export type Database = {
           goal_id: string;
           id: string;
           is_answered: boolean;
-          quality_score: number | null;
         };
         Insert: {
           batch_number: number;
@@ -410,7 +415,6 @@ export type Database = {
           goal_id: string;
           id?: string;
           is_answered?: boolean;
-          quality_score?: number | null;
         };
         Update: {
           batch_number?: number;
@@ -419,7 +423,6 @@ export type Database = {
           goal_id?: string;
           id?: string;
           is_answered?: boolean;
-          quality_score?: number | null;
         };
         Relationships: [
           {
@@ -726,6 +729,36 @@ export type Database = {
         };
         Relationships: [];
       };
+      system_logs: {
+        Row: {
+          context: string | null;
+          id: string;
+          level: string;
+          logged_at: string;
+          message: string;
+          metadata: Json | null;
+          stack: string | null;
+        };
+        Insert: {
+          context?: string | null;
+          id?: string;
+          level: string;
+          logged_at?: string;
+          message: string;
+          metadata?: Json | null;
+          stack?: string | null;
+        };
+        Update: {
+          context?: string | null;
+          id?: string;
+          level?: string;
+          logged_at?: string;
+          message?: string;
+          metadata?: Json | null;
+          stack?: string | null;
+        };
+        Relationships: [];
+      };
       weekly_plans: {
         Row: {
           created_at: string | null;
@@ -738,7 +771,6 @@ export type Database = {
           milestone_id: string;
           model_used: string | null;
           objectives: Json;
-          quality_scores: Json | null;
           status: string;
           summary: Json | null;
           user_id: string;
@@ -756,7 +788,6 @@ export type Database = {
           milestone_id: string;
           model_used?: string | null;
           objectives?: Json;
-          quality_scores?: Json | null;
           status?: string;
           summary?: Json | null;
           user_id: string;
@@ -774,7 +805,6 @@ export type Database = {
           milestone_id?: string;
           model_used?: string | null;
           objectives?: Json;
-          quality_scores?: Json | null;
           status?: string;
           summary?: Json | null;
           user_id?: string;
@@ -809,7 +839,6 @@ export type Database = {
           is_completed: boolean;
           is_fallback: boolean;
           order_index: number;
-          quality_scores: Json | null;
           title: string;
           user_id: string;
           weekly_plan_id: string;
@@ -824,7 +853,6 @@ export type Database = {
           is_completed?: boolean;
           is_fallback?: boolean;
           order_index: number;
-          quality_scores?: Json | null;
           title: string;
           user_id: string;
           weekly_plan_id: string;
@@ -839,7 +867,6 @@ export type Database = {
           is_completed?: boolean;
           is_fallback?: boolean;
           order_index?: number;
-          quality_scores?: Json | null;
           title?: string;
           user_id?: string;
           weekly_plan_id?: string;
@@ -885,33 +912,29 @@ export type Database = {
       };
       pick_notification_candidates: {
         Args: {
-          p_window_start_hour: number;
-          p_window_end_hour: number;
           p_max_per_day: number;
           p_min_minutes_between: number;
+          p_window_end_hour: number;
+          p_window_start_hour: number;
         };
         Returns: {
-          user_id: string;
-          language: string;
           coach_id: number;
-          timezone: string;
-          local_hour: number;
           goal_id: string;
           goal_title: string;
-          user_motivation_quote: string | null;
-          weekly_objectives: Json | null;
-          weekly_task_total: number | null;
-          weekly_task_completed: number | null;
-          recent_completed_titles: string[] | null;
-          next_task_title: string | null;
+          language: string;
+          local_hour: number;
+          next_task_title: string;
+          recent_completed_titles: string[];
+          timezone: string;
+          user_id: string;
+          user_motivation_quote: string;
+          weekly_objectives: Json;
+          weekly_task_completed: number;
+          weekly_task_total: number;
         }[];
       };
       reserve_generation: {
-        Args: {
-          p_limit: number;
-          p_type: string;
-          p_user_id: string;
-        };
+        Args: { p_limit: number; p_type: string; p_user_id: string };
         Returns: Json;
       };
     };

@@ -7,13 +7,6 @@ export interface BatchAnsweredEvent {
   user_id: string;
 }
 
-export interface BatchServedEvent {
-  goal_id: string;
-  batch_id: string;
-  batch_number: number;
-  user_id: string;
-}
-
 export interface ProfileGeneratedEvent {
   goal_id: string;
   profile_id: string;
