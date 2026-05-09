@@ -82,6 +82,7 @@ jobs:
           periphery scan \
             --project Milesto.xcodeproj \
             --schemes Milesto \
+            --targets Milesto \
             --strict \
             --retain-codable-properties \
             --retain-assign-only-properties \
