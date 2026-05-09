@@ -2,28 +2,31 @@ import SwiftUI
 
 struct TablerIcons: View {
     private let unicode: String
+    private let fontName: String
     var size: CGFloat = 24
     var color: Color?
 
     init(_ icon: TablerIconOutline, size: CGFloat = 24, color: Color? = nil) {
         unicode = icon.rawValue
+        fontName = "tabler-icons"
         self.size = size
         self.color = color
     }
 
     static func filled(_ icon: TablerIconFilled, size: CGFloat = 24, color: Color? = nil) -> TablerIcons {
-        TablerIcons(unicode: icon.rawValue, size: size, color: color)
+        TablerIcons(unicode: icon.rawValue, fontName: "tabler-icons-filled", size: size, color: color)
     }
 
-    private init(unicode: String, size: CGFloat, color: Color?) {
+    private init(unicode: String, fontName: String, size: CGFloat, color: Color?) {
         self.unicode = unicode
+        self.fontName = fontName
         self.size = size
         self.color = color
     }
 
     var body: some View {
         Text(unicode)
-            .font(.custom("tabler-icons", size: size))
+            .font(.custom(fontName, size: size))
             .foregroundStyle(color ?? Color("TextSecondary"))
     }
 }
@@ -40,7 +43,7 @@ struct TablerTabLabel: View {
     private var iconImage: Image {
         let renderer = ImageRenderer(
             content: Text(icon.rawValue)
-                .font(.custom("tabler-icons", size: 28))
+                .font(.custom("tabler-icons", size: 24))
                 .foregroundStyle(Color("TextPrimary"))
         )
         renderer.scale = UITraitCollection.current.displayScale
@@ -50,7 +53,7 @@ struct TablerTabLabel: View {
 
         let fallbackRenderer = ImageRenderer(
             content: Text(TablerIconOutline.questionMark.rawValue)
-                .font(.custom("tabler-icons", size: 28))
+                .font(.custom("tabler-icons", size: 24))
                 .foregroundStyle(Color("TextPrimary"))
         )
         fallbackRenderer.scale = UITraitCollection.current.displayScale

@@ -31,6 +31,7 @@
 	<key>UIAppFonts</key>
 	<array>
 		<string>tabler-icons.ttf</string>
+		<string>tabler-icons-filled.ttf</string>
 		<string>geist-regular.otf</string>
 		<string>geist-medium.otf</string>
 		<string>geist-semibold.otf</string>
