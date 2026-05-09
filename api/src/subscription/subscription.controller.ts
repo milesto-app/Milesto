@@ -16,6 +16,7 @@ import { config } from "../config/app.config.js";
 import { SubscriptionService } from "./subscription.service.js";
 import {
   AppleWebhookDto,
+  SyncSubscriptionDto,
   VerifySubscriptionDto,
 } from "./verify-subscription.dto.js";
 
@@ -24,11 +25,38 @@ interface SubscriptionStatusResponse {
   expiresAt: string | null;
   productId: string | null;
   autoRenew: boolean | null;
+  environment: string | null;
+  source: string;
+  lastSyncedAt: string | null;
 }
 
 @Controller("subscription")
 export class SubscriptionController {
   constructor(private readonly subscriptionService: SubscriptionService) {}
+
+  @Post("sync")
+  @UseGuards(AuthGuard)
+  @Throttle({
+    default: {
+      limit: config.subscription.verifyThrottleLimit,
+      ttl: config.subscription.verifyThrottleTtlMs,
+    },
+  })
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: "Sync Apple subscription from App Store Server API",
+  })
+  @ApiResponse({ status: HttpStatus.OK, description: "Subscription synced" })
+  @HttpCode(HttpStatus.OK)
+  public async sync(
+    @UserId() userId: string,
+    @Body() dto: SyncSubscriptionDto,
+  ): Promise<void> {
+    return this.subscriptionService.syncWithTransaction(
+      userId,
+      dto.transactionJws,
+    );
+  }
 
   @Post("verify")
   @UseGuards(AuthGuard)
@@ -39,14 +67,19 @@ export class SubscriptionController {
     },
   })
   @ApiBearerAuth()
-  @ApiOperation({ summary: "Verify and sync Apple subscription" })
+  @ApiOperation({
+    summary: "Deprecated alias for subscription sync",
+  })
   @ApiResponse({ status: HttpStatus.OK, description: "Subscription synced" })
   @HttpCode(HttpStatus.OK)
-  public async verify(
+  public async verifyDeprecated(
     @UserId() userId: string,
     @Body() dto: VerifySubscriptionDto,
   ): Promise<void> {
-    return this.subscriptionService.verifyAndSync(userId, dto.jwsTransaction);
+    return this.subscriptionService.syncWithTransaction(
+      userId,
+      dto.jwsTransaction,
+    );
   }
 
   @Get("status")

@@ -14,6 +14,96 @@ export type Database = {
   };
   public: {
     Tables: {
+      apple_subscription_accounts: {
+        Row: {
+          apple_signed_at: string | null;
+          apple_status_code: number | null;
+          auto_renew_status: boolean | null;
+          created_at: string;
+          environment: string;
+          expires_at: string | null;
+          id: string;
+          last_synced_at: string;
+          last_transaction_id: string | null;
+          original_transaction_id: string;
+          product_id: string | null;
+          status: string;
+          updated_at: string;
+          user_id: string;
+        };
+        Insert: {
+          apple_signed_at?: string | null;
+          apple_status_code?: number | null;
+          auto_renew_status?: boolean | null;
+          created_at?: string;
+          environment: string;
+          expires_at?: string | null;
+          id?: string;
+          last_synced_at?: string;
+          last_transaction_id?: string | null;
+          original_transaction_id: string;
+          product_id?: string | null;
+          status: string;
+          updated_at?: string;
+          user_id: string;
+        };
+        Update: {
+          apple_signed_at?: string | null;
+          apple_status_code?: number | null;
+          auto_renew_status?: boolean | null;
+          created_at?: string;
+          environment?: string;
+          expires_at?: string | null;
+          id?: string;
+          last_synced_at?: string;
+          last_transaction_id?: string | null;
+          original_transaction_id?: string;
+          product_id?: string | null;
+          status?: string;
+          updated_at?: string;
+          user_id?: string;
+        };
+        Relationships: [];
+      };
+      apple_subscription_events: {
+        Row: {
+          environment: string | null;
+          error_message: string | null;
+          id: string;
+          notification_type: string;
+          notification_uuid: string;
+          original_transaction_id: string | null;
+          processed_at: string;
+          result: string;
+          subtype: string | null;
+          user_id: string | null;
+        };
+        Insert: {
+          environment?: string | null;
+          error_message?: string | null;
+          id?: string;
+          notification_type: string;
+          notification_uuid: string;
+          original_transaction_id?: string | null;
+          processed_at?: string;
+          result: string;
+          subtype?: string | null;
+          user_id?: string | null;
+        };
+        Update: {
+          environment?: string | null;
+          error_message?: string | null;
+          id?: string;
+          notification_type?: string;
+          notification_uuid?: string;
+          original_transaction_id?: string | null;
+          processed_at?: string;
+          result?: string;
+          subtype?: string | null;
+          user_id?: string | null;
+        };
+        Relationships: [];
+      };
       coach_memories: {
         Row: {
           content: string;
@@ -600,6 +690,39 @@ export type Database = {
           subscription_verified_at?: string | null;
           timezone?: string | null;
           updated_at?: string | null;
+        };
+        Relationships: [];
+      };
+      subscription_overrides: {
+        Row: {
+          created_at: string;
+          created_by: string | null;
+          expires_at: string;
+          id: string;
+          reason: string;
+          revoked_at: string | null;
+          status: string;
+          user_id: string;
+        };
+        Insert: {
+          created_at?: string;
+          created_by?: string | null;
+          expires_at: string;
+          id?: string;
+          reason?: string;
+          revoked_at?: string | null;
+          status: string;
+          user_id: string;
+        };
+        Update: {
+          created_at?: string;
+          created_by?: string | null;
+          expires_at?: string;
+          id?: string;
+          reason?: string;
+          revoked_at?: string | null;
+          status?: string;
+          user_id?: string;
         };
         Relationships: [];
       };

@@ -20,6 +20,7 @@ import {
   ApiTags,
 } from "@nestjs/swagger";
 
+import { UserId } from "../common/decorators/user.decorator.js";
 import { AdminGuard } from "../common/guards/admin.guard.js";
 import { AuthGuard } from "../common/guards/auth.guard.js";
 import { GrantProDto } from "./dto/grant-pro.dto.js";
@@ -138,8 +139,9 @@ export class UsersController {
   public async grantPro(
     @Param("id", ParseUUIDPipe) id: string,
     @Body() body: GrantProDto,
+    @UserId() adminUserId: string,
   ): Promise<AdminUserSubscription> {
-    return this.usersService.grantPro(id, body.expiresAt);
+    return this.usersService.grantPro(id, body.expiresAt, adminUserId);
   }
 
   @Post(":id/revoke-pro")

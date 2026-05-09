@@ -65,6 +65,8 @@ export interface AdminUserSubscription {
   originalTransactionId: string | null;
   appleSignedAt: string | null;
   verifiedAt: string | null;
+  source: string;
+  lastSyncedAt: string | null;
 }
 
 export interface AdminUserDevice {

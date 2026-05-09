@@ -1,7 +1,7 @@
 import { Injectable, Logger } from "@nestjs/common";
 
+import { PRO_SUBSCRIPTION_STATUSES } from "../subscription/subscription-state.js";
 import { SupabaseService } from "../supabase/supabase.service.js";
-import { PRO_SUBSCRIPTION_STATUSES } from "../usage/subscription-state.js";
 import type {
   ActivityTimelineEntry,
   OverviewStats,

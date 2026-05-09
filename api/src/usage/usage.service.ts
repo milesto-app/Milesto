@@ -7,9 +7,9 @@ import {
 import { HttpException } from "@nestjs/common";
 
 import { config } from "../config/app.config.js";
+import { SubscriptionRequiredException } from "../subscription/subscription-required.exception.js";
+import { isEffectiveProStatus } from "../subscription/subscription-state.js";
 import { SupabaseService } from "../supabase/supabase.service.js";
-import { SubscriptionRequiredException } from "./subscription-required.exception.js";
-import { isProSubscriptionStatus } from "./subscription-state.js";
 import type { GenerationType, ReservationResult } from "./usage.types.js";
 
 @Injectable()
@@ -151,12 +151,10 @@ export class UsageService {
       throw new InternalServerErrorException("Usage check failed");
     }
 
-    const expiresAt = data?.subscription_expires_at;
-    const isSubscribed =
-      isProSubscriptionStatus(data?.subscription_status) &&
-      expiresAt !== null &&
-      expiresAt !== undefined &&
-      new Date(expiresAt) > new Date();
+    const isSubscribed = isEffectiveProStatus(
+      data?.subscription_status,
+      data?.subscription_expires_at,
+    );
 
     if (!isSubscribed) {
       throw new SubscriptionRequiredException();
