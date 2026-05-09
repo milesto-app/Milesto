@@ -1,4 +1,4 @@
-# CLAUDE.md
+# Agents context
 
 ## Project Overview
 

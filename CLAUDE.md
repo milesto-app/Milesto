@@ -2,36 +2,34 @@
 
 ## Project Overview
 
-Milesto is an AI-powered personal coaching app. Users set one big goal, and the app generates a personalized roadmap with milestones, weekly plans, and daily tasks — guided by an AI coach personality they choose.
+Milesto is an AI-powered personal coaching app. Users set one big goal, and the app generates a personalized roadmap with weekly milestones, weekly tasks; guided by an AI coach personality they choose and they can chat with.
 
 The project has three codebases:
 
-- **`ios/`** — SwiftUI iOS app (Swift 6, SwiftData, iOS 26+, Xcode 26+)
-- **`api/`** — NestJS + TypeScript API (Supabase Postgres, OpenRouter LLM, Cohere reranking)
-- **`web/`** — Next.js admin dashboard and public pages (App Router, TypeScript, Tailwind v4, shadcn/ui)
+- **`ios/`** — SwiftUI iOS app
+- **`api/`** — NestJS, Supabase, TypeScript API
+- **`web/`** — Next.js admin dashboard and public pages
 
-All three share a **Supabase** instance for auth, database, and edge functions. A Supabase MCP server is configured for direct database interaction.
+A Supabase MCP server is configured for direct database interaction.
 
 ## Important: Read Sub-Project Instructions
 
-Each sub-project has its own `CLAUDE.md` with detailed conventions, patterns, and rules.
+Each sub-project has its own `AGENTS.md` with detailed conventions, patterns, and rules.
 
-- **Working on `ios/` only** → read `ios/CLAUDE.md`
-- **Working on `api/` only** → read `api/CLAUDE.md`
-- **Working on `web/` only** → read `web/CLAUDE.md`
-- **Working on multiple** → read each relevant `CLAUDE.md`
+- **Working on `ios/`** → read `ios/AGENTS.md`
+- **Working on `api/`** → read `api/AGENTS.md`
+- **Working on `web/`** → read `web/AGENTS.md`
 
 These files are the source of truth for code style, architecture, components, and conventions in each codebase. ALWAYS read them before making changes.
 
 ## Root Task Runner
 
-A root `Makefile` orchestrates common tasks across `ios/`, `api/`, and `web/`. Independent tasks (install, build, lint, update) run in parallel automatically using all logical CPU cores. Prefer these over `cd`-ing into sub-projects. See the `Makefile` for the full target list.
+A root `Makefile` orchestrates common tasks across `ios/`, `api/`, and `web/`. Independent tasks (install, build, lint, update). Prefer these over `cd`-ing into sub-projects. See the `Makefile` for the full target list.
 
 ## Shared Conventions
 
 - **No hardcoded secrets** — environment variables for all keys.
 - **Supabase MCP** — use MCP tools for migrations, SQL, edge functions, logs, advisors, etc.
-- **RLS required** — always enable Row Level Security on new tables with appropriate policies.
 - **After DDL changes** — run `get_advisors` (security + performance) to catch issues.
 - **After any changes** — run `make lint` at the repo root before reporting the task as done, but dont check or revert what's been changed by the linter even if it's not related to your changes.
 
@@ -51,4 +49,4 @@ The iOS Marketing Version (`MARKETING_VERSION` in `ios/Milesto.xcodeproj/project
 - **default** — normal change (new feature, meaningful refactor).
 - **shame** — small edit (bug fix, tweak, copy change).
 
-**Bump only once per PR, not per individual edit.** Default to `shame`; use `default` only when the PR's changes are substantial enough to warrant it.
+**Bump only once before creating a PR, not per individual edit.** Default to `shame`; use `default` only when the PR's changes are substantial enough to warrant it.
