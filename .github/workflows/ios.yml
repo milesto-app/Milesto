@@ -59,3 +59,31 @@ jobs:
             ENABLE_PREVIEWS=NO \
             ONLY_ACTIVE_ARCH=YES \
             ARCHS="$(uname -m)"
+
+  unused:
+    name: Unused
+    runs-on: macos-26
+    steps:
+      - uses: actions/checkout@v6
+      - name: Cache Periphery build data
+        uses: actions/cache@v5
+        with:
+          path: |
+            ios/.build/PeripheryDerivedData
+            ios/.build/SourcePackages
+          key: ${{ runner.os }}-ios-periphery-${{ hashFiles('ios/Milesto.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved') }}-${{ hashFiles('ios/Milesto.xcodeproj/project.pbxproj', 'ios/Milesto/Sources/**/*.swift', 'ios/Milesto/Resources/Locales/**/*.xcstrings', 'ios/Milesto/Resources/Assets.xcassets/**', 'ios/Milesto/Config/**') }}
+          restore-keys: |
+            ${{ runner.os }}-ios-periphery-${{ hashFiles('ios/Milesto.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved') }}-
+            ${{ runner.os }}-ios-periphery-
+      - name: Ensure Periphery
+        run: command -v periphery >/dev/null || brew install peripheryapp/periphery/periphery
+      - name: Scan for unused code
+        run: |
+          periphery scan \
+            --project Milesto.xcodeproj \
+            --schemes Milesto \
+            --targets Milesto \
+            --strict \
+            --retain-codable-properties \
+            --retain-assign-only-properties \
+            --retain-files 'Milesto/Sources/Shared/Components/TablerIcons.swift'
