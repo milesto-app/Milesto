@@ -1,8 +1,8 @@
 import { Injectable, Logger } from "@nestjs/common";
 
 import { WeeklyPlanService } from "../roadmap/weekly-plan.service.js";
-import { WeeklyTaskService } from "../roadmap/weekly-task.service.js";
 import { SupabaseService } from "../supabase/supabase.service.js";
+import { WeeklyTaskService } from "../weekly-task/weekly-task.service.js";
 import { ChatSearchService } from "./chat-search.service.js";
 import type { ToolExecutionContext } from "./types/chat.types.js";
 

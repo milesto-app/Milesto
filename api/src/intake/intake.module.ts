@@ -2,7 +2,6 @@ import { Module } from "@nestjs/common";
 
 import { GoalModule } from "../goal/goal.module.js";
 import { UsageModule } from "../usage/usage.module.js";
-import { AdminController } from "./admin.controller.js";
 import { IntakeController } from "./intake.controller.js";
 import { IntakeBatchService } from "./intake-batch.service.js";
 import { IntakeDataService } from "./intake-data.service.js";
@@ -13,7 +12,7 @@ import { IntakeReembedService } from "./intake-reembed.service.js";
 
 @Module({
   imports: [GoalModule, UsageModule],
-  controllers: [IntakeController, AdminController],
+  controllers: [IntakeController],
   providers: [
     IntakeBatchService,
     IntakeDataService,

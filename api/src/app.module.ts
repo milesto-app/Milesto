@@ -11,6 +11,7 @@ import { CoachModule } from "./coach/coach.module.js";
 import { CommonModule } from "./common/common.module.js";
 import { config } from "./config/app.config.js";
 import { ConfigModule } from "./config/config.module.js";
+import { DebriefModule } from "./debrief/debrief.module.js";
 import { GoalModule } from "./goal/goal.module.js";
 import { HealthModule } from "./health/health.module.js";
 import { IntakeModule } from "./intake/intake.module.js";
@@ -21,6 +22,7 @@ import { SupabaseModule } from "./supabase/supabase.module.js";
 import { TranscriptionModule } from "./transcription/transcription.module.js";
 import { UsageModule } from "./usage/usage.module.js";
 import { UserModule } from "./user/user.module.js";
+import { WeeklyTaskModule } from "./weekly-task/weekly-task.module.js";
 
 @Module({
   imports: [
@@ -42,6 +44,8 @@ import { UserModule } from "./user/user.module.js";
     HealthModule,
     IntakeModule,
     RoadmapModule,
+    DebriefModule,
+    WeeklyTaskModule,
     CoachModule,
     TranscriptionModule,
     ChatModule,
