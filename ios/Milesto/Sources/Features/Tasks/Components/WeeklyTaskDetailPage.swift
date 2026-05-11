@@ -43,7 +43,7 @@ struct WeeklyTaskDetailPage: View {
 
     private var heroCard: some View {
         ZStack(alignment: .topLeading) {
-            RoundedRectangle(cornerRadius: 28, style: .circular)
+            RoundedRectangle(cornerRadius: 28, style: .continuous)
                 .fill(
                     LinearGradient(
                         colors: [accent.opacity(0.32), accent.opacity(0.06)],
@@ -52,7 +52,7 @@ struct WeeklyTaskDetailPage: View {
                     )
                 )
 
-            RoundedRectangle(cornerRadius: 28, style: .circular)
+            RoundedRectangle(cornerRadius: 28, style: .continuous)
                 .stroke(accent.opacity(0.35), lineWidth: 1)
 
             GeometryReader { geo in
@@ -71,7 +71,7 @@ struct WeeklyTaskDetailPage: View {
                         .position(x: geo.size.width - 40, y: 0)
                 }
             }
-            .clipShape(RoundedRectangle(cornerRadius: 28, style: .circular))
+            .clipShape(RoundedRectangle(cornerRadius: 28, style: .continuous))
 
             VStack(alignment: .leading, spacing: 24) {
                 eyebrowRow

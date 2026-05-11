@@ -5,14 +5,14 @@ struct UserDTO: Codable {
     let firstName: String?
     let lastName: String?
     let coachId: Int?
-    let dateOfBirth: Date?
+    let birthYear: Int?
     let createdAt: Date?
 
     enum CodingKeys: String, CodingKey {
         case userId = "id"
         case firstName = "first_name"
         case lastName = "last_name"
-        case dateOfBirth = "date_of_birth"
+        case birthYear = "birth_year"
         case coachId = "coach_id"
         case createdAt = "created_at"
     }
@@ -24,14 +24,7 @@ struct UserDTO: Codable {
         firstName = try container.decodeIfPresent(String.self, forKey: .firstName)
         lastName = try container.decodeIfPresent(String.self, forKey: .lastName)
         coachId = try container.decodeIfPresent(Int.self, forKey: .coachId)
-
-        if let dateString = try container.decodeIfPresent(String.self, forKey: .dateOfBirth) {
-            let formatter = DateFormatter()
-            formatter.dateFormat = "yyyy-MM-dd"
-            dateOfBirth = formatter.date(from: dateString)
-        } else {
-            dateOfBirth = nil
-        }
+        birthYear = try container.decodeIfPresent(Int.self, forKey: .birthYear)
 
         if let createdAtString = try container.decodeIfPresent(String.self, forKey: .createdAt) {
             let isoFormatter = ISO8601DateFormatter()
@@ -47,7 +40,6 @@ extension UserDTO {
     var isComplete: Bool {
         firstName?.trimmingCharacters(in: .whitespaces).isEmpty == false
             && lastName?.trimmingCharacters(in: .whitespaces).isEmpty == false
-            && dateOfBirth != nil
             && coachId != nil
     }
 
@@ -57,9 +49,6 @@ extension UserDTO {
             || lastName?.trimmingCharacters(in: .whitespaces).isEmpty != false
         {
             steps.append(.name)
-        }
-        if dateOfBirth == nil {
-            steps.append(.birthdate)
         }
         if coachId == nil {
             steps.append(.coach)

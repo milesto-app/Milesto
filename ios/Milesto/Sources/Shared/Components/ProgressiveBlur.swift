@@ -4,8 +4,8 @@ import UIKit
 struct ProgressiveBlur: View {
     var body: some View {
         Color.clear
-            .progressiveBlur(radius: 10.0, direction: .topToBottom)
-            .frame(height: 75)
+            .progressiveBlur()
+            .frame(height: 60)
             .ignoresSafeArea(edges: .top)
             .allowsHitTesting(false)
     }
@@ -38,11 +38,15 @@ enum BlurDirection {
 }
 
 extension View {
-    func progressiveBlur(radius: Double = 20.0, direction: BlurDirection = .bottomToTop) -> some View {
+    func progressiveBlur(radius: Double = 10.0, direction: BlurDirection = .topToBottom) -> some View {
         ZStack {
             self
             VariableBlurView(radius: radius, direction: direction)
         }
+    }
+
+    func topProgressiveBlur() -> some View {
+        overlay(alignment: .top) { ProgressiveBlur() }
     }
 }
 

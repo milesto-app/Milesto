@@ -64,14 +64,12 @@ struct SettingsUserDetailsSection: View {
 
     var body: some View {
         Section {
-            if let dateOfBirth = user?.dateOfBirth {
-                SettingsEditableRow(
-                    icon: .cake,
-                    label: "settings.profile.birthDate",
-                    value: Self.formattedDate(dateOfBirth),
-                    action: onEditBirthdate
-                )
-            }
+            SettingsEditableRow(
+                icon: .cake,
+                label: "settings.profile.birthYear",
+                value: user?.birthYear.map(String.init) ?? "—",
+                action: onEditBirthdate
+            )
 
             if let coach {
                 SettingsEditableRow(
@@ -108,8 +106,24 @@ struct SettingsUserDetailsSection: View {
     }
 }
 
+struct SettingsSubscriptionSection: View {
+    let onManageSubscription: () -> Void
+
+    var body: some View {
+        Section {
+            SettingsEditableRow(
+                icon: .creditCard,
+                label: "settings.subscription.manage",
+                value: "",
+                action: onManageSubscription
+            )
+        }
+        .listRowBackground(Color("BackgroundSecondary"))
+    }
+}
+
 struct SettingsEditableRow: View {
-    let icon: TablerIconOutline
+    let icon: TablerIcon
     let label: LocalizedStringKey
     let value: String
     let action: () -> Void
@@ -131,7 +145,7 @@ struct SettingsEditableRow: View {
 }
 
 struct SettingsDetailRow: View {
-    let icon: TablerIconOutline
+    let icon: TablerIcon
     let label: LocalizedStringKey
     let value: String
 
@@ -202,7 +216,7 @@ struct SettingsDangerSection: View {
     }
 
     private func dangerButton(
-        icon: TablerIconOutline,
+        icon: TablerIcon,
         label: LocalizedStringKey,
         action: @escaping () -> Void
     ) -> some View {

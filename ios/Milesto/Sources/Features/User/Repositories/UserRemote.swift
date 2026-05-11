@@ -3,13 +3,13 @@ import Foundation
 struct UserUpdateFieldsDTO: Encodable {
     var firstName: String?
     var lastName: String?
-    var dateOfBirth: String?
+    var birthYear: Int?
     var coachId: Int?
 
     enum CodingKeys: String, CodingKey {
         case firstName = "first_name"
         case lastName = "last_name"
-        case dateOfBirth = "date_of_birth"
+        case birthYear = "birth_year"
         case coachId = "coach_id"
     }
 
@@ -17,7 +17,7 @@ struct UserUpdateFieldsDTO: Encodable {
         var container = encoder.container(keyedBy: CodingKeys.self)
         if let firstName { try container.encode(firstName, forKey: .firstName) }
         if let lastName { try container.encode(lastName, forKey: .lastName) }
-        if let dateOfBirth { try container.encode(dateOfBirth, forKey: .dateOfBirth) }
+        if let birthYear { try container.encode(birthYear, forKey: .birthYear) }
         if let coachId { try container.encode(coachId, forKey: .coachId) }
     }
 }

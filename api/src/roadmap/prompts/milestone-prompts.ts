@@ -72,6 +72,7 @@ export function buildMilestoneUserPrompt(
     sections.push(`## User Profile\n${context.userProfileSection}`);
   }
 
+  const demographicsSection = buildDemographicsSection(goal);
   const constraintSection = buildConstraintSection(goal);
 
   const cappedNote = isCapped
@@ -89,9 +90,19 @@ Total months: ${String(monthCount)}
 ## Requirements
 ${requirementsSection}
 
+${demographicsSection}
+
 ${constraintSection}
 
 ${sections.join("\n\n")}`;
+}
+
+function buildDemographicsSection(goal: GoalData): string {
+  if (goal.user_birth_year === undefined) {
+    return "";
+  }
+  const age = new Date().getFullYear() - goal.user_birth_year;
+  return `## User Demographics\nApproximate age: ${String(age)} years old. Adapt tone, examples, and references to this life stage.`;
 }
 
 function buildConstraintSection(goal: GoalData): string {

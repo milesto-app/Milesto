@@ -10,13 +10,13 @@ struct AppPill: View {
 
     private let text: AppPillText
     private let tint: Color
-    private let icon: TablerIconOutline?
+    private let icon: TablerIcon?
 
     init(
         _ key: LocalizedStringKey,
         table: String? = nil,
         tint: Color = Color("Brand"),
-        icon: TablerIconOutline? = nil
+        icon: TablerIcon? = nil
     ) {
         text = .localized(key, table: table)
         self.tint = tint
@@ -26,7 +26,7 @@ struct AppPill: View {
     init(
         verbatim text: String,
         tint: Color = Color("Brand"),
-        icon: TablerIconOutline? = nil
+        icon: TablerIcon? = nil
     ) {
         self.text = .verbatim(text)
         self.tint = tint

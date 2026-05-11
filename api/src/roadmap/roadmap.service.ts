@@ -122,17 +122,28 @@ export class RoadmapService {
     userId: string,
   ): Promise<GoalData> {
     let profileData: Record<string, unknown> | undefined;
+    let userBirthYear: number | undefined;
     try {
       const supabase = this.supabaseService.getAdminClient();
-      const { data: profile } = await supabase
-        .from("goals")
-        .select("profile_data")
-        .eq("id", goalId)
-        .eq("user_id", userId)
-        .single();
+      const [profileRes, userRes] = await Promise.all([
+        supabase
+          .from("goals")
+          .select("profile_data")
+          .eq("id", goalId)
+          .eq("user_id", userId)
+          .single(),
+        supabase
+          .from("users")
+          .select("birth_year")
+          .eq("id", userId)
+          .maybeSingle(),
+      ]);
       profileData =
-        (profile?.profile_data as Record<string, unknown> | null | undefined) ??
-        undefined;
+        (profileRes.data?.profile_data as
+          | Record<string, unknown>
+          | null
+          | undefined) ?? undefined;
+      userBirthYear = userRes.data?.birth_year ?? undefined;
     } catch (error) {
       this.logger.warn(
         `Could not fetch goal profile for constraints: ${goalId}: ${error instanceof Error ? error.message : String(error)}`,
@@ -148,6 +159,9 @@ export class RoadmapService {
         ? { target_date: goalData.target_date }
         : {}),
       ...(profileData !== undefined ? { profile_data: profileData } : {}),
+      ...(userBirthYear !== undefined
+        ? { user_birth_year: userBirthYear }
+        : {}),
     };
   }
 

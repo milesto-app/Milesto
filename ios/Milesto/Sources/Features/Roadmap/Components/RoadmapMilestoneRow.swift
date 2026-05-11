@@ -33,7 +33,7 @@ struct RoadmapMilestoneRow: View {
             }
             .padding(.horizontal, 16)
             .padding(.vertical, 15)
-            .contentShape(RoundedRectangle(cornerRadius: cornerRadius, style: .circular))
+            .contentShape(RoundedRectangle(cornerRadius: cornerRadius, style: .continuous))
         }
     }
 
@@ -99,13 +99,13 @@ struct RoadmapMilestoneRow: View {
 
     @ViewBuilder
     private func glassSurface<Content: View>(@ViewBuilder content: () -> Content) -> some View {
-        let shape = RoundedRectangle(cornerRadius: cornerRadius, style: .circular)
+        let shape = RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
 
         content()
             .glassEffect(.regular.interactive(), in: shape)
     }
 
-    private var markerIcon: TablerIconOutline? {
+    private var markerIcon: TablerIcon? {
         if milestone.status == .completed { return .check }
         return nil
     }
@@ -130,7 +130,7 @@ struct RoadmapMilestoneRow: View {
         milestone.status == .completed ? Color("Brand") : typeColor
     }
 
-    private var typeIcon: TablerIconOutline {
+    private var typeIcon: TablerIcon {
         return .route
     }
 

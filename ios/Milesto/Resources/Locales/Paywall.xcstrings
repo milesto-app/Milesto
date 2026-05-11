@@ -296,13 +296,30 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "€7.50/month, billed annually"
+            "value" : "Billed annually"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "7,50 €/mois, facturé annuellement"
+            "value" : "Facturé annuellement"
+          }
+        }
+      }
+    },
+    "paywall.plan.annual.period.perMonth" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@/month, billed annually"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@/mois, facturé annuellement"
           }
         }
       }
@@ -371,6 +388,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Aucune limite entre toi et ton objectif."
+          }
+        }
+      }
+    },
+    "paywall.terms.annual" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ per year. Cancel anytime."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ par an. Annulable à tout moment."
           }
         }
       }

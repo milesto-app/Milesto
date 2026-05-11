@@ -18,7 +18,7 @@ struct StatsStreakSection: View {
     }
 
     private func streakItem(
-        icon: TablerIconOutline,
+        icon: TablerIcon,
         value: Int,
         label: LocalizedStringKey
     ) -> some View {

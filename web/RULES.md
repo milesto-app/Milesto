@@ -1,15 +1,8 @@
-# CLAUDE.md
+# Web Codebase Rules
 
 ## Project Overview
 
 Next.js admin dashboard and public pages for Milesto (milesto.app). Uses App Router, TypeScript, Tailwind CSS v4, and shadcn/ui.
-
-## Commands
-
-```bash
-bun run build              # Production build
-bun run lint               # Lint
-```
 
 ## Architecture
 
@@ -34,7 +27,6 @@ Three clients, each for a specific context:
 
 ## Conventions
 
-- Use bun, not npm.
 - shadcn/ui for UI components.
 - Server Components by default, Client Components only when needed (charts, polling, forms).
 - `force-dynamic` on admin pages, static for public pages.

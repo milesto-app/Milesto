@@ -701,9 +701,9 @@ export type Database = {
       };
       users: {
         Row: {
+          birth_year: number | null;
           coach_id: number | null;
           created_at: string | null;
-          date_of_birth: string | null;
           first_name: string | null;
           id: string;
           language: string | null;
@@ -720,9 +720,9 @@ export type Database = {
           updated_at: string | null;
         };
         Insert: {
+          birth_year?: number | null;
           coach_id?: number | null;
           created_at?: string | null;
-          date_of_birth?: string | null;
           first_name?: string | null;
           id: string;
           language?: string | null;
@@ -739,9 +739,9 @@ export type Database = {
           updated_at?: string | null;
         };
         Update: {
+          birth_year?: number | null;
           coach_id?: number | null;
           created_at?: string | null;
-          date_of_birth?: string | null;
           first_name?: string | null;
           id?: string;
           language?: string | null;

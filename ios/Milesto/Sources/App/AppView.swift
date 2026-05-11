@@ -16,6 +16,7 @@ struct AppView: View {
             }
         }
         .appBackground()
+        .topProgressiveBlur()
         .onOpenURL { url in
             Task {
                 await env.auth.handleAuthCallback(url)
@@ -66,7 +67,7 @@ private struct AuthenticatedRootView: View {
                 startingView {
                     UserOnboardingView(
                         userId: userId,
-                        missingSteps: routing.localUser?.missingOnboardingSteps ?? [.name, .birthdate, .coach],
+                        missingSteps: routing.localUser?.missingOnboardingSteps ?? [.name, .birthYear, .coach],
                         existingUser: routing.localUser,
                         onComplete: {
                             withAnimation(.easeInOut(duration: 0.4)) {
@@ -144,7 +145,7 @@ private struct AuthenticatedRootView: View {
             Tab(value: 0) {
                 HomeView(goalId: routing.activeGoalId ?? "")
             } label: {
-                TablerTabLabel(.home, title: String(localized: "tabs.home", table: "Common"))
+                TablerTabLabel(.layoutDashboard, title: String(localized: "tabs.home", table: "Common"))
             }
 
             Tab(value: 1) {
@@ -178,9 +179,6 @@ private struct AuthenticatedRootView: View {
             }
         }
         .labelStyle(.titleAndIcon)
-        .overlay(alignment: .top) {
-            ProgressiveBlur()
-        }
         .onChange(of: selectedTab) { oldValue, newValue in
             if newValue == 4 {
                 selectedTab = oldValue

@@ -169,6 +169,10 @@ export const config = {
   coach: {
     defaultCoachId: 1,
   },
+  user: {
+    minAgeYears: 13,
+    minBirthYear: 1900,
+  },
   usage: {
     generationsPerDay: 200,
   },

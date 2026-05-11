@@ -65,7 +65,7 @@ export interface AdminUserDetail {
   lastName: string | null;
   language: string | null;
   timezone: string | null;
-  dateOfBirth: string | null;
+  birthYear: number | null;
   coachId: number | null;
   subscriptionStatus: string;
   subscriptionExpiresAt: string | null;

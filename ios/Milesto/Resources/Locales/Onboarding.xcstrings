@@ -1,36 +1,53 @@
 {
   "sourceLanguage": "en",
   "strings": {
-    "onboarding.birthdate.subtitle": {
+    "onboarding.birthYear.skip": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "To help your coach understand you better."
+            "value": "Skip"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Pour aider votre coach à mieux vous comprendre."
+            "value": "Passer"
           }
         }
       }
     },
-    "onboarding.birthdate.title": {
+    "onboarding.birthYear.subtitle": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "What's your date of birth?"
+            "value": "Your year of birth helps your coach adapt advice to your life stage. This is optional — you can skip or change it anytime in Settings."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Quelle est votre date de naissance ?"
+            "value": "Votre année de naissance permet à votre coach d'adapter ses conseils à votre étape de vie. C'est facultatif — vous pouvez passer ou la modifier dans les Réglages."
+          }
+        }
+      }
+    },
+    "onboarding.birthYear.title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "When were you born?"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quelle est votre année de naissance ?"
           }
         }
       }

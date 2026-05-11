@@ -35,7 +35,7 @@ interface UserRow {
   last_name: string | null;
   language: string | null;
   timezone: string | null;
-  date_of_birth: string | null;
+  birth_year: number | null;
   coach_id: number | null;
   subscription_status: string;
   subscription_expires_at: string | null;
@@ -370,7 +370,7 @@ export class UsersService {
     const { data, error } = await supabase
       .from("users")
       .select(
-        "id, first_name, last_name, language, timezone, date_of_birth, coach_id, subscription_status, subscription_expires_at, subscription_product_id, subscription_environment, subscription_auto_renew_status, subscription_original_transaction_id, subscription_apple_signed_at, subscription_verified_at",
+        "id, first_name, last_name, language, timezone, birth_year, coach_id, subscription_status, subscription_expires_at, subscription_product_id, subscription_environment, subscription_auto_renew_status, subscription_original_transaction_id, subscription_apple_signed_at, subscription_verified_at",
       )
       .eq("id", userId)
       .maybeSingle();
@@ -494,7 +494,7 @@ function userDetailFields(
   | "lastName"
   | "language"
   | "timezone"
-  | "dateOfBirth"
+  | "birthYear"
   | "coachId"
   | "subscriptionStatus"
   | "subscriptionExpiresAt"
@@ -505,7 +505,7 @@ function userDetailFields(
       lastName: null,
       language: null,
       timezone: null,
-      dateOfBirth: null,
+      birthYear: null,
       coachId: null,
       subscriptionStatus: SUBSCRIPTION_STATUS.UNKNOWN,
       subscriptionExpiresAt: null,
@@ -516,7 +516,7 @@ function userDetailFields(
     lastName: user.last_name,
     language: user.language,
     timezone: user.timezone,
-    dateOfBirth: user.date_of_birth,
+    birthYear: user.birth_year,
     coachId: user.coach_id,
     subscriptionStatus: user.subscription_status,
     subscriptionExpiresAt: user.subscription_expires_at,

@@ -39,7 +39,7 @@ struct AppButton: View {
     private let table: String?
     private let action: () -> Void
     private let style: AppButtonStyle
-    private var icon: TablerIconOutline?
+    private var icon: TablerIcon?
     private var assetIcon: AppButtonAssetIcon?
     private var iconPosition: AppButtonIconPosition
     private var isFullWidth: Bool
@@ -105,7 +105,7 @@ struct AppButton: View {
         .animation(stateAnimation, value: isLoading)
     }
 
-    func icon(_ icon: TablerIconOutline, position: AppButtonIconPosition = .leading) -> AppButton {
+    func icon(_ icon: TablerIcon, position: AppButtonIconPosition = .leading) -> AppButton {
         var copy = self
         copy.icon = icon
         copy.iconPosition = position

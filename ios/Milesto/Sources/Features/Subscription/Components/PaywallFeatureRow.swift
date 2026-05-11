@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct PaywallFeatureRow: View {
-    let icon: TablerIconOutline
+    let icon: TablerIcon
     let labelKey: LocalizedStringKey
 
     var body: some View {
