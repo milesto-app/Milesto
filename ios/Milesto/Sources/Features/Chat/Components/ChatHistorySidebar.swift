@@ -3,6 +3,7 @@ import SwiftUI
 struct ChatHistorySidebar: View {
     @Binding var isOpen: Bool
     let conversations: [ChatConversationDTO]
+    let isLoading: Bool
     let activeConversationId: String?
     let onSelectConversation: (String) -> Void
     let onDeleteConversation: (String) -> Void
@@ -47,7 +48,9 @@ struct ChatHistorySidebar: View {
         GeometryReader { geometry in
             VStack(alignment: .leading, spacing: 8) {
                 header
-                if conversations.isEmpty {
+                if isLoading && conversations.isEmpty {
+                    loadingState
+                } else if conversations.isEmpty {
                     emptyState
                 } else {
                     conversationList
@@ -69,6 +72,11 @@ struct ChatHistorySidebar: View {
             .padding(.horizontal, 8 + 16)
             .padding(.top, 64)
             .padding(.bottom, 4)
+    }
+
+    private var loadingState: some View {
+        AppLoader()
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 
     private var emptyState: some View {
