@@ -4,6 +4,7 @@ struct PaywallPlanCard: View {
     let titleKey: LocalizedStringKey
     let price: String
     let periodKey: LocalizedStringKey
+    let periodVerbatim: String?
     let footnoteKey: LocalizedStringKey?
     let badgeKey: LocalizedStringKey?
     let isSelected: Bool
@@ -19,8 +20,13 @@ struct PaywallPlanCard: View {
                 AppText(verbatim: price, style: .title)
                     .weight(.semibold)
 
-                AppText(periodKey, table: "Paywall", style: .caption)
-                    .color(Color("TextSecondary"))
+                if let periodVerbatim {
+                    AppText(verbatim: periodVerbatim, style: .caption)
+                        .color(Color("TextSecondary"))
+                } else {
+                    AppText(periodKey, table: "Paywall", style: .caption)
+                        .color(Color("TextSecondary"))
+                }
 
                 if let footnoteKey {
                     Spacer(minLength: 4)

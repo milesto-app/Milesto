@@ -15,9 +15,9 @@ struct SettingsSheetContent: View {
                     lastName: user?.lastName ?? "",
                     onSave: onSave
                 )
-            case .birthdate:
-                EditBirthdateSheet(
-                    dateOfBirth: user?.dateOfBirth ?? Date(),
+            case .birthYear:
+                EditBirthYearSheet(
+                    birthYear: user?.birthYear,
                     onSave: onSave
                 )
             case .coach:
@@ -84,38 +84,59 @@ struct EditNameSheet: View {
     }
 }
 
-struct EditBirthdateSheet: View {
-    @State var dateOfBirth: Date
+struct EditBirthYearSheet: View {
+    @State var birthYear: Int?
     let onSave: (UserUpdateFieldsDTO) -> Void
 
     @Environment(\.dismiss) private var dismiss
 
+    private static let minAgeYears = 13
+    private static let maxAgeYears = 100
+    private static let defaultAgeYears = 20
+
+    private var currentYear: Int {
+        Calendar.current.component(.year, from: Date())
+    }
+
+    private var yearRange: [Int] {
+        let oldest = currentYear - Self.maxAgeYears
+        let youngest = currentYear - Self.minAgeYears
+        return Array((oldest ... youngest).reversed())
+    }
+
+    private var selectedYearBinding: Binding<Int> {
+        Binding(
+            get: { birthYear ?? (currentYear - Self.defaultAgeYears) },
+            set: { birthYear = $0 }
+        )
+    }
+
     var body: some View {
         NavigationStack {
             VStack(spacing: 24) {
-                DatePicker(
-                    String(localized: "settings.profile.birthDate", table: "Settings"),
-                    selection: $dateOfBirth,
-                    in: ...Date.now,
-                    displayedComponents: .date
-                )
-                .datePickerStyle(.wheel)
+                Picker(
+                    String(localized: "settings.profile.birthYear", table: "Settings"),
+                    selection: selectedYearBinding
+                ) {
+                    ForEach(yearRange, id: \.self) { year in
+                        AppText(verbatim: String(year), style: .title)
+                            .tag(year)
+                    }
+                }
+                .pickerStyle(.wheel)
                 .labelsHidden()
 
                 Spacer()
 
                 AppButton("settings.edit.save", table: "Settings") {
-                    let formatter = DateFormatter()
-                    formatter.dateFormat = "yyyy-MM-dd"
-                    onSave(UserUpdateFieldsDTO(
-                        dateOfBirth: formatter.string(from: dateOfBirth)
-                    ))
+                    let saved = birthYear ?? (currentYear - Self.defaultAgeYears)
+                    onSave(UserUpdateFieldsDTO(birthYear: saved))
                     dismiss()
                 }
                 .fullWidth()
             }
             .padding(24)
-            .navigationTitle(String(localized: "settings.edit.birthdate.title", table: "Settings"))
+            .navigationTitle(String(localized: "settings.edit.birthYear.title", table: "Settings"))
             .navigationBarTitleDisplayMode(.inline)
         }
         .appBackground()

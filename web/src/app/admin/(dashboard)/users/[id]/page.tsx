@@ -125,8 +125,8 @@ export default async function UserDetailPage({
             <Field label="Goals" value={String(user.goalCount)} />
             <Field label="Timezone" value={user.timezone} />
             <Field
-              label="Date of birth"
-              value={user.dateOfBirth ? formatDate(user.dateOfBirth) : null}
+              label="Birth year"
+              value={user.birthYear == null ? null : String(user.birthYear)}
             />
             <Field label="Subscription" value={user.subscriptionStatus} />
           </div>

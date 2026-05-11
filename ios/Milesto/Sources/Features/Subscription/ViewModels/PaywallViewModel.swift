@@ -50,6 +50,10 @@ final class PaywallViewModel {
         return selectedPlanId == annualId
     }
 
+    var annualHasTrial: Bool {
+        annualPlan?.hasIntroOffer ?? false
+    }
+
     var selectedPlan: SubscriptionPlan? {
         guard let id = selectedPlanId else { return nil }
         return plans.first { $0.id == id }

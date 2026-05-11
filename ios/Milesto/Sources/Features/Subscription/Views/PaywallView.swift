@@ -122,7 +122,8 @@ struct PaywallView: View {
                 titleKey: "paywall.plan.annual.title",
                 price: model.annualPlan?.displayPrice ?? "—",
                 periodKey: "paywall.plan.annual.period",
-                footnoteKey: "paywall.plan.annual.trial",
+                periodVerbatim: annualPeriodText(model: model),
+                footnoteKey: model.annualHasTrial ? "paywall.plan.annual.trial" : nil,
                 badgeKey: "paywall.plan.save",
                 isSelected: model.isAnnualSelected,
                 onSelect: { model.selectAnnual() }
@@ -132,6 +133,7 @@ struct PaywallView: View {
                 titleKey: "paywall.plan.monthly.title",
                 price: model.monthlyPlan?.displayPrice ?? "—",
                 periodKey: "paywall.plan.monthly.period",
+                periodVerbatim: nil,
                 footnoteKey: nil,
                 badgeKey: nil,
                 isSelected: !model.isAnnualSelected && model.selectedPlan != nil,
@@ -140,10 +142,18 @@ struct PaywallView: View {
         }
     }
 
+    private func annualPeriodText(model: PaywallViewModel) -> String? {
+        guard let perMonth = model.annualPlan?.perMonthDisplay else { return nil }
+        return String(
+            format: String(localized: "paywall.plan.annual.period.perMonth", table: "Paywall"),
+            perMonth
+        )
+    }
+
     private func ctaStack(model: PaywallViewModel) -> some View {
         VStack(spacing: 14) {
             AppButton(
-                model.isAnnualSelected ? "paywall.cta.trial" : "paywall.cta.subscribe",
+                (model.isAnnualSelected && model.annualHasTrial) ? "paywall.cta.trial" : "paywall.cta.subscribe",
                 table: "Paywall",
                 action: { Task { await model.purchaseSelected() } }
             )
@@ -182,7 +192,10 @@ struct PaywallView: View {
     private func termsLine(model: PaywallViewModel) -> String {
         if model.isAnnualSelected {
             guard let price = model.annualPlan?.displayPrice else { return "" }
-            return String(format: String(localized: "paywall.terms.trial.annual", table: "Paywall"), price)
+            if model.annualHasTrial {
+                return String(format: String(localized: "paywall.terms.trial.annual", table: "Paywall"), price)
+            }
+            return String(format: String(localized: "paywall.terms.annual", table: "Paywall"), price)
         } else {
             guard let price = model.monthlyPlan?.displayPrice else { return "" }
             return String(format: String(localized: "paywall.terms.monthly", table: "Paywall"), price)

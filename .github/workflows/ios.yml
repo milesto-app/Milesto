@@ -76,14 +76,19 @@ jobs:
             ${{ runner.os }}-ios-periphery-${{ hashFiles('ios/Milesto.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved') }}-
             ${{ runner.os }}-ios-periphery-
       - name: Ensure Periphery
-        run: command -v periphery >/dev/null || brew install peripheryapp/periphery/periphery
+        run: command -v periphery >/dev/null || brew install periphery
       - name: Scan for unused code
         run: |
           periphery scan \
             --project Milesto.xcodeproj \
             --schemes Milesto \
-            --targets Milesto \
             --strict \
             --retain-codable-properties \
             --retain-assign-only-properties \
-            --retain-files 'Milesto/Sources/Shared/Components/TablerIcons.swift'
+            --retain-files 'Milesto/Sources/Shared/Components/TablerIcons.swift' \
+            -- \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            ENABLE_PREVIEWS=NO \
+            ONLY_ACTIVE_ARCH=YES \
+            ARCHS="$(uname -m)"

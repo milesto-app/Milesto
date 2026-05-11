@@ -2,7 +2,7 @@ import Foundation
 
 enum SettingsSheet: Identifiable {
     case name
-    case birthdate
+    case birthYear
     case coach
     case language
 

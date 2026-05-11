@@ -2,6 +2,6 @@ import Foundation
 
 enum OnboardingStep: Hashable {
     case name
-    case birthdate
+    case birthYear
     case coach
 }
