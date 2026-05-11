@@ -8,6 +8,7 @@ struct SignOutGlassButton: View {
 
     var body: some View {
         Button {
+            Haptics.warning()
             showConfirm = true
         } label: {
             TablerIcons(.x, size: 24, color: Color("TextPrimary"))

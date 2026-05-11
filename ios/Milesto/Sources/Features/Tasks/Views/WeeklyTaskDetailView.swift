@@ -32,6 +32,7 @@ struct WeeklyTaskDetailView: View {
         }
         .overlay(alignment: .topLeading) {
             Button {
+                Haptics.light()
                 dismiss()
             } label: {
                 TablerIcons(.x, size: 24, color: Color("TextPrimary"))

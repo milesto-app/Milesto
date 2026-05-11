@@ -19,7 +19,10 @@ struct SettingsUserHeaderSection: View {
                 .padding(.vertical, 32)
                 .listRowBackground(Color.clear)
             } else {
-                Button(action: onEdit) {
+                Button {
+                    Haptics.light()
+                    onEdit()
+                } label: {
                     VStack(spacing: 16) {
                         UserAvatarView(
                             imageURL: avatarURL.flatMap(URL.init(string:)),
@@ -86,23 +89,8 @@ struct SettingsUserDetailsSection: View {
                 value: currentAppLanguage,
                 action: onEditLanguage
             )
-
-            if let createdAt = user?.createdAt {
-                SettingsDetailRow(
-                    icon: .calendar,
-                    label: "settings.profile.memberSince",
-                    value: Self.formattedDate(createdAt)
-                )
-            }
         }
         .listRowBackground(Color("BackgroundSecondary"))
-    }
-
-    static func formattedDate(_ date: Date) -> String {
-        let formatter = DateFormatter()
-        formatter.dateStyle = .medium
-        formatter.timeStyle = .none
-        return formatter.string(from: date)
     }
 }
 
@@ -129,7 +117,10 @@ struct SettingsEditableRow: View {
     let action: () -> Void
 
     var body: some View {
-        Button(action: action) {
+        Button {
+            Haptics.light()
+            action()
+        } label: {
             HStack(spacing: 12) {
                 TablerIcons(icon, size: 24, color: Color("Brand"))
                 AppText(label, table: "Settings", style: .body)
@@ -141,22 +132,6 @@ struct SettingsEditableRow: View {
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
-    }
-}
-
-struct SettingsDetailRow: View {
-    let icon: TablerIcon
-    let label: LocalizedStringKey
-    let value: String
-
-    var body: some View {
-        HStack(spacing: 12) {
-            TablerIcons(icon, size: 24, color: Color("Brand"))
-            AppText(label, table: "Settings", style: .body)
-            Spacer()
-            AppText(verbatim: value, style: .body)
-                .color(Color("TextSecondary"))
-        }
     }
 }
 
@@ -211,7 +186,10 @@ struct SettingsDangerSection: View {
 
         if versionTapCount >= unlockTapTarget {
             versionTapCount = 0
+            Haptics.heavy()
             onUnlockDesignSystem?()
+        } else {
+            Haptics.soft(intensity: 0.4)
         }
     }
 
@@ -220,7 +198,10 @@ struct SettingsDangerSection: View {
         label: LocalizedStringKey,
         action: @escaping () -> Void
     ) -> some View {
-        Button(role: .destructive, action: action) {
+        Button(role: .destructive) {
+            Haptics.warning()
+            action()
+        } label: {
             HStack(spacing: 12) {
                 TablerIcons(icon, size: 24, color: Color("Error"))
                 AppText(label, table: "Settings", style: .body)

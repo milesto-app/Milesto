@@ -50,6 +50,9 @@ struct OnboardingBirthYearView: View {
             }
             .pickerStyle(.wheel)
             .labelsHidden()
+            .onChange(of: selectedYearBinding.wrappedValue) {
+                Haptics.selection()
+            }
 
             Spacer()
 

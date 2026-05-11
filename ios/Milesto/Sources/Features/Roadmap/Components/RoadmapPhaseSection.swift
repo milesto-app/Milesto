@@ -36,6 +36,7 @@ struct RoadmapPhaseSection: View {
                     LazyVStack(spacing: 12) {
                         ForEach(visibleMilestones, id: \.id) { milestone in
                             Button {
+                                Haptics.light()
                                 onSelect(milestone)
                             } label: {
                                 RoadmapMilestoneRow(
@@ -59,6 +60,7 @@ struct RoadmapPhaseSection: View {
 
     private var phaseHeader: some View {
         Button {
+            Haptics.soft(intensity: 0.7)
             withAnimation(collapseAnimation) {
                 onToggleExpanded()
             }

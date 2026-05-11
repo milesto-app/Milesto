@@ -50,8 +50,11 @@ struct DebriefSheetView: View {
                     AppButton("home.debrief.submit", table: "Home", style: .primary) {
                         Task {
                             if await model.submit() {
+                                Haptics.success()
                                 dismiss()
                                 onDebriefComplete()
+                            } else {
+                                Haptics.error()
                             }
                         }
                     }

@@ -10,7 +10,7 @@ struct HomeView: View {
                     HomeJourneyCard(goalId: goalId)
                     DebriefBannerCard(goalId: goalId)
                     HomeWeeklyTasksCard(goalId: goalId)
-                        .padding(.top, 16)
+                        .padding(.top, 8)
                 }
                 .padding(.bottom, 40)
             }

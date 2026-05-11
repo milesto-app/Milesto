@@ -33,6 +33,7 @@ struct IntakeDateQuestionView: View {
             .datePickerStyle(.graphical)
             .labelsHidden()
             .onChange(of: selectedDate) {
+                Haptics.selection()
                 hasSelected = true
                 setAnswer(question.id, IntakeAnswerDTO(
                     questionId: question.id,

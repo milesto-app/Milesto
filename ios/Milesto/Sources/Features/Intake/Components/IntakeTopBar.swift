@@ -14,6 +14,7 @@ struct IntakeTopBar: View {
             Spacer()
 
             Button {
+                Haptics.warning()
                 showActions = true
             } label: {
                 TablerIcons(.x, size: 24, color: Color("TextPrimary"))

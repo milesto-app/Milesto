@@ -14,11 +14,11 @@ A Supabase MCP server is configured for direct database interaction.
 
 ## Read Sub-Project Instructions
 
-Each sub-project has its own `RULES.md` with detailed conventions, patterns, and rules.
+Each sub-project's rules live in `docs/` at the repo root.
 
-- **Working on `ios/`** → read `ios/RULES.md`
-- **Working on `api/`** → read `api/RULES.md`
-- **Working on `web/`** → read `web/RULES.md`
+- **Working on `ios/`** → read `docs/IOS.md`
+- **Working on `api/`** → read `docs/API.md`
+- **Working on `web/`** → read `docs/WEB.md`
 
 These files are the source of truth for code style, architecture, components, and conventions in each codebase. ALWAYS read them before making changes.
 

@@ -87,7 +87,10 @@ struct WeeklyPlanGenerationView: View {
         guard let model else { return }
         let success = await model.generate(goalId: goalId)
         if success {
+            Haptics.success()
             onComplete()
+        } else if model.hasFailed {
+            Haptics.error()
         }
     }
 }
