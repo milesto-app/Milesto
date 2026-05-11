@@ -23,5 +23,6 @@ struct IntakeCompletionView: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         .appBackground()
         .padding(.horizontal, 24)
+        .onAppear { Haptics.success() }
     }
 }

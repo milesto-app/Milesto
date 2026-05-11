@@ -112,3 +112,13 @@ var title: String {
 - Keep code self-documenting through clear naming.
 - Do not write comments at all.
 - Do not use glow effects unless explicitly requested.
+
+## 5. Haptics
+
+Use the `Haptics` helper in `Shared/Components/Haptics.swift` to add tactile feedback to interactions. Available calls: `light`, `medium`, `heavy`, `soft`, `rigid`, `selection`, `success`, `warning`, `error`.
+
+- Keep it subtle. Most taps should use `light` or `soft`; reserve `medium`/`heavy` for primary CTAs or destructive confirmations.
+- Don't haptic everything. Pick the moments that genuinely benefit (toggling a task, picking an option, completing a flow, deleting). Skip purely visual or passive interactions.
+- Vary the feel across a screen. Same-feeling haptics on every control turn into noise; choose the variant that matches the action's weight and reversibility.
+- Pair `success`/`error` with terminal outcomes only (submit succeeded, purchase completed, API failure), never with intermediate taps.
+- `AppButton` already fires a style-based haptic on tap, so don't double up inside its action closure.

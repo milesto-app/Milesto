@@ -48,8 +48,10 @@ struct IntakeMultipleChoiceView: View {
     private func toggleOption(_ option: String) {
         var current = selectedOptions
         if current.contains(option) {
+            Haptics.light()
             current.remove(option)
         } else {
+            Haptics.rigid(intensity: 0.7)
             current.insert(option)
         }
         setAnswer(question.id, IntakeAnswerDTO(

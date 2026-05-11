@@ -93,10 +93,13 @@ struct TranscriptionToggleButton: View {
         guard let model else { return }
         switch model.state {
         case .idle:
+            Haptics.rigid()
             Task { await model.startRecording() }
         case .recording:
+            Haptics.heavy()
             Task {
                 if let transcript = await model.stopAndTranscribe() {
+                    Haptics.success()
                     transcribedText = transcript
                 }
             }

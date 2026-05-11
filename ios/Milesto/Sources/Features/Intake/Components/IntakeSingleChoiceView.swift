@@ -17,6 +17,9 @@ struct IntakeSingleChoiceView: View {
         VStack(spacing: 8) {
             ForEach(options, id: \.self) { option in
                 Button {
+                    if selectedOption != option {
+                        Haptics.selection()
+                    }
                     setAnswer(question.id, IntakeAnswerDTO(
                         questionId: question.id,
                         answerText: nil,

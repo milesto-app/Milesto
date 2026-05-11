@@ -26,6 +26,7 @@ struct ChatEmptyState: View {
         LazyVGrid(columns: columns, spacing: 16) {
             ForEach(Array(prompts.enumerated()), id: \.offset) { index, prompt in
                 Button {
+                    Haptics.light()
                     onSelectPrompt(String(localized: String.LocalizationValue(prompt.key), table: "Chat"))
                 } label: {
                     VStack(alignment: .leading, spacing: 12) {
