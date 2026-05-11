@@ -75,6 +75,7 @@ struct ChatView: View {
             ChatHistorySidebar(
                 isOpen: $isSidebarOpen,
                 conversations: model.conversations,
+                isLoading: model.isLoadingHistory,
                 activeConversationId: model.conversationId,
                 onSelectConversation: { id in model.loadConversation(id) },
                 onDeleteConversation: { id in model.deleteConversation(id) }
