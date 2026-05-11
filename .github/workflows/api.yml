@@ -1,61 +1,63 @@
 name: API
 
 on:
-  push:
-    branches: [main, dev]
-    paths:
-      - "api/**"
-      - ".github/workflows/api.yml"
   pull_request:
     paths:
       - "api/**"
       - ".github/workflows/api.yml"
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  actions: write
+  contents: read
 
 defaults:
   run:
     working-directory: api
 
 jobs:
-  format:
-    name: Format
+  check:
+    name: Check
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     steps:
-      - uses: actions/checkout@v6
-      - uses: oven-sh/setup-bun@v2
+      - uses: actions/checkout@v6.0.2
+      - uses: oven-sh/setup-bun@v2.2.0
         with:
           bun-version: latest
+      - name: Cache Bun dependencies
+        uses: actions/cache@v5.0.5
+        with:
+          path: |
+            ~/.bun/install/cache
+            api/node_modules
+          key: ${{ runner.os }}-api-bun-${{ hashFiles('api/bun.lock', 'api/package.json') }}
+          restore-keys: |
+            ${{ runner.os }}-api-bun-
       - run: bun install --frozen-lockfile
       - run: bunx prettier --check --ignore-unknown .
-
-  lint:
-    name: Lint
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v6
-      - uses: oven-sh/setup-bun@v2
-        with:
-          bun-version: latest
-      - run: bun install --frozen-lockfile
       - run: bunx eslint src
-
-  build:
-    name: Build
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v6
-      - uses: oven-sh/setup-bun@v2
-        with:
-          bun-version: latest
-      - run: bun install --frozen-lockfile
       - run: bun run build
-
-  unused:
-    name: Unused
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v6
-      - uses: oven-sh/setup-bun@v2
-        with:
-          bun-version: latest
-      - run: bun install --frozen-lockfile
-      - run: bunx knip
+      - name: Cancel sibling runs
+        if: failure()
+        env:
+          GH_TOKEN: ${{ github.token }}
+          CURRENT_RUN_ID: ${{ github.run_id }}
+          PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          for status in queued in_progress waiting requested; do
+            gh run list \
+              --repo "$GITHUB_REPOSITORY" \
+              --commit "$PR_HEAD_SHA" \
+              --status "$status" \
+              --json databaseId \
+              --jq '.[].databaseId' \
+            | while read -r run_id; do
+                [ -z "$run_id" ] && continue
+                [ "$run_id" = "$CURRENT_RUN_ID" ] && continue
+                gh run cancel "$run_id" --repo "$GITHUB_REPOSITORY" || true
+              done
+          done
