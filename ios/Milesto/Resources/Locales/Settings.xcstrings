@@ -273,6 +273,23 @@
         }
       }
     },
+    "settings.subscription.manage" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Manage Subscription"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gérer l'abonnement"
+          }
+        }
+      }
+    },
     "settings.language.info.currentLabel" : {
       "extractionState" : "manual",
       "localizations" : {

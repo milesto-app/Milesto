@@ -106,6 +106,22 @@ struct SettingsUserDetailsSection: View {
     }
 }
 
+struct SettingsSubscriptionSection: View {
+    let onManageSubscription: () -> Void
+
+    var body: some View {
+        Section {
+            SettingsEditableRow(
+                icon: .creditCard,
+                label: "settings.subscription.manage",
+                value: "",
+                action: onManageSubscription
+            )
+        }
+        .listRowBackground(Color("BackgroundSecondary"))
+    }
+}
+
 struct SettingsEditableRow: View {
     let icon: TablerIcon
     let label: LocalizedStringKey

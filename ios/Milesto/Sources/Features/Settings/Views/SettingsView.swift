@@ -1,3 +1,4 @@
+import StoreKit
 import SwiftUI
 
 struct SettingsView: View {
@@ -8,6 +9,7 @@ struct SettingsView: View {
     @State private var showSignOutAlert = false
     @State private var showDeleteGoalAlert = false
     @State private var showDesignSystem = false
+    @State private var showManageSubscriptions = false
     @State private var activeSheet: SettingsSheet?
 
     var body: some View {
@@ -46,6 +48,9 @@ struct SettingsView: View {
                     onEditBirthdate: { activeSheet = .birthYear },
                     onEditCoach: { activeSheet = .coach },
                     onEditLanguage: { activeSheet = .language }
+                )
+                SettingsSubscriptionSection(
+                    onManageSubscription: { showManageSubscriptions = true }
                 )
                 SettingsDangerSection(
                     isDeleting: model.isDeleting,
@@ -94,6 +99,7 @@ struct SettingsView: View {
             .fullScreenCover(isPresented: $showDesignSystem) {
                 DesignSystemView()
             }
+            .manageSubscriptionsSheet(isPresented: $showManageSubscriptions)
         }
         .appBackground()
     }
