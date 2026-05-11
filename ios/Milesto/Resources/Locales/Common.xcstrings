@@ -171,6 +171,40 @@
         }
       }
     },
+    "common.error.noConnection": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No connection"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pas de connexion"
+          }
+        }
+      }
+    },
+    "common.error.noConnectionMessage": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Check your internet connection and try again."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vérifiez votre connexion internet puis réessayez."
+          }
+        }
+      }
+    },
     "common.signOut.alert.confirm": {
       "extractionState": "manual",
       "localizations": {

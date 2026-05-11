@@ -9,7 +9,7 @@ struct HomeJourneyCard: View {
     var body: some View {
         journeyContent
             .padding(.horizontal, 24)
-            .padding(.top, 32)
+            .padding(.top, 24)
             .task(id: goalId) {
                 if model == nil {
                     let vm = HomeJourneyViewModel(env: env)

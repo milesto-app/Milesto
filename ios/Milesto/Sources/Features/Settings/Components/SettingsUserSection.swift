@@ -86,23 +86,8 @@ struct SettingsUserDetailsSection: View {
                 value: currentAppLanguage,
                 action: onEditLanguage
             )
-
-            if let createdAt = user?.createdAt {
-                SettingsDetailRow(
-                    icon: .calendar,
-                    label: "settings.profile.memberSince",
-                    value: Self.formattedDate(createdAt)
-                )
-            }
         }
         .listRowBackground(Color("BackgroundSecondary"))
-    }
-
-    static func formattedDate(_ date: Date) -> String {
-        let formatter = DateFormatter()
-        formatter.dateStyle = .medium
-        formatter.timeStyle = .none
-        return formatter.string(from: date)
     }
 }
 
