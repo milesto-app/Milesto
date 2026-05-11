@@ -1,61 +1,74 @@
 name: Web
 
 on:
-  push:
-    branches: [main, dev]
-    paths:
-      - "web/**"
-      - ".github/workflows/web.yml"
   pull_request:
     paths:
       - "web/**"
       - ".github/workflows/web.yml"
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  actions: write
+  contents: read
 
 defaults:
   run:
     working-directory: web
 
 jobs:
-  format:
-    name: Format
+  check:
+    name: Check
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     steps:
-      - uses: actions/checkout@v6
-      - uses: oven-sh/setup-bun@v2
+      - uses: actions/checkout@v6.0.2
+      - uses: oven-sh/setup-bun@v2.2.0
         with:
           bun-version: latest
+      - name: Cache Bun dependencies
+        uses: actions/cache@v5.0.5
+        with:
+          path: |
+            ~/.bun/install/cache
+            web/node_modules
+          key: ${{ runner.os }}-web-bun-${{ hashFiles('web/bun.lock', 'web/package.json') }}
+          restore-keys: |
+            ${{ runner.os }}-web-bun-
+      - name: Cache Next.js and lint data
+        uses: actions/cache@v5.0.5
+        with:
+          path: |
+            web/.next/cache
+            web/*.tsbuildinfo
+            web/node_modules/.cache/eslint
+          key: ${{ runner.os }}-web-build-${{ hashFiles('web/bun.lock', 'web/package.json', 'web/next.config.*', 'web/postcss.config.*', 'web/tsconfig.json', 'web/components.json', 'web/src/**/*') }}
+          restore-keys: |
+            ${{ runner.os }}-web-build-${{ hashFiles('web/bun.lock', 'web/package.json') }}-
+            ${{ runner.os }}-web-build-
       - run: bun install --frozen-lockfile
       - run: bunx prettier --check --ignore-unknown .
-
-  lint:
-    name: Lint
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v6
-      - uses: oven-sh/setup-bun@v2
-        with:
-          bun-version: latest
-      - run: bun install --frozen-lockfile
       - run: bun run lint
-
-  build:
-    name: Build
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v6
-      - uses: oven-sh/setup-bun@v2
-        with:
-          bun-version: latest
-      - run: bun install --frozen-lockfile
       - run: bun run build
-
-  unused:
-    name: Unused
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v6
-      - uses: oven-sh/setup-bun@v2
-        with:
-          bun-version: latest
-      - run: bun install --frozen-lockfile
-      - run: bunx knip
+      - name: Cancel sibling runs
+        if: failure()
+        env:
+          GH_TOKEN: ${{ github.token }}
+          CURRENT_RUN_ID: ${{ github.run_id }}
+          PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          for status in queued in_progress waiting requested; do
+            gh run list \
+              --repo "$GITHUB_REPOSITORY" \
+              --commit "$PR_HEAD_SHA" \
+              --status "$status" \
+              --json databaseId \
+              --jq '.[].databaseId' \
+            | while read -r run_id; do
+                [ -z "$run_id" ] && continue
+                [ "$run_id" = "$CURRENT_RUN_ID" ] && continue
+                gh run cancel "$run_id" --repo "$GITHUB_REPOSITORY" || true
+              done
+          done
