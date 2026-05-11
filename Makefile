@@ -25,7 +25,7 @@ test: test-api
 test-api: ; bun run --cwd api test
 
 unused: unused-ios unused-api unused-web
-unused-ios: ; cd ios && periphery scan --project Milesto.xcodeproj --schemes Milesto --strict --retain-codable-properties --retain-assign-only-properties --retain-files 'Milesto/Sources/Shared/Components/TablerIcons.swift'
+unused-ios: ; cd ios && periphery scan --project Milesto.xcodeproj --schemes Milesto --strict --retain-codable-properties --retain-assign-only-properties --retain-files 'Milesto/Sources/Shared/Components/TablerIcons.swift' -- CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO ENABLE_PREVIEWS=NO ONLY_ACTIVE_ARCH=YES ARCHS="$$(uname -m)"
 unused-api: ; npx -y knip --directory api
 unused-web: ; npx -y knip --directory web
 
