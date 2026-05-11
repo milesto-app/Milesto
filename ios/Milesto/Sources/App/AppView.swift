@@ -182,7 +182,10 @@ private struct AuthenticatedRootView: View {
         .onChange(of: selectedTab) { oldValue, newValue in
             if newValue == 4 {
                 selectedTab = oldValue
+                Haptics.medium()
                 isChatPresented = true
+            } else if newValue != oldValue {
+                Haptics.selection()
             }
         }
         .fullScreenCover(isPresented: $isChatPresented) {

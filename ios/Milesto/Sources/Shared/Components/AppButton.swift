@@ -20,6 +20,14 @@ enum AppButtonStyle: Equatable {
         case .ghost: return Color("TextPrimary")
         }
     }
+
+    func triggerHaptic() {
+        switch self {
+        case .primary: Haptics.medium()
+        case .secondary: Haptics.light()
+        case .ghost: Haptics.soft()
+        }
+    }
 }
 
 enum AppButtonIconPosition {
@@ -95,7 +103,10 @@ struct AppButton: View {
     }
 
     var body: some View {
-        Button(action: action) {
+        Button {
+            style.triggerHaptic()
+            action()
+        } label: {
             buttonContent
                 .cornerRadius(cornerRadius)
         }

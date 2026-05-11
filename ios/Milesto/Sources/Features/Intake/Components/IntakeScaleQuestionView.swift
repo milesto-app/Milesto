@@ -27,6 +27,9 @@ struct IntakeScaleQuestionView: View {
                 value: Binding(
                     get: { currentValue },
                     set: { newValue in
+                        if Int(newValue) != Int(currentValue) {
+                            Haptics.selection()
+                        }
                         setAnswer(question.id, IntakeAnswerDTO(
                             questionId: question.id,
                             answerText: nil,

@@ -39,23 +39,37 @@ struct ObjectiveRowView: View {
         .contentShape(Rectangle())
     }
 
+    private func handleToggle() {
+        if task.isCompleted {
+            Haptics.light()
+        } else {
+            Haptics.success()
+        }
+        onToggle()
+    }
+
+    private func handleOpen() {
+        Haptics.soft(intensity: 0.7)
+        onOpen?()
+    }
+
     var body: some View {
-        if let onOpen {
+        if onOpen != nil {
             HStack(spacing: 12) {
-                Button(action: onToggle) {
+                Button(action: handleToggle) {
                     checkbox
                         .frame(width: 28, height: 28)
                         .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
 
-                Button(action: onOpen) {
+                Button(action: handleOpen) {
                     rowBody
                 }
                 .buttonStyle(.plain)
             }
         } else {
-            Button(action: onToggle) {
+            Button(action: handleToggle) {
                 HStack(spacing: 12) {
                     checkbox
                     rowBody

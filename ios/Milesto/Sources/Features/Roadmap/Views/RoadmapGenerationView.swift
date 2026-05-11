@@ -107,7 +107,10 @@ struct RoadmapGenerationView: View {
         startTipRotation(model: model)
         let success = await model.generate(goalId: goalId)
         if success {
+            Haptics.success()
             onComplete()
+        } else if model.hasFailed {
+            Haptics.error()
         }
     }
 

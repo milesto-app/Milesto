@@ -14,7 +14,12 @@ struct CoachCard: View {
     let onSelect: () -> Void
 
     var body: some View {
-        Button(action: onSelect) {
+        Button {
+            if !isSelected {
+                Haptics.selection()
+            }
+            onSelect()
+        } label: {
             HStack(spacing: 16) {
                 ZStack {
                     Circle()

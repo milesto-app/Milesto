@@ -84,6 +84,7 @@ struct ChatHistorySidebar: View {
             LazyVStack(spacing: 0) {
                 ForEach(conversations) { conversation in
                     Button {
+                        Haptics.light()
                         dismiss()
                         onSelectConversation(conversation.id)
                     } label: {
@@ -97,6 +98,7 @@ struct ChatHistorySidebar: View {
                     .buttonStyle(.plain)
                     .contextMenu {
                         Button(role: .destructive) {
+                            Haptics.warning()
                             onDeleteConversation(conversation.id)
                         } label: {
                             AppText("chat.history.delete", table: "Chat", style: .body)
