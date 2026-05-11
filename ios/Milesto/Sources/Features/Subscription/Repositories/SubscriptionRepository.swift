@@ -30,6 +30,7 @@ final class SubscriptionRepository {
     private static let productIds = [annualProductId, monthlyProductId]
 
     private(set) var products: [Product] = []
+    private(set) var introOfferEligibility: [String: Bool] = [:]
     private(set) var entitlementState: EntitlementState = .unknown
     private(set) var isReconcilingEntitlement = false
     private(set) var isPurchasing = false
@@ -63,17 +64,41 @@ final class SubscriptionRepository {
     private func makePlan(_ product: Product) -> SubscriptionPlan {
         SubscriptionPlan(
             id: product.id,
-            displayPrice: product.displayPrice
+            displayPrice: product.displayPrice,
+            perMonthDisplay: Self.perMonthDisplay(for: product),
+            hasIntroOffer: introOfferEligibility[product.id] ?? false
         )
+    }
+
+    private static func perMonthDisplay(for product: Product) -> String? {
+        guard product.id == annualProductId else { return nil }
+        let perMonth = product.price / 12
+        return perMonth.formatted(product.priceFormatStyle)
     }
 
     func loadPlans() async {
         do {
             let fetched = try await Product.products(for: Self.productIds)
             products = fetched.sorted { lhs, _ in lhs.id == Self.annualProductId }
+            introOfferEligibility = await fetchIntroOfferEligibility(for: products)
         } catch {
             products = []
+            introOfferEligibility = [:]
         }
+    }
+
+    private func fetchIntroOfferEligibility(for products: [Product]) async -> [String: Bool] {
+        var result: [String: Bool] = [:]
+        for product in products {
+            guard let subscription = product.subscription,
+                  subscription.introductoryOffer != nil
+            else {
+                result[product.id] = false
+                continue
+            }
+            result[product.id] = await subscription.isEligibleForIntroOffer
+        }
+        return result
     }
 
     func refreshEntitlement() async {
