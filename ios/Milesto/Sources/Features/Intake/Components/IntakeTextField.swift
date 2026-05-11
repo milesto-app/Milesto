@@ -50,7 +50,12 @@ struct IntakeTextField: View {
             maxHeight: multiline ? maxHeight : singleLineHeight
         )
         .contentShape(RoundedRectangle(cornerRadius: cornerRadius, style: .continuous))
-        .onTapGesture { isFocused = true }
+        .onTapGesture {
+            if !isFocused {
+                Haptics.soft(intensity: 0.6)
+            }
+            isFocused = true
+        }
     }
 
     @ViewBuilder

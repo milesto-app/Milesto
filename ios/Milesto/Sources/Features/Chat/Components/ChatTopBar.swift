@@ -8,7 +8,10 @@ struct ChatTopBar: View {
 
     var body: some View {
         HStack {
-            Button(action: onOpenSidebar) {
+            Button {
+                Haptics.soft()
+                onOpenSidebar()
+            } label: {
                 TablerIcons(.menu2, size: 24, color: Color("TextPrimary"))
                     .frame(width: 44, height: 44)
                     .glassEffect(.regular.interactive(), in: .circle)
@@ -16,6 +19,7 @@ struct ChatTopBar: View {
 
             if showEditButton {
                 Button {
+                    Haptics.light()
                     withAnimation {
                         onNewConversation()
                     }
@@ -30,7 +34,10 @@ struct ChatTopBar: View {
             Spacer()
 
             if let onClose {
-                Button(action: onClose) {
+                Button {
+                    Haptics.light()
+                    onClose()
+                } label: {
                     TablerIcons(.x, size: 24, color: Color("TextPrimary"))
                         .frame(width: 44, height: 44)
                         .glassEffect(.regular.interactive(), in: .circle)

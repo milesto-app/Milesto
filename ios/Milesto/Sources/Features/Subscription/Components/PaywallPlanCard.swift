@@ -11,7 +11,12 @@ struct PaywallPlanCard: View {
     let onSelect: () -> Void
 
     var body: some View {
-        Button(action: onSelect) {
+        Button {
+            if !isSelected {
+                Haptics.selection()
+            }
+            onSelect()
+        } label: {
             VStack(alignment: .leading, spacing: 8) {
                 AppText(titleKey, table: "Paywall", style: .subheadline)
                     .weight(.semibold)

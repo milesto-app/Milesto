@@ -47,6 +47,7 @@ struct AppTextField: View {
 
             if isSecure {
                 Button {
+                    Haptics.light()
                     isPasswordVisible.toggle()
                 } label: {
                     TablerIcons(isPasswordVisible ? .eyeOff : .eye, size: 20, color: Color("TextSecondary"))
@@ -61,6 +62,9 @@ struct AppTextField: View {
         .clipShape(RoundedRectangle(cornerRadius: cornerRadius))
         .contentShape(RoundedRectangle(cornerRadius: cornerRadius))
         .onTapGesture {
+            if !isFocused {
+                Haptics.soft(intensity: 0.6)
+            }
             isFocused = true
         }
     }

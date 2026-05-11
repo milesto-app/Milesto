@@ -71,8 +71,10 @@ struct AuthMagicLinkSheet: View {
 
             do {
                 try await env.auth.sendMagicLink(email: email)
+                Haptics.success()
                 didSendLink = true
             } catch {
+                Haptics.error()
                 errorMessage = error.localizedDescription
             }
         }

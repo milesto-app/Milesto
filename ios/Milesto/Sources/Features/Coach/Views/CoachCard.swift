@@ -16,7 +16,12 @@ struct CoachCard: View {
     var body: some View {
         let shape = RoundedRectangle(cornerRadius: 24, style: .continuous)
 
-        Button(action: onSelect) {
+        Button {
+            if !isSelected {
+                Haptics.selection()
+            }
+            onSelect()
+        } label: {
             HStack(spacing: 16) {
                 ZStack {
                     Circle()

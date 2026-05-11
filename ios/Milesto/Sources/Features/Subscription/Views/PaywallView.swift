@@ -78,6 +78,14 @@ struct PaywallView: View {
         .onChange(of: env.subscription.purchaseError) { _, _ in
             errorMessage = model.purchaseErrorMessage
             showError = errorMessage != nil
+            if showError {
+                Haptics.error()
+            }
+        }
+        .onChange(of: env.subscription.entitlementState) { _, state in
+            if state == .subscribed {
+                Haptics.success()
+            }
         }
         .alert(
             String(localized: "paywall.error.title", table: "Paywall"),
