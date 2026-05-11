@@ -63,13 +63,13 @@ struct RoadmapMilestoneRow: View {
                 .frame(width: markerSize, height: markerSize)
 
             Circle()
-                .stroke(markerStroke, lineWidth: 1)
+                .stroke(markerStroke, lineWidth: markerStrokeWidth)
                 .frame(width: markerSize, height: markerSize)
 
             if isCurrent {
                 Circle()
                     .trim(from: 0, to: currentProgressRing)
-                    .stroke(Color("Brand"), style: StrokeStyle(lineWidth: 1, lineCap: .round))
+                    .stroke(Color("Brand"), style: StrokeStyle(lineWidth: markerStrokeWidth, lineCap: .round))
                     .rotationEffect(.degrees(-90))
                     .frame(width: markerSize, height: markerSize)
             }
@@ -102,7 +102,7 @@ struct RoadmapMilestoneRow: View {
         let shape = RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
 
         content()
-            .glassEffect(.regular.interactive(), in: shape)
+            .background(Color("BackgroundSecondary"), in: shape)
     }
 
     private var markerIcon: TablerIcon? {
@@ -144,6 +144,10 @@ struct RoadmapMilestoneRow: View {
 
     private var markerSize: CGFloat {
         30
+    }
+
+    private var markerStrokeWidth: CGFloat {
+        3
     }
 
     private var markerIconSize: CGFloat {

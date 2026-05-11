@@ -97,26 +97,24 @@ struct WeeklyTasksCard: View {
     }
 
     private var taskList: some View {
-        GlassEffectContainer(spacing: 14) {
-            VStack(spacing: 8) {
-                ForEach(tasks) { task in
-                    taskSurface {
-                        ObjectiveRowView(
-                            task: task,
-                            onToggle: {
-                                guard let onToggle else { return }
-                                withAnimation(.spring(response: 0.42, dampingFraction: 0.78, blendDuration: 0.08)) {
-                                    onToggle(task)
-                                }
-                            },
-                            onOpen: {
-                                selectedTaskId = task.id
+        VStack(spacing: 8) {
+            ForEach(tasks) { task in
+                taskSurface {
+                    ObjectiveRowView(
+                        task: task,
+                        onToggle: {
+                            guard let onToggle else { return }
+                            withAnimation(.spring(response: 0.42, dampingFraction: 0.78, blendDuration: 0.08)) {
+                                onToggle(task)
                             }
-                        )
-                    }
-                    .padding(.horizontal, 16)
-                    .transition(.move(edge: .bottom).combined(with: .opacity))
+                        },
+                        onOpen: {
+                            selectedTaskId = task.id
+                        }
+                    )
                 }
+                .padding(.horizontal, 16)
+                .transition(.move(edge: .bottom).combined(with: .opacity))
             }
         }
         .animation(.spring(response: 0.42, dampingFraction: 0.78, blendDuration: 0.08), value: tasks.map(\.isCompleted))
@@ -129,12 +127,7 @@ struct WeeklyTasksCard: View {
         content()
             .padding(.horizontal, 16)
             .padding(.vertical, 14)
-            .glassEffect(
-                .regular
-                    .interactive()
-                    .tint(Color("BackgroundPrimary").opacity(0.35)),
-                in: shape
-            )
+            .background(Color("BackgroundSecondary"), in: shape)
             .contentShape(shape)
     }
 }
