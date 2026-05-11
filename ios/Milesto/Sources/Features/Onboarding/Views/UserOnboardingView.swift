@@ -42,10 +42,11 @@ struct UserOnboardingView: View {
                         lastName: $bindable.lastName,
                         onContinue: { handleContinue(model: model) }
                     )
-                case .birthdate:
-                    OnboardingBirthdateView(
-                        dateOfBirth: $bindable.dateOfBirth,
-                        onContinue: { handleContinue(model: model) }
+                case .birthYear:
+                    OnboardingBirthYearView(
+                        birthYear: $bindable.birthYear,
+                        onContinue: { handleContinue(model: model) },
+                        onSkip: { handleSkip(model: model) }
                     )
                 case .coach:
                     OnboardingCoachView(
@@ -82,6 +83,15 @@ struct UserOnboardingView: View {
     private func handleContinue(model: UserOnboardingViewModel) {
         Task {
             let didComplete = await model.advanceOrSave()
+            if didComplete {
+                onComplete()
+            }
+        }
+    }
+
+    private func handleSkip(model: UserOnboardingViewModel) {
+        Task {
+            let didComplete = await model.skipBirthYear()
             if didComplete {
                 onComplete()
             }

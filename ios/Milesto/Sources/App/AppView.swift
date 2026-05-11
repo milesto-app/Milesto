@@ -67,7 +67,7 @@ private struct AuthenticatedRootView: View {
                 startingView {
                     UserOnboardingView(
                         userId: userId,
-                        missingSteps: routing.localUser?.missingOnboardingSteps ?? [.name, .birthdate, .coach],
+                        missingSteps: routing.localUser?.missingOnboardingSteps ?? [.name, .birthYear, .coach],
                         existingUser: routing.localUser,
                         onComplete: {
                             withAnimation(.easeInOut(duration: 0.4)) {

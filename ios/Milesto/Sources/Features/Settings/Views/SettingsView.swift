@@ -43,7 +43,7 @@ struct SettingsView: View {
                     user: model.user,
                     coach: model.coach,
                     currentAppLanguage: model.currentAppLanguage,
-                    onEditBirthdate: { activeSheet = .birthdate },
+                    onEditBirthdate: { activeSheet = .birthYear },
                     onEditCoach: { activeSheet = .coach },
                     onEditLanguage: { activeSheet = .language }
                 )

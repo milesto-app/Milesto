@@ -10,7 +10,7 @@ final class UserOnboardingViewModel {
 
     var firstName: String
     var lastName: String
-    var dateOfBirth: Date
+    var birthYear: Int?
     var selectedCoach: CoachPersonality?
     private(set) var currentStepIndex = 0
     private(set) var isSaving = false
@@ -30,7 +30,7 @@ final class UserOnboardingViewModel {
 
         firstName = existingUser?.firstName ?? ""
         lastName = existingUser?.lastName ?? ""
-        dateOfBirth = existingUser?.dateOfBirth ?? Self.defaultDateOfBirth()
+        birthYear = existingUser?.birthYear
         if let coachId = existingUser?.coachId {
             selectedCoach = CoachPersonality.from(databaseId: coachId)
         }
@@ -49,6 +49,11 @@ final class UserOnboardingViewModel {
         return await save()
     }
 
+    func skipBirthYear() async -> Bool {
+        birthYear = nil
+        return await advanceOrSave()
+    }
+
     private func save() async -> Bool {
         isSaving = true
         defer { isSaving = false }
@@ -60,16 +65,13 @@ final class UserOnboardingViewModel {
             ? (existingUser?.firstName ?? "") : finalFirstName
         let mergedLastName = finalLastName.isEmpty
             ? (existingUser?.lastName ?? "") : finalLastName
-        let mergedDateOfBirth = existingUser?.dateOfBirth ?? dateOfBirth
+        let mergedBirthYear = birthYear ?? existingUser?.birthYear
         let mergedCoachId = selectedCoach?.databaseId ?? existingUser?.coachId
-
-        let formatter = DateFormatter()
-        formatter.dateFormat = "yyyy-MM-dd"
 
         let fields = UserUpdateFieldsDTO(
             firstName: mergedFirstName,
             lastName: mergedLastName,
-            dateOfBirth: formatter.string(from: mergedDateOfBirth),
+            birthYear: mergedBirthYear,
             coachId: mergedCoachId
         )
 
@@ -81,9 +83,5 @@ final class UserOnboardingViewModel {
             showError = true
             return false
         }
-    }
-
-    static func defaultDateOfBirth() -> Date {
-        Calendar.current.date(byAdding: .year, value: -20, to: Date()) ?? Date()
     }
 }

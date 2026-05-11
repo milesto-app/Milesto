@@ -1,14 +1,18 @@
 import { ApiPropertyOptional } from "@nestjs/swagger";
 import {
   IsInt,
-  IsISO8601,
   IsOptional,
   IsString,
+  Max,
   MaxLength,
+  Min,
 } from "class-validator";
+
+import { config } from "../../config/app.config.js";
 
 const MAX_NAME_LENGTH = 200;
 const MAX_LANGUAGE_LENGTH = 10;
+const MAX_BIRTH_YEAR = new Date().getFullYear() - config.user.minAgeYears;
 
 export class UpdateUserDto {
   @ApiPropertyOptional({ example: "Gabriel" })
@@ -24,12 +28,14 @@ export class UpdateUserDto {
   public last_name?: string;
 
   @ApiPropertyOptional({
-    example: "1995-04-12",
-    description: "ISO date YYYY-MM-DD",
+    example: 1995,
+    description: "Year of birth (1900..currentYear-13)",
   })
   @IsOptional()
-  @IsISO8601()
-  public date_of_birth?: string;
+  @IsInt()
+  @Min(config.user.minBirthYear)
+  @Max(MAX_BIRTH_YEAR)
+  public birth_year?: number;
 
   @ApiPropertyOptional({ example: 1, description: "Coach id" })
   @IsOptional()

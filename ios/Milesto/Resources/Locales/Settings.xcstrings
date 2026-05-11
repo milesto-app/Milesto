@@ -103,19 +103,19 @@
         }
       }
     },
-    "settings.edit.birthdate.title" : {
+    "settings.edit.birthYear.title" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Birth date"
+            "value" : "Birth year"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Date de naissance"
+            "value" : "Année de naissance"
           }
         }
       }
@@ -205,19 +205,19 @@
         }
       }
     },
-    "settings.profile.birthDate" : {
+    "settings.profile.birthYear" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Birth date"
+            "value" : "Birth year"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Date de naissance"
+            "value" : "Année de naissance"
           }
         }
       }

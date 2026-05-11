@@ -64,14 +64,12 @@ struct SettingsUserDetailsSection: View {
 
     var body: some View {
         Section {
-            if let dateOfBirth = user?.dateOfBirth {
-                SettingsEditableRow(
-                    icon: .cake,
-                    label: "settings.profile.birthDate",
-                    value: Self.formattedDate(dateOfBirth),
-                    action: onEditBirthdate
-                )
-            }
+            SettingsEditableRow(
+                icon: .cake,
+                label: "settings.profile.birthYear",
+                value: user?.birthYear.map(String.init) ?? "—",
+                action: onEditBirthdate
+            )
 
             if let coach {
                 SettingsEditableRow(

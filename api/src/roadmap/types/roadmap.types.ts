@@ -52,4 +52,5 @@ export interface GoalData {
   target_date?: string;
   status: string;
   profile_data?: Record<string, unknown>;
+  user_birth_year?: number;
 }

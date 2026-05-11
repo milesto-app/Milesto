@@ -16,7 +16,7 @@ export interface UserResponse {
   id: string;
   first_name: string | null;
   last_name: string | null;
-  date_of_birth: string | null;
+  birth_year: number | null;
   coach_id: number | null;
   language: string | null;
   created_at: string | null;
@@ -33,7 +33,7 @@ export class UserService {
     const { data, error } = await supabase
       .from("users")
       .select(
-        "id, first_name, last_name, date_of_birth, coach_id, language, created_at",
+        "id, first_name, last_name, birth_year, coach_id, language, created_at",
       )
       .eq("id", userId)
       .maybeSingle();
@@ -57,9 +57,7 @@ export class UserService {
     const update: UserUpdate = {
       ...(dto.first_name !== undefined ? { first_name: dto.first_name } : {}),
       ...(dto.last_name !== undefined ? { last_name: dto.last_name } : {}),
-      ...(dto.date_of_birth !== undefined
-        ? { date_of_birth: dto.date_of_birth }
-        : {}),
+      ...(dto.birth_year !== undefined ? { birth_year: dto.birth_year } : {}),
       ...(dto.coach_id !== undefined ? { coach_id: dto.coach_id } : {}),
       ...(dto.language !== undefined ? { language: dto.language } : {}),
       updated_at: new Date().toISOString(),
@@ -70,7 +68,7 @@ export class UserService {
       .update(update)
       .eq("id", userId)
       .select(
-        "id, first_name, last_name, date_of_birth, coach_id, language, created_at",
+        "id, first_name, last_name, birth_year, coach_id, language, created_at",
       )
       .maybeSingle();
 
@@ -90,7 +88,7 @@ export class UserService {
       id: row.id,
       first_name: row.first_name,
       last_name: row.last_name,
-      date_of_birth: row.date_of_birth,
+      birth_year: row.birth_year,
       coach_id: row.coach_id,
       language: row.language,
       created_at: row.created_at,
