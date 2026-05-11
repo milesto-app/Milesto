@@ -14,6 +14,8 @@ struct CoachCard: View {
     let onSelect: () -> Void
 
     var body: some View {
+        let shape = RoundedRectangle(cornerRadius: 24, style: .continuous)
+
         Button {
             if !isSelected {
                 Haptics.selection()
@@ -43,10 +45,10 @@ struct CoachCard: View {
                     .animation(.spring(response: 0.3, dampingFraction: 0.7), value: isSelected)
             }
             .padding(16)
-            .contentShape(Rectangle())
-            .glassEffect(.regular, in: RoundedRectangle(cornerRadius: 12))
+            .background(Color("BackgroundSecondary"), in: shape)
+            .contentShape(shape)
             .overlay(
-                RoundedRectangle(cornerRadius: 12)
+                shape
                     .stroke(Color("Brand"), lineWidth: 2)
                     .opacity(isSelected ? 1 : 0)
                     .animation(.spring(response: 0.3, dampingFraction: 0.7), value: isSelected)
