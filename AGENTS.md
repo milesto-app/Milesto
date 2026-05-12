@@ -33,6 +33,13 @@ A root `Makefile` orchestrates common tasks across `ios/`, `api/`, and `web/`. I
 - **After DDL changes** — run `get_advisors` (security + performance) to catch issues.
 - **After any changes** — run `make lint` at the repo root before reporting the task as done, but dont check or revert what's been changed by the linter even if it's not related to your changes.
 
+## Deployment
+
+- **`api/` and `web/`** — deployed to a VPS via [Dokploy](https://dokploy.com/), which auto-deploys on every push to `main`.
+- **`ios/`** — built and distributed via Xcode Cloud, which listens for commits on `main`.
+
+Merging into `main` ships to production across all three stacks — treat `dev` → `main` PRs accordingly.
+
 ## Branching & PR Workflow
 
 Never commit directly to `dev` or `main`.
