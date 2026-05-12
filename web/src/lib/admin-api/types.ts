@@ -536,18 +536,6 @@ export interface AdminLlmHealthReport {
   cohere: AdminLlmProbe;
 }
 
-export type AdminLogLevel = "warn" | "error";
-
-export interface AdminSystemLog {
-  id: string;
-  level: string;
-  context: string | null;
-  message: string;
-  stack: string | null;
-  metadata: unknown;
-  loggedAt: string;
-}
-
 // --- meta.types.ts ---
 
 export interface AdminMe {

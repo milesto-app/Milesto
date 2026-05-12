@@ -1,20 +1,14 @@
-import {
-  Injectable,
-  InternalServerErrorException,
-  Logger,
-} from "@nestjs/common";
+import { Injectable, Logger } from "@nestjs/common";
 
 import { AiService } from "../ai/ai.service.js";
 import { NotificationSchedulerService } from "../notifications/notification-scheduler.service.js";
 import { RerankService } from "../roadmap/rerank.service.js";
 import type { ContextChunk } from "../roadmap/types/context.types.js";
 import { SupabaseService } from "../supabase/supabase.service.js";
-import type { AdminLogLevel } from "./dto/list-logs-query.dto.js";
 import type {
   AdminHealthReport,
   AdminLlmHealthReport,
   AdminLlmProbe,
-  AdminSystemLog,
 } from "./system.types.js";
 
 const LLM_PROBE_TIMEOUT_MS = 5_000;
@@ -65,42 +59,6 @@ export class SystemService {
       this.probeCohere(),
     ]);
     return { openrouter, cohere };
-  }
-
-  public async listLogs(
-    level: AdminLogLevel | undefined,
-    since: string | undefined,
-    limit: number,
-  ): Promise<AdminSystemLog[]> {
-    const supabase = this.supabaseService.getAdminClient();
-    let query = supabase
-      .from("system_logs")
-      .select("id, level, context, message, stack, metadata, logged_at")
-      .order("logged_at", { ascending: false })
-      .limit(limit);
-
-    if (level !== undefined) {
-      query = query.eq("level", level);
-    }
-    if (since !== undefined) {
-      query = query.gte("logged_at", since);
-    }
-
-    const { data, error } = await query;
-    if (error !== null) {
-      this.logger.error(`Failed to list system logs: ${error.message}`);
-      throw new InternalServerErrorException("Failed to list system logs");
-    }
-
-    return data.map((row) => ({
-      id: row.id,
-      level: row.level,
-      context: row.context,
-      message: row.message,
-      stack: row.stack,
-      metadata: row.metadata,
-      loggedAt: row.logged_at,
-    }));
   }
 
   private async probeSupabase(): Promise<AdminHealthReport["supabase"]> {

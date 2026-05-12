@@ -687,36 +687,6 @@ export type Database = {
         };
         Relationships: [];
       };
-      system_logs: {
-        Row: {
-          context: string | null;
-          id: string;
-          level: string;
-          logged_at: string;
-          message: string;
-          metadata: Json | null;
-          stack: string | null;
-        };
-        Insert: {
-          context?: string | null;
-          id?: string;
-          level: string;
-          logged_at?: string;
-          message: string;
-          metadata?: Json | null;
-          stack?: string | null;
-        };
-        Update: {
-          context?: string | null;
-          id?: string;
-          level?: string;
-          logged_at?: string;
-          message?: string;
-          metadata?: Json | null;
-          stack?: string | null;
-        };
-        Relationships: [];
-      };
       tasks: {
         Row: {
           completed_at: string | null;
