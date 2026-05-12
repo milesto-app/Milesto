@@ -8,6 +8,7 @@ struct SettingsView: View {
     @State private var model: SettingsViewModel?
     @State private var showSignOutAlert = false
     @State private var showDeleteGoalAlert = false
+    @State private var showDeleteAccountAlert = false
     @State private var showDesignSystem = false
     @State private var showManageSubscriptions = false
     @State private var activeSheet: SettingsSheet?
@@ -56,6 +57,7 @@ struct SettingsView: View {
                     isDeleting: model.isDeleting,
                     onDeleteGoal: { showDeleteGoalAlert = true },
                     onSignOut: { showSignOutAlert = true },
+                    onDeleteAccount: { showDeleteAccountAlert = true },
                     onUnlockDesignSystem: { showDesignSystem = true }
                 )
             }
@@ -83,6 +85,14 @@ struct SettingsView: View {
                 }
             } message: {
                 AppText("settings.signOut.alert.message", table: "Settings", style: .body)
+            }
+            .alert(String(localized: "settings.deleteAccount.alert.title", table: "Settings"), isPresented: $showDeleteAccountAlert) {
+                Button(String(localized: "settings.signOut.alert.cancel", table: "Settings"), role: .cancel) {}
+                Button(String(localized: "settings.deleteAccount.alert.confirm", table: "Settings"), role: .destructive) {
+                    Task { await model.deleteAccount() }
+                }
+            } message: {
+                AppText("settings.deleteAccount.alert.message", table: "Settings", style: .body)
             }
             .alert(String(localized: "settings.error.title", table: "Settings"), isPresented: $bindable.showError) {
                 Button(String(localized: "common.ok", table: "Common"), role: .cancel) {}

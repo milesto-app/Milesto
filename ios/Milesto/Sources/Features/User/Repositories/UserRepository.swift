@@ -19,6 +19,10 @@ final class UserRepository {
         try await remote.updateUser(fields)
     }
 
+    func deleteAccount() async throws {
+        try await remote.deleteAccount()
+    }
+
     private func mergePendingAppleName(into fetchedUser: UserDTO?) async -> UserDTO? {
         let pending = auth.consumePendingAppleName()
         guard pending.firstName != nil || pending.lastName != nil else { return fetchedUser }

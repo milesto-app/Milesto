@@ -83,6 +83,31 @@ export class UserService {
     return this.toResponse(data as UserRow);
   }
 
+  public async deleteAccount(userId: string): Promise<void> {
+    const supabase = this.supabaseService.getAdminClient();
+
+    const { error: goalsError } = await supabase
+      .from("goals")
+      .delete()
+      .eq("user_id", userId);
+
+    if (goalsError !== null) {
+      this.logger.error(
+        `Failed to delete goals for user ${userId}: ${goalsError.message}`,
+      );
+      throw new InternalServerErrorException("Failed to delete account");
+    }
+
+    const { error: authError } = await supabase.auth.admin.deleteUser(userId);
+
+    if (authError !== null) {
+      this.logger.error(
+        `Failed to delete auth user ${userId}: ${authError.message}`,
+      );
+      throw new InternalServerErrorException("Failed to delete account");
+    }
+  }
+
   private toResponse(row: UserRow): UserResponse {
     return {
       id: row.id,

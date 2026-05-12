@@ -35,6 +35,74 @@
         }
       }
     },
+    "settings.deleteAccount" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Delete Account"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Supprimer le compte"
+          }
+        }
+      }
+    },
+    "settings.deleteAccount.alert.confirm" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Delete Account"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Supprimer le compte"
+          }
+        }
+      }
+    },
+    "settings.deleteAccount.alert.message" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This will permanently delete your account and all associated data (goals, milestones, tasks, chats). This action cannot be undone."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cette action supprimera définitivement votre compte et toutes les données associées (objectifs, jalons, tâches, conversations). Cette action est irréversible."
+          }
+        }
+      }
+    },
+    "settings.deleteAccount.alert.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Delete Account?"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Supprimer le compte ?"
+          }
+        }
+      }
+    },
     "settings.deleteGoal" : {
       "extractionState" : "manual",
       "localizations" : {

@@ -65,6 +65,11 @@ final class AuthRepository {
         clearSession()
     }
 
+    func clearLocalSession() async {
+        try? await client.signOut()
+        clearSession()
+    }
+
     func handleAuthCallback(_ url: URL) async {
         do {
             let session = try await client.session(from: url)
