@@ -30,10 +30,6 @@ struct StatsActivitySection: View {
         days.reduce(0) { $0 + $1.objectivesCompleted }
     }
 
-    private var weekTotalObjectives: Int {
-        days.reduce(0) { $0 + $1.objectivesTotal }
-    }
-
     private var focusedDay: DayActivityDTO? {
         if let selectedDate {
             return days.first { $0.date == selectedDate }

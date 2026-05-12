@@ -9,7 +9,7 @@ import {
 
 const ESTIMATED_MINUTES_MAX = 600;
 
-export class GeneratedWeeklyTask {
+export class GeneratedTask {
   @IsString()
   @IsNotEmpty()
   public title!: string;

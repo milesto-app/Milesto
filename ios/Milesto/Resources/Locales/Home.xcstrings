@@ -35,6 +35,142 @@
         }
       }
     },
+    "home.weekComplete.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "You finished your week!"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tu as fini ta semaine !"
+          }
+        }
+      }
+    },
+    "home.weekComplete.subtitle" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Want to debrief now, or are you not quite done?"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tu veux débriefer maintenant, ou tu n'as pas tout à fait fini ?"
+          }
+        }
+      }
+    },
+    "home.weekComplete.subtitle.sunday" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Time to wrap up — your debrief unlocks the next week."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dernier jour — ton débrief ouvre la semaine suivante."
+          }
+        }
+      }
+    },
+    "home.weekComplete.debrief" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Debrief my week"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Faire mon débrief"
+          }
+        }
+      }
+    },
+    "home.weekComplete.undo" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "I'm not done yet"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "J'ai pas tout à fait fini"
+          }
+        }
+      }
+    },
+    "home.inAdvance.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "You're ahead"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tu es en avance"
+          }
+        }
+      }
+    },
+    "home.inAdvance.subtitle" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Take a breath. Your next week unlocks on Monday."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Respire. Ta prochaine semaine s'ouvre lundi."
+          }
+        }
+      }
+    },
+    "home.inAdvance.subtitle.countdown" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Take a breath. Your next week unlocks on %@."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Respire. Ta prochaine semaine s'ouvre le %@."
+          }
+        }
+      }
+    },
     "home.journey.deadline" : {
       "extractionState" : "manual",
       "localizations" : {

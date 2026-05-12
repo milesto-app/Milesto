@@ -5,7 +5,6 @@ import { updateTag } from "next/cache";
 import {
   GOALS_CACHE_TAGS,
   deleteGoal,
-  reembedGoal,
   regenerateGoalProfile,
   regenerateGoalRoadmap,
 } from "@/lib/admin-api/resources/goals";
@@ -33,18 +32,6 @@ export async function regenerateRoadmapAction(
 ): Promise<ActionResult<unknown>> {
   try {
     const data = await regenerateGoalRoadmap(id);
-    revalidateGoal(id);
-    return { ok: true, data };
-  } catch (error) {
-    return normalizeError(error);
-  }
-}
-
-export async function reembedGoalAction(
-  id: string,
-): Promise<ActionResult<unknown>> {
-  try {
-    const data = await reembedGoal(id);
     revalidateGoal(id);
     return { ok: true, data };
   } catch (error) {

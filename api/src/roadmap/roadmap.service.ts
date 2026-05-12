@@ -6,7 +6,6 @@ import { SupabaseService } from "../supabase/supabase.service.js";
 import { UsageService } from "../usage/usage.service.js";
 import { GenerationType } from "../usage/usage.types.js";
 import { ROADMAP_STATUS } from "./constants/roadmap.constants.js";
-import { RoadmapContextService } from "./roadmap-context.service.js";
 import { RoadmapDataService } from "./roadmap-data.service.js";
 import { RoadmapGenerationService } from "./roadmap-generation.service.js";
 import type {
@@ -21,7 +20,6 @@ export class RoadmapService {
 
   constructor(
     private readonly supabaseService: SupabaseService,
-    private readonly contextPipeline: RoadmapContextService,
     private readonly generation: RoadmapGenerationService,
     private readonly goal: GoalService,
     private readonly roadmapStorage: RoadmapDataService,
@@ -64,14 +62,9 @@ export class RoadmapService {
     goalData: GoalData,
   ): Promise<void> {
     try {
-      const context = await this.contextPipeline.assembleContext(
-        goalId,
-        userId,
-      );
       const fullGoalData = await this.buildGoalData(goalData, goalId, userId);
       const language = await this.languageService.getLanguage(userId);
       const { milestones, metadata } = await this.generation.generateMilestones(
-        context,
         fullGoalData,
         language,
       );

@@ -30,7 +30,7 @@ struct MilestoneDetailView: View {
                     .padding(.horizontal, 24)
 
                     if status != .upcoming, let model {
-                        WeeklyTasksCard(
+                        TasksCard(
                             title: "roadmap.milestone.tasks",
                             titleTable: "Roadmap",
                             emptyText: "roadmap.milestone.tasks.empty",

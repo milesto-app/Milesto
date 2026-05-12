@@ -338,8 +338,6 @@ export interface AdminGoalWeeklyTask {
   description: string;
   difficultyRating: string | null;
   orderIndex: number;
-  isCompleted: boolean;
-  isFallback: boolean;
   completedAt: string | null;
   createdAt: string | null;
 }
@@ -357,15 +355,6 @@ export interface AdminGoalCoachMemory {
   id: string;
   content: string;
   updatedAt: string;
-}
-
-export interface AdminGoalEmbedding {
-  id: string;
-  contentType: string;
-  contentText: string;
-  batchId: string | null;
-  metadata: unknown;
-  createdAt: string;
 }
 
 // --- coaches.types.ts ---
@@ -536,18 +525,6 @@ export interface AdminLlmProbe {
 export interface AdminLlmHealthReport {
   openrouter: AdminLlmProbe;
   cohere: AdminLlmProbe;
-}
-
-export type AdminLogLevel = "warn" | "error";
-
-export interface AdminSystemLog {
-  id: string;
-  level: string;
-  context: string | null;
-  message: string;
-  stack: string | null;
-  metadata: unknown;
-  loggedAt: string;
 }
 
 // --- meta.types.ts ---

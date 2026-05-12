@@ -68,36 +68,6 @@ export class AiService {
     return { stream, usagePromise, model };
   }
 
-  public async generateEmbedding(text: string): Promise<number[]> {
-    return this.withTimeout(config.ai.callTimeoutMs, async (signal) => {
-      try {
-        const response = await this.openai.embeddings.create(
-          {
-            model: config.ai.embedding.model,
-            input: text,
-            dimensions: config.ai.embedding.dimensions,
-          },
-          { signal },
-        );
-
-        const embedding = response.data[0]?.embedding;
-        if (embedding === undefined) {
-          throw new Error("No embedding data returned from AI");
-        }
-
-        this.logger.log(`Embedding generated: ${embedding.length} dimensions`);
-        return embedding;
-      } catch (error) {
-        this.logger.error(
-          `Embedding generation failed: ${
-            error instanceof Error ? error.message : String(error)
-          }`,
-        );
-        throw error;
-      }
-    });
-  }
-
   public async generateJson<T>(
     system: string,
     user: string,

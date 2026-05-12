@@ -5,6 +5,7 @@ import {
   HttpStatus,
   Param,
   Patch,
+  Post,
   UseGuards,
 } from "@nestjs/common";
 import {
@@ -19,15 +20,15 @@ import { Throttle } from "@nestjs/throttler";
 import { UserId } from "../common/decorators/user.decorator.js";
 import { AuthGuard } from "../common/guards/auth.guard.js";
 import { config } from "../config/app.config.js";
-import type { WeeklyTask } from "../roadmap/types/weekly-task.types.js";
-import { WeeklyTaskService } from "./weekly-task.service.js";
+import type { Task } from "../roadmap/types/task.types.js";
+import { TaskService } from "./task.service.js";
 
-@ApiTags("weekly-tasks")
+@ApiTags("tasks")
 @ApiBearerAuth()
-@Controller("goals/:goalId/weekly-tasks")
+@Controller("goals/:goalId/tasks")
 @UseGuards(AuthGuard)
-export class WeeklyTaskController {
-  constructor(private readonly weeklyTaskService: WeeklyTaskService) {}
+export class TaskController {
+  constructor(private readonly taskService: TaskService) {}
 
   @Get()
   @Throttle({
@@ -37,24 +38,52 @@ export class WeeklyTaskController {
     },
   })
   @ApiOperation({
-    summary: "Get weekly tasks for the active weekly plan",
+    summary: "Get tasks for the active milestone (lazy-generates if needed)",
   })
   @ApiParam({ name: "goalId", description: "Goal ID" })
-  @ApiResponse({ status: HttpStatus.OK, description: "Weekly tasks array" })
+  @ApiResponse({ status: HttpStatus.OK, description: "Tasks array" })
   @ApiResponse({
     status: HttpStatus.BAD_REQUEST,
-    description: "No active weekly plan",
+    description: "No active milestone",
   })
   @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: "Unauthorized" })
   @ApiResponse({
     status: HttpStatus.TOO_MANY_REQUESTS,
     description: "Rate limit exceeded",
   })
-  public async getWeeklyTasks(
+  public async getTasks(
     @Param("goalId") goalId: string,
     @UserId() userId: string,
-  ): Promise<WeeklyTask[]> {
-    return this.weeklyTaskService.getWeeklyTasks(goalId, userId);
+  ): Promise<Task[]> {
+    return this.taskService.getTasks(goalId, userId);
+  }
+
+  @Post("generate")
+  @Throttle({
+    default: {
+      limit: config.throttle.milestoneActivationLimit,
+      ttl: config.throttle.aiEndpointTtlMs,
+    },
+  })
+  @ApiOperation({
+    summary: "Explicitly (re)generate tasks for the active milestone",
+  })
+  @ApiParam({ name: "goalId", description: "Goal ID" })
+  @ApiResponse({ status: HttpStatus.OK, description: "Newly generated tasks" })
+  @ApiResponse({
+    status: HttpStatus.BAD_REQUEST,
+    description: "No active milestone",
+  })
+  @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: "Unauthorized" })
+  @ApiResponse({
+    status: HttpStatus.TOO_MANY_REQUESTS,
+    description: "Rate limit exceeded",
+  })
+  public async generateTasks(
+    @Param("goalId") goalId: string,
+    @UserId() userId: string,
+  ): Promise<Task[]> {
+    return this.taskService.generateTasks(goalId, userId);
   }
 
   @Patch(":taskId")
@@ -65,11 +94,11 @@ export class WeeklyTaskController {
     },
   })
   @ApiOperation({
-    summary: "Toggle weekly task completion",
+    summary: "Toggle task completion",
   })
   @ApiParam({ name: "goalId", description: "Goal ID" })
   @ApiParam({ name: "taskId", description: "Task ID" })
-  @ApiResponse({ status: HttpStatus.OK, description: "Updated weekly task" })
+  @ApiResponse({ status: HttpStatus.OK, description: "Updated task" })
   @ApiResponse({
     status: HttpStatus.NOT_FOUND,
     description: "Task not found",
@@ -84,8 +113,8 @@ export class WeeklyTaskController {
     @Param("taskId") taskId: string,
     @UserId() userId: string,
     @Body() body: { is_completed: boolean },
-  ): Promise<WeeklyTask> {
-    return this.weeklyTaskService.toggleTaskCompletion({
+  ): Promise<Task> {
+    return this.taskService.toggleTaskCompletion({
       taskId,
       goalId,
       userId,

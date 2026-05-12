@@ -11,7 +11,6 @@ export function GoalTabs({
   weeklyTasks,
   debriefs,
   coachMemory,
-  embeddings,
 }: {
   overview: ReactNode;
   intake: ReactNode;
@@ -19,7 +18,6 @@ export function GoalTabs({
   weeklyTasks: ReactNode;
   debriefs: ReactNode;
   coachMemory: ReactNode;
-  embeddings: ReactNode;
 }) {
   return (
     <UrlTabs
@@ -31,7 +29,6 @@ export function GoalTabs({
         { value: "weekly-tasks", label: "Weekly Tasks", content: weeklyTasks },
         { value: "debriefs", label: "Debriefs", content: debriefs },
         { value: "coach-memory", label: "Coach Memory", content: coachMemory },
-        { value: "embeddings", label: "Embeddings", content: embeddings },
       ]}
     />
   );

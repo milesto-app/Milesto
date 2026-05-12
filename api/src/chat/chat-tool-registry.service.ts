@@ -27,7 +27,6 @@ export class ChatToolRegistryService {
       ...this.buildTaskTools(),
       ...this.buildMemoryTools(),
       ...this.buildStatsTools(),
-      ...this.buildSearchTools(),
       ...this.buildDebriefTools(),
       ...this.buildRoadmapTools(),
     ];
@@ -41,15 +40,15 @@ export class ChatToolRegistryService {
   private buildTaskTools(): ToolConfig[] {
     return [
       {
-        name: "getWeeklyTasks",
+        name: "getTasks",
         description:
-          "Fetch this week's tasks. Returns array of {id, title, description, is_completed, estimated_minutes}.",
+          "Fetch the active milestone's tasks. Returns array of {id, title, description, completed_at, estimated_minutes}. A task is completed when completed_at is not null.",
         executor: (async (_args, ctx) =>
-          this.toolsService.getWeeklyTasks(ctx)) satisfies ChatToolExecutor,
+          this.toolsService.getTasks(ctx)) satisfies ChatToolExecutor,
       },
       {
         name: "toggleTaskCompletion",
-        description: "Toggle a weekly task's completion status.",
+        description: "Toggle a task's completion status.",
         executor: (async (args, ctx) =>
           this.toolsService.toggleTaskCompletion(
             args,
@@ -59,7 +58,7 @@ export class ChatToolRegistryService {
           properties: {
             taskId: {
               type: "string",
-              description: "UUID of the weekly task",
+              description: "UUID of the task",
             },
             isCompleted: {
               type: "boolean",
@@ -91,23 +90,6 @@ export class ChatToolRegistryService {
           required: ["content"],
         },
       },
-      {
-        name: "saveInsight",
-        description:
-          "Save a single atomic observation about the user. Duplicates are auto-detected.",
-        executor: (async (args, ctx) =>
-          this.toolsService.saveInsight(args, ctx)) satisfies ChatToolExecutor,
-        parameters: {
-          properties: {
-            insight: {
-              type: "string",
-              description:
-                "A single atomic insight about the user. Be specific and concise.",
-            },
-          },
-          required: ["insight"],
-        },
-      },
     ];
   }
 
@@ -119,37 +101,6 @@ export class ChatToolRegistryService {
           "Fetch weekly progress: completed count, total count, completion rate, week number.",
         executor: (async (_args, ctx) =>
           this.toolsService.getProgressStats(ctx)) satisfies ChatToolExecutor,
-      },
-    ];
-  }
-
-  private buildSearchTools(): ToolConfig[] {
-    return [
-      {
-        name: "searchContext",
-        description:
-          "Search the user's stored context (intake answers, goal profile, summaries, debrief notes, insights).",
-        executor: (async (args, ctx) =>
-          this.toolsService.searchContext(
-            args,
-            ctx,
-          )) satisfies ChatToolExecutor,
-        parameters: {
-          properties: {
-            query: {
-              type: "string",
-              description:
-                "The search query describing what information to find.",
-            },
-            contentTypes: {
-              type: "array",
-              items: { type: "string" },
-              description:
-                "Optional filter by content type: intake_answer, goal_profile, user_profile, weekly_summary, debrief_note, coach_insight.",
-            },
-          },
-          required: ["query"],
-        },
       },
     ];
   }
@@ -166,16 +117,16 @@ export class ChatToolRegistryService {
           )) satisfies ChatToolExecutor,
         parameters: {
           properties: {
-            weekly_plan_id: {
+            milestone_id: {
               type: "string",
-              description: "UUID of the weekly plan being debriefed.",
+              description: "UUID of the milestone being debriefed.",
             },
             note: {
               type: "string",
               description: "The user's end-of-week reflection note.",
             },
           },
-          required: ["weekly_plan_id", "note"],
+          required: ["milestone_id", "note"],
         },
       },
     ];

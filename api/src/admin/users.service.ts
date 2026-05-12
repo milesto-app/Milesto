@@ -421,15 +421,15 @@ export class UsersService {
   ): Promise<Map<string, { total: number; completed: number }>> {
     const supabase = this.supabaseService.getAdminClient();
     const { data } = await supabase
-      .from("weekly_tasks")
-      .select("goal_id, is_completed")
+      .from("tasks")
+      .select("goal_id, completed_at")
       .in("goal_id", goalIds);
 
     const counts = new Map<string, { total: number; completed: number }>();
     for (const row of data ?? []) {
       const entry = counts.get(row.goal_id) ?? { total: 0, completed: 0 };
       entry.total += 1;
-      if (row.is_completed) {
+      if (row.completed_at !== null) {
         entry.completed += 1;
       }
       counts.set(row.goal_id, entry);

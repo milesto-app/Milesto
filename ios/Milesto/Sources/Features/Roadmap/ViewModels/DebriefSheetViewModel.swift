@@ -5,16 +5,16 @@ import Foundation
 final class DebriefSheetViewModel {
     @ObservationIgnored private let env: AppEnv
     @ObservationIgnored private let goalId: String
-    @ObservationIgnored private let weeklyPlanId: String
+    @ObservationIgnored private let milestoneId: String
 
     private(set) var reflectionNote: String = ""
     private(set) var isSubmitting = false
     private(set) var errorMessage: String?
 
-    init(env: AppEnv, goalId: String, weeklyPlanId: String) {
+    init(env: AppEnv, goalId: String, milestoneId: String) {
         self.env = env
         self.goalId = goalId
-        self.weeklyPlanId = weeklyPlanId
+        self.milestoneId = milestoneId
     }
 
     var canSubmit: Bool {
@@ -33,7 +33,7 @@ final class DebriefSheetViewModel {
         do {
             _ = try await env.roadmap.submitDebrief(
                 goalId: goalId,
-                weeklyPlanId: weeklyPlanId,
+                milestoneId: milestoneId,
                 note: reflectionNote
             )
             return true

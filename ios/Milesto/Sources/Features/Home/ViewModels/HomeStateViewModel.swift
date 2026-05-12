@@ -2,13 +2,13 @@ import Foundation
 
 @MainActor
 @Observable
-final class DebriefBannerViewModel {
+final class HomeStateViewModel {
     @ObservationIgnored private let env: AppEnv
     @ObservationIgnored private var goalId: String = ""
 
-    private(set) var milestoneId: String?
-    private(set) var shouldDisplay = false
     private(set) var weekState: WeekState = .active
+    private(set) var nextWeekStartsAt: Date?
+    private(set) var isLoaded = false
 
     init(env: AppEnv) {
         self.env = env
@@ -20,13 +20,18 @@ final class DebriefBannerViewModel {
 
     func refresh() async {
         guard !goalId.isEmpty else { return }
-
         guard let state = try? await env.roadmap.fetchCurrentWeekState(goalId: goalId) else {
-            shouldDisplay = false
             return
         }
-        milestoneId = state.milestone?.id
         weekState = state.weekState
-        shouldDisplay = state.weekState == .readyToDebrief
+        nextWeekStartsAt = state.nextWeekStartsAt.flatMap(Self.parseDate)
+        isLoaded = true
+    }
+
+    private static func parseDate(_ isoDate: String) -> Date? {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd"
+        formatter.timeZone = TimeZone(identifier: "UTC")
+        return formatter.date(from: isoDate)
     }
 }

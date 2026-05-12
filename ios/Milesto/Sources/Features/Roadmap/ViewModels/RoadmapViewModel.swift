@@ -31,12 +31,13 @@ final class RoadmapViewModel {
 
         let goal = try? await env.goals.fetchGoal(goalId: goalId)
         let dto = try? await env.roadmap.fetchRoadmap(goalId: goalId)
-        let tasks = (try? await env.roadmap.fetchWeeklyTasks(goalId: goalId)) ?? []
+        let tasks = (try? await env.roadmap.fetchTasks(goalId: goalId)) ?? []
+        let weekState = try? await env.roadmap.fetchCurrentWeekState(goalId: goalId)
 
         if let title = goal?.title {
             goalTitle = title
         }
-        milestones = Self.buildMilestones(from: dto, tasks: tasks)
+        milestones = Self.buildMilestones(from: dto, tasks: tasks, weekState: weekState)
 
         isLoading = false
         if !appeared {
@@ -44,7 +45,11 @@ final class RoadmapViewModel {
         }
     }
 
-    private static func buildMilestones(from roadmap: RoadmapDTO?, tasks: [WeeklyTaskDTO]) -> [DisplayMilestone] {
+    private static func buildMilestones(
+        from roadmap: RoadmapDTO?,
+        tasks: [TaskDTO],
+        weekState: CurrentWeekResponseDTO?
+    ) -> [DisplayMilestone] {
         let records = (roadmap?.milestones ?? []).sorted { $0.orderIndex < $1.orderIndex }
         guard !records.isEmpty else { return [] }
 
@@ -52,28 +57,19 @@ final class RoadmapViewModel {
         if tasks.isEmpty {
             progress = 0
         } else {
-            let completed = tasks.filter(\.isCompleted).count
+            let completed = tasks.filter { $0.completedAt != nil }.count
             progress = Double(completed) / Double(tasks.count)
         }
 
-        var foundCurrent = false
         let currentMilestoneId = roadmap?.currentMilestoneId
+        let isInAdvance = weekState?.weekState == .inAdvance
 
-        return records.enumerated().map { index, record in
-            let status: MilestoneStatus
-            if let currentMilestoneId {
-                if record.id == currentMilestoneId {
-                    status = .current
-                    foundCurrent = true
-                } else if !foundCurrent {
-                    status = .completed
-                } else {
-                    status = .upcoming
-                }
-            } else {
-                status = index == 0 ? .current : .upcoming
-            }
-
+        return records.map { record in
+            let status = milestoneStatus(
+                record: record,
+                currentMilestoneId: currentMilestoneId,
+                isInAdvance: isInAdvance
+            )
             return DisplayMilestone(
                 id: record.id,
                 title: record.title,
@@ -86,5 +82,25 @@ final class RoadmapViewModel {
                 progress: status == .current ? progress : (status == .completed ? 1.0 : 0.0)
             )
         }
+    }
+
+    private static func milestoneStatus(
+        record: MilestoneDTO,
+        currentMilestoneId: String?,
+        isInAdvance: Bool
+    ) -> MilestoneStatus {
+        if record.completedAt != nil {
+            return .completed
+        }
+        if isInAdvance {
+            return .upcoming
+        }
+        if let currentMilestoneId, record.id == currentMilestoneId {
+            return .current
+        }
+        if currentMilestoneId == nil, record.orderIndex == 1 {
+            return .current
+        }
+        return .upcoming
     }
 }

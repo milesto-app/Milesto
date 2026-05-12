@@ -20,71 +20,80 @@ final class RoadmapRepository {
         _ = try await remote.generateRoadmap(goalId: goalId)
     }
 
-    func tasksForMilestone(milestoneId: String) async throws -> [WeeklyTaskDTO] {
+    func tasksForMilestone(milestoneId: String) async throws -> [TaskDTO] {
         try await remote.getTasksForMilestone(milestoneId: milestoneId)
     }
 
-    func toggleTask(taskId: String, goalId: String, isCompleted: Bool) async throws -> WeeklyTaskDTO {
+    func toggleTask(taskId: String, goalId: String, isCompleted: Bool) async throws -> TaskDTO {
         try await remote.toggleTask(goalId: goalId, taskId: taskId, isCompleted: isCompleted)
     }
 
-    func fetchWeeklyTasks(goalId: String) async throws -> [WeeklyTaskDTO] {
-        try await remote.getWeeklyTasks(goalId: goalId)
-    }
-
-    func fetchWeeklyPlan(goalId: String) async throws -> WeeklyPlanDTO? {
-        if let existing = try? await remote.getWeeklyPlan(goalId: goalId) {
-            return existing
+    @discardableResult
+    func undoLatestCompletedTask(goalId: String) async throws -> TaskDTO? {
+        let tasks = try await remote.getTasks(goalId: goalId)
+        let completed = tasks.filter { $0.completedAt != nil }
+        let latest = completed.max { lhs, rhs in
+            (lhs.completedAt ?? lhs.createdAt) < (rhs.completedAt ?? rhs.createdAt)
         }
-        return try? await remote.generateWeeklyPlan(goalId: goalId)
+        guard let latest else { return nil }
+        return try await remote.toggleTask(
+            goalId: latest.goalId,
+            taskId: latest.id,
+            isCompleted: false
+        )
     }
 
-    func fetchLatestDebrief(goalId: String) async throws -> DebriefDTO? {
-        try await remote.getDebriefHistory(goalId: goalId).first
+    func fetchTasks(goalId: String) async throws -> [TaskDTO] {
+        try await remote.getTasks(goalId: goalId)
     }
 
-    func submitDebrief(goalId: String, weeklyPlanId: String, note: String) async throws -> DebriefDTO {
-        try await remote.submitDebrief(goalId: goalId, weeklyPlanId: weeklyPlanId, note: note)
+    func fetchCurrentWeekState(goalId: String) async throws -> CurrentWeekResponseDTO {
+        try await remote.getCurrentWeek(goalId: goalId)
     }
 
-    func generateWeeklyPlan(goalId: String) async throws {
-        _ = try await remote.generateWeeklyPlan(goalId: goalId)
+    func submitDebrief(goalId: String, milestoneId: String, note: String) async throws -> DebriefDTO {
+        try await remote.submitDebrief(goalId: goalId, milestoneId: milestoneId, note: note)
+    }
+
+    func activateNextMilestone(goalId: String) async throws {
+        _ = try await remote.activateNextMilestone(goalId: goalId)
     }
 
     func waitForGeneratedTasks(goalId: String) async -> Bool {
         for _ in 0 ..< 30 {
             try? await Task.sleep(for: .seconds(2))
-            if let tasks = try? await remote.getWeeklyTasks(goalId: goalId), !tasks.isEmpty {
+            if let tasks = try? await remote.getTasks(goalId: goalId), !tasks.isEmpty {
                 return true
             }
         }
         return false
     }
 
-    func sortedTasks(_ tasks: [WeeklyTaskDTO]) -> [WeeklyTaskDTO] {
+    func sortedTasks(_ tasks: [TaskDTO]) -> [TaskDTO] {
         tasks.sorted {
-            if $0.isCompleted != $1.isCompleted { return !$0.isCompleted }
+            let lhsDone = $0.completedAt != nil
+            let rhsDone = $1.completedAt != nil
+            if lhsDone != rhsDone { return !lhsDone }
             return $0.orderIndex < $1.orderIndex
         }
     }
 
     func applyOptimisticCompletion(
-        task: WeeklyTaskDTO,
+        task: TaskDTO,
         isCompleted: Bool,
-        in tasks: inout [WeeklyTaskDTO]
-    ) -> WeeklyTaskDTO? {
+        in tasks: inout [TaskDTO]
+    ) -> TaskDTO? {
         guard let index = tasks.firstIndex(where: { $0.id == task.id }) else { return nil }
         let original = tasks[index]
-        tasks[index] = WeeklyTaskDTO(
+        tasks[index] = TaskDTO(
             id: original.id,
-            weeklyPlanId: original.weeklyPlanId,
+            milestoneId: original.milestoneId,
             goalId: original.goalId,
-            userId: original.userId,
             title: original.title,
             description: original.description,
             estimatedMinutes: original.estimatedMinutes,
             orderIndex: original.orderIndex,
-            isCompleted: isCompleted,
+            completedAt: isCompleted ? ISO8601DateFormatter().string(from: Date()) : nil,
             createdAt: original.createdAt
         )
         return original

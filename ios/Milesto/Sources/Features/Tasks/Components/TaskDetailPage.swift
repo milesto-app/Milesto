@@ -1,10 +1,10 @@
 import SwiftUI
 
-struct WeeklyTaskDetailPage: View {
-    let task: WeeklyTaskDTO
+struct TaskDetailPage: View {
+    let task: TaskDTO
     let weekNumber: Int?
     let appeared: Bool
-    let onToggle: ((WeeklyTaskDTO) -> Void)?
+    let onToggle: ((TaskDTO) -> Void)?
 
     private var accent: Color {
         Color("Brand")
@@ -138,16 +138,17 @@ struct WeeklyTaskDetailPage: View {
     }
 
     private var toggleButton: some View {
-        AppButton(
-            task.isCompleted ? "roadmap.task.markIncomplete" : "roadmap.task.markComplete",
+        let isCompleted = task.completedAt != nil
+        return AppButton(
+            isCompleted ? "roadmap.task.markIncomplete" : "roadmap.task.markComplete",
             table: "Roadmap",
-            style: task.isCompleted ? .secondary : .primary
+            style: isCompleted ? .secondary : .primary
         ) {
             withAnimation(.spring(response: 0.42, dampingFraction: 0.78, blendDuration: 0.08)) {
                 performToggle()
             }
         }
-        .icon(task.isCompleted ? .arrowBackUp : .check)
+        .icon(isCompleted ? .arrowBackUp : .check)
         .fullWidth()
     }
 

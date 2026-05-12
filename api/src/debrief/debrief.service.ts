@@ -5,10 +5,9 @@ import {
   Logger,
   NotFoundException,
 } from "@nestjs/common";
-import { EventEmitter2 } from "@nestjs/event-emitter";
 
 import type { SubmitDebriefDto } from "../roadmap/dto/submit-debrief.dto.js";
-import type { Debrief } from "../roadmap/types/weekly-task.types.js";
+import type { Debrief } from "../roadmap/types/task.types.js";
 import { SUPABASE_UNIQUE_VIOLATION } from "../supabase/error-codes.js";
 import { SupabaseService } from "../supabase/supabase.service.js";
 
@@ -16,10 +15,7 @@ import { SupabaseService } from "../supabase/supabase.service.js";
 export class DebriefService {
   private readonly logger = new Logger(DebriefService.name);
 
-  constructor(
-    private readonly supabaseService: SupabaseService,
-    private readonly eventEmitter: EventEmitter2,
-  ) {}
+  constructor(private readonly supabaseService: SupabaseService) {}
 
   public async submitDebrief(
     goalId: string,
@@ -27,8 +23,8 @@ export class DebriefService {
     dto: SubmitDebriefDto,
   ): Promise<Debrief> {
     await this.validateGoalExists(goalId, userId);
-    await this.validateWeeklyPlan(goalId, userId, dto.weekly_plan_id);
-    await this.checkDuplicateDebrief(goalId, userId, dto.weekly_plan_id);
+    await this.validateMilestone(goalId, dto.milestone_id);
+    await this.checkDuplicateDebrief(goalId, userId, dto.milestone_id);
     const today = new Date().toISOString().split("T")[0] ?? "";
     return this.insertDebrief(goalId, userId, today, dto);
   }
@@ -49,28 +45,26 @@ export class DebriefService {
     return data as unknown as Debrief[];
   }
 
-  private async validateWeeklyPlan(
+  private async validateMilestone(
     goalId: string,
-    userId: string,
-    weeklyPlanId: string,
+    milestoneId: string,
   ): Promise<void> {
     const supabase = this.supabaseService.getAdminClient();
     const { data, error } = await supabase
-      .from("weekly_plans")
+      .from("milestones")
       .select("id")
-      .eq("id", weeklyPlanId)
+      .eq("id", milestoneId)
       .eq("goal_id", goalId)
-      .eq("user_id", userId)
       .maybeSingle();
 
     if (error !== null) {
       this.logger.error(
-        `Failed to validate weekly plan ${weeklyPlanId}: ${error.message}`,
+        `Failed to validate milestone ${milestoneId}: ${error.message}`,
       );
-      throw new InternalServerErrorException("Failed to validate weekly plan");
+      throw new InternalServerErrorException("Failed to validate milestone");
     }
     if (data === null) {
-      throw new NotFoundException("Weekly plan not found");
+      throw new NotFoundException("Milestone not found");
     }
   }
 
@@ -95,7 +89,7 @@ export class DebriefService {
   private async checkDuplicateDebrief(
     goalId: string,
     userId: string,
-    weeklyPlanId: string,
+    milestoneId: string,
   ): Promise<void> {
     const supabase = this.supabaseService.getAdminClient();
     const { data } = await supabase
@@ -103,11 +97,11 @@ export class DebriefService {
       .select("id")
       .eq("goal_id", goalId)
       .eq("user_id", userId)
-      .eq("weekly_plan_id", weeklyPlanId)
+      .eq("milestone_id", milestoneId)
       .limit(1);
     if (data !== null && data.length > 0) {
       throw new ConflictException(
-        "Debrief already submitted for this weekly plan",
+        "Debrief already submitted for this milestone",
       );
     }
   }
@@ -126,122 +120,48 @@ export class DebriefService {
         user_id: userId,
         date: today,
         note: dto.note,
-        weekly_plan_id: dto.weekly_plan_id,
+        milestone_id: dto.milestone_id,
       })
       .select()
       .single();
     if (error) {
       if (error.code === SUPABASE_UNIQUE_VIOLATION) {
         throw new ConflictException(
-          "Debrief already submitted for this weekly plan",
+          "Debrief already submitted for this milestone",
         );
       }
       this.logger.error(`Failed to store debrief: ${error.message}`);
       throw new InternalServerErrorException("Failed to store debrief");
     }
-    const didCompletePlan = await this.completeWeeklyPlan(
-      dto.weekly_plan_id,
-      userId,
-      goalId,
-    );
-    this.eventEmitter.emit("debrief.submitted", {
-      debriefId: (data as Record<string, unknown>).id,
-      goalId,
-      userId,
-      weeklyPlanId: dto.weekly_plan_id,
-      note: dto.note,
-    });
-    if (didCompletePlan) {
-      await this.maybeCompleteMilestone(dto.weekly_plan_id, userId, goalId);
-    }
+    await this.completeMilestone(dto.milestone_id, userId, goalId);
     return data as unknown as Debrief;
   }
 
-  private async maybeCompleteMilestone(
-    weeklyPlanId: string,
-    userId: string,
+  private async completeMilestone(
+    milestoneId: string,
+    _userId: string,
     goalId: string,
   ): Promise<void> {
     const supabase = this.supabaseService.getAdminClient();
-
-    const { data: plan, error: planErr } = await supabase
-      .from("weekly_plans")
-      .select("milestone_id")
-      .eq("id", weeklyPlanId)
-      .eq("user_id", userId)
-      .eq("goal_id", goalId)
-      .maybeSingle();
-    if (planErr !== null) {
-      this.logger.warn(
-        `Milestone auto-completion: failed to read plan ${weeklyPlanId}: ${planErr.message}`,
-      );
-      return;
-    }
-    if (plan === null) {
-      return;
-    }
-
-    const { count, error: siblingErr } = await supabase
-      .from("weekly_plans")
-      .select("id", { count: "exact", head: true })
-      .eq("milestone_id", plan.milestone_id)
-      .eq("user_id", userId)
-      .eq("goal_id", goalId)
-      .neq("status", "completed");
-    if (siblingErr !== null) {
-      this.logger.warn(
-        `Milestone auto-completion: failed to count siblings for milestone ${plan.milestone_id}: ${siblingErr.message}`,
-      );
-      return;
-    }
-    if ((count ?? 0) > 0) {
-      return;
-    }
-
     const completedAt = new Date().toISOString();
     const { data: updated, error: updateErr } = await supabase
       .from("milestones")
       .update({ completed_at: completedAt })
-      .eq("id", plan.milestone_id)
+      .eq("id", milestoneId)
       .eq("goal_id", goalId)
       .is("completed_at", null)
       .select("id")
       .maybeSingle();
     if (updateErr !== null) {
       this.logger.warn(
-        `Milestone auto-completion: failed to flip ${plan.milestone_id}: ${updateErr.message}`,
+        `Milestone auto-completion: failed to flip ${milestoneId}: ${updateErr.message}`,
       );
       return;
     }
-    if (updated === null) {
-      return;
-    }
-
-    this.logger.log(
-      `Auto-completed milestone ${plan.milestone_id} after final plan ${weeklyPlanId}`,
-    );
-  }
-
-  private async completeWeeklyPlan(
-    weeklyPlanId: string,
-    userId: string,
-    goalId: string,
-  ): Promise<boolean> {
-    const supabase = this.supabaseService.getAdminClient();
-    const { data, error } = await supabase
-      .from("weekly_plans")
-      .update({ status: "completed" })
-      .eq("id", weeklyPlanId)
-      .eq("user_id", userId)
-      .eq("goal_id", goalId)
-      .eq("status", "active")
-      .select("id");
-    if (error) {
-      this.logger.error(
-        `Failed to complete weekly plan ${weeklyPlanId}: ${error.message}`,
+    if (updated !== null) {
+      this.logger.log(
+        `Auto-completed milestone ${milestoneId} after debrief for goal ${goalId}`,
       );
-      return false;
     }
-    return data.length > 0;
   }
 }

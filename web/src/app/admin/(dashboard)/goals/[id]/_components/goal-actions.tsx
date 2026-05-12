@@ -2,7 +2,7 @@
 
 import { useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { Repeat, Sparkles, Trash2, Wand2 } from "lucide-react";
+import { Sparkles, Trash2, Wand2 } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -10,7 +10,6 @@ import { ConfirmDestructiveDialog } from "@/components/admin/confirm-destructive
 
 import {
   deleteGoalAction,
-  reembedGoalAction,
   regenerateProfileAction,
   regenerateRoadmapAction,
 } from "../actions";
@@ -46,16 +45,6 @@ export function GoalToolbar({ id }: { id: string }) {
       >
         <Sparkles className="h-3.5 w-3.5" />
         Regenerate profile
-      </Button>
-      <Button
-        type="button"
-        size="sm"
-        variant="outline"
-        disabled={isPending}
-        onClick={() => run("Reembedded", () => reembedGoalAction(id))}
-      >
-        <Repeat className="h-3.5 w-3.5" />
-        Reembed
       </Button>
       <ConfirmDestructiveDialog
         trigger={

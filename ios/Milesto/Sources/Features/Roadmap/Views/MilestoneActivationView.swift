@@ -1,11 +1,11 @@
 import SwiftUI
 
-struct WeeklyPlanGenerationView: View {
+struct MilestoneActivationView: View {
     let goalId: String
     let onComplete: () -> Void
 
     @Environment(AppEnv.self) private var env
-    @State private var model: WeeklyPlanGenerationViewModel?
+    @State private var model: MilestoneActivationViewModel?
     @State private var pulseScale: CGFloat = 1.0
 
     var body: some View {
@@ -23,7 +23,7 @@ struct WeeklyPlanGenerationView: View {
         .appBackground()
         .task {
             if model == nil {
-                model = WeeklyPlanGenerationViewModel(env: env)
+                model = MilestoneActivationViewModel(env: env)
             }
             await runGeneration()
         }
@@ -59,7 +59,7 @@ struct WeeklyPlanGenerationView: View {
         .padding(.horizontal, 24)
     }
 
-    private func errorContent(model _: WeeklyPlanGenerationViewModel) -> some View {
+    private func errorContent(model _: MilestoneActivationViewModel) -> some View {
         VStack(spacing: 24) {
             Spacer()
 

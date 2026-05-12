@@ -18,15 +18,4 @@ export interface AdminLlmProbe {
 
 export interface AdminLlmHealthReport {
   openrouter: AdminLlmProbe;
-  cohere: AdminLlmProbe;
-}
-
-export interface AdminSystemLog {
-  id: string;
-  level: string;
-  context: string | null;
-  message: string;
-  stack: string | null;
-  metadata: unknown;
-  loggedAt: string;
 }

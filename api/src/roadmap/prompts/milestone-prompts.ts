@@ -1,5 +1,4 @@
 import { buildLanguageBlock } from "../../common/language-prompt.helper.js";
-import type { AssembledContext } from "../types/context.types.js";
 import type { GoalData } from "../types/roadmap.types.js";
 
 const MIN_MILESTONES = 3;
@@ -35,10 +34,7 @@ Return a JSON array of objects with these exact fields:
 Return ONLY the JSON array, no other text.${buildLanguageBlock(language)}`;
 }
 
-export function buildMilestoneUserPrompt(
-  context: AssembledContext,
-  goal: GoalData,
-): string {
+export function buildMilestoneUserPrompt(goal: GoalData): string {
   const weeksUntilDeadline =
     goal.target_date !== undefined
       ? Math.max(
@@ -60,18 +56,6 @@ export function buildMilestoneUserPrompt(
     Math.ceil(milestoneCount / WEEKS_PER_MONTH_GROUP),
   );
 
-  const sections: string[] = [];
-
-  if (context.goalProfileSection.length > 0) {
-    sections.push(`## Goal Profile\n${context.goalProfileSection}`);
-  }
-  if (context.intakeSection.length > 0) {
-    sections.push(`## Intake Q&A\n${context.intakeSection}`);
-  }
-  if (context.userProfileSection.length > 0) {
-    sections.push(`## User Profile\n${context.userProfileSection}`);
-  }
-
   const demographicsSection = buildDemographicsSection(goal);
   const constraintSection = buildConstraintSection(goal);
 
@@ -92,9 +76,7 @@ ${requirementsSection}
 
 ${demographicsSection}
 
-${constraintSection}
-
-${sections.join("\n\n")}`;
+${constraintSection}`;
 }
 
 function buildDemographicsSection(goal: GoalData): string {

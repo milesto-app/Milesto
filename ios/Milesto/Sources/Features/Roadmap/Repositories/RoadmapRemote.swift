@@ -18,59 +18,47 @@ final class RoadmapRemote {
         )
     }
 
-    func getWeeklyPlan(goalId: String) async throws -> WeeklyPlanDTO? {
-        do {
-            let plan: WeeklyPlanDTO = try await ApiClient.shared.request(
-                method: "GET",
-                path: "goals/\(goalId)/roadmap/weekly-plan"
-            )
-            return plan
-        } catch ApiError.httpError(statusCode: 404, _) {
-            return nil
-        }
+    func getCurrentWeek(goalId: String) async throws -> CurrentWeekResponseDTO {
+        try await ApiClient.shared.request(
+            method: "GET",
+            path: "goals/\(goalId)/roadmap/current-week"
+        )
     }
 
-    func generateWeeklyPlan(goalId: String) async throws -> WeeklyPlanDTO {
+    func activateNextMilestone(goalId: String) async throws -> MilestoneDTO {
         return try await ApiClient.shared.request(
             method: "POST",
-            path: "goals/\(goalId)/roadmap/weekly-plan/generate"
+            path: "goals/\(goalId)/roadmap/activate-next-milestone"
         )
     }
 
-    func getWeeklyTasks(goalId: String) async throws -> [WeeklyTaskDTO] {
+    func getTasks(goalId: String) async throws -> [TaskDTO] {
         return try await ApiClient.shared.request(
             method: "GET",
-            path: "goals/\(goalId)/weekly-tasks"
+            path: "goals/\(goalId)/tasks"
         )
     }
 
-    func toggleTask(goalId: String, taskId: String, isCompleted: Bool) async throws -> WeeklyTaskDTO {
+    func toggleTask(goalId: String, taskId: String, isCompleted: Bool) async throws -> TaskDTO {
         return try await ApiClient.shared.request(
             method: "PATCH",
-            path: "goals/\(goalId)/weekly-tasks/\(taskId)",
+            path: "goals/\(goalId)/tasks/\(taskId)",
             body: UpdateTaskRequestDTO(isCompleted: isCompleted)
         )
     }
 
-    func submitDebrief(goalId: String, weeklyPlanId: String, note: String) async throws -> DebriefDTO {
+    func submitDebrief(goalId: String, milestoneId: String, note: String) async throws -> DebriefDTO {
         return try await ApiClient.shared.request(
             method: "POST",
             path: "goals/\(goalId)/debrief",
-            body: SubmitDebriefRequestDTO(weeklyPlanId: weeklyPlanId, note: note)
+            body: SubmitDebriefRequestDTO(milestoneId: milestoneId, note: note)
         )
     }
 
-    func getTasksForMilestone(milestoneId: String) async throws -> [WeeklyTaskDTO] {
+    func getTasksForMilestone(milestoneId: String) async throws -> [TaskDTO] {
         try await ApiClient.shared.request(
             method: "GET",
             path: "milestones/\(milestoneId)/tasks"
-        )
-    }
-
-    func getDebriefHistory(goalId: String) async throws -> [DebriefDTO] {
-        try await ApiClient.shared.request(
-            method: "GET",
-            path: "goals/\(goalId)/debrief"
         )
     }
 }

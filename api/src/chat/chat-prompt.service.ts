@@ -2,15 +2,10 @@ import { Injectable, Logger, NotFoundException } from "@nestjs/common";
 
 import { COACH_BY_ID } from "../coach/coaches.config.js";
 import { config } from "../config/app.config.js";
+import { WeekStateService } from "../roadmap/week-state.service.js";
 import { SupabaseService } from "../supabase/supabase.service.js";
 import type { PromptInput } from "./chat-prompt.builder.js";
 import { buildCoachPrompt } from "./chat-prompt.builder.js";
-
-interface ActivePlan {
-  week_number: number;
-  objectives: string[];
-  milestone_id: string;
-}
 
 type GoalContext = PromptInput["goalContext"];
 
@@ -18,7 +13,10 @@ type GoalContext = PromptInput["goalContext"];
 export class ChatPromptService {
   private readonly logger = new Logger(ChatPromptService.name);
 
-  constructor(private readonly supabaseService: SupabaseService) {}
+  constructor(
+    private readonly supabaseService: SupabaseService,
+    private readonly weekStateService: WeekStateService,
+  ) {}
 
   public async getUser(
     userId: string,
@@ -47,26 +45,37 @@ export class ChatPromptService {
     userId: string,
   ): Promise<GoalContext> {
     const supabase = this.supabaseService.getAdminClient();
-    const { goal, plan } = await this.fetchGoalAndPlan(
-      supabase,
-      goalId,
-      userId,
-    );
-    const milestone =
-      plan !== null
-        ? await this.fetchMilestone(supabase, plan.milestone_id)
-        : null;
+
+    const [goalResult, weekStateResult] = await Promise.all([
+      supabase
+        .from("goals")
+        .select("title, description")
+        .eq("id", goalId)
+        .eq("user_id", userId)
+        .is("deleted_at", null)
+        .single(),
+      this.weekStateService.computeForGoal(goalId, userId),
+    ]);
+
+    const activeMilestone = weekStateResult.milestone;
 
     return {
-      goal,
-      milestone,
-      weeklyPlan:
-        plan !== null
+      goal: goalResult.data,
+      milestone:
+        activeMilestone !== null
           ? {
-              week_number: plan.week_number,
-              objectives: plan.objectives,
+              title: activeMilestone.title,
+              description: activeMilestone.description,
+              expected_outcome: activeMilestone.expected_outcome,
+              target_month: activeMilestone.target_month,
             }
           : null,
+      weekState: {
+        state: weekStateResult.week_state,
+        next_week_starts_at: weekStateResult.next_week_starts_at,
+        all_tasks_completed: weekStateResult.all_tasks_completed,
+        has_debrief: weekStateResult.has_debrief,
+      },
     };
   }
 
@@ -101,46 +110,5 @@ export class ChatPromptService {
       language: input.language,
       memory: input.memory,
     });
-  }
-
-  private async fetchGoalAndPlan(
-    supabase: ReturnType<SupabaseService["getAdminClient"]>,
-    goalId: string,
-    userId: string,
-  ): Promise<{ goal: GoalContext["goal"]; plan: ActivePlan | null }> {
-    const [goalResult, planResult] = await Promise.all([
-      supabase
-        .from("goals")
-        .select("title, description")
-        .eq("id", goalId)
-        .eq("user_id", userId)
-        .is("deleted_at", null)
-        .single(),
-      supabase
-        .from("weekly_plans")
-        .select("week_number, objectives, milestone_id")
-        .eq("goal_id", goalId)
-        .eq("user_id", userId)
-        .eq("status", "active")
-        .single(),
-    ]);
-
-    return {
-      goal: goalResult.data,
-      plan: planResult.data as ActivePlan | null,
-    };
-  }
-
-  private async fetchMilestone(
-    supabase: ReturnType<SupabaseService["getAdminClient"]>,
-    milestoneId: string,
-  ): Promise<GoalContext["milestone"]> {
-    const { data } = await supabase
-      .from("milestones")
-      .select("title, description, expected_outcome, target_month")
-      .eq("id", milestoneId)
-      .single();
-
-    return data;
   }
 }

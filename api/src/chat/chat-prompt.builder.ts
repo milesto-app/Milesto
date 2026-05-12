@@ -1,4 +1,5 @@
 import type { CoachConfig } from "../coach/coaches.config.js";
+import type { WeekState } from "../roadmap/types/week-state.types.js";
 import {
   buildBoundariesPrompt,
   buildToolUsagePrompt,
@@ -10,11 +11,14 @@ interface GoalContext {
     title: string;
     description: string;
     expected_outcome: string;
+    target_month?: number;
   } | null;
-  weeklyPlan: {
-    week_number: number;
-    objectives: string[];
-  } | null;
+  weekState: {
+    state: WeekState;
+    next_week_starts_at: string | null;
+    all_tasks_completed: boolean;
+    has_debrief: boolean;
+  };
 }
 
 export interface PromptInput {
@@ -99,15 +103,23 @@ function buildGoalContextSection(ctx: PromptInput["goalContext"]): string {
     );
   }
 
-  if (ctx.weeklyPlan !== null) {
-    parts.push(
-      `This Week (Week ${String(ctx.weeklyPlan.week_number)}):\nObjectives:\n${ctx.weeklyPlan.objectives.map((o) => `- ${o}`).join("\n")}`,
-    );
-  }
-
-  if (parts.length === 0) {
-    return "";
-  }
+  parts.push(buildWeekStateLine(ctx.weekState));
 
   return `\n<goal_context>\n${parts.join("\n\n")}\n</goal_context>`;
+}
+
+function buildWeekStateLine(weekState: GoalContext["weekState"]): string {
+  const unlock = weekState.next_week_starts_at ?? "soon";
+  switch (weekState.state) {
+    case "active":
+      return `Week State: ACTIVE — user is mid-week, still has tasks to do. Next week unlocks ${unlock}.`;
+    case "ready_to_debrief":
+      return `Week State: READY_TO_DEBRIEF — user finished all tasks but hasn't submitted the debrief yet. Encourage reflection, not new work.`;
+    case "in_advance":
+      return `Week State: IN_ADVANCE — user already debriefed and is now ahead of the calendar. Next milestone is LOCKED until ${unlock}. Do not suggest new tasks; suggest rest, reflection, or light prep. Acknowledge they're ahead.`;
+    case "late":
+      return `Week State: LATE — calendar week ended but the user didn't finish/debrief. Be gentle, propose a rattrapage or quick adjustment. Next week starts ${unlock}.`;
+    case "no_milestone":
+      return `Week State: NO_MILESTONE — no active milestone yet. Help the user get started by activating their first milestone.`;
+  }
 }

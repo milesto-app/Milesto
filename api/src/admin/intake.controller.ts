@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Query, UseGuards } from "@nestjs/common";
+import { Controller, Get, Query, UseGuards } from "@nestjs/common";
 import {
   ApiBearerAuth,
   ApiOperation,
@@ -8,8 +8,6 @@ import {
 
 import { AdminGuard } from "../common/guards/admin.guard.js";
 import { AuthGuard } from "../common/guards/auth.guard.js";
-import { IntakeReembedService } from "../intake/intake-reembed.service.js";
-import type { ReembedResult } from "../intake/types/intake.types.js";
 import { ListBatchesQueryDto } from "./dto/list-batches-query.dto.js";
 import { AdminIntakeService } from "./intake.service.js";
 import type { AdminIntakeBatchList } from "./intake.types.js";
@@ -19,10 +17,7 @@ import type { AdminIntakeBatchList } from "./intake.types.js";
 @Controller("admin/intake")
 @UseGuards(AuthGuard, AdminGuard)
 export class AdminIntakeController {
-  constructor(
-    private readonly intakeService: AdminIntakeService,
-    private readonly reembedService: IntakeReembedService,
-  ) {}
+  constructor(private readonly intakeService: AdminIntakeService) {}
 
   @Get("batches")
   @ApiOperation({
@@ -41,16 +36,5 @@ export class AdminIntakeController {
       query.perPage,
       query.goalId,
     );
-  }
-
-  @Post("reembed-missing")
-  @ApiOperation({
-    summary: "Retry embedding for all entries that failed to embed",
-  })
-  @ApiResponse({ status: 201, description: "Re-embedding results returned" })
-  @ApiResponse({ status: 401, description: "Unauthorized" })
-  @ApiResponse({ status: 403, description: "Admin access required" })
-  public async reembedMissing(): Promise<ReembedResult> {
-    return this.reembedService.reembedMissing();
   }
 }

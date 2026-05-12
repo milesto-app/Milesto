@@ -15,17 +15,13 @@ const SUNDAY_TO_MONDAY_OFFSET = -6;
 const MONDAY_DELTA = 1;
 const DATE_PAD = 2;
 
-type WeeklyTaskRow = Pick<
-  Database["public"]["Tables"]["weekly_tasks"]["Row"],
-  "is_completed" | "weekly_plan_id" | "created_at" | "completed_at"
->;
-type WeeklyPlanRow = Pick<
-  Database["public"]["Tables"]["weekly_plans"]["Row"],
-  "id" | "week_number" | "milestone_id" | "status"
+type TaskRow = Pick<
+  Database["public"]["Tables"]["tasks"]["Row"],
+  "milestone_id" | "created_at" | "completed_at"
 >;
 type MilestoneRow = Pick<
   Database["public"]["Tables"]["milestones"]["Row"],
-  "id"
+  "id" | "completed_at"
 >;
 
 export interface DayActivity {
@@ -81,33 +77,29 @@ export class StatsService {
     await this.assertGoalOwnership(userId, goalId);
 
     const supabase = this.supabaseService.getAdminClient();
-    const [tasksRes, plansRes, milestonesRes] = await Promise.all([
+    const [tasksRes, milestonesRes] = await Promise.all([
       supabase
-        .from("weekly_tasks")
-        .select("is_completed, weekly_plan_id, created_at, completed_at")
-        .eq("goal_id", goalId)
-        .eq("user_id", userId),
+        .from("tasks")
+        .select("milestone_id, created_at, completed_at")
+        .eq("goal_id", goalId),
       supabase
-        .from("weekly_plans")
-        .select("id, week_number, milestone_id, status")
+        .from("milestones")
+        .select("id, completed_at")
         .eq("goal_id", goalId)
-        .eq("user_id", userId)
-        .order("week_number", { ascending: true }),
-      supabase.from("milestones").select("id").eq("goal_id", goalId),
+        .not("starts_at", "is", null)
+        .order("order_index", { ascending: true }),
     ]);
 
-    if (tasksRes.error || plansRes.error || milestonesRes.error) {
+    if (tasksRes.error || milestonesRes.error) {
       this.logger.error(
         `Stats query failed for goal ${goalId}: ${
-          (tasksRes.error ?? plansRes.error ?? milestonesRes.error)?.message ??
-          ""
+          (tasksRes.error ?? milestonesRes.error)?.message ?? ""
         }`,
       );
       throw new InternalServerErrorException("Failed to compute stats");
     }
 
     const tasks = tasksRes.data;
-    const plans = plansRes.data;
     const milestones = milestonesRes.data;
 
     return {
@@ -115,8 +107,8 @@ export class StatsService {
       updated_at: new Date().toISOString(),
       streak: this.computeStreak(tasks),
       completion: this.computeCompletion(tasks),
-      weekly_progress: this.computeWeeklyProgress(plans, tasks),
-      milestones: this.computeMilestones(milestones, plans),
+      weekly_progress: this.computeWeeklyProgress(milestones, tasks),
+      milestones: this.computeMilestones(milestones),
     };
   }
 
@@ -137,9 +129,9 @@ export class StatsService {
     }
   }
 
-  private computeStreak(tasks: WeeklyTaskRow[]): StreakStats {
+  private computeStreak(tasks: TaskRow[]): StreakStats {
     const completionDays = tasks
-      .filter((t) => t.is_completed && t.completed_at !== null)
+      .filter((t) => t.completed_at !== null)
       .map((t) =>
         this.startOfDay(new Date(t.completed_at as string)).getTime(),
       );
@@ -219,9 +211,9 @@ export class StatsService {
     return Math.max(best, currentStreak);
   }
 
-  private computeCompletion(tasks: WeeklyTaskRow[]): CompletionStats {
+  private computeCompletion(tasks: TaskRow[]): CompletionStats {
     const totalObjectives = tasks.length;
-    const totalCompleted = tasks.filter((t) => t.is_completed).length;
+    const totalCompleted = tasks.filter((t) => t.completed_at !== null).length;
     const overallRate =
       totalObjectives > 0 ? totalCompleted / totalObjectives : 0;
 
@@ -233,7 +225,9 @@ export class StatsService {
       const created = new Date(t.created_at).getTime();
       return created >= mondayStart;
     });
-    const thisWeekCompleted = thisWeek.filter((t) => t.is_completed).length;
+    const thisWeekCompleted = thisWeek.filter(
+      (t) => t.completed_at !== null,
+    ).length;
     const thisWeekRate =
       thisWeek.length > 0 ? thisWeekCompleted / thisWeek.length : 0;
 
@@ -246,21 +240,23 @@ export class StatsService {
   }
 
   private computeWeeklyProgress(
-    plans: WeeklyPlanRow[],
-    tasks: WeeklyTaskRow[],
+    milestones: MilestoneRow[],
+    tasks: TaskRow[],
   ): WeeklyProgress[] {
-    const tasksByPlan = new Map<string, WeeklyTaskRow[]>();
+    const tasksByMilestone = new Map<string, TaskRow[]>();
     for (const task of tasks) {
-      const list = tasksByPlan.get(task.weekly_plan_id) ?? [];
+      const list = tasksByMilestone.get(task.milestone_id) ?? [];
       list.push(task);
-      tasksByPlan.set(task.weekly_plan_id, list);
+      tasksByMilestone.set(task.milestone_id, list);
     }
-    return plans.map((plan) => {
-      const planTasks = tasksByPlan.get(plan.id) ?? [];
-      const completed = planTasks.filter((t) => t.is_completed).length;
-      const total = planTasks.length;
+    return milestones.map((milestone, idx) => {
+      const milestoneTasks = tasksByMilestone.get(milestone.id) ?? [];
+      const completed = milestoneTasks.filter(
+        (t) => t.completed_at !== null,
+      ).length;
+      const total = milestoneTasks.length;
       return {
-        week_number: plan.week_number,
+        week_number: idx + MONDAY_DELTA,
         completion_rate: total > 0 ? completed / total : 0,
         objectives_completed: completed,
         objectives_total: total,
@@ -268,20 +264,8 @@ export class StatsService {
     });
   }
 
-  private computeMilestones(
-    milestones: MilestoneRow[],
-    plans: WeeklyPlanRow[],
-  ): MilestoneProgress {
-    const plansByMilestone = new Map<string, WeeklyPlanRow[]>();
-    for (const plan of plans) {
-      const list = plansByMilestone.get(plan.milestone_id) ?? [];
-      list.push(plan);
-      plansByMilestone.set(plan.milestone_id, list);
-    }
-    const completed = milestones.filter((m) => {
-      const list = plansByMilestone.get(m.id) ?? [];
-      return list.length > 0 && list.every((p) => p.status === "completed");
-    }).length;
+  private computeMilestones(milestones: MilestoneRow[]): MilestoneProgress {
+    const completed = milestones.filter((m) => m.completed_at !== null).length;
     return { completed, total: milestones.length };
   }
 
