@@ -225,27 +225,27 @@ export type Database = {
           date: string;
           goal_id: string;
           id: string;
+          milestone_id: string | null;
           note: string;
           user_id: string;
-          weekly_plan_id: string | null;
         };
         Insert: {
           created_at?: string | null;
           date: string;
           goal_id: string;
           id?: string;
+          milestone_id?: string | null;
           note: string;
           user_id: string;
-          weekly_plan_id?: string | null;
         };
         Update: {
           created_at?: string | null;
           date?: string;
           goal_id?: string;
           id?: string;
+          milestone_id?: string | null;
           note?: string;
           user_id?: string;
-          weekly_plan_id?: string | null;
         };
         Relationships: [
           {
@@ -256,10 +256,10 @@ export type Database = {
             referencedColumns: ["id"];
           },
           {
-            foreignKeyName: "debriefs_weekly_plan_id_fkey";
-            columns: ["weekly_plan_id"];
+            foreignKeyName: "debriefs_milestone_id_fkey";
+            columns: ["milestone_id"];
             isOneToOne: false;
-            referencedRelation: "weekly_plans";
+            referencedRelation: "milestones";
             referencedColumns: ["id"];
           },
         ];
@@ -544,11 +544,17 @@ export type Database = {
           created_at: string | null;
           description: string;
           expected_outcome: string;
+          generation_context: Json | null;
+          generation_metadata: Json | null;
           goal_id: string;
           id: string;
+          is_fallback: boolean;
           is_monthly_checkpoint: boolean;
+          model_used: string | null;
           monthly_summary: Json | null;
           order_index: number;
+          starts_at: string | null;
+          summary: Json | null;
           target_month: number;
           target_week: number;
           title: string;
@@ -558,11 +564,17 @@ export type Database = {
           created_at?: string | null;
           description: string;
           expected_outcome: string;
+          generation_context?: Json | null;
+          generation_metadata?: Json | null;
           goal_id: string;
           id?: string;
+          is_fallback?: boolean;
           is_monthly_checkpoint?: boolean;
+          model_used?: string | null;
           monthly_summary?: Json | null;
           order_index: number;
+          starts_at?: string | null;
+          summary?: Json | null;
           target_month: number;
           target_week: number;
           title: string;
@@ -572,11 +584,17 @@ export type Database = {
           created_at?: string | null;
           description?: string;
           expected_outcome?: string;
+          generation_context?: Json | null;
+          generation_metadata?: Json | null;
           goal_id?: string;
           id?: string;
+          is_fallback?: boolean;
           is_monthly_checkpoint?: boolean;
+          model_used?: string | null;
           monthly_summary?: Json | null;
           order_index?: number;
+          starts_at?: string | null;
+          summary?: Json | null;
           target_month?: number;
           target_week?: number;
           title?: string;
@@ -699,6 +717,66 @@ export type Database = {
         };
         Relationships: [];
       };
+      tasks: {
+        Row: {
+          completed_at: string | null;
+          created_at: string | null;
+          description: string;
+          estimated_minutes: number | null;
+          goal_id: string;
+          id: string;
+          is_completed: boolean;
+          is_fallback: boolean;
+          milestone_id: string;
+          order_index: number;
+          title: string;
+          user_id: string;
+        };
+        Insert: {
+          completed_at?: string | null;
+          created_at?: string | null;
+          description: string;
+          estimated_minutes?: number | null;
+          goal_id: string;
+          id?: string;
+          is_completed?: boolean;
+          is_fallback?: boolean;
+          milestone_id: string;
+          order_index: number;
+          title: string;
+          user_id: string;
+        };
+        Update: {
+          completed_at?: string | null;
+          created_at?: string | null;
+          description?: string;
+          estimated_minutes?: number | null;
+          goal_id?: string;
+          id?: string;
+          is_completed?: boolean;
+          is_fallback?: boolean;
+          milestone_id?: string;
+          order_index?: number;
+          title?: string;
+          user_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "tasks_goal_id_fkey";
+            columns: ["goal_id"];
+            isOneToOne: false;
+            referencedRelation: "goals";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "tasks_milestone_id_fkey";
+            columns: ["milestone_id"];
+            isOneToOne: false;
+            referencedRelation: "milestones";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       users: {
         Row: {
           birth_year: number | null;
@@ -759,135 +837,6 @@ export type Database = {
         };
         Relationships: [];
       };
-      weekly_plans: {
-        Row: {
-          created_at: string | null;
-          expected_end_date: string | null;
-          generation_context: Json | null;
-          generation_metadata: Json | null;
-          goal_id: string;
-          id: string;
-          is_fallback: boolean;
-          milestone_id: string;
-          model_used: string | null;
-          objectives: Json;
-          status: string;
-          summary: Json | null;
-          user_id: string;
-          week_number: number;
-          week_start_date: string;
-        };
-        Insert: {
-          created_at?: string | null;
-          expected_end_date?: string | null;
-          generation_context?: Json | null;
-          generation_metadata?: Json | null;
-          goal_id: string;
-          id?: string;
-          is_fallback?: boolean;
-          milestone_id: string;
-          model_used?: string | null;
-          objectives?: Json;
-          status?: string;
-          summary?: Json | null;
-          user_id: string;
-          week_number: number;
-          week_start_date: string;
-        };
-        Update: {
-          created_at?: string | null;
-          expected_end_date?: string | null;
-          generation_context?: Json | null;
-          generation_metadata?: Json | null;
-          goal_id?: string;
-          id?: string;
-          is_fallback?: boolean;
-          milestone_id?: string;
-          model_used?: string | null;
-          objectives?: Json;
-          status?: string;
-          summary?: Json | null;
-          user_id?: string;
-          week_number?: number;
-          week_start_date?: string;
-        };
-        Relationships: [
-          {
-            foreignKeyName: "weekly_plans_goal_id_fkey";
-            columns: ["goal_id"];
-            isOneToOne: false;
-            referencedRelation: "goals";
-            referencedColumns: ["id"];
-          },
-          {
-            foreignKeyName: "weekly_plans_milestone_id_fkey";
-            columns: ["milestone_id"];
-            isOneToOne: false;
-            referencedRelation: "milestones";
-            referencedColumns: ["id"];
-          },
-        ];
-      };
-      weekly_tasks: {
-        Row: {
-          completed_at: string | null;
-          created_at: string | null;
-          description: string;
-          estimated_minutes: number | null;
-          goal_id: string;
-          id: string;
-          is_completed: boolean;
-          is_fallback: boolean;
-          order_index: number;
-          title: string;
-          user_id: string;
-          weekly_plan_id: string;
-        };
-        Insert: {
-          completed_at?: string | null;
-          created_at?: string | null;
-          description: string;
-          estimated_minutes?: number | null;
-          goal_id: string;
-          id?: string;
-          is_completed?: boolean;
-          is_fallback?: boolean;
-          order_index: number;
-          title: string;
-          user_id: string;
-          weekly_plan_id: string;
-        };
-        Update: {
-          completed_at?: string | null;
-          created_at?: string | null;
-          description?: string;
-          estimated_minutes?: number | null;
-          goal_id?: string;
-          id?: string;
-          is_completed?: boolean;
-          is_fallback?: boolean;
-          order_index?: number;
-          title?: string;
-          user_id?: string;
-          weekly_plan_id?: string;
-        };
-        Relationships: [
-          {
-            foreignKeyName: "weekly_tasks_goal_id_fkey";
-            columns: ["goal_id"];
-            isOneToOne: false;
-            referencedRelation: "goals";
-            referencedColumns: ["id"];
-          },
-          {
-            foreignKeyName: "weekly_tasks_weekly_plan_id_fkey";
-            columns: ["weekly_plan_id"];
-            isOneToOne: false;
-            referencedRelation: "weekly_plans";
-            referencedColumns: ["id"];
-          },
-        ];
-      };
     };
     Views: {
       [_ in never]: never;
@@ -925,12 +874,11 @@ export type Database = {
           local_hour: number;
           next_task_title: string;
           recent_completed_titles: string[];
+          task_completed: number;
+          task_total: number;
           timezone: string;
           user_id: string;
           user_motivation_quote: string;
-          weekly_objectives: Json;
-          weekly_task_completed: number;
-          weekly_task_total: number;
         }[];
       };
       reserve_generation: {

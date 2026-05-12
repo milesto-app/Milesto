@@ -4,7 +4,7 @@ struct DebriefDTO: Codable, Identifiable {
     let id: String
     let goalId: String
     let userId: String
-    let weeklyPlanId: String?
+    let milestoneId: String?
     let date: String
     let note: String
     let createdAt: String
@@ -13,7 +13,7 @@ struct DebriefDTO: Codable, Identifiable {
         case id, date, note
         case goalId = "goal_id"
         case userId = "user_id"
-        case weeklyPlanId = "weekly_plan_id"
+        case milestoneId = "milestone_id"
         case createdAt = "created_at"
     }
 }

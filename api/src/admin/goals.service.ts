@@ -25,8 +25,7 @@ import type {
   AdminGoalMilestone,
   AdminGoalRoadmap,
   AdminGoalSummary,
-  AdminGoalWeeklyPlan,
-  AdminGoalWeeklyTask,
+  AdminGoalTask,
   AdminIntakeBatch,
   AdminIntakeQuestion,
 } from "./goals.types.js";
@@ -36,8 +35,7 @@ type IntakeBatchRow = Database["public"]["Tables"]["intake_batches"]["Row"];
 type IntakeQuestionRow =
   Database["public"]["Tables"]["intake_questions"]["Row"];
 type MilestoneRow = Database["public"]["Tables"]["milestones"]["Row"];
-type WeeklyPlanRow = Database["public"]["Tables"]["weekly_plans"]["Row"];
-type WeeklyTaskRow = Database["public"]["Tables"]["weekly_tasks"]["Row"];
+type TaskRow = Database["public"]["Tables"]["tasks"]["Row"];
 type DebriefRow = Database["public"]["Tables"]["debriefs"]["Row"];
 type CoachMemoryRow = Database["public"]["Tables"]["coach_memories"]["Row"];
 type ContextEmbeddingRow =
@@ -140,28 +138,15 @@ export class GoalsService {
     const goal = await this.requireGoalById(goalId);
     const supabase = this.supabaseService.getAdminClient();
 
-    const [milestonesRes, plansRes] = await Promise.all([
-      supabase
-        .from("milestones")
-        .select("*")
-        .eq("goal_id", goalId)
-        .order("order_index", { ascending: true }),
-      supabase
-        .from("weekly_plans")
-        .select("*")
-        .eq("goal_id", goalId)
-        .order("week_number", { ascending: true }),
-    ]);
+    const milestonesRes = await supabase
+      .from("milestones")
+      .select("*")
+      .eq("goal_id", goalId)
+      .order("order_index", { ascending: true });
 
     if (milestonesRes.error !== null) {
       this.logger.error(
         `Failed to load milestones for ${goalId}: ${milestonesRes.error.message}`,
-      );
-      throw new InternalServerErrorException("Failed to load roadmap");
-    }
-    if (plansRes.error !== null) {
-      this.logger.error(
-        `Failed to load weekly plans for ${goalId}: ${plansRes.error.message}`,
       );
       throw new InternalServerErrorException("Failed to load roadmap");
     }
@@ -173,39 +158,25 @@ export class GoalsService {
       createdAt: goal.roadmap_created_at,
       updatedAt: goal.roadmap_updated_at,
       milestones: milestonesRes.data.map(mapMilestone),
-      weeklyPlans: plansRes.data.map(mapWeeklyPlan),
     };
   }
 
-  public async getWeeklyTasks(
-    goalId: string,
-    weekIndex: number | undefined,
-  ): Promise<AdminGoalWeeklyTask[]> {
+  public async getTasks(goalId: string): Promise<AdminGoalTask[]> {
     await this.requireGoalById(goalId);
     const supabase = this.supabaseService.getAdminClient();
 
-    const planIdToWeek = await this.loadPlanWeekMap(goalId, weekIndex);
-    if (planIdToWeek.size === 0) {
-      return [];
-    }
-
     const { data, error } = await supabase
-      .from("weekly_tasks")
+      .from("tasks")
       .select("*")
       .eq("goal_id", goalId)
-      .in("weekly_plan_id", [...planIdToWeek.keys()])
       .order("order_index", { ascending: true });
 
     if (error !== null) {
-      this.logger.error(
-        `Failed to load weekly tasks for ${goalId}: ${error.message}`,
-      );
-      throw new InternalServerErrorException("Failed to load weekly tasks");
+      this.logger.error(`Failed to load tasks for ${goalId}: ${error.message}`);
+      throw new InternalServerErrorException("Failed to load tasks");
     }
 
-    return data.map((row) =>
-      mapWeeklyTask(row, planIdToWeek.get(row.weekly_plan_id) ?? 0),
-    );
+    return data.map(mapTask);
   }
 
   public async getDebriefs(goalId: string): Promise<AdminGoalDebrief[]> {
@@ -349,35 +320,6 @@ export class GoalsService {
       throw new NotFoundException(`Goal ${goalId} not found`);
     }
     return data;
-  }
-
-  private async loadPlanWeekMap(
-    goalId: string,
-    weekIndex: number | undefined,
-  ): Promise<Map<string, number>> {
-    const supabase = this.supabaseService.getAdminClient();
-    let query = supabase
-      .from("weekly_plans")
-      .select("id, week_number")
-      .eq("goal_id", goalId);
-
-    if (weekIndex !== undefined) {
-      query = query.eq("week_number", weekIndex);
-    }
-
-    const { data, error } = await query;
-    if (error !== null) {
-      this.logger.error(
-        `Failed to load weekly plans for ${goalId}: ${error.message}`,
-      );
-      throw new InternalServerErrorException("Failed to load weekly plans");
-    }
-
-    const map = new Map<string, number>();
-    for (const plan of data) {
-      map.set(plan.id, plan.week_number);
-    }
-    return map;
   }
 
   private async enrichGoalsWithUsers(
@@ -524,30 +466,10 @@ function mapMilestone(row: MilestoneRow): AdminGoalMilestone {
   };
 }
 
-function mapWeeklyPlan(row: WeeklyPlanRow): AdminGoalWeeklyPlan {
+function mapTask(row: TaskRow): AdminGoalTask {
   return {
     id: row.id,
     milestoneId: row.milestone_id,
-    weekNumber: row.week_number,
-    weekStartDate: row.week_start_date,
-    expectedEndDate: row.expected_end_date,
-    status: row.status,
-    isFallback: row.is_fallback,
-    modelUsed: row.model_used,
-    objectives: row.objectives,
-    summary: row.summary,
-    createdAt: row.created_at,
-  };
-}
-
-function mapWeeklyTask(
-  row: WeeklyTaskRow,
-  weekNumber: number,
-): AdminGoalWeeklyTask {
-  return {
-    id: row.id,
-    weeklyPlanId: row.weekly_plan_id,
-    weekNumber,
     title: row.title,
     description: row.description,
     estimatedMinutes: row.estimated_minutes,
@@ -562,7 +484,7 @@ function mapWeeklyTask(
 function mapDebrief(row: DebriefRow): AdminGoalDebrief {
   return {
     id: row.id,
-    weeklyPlanId: row.weekly_plan_id,
+    milestoneId: row.milestone_id,
     date: row.date,
     note: row.note,
     createdAt: row.created_at,

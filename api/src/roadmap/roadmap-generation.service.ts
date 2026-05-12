@@ -9,20 +9,14 @@ import {
   buildMilestoneUserPrompt,
 } from "./prompts/milestone-prompts.js";
 import {
-  buildWeeklyPlanSystemPrompt,
-  buildWeeklyPlanUserPrompt,
-} from "./prompts/weekly-plan-prompts.js";
-import {
-  buildWeeklyTasksSystemPrompt,
-  buildWeeklyTasksUserPrompt,
-} from "./prompts/weekly-task-prompts.js";
+  buildTasksSystemPrompt,
+  buildTasksUserPrompt,
+} from "./prompts/task-prompts.js";
 import type { AssembledContext } from "./types/context.types.js";
 import { GeneratedMilestone } from "./types/generated-milestone.types.js";
-import { GeneratedWeeklyPlan } from "./types/generated-weekly-plan.types.js";
-import { GeneratedWeeklyTask } from "./types/generated-weekly-task.types.js";
+import { GeneratedTask } from "./types/generated-task.types.js";
 import type {
-  GenerateWeeklyPlanParams,
-  GenerateWeeklyTasksParams,
+  GenerateTasksParams,
   MetadataParams,
   RetryParams,
 } from "./types/generation.types.js";
@@ -60,48 +54,25 @@ export class RoadmapGenerationService {
     };
   }
 
-  public async generateWeeklyPlan(
-    params: GenerateWeeklyPlanParams,
-  ): Promise<{ plan: GeneratedWeeklyPlan; metadata: GenerationMetadata }> {
-    const model = this.resolveModel(config.roadmap.weeklyModel);
-    const result = await this.generateWithRetry({
-      systemPrompt: buildWeeklyPlanSystemPrompt(params.language),
-      userPrompt: buildWeeklyPlanUserPrompt({
-        context: params.context,
-        milestone: params.milestone,
-        weekNumber: params.weekNumber,
-        generationContext: params.generationContext,
-      }),
-      model,
-      totalChunks: params.context.totalChunks,
-      label: "Weekly plan",
-      validate: validateWeeklyPlan,
-    });
-    return {
-      plan: result.milestones as GeneratedWeeklyPlan,
-      metadata: result.metadata,
-    };
-  }
-
-  public async generateWeeklyTasks(params: GenerateWeeklyTasksParams): Promise<{
-    tasks: GeneratedWeeklyTask[];
+  public async generateTasks(params: GenerateTasksParams): Promise<{
+    tasks: GeneratedTask[];
     metadata: GenerationMetadata;
   }> {
-    const model = this.resolveModel(config.roadmap.weeklyTaskModel);
+    const model = this.resolveModel(config.roadmap.taskModel);
     const result = await this.generateWithRetry({
-      systemPrompt: buildWeeklyTasksSystemPrompt(params.language),
-      userPrompt: buildWeeklyTasksUserPrompt({
-        weeklyPlan: params.weeklyPlan,
+      systemPrompt: buildTasksSystemPrompt(params.language),
+      userPrompt: buildTasksUserPrompt({
+        milestone: params.milestone,
         context: params.context,
         weekData: params.weekData,
       }),
       model,
       totalChunks: params.context.totalChunks,
-      label: "Weekly tasks",
-      validate: validateWeeklyTasks,
+      label: "Tasks",
+      validate: validateTasks,
     });
     return {
-      tasks: result.milestones as GeneratedWeeklyTask[],
+      tasks: result.milestones as GeneratedTask[],
       metadata: result.metadata,
     };
   }
@@ -211,51 +182,19 @@ function repairMilestones(items: unknown[]): GeneratedMilestone[] {
   );
 }
 
-function validateWeeklyPlan(raw: unknown): GeneratedWeeklyPlan {
-  const data =
-    typeof raw === "object" && raw !== null && !Array.isArray(raw) ? raw : {};
-  const instance = plainToInstance(GeneratedWeeklyPlan, data);
-  const errors = validateSync(instance as object);
-
-  if (errors.length === 0) {
-    return instance;
-  }
-
-  return repairWeeklyPlan(data);
-}
-
-function repairWeeklyPlan(data: unknown): GeneratedWeeklyPlan {
-  const rec = data as Record<string, unknown>;
-  const cleaned = {
-    objectives: Array.isArray(rec.objectives)
-      ? (rec.objectives as unknown[]).map(String)
-      : [],
-  };
-  const repairedInstance = plainToInstance(GeneratedWeeklyPlan, cleaned);
-  const repairErrors = validateSync(repairedInstance as object);
-
-  if (repairErrors.length === 0) {
-    return repairedInstance;
-  }
-
-  throw new Error(
-    `Weekly plan validation failed after repair: ${repairErrors.map((e) => e.toString()).join(", ")}`,
-  );
-}
-
-function validateWeeklyTasks(raw: unknown): GeneratedWeeklyTask[] {
+function validateTasks(raw: unknown): GeneratedTask[] {
   const items = Array.isArray(raw) ? raw : [raw];
-  const instances = plainToInstance(GeneratedWeeklyTask, items);
+  const instances = plainToInstance(GeneratedTask, items);
   const errors = instances.flatMap((i) => validateSync(i as object));
 
   if (errors.length === 0) {
     return instances;
   }
 
-  return repairWeeklyTasks(items);
+  return repairTasks(items);
 }
 
-function repairWeeklyTasks(items: unknown[]): GeneratedWeeklyTask[] {
+function repairTasks(items: unknown[]): GeneratedTask[] {
   const cleaned = items.map((item, idx) => {
     const rec = item as Record<string, unknown>;
     return {
@@ -268,7 +207,7 @@ function repairWeeklyTasks(items: unknown[]): GeneratedWeeklyTask[] {
           : undefined,
     };
   });
-  const repairedInstances = plainToInstance(GeneratedWeeklyTask, cleaned);
+  const repairedInstances = plainToInstance(GeneratedTask, cleaned);
   const repairErrors = repairedInstances.flatMap((i) =>
     validateSync(i as object),
   );
@@ -278,6 +217,6 @@ function repairWeeklyTasks(items: unknown[]): GeneratedWeeklyTask[] {
   }
 
   throw new Error(
-    `Weekly tasks validation failed after repair: ${repairErrors.map((e) => e.toString()).join(", ")}`,
+    `Task validation failed after repair: ${repairErrors.map((e) => e.toString()).join(", ")}`,
   );
 }

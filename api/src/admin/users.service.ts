@@ -421,7 +421,7 @@ export class UsersService {
   ): Promise<Map<string, { total: number; completed: number }>> {
     const supabase = this.supabaseService.getAdminClient();
     const { data } = await supabase
-      .from("weekly_tasks")
+      .from("tasks")
       .select("goal_id, is_completed")
       .in("goal_id", goalIds);
 

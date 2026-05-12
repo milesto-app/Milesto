@@ -11,10 +11,7 @@ interface GoalContext {
     title: string;
     description: string;
     expected_outcome: string;
-  } | null;
-  weeklyPlan: {
-    week_number: number;
-    objectives: string[];
+    target_month?: number;
   } | null;
   weekState: {
     state: WeekState;
@@ -106,12 +103,6 @@ function buildGoalContextSection(ctx: PromptInput["goalContext"]): string {
     );
   }
 
-  if (ctx.weeklyPlan !== null) {
-    parts.push(
-      `This Week (Week ${String(ctx.weeklyPlan.week_number)}):\nObjectives:\n${ctx.weeklyPlan.objectives.map((o) => `- ${o}`).join("\n")}`,
-    );
-  }
-
   parts.push(buildWeekStateLine(ctx.weekState));
 
   return `\n<goal_context>\n${parts.join("\n\n")}\n</goal_context>`;
@@ -128,7 +119,7 @@ function buildWeekStateLine(weekState: GoalContext["weekState"]): string {
       return `Week State: IN_ADVANCE — user already debriefed and is now ahead of the calendar. Next milestone is LOCKED until ${unlock}. Do not suggest new tasks; suggest rest, reflection, or light prep. Acknowledge they're ahead.`;
     case "late":
       return `Week State: LATE — calendar week ended but the user didn't finish/debrief. Be gentle, propose a rattrapage or quick adjustment. Next week starts ${unlock}.`;
-    case "no_plan":
-      return `Week State: NO_PLAN — no weekly plan yet. Help the user get started.`;
+    case "no_milestone":
+      return `Week State: NO_MILESTONE — no active milestone yet. Help the user get started by activating their first milestone.`;
   }
 }

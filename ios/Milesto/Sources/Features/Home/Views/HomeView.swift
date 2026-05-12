@@ -28,7 +28,7 @@ struct HomeView: View {
             }
             await stateModel?.refresh()
         }
-        .onReceive(NotificationCenter.default.publisher(for: .weeklyTasksDidChange)) { _ in
+        .onReceive(NotificationCenter.default.publisher(for: .tasksDidChange)) { _ in
             Task { await stateModel?.refresh() }
         }
     }
@@ -38,7 +38,7 @@ struct HomeView: View {
         if let stateModel, stateModel.isLoaded, stateModel.weekState == .inAdvance {
             HomeInAdvanceCard(nextWeekStartsAt: stateModel.nextWeekStartsAt)
         } else {
-            HomeWeeklyTasksCard(goalId: goalId)
+            HomeTasksCard(goalId: goalId)
         }
     }
 }

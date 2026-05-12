@@ -75,20 +75,6 @@ export interface AdminGoalMilestone {
   completedAt: string | null;
 }
 
-export interface AdminGoalWeeklyPlan {
-  id: string;
-  milestoneId: string;
-  weekNumber: number;
-  weekStartDate: string;
-  expectedEndDate: string | null;
-  status: string;
-  isFallback: boolean;
-  modelUsed: string | null;
-  objectives: unknown;
-  summary: unknown;
-  createdAt: string | null;
-}
-
 export interface AdminGoalRoadmap {
   status: string | null;
   modelUsed: string | null;
@@ -96,13 +82,11 @@ export interface AdminGoalRoadmap {
   createdAt: string | null;
   updatedAt: string | null;
   milestones: AdminGoalMilestone[];
-  weeklyPlans: AdminGoalWeeklyPlan[];
 }
 
-export interface AdminGoalWeeklyTask {
+export interface AdminGoalTask {
   id: string;
-  weeklyPlanId: string;
-  weekNumber: number;
+  milestoneId: string;
   title: string;
   description: string;
   estimatedMinutes: number | null;
@@ -115,7 +99,7 @@ export interface AdminGoalWeeklyTask {
 
 export interface AdminGoalDebrief {
   id: string;
-  weeklyPlanId: string | null;
+  milestoneId: string | null;
   date: string;
   note: string;
   createdAt: string | null;

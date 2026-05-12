@@ -1,22 +1,21 @@
 import SwiftUI
 
-struct HomeWeeklyTasksCard: View {
+struct HomeTasksCard: View {
     let goalId: String
 
     @Environment(AppEnv.self) private var env
-    @State private var model: WeeklyTasksViewModel?
+    @State private var model: TasksViewModel?
 
     var body: some View {
         Group {
             if let model {
-                WeeklyTasksCard(
+                TasksCard(
                     title: "home.tasks",
                     titleTable: "Home",
                     emptyText: "home.tasks.empty",
                     emptyTextTable: "Home",
                     tasks: model.sortedTasks,
                     isLoading: model.isLoading,
-                    weekNumber: model.weekNumber,
                     onToggle: { task in model.toggle(task) }
                 )
             } else {
@@ -26,7 +25,7 @@ struct HomeWeeklyTasksCard: View {
         }
         .task(id: goalId) {
             if model == nil {
-                let vm = WeeklyTasksViewModel(env: env)
+                let vm = TasksViewModel(env: env)
                 vm.configure(goalId: goalId)
                 model = vm
             }

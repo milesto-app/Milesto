@@ -5,63 +5,82 @@ struct DebriefBannerCard: View {
 
     @Environment(AppEnv.self) private var env
     @State private var model: DebriefBannerViewModel?
+    @State private var showCelebration = false
     @State private var showDebriefSheet = false
-    @State private var showWeeklyPlanGeneration = false
+    @State private var showMilestoneActivation = false
 
     var body: some View {
-        VStack(spacing: 0) {
-            if let model, model.shouldDisplay {
-                DebriefPromptCard {
-                    showDebriefSheet = true
+        VStack(spacing: 0) {}
+            .task(id: goalId) {
+                await ensureModel()
+                await model?.refresh()
+                presentIfReady()
+            }
+            .onReceive(NotificationCenter.default.publisher(for: .tasksDidChange)) { _ in
+                Task {
+                    await ensureModel()
+                    await model?.refresh()
+                    presentIfReady()
                 }
-                .padding(.horizontal, 16)
             }
-        }
-        .onAppear {
-            NSLog("[DebriefBanner] onAppear goalId='\(goalId)' empty=\(goalId.isEmpty)")
-        }
-        .task(id: goalId) {
-            NSLog("[DebriefBanner] task fired goalId='\(goalId)'")
-            if model == nil {
-                let vm = DebriefBannerViewModel(env: env)
-                vm.configure(goalId: goalId)
-                model = vm
-            }
-            await model?.refresh()
-        }
-        .onReceive(NotificationCenter.default.publisher(for: .weeklyTasksDidChange)) { _ in
-            NSLog("[DebriefBanner] received tasksDidChange goalId='\(goalId)' modelNil=\(model == nil)")
-            if model == nil {
-                let vm = DebriefBannerViewModel(env: env)
-                vm.configure(goalId: goalId)
-                model = vm
-            }
-            Task { await model?.refresh() }
-        }
-        .sheet(isPresented: $showDebriefSheet) {
-            if let model, let weeklyPlanId = model.weeklyPlanId {
-                DebriefSheetView(
-                    goalId: goalId,
-                    weeklyPlanId: weeklyPlanId,
-                    onDebriefComplete: {
-                        Task {
-                            await model.refresh()
-                            if model.weekState == .noPlan {
-                                showWeeklyPlanGeneration = true
-                            }
-                        }
+            .fullScreenCover(isPresented: $showCelebration) {
+                WeekCompleteCelebrationView(
+                    isLastDayOfWeek: Self.isLastDayOfWeek(),
+                    onDebrief: {
+                        showCelebration = false
+                        showDebriefSheet = true
+                    },
+                    onUndo: {
+                        _ = try? await env.roadmap.undoLatestCompletedTask(goalId: goalId)
+                        await model?.refresh()
+                        NotificationCenter.default.post(name: .tasksDidChange, object: nil)
+                        showCelebration = false
                     }
                 )
+            }
+            .sheet(isPresented: $showDebriefSheet) {
+                if let model, let milestoneId = model.milestoneId {
+                    DebriefSheetView(
+                        goalId: goalId,
+                        milestoneId: milestoneId,
+                        onDebriefComplete: {
+                            Task {
+                                await model.refresh()
+                                if model.weekState == .noMilestone {
+                                    showMilestoneActivation = true
+                                }
+                            }
+                        }
+                    )
+                    .appPresentationBackground()
+                }
+            }
+            .fullScreenCover(isPresented: $showMilestoneActivation, onDismiss: {
+                Task { await model?.refresh() }
+            }) {
+                MilestoneActivationView(goalId: goalId) {
+                    showMilestoneActivation = false
+                }
                 .appPresentationBackground()
             }
+    }
+
+    private func ensureModel() async {
+        if model == nil {
+            let vm = DebriefBannerViewModel(env: env)
+            vm.configure(goalId: goalId)
+            model = vm
         }
-        .fullScreenCover(isPresented: $showWeeklyPlanGeneration, onDismiss: {
-            Task { await model?.refresh() }
-        }) {
-            WeeklyPlanGenerationView(goalId: goalId) {
-                showWeeklyPlanGeneration = false
-            }
-            .appPresentationBackground()
+    }
+
+    private func presentIfReady() {
+        guard let model else { return }
+        if model.weekState == .readyToDebrief, !showCelebration, !showDebriefSheet {
+            showCelebration = true
         }
+    }
+
+    private static func isLastDayOfWeek() -> Bool {
+        Calendar.current.component(.weekday, from: Date()) == 1
     }
 }

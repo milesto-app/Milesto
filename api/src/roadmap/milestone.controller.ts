@@ -10,7 +10,7 @@ import {
 import { UserId } from "../common/decorators/user.decorator.js";
 import { AuthGuard } from "../common/guards/auth.guard.js";
 import { RoadmapDataService } from "./roadmap-data.service.js";
-import type { WeeklyTask } from "./types/weekly-task.types.js";
+import type { Task } from "./types/task.types.js";
 
 @ApiTags("milestones")
 @ApiBearerAuth()
@@ -21,11 +21,10 @@ export class MilestoneController {
 
   @Get(":milestoneId/tasks")
   @ApiOperation({
-    summary:
-      "Get all weekly tasks for a milestone (across all its weekly plans)",
+    summary: "Get all tasks for a milestone",
   })
   @ApiParam({ name: "milestoneId", description: "Milestone ID" })
-  @ApiResponse({ status: HttpStatus.OK, description: "Weekly tasks returned" })
+  @ApiResponse({ status: HttpStatus.OK, description: "Tasks returned" })
   @ApiResponse({
     status: HttpStatus.NOT_FOUND,
     description: "Milestone not found",
@@ -34,7 +33,7 @@ export class MilestoneController {
   public async getTasks(
     @Param("milestoneId") milestoneId: string,
     @UserId() userId: string,
-  ): Promise<WeeklyTask[]> {
+  ): Promise<Task[]> {
     return this.roadmapDataService.getTasksForMilestone(milestoneId, userId);
   }
 }

@@ -1,8 +1,8 @@
 import { Injectable, Logger } from "@nestjs/common";
 
-import { WeeklyPlanService } from "../roadmap/weekly-plan.service.js";
+import { MilestoneService } from "../roadmap/milestone.service.js";
 import { SupabaseService } from "../supabase/supabase.service.js";
-import { WeeklyTaskService } from "../weekly-task/weekly-task.service.js";
+import { TaskService } from "../task/task.service.js";
 import { ChatSearchService } from "./chat-search.service.js";
 import type { ToolExecutionContext } from "./types/chat.types.js";
 
@@ -11,18 +11,15 @@ export class ChatToolsService {
   private readonly logger = new Logger(ChatToolsService.name);
 
   constructor(
-    private readonly weeklyTaskService: WeeklyTaskService,
-    private readonly weeklyPlanService: WeeklyPlanService,
+    private readonly taskService: TaskService,
+    private readonly milestoneService: MilestoneService,
     private readonly supabaseService: SupabaseService,
     private readonly chatSearchService: ChatSearchService,
   ) {}
 
-  public async getWeeklyTasks(ctx: ToolExecutionContext): Promise<unknown> {
+  public async getTasks(ctx: ToolExecutionContext): Promise<unknown> {
     try {
-      const tasks = await this.weeklyTaskService.getWeeklyTasks(
-        ctx.goalId,
-        ctx.userId,
-      );
+      const tasks = await this.taskService.getTasks(ctx.goalId, ctx.userId);
 
       return tasks.map((task) => ({
         id: task.id,
@@ -33,10 +30,9 @@ export class ChatToolsService {
       }));
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
-      this.logger.warn(`getWeeklyTasks failed: ${message}`);
+      this.logger.warn(`getTasks failed: ${message}`);
       return {
-        error:
-          "No weekly tasks available. A weekly plan needs to be generated first.",
+        error: "No tasks available. A milestone needs to be activated first.",
       };
     }
   }
@@ -48,7 +44,7 @@ export class ChatToolsService {
     try {
       const taskId = args.taskId as string;
 
-      await this.weeklyTaskService.toggleTaskCompletion({
+      await this.taskService.toggleTaskCompletion({
         taskId,
         goalId: ctx.goalId,
         userId: ctx.userId,
@@ -68,28 +64,28 @@ export class ChatToolsService {
 
   public async getProgressStats(ctx: ToolExecutionContext): Promise<unknown> {
     try {
-      const plan = await this.weeklyPlanService.getCurrentWeeklyPlan(
+      const weekState = await this.milestoneService.getCurrentMilestone(
         ctx.goalId,
         ctx.userId,
       );
 
-      if (plan === null) {
+      if (weekState.milestone === null) {
         return {
-          error: "No active weekly plan found. Generate a weekly plan first.",
+          error: "No active milestone found. Activate a milestone first.",
         };
       }
 
-      const stats = await this.weeklyTaskService.getWeeklyCompletionRate(
+      const stats = await this.taskService.getTaskCompletionRate(
         ctx.goalId,
         ctx.userId,
-        plan.id,
+        weekState.milestone.id,
       );
 
       return {
         completed: stats.completed,
         total: stats.total,
         rate: stats.rate,
-        week_number: plan.week_number,
+        milestone_title: weekState.milestone.title,
       };
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);

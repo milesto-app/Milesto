@@ -9,9 +9,8 @@ export interface NotificationPromptInput {
   timeOfDay: TimeOfDay;
   goalTitle: string;
   userMotivationQuote: string | null;
-  weeklyObjectives: string[];
-  weeklyTaskCompleted: number | null;
-  weeklyTaskTotal: number | null;
+  taskCompleted: number | null;
+  taskTotal: number | null;
   recentCompletedTitles: string[];
   nextTaskTitle: string | null;
 }
@@ -59,17 +58,10 @@ export function buildNotificationUserPrompt(
     lines.push(`Their motivation: "${input.userMotivationQuote}"`);
   }
 
-  if (input.weeklyObjectives.length > 0) {
-    lines.push("This week's objectives:");
-    for (const objective of input.weeklyObjectives) {
-      lines.push(`  - ${objective}`);
-    }
-  }
-
-  if (input.weeklyTaskTotal !== null && input.weeklyTaskTotal > 0) {
-    const completed = input.weeklyTaskCompleted ?? 0;
+  if (input.taskTotal !== null && input.taskTotal > 0) {
+    const completed = input.taskCompleted ?? 0;
     lines.push(
-      `Weekly progress: ${String(completed)} of ${String(input.weeklyTaskTotal)} tasks done`,
+      `Weekly progress: ${String(completed)} of ${String(input.taskTotal)} tasks done`,
     );
   }
 

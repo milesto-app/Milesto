@@ -1,23 +1,23 @@
 import { buildLanguageBlock } from "../../common/language-prompt.helper.js";
 import type { AssembledContext } from "../types/context.types.js";
-import type { WeekData, WeeklyPlan } from "../types/weekly-plan.types.js";
+import type { Milestone, WeekData } from "../types/roadmap.types.js";
 
-interface WeeklyTaskPromptParams {
-  weeklyPlan: WeeklyPlan;
+interface TaskPromptParams {
+  milestone: Milestone;
   context: AssembledContext;
   weekData: WeekData;
 }
 
-export function buildWeeklyTasksSystemPrompt(language: string): string {
+export function buildTasksSystemPrompt(language: string): string {
   return `You are a coaching AI that creates personalized weekly tasks.
 
-Your task is to generate all tasks for the entire week based on the weekly plan's objectives.
+Your task is to generate all tasks for the entire week based on the current milestone's objectives.
 
 Rules:
 - Generate 5-10 tasks for the week
 - Each task should be specific, actionable, and achievable within the week
-- Tasks should align with the weekly plan's objectives
-- Consider previous week's completion data and debrief notes
+- Tasks should align with the milestone description and expected outcome
+- Consider previous debrief notes
 - Mix shorter and longer tasks so the week has both quick wins and deeper work
 - Tasks are not assigned to specific days — the user organizes their week
 - Order tasks by recommended priority (most important first)
@@ -31,16 +31,16 @@ Return a JSON array of objects with these exact fields:
 Return ONLY the JSON array, no other text.${buildLanguageBlock(language)}`;
 }
 
-export function buildWeeklyTasksUserPrompt(
-  params: WeeklyTaskPromptParams,
-): string {
+export function buildTasksUserPrompt(params: TaskPromptParams): string {
   const sections: string[] = [];
 
-  sections.push(`## Weekly Plan
-Objectives: ${params.weeklyPlan.objectives.map((o, i) => `${String(i + 1)}. ${o}`).join("\n")}`);
+  sections.push(`## Current Milestone
+Title: ${params.milestone.title}
+Description: ${params.milestone.description}
+Expected Outcome: ${params.milestone.expected_outcome}`);
 
   if (params.weekData.tasksTotal > 0) {
-    sections.push(`## Previous Week's Progress
+    sections.push(`## Previous Progress
 Completed: ${String(params.weekData.tasksCompleted)}/${String(params.weekData.tasksTotal)} tasks`);
   }
 

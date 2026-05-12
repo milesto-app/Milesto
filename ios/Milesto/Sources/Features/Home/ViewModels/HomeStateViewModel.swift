@@ -20,7 +20,7 @@ final class HomeStateViewModel {
 
     func refresh() async {
         guard !goalId.isEmpty else { return }
-        guard let state = try? await env.roadmap.fetchWeeklyPlanState(goalId: goalId) else {
+        guard let state = try? await env.roadmap.fetchCurrentWeekState(goalId: goalId) else {
             return
         }
         weekState = state.weekState

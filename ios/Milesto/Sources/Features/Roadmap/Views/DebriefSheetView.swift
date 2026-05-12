@@ -2,7 +2,7 @@ import SwiftUI
 
 struct DebriefSheetView: View {
     let goalId: String
-    let weeklyPlanId: String
+    let milestoneId: String
     let onDebriefComplete: () -> Void
 
     @Environment(\.dismiss) private var dismiss
@@ -22,7 +22,7 @@ struct DebriefSheetView: View {
                 model = DebriefSheetViewModel(
                     env: env,
                     goalId: goalId,
-                    weeklyPlanId: weeklyPlanId
+                    milestoneId: milestoneId
                 )
             }
         }

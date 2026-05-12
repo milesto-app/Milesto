@@ -19,10 +19,10 @@ import { NotificationsModule } from "./notifications/notifications.module.js";
 import { RoadmapModule } from "./roadmap/roadmap.module.js";
 import { SubscriptionModule } from "./subscription/subscription.module.js";
 import { SupabaseModule } from "./supabase/supabase.module.js";
+import { TaskModule } from "./task/task.module.js";
 import { TranscriptionModule } from "./transcription/transcription.module.js";
 import { UsageModule } from "./usage/usage.module.js";
 import { UserModule } from "./user/user.module.js";
-import { WeeklyTaskModule } from "./weekly-task/weekly-task.module.js";
 
 @Module({
   imports: [
@@ -45,7 +45,7 @@ import { WeeklyTaskModule } from "./weekly-task/weekly-task.module.js";
     IntakeModule,
     RoadmapModule,
     DebriefModule,
-    WeeklyTaskModule,
+    TaskModule,
     CoachModule,
     TranscriptionModule,
     ChatModule,

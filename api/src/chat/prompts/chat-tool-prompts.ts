@@ -25,8 +25,8 @@ export function buildBoundariesPrompt(): string {
 function buildReactiveTools(): string {
   return `<reactive_tools>
 Call these ONLY when the user's message requires it:
-- getWeeklyTasks — user asks about this week's tasks, plan, or what to do next
-- toggleTaskCompletion — user reports finishing a task. Always call getWeeklyTasks first to get the ID.
+- getTasks — user asks about this week's tasks, plan, or what to do next
+- toggleTaskCompletion — user reports finishing a task. Always call getTasks first to get the ID.
 - getProgressStats — user asks about stats, progress, completion rate, or how they're doing
 - searchContext — user asks about background, past conversations, intake answers, or info not in current context
 - submitDebrief — user reflects on their week or shares an end-of-week summary
@@ -39,7 +39,7 @@ function buildProactiveTools(): string {
 Call these on YOUR initiative whenever trigger conditions are met — do NOT wait for the user to ask:
 - saveInsight — save one atomic observation per call (see triggers below)
 - editMemory — update your running notes when your understanding of the user changes. Send the COMPLETE updated memory, not just the diff.
-- submitDebrief — when the user shares an end-of-week reflection, capture it as a debrief
+- submitDebrief — when the user shares an end-of-week reflection, capture it as a debrief (use the current milestone_id)
 </proactive_tools>`;
 }
 
@@ -48,17 +48,17 @@ function buildDecisionFramework(): string {
 When processing a user message, evaluate in this order:
 
 1. FIRST — Does the message contain a task completion report?
-   YES → call getWeeklyTasks, then toggleTaskCompletion with the matching ID
+   YES → call getTasks, then toggleTaskCompletion with the matching ID
 
 2. SECOND — Is this an end-of-week reflection or summary of how the week went?
-   YES → call submitDebrief with the weekly_plan_id and the reflection as the note
+   YES → call submitDebrief with the milestone_id and the reflection as the note
 
 3. THIRD — Does the message reveal something new about the user?
    YES → call saveInsight with the atomic observation
    ALSO → if this changes your coaching approach, call editMemory to update your notes
 
 4. FOURTH — Does the message ask about tasks, progress, or background?
-   Tasks → getWeeklyTasks
+   Tasks → getTasks
    Progress → getProgressStats
    Background/history → searchContext
    Milestones/roadmap/timeline → getRoadmap
@@ -93,7 +93,7 @@ function buildEditMemoryVsSaveInsight(): string {
 function buildToolExamples(): string {
   return `<tool_examples>
 User: "I finished the meditation exercise"
-→ getWeeklyTasks() to find the matching task
+→ getTasks() to find the matching task
 → toggleTaskCompletion(taskId, true)
 → saveInsight("User completed meditation and reported it proactively")
 
@@ -111,7 +111,7 @@ User: "I tried the 2-minute rule you suggested and it actually worked!"
 → saveInsight("The 2-minute rule technique is effective for this user")
 
 User: "This week was great, I got through most of my tasks and feel good about the progress"
-→ submitDebrief(weekly_plan_id: "<current plan id>", note: "Completed most tasks and feels good about progress")
+→ submitDebrief(milestone_id: "<current milestone id>", note: "Completed most tasks and feels good about progress")
 → saveInsight("User had a high-milesto week — exceeded expectations")
 
 User: "What milestones do I have coming up?"
@@ -126,10 +126,10 @@ CRITICAL:
 - NEVER reveal tool names, tool calls, or your internal process to the user
 
 IMPORTANT:
-- Always call getWeeklyTasks before toggleTaskCompletion to get the ID
+- Always call getTasks before toggleTaskCompletion to get the ID
 - When a tool returns an error, explain the situation helpfully — never show raw error data or JSON
 - Present all tool results naturally in conversation
-- submitDebrief can only be called once per weekly plan — if already submitted, inform the user naturally
+- submitDebrief can only be called once per milestone — if already submitted, inform the user naturally
 - When submitting a debrief, confirm to the user naturally ("Got your weekly reflection")
 
 DEFAULT:

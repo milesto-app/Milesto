@@ -3,10 +3,7 @@ import { OnEvent } from "@nestjs/event-emitter";
 
 import { AiService } from "../ai/ai.service.js";
 import { SupabaseService } from "../supabase/supabase.service.js";
-import type {
-  MonthlySummary,
-  WeeklySummary,
-} from "./types/weekly-plan.types.js";
+import type { MonthlySummary, WeeklySummary } from "./types/roadmap.types.js";
 
 interface DebriefSubmittedPayload {
   debriefId: string;

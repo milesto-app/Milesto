@@ -19,13 +19,10 @@ import { Throttle } from "@nestjs/throttler";
 import { UserId } from "../common/decorators/user.decorator.js";
 import { AuthGuard } from "../common/guards/auth.guard.js";
 import { config } from "../config/app.config.js";
+import { MilestoneService } from "./milestone.service.js";
 import { RoadmapService } from "./roadmap.service.js";
-import { RoadmapDataService } from "./roadmap-data.service.js";
-import type { Roadmap } from "./types/roadmap.types.js";
-import type { WeeklyPlanResponse } from "./types/week-state.types.js";
-import type { WeeklyPlan } from "./types/weekly-plan.types.js";
-import { WeekStateService } from "./week-state.service.js";
-import { WeeklyPlanService } from "./weekly-plan.service.js";
+import type { Milestone, Roadmap } from "./types/roadmap.types.js";
+import type { CurrentWeekResponse } from "./types/week-state.types.js";
 
 @ApiTags("roadmap")
 @ApiBearerAuth()
@@ -36,9 +33,7 @@ export class RoadmapController {
 
   constructor(
     private readonly roadmapService: RoadmapService,
-    private readonly weeklyPlanService: WeeklyPlanService,
-    private readonly roadmapDataService: RoadmapDataService,
-    private readonly weekStateService: WeekStateService,
+    private readonly milestoneService: MilestoneService,
   ) {}
 
   @Get()
@@ -59,25 +54,25 @@ export class RoadmapController {
     @Param("goalId") goalId: string,
     @UserId() userId: string,
   ): Promise<Roadmap> {
-    return this.roadmapDataService.getRoadmap(goalId, userId);
+    return this.roadmapService.getRoadmap(goalId, userId);
   }
 
-  @Get("weekly-plan")
+  @Get("current-week")
   @ApiOperation({
-    summary: "Read the current weekly plan and week state for a goal",
+    summary: "Read the current active milestone and week state for a goal",
   })
   @ApiParam({ name: "goalId", description: "Goal ID" })
   @ApiResponse({
     status: HttpStatus.OK,
     description:
-      "Latest weekly plan wrapped with derived week state and next-week unlock date",
+      "Active milestone wrapped with derived week state and next-week unlock date",
   })
   @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: "Unauthorized" })
-  public async getActiveWeeklyPlan(
+  public async getCurrentWeek(
     @Param("goalId") goalId: string,
     @UserId() userId: string,
-  ): Promise<WeeklyPlanResponse> {
-    return this.weekStateService.computeForGoal(goalId, userId);
+  ): Promise<CurrentWeekResponse> {
+    return this.milestoneService.getCurrentMilestone(goalId, userId);
   }
 
   @Post("generate")
@@ -120,25 +115,21 @@ export class RoadmapController {
     }
   }
 
-  @Post("weekly-plan/generate")
-  @ApiOperation({ summary: "Explicitly generate a new weekly plan" })
+  @Post("activate-next-milestone")
+  @ApiOperation({ summary: "Activate the next milestone for a goal" })
   @ApiParam({ name: "goalId", description: "Goal ID" })
   @ApiResponse({
     status: HttpStatus.OK,
-    description: "Newly generated weekly plan",
+    description: "Newly activated milestone",
   })
   @ApiResponse({
-    status: HttpStatus.BAD_REQUEST,
-    description: "Goal has no active roadmap",
+    status: HttpStatus.NOT_FOUND,
+    description: "No milestone to activate or roadmap not found",
   })
   @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: "Unauthorized" })
   @ApiResponse({
-    status: HttpStatus.NOT_FOUND,
-    description: "No roadmap found for this goal",
-  })
-  @ApiResponse({
     status: HttpStatus.CONFLICT,
-    description: "Next weekly plan unlocks on a future date (user in advance)",
+    description: "Next milestone unlocks on a future date (user in advance)",
   })
   @ApiResponse({
     status: HttpStatus.TOO_MANY_REQUESTS,
@@ -146,14 +137,14 @@ export class RoadmapController {
   })
   @Throttle({
     default: {
-      limit: config.throttle.weeklyPlanGenerateLimit,
+      limit: config.throttle.milestoneActivationLimit,
       ttl: config.throttle.aiEndpointTtlMs,
     },
   })
-  public async generateWeeklyPlan(
+  public async activateNextMilestone(
     @Param("goalId") goalId: string,
     @UserId() userId: string,
-  ): Promise<WeeklyPlan> {
-    return this.weeklyPlanService.generateWeeklyPlan(goalId, userId);
+  ): Promise<Milestone> {
+    return this.milestoneService.activateNextMilestone(goalId, userId);
   }
 }

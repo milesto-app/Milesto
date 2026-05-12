@@ -31,8 +31,8 @@ final class RoadmapViewModel {
 
         let goal = try? await env.goals.fetchGoal(goalId: goalId)
         let dto = try? await env.roadmap.fetchRoadmap(goalId: goalId)
-        let tasks = (try? await env.roadmap.fetchWeeklyTasks(goalId: goalId)) ?? []
-        let weekState = try? await env.roadmap.fetchWeeklyPlanState(goalId: goalId)
+        let tasks = (try? await env.roadmap.fetchTasks(goalId: goalId)) ?? []
+        let weekState = try? await env.roadmap.fetchCurrentWeekState(goalId: goalId)
 
         if let title = goal?.title {
             goalTitle = title
@@ -47,8 +47,8 @@ final class RoadmapViewModel {
 
     private static func buildMilestones(
         from roadmap: RoadmapDTO?,
-        tasks: [WeeklyTaskDTO],
-        weekState: WeeklyPlanResponseDTO?
+        tasks: [TaskDTO],
+        weekState: CurrentWeekResponseDTO?
     ) -> [DisplayMilestone] {
         let records = (roadmap?.milestones ?? []).sorted { $0.orderIndex < $1.orderIndex }
         guard !records.isEmpty else { return [] }

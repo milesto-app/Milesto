@@ -30,3 +30,9 @@ Milesto is an AI-powered personal coaching API built with NestJS + TypeScript. I
 - **DTOs**: use `class-validator` decorators, `!` assertion on required fields, `?` on optional.
 - Guards/interceptors live in `common/`.
 - All endpoints documented with `@ApiOperation` and `@ApiResponse`.
+
+## Supabase
+
+- **Never hand-edit `api/src/supabase/database.types.ts`.** After any DDL change, regenerate it with the Supabase CLI:
+  `bunx --silent supabase gen types typescript --project-id <project-id> --schema public 2>/dev/null | sed '/<claude-code-hint/d' > api/src/supabase/database.types.ts`
+  The `--silent` + stderr redirect strips bunx install noise; the `sed` strips a Claude Code plugin marker — without them the file becomes invalid TS. Hand-edits drift from the real schema and silently break queries.

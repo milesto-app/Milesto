@@ -1,36 +1,35 @@
-import { ConflictException, Injectable, Logger } from "@nestjs/common";
+import {
+  ConflictException,
+  Injectable,
+  Logger,
+  NotFoundException,
+} from "@nestjs/common";
 import { EventEmitter2 } from "@nestjs/event-emitter";
 
 import { AiService } from "../ai/ai.service.js";
 import { UserLanguageService } from "../common/user-language.service.js";
 import { config } from "../config/app.config.js";
-import type { Json } from "../supabase/database.types.js";
+import type { Database, Json } from "../supabase/database.types.js";
 import { SupabaseService } from "../supabase/supabase.service.js";
-import { UsageService } from "../usage/usage.service.js";
-import { GenerationType } from "../usage/usage.types.js";
 import {
   buildMonthlySummaryNarrativeSystemPrompt,
   buildMonthlySummaryNarrativeUserPrompt,
   buildWeeklySummaryNarrativeSystemPrompt,
   buildWeeklySummaryNarrativeUserPrompt,
-} from "./prompts/weekly-plan-prompts.js";
+} from "./prompts/milestone-summary-prompts.js";
 import { RoadmapContextService } from "./roadmap-context.service.js";
-import { RoadmapDataService } from "./roadmap-data.service.js";
-import { RoadmapGenerationService } from "./roadmap-generation.service.js";
-import type { Milestone, Roadmap } from "./types/roadmap.types.js";
 import type {
-  GenerateAndStoreParams,
   GenerationContext,
+  Milestone,
   MonthlySummary,
   WeekData,
-  WeeklyPlan,
   WeeklySummary,
-} from "./types/weekly-plan.types.js";
+} from "./types/roadmap.types.js";
+import type { CurrentWeekResponse } from "./types/week-state.types.js";
 import { WeekStateService } from "./week-state.service.js";
 
-const DAYS_PER_WEEK = 7;
-const MONTHLY_SUMMARY_MIN_PLANS = 2;
 const PERCENTAGE_MULTIPLIER = 100;
+const MONTHLY_SUMMARY_MIN_MILESTONES = 2;
 
 type AdminClient = ReturnType<SupabaseService["getAdminClient"]>;
 type MilestoneRef = { target_month: number; id: string };
@@ -44,231 +43,136 @@ interface MonthlyParams {
 }
 
 @Injectable()
-export class WeeklyPlanService {
-  private readonly logger = new Logger(WeeklyPlanService.name);
+export class MilestoneService {
+  private readonly logger = new Logger(MilestoneService.name);
 
   constructor(
     private readonly contextPipeline: RoadmapContextService,
-    private readonly generation: RoadmapGenerationService,
     private readonly aiService: AiService,
-    private readonly storage: RoadmapDataService,
     private readonly languageService: UserLanguageService,
-    private readonly usageService: UsageService,
     private readonly supabaseService: SupabaseService,
     private readonly eventEmitter: EventEmitter2,
     private readonly weekStateService: WeekStateService,
   ) {}
 
-  public async getCurrentWeeklyPlan(
+  public async getCurrentMilestone(
     goalId: string,
     userId: string,
-  ): Promise<WeeklyPlan | null> {
-    return this.storage.getCurrentWeeklyPlan(goalId, userId);
+  ): Promise<CurrentWeekResponse> {
+    return this.weekStateService.computeForGoal(goalId, userId);
   }
 
-  public async generateWeeklyPlan(
+  public async activateNextMilestone(
     goalId: string,
     userId: string,
-  ): Promise<WeeklyPlan> {
-    await this.storage.autoCompleteExpiredPlans(goalId, DAYS_PER_WEEK);
+  ): Promise<Milestone> {
     const { isAllowed, nextUnlockDate } =
-      await this.weekStateService.isGenerationAllowed(goalId, userId);
+      await this.weekStateService.isActivationAllowed(goalId, userId);
     if (!isAllowed) {
       throw new ConflictException(
-        `Next weekly plan unlocks on ${nextUnlockDate}`,
+        `Next milestone unlocks on ${nextUnlockDate}`,
       );
     }
+
     const language = await this.languageService.getLanguage(userId);
-    await this.summarizePreviousWeek(goalId, userId, language);
+    await this.summarizePreviousActiveMilestone(goalId, userId, language);
     await this.generateMonthlySummaryIfNeeded({ goalId, userId, language });
-    return this.buildAndGeneratePlan(goalId, userId, language);
-  }
 
-  public async queryWeekData(
-    plan: WeeklyPlan,
-    goalId: string,
-  ): Promise<WeekData> {
     const supabase = this.supabaseService.getAdminClient();
-    let tasksTotal = 0;
-    const tasksCompleted = await this.queryTaskData(
-      supabase,
-      goalId,
-      plan.id,
-      (total, completed) => {
-        tasksTotal = total;
-        return completed;
-      },
-    );
-    const debriefNotes: string[] = [];
-    await this.queryDebriefData(supabase, goalId, plan.id, debriefNotes);
-    return { tasksCompleted, tasksTotal, debriefNotes };
-  }
+    const { data: nextRow, error } = await supabase
+      .from("milestones")
+      .select("*")
+      .eq("goal_id", goalId)
+      .is("starts_at", null)
+      .order("order_index", { ascending: true })
+      .limit(1)
+      .maybeSingle();
 
-  public async getActiveRoadmapAndMilestone(
-    goalId: string,
-    userId: string,
-  ): Promise<{ roadmap: Roadmap; milestone: Milestone }> {
-    return this.storage.loadRoadmapAndMilestone(goalId, userId);
-  }
-
-  private async buildAndGeneratePlan(
-    goalId: string,
-    userId: string,
-    language: string,
-  ): Promise<WeeklyPlan> {
-    const { roadmap, milestone } = await this.getActiveRoadmapAndMilestone(
-      goalId,
-      userId,
-    );
-    const weekNumber = await this.storage.calculateWeekNumber(goalId);
-    const weekStartDate = await this.weekStateService.getNextWeekStartDate(
-      goalId,
-      userId,
-    );
-    const lastCompleted =
-      await this.storage.getLastCompletedPlanWithoutSummary(goalId);
-    const ms = milestone as Milestone & {
-      monthly_summary?: MonthlySummary | null;
-    };
-    const generationContext: GenerationContext = {
-      milestone_title: ms.title,
-      milestone_description: ms.description,
-      milestone_expected_outcome: ms.expected_outcome,
-      last_weekly_summary: lastCompleted?.summary ?? null,
-      last_monthly_summary:
-        (ms.monthly_summary as Record<string, unknown> | null) ?? null,
-    };
-
-    try {
-      return await this.generateAndStorePlan({
-        goalId,
-        userId,
-        roadmap,
-        milestone,
-        weekNumber,
-        weekStartDate,
-        generationContext,
-        language,
-      });
-    } catch (error) {
-      this.logger.warn(
-        `Weekly plan generation failed, creating fallback: ${error instanceof Error ? error.message : String(error)}`,
+    if (error !== null) {
+      this.logger.error(
+        `Failed to query next milestone for goal ${goalId}: ${error.message}`,
       );
-      return this.createFallbackOrThrow(
-        milestone,
-        goalId,
-        userId,
-        weekNumber,
-        weekStartDate,
-      );
+      throw new NotFoundException("Failed to find next milestone");
     }
-  }
-
-  private async generateAndStorePlan(
-    params: GenerateAndStoreParams,
-  ): Promise<WeeklyPlan> {
-    const context = await this.contextPipeline.assembleContext(
-      params.goalId,
-      params.userId,
-    );
-    await this.usageService.reserveGeneration(
-      params.userId,
-      GenerationType.WEEKLY_PLAN,
-    );
-    const { plan: generated, metadata } =
-      await this.generation.generateWeeklyPlan({
-        context,
-        milestone: params.milestone,
-        weekNumber: params.weekNumber,
-        generationContext: params.generationContext,
-        language: params.language,
-      });
-    await this.usageService.record(params.userId, GenerationType.WEEKLY_PLAN, {
-      promptTokens: metadata.prompt_tokens,
-      completionTokens: metadata.completion_tokens,
-      model: metadata.model_used,
-    });
-
-    const weeklyPlan = await this.storage.storeWeeklyPlan({
-      milestone_id: params.milestone.id,
-      goal_id: params.goalId,
-      user_id: params.userId,
-      week_number: params.weekNumber,
-      week_start_date: params.weekStartDate,
-      objectives: generated.objectives,
-      generation_context: params.generationContext as unknown as Record<
-        string,
-        unknown
-      >,
-      is_fallback: false,
-      model_used: metadata.model_used,
-      generation_metadata: metadata as unknown as Record<string, unknown>,
-    });
-
-    return weeklyPlan;
-  }
-
-  private async createFallbackOrThrow(
-    milestone: Milestone,
-    goalId: string,
-    userId: string,
-    weekNumber: number,
-    weekStartDate: string,
-  ): Promise<WeeklyPlan> {
-    try {
-      this.logger.warn(
-        `Creating fallback weekly plan for goal ${goalId}, week ${String(weekNumber)}`,
-      );
-      return await this.storage.storeWeeklyPlan({
-        milestone_id: milestone.id,
-        goal_id: goalId,
-        user_id: userId,
-        week_number: weekNumber,
-        week_start_date: weekStartDate,
-        objectives: [milestone.expected_outcome],
-        generation_context: {},
-        is_fallback: true,
-        model_used: null,
-        generation_metadata: {},
-      });
-    } catch (fallbackError) {
-      this.storage.warnFallbackFailed(fallbackError);
+    if (nextRow === null) {
+      throw new NotFoundException("No milestone to activate");
     }
+
+    const lastActivated = await this.getLastActivatedMilestone(goalId, userId);
+    const startsAt =
+      this.weekStateService.computeStartsAtForNextMilestone(lastActivated);
+
+    const generationContext = await this.buildGenerationContext(
+      goalId,
+      nextRow as Milestone,
+    );
+
+    const { generation_metadata: genMetadata, model } =
+      await this.generateMilestoneContext(goalId, userId);
+
+    const { data: updatedRow, error: updateError } = await supabase
+      .from("milestones")
+      .update({
+        starts_at: startsAt,
+        generation_context: generationContext as unknown as Json,
+        generation_metadata: genMetadata as unknown as Json,
+        model_used: model,
+        is_fallback: false,
+      })
+      .eq("id", nextRow.id)
+      .select()
+      .single();
+
+    if (updateError !== null) {
+      this.logger.error(
+        `Failed to activate milestone ${nextRow.id}: ${updateError.message}`,
+      );
+      throw new NotFoundException("Failed to activate milestone");
+    }
+
+    return this.mapMilestoneRow(updatedRow);
   }
 
-  private async summarizePreviousWeek(
+  public async summarizeMilestone(
+    milestoneId: string,
     goalId: string,
     userId: string,
     language: string,
   ): Promise<void> {
-    const lastCompleted =
-      await this.storage.getLastCompletedPlanWithoutSummary(goalId);
-    if (lastCompleted === null) {
+    const supabase = this.supabaseService.getAdminClient();
+    const { data: milestoneRow } = await supabase
+      .from("milestones")
+      .select("*")
+      .eq("id", milestoneId)
+      .eq("goal_id", goalId)
+      .maybeSingle();
+    if (milestoneRow === null) {
       return;
     }
-
-    const weekData = await this.queryWeekData(lastCompleted, goalId);
+    const milestone = this.mapMilestoneRow(milestoneRow);
+    const weekData = await this.queryWeekDataForMilestone(milestone, goalId);
     const summary = await this.generateWeeklySummary(
-      lastCompleted,
+      milestone,
       weekData,
       language,
     );
-    const supabase = this.supabaseService.getAdminClient();
+
     const { error } = await supabase
-      .from("weekly_plans")
+      .from("milestones")
       .update({ summary: summary as unknown as Json })
-      .eq("id", lastCompleted.id);
-    if (error) {
+      .eq("id", milestoneId);
+    if (error !== null) {
       this.logger.warn(
-        `Failed to persist weekly summary for plan ${lastCompleted.id}: ${error.message}`,
+        `Failed to persist summary for milestone ${milestoneId}: ${error.message}`,
       );
     }
+
     const contentText = formatSummaryForEmbedding(
       summary,
-      lastCompleted.week_number,
+      milestone.order_index,
     );
     this.eventEmitter.emit("summary.generated", {
-      planId: lastCompleted.id,
+      planId: milestoneId,
       goalId,
       userId,
       summary,
@@ -276,18 +180,147 @@ export class WeeklyPlanService {
     });
   }
 
+  public async queryWeekDataForMilestone(
+    milestone: Milestone,
+    goalId: string,
+  ): Promise<WeekData> {
+    const supabase = this.supabaseService.getAdminClient();
+    let tasksTotal = 0;
+    const tasksCompleted = await this.queryTaskData(
+      supabase,
+      goalId,
+      milestone.id,
+      (total, completed) => {
+        tasksTotal = total;
+        return completed;
+      },
+    );
+    const debriefNotes: string[] = [];
+    await this.queryDebriefData(supabase, goalId, milestone.id, debriefNotes);
+    return { tasksCompleted, tasksTotal, debriefNotes };
+  }
+
+  private async getLastActivatedMilestone(
+    goalId: string,
+    userId: string,
+  ): Promise<Milestone | null> {
+    const supabase = this.supabaseService.getAdminClient();
+    const { data } = await supabase
+      .from("milestones")
+      .select("*, goals!inner(user_id)")
+      .eq("goal_id", goalId)
+      .eq("goals.user_id", userId)
+      .not("starts_at", "is", null)
+      .order("starts_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    if (data === null) {
+      return null;
+    }
+    return this.mapMilestoneRow(data);
+  }
+
+  private async buildGenerationContext(
+    goalId: string,
+    milestone: Milestone,
+  ): Promise<GenerationContext> {
+    const lastSummary = await this.getLastMilestoneSummary(goalId);
+    const monthlyMs = milestone.monthly_summary;
+    return {
+      milestone_title: milestone.title,
+      milestone_description: milestone.description,
+      milestone_expected_outcome: milestone.expected_outcome,
+      last_weekly_summary: lastSummary,
+      last_monthly_summary:
+        (monthlyMs as Record<string, unknown> | null) ?? null,
+    };
+  }
+
+  private async getLastMilestoneSummary(
+    goalId: string,
+  ): Promise<WeeklySummary | null> {
+    const supabase = this.supabaseService.getAdminClient();
+    const { data } = await supabase
+      .from("milestones")
+      .select("summary")
+      .eq("goal_id", goalId)
+      .not("starts_at", "is", null)
+      .not("summary", "is", null)
+      .order("starts_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    return (data?.summary as unknown as WeeklySummary | null) ?? null;
+  }
+
+  private async generateMilestoneContext(
+    goalId: string,
+    userId: string,
+  ): Promise<{
+    generation_metadata: Record<string, unknown>;
+    model: string | null;
+  }> {
+    // Generation context is stored as JSONB — objectives are kept internally
+    // but not stored as a separate DB column.
+    // Return metadata from context assembly (no separate AI call needed for activation).
+    try {
+      await this.contextPipeline.assembleContext(goalId, userId);
+      return {
+        generation_metadata: {
+          activated_at: new Date().toISOString(),
+        },
+        model: null,
+      };
+    } catch (error) {
+      this.logger.warn(
+        `Context assembly skipped for milestone activation: ${error instanceof Error ? error.message : String(error)}`,
+      );
+      return { generation_metadata: {}, model: null };
+    }
+  }
+
+  private async summarizePreviousActiveMilestone(
+    goalId: string,
+    userId: string,
+    language: string,
+  ): Promise<void> {
+    // Find the last milestone that has starts_at set, is completed, but has no summary
+    const supabase = this.supabaseService.getAdminClient();
+    const { data } = await supabase
+      .from("milestones")
+      .select("*")
+      .eq("goal_id", goalId)
+      .not("completed_at", "is", null)
+      .is("summary", null)
+      .not("starts_at", "is", null)
+      .order("starts_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    if (data === null) {
+      return;
+    }
+
+    const milestone = this.mapMilestoneRow(data);
+    await this.summarizeMilestone(milestone.id, goalId, userId, language);
+  }
+
   private async generateMonthlySummaryIfNeeded(params: {
     goalId: string;
-    userId: string | undefined;
+    userId: string;
     language: string;
   }): Promise<void> {
     try {
-      const plans = await this.loadRecentCompletedPlans(params.goalId);
-      if (plans === null || plans.length < MONTHLY_SUMMARY_MIN_PLANS) {
+      const milestones = await this.loadRecentCompletedMilestones(
+        params.goalId,
+      );
+      if (
+        milestones === null ||
+        milestones.length < MONTHLY_SUMMARY_MIN_MILESTONES
+      ) {
         return;
       }
       await this.checkAndGenerateMonthly({
-        plans,
+        milestones,
         goalId: params.goalId,
         userId: params.userId,
         language: params.language,
@@ -299,42 +332,43 @@ export class WeeklyPlanService {
     }
   }
 
-  private async loadRecentCompletedPlans(
+  private async loadRecentCompletedMilestones(
     goalId: string,
   ): Promise<unknown[] | null> {
     const supabase = this.supabaseService.getAdminClient();
     const { data } = await supabase
-      .from("weekly_plans")
-      .select("*, milestones!inner(target_month, id)")
+      .from("milestones")
+      .select("id, target_month, user_id:goals(user_id)")
       .eq("goal_id", goalId)
-      .eq("status", "completed")
-      .order("week_number", { ascending: false })
-      .limit(MONTHLY_SUMMARY_MIN_PLANS);
+      .not("completed_at", "is", null)
+      .order("order_index", { ascending: false })
+      .limit(MONTHLY_SUMMARY_MIN_MILESTONES);
     return data;
   }
 
   private async checkAndGenerateMonthly(params: {
-    plans: unknown[];
+    milestones: unknown[];
     goalId: string;
-    userId: string | undefined;
+    userId: string;
     language: string;
   }): Promise<void> {
-    const current = (params.plans[0] as Record<string, unknown>)
-      .milestones as MilestoneRef;
-    const previous = (params.plans[1] as Record<string, unknown>)
-      .milestones as MilestoneRef;
+    const current = params.milestones[0] as Record<string, unknown> as {
+      id: string;
+      target_month: number;
+    };
+    const previous = params.milestones[1] as Record<string, unknown> as {
+      id: string;
+      target_month: number;
+    };
     if (current.target_month === previous.target_month) {
       return;
     }
     const supabase = this.supabaseService.getAdminClient();
-    const resolvedUserId =
-      params.userId ??
-      ((params.plans[0] as Record<string, unknown>).user_id as string);
     await this.storeMonthlySummary({
       supabase,
       milestone: previous,
       goalId: params.goalId,
-      userId: resolvedUserId,
+      userId: params.userId,
       language: params.language,
     });
   }
@@ -348,35 +382,34 @@ export class WeeklyPlanService {
     if (row?.monthly_summary !== null && row?.monthly_summary !== undefined) {
       return;
     }
-    const summaries = await this.loadWeeklySummaries(
+    const summary = await this.loadMilestoneSummaryForMonth(
       params.supabase,
       params.milestone.id,
     );
-    if (summaries.length === 0) {
+    if (summary === null) {
       return;
     }
-    const monthly = await this.generateMonthlySummary(
-      summaries,
+    const monthly = await this.generateMonthlySummaryFromWeekly(
+      [summary],
       params.language,
     );
     await this.persistAndEmitMonthlySummary(params, monthly);
   }
 
-  private async loadWeeklySummaries(
+  private async loadMilestoneSummaryForMonth(
     supabase: AdminClient,
     milestoneId: string,
-  ): Promise<WeeklySummary[]> {
+  ): Promise<WeeklySummary | null> {
     const { data } = await supabase
-      .from("weekly_plans")
+      .from("milestones")
       .select("summary")
-      .eq("milestone_id", milestoneId)
-      .eq("status", "completed")
+      .eq("id", milestoneId)
       .not("summary", "is", null)
-      .order("week_number", { ascending: true });
-    if (data === null || data.length === 0) {
-      return [];
+      .maybeSingle();
+    if (data === null) {
+      return null;
     }
-    return data.map((p: Record<string, unknown>) => p.summary as WeeklySummary);
+    return (data.summary as unknown as WeeklySummary | null) ?? null;
   }
 
   private async persistAndEmitMonthlySummary(
@@ -387,7 +420,7 @@ export class WeeklyPlanService {
       .from("milestones")
       .update({ monthly_summary: monthlySummary as unknown as Json })
       .eq("id", params.milestone.id);
-    if (error) {
+    if (error !== null) {
       this.logger.warn(
         `Failed to store monthly summary on milestone ${params.milestone.id}: ${error.message}`,
       );
@@ -407,7 +440,7 @@ export class WeeklyPlanService {
   }
 
   private async generateWeeklySummary(
-    completedPlan: WeeklyPlan,
+    _milestone: Milestone,
     weekData: WeekData,
     language: string,
   ): Promise<WeeklySummary> {
@@ -426,19 +459,19 @@ export class WeeklyPlanService {
         completionRate,
         weekData,
       ),
-      label: "Weekly summary",
+      label: "Milestone summary",
     });
 
     return {
       completion_rate: completionRate,
       tasks_completed: weekData.tasksCompleted,
-      tasks_total: weekData.tasksTotal || completedPlan.objectives.length,
+      tasks_total: weekData.tasksTotal || 1,
       debrief_count: weekData.debriefNotes.length,
       ...(narrative !== undefined ? { narrative } : {}),
     };
   }
 
-  private async generateMonthlySummary(
+  private async generateMonthlySummaryFromWeekly(
     weeklySummaries: WeeklySummary[],
     language: string,
   ): Promise<MonthlySummary> {
@@ -499,17 +532,17 @@ export class WeeklyPlanService {
   private async queryTaskData(
     supabase: AdminClient,
     goalId: string,
-    weeklyPlanId: string,
+    milestoneId: string,
     callback: (total: number, completed: number) => number,
   ): Promise<number> {
     try {
       const { data, error } = await supabase
-        .from("weekly_tasks")
+        .from("tasks")
         .select("is_completed")
         .eq("goal_id", goalId)
-        .eq("weekly_plan_id", weeklyPlanId);
-      if (error) {
-        this.logger.debug(`weekly_tasks query skipped: ${error.message}`);
+        .eq("milestone_id", milestoneId);
+      if (error !== null) {
+        this.logger.debug(`tasks query skipped: ${error.message}`);
         return callback(0, 0);
       }
       if (data.length > 0) {
@@ -521,7 +554,7 @@ export class WeeklyPlanService {
       }
     } catch (err) {
       this.logger.debug(
-        `weekly_tasks query failed: ${err instanceof Error ? err.message : String(err)}`,
+        `tasks query failed: ${err instanceof Error ? err.message : String(err)}`,
       );
     }
     return callback(0, 0);
@@ -530,7 +563,7 @@ export class WeeklyPlanService {
   private async queryDebriefData(
     supabase: AdminClient,
     goalId: string,
-    weeklyPlanId: string,
+    milestoneId: string,
     debriefNotes: string[],
   ): Promise<void> {
     try {
@@ -538,9 +571,9 @@ export class WeeklyPlanService {
         .from("debriefs")
         .select("note")
         .eq("goal_id", goalId)
-        .eq("weekly_plan_id", weeklyPlanId)
+        .eq("milestone_id", milestoneId)
         .not("note", "is", null);
-      if (error) {
+      if (error !== null) {
         this.logger.debug(`debriefs query skipped: ${error.message}`);
         return;
       }
@@ -554,6 +587,34 @@ export class WeeklyPlanService {
         `debriefs query failed: ${err instanceof Error ? err.message : String(err)}`,
       );
     }
+  }
+
+  private mapMilestoneRow(
+    row: Database["public"]["Tables"]["milestones"]["Row"],
+  ): Milestone {
+    return {
+      id: row.id,
+      goal_id: row.goal_id,
+      order_index: row.order_index,
+      title: row.title,
+      description: row.description,
+      expected_outcome: row.expected_outcome,
+      target_month: row.target_month,
+      target_week: row.target_week,
+      is_monthly_checkpoint: row.is_monthly_checkpoint,
+      completed_at: row.completed_at,
+      created_at: row.created_at ?? new Date().toISOString(),
+      starts_at: row.starts_at,
+      summary: row.summary as Milestone["summary"],
+      monthly_summary: row.monthly_summary as Milestone["monthly_summary"],
+      is_fallback: row.is_fallback,
+      generation_context:
+        (row.generation_context as Milestone["generation_context"] | null) ??
+        {},
+      generation_metadata:
+        (row.generation_metadata as Record<string, unknown> | null) ?? {},
+      model_used: row.model_used,
+    };
   }
 }
 
@@ -595,10 +656,10 @@ function aggregateWeeklyTotals(weeklySummaries: WeeklySummary[]): {
 
 function formatSummaryForEmbedding(
   summary: WeeklySummary,
-  weekNumber: number,
+  orderIndex: number,
 ): string {
   const lines = [
-    `Weekly Summary (Week ${String(weekNumber)}):`,
+    `Milestone Summary (Milestone ${String(orderIndex)}):`,
     `Completion: ${String(summary.tasks_completed)}/${String(summary.tasks_total)} (${String(summary.completion_rate)}%)`,
     `Debriefs: ${String(summary.debrief_count ?? 0)}`,
   ];

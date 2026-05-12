@@ -1,15 +1,15 @@
 import SwiftUI
 
-struct WeeklyTasksCard: View {
+struct TasksCard: View {
     let title: LocalizedStringKey
     let titleTable: String?
     let icon: TablerIcon?
     let emptyText: LocalizedStringKey
     let emptyTextTable: String?
-    let tasks: [WeeklyTaskDTO]
+    let tasks: [TaskDTO]
     let isLoading: Bool
     let weekNumber: Int?
-    let onToggle: ((WeeklyTaskDTO) -> Void)?
+    let onToggle: ((TaskDTO) -> Void)?
 
     @State private var selectedTaskId: String?
 
@@ -19,10 +19,10 @@ struct WeeklyTasksCard: View {
         icon: TablerIcon? = nil,
         emptyText: LocalizedStringKey,
         emptyTextTable: String? = nil,
-        tasks: [WeeklyTaskDTO],
+        tasks: [TaskDTO],
         isLoading: Bool = false,
         weekNumber: Int? = nil,
-        onToggle: ((WeeklyTaskDTO) -> Void)? = nil
+        onToggle: ((TaskDTO) -> Void)? = nil
     ) {
         self.title = title
         self.titleTable = titleTable
@@ -64,7 +64,7 @@ struct WeeklyTasksCard: View {
             if let taskId = selectedTaskId,
                let task = tasks.first(where: { $0.id == taskId })
             {
-                WeeklyTaskDetailView(
+                TaskDetailView(
                     task: task,
                     weekNumber: weekNumber,
                     onToggle: onToggle

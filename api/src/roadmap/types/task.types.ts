@@ -1,6 +1,6 @@
-export interface WeeklyTask {
+export interface Task {
   id: string;
-  weekly_plan_id: string;
+  milestone_id: string;
   goal_id: string;
   user_id: string;
   title: string;
@@ -19,6 +19,6 @@ export interface Debrief {
   user_id: string;
   date: string;
   note: string;
-  weekly_plan_id: string | null;
+  milestone_id: string | null;
   created_at: string;
 }

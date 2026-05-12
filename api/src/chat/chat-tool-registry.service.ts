@@ -41,15 +41,15 @@ export class ChatToolRegistryService {
   private buildTaskTools(): ToolConfig[] {
     return [
       {
-        name: "getWeeklyTasks",
+        name: "getTasks",
         description:
-          "Fetch this week's tasks. Returns array of {id, title, description, is_completed, estimated_minutes}.",
+          "Fetch the active milestone's tasks. Returns array of {id, title, description, is_completed, estimated_minutes}.",
         executor: (async (_args, ctx) =>
-          this.toolsService.getWeeklyTasks(ctx)) satisfies ChatToolExecutor,
+          this.toolsService.getTasks(ctx)) satisfies ChatToolExecutor,
       },
       {
         name: "toggleTaskCompletion",
-        description: "Toggle a weekly task's completion status.",
+        description: "Toggle a task's completion status.",
         executor: (async (args, ctx) =>
           this.toolsService.toggleTaskCompletion(
             args,
@@ -59,7 +59,7 @@ export class ChatToolRegistryService {
           properties: {
             taskId: {
               type: "string",
-              description: "UUID of the weekly task",
+              description: "UUID of the task",
             },
             isCompleted: {
               type: "boolean",
@@ -166,16 +166,16 @@ export class ChatToolRegistryService {
           )) satisfies ChatToolExecutor,
         parameters: {
           properties: {
-            weekly_plan_id: {
+            milestone_id: {
               type: "string",
-              description: "UUID of the weekly plan being debriefed.",
+              description: "UUID of the milestone being debriefed.",
             },
             note: {
               type: "string",
               description: "The user's end-of-week reflection note.",
             },
           },
-          required: ["weekly_plan_id", "note"],
+          required: ["milestone_id", "note"],
         },
       },
     ];

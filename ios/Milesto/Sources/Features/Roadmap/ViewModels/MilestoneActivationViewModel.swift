@@ -2,7 +2,7 @@ import Foundation
 
 @MainActor
 @Observable
-final class WeeklyPlanGenerationViewModel {
+final class MilestoneActivationViewModel {
     @ObservationIgnored private let env: AppEnv
 
     private(set) var isGenerating = false
@@ -18,7 +18,7 @@ final class WeeklyPlanGenerationViewModel {
         defer { isGenerating = false }
 
         do {
-            try await env.roadmap.generateWeeklyPlan(goalId: goalId)
+            try await env.roadmap.activateNextMilestone(goalId: goalId)
         } catch {
             hasFailed = true
             return false

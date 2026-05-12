@@ -1,10 +1,10 @@
 import SwiftUI
 
-struct WeeklyTaskDetailPage: View {
-    let task: WeeklyTaskDTO
+struct TaskDetailPage: View {
+    let task: TaskDTO
     let weekNumber: Int?
     let appeared: Bool
-    let onToggle: ((WeeklyTaskDTO) -> Void)?
+    let onToggle: ((TaskDTO) -> Void)?
 
     private var accent: Color {
         Color("Brand")

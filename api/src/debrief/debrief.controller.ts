@@ -21,7 +21,7 @@ import { UserId } from "../common/decorators/user.decorator.js";
 import { AuthGuard } from "../common/guards/auth.guard.js";
 import { config } from "../config/app.config.js";
 import { SubmitDebriefDto } from "../roadmap/dto/submit-debrief.dto.js";
-import type { Debrief } from "../roadmap/types/weekly-task.types.js";
+import type { Debrief } from "../roadmap/types/task.types.js";
 import { DebriefService } from "./debrief.service.js";
 
 @ApiTags("debrief")

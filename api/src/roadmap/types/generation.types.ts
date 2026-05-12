@@ -1,10 +1,5 @@
 import type { AssembledContext } from "./context.types.js";
-import type { Milestone } from "./roadmap.types.js";
-import type {
-  GenerationContext,
-  WeekData,
-  WeeklyPlan,
-} from "./weekly-plan.types.js";
+import type { Milestone, WeekData } from "./roadmap.types.js";
 
 export interface RetryParams {
   systemPrompt: string;
@@ -15,16 +10,8 @@ export interface RetryParams {
   validate: (raw: unknown) => unknown;
 }
 
-export interface GenerateWeeklyPlanParams {
-  context: AssembledContext;
+export interface GenerateTasksParams {
   milestone: Milestone;
-  weekNumber: number;
-  generationContext: GenerationContext;
-  language: string;
-}
-
-export interface GenerateWeeklyTasksParams {
-  weeklyPlan: WeeklyPlan;
   context: AssembledContext;
   weekData: WeekData;
   language: string;

@@ -5,11 +5,11 @@ const DEBRIEF_NOTE_MAX_LENGTH = 5000;
 
 export class SubmitDebriefDto {
   @ApiProperty({
-    description: "Weekly plan ID for this debrief",
+    description: "Milestone ID for this debrief",
     example: "uuid-here",
   })
   @IsUUID()
-  public weekly_plan_id!: string;
+  public milestone_id!: string;
 
   @ApiProperty({
     description: "Free-text reflection on the week",

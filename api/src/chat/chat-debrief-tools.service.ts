@@ -15,12 +15,12 @@ export class ChatDebriefToolsService {
   ): Promise<unknown> {
     try {
       const note = args.note as string;
-      const weeklyPlanId = args.weekly_plan_id as string;
+      const milestoneId = args.milestone_id as string;
 
       const debrief = await this.debriefService.submitDebrief(
         ctx.goalId,
         ctx.userId,
-        { note, weekly_plan_id: weeklyPlanId },
+        { note, milestone_id: milestoneId },
       );
 
       return {
@@ -30,7 +30,7 @@ export class ChatDebriefToolsService {
     } catch (error) {
       if (error instanceof ConflictException) {
         return {
-          error: "You have already submitted a debrief for this weekly plan.",
+          error: "You have already submitted a debrief for this milestone.",
         };
       }
       const message = error instanceof Error ? error.message : String(error);

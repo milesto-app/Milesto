@@ -7,7 +7,7 @@ final class MilestoneDetailViewModel {
     @ObservationIgnored private let milestoneId: String
     @ObservationIgnored private let status: MilestoneStatus
 
-    private(set) var tasks: [WeeklyTaskDTO] = []
+    private(set) var tasks: [TaskDTO] = []
     private(set) var isLoadingTasks = false
 
     init(env: AppEnv, milestoneId: String, status: MilestoneStatus) {
@@ -16,7 +16,7 @@ final class MilestoneDetailViewModel {
         self.status = status
     }
 
-    var sortedTasks: [WeeklyTaskDTO] {
+    var sortedTasks: [TaskDTO] {
         env.roadmap.sortedTasks(tasks)
     }
 
@@ -27,7 +27,7 @@ final class MilestoneDetailViewModel {
         tasks = (try? await env.roadmap.tasksForMilestone(milestoneId: milestoneId)) ?? []
     }
 
-    func toggleTask(_ task: WeeklyTaskDTO) {
+    func toggleTask(_ task: TaskDTO) {
         guard status == .current,
               let index = tasks.firstIndex(where: { $0.id == task.id })
         else { return }
@@ -35,7 +35,7 @@ final class MilestoneDetailViewModel {
         setTaskCompletion(tasks[index], isCompleted: !tasks[index].isCompleted)
     }
 
-    private func setTaskCompletion(_ task: WeeklyTaskDTO, isCompleted: Bool) {
+    private func setTaskCompletion(_ task: TaskDTO, isCompleted: Bool) {
         guard let original = env.roadmap.applyOptimisticCompletion(task: task, isCompleted: isCompleted, in: &tasks) else { return }
 
         Task {

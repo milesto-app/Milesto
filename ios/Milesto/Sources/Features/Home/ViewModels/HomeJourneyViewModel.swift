@@ -22,7 +22,7 @@ final class HomeJourneyViewModel {
         guard !goalId.isEmpty else { return }
         let goal = try? await env.goals.fetchGoal(goalId: goalId)
         let roadmapDTO = try? await env.roadmap.fetchRoadmap(goalId: goalId)
-        let tasks = (try? await env.roadmap.fetchWeeklyTasks(goalId: goalId)) ?? []
+        let tasks = (try? await env.roadmap.fetchTasks(goalId: goalId)) ?? []
 
         if let title = goal?.title {
             goalTitle = title
@@ -31,7 +31,7 @@ final class HomeJourneyViewModel {
         completionProgress = Self.completionProgress(roadmap: roadmapDTO, tasks: tasks)
     }
 
-    private static func completionProgress(roadmap: RoadmapDTO?, tasks: [WeeklyTaskDTO]) -> Double {
+    private static func completionProgress(roadmap: RoadmapDTO?, tasks: [TaskDTO]) -> Double {
         let milestones = (roadmap?.milestones ?? []).sorted { $0.orderIndex < $1.orderIndex }
         guard !milestones.isEmpty else { return 0 }
 
