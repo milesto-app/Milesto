@@ -17,9 +17,17 @@ struct StatsActivitySection: View {
         return formatter
     }()
 
+    private let barHeight: CGFloat = 120
+
     var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            AppText("stats.activity.title", table: "Stats", style: .headline)
+        let shape = RoundedRectangle(cornerRadius: 20, style: .continuous)
+
+        return VStack(alignment: .leading, spacing: 18) {
+            HStack(spacing: 10) {
+                TablerIcons(.chartBar, size: 18, color: Color("Brand"))
+
+                AppText("stats.activity.title", table: "Stats", style: .headline)
+            }
 
             HStack(alignment: .bottom, spacing: 10) {
                 ForEach(Array(days.enumerated()), id: \.offset) { index, day in
@@ -27,6 +35,9 @@ struct StatsActivitySection: View {
                 }
             }
         }
+        .padding(20)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(Color("BackgroundSecondary"), in: shape)
         .onAppear {
             isAnimated = true
         }
@@ -37,15 +48,21 @@ struct StatsActivitySection: View {
             ? Double(day.objectivesCompleted) / Double(day.objectivesTotal)
             : 0
 
-        return VStack(spacing: 8) {
+        return VStack(spacing: 10) {
             ZStack(alignment: .bottom) {
-                RoundedRectangle(cornerRadius: 6)
-                    .fill(Color("TextSecondary").opacity(0.1))
-                    .frame(height: 96)
+                RoundedRectangle(cornerRadius: 8, style: .continuous)
+                    .fill(Color("TextSecondary").opacity(0.08))
+                    .frame(height: barHeight)
 
-                RoundedRectangle(cornerRadius: 6)
-                    .fill(Color("Brand"))
-                    .frame(height: isAnimated ? 96 * ratio : 0)
+                RoundedRectangle(cornerRadius: 8, style: .continuous)
+                    .fill(
+                        LinearGradient(
+                            colors: [Color("Brand"), Color("Brand").opacity(0.65)],
+                            startPoint: .top,
+                            endPoint: .bottom
+                        )
+                    )
+                    .frame(height: isAnimated ? barHeight * ratio : 0)
                     .animation(
                         .spring(duration: 0.6, bounce: 0.2).delay(Double(index) * 0.06),
                         value: isAnimated

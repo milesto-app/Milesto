@@ -51,20 +51,20 @@ struct StatsView: View {
             VStack(spacing: 0) {
                 statsTitle
 
-                VStack(alignment: .leading, spacing: 28) {
+                VStack(alignment: .leading, spacing: 14) {
                     StatsHeroSection(
                         completed: stats.completion.totalCompleted,
                         total: stats.completion.totalObjectives
                     )
 
-                    StatsThisWeekSection(
-                        completed: thisWeekCompleted,
-                        total: thisWeekTotal
-                    )
-
                     StatsStreakSection(
                         current: stats.streak.current,
                         best: stats.streak.best
+                    )
+
+                    StatsThisWeekSection(
+                        completed: thisWeekCompleted,
+                        total: thisWeekTotal
                     )
 
                     StatsActivitySection(days: stats.streak.last7Days)
@@ -74,7 +74,7 @@ struct StatsView: View {
                         total: stats.milestones.total
                     )
                 }
-                .padding(.horizontal, 24)
+                .padding(.horizontal, 20)
                 .padding(.bottom, 100)
                 .opacity(model.hasAppeared ? 1 : 0)
                 .offset(y: model.hasAppeared ? 0 : 12)
@@ -88,7 +88,7 @@ struct StatsView: View {
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.horizontal, 24)
             .padding(.top, 32)
-            .padding(.bottom, 28)
+            .padding(.bottom, 24)
     }
 
     private func errorView(model: StatsViewModel) -> some View {

@@ -5,32 +5,37 @@ struct StatsStreakSection: View {
     let best: Int
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 14) {
-            AppText("stats.streak.title", table: "Stats", style: .headline)
-
-            HStack(spacing: 16) {
-                streakItem(icon: .flame, value: current, label: "stats.streak.current")
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                streakItem(icon: .trophy, value: best, label: "stats.streak.best")
-                    .frame(maxWidth: .infinity, alignment: .leading)
-            }
+        HStack(spacing: 12) {
+            tile(icon: .flame, value: current, label: "stats.streak.current")
+            tile(icon: .trophy, value: best, label: "stats.streak.best")
         }
     }
 
-    private func streakItem(
+    private func tile(
         icon: TablerIcon,
         value: Int,
         label: LocalizedStringKey
     ) -> some View {
-        VStack(alignment: .leading, spacing: 6) {
-            HStack(spacing: 8) {
+        let shape = RoundedRectangle(cornerRadius: 20, style: .continuous)
+
+        return VStack(alignment: .leading, spacing: 14) {
+            ZStack {
+                Circle()
+                    .fill(Color("Brand").opacity(0.12))
+                    .frame(width: 36, height: 36)
                 TablerIcons(icon, size: 18, color: Color("Brand"))
-                AppText(verbatim: "\(value)", style: .title)
-                    .weight(.semibold)
             }
 
-            AppText(label, table: "Stats", style: .caption)
-                .color(Color("TextSecondary"))
+            VStack(alignment: .leading, spacing: 2) {
+                AppText(verbatim: "\(value)", style: .title)
+                    .weight(.semibold)
+
+                AppText(label, table: "Stats", style: .caption)
+                    .color(Color("TextSecondary"))
+            }
         }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(16)
+        .background(Color("BackgroundSecondary"), in: shape)
     }
 }

@@ -11,19 +11,24 @@ struct StatsThisWeekSection: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            HStack {
+        let shape = RoundedRectangle(cornerRadius: 20, style: .continuous)
+
+        return VStack(alignment: .leading, spacing: 14) {
+            HStack(spacing: 10) {
+                TablerIcons(.calendarWeek, size: 18, color: Color("Brand"))
+
                 AppText("stats.thisWeek.title", table: "Stats", style: .headline)
+
                 Spacer()
-                AppText(
-                    verbatim: "\(completed)/\(total) · \(Int(animatedRate * 100))%",
-                    style: .subheadline
-                )
-                .color(Color("TextSecondary"))
+
+                AppText(verbatim: "\(completed)/\(total)", style: .subheadline)
+                    .color(Color("TextSecondary"))
             }
 
             StatsProgressBar(progress: animatedRate)
         }
+        .padding(20)
+        .background(Color("BackgroundSecondary"), in: shape)
         .onAppear {
             withAnimation(.spring(duration: 1.0, bounce: 0.15)) {
                 animatedRate = rate
