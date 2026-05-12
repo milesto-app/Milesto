@@ -6,36 +6,26 @@ struct StatsStreakSection: View {
 
     var body: some View {
         HStack(spacing: 12) {
-            tile(icon: .flame, value: current, label: "stats.streak.current")
-            tile(icon: .trophy, value: best, label: "stats.streak.best")
+            tile(value: current, label: "stats.streak.current")
+            tile(value: best, label: "stats.streak.best")
         }
     }
 
     private func tile(
-        icon: TablerIcon,
         value: Int,
         label: LocalizedStringKey
     ) -> some View {
         let shape = RoundedRectangle(cornerRadius: 20, style: .continuous)
 
-        return VStack(alignment: .leading, spacing: 14) {
-            ZStack {
-                Circle()
-                    .fill(Color("Brand").opacity(0.12))
-                    .frame(width: 36, height: 36)
-                TablerIcons(icon, size: 18, color: Color("Brand"))
-            }
+        return VStack(alignment: .leading, spacing: 10) {
+            AppText(label, table: "Stats", style: .headline)
 
-            VStack(alignment: .leading, spacing: 2) {
-                AppText(verbatim: "\(value)", style: .title)
-                    .weight(.semibold)
-
-                AppText(label, table: "Stats", style: .caption)
-                    .color(Color("TextSecondary"))
-            }
+            AppText(verbatim: "\(value)", style: .title)
+                .weight(.semibold)
+                .color(Color("Brand"))
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(16)
+        .padding(20)
         .background(Color("BackgroundSecondary"), in: shape)
     }
 }

@@ -43,36 +43,28 @@ struct StatsView: View {
     }
 
     private func loadedContent(model: StatsViewModel, stats: StatsDTO) -> some View {
-        let thisWeekCompleted = stats.weeklyProgress.last?.objectivesCompleted
-            ?? Int(stats.completion.thisWeekRate * Double(stats.completion.totalObjectives))
-        let thisWeekTotal = stats.weeklyProgress.last?.objectivesTotal ?? stats.completion.totalObjectives
-
-        return ScrollView(showsIndicators: false) {
+        ScrollView(showsIndicators: false) {
             VStack(spacing: 0) {
                 statsTitle
 
                 VStack(alignment: .leading, spacing: 14) {
-                    StatsHeroSection(
-                        completed: stats.completion.totalCompleted,
-                        total: stats.completion.totalObjectives
-                    )
+                    if let targetDate = model.targetDate {
+                        StatsCountdownCard(targetDate: targetDate)
+                    }
 
                     StatsStreakSection(
                         current: stats.streak.current,
                         best: stats.streak.best
                     )
 
-                    StatsThisWeekSection(
-                        completed: thisWeekCompleted,
-                        total: thisWeekTotal
-                    )
-
                     StatsActivitySection(days: stats.streak.last7Days)
 
-                    StatsMilestonesSection(
-                        completed: stats.milestones.completed,
-                        total: stats.milestones.total
-                    )
+                    if stats.milestones.total > 0 {
+                        StatsMilestonesSection(
+                            completed: stats.milestones.completed,
+                            total: stats.milestones.total
+                        )
+                    }
                 }
                 .padding(.horizontal, 20)
                 .padding(.bottom, 100)
