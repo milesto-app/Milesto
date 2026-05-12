@@ -32,7 +32,7 @@ final class MilestoneDetailViewModel {
               let index = tasks.firstIndex(where: { $0.id == task.id })
         else { return }
 
-        setTaskCompletion(tasks[index], isCompleted: !tasks[index].isCompleted)
+        setTaskCompletion(tasks[index], isCompleted: tasks[index].completedAt == nil)
     }
 
     private func setTaskCompletion(_ task: TaskDTO, isCompleted: Bool) {

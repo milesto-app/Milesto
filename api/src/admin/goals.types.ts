@@ -91,8 +91,6 @@ export interface AdminGoalTask {
   description: string;
   estimatedMinutes: number | null;
   orderIndex: number;
-  isCompleted: boolean;
-  isFallback: boolean;
   completedAt: string | null;
   createdAt: string | null;
 }

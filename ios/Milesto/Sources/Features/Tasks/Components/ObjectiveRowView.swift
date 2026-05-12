@@ -9,11 +9,15 @@ struct ObjectiveRowView: View {
         formatDuration(task.estimatedMinutes)
     }
 
+    private var isCompleted: Bool {
+        task.completedAt != nil
+    }
+
     private var checkbox: some View {
         TablerIcons(
-            task.isCompleted ? .circleCheck : .circle,
+            isCompleted ? .circleCheck : .circle,
             size: 28,
-            color: task.isCompleted ? Color("Brand") : Color("TextSecondary")
+            color: isCompleted ? Color("Brand") : Color("TextSecondary")
         )
     }
 
@@ -21,7 +25,7 @@ struct ObjectiveRowView: View {
         HStack(spacing: 2) {
             VStack(alignment: .leading, spacing: 4) {
                 AppText(verbatim: task.title, style: .body)
-                    .color(task.isCompleted ? Color("TextSecondary") : Color("TextPrimary"))
+                    .color(isCompleted ? Color("TextSecondary") : Color("TextPrimary"))
                     .lineLimit(1)
                     .truncationMode(.tail)
 
@@ -40,7 +44,7 @@ struct ObjectiveRowView: View {
     }
 
     private func handleToggle() {
-        if task.isCompleted {
+        if isCompleted {
             Haptics.light()
         } else {
             Haptics.success()

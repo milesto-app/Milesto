@@ -725,12 +725,9 @@ export type Database = {
           estimated_minutes: number | null;
           goal_id: string;
           id: string;
-          is_completed: boolean;
-          is_fallback: boolean;
           milestone_id: string;
           order_index: number;
           title: string;
-          user_id: string;
         };
         Insert: {
           completed_at?: string | null;
@@ -739,12 +736,9 @@ export type Database = {
           estimated_minutes?: number | null;
           goal_id: string;
           id?: string;
-          is_completed?: boolean;
-          is_fallback?: boolean;
           milestone_id: string;
           order_index: number;
           title: string;
-          user_id: string;
         };
         Update: {
           completed_at?: string | null;
@@ -753,12 +747,9 @@ export type Database = {
           estimated_minutes?: number | null;
           goal_id?: string;
           id?: string;
-          is_completed?: boolean;
-          is_fallback?: boolean;
           milestone_id?: string;
           order_index?: number;
           title?: string;
-          user_id?: string;
         };
         Relationships: [
           {

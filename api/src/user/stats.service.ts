@@ -17,7 +17,7 @@ const DATE_PAD = 2;
 
 type TaskRow = Pick<
   Database["public"]["Tables"]["tasks"]["Row"],
-  "is_completed" | "milestone_id" | "created_at" | "completed_at"
+  "milestone_id" | "created_at" | "completed_at"
 >;
 type MilestoneRow = Pick<
   Database["public"]["Tables"]["milestones"]["Row"],
@@ -80,9 +80,8 @@ export class StatsService {
     const [tasksRes, milestonesRes] = await Promise.all([
       supabase
         .from("tasks")
-        .select("is_completed, milestone_id, created_at, completed_at")
-        .eq("goal_id", goalId)
-        .eq("user_id", userId),
+        .select("milestone_id, created_at, completed_at")
+        .eq("goal_id", goalId),
       supabase
         .from("milestones")
         .select("id, completed_at")
@@ -132,7 +131,7 @@ export class StatsService {
 
   private computeStreak(tasks: TaskRow[]): StreakStats {
     const completionDays = tasks
-      .filter((t) => t.is_completed && t.completed_at !== null)
+      .filter((t) => t.completed_at !== null)
       .map((t) =>
         this.startOfDay(new Date(t.completed_at as string)).getTime(),
       );
@@ -214,7 +213,7 @@ export class StatsService {
 
   private computeCompletion(tasks: TaskRow[]): CompletionStats {
     const totalObjectives = tasks.length;
-    const totalCompleted = tasks.filter((t) => t.is_completed).length;
+    const totalCompleted = tasks.filter((t) => t.completed_at !== null).length;
     const overallRate =
       totalObjectives > 0 ? totalCompleted / totalObjectives : 0;
 
@@ -226,7 +225,9 @@ export class StatsService {
       const created = new Date(t.created_at).getTime();
       return created >= mondayStart;
     });
-    const thisWeekCompleted = thisWeek.filter((t) => t.is_completed).length;
+    const thisWeekCompleted = thisWeek.filter(
+      (t) => t.completed_at !== null,
+    ).length;
     const thisWeekRate =
       thisWeek.length > 0 ? thisWeekCompleted / thisWeek.length : 0;
 
@@ -250,7 +251,9 @@ export class StatsService {
     }
     return milestones.map((milestone, idx) => {
       const milestoneTasks = tasksByMilestone.get(milestone.id) ?? [];
-      const completed = milestoneTasks.filter((t) => t.is_completed).length;
+      const completed = milestoneTasks.filter(
+        (t) => t.completed_at !== null,
+      ).length;
       const total = milestoneTasks.length;
       return {
         week_number: idx + MONDAY_DELTA,

@@ -25,7 +25,7 @@ export class ChatToolsService {
         id: task.id,
         title: task.title,
         description: task.description,
-        is_completed: task.is_completed,
+        completed_at: task.completed_at,
         estimated_minutes: task.estimated_minutes,
       }));
     } catch (error) {

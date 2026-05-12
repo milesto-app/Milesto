@@ -42,7 +42,7 @@ final class HomeJourneyViewModel {
            milestones.contains(where: { $0.id == currentId }),
            !tasks.isEmpty
         {
-            let completed = tasks.filter(\.isCompleted).count
+            let completed = tasks.filter { $0.completedAt != nil }.count
             currentTaskProgress = Double(completed) / Double(tasks.count)
         } else {
             currentTaskProgress = 0

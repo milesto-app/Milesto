@@ -34,7 +34,7 @@ final class TasksViewModel {
 
     func toggle(_ task: TaskDTO) {
         guard let current = tasks.first(where: { $0.id == task.id }) else { return }
-        setTaskCompletion(current, isCompleted: !current.isCompleted)
+        setTaskCompletion(current, isCompleted: current.completedAt == nil)
     }
 
     private func setTaskCompletion(_ task: TaskDTO, isCompleted: Bool) {

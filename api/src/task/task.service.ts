@@ -55,7 +55,6 @@ export class TaskService {
 
     const existing = await this.storage.getExistingTasksForMilestone(
       goalId,
-      userId,
       weekState.milestone.id,
     );
     if (existing.length > 0) {
@@ -165,8 +164,6 @@ export class TaskService {
       })),
       milestoneId: params.milestone.id,
       goalId: params.goalId,
-      userId: params.userId,
-      isFallback: false,
     });
 
     return stored;
@@ -200,8 +197,6 @@ export class TaskService {
       tasks,
       milestoneId: params.milestone.id,
       goalId: params.goalId,
-      userId: params.userId,
-      isFallback: true,
     });
   }
 }

@@ -538,7 +538,7 @@ export class MilestoneService {
     try {
       const { data, error } = await supabase
         .from("tasks")
-        .select("is_completed")
+        .select("completed_at")
         .eq("goal_id", goalId)
         .eq("milestone_id", milestoneId);
       if (error !== null) {
@@ -548,7 +548,7 @@ export class MilestoneService {
       if (data.length > 0) {
         const total = data.length;
         const completed = data.filter(
-          (d: { is_completed: boolean }) => d.is_completed,
+          (d: { completed_at: string | null }) => d.completed_at !== null,
         ).length;
         return callback(total, completed);
       }

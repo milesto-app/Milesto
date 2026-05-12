@@ -312,30 +312,28 @@ function WeeklyTasksTab({ tasks }: { tasks: AdminGoalWeeklyTask[] }) {
   }
   return (
     <div className="space-y-2">
-      {tasks.map((task) => (
-        <Card key={task.id} className="border-border/60 shadow-none">
-          <CardContent className="flex items-center justify-between gap-4 p-4">
-            <div className="space-y-0.5">
-              <div className="flex items-center gap-2">
+      {tasks.map((task) => {
+        const isCompleted = task.completedAt !== null;
+        return (
+          <Card key={task.id} className="border-border/60 shadow-none">
+            <CardContent className="flex items-center justify-between gap-4 p-4">
+              <div className="space-y-0.5">
                 <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
                   Week {task.weekNumber}
                 </span>
-                {task.isFallback ? (
-                  <StatusBadge variant="degraded" label="Fallback" />
-                ) : null}
+                <p className="text-sm font-medium">{task.title}</p>
+                <p className="text-sm text-muted-foreground">
+                  {task.description}
+                </p>
               </div>
-              <p className="text-sm font-medium">{task.title}</p>
-              <p className="text-sm text-muted-foreground">
-                {task.description}
-              </p>
-            </div>
-            <StatusBadge
-              variant={task.isCompleted ? "active" : "pending"}
-              label={task.isCompleted ? "Done" : "Open"}
-            />
-          </CardContent>
-        </Card>
-      ))}
+              <StatusBadge
+                variant={isCompleted ? "active" : "pending"}
+                label={isCompleted ? "Done" : "Open"}
+              />
+            </CardContent>
+          </Card>
+        );
+      })}
     </div>
   );
 }

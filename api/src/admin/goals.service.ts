@@ -474,8 +474,6 @@ function mapTask(row: TaskRow): AdminGoalTask {
     description: row.description,
     estimatedMinutes: row.estimated_minutes,
     orderIndex: row.order_index,
-    isCompleted: row.is_completed,
-    isFallback: row.is_fallback,
     completedAt: row.completed_at,
     createdAt: row.created_at,
   };

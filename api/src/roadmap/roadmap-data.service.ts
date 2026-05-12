@@ -58,8 +58,6 @@ export interface StoreTasksParams {
   tasks: StoreTaskRow[];
   milestoneId: string;
   goalId: string;
-  userId: string;
-  isFallback: boolean;
 }
 
 export interface UpdateTaskParams {
@@ -67,6 +65,23 @@ export interface UpdateTaskParams {
   goalId: string;
   userId: string;
   isCompleted: boolean;
+}
+
+async function assertGoalOwnership(
+  supabase: AdminClient,
+  goalId: string,
+  userId: string,
+): Promise<void> {
+  const { data, error } = await supabase
+    .from("goals")
+    .select("id")
+    .eq("id", goalId)
+    .eq("user_id", userId)
+    .is("deleted_at", null)
+    .maybeSingle();
+  if (error !== null || data === null) {
+    throw new NotFoundException("Goal not found");
+  }
 }
 
 @Injectable()
@@ -237,7 +252,6 @@ export class RoadmapDataService {
 
   public async getExistingTasksForMilestone(
     goalId: string,
-    userId: string,
     milestoneId: string,
   ): Promise<Task[]> {
     const supabase = this.supabaseService.getAdminClient();
@@ -245,7 +259,6 @@ export class RoadmapDataService {
       .from("tasks")
       .select("*")
       .eq("goal_id", goalId)
-      .eq("user_id", userId)
       .eq("milestone_id", milestoneId)
       .order("order_index", { ascending: true });
 
@@ -298,17 +311,21 @@ export class RoadmapDataService {
     params: UpdateTaskParams,
   ): Promise<{ task: Task; didTransition: boolean }> {
     const supabase = this.supabaseService.getAdminClient();
+    await assertGoalOwnership(supabase, params.goalId, params.userId);
 
-    const { data: transitioned, error: transitionError } = await supabase
+    const transitionQuery = supabase
       .from("tasks")
       .update({
-        is_completed: params.isCompleted,
         completed_at: params.isCompleted ? new Date().toISOString() : null,
       })
       .eq("id", params.taskId)
-      .eq("goal_id", params.goalId)
-      .eq("user_id", params.userId)
-      .eq("is_completed", !params.isCompleted)
+      .eq("goal_id", params.goalId);
+
+    const { data: transitioned, error: transitionError } = await (
+      params.isCompleted
+        ? transitionQuery.is("completed_at", null)
+        : transitionQuery.not("completed_at", "is", null)
+    )
       .select()
       .maybeSingle();
 
@@ -326,7 +343,6 @@ export class RoadmapDataService {
       .select("*")
       .eq("id", params.taskId)
       .eq("goal_id", params.goalId)
-      .eq("user_id", params.userId)
       .maybeSingle();
 
     if (readError !== null || current === null) {
@@ -341,13 +357,10 @@ export class RoadmapDataService {
     const rows = params.tasks.map((task) => ({
       milestone_id: params.milestoneId,
       goal_id: params.goalId,
-      user_id: params.userId,
       title: task.title,
       description: task.description,
       estimated_minutes: task.estimated_minutes,
       order_index: task.order_index,
-      is_completed: false,
-      is_fallback: params.isFallback,
     }));
 
     const { data, error } = await supabase
@@ -366,7 +379,6 @@ export class RoadmapDataService {
       );
       return this.getExistingTasksForMilestone(
         params.goalId,
-        params.userId,
         params.milestoneId,
       );
     }
@@ -381,12 +393,13 @@ export class RoadmapDataService {
     milestoneId: string,
   ): Promise<{ completed: number; total: number; rate: number }> {
     const supabase = this.supabaseService.getAdminClient();
+    await assertGoalOwnership(supabase, goalId, userId);
+
     const { data, error } = await supabase
       .from("tasks")
-      .select("is_completed")
+      .select("completed_at")
       .eq("milestone_id", milestoneId)
-      .eq("goal_id", goalId)
-      .eq("user_id", userId);
+      .eq("goal_id", goalId);
 
     if (error) {
       this.logger.error(
@@ -399,7 +412,7 @@ export class RoadmapDataService {
 
     const total = data.length;
     const completed = data.filter(
-      (d: { is_completed: boolean }) => d.is_completed,
+      (d: { completed_at: string | null }) => d.completed_at !== null,
     ).length;
     const rate = total === 0 ? 0 : completed / total;
 

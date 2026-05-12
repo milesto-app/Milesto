@@ -140,12 +140,14 @@ export class WeekStateService {
     const supabase = this.supabaseService.getAdminClient();
     const { data } = await supabase
       .from("tasks")
-      .select("is_completed")
+      .select("completed_at")
       .eq("milestone_id", milestoneId);
     if (data === null || data.length === 0) {
       return false;
     }
-    return data.every((row: { is_completed: boolean }) => row.is_completed);
+    return data.every(
+      (row: { completed_at: string | null }) => row.completed_at !== null,
+    );
   }
 
   private async hasDebrief(milestoneId: string): Promise<boolean> {

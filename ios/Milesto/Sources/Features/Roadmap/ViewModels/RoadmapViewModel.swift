@@ -57,7 +57,7 @@ final class RoadmapViewModel {
         if tasks.isEmpty {
             progress = 0
         } else {
-            let completed = tasks.filter(\.isCompleted).count
+            let completed = tasks.filter { $0.completedAt != nil }.count
             progress = Double(completed) / Double(tasks.count)
         }
 

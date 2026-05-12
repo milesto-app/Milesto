@@ -4,12 +4,10 @@ struct TaskDTO: Codable, Identifiable {
     let id: String
     let milestoneId: String
     let goalId: String
-    let userId: String
     let title: String
     let description: String
     let estimatedMinutes: Int?
     let orderIndex: Int
-    let isCompleted: Bool
     let completedAt: String?
     let createdAt: String
 
@@ -17,10 +15,8 @@ struct TaskDTO: Codable, Identifiable {
         case id, title, description
         case milestoneId = "milestone_id"
         case goalId = "goal_id"
-        case userId = "user_id"
         case estimatedMinutes = "estimated_minutes"
         case orderIndex = "order_index"
-        case isCompleted = "is_completed"
         case completedAt = "completed_at"
         case createdAt = "created_at"
     }

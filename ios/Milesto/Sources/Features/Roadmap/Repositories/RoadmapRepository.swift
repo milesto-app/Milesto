@@ -31,7 +31,7 @@ final class RoadmapRepository {
     @discardableResult
     func undoLatestCompletedTask(goalId: String) async throws -> TaskDTO? {
         let tasks = try await remote.getTasks(goalId: goalId)
-        let completed = tasks.filter(\.isCompleted)
+        let completed = tasks.filter { $0.completedAt != nil }
         let latest = completed.max { lhs, rhs in
             (lhs.completedAt ?? lhs.createdAt) < (rhs.completedAt ?? rhs.createdAt)
         }
@@ -71,7 +71,9 @@ final class RoadmapRepository {
 
     func sortedTasks(_ tasks: [TaskDTO]) -> [TaskDTO] {
         tasks.sorted {
-            if $0.isCompleted != $1.isCompleted { return !$0.isCompleted }
+            let lhsDone = $0.completedAt != nil
+            let rhsDone = $1.completedAt != nil
+            if lhsDone != rhsDone { return !lhsDone }
             return $0.orderIndex < $1.orderIndex
         }
     }
@@ -87,12 +89,10 @@ final class RoadmapRepository {
             id: original.id,
             milestoneId: original.milestoneId,
             goalId: original.goalId,
-            userId: original.userId,
             title: original.title,
             description: original.description,
             estimatedMinutes: original.estimatedMinutes,
             orderIndex: original.orderIndex,
-            isCompleted: isCompleted,
             completedAt: isCompleted ? ISO8601DateFormatter().string(from: Date()) : nil,
             createdAt: original.createdAt
         )

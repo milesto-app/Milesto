@@ -36,7 +36,7 @@ struct TasksCard: View {
     }
 
     private var completedCount: Int {
-        tasks.filter(\.isCompleted).count
+        tasks.filter { $0.completedAt != nil }.count
     }
 
     var body: some View {
@@ -117,7 +117,7 @@ struct TasksCard: View {
                 .transition(.move(edge: .bottom).combined(with: .opacity))
             }
         }
-        .animation(.spring(response: 0.42, dampingFraction: 0.78, blendDuration: 0.08), value: tasks.map(\.isCompleted))
+        .animation(.spring(response: 0.42, dampingFraction: 0.78, blendDuration: 0.08), value: tasks.map { $0.completedAt != nil })
     }
 
     @ViewBuilder

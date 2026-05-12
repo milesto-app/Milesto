@@ -338,8 +338,6 @@ export interface AdminGoalWeeklyTask {
   description: string;
   difficultyRating: string | null;
   orderIndex: number;
-  isCompleted: boolean;
-  isFallback: boolean;
   completedAt: string | null;
   createdAt: string | null;
 }

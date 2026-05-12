@@ -43,7 +43,7 @@ export class ChatToolRegistryService {
       {
         name: "getTasks",
         description:
-          "Fetch the active milestone's tasks. Returns array of {id, title, description, is_completed, estimated_minutes}.",
+          "Fetch the active milestone's tasks. Returns array of {id, title, description, completed_at, estimated_minutes}. A task is completed when completed_at is not null.",
         executor: (async (_args, ctx) =>
           this.toolsService.getTasks(ctx)) satisfies ChatToolExecutor,
       },
