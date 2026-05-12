@@ -357,15 +357,6 @@ export interface AdminGoalCoachMemory {
   updatedAt: string;
 }
 
-export interface AdminGoalEmbedding {
-  id: string;
-  contentType: string;
-  contentText: string;
-  batchId: string | null;
-  metadata: unknown;
-  createdAt: string;
-}
-
 // --- coaches.types.ts ---
 
 export interface AdminCoachSummary {

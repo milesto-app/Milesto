@@ -108,12 +108,3 @@ export interface AdminGoalCoachMemory {
   content: string;
   updatedAt: string;
 }
-
-export interface AdminGoalEmbedding {
-  id: string;
-  contentType: string;
-  contentText: string;
-  batchId: string | null;
-  metadata: unknown;
-  createdAt: string;
-}

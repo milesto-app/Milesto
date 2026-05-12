@@ -12,7 +12,6 @@ import {
   buildTasksSystemPrompt,
   buildTasksUserPrompt,
 } from "./prompts/task-prompts.js";
-import type { AssembledContext } from "./types/context.types.js";
 import { GeneratedMilestone } from "./types/generated-milestone.types.js";
 import { GeneratedTask } from "./types/generated-task.types.js";
 import type {
@@ -32,7 +31,6 @@ export class RoadmapGenerationService {
   constructor(private readonly aiService: AiService) {}
 
   public async generateMilestones(
-    context: AssembledContext,
     goal: GoalData,
     language: string,
   ): Promise<{
@@ -42,9 +40,8 @@ export class RoadmapGenerationService {
     const model = this.resolveModel(config.roadmap.milestoneModel);
     const result = await this.generateWithRetry({
       systemPrompt: buildMilestoneSystemPrompt(language),
-      userPrompt: buildMilestoneUserPrompt(context, goal),
+      userPrompt: buildMilestoneUserPrompt(goal),
       model,
-      totalChunks: context.totalChunks,
       label: "Milestone",
       validate: validateMilestones,
     });
@@ -63,11 +60,9 @@ export class RoadmapGenerationService {
       systemPrompt: buildTasksSystemPrompt(params.language),
       userPrompt: buildTasksUserPrompt({
         milestone: params.milestone,
-        context: params.context,
         weekData: params.weekData,
       }),
       model,
-      totalChunks: params.context.totalChunks,
       label: "Tasks",
       validate: validateTasks,
     });
@@ -102,7 +97,6 @@ export class RoadmapGenerationService {
             ...this.buildMetadata({
               model: params.model,
               startTime,
-              totalChunks: params.totalChunks,
               attempt,
             }),
             prompt_tokens: usage?.promptTokens,
@@ -124,7 +118,6 @@ export class RoadmapGenerationService {
     return {
       model_used: params.model,
       latency_ms: Date.now() - params.startTime,
-      context_chunks_used: params.totalChunks,
       attempts: params.attempt + 1,
     };
   }

@@ -27,7 +27,6 @@ export class ChatToolRegistryService {
       ...this.buildTaskTools(),
       ...this.buildMemoryTools(),
       ...this.buildStatsTools(),
-      ...this.buildSearchTools(),
       ...this.buildDebriefTools(),
       ...this.buildRoadmapTools(),
     ];
@@ -91,23 +90,6 @@ export class ChatToolRegistryService {
           required: ["content"],
         },
       },
-      {
-        name: "saveInsight",
-        description:
-          "Save a single atomic observation about the user. Duplicates are auto-detected.",
-        executor: (async (args, ctx) =>
-          this.toolsService.saveInsight(args, ctx)) satisfies ChatToolExecutor,
-        parameters: {
-          properties: {
-            insight: {
-              type: "string",
-              description:
-                "A single atomic insight about the user. Be specific and concise.",
-            },
-          },
-          required: ["insight"],
-        },
-      },
     ];
   }
 
@@ -119,37 +101,6 @@ export class ChatToolRegistryService {
           "Fetch weekly progress: completed count, total count, completion rate, week number.",
         executor: (async (_args, ctx) =>
           this.toolsService.getProgressStats(ctx)) satisfies ChatToolExecutor,
-      },
-    ];
-  }
-
-  private buildSearchTools(): ToolConfig[] {
-    return [
-      {
-        name: "searchContext",
-        description:
-          "Search the user's stored context (intake answers, goal profile, summaries, debrief notes, insights).",
-        executor: (async (args, ctx) =>
-          this.toolsService.searchContext(
-            args,
-            ctx,
-          )) satisfies ChatToolExecutor,
-        parameters: {
-          properties: {
-            query: {
-              type: "string",
-              description:
-                "The search query describing what information to find.",
-            },
-            contentTypes: {
-              type: "array",
-              items: { type: "string" },
-              description:
-                "Optional filter by content type: intake_answer, goal_profile, user_profile, weekly_summary, debrief_note, coach_insight.",
-            },
-          },
-          required: ["query"],
-        },
       },
     ];
   }

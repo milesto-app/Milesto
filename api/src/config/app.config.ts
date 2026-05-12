@@ -122,10 +122,6 @@ export const config = {
     defaultModel: "google/gemini-3-flash-preview",
     callTimeoutMs: 30_000,
     maxRetries: 3,
-    embedding: {
-      model: "text-embedding-3-small",
-      dimensions: 1536,
-    },
   },
   intake: {
     targetBatches: 5,
@@ -143,18 +139,11 @@ export const config = {
     milestoneActivationLimit: 5,
   },
   roadmap: {
-    matchCount: 20,
-    matchThreshold: 0.7,
-    rerankTopN: 10,
     milestoneModel: "openai/gpt-5.5",
     taskModel: "openai/gpt-5.5",
     reasoningEffort: "medium",
     maxGenerationAttempts: 3,
     callTimeoutMs: 240_000,
-  },
-  cohere: {
-    apiVersion: "2",
-    model: "rerank-v3.5",
   },
   transcription: {
     maxAudioSizeBytes: 10_485_760,
@@ -200,11 +189,6 @@ export const config = {
     maxToolRounds: 5,
     maxHistoryMessages: 50,
     streamTimeoutMs: 60_000,
-    searchMatchCount: 10,
-    searchMatchThreshold: 0.5,
-    searchResultCount: 5,
-    insightDuplicateThreshold: 0.92,
-    insightDuplicateCheckCount: 5,
   },
   apple: readAppleConfig(),
   appleServerApi: readAppleServerApiConfig(),

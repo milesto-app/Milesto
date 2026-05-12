@@ -136,57 +136,6 @@ export type Database = {
           },
         ];
       };
-      context_embeddings: {
-        Row: {
-          batch_id: string | null;
-          content_text: string;
-          content_type: string;
-          created_at: string;
-          embedding: string;
-          goal_id: string;
-          id: string;
-          metadata: Json | null;
-          user_id: string;
-        };
-        Insert: {
-          batch_id?: string | null;
-          content_text: string;
-          content_type?: string;
-          created_at?: string;
-          embedding: string;
-          goal_id: string;
-          id?: string;
-          metadata?: Json | null;
-          user_id: string;
-        };
-        Update: {
-          batch_id?: string | null;
-          content_text?: string;
-          content_type?: string;
-          created_at?: string;
-          embedding?: string;
-          goal_id?: string;
-          id?: string;
-          metadata?: Json | null;
-          user_id?: string;
-        };
-        Relationships: [
-          {
-            foreignKeyName: "context_embeddings_batch_id_fkey";
-            columns: ["batch_id"];
-            isOneToOne: false;
-            referencedRelation: "intake_batches";
-            referencedColumns: ["id"];
-          },
-          {
-            foreignKeyName: "context_embeddings_goal_id_fkey";
-            columns: ["goal_id"];
-            isOneToOne: false;
-            referencedRelation: "goals";
-            referencedColumns: ["id"];
-          },
-        ];
-      };
       conversations: {
         Row: {
           created_at: string;
@@ -803,23 +752,6 @@ export type Database = {
       [_ in never]: never;
     };
     Functions: {
-      match_goal_context: {
-        Args: {
-          match_count?: number;
-          match_threshold?: number;
-          p_content_types?: string[];
-          p_goal_id: string;
-          p_user_id: string;
-          query_embedding: string;
-        };
-        Returns: {
-          content_text: string;
-          content_type: string;
-          id: string;
-          metadata: Json;
-          similarity: number;
-        }[];
-      };
       pick_notification_candidates: {
         Args: {
           p_max_per_day: number;

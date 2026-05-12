@@ -5,7 +5,6 @@ import type {
   AdminGoalCoachMemory,
   AdminGoalDebrief,
   AdminGoalDetail,
-  AdminGoalEmbedding,
   AdminGoalIntakeBatch,
   AdminGoalList,
   AdminGoalRoadmap,
@@ -95,16 +94,6 @@ export async function getGoalCoachMemory(
   });
 }
 
-export async function getGoalEmbeddings(
-  id: string,
-  limit?: number,
-): Promise<AdminGoalEmbedding[]> {
-  return apiFetch<AdminGoalEmbedding[]>(`/admin/goals/${id}/embeddings`, {
-    next: detailNext(id),
-    query: { limit },
-  });
-}
-
 export async function regenerateGoalProfile(id: string): Promise<unknown> {
   return apiFetch<unknown>(`/admin/goals/${id}/regenerate-profile`, {
     method: "POST",
@@ -114,13 +103,6 @@ export async function regenerateGoalProfile(id: string): Promise<unknown> {
 
 export async function regenerateGoalRoadmap(id: string): Promise<unknown> {
   return apiFetch<unknown>(`/admin/goals/${id}/regenerate-roadmap`, {
-    method: "POST",
-    cache: "no-store",
-  });
-}
-
-export async function reembedGoal(id: string): Promise<unknown> {
-  return apiFetch<unknown>(`/admin/goals/${id}/reembed`, {
     method: "POST",
     cache: "no-store",
   });

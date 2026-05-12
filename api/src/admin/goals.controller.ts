@@ -20,19 +20,14 @@ import {
 
 import { AdminGuard } from "../common/guards/admin.guard.js";
 import { AuthGuard } from "../common/guards/auth.guard.js";
-import type {
-  ProfileResult,
-  ReembedResult,
-} from "../intake/types/intake.types.js";
+import type { ProfileResult } from "../intake/types/intake.types.js";
 import type { Roadmap } from "../roadmap/types/roadmap.types.js";
-import { ListEmbeddingsQueryDto } from "./dto/list-embeddings-query.dto.js";
 import { ListGoalsQueryDto } from "./dto/list-goals-query.dto.js";
 import { GoalsService } from "./goals.service.js";
 import type {
   AdminGoalCoachMemory,
   AdminGoalDebrief,
   AdminGoalDetail,
-  AdminGoalEmbedding,
   AdminGoalList,
   AdminGoalRoadmap,
   AdminGoalTask,
@@ -140,20 +135,6 @@ export class GoalsController {
     return this.goalsService.getCoachMemory(id);
   }
 
-  @Get(":id/embeddings")
-  @ApiOperation({
-    summary: "Context embeddings for a goal (vectors omitted)",
-  })
-  @ApiParam({ name: "id", description: "Goal UUID" })
-  @ApiResponse({ status: 200, description: "Embeddings returned" })
-  @ApiResponse({ status: 404, description: "Goal not found" })
-  public async getEmbeddings(
-    @Param("id", ParseUUIDPipe) id: string,
-    @Query() query: ListEmbeddingsQueryDto,
-  ): Promise<AdminGoalEmbedding[]> {
-    return this.goalsService.getEmbeddings(id, query.limit);
-  }
-
   @Post(":id/regenerate-profile")
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
@@ -181,20 +162,6 @@ export class GoalsController {
     @Param("id", ParseUUIDPipe) id: string,
   ): Promise<Roadmap> {
     return this.goalsService.regenerateRoadmap(id);
-  }
-
-  @Post(":id/reembed")
-  @HttpCode(HttpStatus.OK)
-  @ApiOperation({
-    summary: "Re-embed unembedded intake batches and profile for one goal",
-  })
-  @ApiParam({ name: "id", description: "Goal UUID" })
-  @ApiResponse({ status: 200, description: "Re-embed results returned" })
-  @ApiResponse({ status: 404, description: "Goal not found" })
-  public async reembedGoal(
-    @Param("id", ParseUUIDPipe) id: string,
-  ): Promise<ReembedResult> {
-    return this.goalsService.reembedGoal(id);
   }
 
   @Delete(":id")

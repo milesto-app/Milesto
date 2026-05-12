@@ -7,7 +7,6 @@ import {
 
 import { UserLanguageService } from "../common/user-language.service.js";
 import { MilestoneService } from "../roadmap/milestone.service.js";
-import { RoadmapContextService } from "../roadmap/roadmap-context.service.js";
 import type { UpdateTaskParams } from "../roadmap/roadmap-data.service.js";
 import { RoadmapDataService } from "../roadmap/roadmap-data.service.js";
 import { RoadmapGenerationService } from "../roadmap/roadmap-generation.service.js";
@@ -34,7 +33,6 @@ export class TaskService {
   private readonly logger = new Logger(TaskService.name);
 
   constructor(
-    private readonly contextPipeline: RoadmapContextService,
     private readonly generation: RoadmapGenerationService,
     private readonly storage: RoadmapDataService,
     private readonly milestoneService: MilestoneService,
@@ -134,14 +132,9 @@ export class TaskService {
       params.milestone,
       params.goalId,
     );
-    const context = await this.contextPipeline.assembleContext(
-      params.goalId,
-      params.userId,
-    );
 
     const { tasks, metadata } = await this.generation.generateTasks({
       milestone: params.milestone,
-      context,
       weekData,
       language: params.language,
     });

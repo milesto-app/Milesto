@@ -5,7 +5,6 @@ import {
   Logger,
   NotFoundException,
 } from "@nestjs/common";
-import { EventEmitter2 } from "@nestjs/event-emitter";
 
 import type { SubmitDebriefDto } from "../roadmap/dto/submit-debrief.dto.js";
 import type { Debrief } from "../roadmap/types/task.types.js";
@@ -16,10 +15,7 @@ import { SupabaseService } from "../supabase/supabase.service.js";
 export class DebriefService {
   private readonly logger = new Logger(DebriefService.name);
 
-  constructor(
-    private readonly supabaseService: SupabaseService,
-    private readonly eventEmitter: EventEmitter2,
-  ) {}
+  constructor(private readonly supabaseService: SupabaseService) {}
 
   public async submitDebrief(
     goalId: string,
@@ -138,13 +134,6 @@ export class DebriefService {
       throw new InternalServerErrorException("Failed to store debrief");
     }
     await this.completeMilestone(dto.milestone_id, userId, goalId);
-    this.eventEmitter.emit("debrief.submitted", {
-      debriefId: (data as Record<string, unknown>).id,
-      goalId,
-      userId,
-      milestoneId: dto.milestone_id,
-      note: dto.note,
-    });
     return data as unknown as Debrief;
   }
 

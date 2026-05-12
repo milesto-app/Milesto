@@ -1,18 +1,5 @@
 import type { PriorBatchContext } from "../../config/questions.config.js";
 
-export interface BatchAnsweredEvent {
-  goal_id: string;
-  batch_id: string;
-  batch_number: number;
-  user_id: string;
-}
-
-export interface ProfileGeneratedEvent {
-  goal_id: string;
-  profile_id: string;
-  user_id: string;
-}
-
 export interface AnswerInput {
   question_id: string;
   answer_text?: string;
@@ -46,10 +33,4 @@ export interface ProfileGenParams {
   goalDescription: string;
   priorBatches: PriorBatchContext[];
   language: string;
-}
-
-export interface ReembedResult {
-  processed: number;
-  succeeded: number;
-  failed: number;
 }

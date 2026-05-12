@@ -18,5 +18,4 @@ export interface AdminLlmProbe {
 
 export interface AdminLlmHealthReport {
   openrouter: AdminLlmProbe;
-  cohere: AdminLlmProbe;
 }

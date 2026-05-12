@@ -10,7 +10,6 @@ import { ChatDebriefToolsService } from "./chat-debrief-tools.service.js";
 import { ChatHistoryService } from "./chat-history.service.js";
 import { ChatPromptService } from "./chat-prompt.service.js";
 import { ChatRoadmapToolsService } from "./chat-roadmap-tools.service.js";
-import { ChatSearchService } from "./chat-search.service.js";
 import { ChatToolRegistryService } from "./chat-tool-registry.service.js";
 import { ChatToolsService } from "./chat-tools.service.js";
 import { ConversationsController } from "./conversations.controller.js";
@@ -20,7 +19,6 @@ import { ConversationsController } from "./conversations.controller.js";
   controllers: [ChatController, ConversationsController],
   providers: [
     ChatHistoryService,
-    ChatSearchService,
     ChatToolsService,
     ChatDebriefToolsService,
     ChatRoadmapToolsService,

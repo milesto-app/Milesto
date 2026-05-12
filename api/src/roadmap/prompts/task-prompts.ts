@@ -1,10 +1,8 @@
 import { buildLanguageBlock } from "../../common/language-prompt.helper.js";
-import type { AssembledContext } from "../types/context.types.js";
 import type { Milestone, WeekData } from "../types/roadmap.types.js";
 
 interface TaskPromptParams {
   milestone: Milestone;
-  context: AssembledContext;
   weekData: WeekData;
 }
 
@@ -47,13 +45,6 @@ Completed: ${String(params.weekData.tasksCompleted)}/${String(params.weekData.ta
   if (params.weekData.debriefNotes.length > 0) {
     sections.push(`## Recent Debrief Notes
 ${params.weekData.debriefNotes.map((note, i) => `${String(i + 1)}. ${note}`).join("\n")}`);
-  }
-
-  if (params.context.goalProfileSection.length > 0) {
-    sections.push(`## Goal Profile\n${params.context.goalProfileSection}`);
-  }
-  if (params.context.progressSection.length > 0) {
-    sections.push(`## Progress History\n${params.context.progressSection}`);
   }
 
   return sections.join("\n\n");

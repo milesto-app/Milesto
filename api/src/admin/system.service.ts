@@ -2,8 +2,6 @@ import { Injectable, Logger } from "@nestjs/common";
 
 import { AiService } from "../ai/ai.service.js";
 import { NotificationSchedulerService } from "../notifications/notification-scheduler.service.js";
-import { RerankService } from "../roadmap/rerank.service.js";
-import type { ContextChunk } from "../roadmap/types/context.types.js";
 import { SupabaseService } from "../supabase/supabase.service.js";
 import type {
   AdminHealthReport,
@@ -14,23 +12,6 @@ import type {
 const LLM_PROBE_TIMEOUT_MS = 5_000;
 const LLM_PROBE_SYSTEM = 'Reply with {"ok":true}';
 const LLM_PROBE_USER = "ping";
-const RERANK_PROBE_QUERY = "hello";
-const RERANK_PROBE_DOCS: ContextChunk[] = [
-  {
-    id: "probe-1",
-    content_text: "hello",
-    content_type: "probe",
-    similarity: 0,
-    metadata: {},
-  },
-  {
-    id: "probe-2",
-    content_text: "world",
-    content_type: "probe",
-    similarity: 0,
-    metadata: {},
-  },
-];
 
 @Injectable()
 export class SystemService {
@@ -39,7 +20,6 @@ export class SystemService {
   constructor(
     private readonly supabaseService: SupabaseService,
     private readonly aiService: AiService,
-    private readonly rerankService: RerankService,
     private readonly notificationSchedulerService: NotificationSchedulerService,
   ) {}
 
@@ -54,11 +34,8 @@ export class SystemService {
   }
 
   public async getLlmHealth(): Promise<AdminLlmHealthReport> {
-    const [openrouter, cohere] = await Promise.all([
-      this.probeOpenRouter(),
-      this.probeCohere(),
-    ]);
-    return { openrouter, cohere };
+    const openrouter = await this.probeOpenRouter();
+    return { openrouter };
   }
 
   private async probeSupabase(): Promise<AdminHealthReport["supabase"]> {
@@ -110,32 +87,6 @@ export class SystemService {
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       this.logger.warn(`OpenRouter probe failed: ${message}`);
-      return {
-        status: "unhealthy",
-        latencyMs: Date.now() - start,
-        error: message,
-      };
-    }
-  }
-
-  private async probeCohere(): Promise<AdminLlmProbe> {
-    const start = Date.now();
-    try {
-      const result = await this.rerankService.rerank(
-        RERANK_PROBE_QUERY,
-        RERANK_PROBE_DOCS,
-      );
-      if (!result.rerankApplied) {
-        return {
-          status: "unhealthy",
-          latencyMs: Date.now() - start,
-          error: result.failureReason ?? "rerank not applied",
-        };
-      }
-      return { status: "healthy", latencyMs: Date.now() - start };
-    } catch (error) {
-      const message = error instanceof Error ? error.message : String(error);
-      this.logger.warn(`Cohere probe failed: ${message}`);
       return {
         status: "unhealthy",
         latencyMs: Date.now() - start,

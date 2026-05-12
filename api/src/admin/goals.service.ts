@@ -7,11 +7,7 @@ import {
 
 import { UserLanguageService } from "../common/user-language.service.js";
 import { IntakeProfileService } from "../intake/intake-profile.service.js";
-import { IntakeReembedService } from "../intake/intake-reembed.service.js";
-import type {
-  ProfileResult,
-  ReembedResult,
-} from "../intake/types/intake.types.js";
+import type { ProfileResult } from "../intake/types/intake.types.js";
 import { RoadmapService } from "../roadmap/roadmap.service.js";
 import type { Roadmap } from "../roadmap/types/roadmap.types.js";
 import type { Database } from "../supabase/database.types.js";
@@ -20,7 +16,6 @@ import type {
   AdminGoalCoachMemory,
   AdminGoalDebrief,
   AdminGoalDetail,
-  AdminGoalEmbedding,
   AdminGoalList,
   AdminGoalMilestone,
   AdminGoalRoadmap,
@@ -38,8 +33,6 @@ type MilestoneRow = Database["public"]["Tables"]["milestones"]["Row"];
 type TaskRow = Database["public"]["Tables"]["tasks"]["Row"];
 type DebriefRow = Database["public"]["Tables"]["debriefs"]["Row"];
 type CoachMemoryRow = Database["public"]["Tables"]["coach_memories"]["Row"];
-type ContextEmbeddingRow =
-  Database["public"]["Tables"]["context_embeddings"]["Row"];
 type UserRow = Database["public"]["Tables"]["users"]["Row"];
 
 @Injectable()
@@ -49,7 +42,6 @@ export class GoalsService {
   constructor(
     private readonly supabaseService: SupabaseService,
     private readonly intakeProfileService: IntakeProfileService,
-    private readonly intakeReembedService: IntakeReembedService,
     private readonly roadmapService: RoadmapService,
     private readonly languageService: UserLanguageService,
   ) {}
@@ -217,29 +209,6 @@ export class GoalsService {
     return data.map(mapCoachMemory);
   }
 
-  public async getEmbeddings(
-    goalId: string,
-    limit: number,
-  ): Promise<AdminGoalEmbedding[]> {
-    await this.requireGoalById(goalId);
-    const supabase = this.supabaseService.getAdminClient();
-    const { data, error } = await supabase
-      .from("context_embeddings")
-      .select("id, content_type, content_text, batch_id, metadata, created_at")
-      .eq("goal_id", goalId)
-      .order("created_at", { ascending: false })
-      .limit(limit);
-
-    if (error !== null) {
-      this.logger.error(
-        `Failed to load embeddings for ${goalId}: ${error.message}`,
-      );
-      throw new InternalServerErrorException("Failed to load embeddings");
-    }
-
-    return data.map(mapEmbedding);
-  }
-
   public async regenerateProfile(goalId: string): Promise<ProfileResult> {
     const goal = await this.requireGoalById(goalId);
     const language = await this.languageService.getLanguage(goal.user_id);
@@ -255,11 +224,6 @@ export class GoalsService {
     const goal = await this.requireGoalById(goalId);
     await this.resetRoadmapState(goal.id);
     return this.roadmapService.generateMilestones(goal.id, goal.user_id);
-  }
-
-  public async reembedGoal(goalId: string): Promise<ReembedResult> {
-    await this.requireGoalById(goalId);
-    return this.intakeReembedService.reembedGoal(goalId);
   }
 
   public async deleteGoal(goalId: string): Promise<void> {
@@ -494,26 +458,5 @@ function mapCoachMemory(row: CoachMemoryRow): AdminGoalCoachMemory {
     id: row.id,
     content: row.content,
     updatedAt: row.updated_at,
-  };
-}
-
-function mapEmbedding(
-  row: Pick<
-    ContextEmbeddingRow,
-    | "id"
-    | "content_type"
-    | "content_text"
-    | "batch_id"
-    | "metadata"
-    | "created_at"
-  >,
-): AdminGoalEmbedding {
-  return {
-    id: row.id,
-    contentType: row.content_type,
-    contentText: row.content_text,
-    batchId: row.batch_id,
-    metadata: row.metadata,
-    createdAt: row.created_at,
   };
 }

@@ -7,7 +7,6 @@ import {
   getGoal,
   getGoalCoachMemory,
   getGoalDebriefs,
-  getGoalEmbeddings,
   getGoalIntake,
   getGoalRoadmap,
   getGoalWeeklyTasks,
@@ -16,7 +15,6 @@ import type {
   AdminGoalCoachMemory,
   AdminGoalDebrief,
   AdminGoalDetail,
-  AdminGoalEmbedding,
   AdminGoalIntakeBatch,
   AdminGoalRoadmap,
   AdminGoalWeeklyTask,
@@ -57,9 +55,8 @@ export default async function GoalDetailPage({
   let weeklyTasks: AdminGoalWeeklyTask[];
   let debriefs: AdminGoalDebrief[];
   let coachMemory: AdminGoalCoachMemory[];
-  let embeddings: AdminGoalEmbedding[];
   try {
-    [goal, intake, roadmap, weeklyTasks, debriefs, coachMemory, embeddings] =
+    [goal, intake, roadmap, weeklyTasks, debriefs, coachMemory] =
       await Promise.all([
         getGoal(id),
         getGoalIntake(id),
@@ -67,7 +64,6 @@ export default async function GoalDetailPage({
         getGoalWeeklyTasks(id),
         getGoalDebriefs(id),
         getGoalCoachMemory(id),
-        getGoalEmbeddings(id),
       ]);
   } catch (error) {
     if (error instanceof ApiError && error.status === 404) {
@@ -101,7 +97,6 @@ export default async function GoalDetailPage({
         weeklyTasks={<WeeklyTasksTab tasks={weeklyTasks} />}
         debriefs={<DebriefsTab debriefs={debriefs} />}
         coachMemory={<CoachMemoryTab entries={coachMemory} />}
-        embeddings={<EmbeddingsTab embeddings={embeddings} />}
       />
 
       <GoalDangerZone id={goal.id} title={goal.title} />
@@ -372,32 +367,6 @@ function CoachMemoryTab({ entries }: { entries: AdminGoalCoachMemory[] }) {
               {formatDate(entry.updatedAt)}
             </p>
             <p className="text-sm whitespace-pre-wrap">{entry.content}</p>
-          </CardContent>
-        </Card>
-      ))}
-    </div>
-  );
-}
-
-function EmbeddingsTab({ embeddings }: { embeddings: AdminGoalEmbedding[] }) {
-  if (embeddings.length === 0) {
-    return <EmptyState title="No embeddings yet" />;
-  }
-  return (
-    <div className="space-y-2">
-      {embeddings.map((e) => (
-        <Card key={e.id} className="border-border/60 shadow-none">
-          <CardContent className="space-y-2 p-4">
-            <div className="flex items-center justify-between text-xs text-muted-foreground">
-              <span className="font-mono uppercase tracking-wider">
-                {e.contentType}
-              </span>
-              <span className="tabular-nums">{formatDate(e.createdAt)}</span>
-            </div>
-            <p className="text-sm whitespace-pre-wrap">{e.contentText}</p>
-            {e.metadata !== null && e.metadata !== undefined ? (
-              <JsonViewer value={e.metadata} />
-            ) : null}
           </CardContent>
         </Card>
       ))}

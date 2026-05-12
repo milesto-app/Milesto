@@ -4,7 +4,6 @@ import {
   Injectable,
   Logger,
 } from "@nestjs/common";
-import { EventEmitter2 } from "@nestjs/event-emitter";
 
 import { UserLanguageService } from "../common/user-language.service.js";
 import { getUniversalBatch1 } from "../config/questions.config.js";
@@ -14,11 +13,7 @@ import type { QuestionConfig } from "./intake-data.service.js";
 import { IntakeDataService } from "./intake-data.service.js";
 import { IntakeGenerationService } from "./intake-generation.service.js";
 import { validateAnswerSet } from "./intake-validators.js";
-import type {
-  AnswerInput,
-  BatchAnsweredEvent,
-  BatchParams,
-} from "./types/intake.types.js";
+import type { AnswerInput, BatchParams } from "./types/intake.types.js";
 
 @Injectable()
 export class IntakeBatchService {
@@ -28,7 +23,6 @@ export class IntakeBatchService {
   constructor(
     private readonly goalService: GoalService,
     private readonly dataService: IntakeDataService,
-    @Inject(EventEmitter2) private readonly eventEmitter: EventEmitter2,
   ) {}
 
   @Inject()
@@ -81,12 +75,6 @@ export class IntakeBatchService {
     validateAnswerSet(answers, questions);
     await this.dataService.persistAnswers(answers, batch.id);
     await this.tryExtractTargetDate(goalId, questions, answers);
-    this.eventEmitter.emit("batch.answered", {
-      goal_id: goalId,
-      batch_id: batch.id,
-      batch_number: batch.batch_number,
-      user_id: userId,
-    } satisfies BatchAnsweredEvent);
     return this.tryGenerateNext(batch, {
       userId,
       goalId,

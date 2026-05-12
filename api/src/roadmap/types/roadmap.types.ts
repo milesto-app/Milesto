@@ -80,7 +80,6 @@ export type MilestoneSummary = Pick<
 export interface GenerationMetadata {
   model_used: string;
   latency_ms: number;
-  context_chunks_used: number;
   attempts: number;
   prompt_tokens?: number | undefined;
   completion_tokens?: number | undefined;

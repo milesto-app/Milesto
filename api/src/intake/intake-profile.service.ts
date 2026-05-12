@@ -4,7 +4,6 @@ import {
   Injectable,
   Logger,
 } from "@nestjs/common";
-import { EventEmitter2 } from "@nestjs/event-emitter";
 
 import { AiService } from "../ai/ai.service.js";
 import { UserLanguageService } from "../common/user-language.service.js";
@@ -22,7 +21,6 @@ import {
   buildProfileUserPrompt,
 } from "./prompts/profile-prompts.js";
 import type {
-  ProfileGeneratedEvent,
   ProfileGenParams,
   ProfileResult,
   StoreProfileParams,
@@ -37,7 +35,6 @@ export class IntakeProfileService {
   constructor(
     private readonly supabaseService: SupabaseService,
     private readonly goalService: GoalService,
-    @Inject(EventEmitter2) private readonly eventEmitter: EventEmitter2,
   ) {}
 
   @Inject()
@@ -103,7 +100,7 @@ export class IntakeProfileService {
       if (profile === null) {
         return { profile_id: null, profile_status: FAILED_STATUS };
       }
-      return await this.storeProfile(params.userId, params.goalId, profile);
+      return await this.storeProfile(params.goalId, profile);
     } catch (error) {
       this.logger.error(
         `Profile generation failed for goal ${params.goalId}: ${error instanceof Error ? error.message : String(error)}`,
@@ -179,7 +176,6 @@ export class IntakeProfileService {
   }
 
   private async storeProfile(
-    userId: string,
     goalId: string,
     profile: GoalProfile,
   ): Promise<ProfileResult> {
@@ -200,11 +196,6 @@ export class IntakeProfileService {
     }
     await this.dataService.updateGoalStatus(goalId, "intake_completed");
     this.logger.log(`Profile generated and stored for goal ${goalId}`);
-    this.eventEmitter.emit("profile.generated", {
-      goal_id: goalId,
-      profile_id: goalId,
-      user_id: userId,
-    } satisfies ProfileGeneratedEvent);
     return { profile_id: goalId, profile_status: "intake_completed" };
   }
 

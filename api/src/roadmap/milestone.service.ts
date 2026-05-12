@@ -4,7 +4,6 @@ import {
   Logger,
   NotFoundException,
 } from "@nestjs/common";
-import { EventEmitter2 } from "@nestjs/event-emitter";
 
 import { AiService } from "../ai/ai.service.js";
 import { UserLanguageService } from "../common/user-language.service.js";
@@ -17,7 +16,6 @@ import {
   buildWeeklySummaryNarrativeSystemPrompt,
   buildWeeklySummaryNarrativeUserPrompt,
 } from "./prompts/milestone-summary-prompts.js";
-import { RoadmapContextService } from "./roadmap-context.service.js";
 import type {
   GenerationContext,
   Milestone,
@@ -47,11 +45,9 @@ export class MilestoneService {
   private readonly logger = new Logger(MilestoneService.name);
 
   constructor(
-    private readonly contextPipeline: RoadmapContextService,
     private readonly aiService: AiService,
     private readonly languageService: UserLanguageService,
     private readonly supabaseService: SupabaseService,
-    private readonly eventEmitter: EventEmitter2,
     private readonly weekStateService: WeekStateService,
   ) {}
 
@@ -75,7 +71,7 @@ export class MilestoneService {
     }
 
     const language = await this.languageService.getLanguage(userId);
-    await this.summarizePreviousActiveMilestone(goalId, userId, language);
+    await this.summarizePreviousActiveMilestone(goalId, language);
     await this.generateMonthlySummaryIfNeeded({ goalId, userId, language });
 
     const supabase = this.supabaseService.getAdminClient();
@@ -107,16 +103,13 @@ export class MilestoneService {
       nextRow as Milestone,
     );
 
-    const { generation_metadata: genMetadata, model } =
-      await this.generateMilestoneContext(goalId, userId);
-
     const { data: updatedRow, error: updateError } = await supabase
       .from("milestones")
       .update({
         starts_at: startsAt,
         generation_context: generationContext as unknown as Json,
-        generation_metadata: genMetadata as unknown as Json,
-        model_used: model,
+        generation_metadata: { activated_at: new Date().toISOString() },
+        model_used: null,
         is_fallback: false,
       })
       .eq("id", nextRow.id)
@@ -136,7 +129,6 @@ export class MilestoneService {
   public async summarizeMilestone(
     milestoneId: string,
     goalId: string,
-    userId: string,
     language: string,
   ): Promise<void> {
     const supabase = this.supabaseService.getAdminClient();
@@ -167,17 +159,6 @@ export class MilestoneService {
       );
     }
 
-    const contentText = formatSummaryForEmbedding(
-      summary,
-      milestone.order_index,
-    );
-    this.eventEmitter.emit("summary.generated", {
-      planId: milestoneId,
-      goalId,
-      userId,
-      summary,
-      contentText,
-    });
   }
 
   public async queryWeekDataForMilestone(
@@ -252,35 +233,8 @@ export class MilestoneService {
     return (data?.summary as unknown as WeeklySummary | null) ?? null;
   }
 
-  private async generateMilestoneContext(
-    goalId: string,
-    userId: string,
-  ): Promise<{
-    generation_metadata: Record<string, unknown>;
-    model: string | null;
-  }> {
-    // Generation context is stored as JSONB — objectives are kept internally
-    // but not stored as a separate DB column.
-    // Return metadata from context assembly (no separate AI call needed for activation).
-    try {
-      await this.contextPipeline.assembleContext(goalId, userId);
-      return {
-        generation_metadata: {
-          activated_at: new Date().toISOString(),
-        },
-        model: null,
-      };
-    } catch (error) {
-      this.logger.warn(
-        `Context assembly skipped for milestone activation: ${error instanceof Error ? error.message : String(error)}`,
-      );
-      return { generation_metadata: {}, model: null };
-    }
-  }
-
   private async summarizePreviousActiveMilestone(
     goalId: string,
-    userId: string,
     language: string,
   ): Promise<void> {
     // Find the last milestone that has starts_at set, is completed, but has no summary
@@ -301,7 +255,7 @@ export class MilestoneService {
     }
 
     const milestone = this.mapMilestoneRow(data);
-    await this.summarizeMilestone(milestone.id, goalId, userId, language);
+    await this.summarizeMilestone(milestone.id, goalId, language);
   }
 
   private async generateMonthlySummaryIfNeeded(params: {
@@ -424,19 +378,8 @@ export class MilestoneService {
       this.logger.warn(
         `Failed to store monthly summary on milestone ${params.milestone.id}: ${error.message}`,
       );
-      return;
+      
     }
-    const contentText = formatMonthlySummaryForEmbedding(
-      monthlySummary,
-      params.milestone.target_month,
-    );
-    this.eventEmitter.emit("summary.generated", {
-      planId: params.milestone.id,
-      goalId: params.goalId,
-      userId: params.userId,
-      summary: monthlySummary,
-      contentText,
-    });
   }
 
   private async generateWeeklySummary(
@@ -654,32 +597,3 @@ function aggregateWeeklyTotals(weeklySummaries: WeeklySummary[]): {
   };
 }
 
-function formatSummaryForEmbedding(
-  summary: WeeklySummary,
-  orderIndex: number,
-): string {
-  const lines = [
-    `Milestone Summary (Milestone ${String(orderIndex)}):`,
-    `Completion: ${String(summary.tasks_completed)}/${String(summary.tasks_total)} (${String(summary.completion_rate)}%)`,
-    `Debriefs: ${String(summary.debrief_count ?? 0)}`,
-  ];
-  if (summary.narrative !== undefined && summary.narrative.length > 0) {
-    lines.push(summary.narrative);
-  }
-  return lines.join("\n");
-}
-
-function formatMonthlySummaryForEmbedding(
-  summary: MonthlySummary,
-  targetMonth: number,
-): string {
-  const lines = [
-    `Monthly Summary (Month ${String(targetMonth)}):`,
-    `Completion: ${String(summary.tasks_completed)}/${String(summary.tasks_total)} (${String(summary.completion_rate)}%)`,
-    `Debriefs: ${String(summary.debrief_count)}`,
-  ];
-  if (summary.narrative !== undefined && summary.narrative.length > 0) {
-    lines.push(summary.narrative);
-  }
-  return lines.join("\n");
-}
