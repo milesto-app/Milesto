@@ -5,32 +5,27 @@ struct StatsStreakSection: View {
     let best: Int
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 14) {
-            AppText("stats.streak.title", table: "Stats", style: .headline)
-
-            HStack(spacing: 16) {
-                streakItem(icon: .flame, value: current, label: "stats.streak.current")
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                streakItem(icon: .trophy, value: best, label: "stats.streak.best")
-                    .frame(maxWidth: .infinity, alignment: .leading)
-            }
+        HStack(spacing: 12) {
+            tile(value: current, label: "stats.streak.current")
+            tile(value: best, label: "stats.streak.best")
         }
     }
 
-    private func streakItem(
-        icon: TablerIcon,
+    private func tile(
         value: Int,
         label: LocalizedStringKey
     ) -> some View {
-        VStack(alignment: .leading, spacing: 6) {
-            HStack(spacing: 8) {
-                TablerIcons(icon, size: 18, color: Color("Brand"))
-                AppText(verbatim: "\(value)", style: .title)
-                    .weight(.semibold)
-            }
+        let shape = RoundedRectangle(cornerRadius: 20, style: .continuous)
 
-            AppText(label, table: "Stats", style: .caption)
-                .color(Color("TextSecondary"))
+        return VStack(alignment: .leading, spacing: 10) {
+            AppText(label, table: "Stats", style: .headline)
+
+            AppText(verbatim: "\(value)", style: .title)
+                .weight(.semibold)
+                .color(Color("Brand"))
         }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(20)
+        .background(Color("BackgroundSecondary"), in: shape)
     }
 }

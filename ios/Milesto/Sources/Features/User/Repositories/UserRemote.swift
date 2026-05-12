@@ -45,4 +45,8 @@ final class UserRemote {
             return nil
         }
     }
+
+    func deleteAccount() async throws {
+        try await ApiClient.shared.requestVoid(method: "DELETE", path: "me")
+    }
 }

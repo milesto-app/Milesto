@@ -86,4 +86,19 @@ final class SettingsViewModel {
             showError = true
         }
     }
+
+    @discardableResult
+    func deleteAccount() async -> Bool {
+        isDeleting = true
+        defer { isDeleting = false }
+        do {
+            try await env.settings.deleteAccount()
+            await env.auth.clearLocalSession()
+            return true
+        } catch {
+            errorMessage = error.localizedDescription
+            showError = true
+            return false
+        }
+    }
 }
