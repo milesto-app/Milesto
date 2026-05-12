@@ -43,24 +43,14 @@ struct StatsView: View {
     }
 
     private func loadedContent(model: StatsViewModel, stats: StatsDTO) -> some View {
-        let thisWeekCompleted = stats.weeklyProgress.last?.objectivesCompleted
-            ?? Int(stats.completion.thisWeekRate * Double(stats.completion.totalObjectives))
-        let thisWeekTotal = stats.weeklyProgress.last?.objectivesTotal ?? stats.completion.totalObjectives
-
-        return ScrollView(showsIndicators: false) {
+        ScrollView(showsIndicators: false) {
             VStack(spacing: 0) {
                 statsTitle
 
-                VStack(alignment: .leading, spacing: 28) {
-                    StatsHeroSection(
-                        completed: stats.completion.totalCompleted,
-                        total: stats.completion.totalObjectives
-                    )
-
-                    StatsThisWeekSection(
-                        completed: thisWeekCompleted,
-                        total: thisWeekTotal
-                    )
+                VStack(alignment: .leading, spacing: 14) {
+                    if let targetDate = model.targetDate {
+                        StatsCountdownCard(targetDate: targetDate)
+                    }
 
                     StatsStreakSection(
                         current: stats.streak.current,
@@ -69,12 +59,14 @@ struct StatsView: View {
 
                     StatsActivitySection(days: stats.streak.last7Days)
 
-                    StatsMilestonesSection(
-                        completed: stats.milestones.completed,
-                        total: stats.milestones.total
-                    )
+                    if stats.milestones.total > 0 {
+                        StatsMilestonesSection(
+                            completed: stats.milestones.completed,
+                            total: stats.milestones.total
+                        )
+                    }
                 }
-                .padding(.horizontal, 24)
+                .padding(.horizontal, 20)
                 .padding(.bottom, 100)
                 .opacity(model.hasAppeared ? 1 : 0)
                 .offset(y: model.hasAppeared ? 0 : 12)
@@ -88,7 +80,7 @@ struct StatsView: View {
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.horizontal, 24)
             .padding(.top, 32)
-            .padding(.bottom, 28)
+            .padding(.bottom, 24)
     }
 
     private func errorView(model: StatsViewModel) -> some View {
