@@ -1,7 +1,9 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
+  HttpCode,
   HttpStatus,
   Patch,
   UseGuards,
@@ -51,5 +53,19 @@ export class UserController {
     @Body() dto: UpdateUserDto,
   ): Promise<UserResponse> {
     return this.userService.update(userId, dto);
+  }
+
+  @Delete()
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({
+    summary: "Delete the authenticated user's account and all related data",
+  })
+  @ApiResponse({
+    status: HttpStatus.NO_CONTENT,
+    description: "Account deleted",
+  })
+  @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: "Unauthorized" })
+  public async deleteMe(@UserId() userId: string): Promise<void> {
+    await this.userService.deleteAccount(userId);
   }
 }

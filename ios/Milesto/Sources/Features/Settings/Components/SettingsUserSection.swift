@@ -139,6 +139,7 @@ struct SettingsDangerSection: View {
     let isDeleting: Bool
     let onDeleteGoal: () -> Void
     let onSignOut: () -> Void
+    let onDeleteAccount: () -> Void
     var onUnlockDesignSystem: (() -> Void)?
 
     @State private var versionTapCount: Int = 0
@@ -161,6 +162,13 @@ struct SettingsDangerSection: View {
                 label: "settings.signOut",
                 action: onSignOut
             )
+
+            dangerButton(
+                icon: .userX,
+                label: "settings.deleteAccount",
+                action: onDeleteAccount
+            )
+            .disabled(isDeleting)
         } footer: {
             HStack {
                 Spacer()

@@ -25,4 +25,8 @@ final class SettingsRepository {
     func deleteGoal(goalId: String) async throws {
         try await goals.deleteGoal(goalId: goalId)
     }
+
+    func deleteAccount() async throws {
+        try await user.deleteAccount()
+    }
 }
