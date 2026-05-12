@@ -9,7 +9,7 @@ struct DebriefBannerCard: View {
     @State private var showWeeklyPlanGeneration = false
 
     var body: some View {
-        Group {
+        VStack(spacing: 0) {
             if let model, model.shouldDisplay {
                 DebriefPromptCard {
                     showDebriefSheet = true
@@ -17,7 +17,11 @@ struct DebriefBannerCard: View {
                 .padding(.horizontal, 16)
             }
         }
+        .onAppear {
+            NSLog("[DebriefBanner] onAppear goalId='\(goalId)' empty=\(goalId.isEmpty)")
+        }
         .task(id: goalId) {
+            NSLog("[DebriefBanner] task fired goalId='\(goalId)'")
             if model == nil {
                 let vm = DebriefBannerViewModel(env: env)
                 vm.configure(goalId: goalId)
@@ -25,13 +29,27 @@ struct DebriefBannerCard: View {
             }
             await model?.refresh()
         }
+        .onReceive(NotificationCenter.default.publisher(for: .weeklyTasksDidChange)) { _ in
+            NSLog("[DebriefBanner] received tasksDidChange goalId='\(goalId)' modelNil=\(model == nil)")
+            if model == nil {
+                let vm = DebriefBannerViewModel(env: env)
+                vm.configure(goalId: goalId)
+                model = vm
+            }
+            Task { await model?.refresh() }
+        }
         .sheet(isPresented: $showDebriefSheet) {
             if let model, let weeklyPlanId = model.weeklyPlanId {
                 DebriefSheetView(
                     goalId: goalId,
                     weeklyPlanId: weeklyPlanId,
                     onDebriefComplete: {
-                        showWeeklyPlanGeneration = true
+                        Task {
+                            await model.refresh()
+                            if model.weekState == .noPlan {
+                                showWeeklyPlanGeneration = true
+                            }
+                        }
                     }
                 )
                 .appPresentationBackground()

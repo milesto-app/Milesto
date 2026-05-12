@@ -3,7 +3,6 @@ import {
   Get,
   HttpStatus,
   Logger,
-  NotFoundException,
   Param,
   Post,
   UseGuards,
@@ -23,7 +22,9 @@ import { config } from "../config/app.config.js";
 import { RoadmapService } from "./roadmap.service.js";
 import { RoadmapDataService } from "./roadmap-data.service.js";
 import type { Roadmap } from "./types/roadmap.types.js";
+import type { WeeklyPlanResponse } from "./types/week-state.types.js";
 import type { WeeklyPlan } from "./types/weekly-plan.types.js";
+import { WeekStateService } from "./week-state.service.js";
 import { WeeklyPlanService } from "./weekly-plan.service.js";
 
 @ApiTags("roadmap")
@@ -37,6 +38,7 @@ export class RoadmapController {
     private readonly roadmapService: RoadmapService,
     private readonly weeklyPlanService: WeeklyPlanService,
     private readonly roadmapDataService: RoadmapDataService,
+    private readonly weekStateService: WeekStateService,
   ) {}
 
   @Get()
@@ -62,30 +64,20 @@ export class RoadmapController {
 
   @Get("weekly-plan")
   @ApiOperation({
-    summary: "Read the active weekly plan for a goal",
+    summary: "Read the current weekly plan and week state for a goal",
   })
   @ApiParam({ name: "goalId", description: "Goal ID" })
   @ApiResponse({
     status: HttpStatus.OK,
-    description: "Active weekly plan",
-  })
-  @ApiResponse({
-    status: HttpStatus.NOT_FOUND,
-    description: "No active weekly plan",
+    description:
+      "Latest weekly plan wrapped with derived week state and next-week unlock date",
   })
   @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: "Unauthorized" })
   public async getActiveWeeklyPlan(
     @Param("goalId") goalId: string,
     @UserId() userId: string,
-  ): Promise<WeeklyPlan> {
-    const plan = await this.weeklyPlanService.getCurrentWeeklyPlan(
-      goalId,
-      userId,
-    );
-    if (plan === null) {
-      throw new NotFoundException("No active weekly plan");
-    }
-    return plan;
+  ): Promise<WeeklyPlanResponse> {
+    return this.weekStateService.computeForGoal(goalId, userId);
   }
 
   @Post("generate")
@@ -143,6 +135,10 @@ export class RoadmapController {
   @ApiResponse({
     status: HttpStatus.NOT_FOUND,
     description: "No roadmap found for this goal",
+  })
+  @ApiResponse({
+    status: HttpStatus.CONFLICT,
+    description: "Next weekly plan unlocks on a future date (user in advance)",
   })
   @ApiResponse({
     status: HttpStatus.TOO_MANY_REQUESTS,

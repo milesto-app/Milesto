@@ -58,6 +58,7 @@ export interface GenerateAndStoreParams {
   roadmap: Pick<Roadmap, "goal_id" | "created_at">;
   milestone: Milestone;
   weekNumber: number;
+  weekStartDate: string;
   generationContext: GenerationContext;
   language: string;
 }

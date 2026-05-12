@@ -1,4 +1,4 @@
-import { Injectable, Logger } from "@nestjs/common";
+import { ConflictException, Injectable, Logger } from "@nestjs/common";
 import { EventEmitter2 } from "@nestjs/event-emitter";
 
 import { AiService } from "../ai/ai.service.js";
@@ -26,6 +26,7 @@ import type {
   WeeklyPlan,
   WeeklySummary,
 } from "./types/weekly-plan.types.js";
+import { WeekStateService } from "./week-state.service.js";
 
 const DAYS_PER_WEEK = 7;
 const MONTHLY_SUMMARY_MIN_PLANS = 2;
@@ -55,6 +56,7 @@ export class WeeklyPlanService {
     private readonly usageService: UsageService,
     private readonly supabaseService: SupabaseService,
     private readonly eventEmitter: EventEmitter2,
+    private readonly weekStateService: WeekStateService,
   ) {}
 
   public async getCurrentWeeklyPlan(
@@ -69,6 +71,13 @@ export class WeeklyPlanService {
     userId: string,
   ): Promise<WeeklyPlan> {
     await this.storage.autoCompleteExpiredPlans(goalId, DAYS_PER_WEEK);
+    const { isAllowed, nextUnlockDate } =
+      await this.weekStateService.isGenerationAllowed(goalId, userId);
+    if (!isAllowed) {
+      throw new ConflictException(
+        `Next weekly plan unlocks on ${nextUnlockDate}`,
+      );
+    }
     const language = await this.languageService.getLanguage(userId);
     await this.summarizePreviousWeek(goalId, userId, language);
     await this.generateMonthlySummaryIfNeeded({ goalId, userId, language });
@@ -112,6 +121,10 @@ export class WeeklyPlanService {
       userId,
     );
     const weekNumber = await this.storage.calculateWeekNumber(goalId);
+    const weekStartDate = await this.weekStateService.getNextWeekStartDate(
+      goalId,
+      userId,
+    );
     const lastCompleted =
       await this.storage.getLastCompletedPlanWithoutSummary(goalId);
     const ms = milestone as Milestone & {
@@ -133,6 +146,7 @@ export class WeeklyPlanService {
         roadmap,
         milestone,
         weekNumber,
+        weekStartDate,
         generationContext,
         language,
       });
@@ -140,7 +154,13 @@ export class WeeklyPlanService {
       this.logger.warn(
         `Weekly plan generation failed, creating fallback: ${error instanceof Error ? error.message : String(error)}`,
       );
-      return this.createFallbackOrThrow(milestone, goalId, userId, weekNumber);
+      return this.createFallbackOrThrow(
+        milestone,
+        goalId,
+        userId,
+        weekNumber,
+        weekStartDate,
+      );
     }
   }
 
@@ -174,7 +194,7 @@ export class WeeklyPlanService {
       goal_id: params.goalId,
       user_id: params.userId,
       week_number: params.weekNumber,
-      week_start_date: this.storage.getCurrentWeekStart(),
+      week_start_date: params.weekStartDate,
       objectives: generated.objectives,
       generation_context: params.generationContext as unknown as Record<
         string,
@@ -193,6 +213,7 @@ export class WeeklyPlanService {
     goalId: string,
     userId: string,
     weekNumber: number,
+    weekStartDate: string,
   ): Promise<WeeklyPlan> {
     try {
       this.logger.warn(
@@ -203,7 +224,7 @@ export class WeeklyPlanService {
         goal_id: goalId,
         user_id: userId,
         week_number: weekNumber,
-        week_start_date: this.storage.getCurrentWeekStart(),
+        week_start_date: weekStartDate,
         objectives: [milestone.expected_outcome],
         generation_context: {},
         is_fallback: true,

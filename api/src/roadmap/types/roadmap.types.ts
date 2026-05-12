@@ -23,6 +23,7 @@ export interface Milestone {
   target_month: number;
   target_week: number;
   is_monthly_checkpoint: boolean;
+  completed_at: string | null;
   created_at: string;
 }
 

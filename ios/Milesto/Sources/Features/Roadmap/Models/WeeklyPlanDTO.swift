@@ -5,6 +5,30 @@ enum WeeklyPlanStatus: String, Codable {
     case completed
 }
 
+enum WeekState: String, Codable {
+    case noPlan = "no_plan"
+    case active
+    case readyToDebrief = "ready_to_debrief"
+    case inAdvance = "in_advance"
+    case late
+}
+
+struct WeeklyPlanResponseDTO: Codable {
+    let plan: WeeklyPlanDTO?
+    let weekState: WeekState
+    let nextWeekStartsAt: String?
+    let allTasksCompleted: Bool
+    let hasDebrief: Bool
+
+    enum CodingKeys: String, CodingKey {
+        case plan
+        case weekState = "week_state"
+        case nextWeekStartsAt = "next_week_starts_at"
+        case allTasksCompleted = "all_tasks_completed"
+        case hasDebrief = "has_debrief"
+    }
+}
+
 struct WeeklyPlanDTO: Codable {
     let id: String
     let milestoneId: String

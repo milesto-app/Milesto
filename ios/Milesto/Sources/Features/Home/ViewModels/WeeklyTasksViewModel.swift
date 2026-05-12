@@ -54,6 +54,7 @@ final class WeeklyTasksViewModel {
                 if let idx = tasks.firstIndex(where: { $0.id == confirmed.id }) {
                     tasks[idx] = confirmed
                 }
+                NotificationCenter.default.post(name: .weeklyTasksDidChange, object: nil)
             } catch {
                 if let idx = tasks.firstIndex(where: { $0.id == original.id }) {
                     tasks[idx] = original
@@ -61,4 +62,8 @@ final class WeeklyTasksViewModel {
             }
         }
     }
+}
+
+extension Notification.Name {
+    static let weeklyTasksDidChange = Notification.Name("weeklyTasksDidChange")
 }

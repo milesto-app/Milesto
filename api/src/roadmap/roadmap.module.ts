@@ -10,6 +10,7 @@ import { RoadmapContextService } from "./roadmap-context.service.js";
 import { RoadmapDataService } from "./roadmap-data.service.js";
 import { RoadmapGenerationService } from "./roadmap-generation.service.js";
 import { SummaryEmbeddingService } from "./summary-embedding.service.js";
+import { WeekStateService } from "./week-state.service.js";
 import { WeeklyPlanService } from "./weekly-plan.service.js";
 
 @Module({
@@ -21,6 +22,7 @@ import { WeeklyPlanService } from "./weekly-plan.service.js";
     RoadmapGenerationService,
     RoadmapService,
     RoadmapDataService,
+    WeekStateService,
     WeeklyPlanService,
     SummaryEmbeddingService,
   ],
@@ -30,6 +32,7 @@ import { WeeklyPlanService } from "./weekly-plan.service.js";
     RoadmapService,
     RoadmapDataService,
     RoadmapGenerationService,
+    WeekStateService,
     WeeklyPlanService,
   ],
 })

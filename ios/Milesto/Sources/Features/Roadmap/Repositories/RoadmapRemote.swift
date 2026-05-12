@@ -18,16 +18,11 @@ final class RoadmapRemote {
         )
     }
 
-    func getWeeklyPlan(goalId: String) async throws -> WeeklyPlanDTO? {
-        do {
-            let plan: WeeklyPlanDTO = try await ApiClient.shared.request(
-                method: "GET",
-                path: "goals/\(goalId)/roadmap/weekly-plan"
-            )
-            return plan
-        } catch ApiError.httpError(statusCode: 404, _) {
-            return nil
-        }
+    func getWeeklyPlan(goalId: String) async throws -> WeeklyPlanResponseDTO {
+        try await ApiClient.shared.request(
+            method: "GET",
+            path: "goals/\(goalId)/roadmap/weekly-plan"
+        )
     }
 
     func generateWeeklyPlan(goalId: String) async throws -> WeeklyPlanDTO {

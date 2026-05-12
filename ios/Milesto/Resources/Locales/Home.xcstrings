@@ -35,6 +35,57 @@
         }
       }
     },
+    "home.inAdvance.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "You're ahead"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tu es en avance"
+          }
+        }
+      }
+    },
+    "home.inAdvance.subtitle" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Take a breath. Your next week unlocks on Monday."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Respire. Ta prochaine semaine s'ouvre lundi."
+          }
+        }
+      }
+    },
+    "home.inAdvance.subtitle.countdown" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Take a breath. Your next week unlocks on %@."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Respire. Ta prochaine semaine s'ouvre le %@."
+          }
+        }
+      }
+    },
     "home.journey.deadline" : {
       "extractionState" : "manual",
       "localizations" : {

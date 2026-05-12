@@ -32,9 +32,17 @@ final class RoadmapRepository {
         try await remote.getWeeklyTasks(goalId: goalId)
     }
 
+    func fetchWeeklyPlanState(goalId: String) async throws -> WeeklyPlanResponseDTO {
+        try await remote.getWeeklyPlan(goalId: goalId)
+    }
+
     func fetchWeeklyPlan(goalId: String) async throws -> WeeklyPlanDTO? {
-        if let existing = try? await remote.getWeeklyPlan(goalId: goalId) {
+        let response = try await remote.getWeeklyPlan(goalId: goalId)
+        if let existing = response.plan, existing.status == .active {
             return existing
+        }
+        if response.weekState == .inAdvance {
+            return response.plan
         }
         return try? await remote.generateWeeklyPlan(goalId: goalId)
     }

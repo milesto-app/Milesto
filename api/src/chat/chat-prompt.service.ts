@@ -2,6 +2,7 @@ import { Injectable, Logger, NotFoundException } from "@nestjs/common";
 
 import { COACH_BY_ID } from "../coach/coaches.config.js";
 import { config } from "../config/app.config.js";
+import { WeekStateService } from "../roadmap/week-state.service.js";
 import { SupabaseService } from "../supabase/supabase.service.js";
 import type { PromptInput } from "./chat-prompt.builder.js";
 import { buildCoachPrompt } from "./chat-prompt.builder.js";
@@ -18,7 +19,10 @@ type GoalContext = PromptInput["goalContext"];
 export class ChatPromptService {
   private readonly logger = new Logger(ChatPromptService.name);
 
-  constructor(private readonly supabaseService: SupabaseService) {}
+  constructor(
+    private readonly supabaseService: SupabaseService,
+    private readonly weekStateService: WeekStateService,
+  ) {}
 
   public async getUser(
     userId: string,
@@ -56,6 +60,10 @@ export class ChatPromptService {
       plan !== null
         ? await this.fetchMilestone(supabase, plan.milestone_id)
         : null;
+    const weekState = await this.weekStateService.computeForGoal(
+      goalId,
+      userId,
+    );
 
     return {
       goal,
@@ -67,6 +75,12 @@ export class ChatPromptService {
               objectives: plan.objectives,
             }
           : null,
+      weekState: {
+        state: weekState.week_state,
+        next_week_starts_at: weekState.next_week_starts_at,
+        all_tasks_completed: weekState.all_tasks_completed,
+        has_debrief: weekState.has_debrief,
+      },
     };
   }
 

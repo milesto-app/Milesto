@@ -8,6 +8,7 @@ final class DebriefBannerViewModel {
 
     private(set) var weeklyPlanId: String?
     private(set) var shouldDisplay = false
+    private(set) var weekState: WeekState = .active
 
     init(env: AppEnv) {
         self.env = env
@@ -18,18 +19,21 @@ final class DebriefBannerViewModel {
     }
 
     func refresh() async {
-        guard !goalId.isEmpty else { return }
+        NSLog("[DebriefBanner] refresh() called goalId='\(goalId)'")
+        guard !goalId.isEmpty else {
+            NSLog("[DebriefBanner] skipped: empty goalId")
+            return
+        }
 
-        async let tasksAsync = env.roadmap.fetchWeeklyTasks(goalId: goalId)
-        async let planAsync = env.roadmap.fetchWeeklyPlan(goalId: goalId)
-        async let debriefAsync = env.roadmap.fetchLatestDebrief(goalId: goalId)
-        let tasks = (try? await tasksAsync) ?? []
-        let plan: WeeklyPlanDTO? = (try? await planAsync) ?? nil
-        let latest: DebriefDTO? = (try? await debriefAsync) ?? nil
-
-        let allComplete = !tasks.isEmpty && tasks.allSatisfy(\.isCompleted)
-        let debriefMissingForCurrentPlan = latest?.weeklyPlanId != plan?.id
-        weeklyPlanId = plan?.id
-        shouldDisplay = allComplete && debriefMissingForCurrentPlan && plan != nil
+        do {
+            let state = try await env.roadmap.fetchWeeklyPlanState(goalId: goalId)
+            weeklyPlanId = state.plan?.id
+            weekState = state.weekState
+            shouldDisplay = state.weekState == .readyToDebrief
+            NSLog("[DebriefBanner] state=\(state.weekState.rawValue) shouldDisplay=\(shouldDisplay) planId=\(state.plan?.id ?? "nil")")
+        } catch {
+            NSLog("[DebriefBanner] fetch failed: \(error)")
+            shouldDisplay = false
+        }
     }
 }

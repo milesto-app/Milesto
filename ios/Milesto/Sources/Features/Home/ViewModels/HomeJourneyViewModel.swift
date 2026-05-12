@@ -35,19 +35,20 @@ final class HomeJourneyViewModel {
         let milestones = (roadmap?.milestones ?? []).sorted { $0.orderIndex < $1.orderIndex }
         guard !milestones.isEmpty else { return 0 }
 
-        let currentIndex = roadmap?.currentMilestoneId.flatMap { id in
-            milestones.firstIndex { $0.id == id }
-        } ?? 0
+        let completedCount = milestones.filter { $0.completedAt != nil }.count
 
         let currentTaskProgress: Double
-        if tasks.isEmpty {
-            currentTaskProgress = 0
-        } else {
+        if let currentId = roadmap?.currentMilestoneId,
+           milestones.contains(where: { $0.id == currentId }),
+           !tasks.isEmpty
+        {
             let completed = tasks.filter(\.isCompleted).count
             currentTaskProgress = Double(completed) / Double(tasks.count)
+        } else {
+            currentTaskProgress = 0
         }
 
-        return (Double(currentIndex) + currentTaskProgress) / Double(milestones.count)
+        return (Double(completedCount) + currentTaskProgress) / Double(milestones.count)
     }
 
     private static func formattedDeadline(_ date: Date) -> String {
